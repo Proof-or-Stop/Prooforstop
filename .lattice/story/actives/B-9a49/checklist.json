@@ -779,9 +779,10 @@
       "title": "Register declarative REVIEW triage checks and preserve the Agent-System boundary",
       "context": "Register defect-triage-and-routing-check only for active REVIEW role contracts. Preserve the Agent/System boundary explicitly: this metadata is declarative, is not proof that a check ran, is not gate evidence, and does not redefine Dynamic Finding schemas, blocking predicates, freshness, supersession, severity, or applicability.",
       "relatedDocs": [
-        "AGENTS.md",
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
       "status": "done",
       "startTime": "2026-08-31T14:58:45.106Z",
