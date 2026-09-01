@@ -18793,6 +18793,23 @@
       ],
       "signatureTag": "missing|ts|deferred-blocking-unclaimed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-346",
+      "desc": "CORRECTION to B-5a15:F-345 - its stated root cause is DISPROVEN by direct measurement; do not act on F-345's closure explanation. F-345 claimed the four undiscovered actual: refs were outside the bounded closure so sourceScans had no entry. That is FALSE. Dumping basis.sourceInventoryRefs from the current pre-review artifact shows 84 entries INCLUDING source-file:closure:packages/main/src/handlers/verifier.ts and source-file:closure:packages/main/src/handlers/checklist.ts, plus explicit inventory rows source_file:packages/main/src/handlers/verifier.ts#createValidationCausalPreflightGate and source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics. The files ARE scanned and the symbols ARE inventoried. Five hypotheses have now been falsified with evidence: (1) export status - all six endpoint symbols have exactly 1 exported declaration, satisfying exportedCallableCount===1 in endpointMatchesArtifactKind; (2) bounded-closure exclusion - disproven above; (3) enclosing-function attribution - CHK-004's preflightCausalEvidence call at verifier.ts:670 IS lexically inside its declared consumer createValidationCausalPreflightGate (:617-:687); (4) artifact-kind mismatch - CHK-005 uses the same actual:handler: consumer form as the WORKING CHK-001; (5) fileDeclarationRef error - CHK-003 (works) and CHK-004 (fails) both carry correct indices into their own files.modify arrays. DECISIVE COMPARISON: CHK-003 and CHK-004 are structurally identical - exported producer in core/causal-evidence.ts, imported and called directly inside an exported consumer function in a handlers/ file that is in the closure, correct fileDeclarationRef - yet static_call_graph emits an actual: ref for CHK-003 and not for CHK-004. Only the static_call_graph adapter produces actual: refs at all (4 of 36 paths); the other four adapters produce zero. NEXT INVESTIGATOR SHOULD START HERE: instrument producerConsumerRelation (core/acceptance-discovery-adapters.ts:1773) for the CHK-004 endpoint pair and determine which of its five disjuncts (importedCall / lexicalImportedCall / sameFileCall / registryRelation / outputFactContractRelation) the CHK-003 pair satisfies that the CHK-004 pair does not - most likely the call.caller resolution inside analyzeLocalImportCalls, which is the one input not yet directly observed. Per the Debugging Contract this is escalated as a design/architecture question rather than patched on a sixth guess.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-01T19:26:52.341Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "_hash": "c9ca0c01f4dcffeda3f264ccecdffd4e0fa049ada7bd6d25d8347698b3e465bd",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts"
+      ],
+      "signatureTag": "missing|ts|correction-5a15-stated",
+      "signatureTagSource": "auto"
     }
   ]
 }
