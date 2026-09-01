@@ -107,7 +107,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-behavior',
-    templateHash: 'd40626ecaf024b5ddd231f612af99632769f185f7212ef3d473b33dc1bee2c5a',
+    templateHash: 'ddaf54875a3a42772c36cb4db23c5c571974f6d995468ed254b60967faa8f79b',
   },
   {
     role: 'lattice-review-channel',
@@ -115,7 +115,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-concept',
-    templateHash: '1bc4a34ca1f2ea5d8bca82e717d51c8c7a54d6e756717ac4f92c553b4e47d9f9',
+    templateHash: '290f583629b06c326eabac59d1dd45ed5d787e1ffbb6ee061f9d84c9d3dbcaf1',
   },
   {
     role: 'lattice-review-delivery',
@@ -123,11 +123,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-docs',
-    templateHash: 'd79ebce08bd83181418f21f88149dd1019036431661ec4d50c5a3732a09edb51',
+    templateHash: '27c7b360dcb84324f5fd5cc06bc12a6e6426764d2275fd9c1e5b03b670cf8d8b',
   },
   {
     role: 'lattice-review-quality',
-    templateHash: '327b9b3e20d22c0e38c49bec6ba1c0c4b7b29f258ae0d644d8f470c34780265b',
+    templateHash: '751b7693f61fab9d690b3f59cc2458f71ddb1086f0e661dff5258b4c8270761d',
   },
   {
     role: 'lattice-review-scope-plan',
@@ -139,7 +139,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-test-coverage',
-    templateHash: '981823fca82f0400bf63747d889dda943f019976377bb7f602e4964cf5f9fc2f',
+    templateHash: '2ae4a355a3efd3d692590b6eeec461f327bc8008450e13b0454b073322ef4563',
   },
   {
     role: 'lattice-review-topology-critic',

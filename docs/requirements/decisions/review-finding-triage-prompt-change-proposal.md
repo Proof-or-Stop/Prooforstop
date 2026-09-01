@@ -84,7 +84,7 @@ separate machine-derived result:
 | Input | Observation and evidence state | What was observed, and is it suspected, verified, or disproven? | Preserve the observation, its evidence, and its evidence state. |
 | Input | Severity | How harmful is the observation? | Preserve the original severity; do not use it as a scope shortcut. |
 | Input | Applicability | Does the verified Finding belong to this target Story and current material? | Propose only the verdict supported by current evidence; unknown fails closed. |
-| Input | Disposition | After applicability is established, what authorized action applies: current repair, evidence-backed routing, or a future official signed deferral? | Consume only an available official disposition; never infer or mint one in prompt prose. |
+| Input | Disposition | After applicability is established, what exact future assessment plan or non-applicable route binding applies? | Consume only an available official signed binding; never infer or mint one in prompt prose. |
 | Derived result | Gate impact | Does current machine policy block this lifecycle transition? | Consume the current machine-computed result from facts recognized by current policy. In the future official system, the gate derives it from fresh signed applicability and disposition facts; prompt prose never decides it. |
 
 Severity does not determine applicability. Applicability does not rewrite
@@ -92,6 +92,25 @@ severity or Finding truth. Deferral is a disposition after `applicable`, not an
 applicability verdict and not a resolution state. Disposition does not itself
 rewrite the observation, evidence state, severity, or applicability. Gate
 impact is not a fifth discretionary Agent input.
+
+In the future official system, the final assessment binding is a discriminated
+union rather than generic action prose:
+
+- Every future final `applicable` assessment binds exactly one
+  `dispositionPlan`: `repair_current` or `defer_with_proof`.
+- `repair_current` forbids `acceptedRoute`; `defer_with_proof` requires the
+  exact accepted `finding_route` tuple.
+- Final `pre_existing_unaffected`, `out_of_scope`, `duplicate`, and
+  `not_reproduced_under_current_witness` verdicts bind no `dispositionPlan` and
+  require the exact `acceptedRoute`.
+- `unknown` binds neither `dispositionPlan` nor `acceptedRoute`.
+
+Only `applicable + dispositionPlan='defer_with_proof'` plus that exact route may
+feed the separate signed `FindingDeferralDisposition`. The final assessment
+field is `dispositionPlan`; the deferral copy is
+`FindingDeferralDisposition.assessmentDispositionPlan='defer_with_proof'`, and
+the manifest binding is `expectedAssessmentDispositionPlan`. These are future
+authority fields. The current compatibility CLI must not fabricate them.
 
 ## 5. Applicability vocabulary and minimum evidence
 
@@ -134,8 +153,6 @@ conditions is true:
   primary CLI entrypoint, Agent resolution, historical evidence integrity, or
   lifecycle gates are affected or uncertain;
 - REVIEW, TEST, DONE, or their evidence would become misleading;
-- claimed deferral lineage is missing, invalid, expired, tampered, ownerless,
-  or partially applied; or
 - the ledger-derived cumulative deferral horizon or renewal allowance is
   exhausted.
 
@@ -143,12 +160,36 @@ Mandatory repair means preserving RED or reproduction evidence, establishing
 root cause, fixing the defect, and recording fresh GREEN or closure evidence.
 Unknown applicability fails closed; it is not permission to route or defer.
 
+The future machine owns two additional pre-round floors. They must not be
+collapsed into this Agent repair rule:
+
+- `REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale,
+  unsigned, tampered, mismatched, incomplete, expired, unknown }`. A verified
+  open high or critical Finding in this set enters a transient
+  assessment-integrity floor before severity, round, and advisory policy. That
+  floor does not itself prove applicability or require current-Story repair. A
+  fresh strong non-applicable assessment releases it; a fresh `applicable`
+  assessment converts high or critical to the distinct mandatory-repair floor;
+  weak, unknown, or invalid proof remains blocked.
+- Invalid claimed deferral lineage is an independent first floor, regardless of
+  the current assessment. It is released only by exact strong superseding
+  lineage proof or repair closure. A transient integrity floor or lineage floor
+  is machine-derived gate state, not permission for an Agent to broaden scope.
+
 ## 7. Future official defer-with-proof disposition
 
 `defer_with_proof` is a disposition after `applicable`, not an applicability
 verdict. The authoritative future system may sign it only for an otherwise
 eligible verified applicable `low` or `medium` Finding. Current repair remains
 the default; deferral is the bounded exception.
+
+The final applicable assessment must first bind
+`dispositionPlan='defer_with_proof'` and the exact accepted `finding_route`.
+Only then may the separate signed deferral repeat the assessment relationship as
+`assessmentDispositionPlan='defer_with_proof'`, and only a matching manifest
+entry may bind `expectedAssessmentDispositionPlan='defer_with_proof'`. A
+`repair_current`, non-applicable, unknown, or route-mismatched assessment cannot
+feed that deferral.
 
 Eligibility requires all of the following:
 
@@ -185,7 +226,9 @@ commands and artifacts exist, Agents must:
 
 Agents must not fabricate assessment fields, verdicts, disposition plans,
 owners, routes, accepted-route proofs, signatures, freshness bindings, expiry,
-lineage, receipts, or manifest actions.
+lineage, receipts, or manifest actions. In particular, they must not fabricate
+`dispositionPlan`, `acceptedRoute`, `assessmentDispositionPlan`, or
+`expectedAssessmentDispositionPlan`.
 
 `finding_dismiss`, `gap_log`, and backlog notes are compatibility accounting.
 They do not prove applicability, `out_of_scope`, deferral, repair, resolution,
@@ -237,7 +280,18 @@ the complete assembled reviewer body:
 - treating `finding_dismiss`, `gap_log`, or backlog accounting as deferral
   proof;
 - making unknown applicability non-blocking or deferrable; and
-- allowing an ownerless or receipt-free official deferral.
+- allowing an ownerless or receipt-free official deferral;
+- omitting `dispositionPlan` from a final applicable assessment;
+- allowing `repair_current` to carry `acceptedRoute`, allowing a non-applicable
+  verdict to carry `dispositionPlan`, or allowing `unknown` to carry either;
+- feeding `FindingDeferralDisposition` from anything other than exact
+  `applicable + dispositionPlan='defer_with_proof'` plus its accepted route;
+- allowing any of the nine `REQUIRED_ASSESSMENT_INVALID` states to decay through
+  round or advisory policy;
+- treating the transient assessment-integrity floor as proof of applicability
+  or an automatic current-Story repair order; and
+- releasing invalid claimed deferral lineage without exact strong superseding
+  lineage proof or repair closure.
 
 The Task Context authority guard must compare normalized concepts, their
 semantic relationship, and assertion polarity. It must reject equivalent
@@ -258,8 +312,9 @@ inverse contract after a digest is refreshed.
 | Applicability is a signed target-Story relationship. | Agents propose candidates from current evidence and fail closed without official proof. |
 | `not_reproduced_under_current_witness` requires a strong current target-bound witness. | Prompts require fresh negative command/runtime receipts, signed witness bindings, and a live receipted owner or route. |
 | Deferral is a disposition after `applicable`. | Prompts never treat `defer_with_proof` as a verdict or `out_of_scope`. |
+| A final applicable assessment binds exactly one `dispositionPlan`; non-applicable and unknown verdicts follow the exact route/absence union. | Prompts preserve `repair_current` versus `defer_with_proof`, `acceptedRoute` cardinality, and the separate deferral/manifest field names. |
 | Only eligible verified applicable low/medium Findings may defer. | Prompts enumerate the eligibility floor and preserve mandatory repair conditions. |
-| Invalid or exhausted deferral lineage enters mandatory repair. | Agents fail closed and do not invent renewals or receipts. |
+| Required-assessment integrity and invalid claimed lineage are distinct pre-round machine floors. | Agents preserve the exact invalid set and release/convert/remain paths without treating transient integrity as automatic repair or scope expansion. |
 | Current plan is specification-only until future Stories implement it. | Prompts explicitly say the compatibility CLI cannot exercise the target-state mechanism. |
 | Gates consume signed structured facts. | Prompt prose and compatibility accounting are never presented as gate evidence. |
 
