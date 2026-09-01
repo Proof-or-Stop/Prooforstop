@@ -25274,6 +25274,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-470",
+      "desc": "pre_review_check_read independently reports top-level status=fail, ok=false with codes [PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED] for the current head/materialHash binding, even though the embedded artifact self-reports status=pass and codes=[]. The verifier-owned wrapper judgment (fail) contradicts the artifact self-claim (pass). Per role contract, a pass is forbidden when the basis is missing, partial, unsupported, stale, or tampered; PR_ARTIFACT_TAMPERED is exactly such a tampered-basis signal and blocks a topology-critic pass on Wave 4 acceptance closure.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-01T14:54:52.525Z",
+      "reviewRound": "2026-09-01T14:39:12.553Z",
+      "reviewRunId": "RR-1187",
+      "_hash": "307b3eabe6a53cf9753ba04af95cc3da8dbb97649dc82e1fea19c79553c71b49",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "adversarial|ts|review-check-read",
+      "signatureTagSource": "auto"
     }
   ]
 }
