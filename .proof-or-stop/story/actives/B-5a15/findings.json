@@ -18481,6 +18481,52 @@
       "resolvedAt": "2026-09-01T10:18:58.311Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-338",
+      "desc": "packages/main/src/core/certification-window.ts:803 passes the wrong-shaped object to causalDependencyDecisionMatchesCurrentIdentity, inverting the drift diagnostic. WHY: causalDecisionMatchesCertificationSnapshot (:764-771) correctly MAPS the identity into the parameter shape the checker expects (dependencyGraphDigest / currentInputHashesDigest, per causal-evidence.ts:1376-1377). The re-check at :803 that decides WHICH reason to report instead passes the raw CertificationWindowCurrentIdentity, whose fields are named causalDependencyGraphDigest / causalInputHashesDigest. Those two names do not exist on the parameter type, so causal-evidence.ts:1387-1390 reads undefined and SKIPS both digest comparisons. TypeScript cannot catch it: the parameter type is all-optional and the argument is a variable, not an object literal, so excess-property checking does not apply. CONSEQUENCE: whenever the ONLY mismatch is a digest, the strict mapped check returns false while the loose re-check returns true, so the code reports the frozen/previous binding as the culprit when the CURRENT binding is what actually drifted, and the [causal advisory binding mismatch] marker carried by the correct branch is suppressed. REPRO (executed against packages/main/dist, not reasoned): built a real signed decision via evaluateCausalDependencies with matching previous hashes MPREV/SFH/HPREV and current MCUR/SFH/HCUR, then set current.causalDependencyGraphDigest to a wrong value. Mapped-shape check returned false; the line-803 raw-current check returned true; detectCertificationWindowMaterialDrift returned reason='causal dependency previous binding does not match frozen certification hashes' even though every frozen hash matched exactly and the current graph digest was the sole mismatch. BLAST RADIUS: diagnostic only, NOT a gate distortion. Both ternary branches return drifted:true, so the window is invalidated identically either way, and grep over packages+scripts (excluding dist) shows both reason strings are produced only at :808/:809 and consumed by no test, gate or parser. The cost is misdirected debugging: an operator chasing a certification-window invalidation is pointed at the frozen snapshot when the live identity is at fault. FIX: pass the same mapped object literal that :764-771 builds (extract it into a local and reuse it at :803).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T10:26:33.333Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-799",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1e714f61e8afef2ccf5f0646eba99ea4f1975aaac103f8afba908e8ffec8ff3f",
+      "files": [
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "causal-diagnostic-message-inversion",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
