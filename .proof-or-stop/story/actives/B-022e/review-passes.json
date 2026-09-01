@@ -2921,6 +2921,37 @@
         "scanEscalationReason": "REVIEWER_REQUESTED_FULL: explicitly requested full-context audit of the complete Round 32 binding and target commits, not incremental eligibility."
       },
       "_hash": "6f8f587233a0b9f38cc4cc97635a64a3b73bccb57027cf3270bc80ee94ef24cc"
+    },
+    {
+      "id": "B-022e:RP-074",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 32 requested-full test-coverage audit passed: 29 verification intents have 29 unique evidence intentRefs, with 0 missing, 0 failures, 0 waivers, and 0 duplicate intentRef bindings; lifecycle freshness marks 29/29 coverage and the 120-command routine validation current PASS. The exclusive root suite completed 59/59 with no retries, directly including global-core-realpath, core-package-rename, migration-contract, and gitroot-cwd-contract; the gitroot negative detector covers the scope-contract cwd identifier regression. The earlier concurrent 0/59 was shared dist build collision, was rerun exclusively to PASS, and is not attributed to product behavior. No Authority, Wave4 rollout, production, or DONE-readiness claim is made.",
+      "createdAt": "2026-09-01T20:34:40.387Z",
+      "reviewRound": "2026-09-01T20:22:08.642Z",
+      "reviewRunId": "B-022e:RR-145",
+      "envelopeId": "07283fbe50436faf441b8fa808f6dd7077fd32df99e8cee67d07efcc2b5413ae",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "REVIEWER_REQUESTED_FULL: explicitly requested full-context audit of all 29 intent/evidence bindings, both canonical test catalogs, and direct inverse coverage for the Round 32 fixes; incremental eligibility was not used."
+      },
+      "_hash": "b3e1de7822daf29b24795da21036b68f77c4cd03787a669fbaf4b1da643754e6"
     }
   ]
 }
