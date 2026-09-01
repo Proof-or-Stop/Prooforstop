@@ -1100,7 +1100,7 @@
       "status": "done",
       "startTime": "2026-08-31T00:57:30.510Z",
       "endTime": "2026-08-31T01:24:45.486Z",
-      "userSees": "`proof-or-stop --version` reports 0.3.268 and B-022e completes REVIEW, routine validation, required DONE proof, done_prepare, and local merge to main.",
+      "userSees": "`proof-or-stop --version` reports 0.3.270 and B-022e completes REVIEW, routine validation, required DONE proof, done_prepare, and local merge to main.",
       "excludes": [
         "Pushing a task branch or remote main",
         "Declaring completion without product-level clean-install evidence"
@@ -1124,7 +1124,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "After all implementation/evidence commits, the root, Core, and Utils manifests/locks, the canonical brand/version constant, built output, packed Core/Utils version output, and proof-or-stop --version agree on 0.3.268; Lab remains independently versioned at 0.3.65 with @proof-or-stop/core ^0.3.65, while Utils requires the Core extension API floor @proof-or-stop/core ^0.3.268; required REVIEW lanes record fresh signed pass evidence, routine proof-or-stop validate passes, configured DONE-required validation passes, done_prepare --mergeMain --refreshStale --validate reports PASS, and story_advance DONE merges locally to main. WHY: proves the intended independent Lab policy, the shipped Core/Utils compatibility floor, and lifecycle convergence without falsely requiring every workspace package to share one version.",
+            "desc": "After all implementation/evidence commits, the root and Core manifests/locks, the canonical brand/version constant, built output, packed Core version output, and proof-or-stop --version agree on 0.3.270; Utils remains independently at 0.3.268 and requires the Core extension API floor @proof-or-stop/core ^0.3.268; Lab remains independently at 0.3.65 with @proof-or-stop/core ^0.3.65; required REVIEW lanes record fresh signed pass evidence, routine proof-or-stop validate passes, configured DONE-required validation passes, done_prepare --mergeMain --refreshStale --validate reports PASS, and story_advance DONE merges locally to main. WHY: proves the intended independent Lab/Utils policies, the shipped compatibility floors, and lifecycle convergence without falsely requiring every workspace package to share one version.",
             "type": "cli",
             "verification": {
               "command": "node packages/main/dist/tasks/version-bump-smoke.js",
@@ -1144,7 +1144,7 @@
         ],
         "adversarial": [
           {
-            "desc": "From temporary closeout states with one manifest/version constant at 0.3.267, dirty product files, stale validation or DONE-required evidence, missing review lane/pass, open blocking finding, failing clean-install negative, or changed storyFilesHash after review -> build/version verifier or lifecycle gate refuses DONE and names the blocker. WHY: proves REVIEW/TEST/DONE cannot be bypassed by partial version or stale proof.",
+            "desc": "From temporary closeout states with an older or mismatched manifest/version constant, dirty product files, stale validation or DONE-required evidence, missing review lane/pass, open blocking finding, failing clean-install negative, or changed storyFilesHash after review -> build/version verifier or lifecycle gate refuses DONE and names the blocker. WHY: proves REVIEW/TEST/DONE cannot be bypassed by partial version or stale proof.",
             "type": "cli",
             "verification": {
               "command": "node packages/main/dist/tasks/version-bump-smoke.js",
