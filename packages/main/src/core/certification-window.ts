@@ -799,8 +799,22 @@ export function detectCertificationWindowMaterialDrift(
   }
   if (current.causalDecision && !causalDecisionMatchesCertificationSnapshot(current.causalDecision, frozen, current)) {
     const binding = current.causalDecision.identityBinding;
+    // B-5a15 F-338: map into the parameter shape, exactly as
+    // causalDecisionMatchesCertificationSnapshot does. Passing `current` raw silently read
+    // undefined for both digests -- CertificationWindowCurrentIdentity names them
+    // causalDependencyGraphDigest / causalInputHashesDigest -- so the two digest comparisons
+    // were skipped and this re-check blamed the FROZEN binding when only the CURRENT one had
+    // drifted. The parameter type is all-optional and `current` is a variable, so excess
+    // property checking never flagged it.
     const currentMatches = binding
-      ? causalDependencyDecisionMatchesCurrentIdentity(current.causalDecision, current)
+      ? causalDependencyDecisionMatchesCurrentIdentity(current.causalDecision, {
+        storyId: current.storyId,
+        materialHash: current.materialHash,
+        storyFilesHash: current.storyFilesHash,
+        headHash: current.headHash,
+        dependencyGraphDigest: current.causalDependencyGraphDigest,
+        currentInputHashesDigest: current.causalInputHashesDigest,
+      })
       : false;
     return {
       drifted: true,
