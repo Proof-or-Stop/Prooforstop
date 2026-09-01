@@ -1973,8 +1973,8 @@
     "path": "scripts/verify-migration-contract.mjs",
     "token": "lattice.json', '@lattice/core",
     "expectedOccurrences": 1,
-    "contextSha256": "40e30372a144db9fd8150d69d10793e9d621f67dd4fb92f31b494d8e268ac52f",
-    "reason": "Exact retired identities are executable inputs to the migration-contract negative verifier.",
+    "contextSha256": "3f46c139f430cc4cc779dba961efd269b55daf79d7cfcf203b8a0d9abe30225f",
+    "reason": "Exact retired @lattice/core input is paired with canonical @proof-or-stop/core in the migration-contract negative verifier.",
     "disposition": "frozen",
     "verificationCommand": "internal:verify-current-legacy-context",
     "expectedVerification": "PASS exact occurrence and bounded context"
