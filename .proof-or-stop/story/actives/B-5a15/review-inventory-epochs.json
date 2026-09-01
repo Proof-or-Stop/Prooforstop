@@ -6039,6 +6039,26 @@
       },
       "terminalRunSequenceBoundary": 787,
       "_hash": "d6d90d7d3f34913e9622996a98ecdb3129e37fb2dde221b0b638dc5611b970e2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-070",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-01T09:45:49.585Z",
+      "updatedAt": "2026-09-01T09:45:49.585Z",
+      "cutoff": {
+        "headHash": "5aa18261aad66ff5dd383073ff7040a4476add93",
+        "materialHash": "40bfd3f1471abb9891b7b81efd348758ef6bf3310f97f9bd770e5ef72a7db418",
+        "storyFilesHash": "1ce249fb3686a179be540b345e2d160ced604600a1665ea8544f5ed431c0c82f"
+      },
+      "scopeDigest": "0c72ecda3da80f9b4030f32908ea0b2db4ac16d0b1b3b1e762bcbdb1f8942db3",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-070:RCP-001",
+      "_hash": "d705244a88fedc3c37fbccbb4eee3024d5847d6b6f5c3ce1c1bfbe51a303bc42"
     }
   ],
   "receipts": [
@@ -6993,6 +7013,28 @@
       "invalidatedAt": "2026-09-01T05:43:43.807Z",
       "invalidationReason": "Receipt RIE-068 is bound to superseded review round 2026-08-26T09:37:09.709Z while the current round is 2026-08-31T20:13:27.698Z, so remediation DEV refuses it; a fresh epoch must be earned against the current round after the main merge and acceptance-basis regeneration.",
       "_hash": "2e19133a2cb3bc2b436e7ae7f26168bd34808d89cef399c0be381d4d53373c22"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-070:RCP-001",
+      "epochId": "B-5a15:RIE-070",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "cutoff": {
+        "headHash": "5aa18261aad66ff5dd383073ff7040a4476add93",
+        "materialHash": "40bfd3f1471abb9891b7b81efd348758ef6bf3310f97f9bd770e5ef72a7db418",
+        "storyFilesHash": "1ce249fb3686a179be540b345e2d160ced604600a1665ea8544f5ed431c0c82f"
+      },
+      "scopeDigest": "0c72ecda3da80f9b4030f32908ea0b2db4ac16d0b1b3b1e762bcbdb1f8942db3",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-01T09:45:49.585Z",
+      "_hash": "95919aaec1e9d3d077fad37256a1c988567a80b7fa1a4d6b550123cc4cbb0693"
     }
   ],
   "criticReceipts": [
