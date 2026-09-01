@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
+  "committedLedgerDigest": "4c5076a8ae2817a5acbd6cb14cd17a50dd03fd9152888d68f146e1a59d72e6d2",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -336,6 +336,37 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:11:12.471Z"
+    },
+    {
+      "recordId": "lr_mtiv7c28_1n9y_f961afdff6964bb392de4bc239958c7d",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:e061ad38-0da0-4d97-8431-a541111c1178",
+      "payload": {
+        "id": "B-fe8f:F-013",
+        "desc": "CHK-006:happy:5 proves only an already-installed global binary, not the publishable package. Independent clean-install repro `npm pack ./packages/main --ignore-scripts` followed by `npm install <proof-or-stop-core-0.3.270.tgz>` fails E404 for `@lattice/lab@0.3.65`. packages/main/package.json:126 still depends on the retired package name and packages/lab/package.json:2 still declares `@lattice/lab`; the registry has neither that package nor `@proof-or-stop/lab`. Therefore the changed CLI cannot be clean-installed and no installed CLI gate can execute from the produced tarball. Rename/publish or bundle/link the lab dependency under the accepted proof-or-stop namespace, update lockfiles, and add a temp-directory pack+clean-install+`proof-or-stop --version` plus Story-3 command-availability smoke.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-test-coverage",
+        "createdAt": "2026-09-01T16:11:39.320Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-009",
+        "_hash": "d67da16955519462f4b31e293208a6a82b309876da3a85fe78c8b1114db8f584",
+        "files": [
+          "packages/main/package.json",
+          "packages/lab/package.json",
+          "package-lock.json",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "missing|json|happy-proves-already",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "1801704b8e4c60b42fb19a909fd1814a4ca979974101e6ac44ba8323d2f8ab6d",
+      "priorDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:11:39.344Z"
     }
   ],
   "receipts": [
@@ -787,6 +818,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "2ea5fbedbcb0031349ae2be9a39823ea07781239e973dbb261757efb32a28690",
         "signature": "MaM7P5JAXiNuXsL4K6eNDmoZeDSVFk4p7GVBqJsr9qH2Gy8acd4z5KxjR9MOFvrnnOVIgrV5DaKzhmI+iL54CA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiv7c28_1n9y_4cabfe5ded1d4d0bb52ad12add7863ba",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:e061ad38-0da0-4d97-8431-a541111c1178",
+      "requestDigest": "dccaa51562fa8ac6a13dcde688c3e823cce051d18cc4ed13b18db09e33797ccf",
+      "recordIds": [
+        "lr_mtiv7c28_1n9y_f961afdff6964bb392de4bc239958c7d"
+      ],
+      "priorLedgerDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
+      "committedLedgerDigest": "4c5076a8ae2817a5acbd6cb14cd17a50dd03fd9152888d68f146e1a59d72e6d2",
+      "writerSessionId": "sess-254f7982d3fe6f188e3bd04c95518ec2",
+      "writerFenceToken": "a90577b5-69f9-4672-af84-b9e4eb4361cf",
+      "committedAt": "2026-09-01T16:11:39.344Z",
+      "replayed": false,
+      "exactRequestDigest": "07e4d82b540da23b8a64153ceaf60aeb5f5706932558a16795d400caf071e118",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiv7c28_1n9y_4cabfe5ded1d4d0bb52ad12add7863ba",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:e061ad38-0da0-4d97-8431-a541111c1178",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiv7c28_1n9y_f961afdff6964bb392de4bc239958c7d"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
+        "committedLedgerDigest": "4c5076a8ae2817a5acbd6cb14cd17a50dd03fd9152888d68f146e1a59d72e6d2",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:11:39.344Z",
+        "writerSessionId": "sess-254f7982d3fe6f188e3bd04c95518ec2",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "a90577b5-69f9-4672-af84-b9e4eb4361cf",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "62c74247b3ad9cda59bf774c9d4dfbdda4c62a1b1a51c9939afd4f9c11c4ed50",
+        "signature": "HECvTAcAAP+jxWXPIehEwmgTbLU1U2+OORvsyO69LkP84wp6lzXAvgymuXopoGTEDfN8l8WU1u9mC+5uN3eMBQ=="
       }
     }
   ]
