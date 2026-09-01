@@ -857,6 +857,32 @@
           {
             "desc": "Pass the shadow-compare result into CertificationWindow for both cases and assert the window consumes the signed causal decision: it retains the specialized evidence for the unrelated merge as advisory, but requires fresh evidence for the related affected nodes before admitting a gate PASS.",
             "type": "cli",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "CHK-003-causal-decision-to-certification-window",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "CHK-003-causal-decision",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                  "expectedSymbolOrFact": "evaluateCausalDependencies",
+                  "fileDeclarationRef": "CHK-003:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "CHK-003-certification-window",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/handlers/certification-window.ts",
+                    "expectedSymbolOrFact": "buildCertificationDecision",
+                    "fileDeclarationRef": "CHK-003:files:modify:3"
+                  }
+                ],
+                "outputFactRef": "CausalDependencyDecision"
+              }
+            ],
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "B-5a15|CHK-003:happy:2|PASS|CertificationWindow accepts only the causal decision and admits no stale affected-node PASS"
