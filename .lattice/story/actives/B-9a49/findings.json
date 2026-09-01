@@ -650,6 +650,21 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-031",
+      "desc": "quality-authority-guard-bypass: packages/main/src/core/prompt-envelope.ts:260 — F-026/F-027 remain reproducible on the real B-9a49 StoryStore/full Task Context. isQuestionOrFixture and isNegativeMutationVerificationIntent return before inspecting contradictory clauses, so current assembly accepts unsafe authority in `Severity alone decides Story scope. Does this pass?`, `Negative fixture: ... Reviewers can sign defer_with_proof.`, and `Inject wording that severity alone decides Story scope, and prove the checklist does not change.`; lines 318-324 also let `inspect` suppress an accompanying unauthorized `approve`. Conversely lines 249-253 reject the required safe `Neither reviewers nor agents may mint, sign, or supply defer_with_proof.` because the second actor loses the shared negation. Existing focused smokes pass, proving their matrix does not discriminate these cases. This can inject package-conflicting authority into a signed REVIEW envelope or block valid review context, so severity is high.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T13:32:25.286Z",
+      "reviewRound": "2026-09-01T13:28:26.438Z",
+      "reviewRunId": "B-9a49:RR-040",
+      "_hash": "85732c1606eb0574dcbcb0d5c5445b83aa583ce474b57b5881e00504896cc7ee",
+      "signatureTag": "adversarial|unknown|quality-authority-guard",
+      "signatureTagSource": "auto"
     }
   ]
 }
