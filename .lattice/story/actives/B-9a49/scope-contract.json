@@ -47,9 +47,26 @@
     "packages/main/src/core/acceptance-topology.ts"
   ],
   "scopeChangeReason": "A current-Story live proof blocker exposed a deprecated hard-coded Codex asset root in the pre-review smoke. Add only packages/main/src/tasks/proofstory-pre-review-check-smoke.ts as a test-scoped repair: resolve canonical .proof-or-stop-codex/agents first, retain deprecated read fallback, and fail closed when neither exists. No runtime handler, gate predicate, Dynamic Finding file, or acceptance-topology validator changes.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "This file is the exact current-Story acceptance blocker exposed by REVIEW-to-TEST validate (804 dynamic binding builds exceeded the brittle 800 ceiling); the bounded 808/850 canonical fix already present on main is required to restore truthful validation without changing product scope.",
+      "timestamp": "2026-09-01T09:39:47.665Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "66e299169f09576c89a2f08bc372c6a6ce67002d",
+      "materialHash": "8665c4f532a6756c1cff8bc3ebc193e1b75fed7bb1a75c86029b5293e527a240"
+    }
+  ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-01T00:30:37.745Z",
+  "updatedAt": "2026-09-01T09:39:47.665Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -87,6 +104,7 @@
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
