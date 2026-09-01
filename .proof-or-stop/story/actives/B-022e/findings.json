@@ -1028,7 +1028,7 @@
       "desc": "packages/main/src/cli.ts:27-41 and bin/bootstrap-runner.js:158-172 declare lab_create and lab_run as mainSharedMutating but admit both in all active-Story phases. cli-engine.ts:856-869 then bypasses the normal phaseTools gate for those rows, while packages/lab/src/handlers/lab.ts:219-283 writes experiment configs/directories, creates sandboxes, and persists baseline/run artifacts; mainSharedMutating also intentionally avoids the per-Story owner lease. Therefore any session can run material-writing Lab operations during REVIEW/TEST and invalidate a supposedly frozen candidate instead of being forced back to DEV. The new tests exercise nested routing only without an active Story and do not catch this lifecycle escape. Keep read-only lab help/eval/compare/promote available broadly, but constrain mutating create/run to a justified lifecycle phase or make lifecycle/ownership arg-aware for genuinely non-writing dry-run behavior.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T08:45:46.567Z",
@@ -1043,7 +1043,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "adversarial|ts|packages-main-bootstrap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cade1bf954: nested and flat lab create/run/eval are admitted only in DEV for active stories; the active-story lifecycle E2E proves REVIEW and TEST refuse them while DEV succeeds.",
+      "resolvedAt": "2026-09-01T09:36:23.127Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-038",
