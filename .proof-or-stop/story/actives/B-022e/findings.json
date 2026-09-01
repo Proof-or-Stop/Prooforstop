@@ -888,7 +888,7 @@
       "desc": "doc-code-drift: docs/CLI.md:75 and :1069 relabel the historical 0.3.5 migration section and its release checklist as 0.3.268. Git blame on main shows the section predates B-022e (the heading was introduced by B-cdf6 and the described Mac App CLI behavior predates that), while Round-11 F-024 explicitly limited the defect to the stale top-level current-version statement and allowed the historical 0.3.5 migration section to remain when labeled. Commit 4c88119ad2 changed all three version occurrences, so the top-level current version now correctly matches packages/main/src/core/proof-or-stop-brand.ts, but the historical section falsely re-dates older behavior and contradicts the resolution claim that historical migration text was preserved. Keep the current 0.3.268 entrypoint/release guidance, but restore or explicitly label the historical 0.3.5 migration provenance.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-08-31T23:45:15.685Z",
@@ -900,7 +900,11 @@
         "packages/main/src/core/proof-or-stop-brand.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 2429d66cbe: current top-level CLI remains 0.3.268 while the genuinely historical CLI 0.3.5 Migration heading and release checklist references are restored.",
+      "resolvedAt": "2026-09-01T00:14:01.292Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-033",
