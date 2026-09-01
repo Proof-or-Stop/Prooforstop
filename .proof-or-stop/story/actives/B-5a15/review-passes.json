@@ -12868,6 +12868,32 @@
         "scanEscalationReason": null
       },
       "_hash": "613a8884849c8d58a708f660b0b5ee1c7a1f19c84bd7dbadbd029c87e3c06e93"
+    },
+    {
+      "id": "B-5a15:RP-266",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-058 re-verification after the two PLAN bounces that corrected story METADATA only (F-329). Reviewed by targeted inspection of the changed regions rather than whole-file reads, so every source entry is recorded as triaged-by-name. Diff scope: git diff 2041075540..HEAD over packages/main/src, packages/main/tests, scripts contains exactly ONE commit, 827e4af0a3 (F-342 test + docblock, 62 insertions across handlers/checklist.ts and tasks/tool-executed-evidence-receipt-smoke.ts); no other production source moved, and the c1c55ead15..HEAD commits are metadata-only review_pass_set auto-commits with an empty source diffstat. Suite re-confirmed: node --test packages/main/tests/causal-evidence.test.mjs = 21 tests / 19 pass / 2 fail, the two failures being exactly F-247 and the F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264 series (both AT_COVERAGE_BASIS_PARTIAL + AT_UNMAPPED_SCOPE_REF), as briefed. Spot-checked all four prior fixes intact: F-339 provenance fork at handlers/checklist.ts:617-619 (prior.mechanical===false ? sameAuditedAttestationIdentity : sameEvidenceSemantics); F-334 byte ordering at evidence-freshness.ts:483 and :513 (both plain less-than/greater-than comparators, no localeCompare); F-336/F-337 causal edges at handlers/certification-window.ts:119-126 (integration consumes review-subject, test consumes integration); F-338 identity mapping at core/certification-window.ts:809-817 (explicit dependencyGraphDigest/currentInputHashesDigest mapping rather than raw current). Counterfactual with a positive control established FIRST, per the hard constraint: scratch dist copied to /private/tmp with node_modules symlinked and templates symlinked at the location the registry actually resolves (dist/core/../.. = scratch root, NOT packages/main/templates -- the naive layout reproduced the inconclusive template-resolution failure the F-342 commit message warns about). Unmodified scratch = exit 0 PASS (control). Reverting only the F-339 fork in that same scratch dist = exit 1 failing on exactly the assertion 'F-342 audited note-only edit keeps the original headHash' (actual 6f48ad12 vs expected df6c3918), proving the new F-342 block genuinely bites the audited arm rather than passing vacuously. Quality axes on the diff: zero as-any casts in added lines, zero empty catch blocks, zero commented-out code, no shell files changed so the fn.ts isolation rule is not engaged; all six bare catches in core/causal-evidence.ts degrade to explicit documented fallbacks (return null / continue / rethrow-after-existsSync-check), none swallow silently. Investigated five exports in core/causal-evidence.ts with no cross-module consumer (redactEnvironment, causalExecutionIdentityMatchesCurrent, serializeCausalReceipt, verifyCausalEvidenceLedger, hasCausalDependencyDecisionIdentityBinding): all five are actively called WITHIN their own module, so they are over-exported visibility, not dead code -- a pure style matter the role prompt excludes, not filed. One apparent unused import (SingleCommandExecutionResult) was a scan artifact of the inline type keyword; it is used at checklist.ts:947 and :2760. No new finding: the metadata churn introduced no production regression and the code is unchanged and sound. Read-only throughout; no file edits, no git operations, scratch copy removed. Did not re-litigate tsc (green across four subpackages) or the already-dispositioned F-325..F-342 set, and treated the certification-window-smoke failure and the causal-evidence.ts:1096 localeCompare as known/accepted.",
+      "createdAt": "2026-09-01T13:42:42.441Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-821",
+      "envelopeId": "66ae2dcdbf4106245b3f590e40d7b5223fb6bc8d9218fee80b63d1c2450b53d7",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f4e1b783eb45b78b7a6e27e6445c65603b25bfe9c638eb982119eb70955bbe9e"
     }
   ]
 }
