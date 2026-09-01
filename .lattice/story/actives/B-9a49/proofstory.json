@@ -72,7 +72,7 @@
         ],
         "positiveAssertionRefs": [
           {
-            "id": "PA-DELIVERY-FULL-ENVELOPE",
+            "id": "A-POS-1",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-001:happy:0"
@@ -85,7 +85,7 @@
             ]
           },
           {
-            "id": "PA-DELIVERY-LEGACY-FULL-CONTEXT",
+            "id": "A-POS-2",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-001:happy:1"
@@ -98,7 +98,7 @@
             ]
           },
           {
-            "id": "PA-DELIVERY-RED-GREEN",
+            "id": "A-POS-3",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
@@ -111,7 +111,7 @@
             ]
           },
           {
-            "id": "PA-DELIVERY-MATRIX",
+            "id": "A-POS-4",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:happy:delivery-matrix"
@@ -126,7 +126,7 @@
         ],
         "mutationCaseRefs": [
           {
-            "id": "MUT-DELIVERY-RED-GREEN-CONTROL",
+            "id": "A-MUT-1",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
@@ -141,7 +141,7 @@
         ],
         "transcriptAssertionRefs": [
           {
-            "id": "TR-DELIVERY-RED-GREEN-ORDER",
+            "id": "A-TRANSCRIPT-1",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
@@ -247,7 +247,7 @@
         ],
         "positiveAssertionRefs": [
           {
-            "id": "PA-BOUNDARY-REVIEW-ONLY-REGISTRATION",
+            "id": "A-POS-5",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-003:happy:review-only-registration"
@@ -262,7 +262,7 @@
         ],
         "mutationCaseRefs": [
           {
-            "id": "MUT-BOUNDARY-PROMPT-NON-AUTHORITY",
+            "id": "A-MUT-2",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-002:adversarial:4"
@@ -275,7 +275,7 @@
             ]
           },
           {
-            "id": "MUT-BOUNDARY-NO-AUTHORITY-DATAFLOW",
+            "id": "A-MUT-3",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-003:adversarial:no-authority-dataflow"
@@ -288,7 +288,7 @@
             ]
           },
           {
-            "id": "MUT-BOUNDARY-LOCAL-CLI-AUTHORITY",
+            "id": "A-MUT-4",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
@@ -301,21 +301,7 @@
             ]
           }
         ],
-        "transcriptAssertionRefs": [
-          {
-            "id": "TR-BOUNDARY-LOCAL-CLI",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
-            },
-            "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
-            ],
-            "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
-            ]
-          }
-        ],
+        "transcriptAssertionRefs": [],
         "commandRefs": [
           {
             "refKind": "existing",
@@ -370,7 +356,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection.",
+  "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection. Active proof assertion IDs use only the verifier-registered A-POS, A-MUT, and A-TRANSCRIPT namespace.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-08-31T23:49:51.702Z"
+  "updatedAt": "2026-09-01T00:26:18.327Z"
 }
