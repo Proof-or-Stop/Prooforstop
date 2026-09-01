@@ -152,8 +152,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv3wdj_11y9_5341237aeeed415483169f076fc70617",
       "ledgerCommitReceiptId": "lrc_mtiv3wdj_11y9_e5f37013353744ef942fec4c2143ab3e",
-      "resolvedAt": "2026-09-01T23:24:57.560Z",
       "resolvedReason": "Proposal validation verifies the structural proposal-to-current-receipt chain and fails closed on substitution or missing links; the current proposal-chain adversarial matrix passes.",
+      "resolvedAt": "2026-09-01T23:24:57.560Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -162,7 +162,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:886-927,1107-1124,1131-1147,1232-1251 derives both the runtime signer and its fresh key status solely from the same invocation environment. A caller can generate a new keypair, set PROOF_OR_STOP_RUNTIME_EVIDENCE_PRIVATE_KEY/PUBLIC_KEY, mint a receipt, and have that same unpersisted key treated as current; it can also omit the caller-controlled revoked-key env to remove revocation. finding_ledger_query additionally accepts caller-supplied trustedKeys. The production smoke itself generates a fresh key at tasks/finding-ledger-runtime-smoke.ts:808-838 and immediately persists a valid receipt, proving there is no independent repository trust/rotation registry. This makes signer freshness and revocation self-asserted rather than verifier-derived.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T16:09:11.992Z",
@@ -177,7 +177,11 @@
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8",
-      "ledgerCommitReceiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda"
+      "ledgerCommitReceiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda",
+      "resolvedAt": "2026-09-01T23:24:59.188Z",
+      "resolvedReason": "Runtime receipt trust resolves keys through the repository-owned independent runtime key registry instead of trusting same-process environment material; independent-process trust and tamper checks pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-009",
