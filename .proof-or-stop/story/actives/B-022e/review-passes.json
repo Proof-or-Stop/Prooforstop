@@ -1004,6 +1004,43 @@
         "scanEscalationReason": null
       },
       "_hash": "2865fcedc7b805203968d8ec0746ec57f6bd39cfef6588982f3fae6af2b3142c"
+    },
+    {
+      "id": "B-022e:RP-034",
+      "agent": "proof-or-stop-review-docs",
+      "note": "docs review passed: current README, CLI, lifecycle guidance, Agent templates/mirrors, dispatch registry, and cutover decision consistently use Proof-or-Stop/proof-or-stop identities. proof-or-stop-review-story-init is the exact canonical filename, frontmatter name, self-identification, agentId, registry canonicalName, and reviewerLane with aliases=[]; packed and prompt-boundary verifiers reject retired lattice-* role lookup. Remaining retired tokens are confined to mechanically pinned historical, migration-map, proposal/baseline, signature-salt, persisted-schema, or negative-verification contexts, not active invocation guidance. Identity cutover, self-test, 17-role prompt baseline, process-fact contract, and packed clean-install role boundary all pass.",
+      "createdAt": "2026-09-01T10:33:44.792Z",
+      "reviewRound": "2026-09-01T10:25:38.607Z",
+      "reviewRunId": "B-022e:RR-086",
+      "envelopeId": "a5cc09102d83ad8d6cd2f5aa41f98ce9ab322bf7aec94394181b3c1933b69185",
+      "writerSessionId": "sess-8b578106d88f262e7b8839da1f27faa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b3d33a29c5952f0660e3f22636047f3523387605e4019ea42ca4140f9a243df3"
     }
   ]
 }
