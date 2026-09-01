@@ -12514,6 +12514,47 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "0e64be751ad47c8cfc844808b6b407d94a514295be27a65b273447d6c70e3003"
+    },
+    {
+      "id": "B-5a15:RP-255",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Converted pass-only finding_add record: quality-cleanup (DEFERRED, non-blocking, out of this story claimed scope): handlers/checklist.ts:2657 verification_run builds preflightFacts against gitCwd while passing cwd: runCwd:2658, so probeCausalPreflightFacts:426-427 compares an expected worktree derived from authoritativeCwd (gitCwd) against an actual worktree from probeGitTopLevel(input.cwd) (runCwd). When --cwd names a different git toplevel these disagree and causal-evidence.ts:897 raises preflightFailure worktree_mismatch. Secondary: :2694 commits via commitCanonicalCausalEvidence(gitCwd) while the receipt identity at :1095 was built from runCwd, so the commit snapshot hashes and the receipt materialHash would be computed against different trees. Compare verification_evidence_add:2369-2371, where cwd, the preflight authoritative root, and the commit root are all gitCwd -- that call site is internally consistent and this one was not updated to match. WHY DEFERRED per the projects defect-triage rules rather than fixed here: (1) it is fail-closed -- causal-evidence.ts:896-897 routes the mismatch through preflightFailure to a hard REFUSED throw at checklist.ts:1113, so it can only reject a legitimate run, never admit stale or unexecuted evidence and never produce a false gate PASS; (2) --cwd is documented as resolving relative paths against the story git root, i.e. same-toplevel subdirectories, which do NOT diverge; (3) no checklist item in B-5a15 claims verification_run --cwd semantics. A follow-up should make verification_run internally consistent by threading ONE root -- either pass runCwd as authoritativeCwd and as the commit root, or reject a --cwd whose git toplevel differs from gitCwd with an explicit diagnostic instead of an opaque worktree_mismatch. Pull this back into scope immediately if a caller is found relying on --cwd across a submodule boundary.",
+      "createdAt": "2026-09-01T10:46:18.749Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-803",
+      "envelopeId": "c317b7e9306fe49b15ceb26dafbd2916e47df6cb4a190a4803030c5ecd7ffc54",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f130fa8b24ec8398049af7e9172dd9a96c45523f6232ad8f08f9c233f4ae7ae4"
     }
   ]
 }
