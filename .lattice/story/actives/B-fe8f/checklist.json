@@ -1032,6 +1032,116 @@
           "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53",
           "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
           "timestamp": "2026-09-01T10:14:08.828Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-003 receipt/CAS/operation verification at commit 5af15c5c59; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e4a0dd35e45779eb8778f18e630b87f26ef1edce4934a1858bec37640b9e4dac",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:14:12.887Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1d51dafc41909eb240bf02b13ce80934d8a22d03",
+          "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53",
+          "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
+          "timestamp": "2026-09-01T10:14:24.463Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-003 receipt/CAS/operation verification at commit 5af15c5c59; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e4a0dd35e45779eb8778f18e630b87f26ef1edce4934a1858bec37640b9e4dac",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:14:15.792Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1d51dafc41909eb240bf02b13ce80934d8a22d03",
+          "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53",
+          "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
+          "timestamp": "2026-09-01T10:14:24.464Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-003 receipt/CAS/operation verification at commit 5af15c5c59; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e4a0dd35e45779eb8778f18e630b87f26ef1edce4934a1858bec37640b9e4dac",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:14:18.616Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1d51dafc41909eb240bf02b13ce80934d8a22d03",
+          "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53",
+          "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
+          "timestamp": "2026-09-01T10:14:24.464Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-003 receipt/CAS/operation verification at commit 5af15c5c59; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e4a0dd35e45779eb8778f18e630b87f26ef1edce4934a1858bec37640b9e4dac",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:14:21.504Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1d51dafc41909eb240bf02b13ce80934d8a22d03",
+          "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53",
+          "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
+          "timestamp": "2026-09-01T10:14:24.464Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-003 receipt/CAS/operation verification at commit 5af15c5c59; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e4a0dd35e45779eb8778f18e630b87f26ef1edce4934a1858bec37640b9e4dac",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:14:24.284Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1d51dafc41909eb240bf02b13ce80934d8a22d03",
+          "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53",
+          "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
+          "timestamp": "2026-09-01T10:14:24.464Z"
         }
       ]
     },
