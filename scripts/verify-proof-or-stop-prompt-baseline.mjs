@@ -72,8 +72,6 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * after appending the canonical Finding triage contract in both rollout modes.
  * The reviewer source templates and their frozen legacy reconstruction hashes
  * did not move; only selected assembled bodies and their derived identities do.
- * The lattice-review-channel source hash moved only because its embedded
- * load-bearing slice was rewrapped byte-for-byte to the canonical slice.
  * REVIEW follow-up: re-approved the same five active reviewer assembled
  * bodies after the reviewed contract gained its explicit current/future
  * compatibility boundary and verdict-specific minimum proof requirements.
@@ -113,7 +111,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-channel',
-    templateHash: '029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b',
+    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
   },
   {
     role: 'lattice-review-concept',

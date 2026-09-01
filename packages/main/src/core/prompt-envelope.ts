@@ -183,6 +183,7 @@ function relationIsNegated(
   rightRange: { start: number; end: number },
 ): boolean {
   const prefix = segment.slice(Math.max(0, relationRange.start - 64), relationRange.start);
+  const suffix = segment.slice(relationRange.end, Math.min(segment.length, relationRange.end + 32));
   const boundary = Math.max(
     prefix.lastIndexOf(' but '),
     prefix.lastIndexOf(' however '),
@@ -198,6 +199,7 @@ function relationIsNegated(
   if (/\bneither\b[^.;]{0,96}\bnor\b[^.;]{0,64}$/u.test(prefix)) return true;
   if (/\b(?:never|cannot|reject|rejects|rejected|forbid|forbids|forbidden|prohibit|prohibits|prohibited|disallow|disallows|disallowed)\b[^,;]{0,48}$/u.test(localPrefix)) return true;
   if (/\b(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b[^,;]{0,32}$/u.test(localPrefix)) return true;
+  if (/^\s+not\b/u.test(suffix)) return true;
   const followingConcept = leftRange.start > relationRange.start ? leftRange : rightRange.start > relationRange.start ? rightRange : null;
   if (followingConcept && /\b(?:not|never|neither|nor|without)\b/u.test(segment.slice(relationRange.end, followingConcept.start))) return true;
   return false;
@@ -230,25 +232,25 @@ function hasAffirmativeConceptRelation(
 }
 
 function hasDismissalApplicabilityAssertion(text: string): boolean {
-  const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed)|closing|close\s+the\s+finding)\b/u;
-  const applicabilityOutcome = /\b(?:out\s+of\s+scope|non\s+applicable|applicability|deferral|repair|resolution|resolved)\b/u;
+  const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed|(?:closed|dismissed|archived)\s+finding|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|archiv(?:e|es|ed|ing)(?:\s+the)?\s+finding|closing|close\s+the\s+finding)\b/u;
+  const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|the|current)\s+)?story\s+boundary|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
   return hasAffirmativeConceptRelation(
     text,
     dismissal,
     applicabilityOutcome,
-    /\b(?:prove|establish|confirm|demonstrate|mean|make|classify|set|count|show|be|follow|result|render)\w*\b/u,
+    /\b(?:prove|establish|confirm|demonstrate|mean|make|classify|set|count|show|be|is|constitute|suffice|follow|result|render)\w*\b/u,
     220,
   );
 }
 
 function hasUnknownApplicabilityRoutingAssertion(text: string): boolean {
-  const unknownApplicability = /\b(?:(?:unknown|uncertain|undetermined|pending|unassessed|unresolved)\s+applicability|applicability\s+(?:is|remains|stays)?\s*(?:unknown|uncertain|undetermined|pending|unassessed|unresolved)|applicability\s+(?:is|remains|stays)?\s*not\s+yet\s+(?:known|determined|assessed))\b/u;
-  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|defer\s+with\s+proof|non\s+blocking|advisory|away\s+from\s+(?:this|the|current)\s+story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|unblock(?:s|ed)?)\b/u;
+  const unknownApplicability = /\b(?:(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)\s+applicability|applicability\s+(?:is|remains|stays)?\s*(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)|applicability\s+(?:is|remains|stays|has)?\s*(?:not\s+yet|not\s+been)\s+(?:known|determined|assessed|evaluated))\b/u;
+  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|defer\s+with\s+proof|non\s+blocking|advisory|away\s+from\s+(?:this|the|current|the\s+current)\s+story|leave(?:s|ing)?\s+(?:(?:this|the|current|the\s+current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|unblock(?:s|ed)?)\b/u;
   return hasAffirmativeConceptRelation(
     text,
     unknownApplicability,
     routingOrGateRelief,
-    /\b(?:permit|allow|authorize|approve|enable|route|defer|make|become|is|remove|clear|lift|bypass|waive|turn)\w*\b/u,
+    /\b(?:permit|allow|authorize|approve|enable|route|defer|leave|make|become|is|remove|clear|lift|bypass|waive|turn)\w*\b/u,
     220,
   );
 }
@@ -370,12 +372,12 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       return 'unauthorized disposition minting';
     }
 
-    const severity = /\b(?:severity|criticality|critical|high|medium|low|priority|risk\s+(?:rating|rank|level)|impact\s+(?:rating|rank|level)|harm\s+(?:rating|rank|level))\b/u;
-    const soleAuthority = /\b(?:alone|solely|only|automatically|by\s+itself|on\s+its\s+own)\b/u;
-    const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|current\s+story|routing|repair)\b/u;
+    const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|by\s+itself|on\s+its\s+own)\b/u;
+    const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange =>
       matchRanges(segment, severity).some(severityRange =>
-        Math.max(0, Math.max(soleRange.start, severityRange.start) - Math.min(soleRange.end, severityRange.end)) <= 20,
+        Math.max(0, Math.max(soleRange.start, severityRange.start) - Math.min(soleRange.end, severityRange.end)) <= 40,
       ),
     );
     if (soleQualifierBindsSeverity && hasAffirmativeConceptRelation(

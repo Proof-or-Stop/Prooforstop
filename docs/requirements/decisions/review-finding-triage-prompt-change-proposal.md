@@ -5,8 +5,9 @@ Status: executable Agent-side proposal
 Authority: subordinate projection of
 `docs/requirements/decisions/dynamic-finding-system-execution-plan.md`
 
-Scope: Agent prompts, public Agent guidance, REVIEW-only prompt-envelope
-assembly safety, and semantic prompt tests only
+Scope: Agent prompts, public Agent guidance, a bounded documentation-only
+amendment to the Dynamic Finding target-state plan, REVIEW-only prompt-envelope
+assembly safety, and semantic prompt tests
 
 ## 1. Decision
 
@@ -34,6 +35,9 @@ This proposal may change:
 - the canonical REVIEW Finding triage contract appended to active REVIEW roles;
 - Story Owner guidance in `AGENTS.md` and `CLAUDE.md`;
 - bounded implementer handoff guidance;
+- the documentation-only Dynamic Finding plan amendment that makes the
+  target-state verdict vocabulary and compatibility boundary authoritative,
+  without implementing those target-state records or commands;
 - pre-digest REVIEW Task Context authority validation in prompt-envelope
   assembly, without changing Dynamic Finding records or lifecycle facts;
 - semantic mutation tests and approved prompt digests; and
@@ -53,9 +57,9 @@ the only mechanical authorities for lifecycle facts.
 
 ## 3. Affected Agent surfaces
 
-The package registry currently contains seventeen roles. This change does not
-copy the same contract into all seventeen source templates. The canonical
-contract is appended once during assembly to the five active REVIEW lanes:
+This change does not copy the same contract into every source template. The
+canonical contract is appended once during assembly to the five active modular
+REVIEW roles:
 
 - `lattice-review-behavior`;
 - `lattice-review-concept`;
@@ -67,8 +71,8 @@ Story Owner behavior is mirrored byte-for-byte in `AGENTS.md` and `CLAUDE.md`.
 The implementer keeps a smaller handoff rule: preserve evidence, report the
 out-of-item issue, and never widen the assigned item or Story unilaterally.
 
-This assembly model makes the five reviewers consistent without creating five
-independent copies that can drift.
+This assembly model keeps the five active modular REVIEW roles consistent
+without creating five independent copies that can drift.
 
 ## 4. Keep inputs separate and derive gate impact
 

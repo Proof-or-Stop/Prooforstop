@@ -75,7 +75,7 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = '0dccef5903efe7aef773c52b8f170e46a332986779a16f76e5a66ef3f1bd451a';
+const approvedReviewFindingTriageProposalSha256 = 'd3e2522274a331ea7dadce62fa53c2e028a03c8e5fac214665b8675d6e25499e';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
@@ -716,7 +716,17 @@ for (const entry of registry.agents) {
     assert.equal(occurrenceCount(expectedCodex, reviewFindingTriageContractMarker), 0, `${entry.file} Codex render receives no REVIEW triage contract`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
-    assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
+    // lattice-review-channel is retired and independently byte-pinned by the
+    // prompt baseline. Compare the embedded guide after line-wrap normalization
+    // so a canonical-slice reflow cannot force unrelated churn into that frozen
+    // asset merely to satisfy this semantic parity check.
+    const embeddedLoadBearingGuide = extractLatticeBlock(source);
+    assert.ok(embeddedLoadBearingGuide, `${entry.file} contains the load-bearing prompt slice`);
+    assert.equal(
+      embeddedLoadBearingGuide.replace(/\s+/gu, ' ').trim(),
+      LOAD_BEARING_LATTICE_PROMPT_SLICE.replace(/\s+/gu, ' ').trim(),
+      `${entry.file} uses the canonical load-bearing prompt slice semantics`,
+    );
     for (const phrase of requiredSafetyPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
