@@ -105,8 +105,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092",
       "ledgerCommitReceiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1",
-      "resolvedAt": "2026-09-01T23:24:54.199Z",
       "resolvedReason": "Dependency release requires the prerequisite Story to be canonically DONE on main and its story branch ancestry merged; lifecycle_dependency_gate passes for B-03b7 and B-e6d9.",
+      "resolvedAt": "2026-09-01T23:24:54.199Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -115,7 +115,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:632-858 / current B-fe8f ledger — the delivered public query does not work against the Story that produced it: `proof-or-stop finding_ledger_query --storyId=B-fe8f` on current HEAD fails closed with `finding-ledger-query:ledger_receipt_unsigned`. The smoke proves only fresh synthetic ledgers, while B-fe8f contains earlier in-Story ledger receipts that the final verifier cannot consume. CHK-005 promises a stable signed query for ledger/CAS/idempotency/runtime/migration inputs and Story 2 depends on that public port; an unreadable canonical ledger cannot satisfy it. Add a bounded append-only migration/legacy-binding path (without rewriting committed semantic bytes), prove the current real B-fe8f ledger becomes queryable, and retain negative rejection for genuinely unsigned/tampered post-migration rows.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T16:06:51.543Z",
@@ -125,7 +125,11 @@
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv160i_in5_83e25d5f910440a1b58bea79b5598dc9",
-      "ledgerCommitReceiptId": "lrc_mtiv160i_in5_8845956e46d24b789b8889defcb3ba96"
+      "ledgerCommitReceiptId": "lrc_mtiv160i_in5_8845956e46d24b789b8889defcb3ba96",
+      "resolvedAt": "2026-09-01T23:24:55.775Z",
+      "resolvedReason": "Commit a050de7 makes legacy receipt migration idempotent by validating existing signed exact-byte bindings and creating bindings only for uncovered receipt digests; sequential real resolutions=2, bindingRecords=1, exactBytes=true, conflict=0 and signed query pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-007",
