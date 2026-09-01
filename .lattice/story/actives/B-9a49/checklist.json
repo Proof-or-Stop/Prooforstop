@@ -45,7 +45,7 @@
             }
           },
           {
-            "desc": "Inspect the canonical contract and prove that evidenceState, severity, applicability candidate, and gate impact are independent axes; routing requires evidence plus an owner; the machine remains authoritative for blocking; and disproven, duplicate, and stale_or_not_reproduced are separate outcomes.",
+            "desc": "Inspect the canonical contract and prove that evidenceState, severity, applicability candidate, and gate impact are independent axes; routing requires evidence plus an owner; the machine remains authoritative for blocking; disproven, duplicate, and not_reproduced_under_current_witness remain separate outcomes; and the future official signed defer_with_proof is a disposition only after applicable for eligible verified low or medium Findings, never a non-applicability verdict or an escape from mandatory current-Story repair, including critical or high, introduced or worsened, direct acceptance or verification-intent, protected-surface, misleading lifecycle-evidence, and invalid or exhausted deferral-lineage cases.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -74,7 +74,7 @@
             }
           },
           {
-            "desc": "Prove a non-current-Story disposition is allowed only with structured applicability evidence and a traceable owner or route, and that high or critical Findings cannot be left unowned.",
+            "desc": "Prove a non-applicability verdict is allowed only with structured applicability evidence and a traceable owner or route, and that high or critical Findings cannot be left unowned; separately, prove the future official signed defer_with_proof disposition applies only after applicable to an otherwise eligible verified low or medium Finding and remains unavailable in every mandatory current-repair case.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -112,7 +112,7 @@
             }
           },
           {
-            "desc": "Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, or equates deferral with finding_dismiss or resolution, and prove semantic validation rejects it.",
+            "desc": "Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -130,7 +130,7 @@
             }
           },
           {
-            "desc": "Replace the distinct outcomes with a generic deferred or closed result and prove validation fails unless disproven remains an evidence-truth result, duplicate identifies a canonical live owner, and stale_or_not_reproduced cites current freshness-bound counter-evidence.",
+            "desc": "Replace the distinct outcomes with a generic deferred or closed result and prove validation fails unless disproven remains an evidence-truth result, duplicate identifies a canonical live owner, and not_reproduced_under_current_witness cites current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route.",
             "type": "logic",
             "priority": "must",
             "verification": {
