@@ -43,7 +43,7 @@
         "CHK-006"
       ],
       "verificationIntentRefs": [
-        "CHK-003:happy:review-only-registration",
+        "CHK-004:happy:red-green-same-contract",
         "CHK-004:adversarial:authority-boundary-and-local-cli"
       ],
       "milestoneIds": [],
@@ -77,7 +77,7 @@
             "id": "A-POS-5",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-003:happy:review-only-registration"
+              "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
             },
             "producerRefs": [
               "P-DELIVERY-BASIS-GENERATOR"
@@ -170,18 +170,8 @@
       }
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
-    }
-  ],
-  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Positive and mutation verification intents are binding coverage; the transcript assertion remains independently exercised by live proof, while the signed rollout report carries full 3x2 evidence.",
+  "diagnosticGaps": [],
+  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. A-POS-5 preserves the existing RED-to-GREEN acceptance target, A-MUT-4 covers the authority boundary, and A-TRANSCRIPT-1 exercises the same Green path; the signed rollout report carries full 3x2 evidence.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-09-01T08:10:28.297Z"
+  "updatedAt": "2026-09-01T08:11:17.380Z"
 }
