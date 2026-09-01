@@ -12843,6 +12843,31 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "6fe5433ba6f0c80078be92da2649889be54fb706546456929f54b36b4342be51"
+    },
+    {
+      "id": "B-5a15:RP-265",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review PASSED for epoch B-5a15:RI-058 (reviewRun B-5a15:RR-823). VERIFICATION-INTENT INTEGRITY: verified the PLAN metadata churn (finding F-329, two PLAN bounces, plus the 3-step CHK-003 file-binding unfreeze that removed and restored its declaration) did NOT damage verificationIntent content. Diffed checklist.json against the pre-churn revision f34917cfa3~1 over every intent field tuple (desc, type, verification.command, verification.selector, priority, requiredIn, explicit id) across all 5 items and all 53 intents: the serialized result is bit-identical. Lane counts match the expected shape exactly: CHK-001 3 happy / 4 edge / 3 adversarial, CHK-002 2/3/4, CHK-003 3/3/4, CHK-004 4/8/2, CHK-005 3/4/3 = 53 intents total. No intent lost desc, type, or verification{command,selector}. The only checklist deltas are the three plannedPathDeclaration consumers now naming real consumers: CHK-002 -> packages/main/src/handlers/checklist.ts#commitCanonicalCausalEvidence, CHK-003 -> packages/main/src/handlers/certification-window.ts#buildCertificationDecision, CHK-004 -> packages/main/src/handlers/verifier.ts#createValidationCausalPreflightGate. All three symbols were grep-confirmed present in those files, and every fileDeclarationRef index resolves to the intended path in that item's file declarations (CHK-002:files:modify:1, CHK-003:files:modify:3, CHK-004:files:modify:2). COVERAGE: 0 must-gaps. All 53 intents carry logic_test evidence with result=pass and none stale. CHK-001:edge:3 binds by its explicit intent id CHK-001:edge:oversized-output-probe rather than the positional ref, which is correct and not a gap. Two entries (CHK-004:happy:2, CHK-004:happy:3) are non-mechanical with a recorded nonMechanicalReason from verification_evidence_refresh_stale; that is the pre-existing dispositioned state and is unchanged by this churn. PINNED SUITE: re-executed node --test packages/main/tests/causal-evidence.test.mjs -> tests 21, pass 19, fail 2, matching the expected 19 pass / 2 fail. Both failures are the DEV-gated tests and both now abort on the SAME shared root cause: the topology coverage-basis diagnostics AT_COVERAGE_BASIS_PARTIAL plus ten AT_UNMAPPED_SCOPE_REF. F-331 IS GENUINELY FIXED: acceptance_rollout_report_read and acceptance_rollout_check both return ok=true, receipt=current, quorum=full-3x2, status=pass, mode=enforce, blocking=false, diagnostics=[], verdict=pass. The F-249-series test still fails only because its FIRST assertion at causal-evidence.test.mjs:2653 is the shared topology gate, which aborts the test before its own rollout assertions at lines 2692-2707 can execute; those rollout assertions are satisfied by the live rollout state. STABILITY: confirmed zero source and zero test file changes since review passes RP-256/RP-261 - git log over f34917cfa3~1..HEAD touches only story metadata under .proof-or-stop/story/actives/B-5a15/. No new finding. Nothing already dispositioned was re-filed.",
+      "createdAt": "2026-09-01T13:39:26.774Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-823",
+      "envelopeId": "16834ae1a20b2ee2faaef7db71c3e98eec2d2789b53cdde403b21aca300e46a0",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "613a8884849c8d58a708f660b0b5ee1c7a1f19c84bd7dbadbd029c87e3c06e93"
     }
   ]
 }
