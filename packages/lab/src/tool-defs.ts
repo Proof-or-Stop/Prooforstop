@@ -15,6 +15,11 @@ interface RuntimeToolDef {
 export function createLabToolDefs(z: any): RuntimeToolDef[] {
   return [
   {
+    name: 'lab_help',
+    description: '显示 Proof-or-Stop Lab 的嵌套命令与 flat compatibility 命令',
+    schema: {},
+  },
+  {
     name: 'lab_create',
     description: '创建 proof-or-stop-lab 实验配置骨架',
     schema: {

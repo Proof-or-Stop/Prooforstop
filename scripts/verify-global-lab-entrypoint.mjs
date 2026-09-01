@@ -82,19 +82,40 @@ const checks = {
     assert(!lab.dependencies?.['@koala-agent/core'], 'lab should not depend on legacy @koala-agent/core');
   },
   'lab-help': () => {
-    const out = run(['lab_create', '--help']);
-    assert(out.includes('proof-or-stop lab_create'), 'global core bin should show lab_create help through the proof-or-stop bootstrap');
-    assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
+    const out = run(['lab', 'help']);
+    assert(out.includes('Proof-or-Stop Lab commands:'), 'global core bin should run the real nested lab help command');
+    for (const command of ['create', 'run', 'eval', 'compare', 'promote', 'help']) {
+      assert(out.includes(`proof-or-stop lab ${command}`), `nested Lab help should advertise lab ${command}`);
+    }
+    assert(out.includes('flat compatibility: lab_create'), 'nested Lab help should preserve the flat compatibility surface');
+    assert(!out.includes('koala'), 'nested Lab help should not advertise a retired product command');
+
+    const flatOut = run(['lab_help']);
+    assert(flatOut === out, 'flat lab_help compatibility command should match nested lab help');
   },
   'lab-create': () => {
     const temp = createTempProject();
     try {
       const config = 'experiments/configs/lab-reviewer-reviewer-quality-v1.json';
-      const created = run(['--root', temp, 'lab_create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
-      assert(created.includes(`Config: ${config}`), 'lab_create should report its canonical config path');
-      assert(existsSync(join(temp, config)), 'lab_create should write the canonical experiment config');
-      const dryRun = run(['--root', temp, 'lab_run', `--config=${config}`, '--dryRun']);
-      assert(dryRun.includes('Dry run complete'), 'lab_run --dryRun should complete through the global bootstrap');
+      const created = run(['--root', temp, 'lab', 'create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
+      assert(created.includes(`Config: ${config}`), 'nested lab create should report its canonical config path');
+      assert(existsSync(join(temp, config)), 'nested lab create should write the canonical experiment config');
+      const dryRun = run(['--root', temp, 'lab', 'run', `--config=${config}`, '--dryRun']);
+      assert(dryRun.includes('Dry run complete'), 'nested lab run --dryRun should complete through the global bootstrap');
+      const evaluated = run(['--root', temp, 'lab', 'eval', JSON.stringify({
+        config,
+        files: ['.proof-or-stop-codex/agents/test-case-reviewer.md'],
+      })]);
+      assert(evaluated.includes('"ok": true'), 'nested lab eval should execute the Lab patch-policy handler');
+
+      const flatDryRun = run(['--root', temp, 'lab_run', `--config=${config}`, '--dryRun']);
+      assert(flatDryRun.includes('Dry run complete'), 'flat lab_run compatibility command should remain available');
+
+      for (const badArgs of [['lab', 'unknown'], ['lab', 'createx']]) {
+        const failed = runAllowFailure(['--root', temp, ...badArgs]);
+        assert(!failed.ok, `${badArgs.join(' ')} should fail rather than prefix-match a nested command`);
+        assert(failed.text.includes('Unknown command') || failed.text.includes('未知命令'), `${badArgs.join(' ')} should fail as an unknown command`);
+      }
     } finally {
       rmSync(temp, { recursive: true, force: true });
     }
@@ -107,12 +128,14 @@ const checks = {
       renameSync(dist, backup);
       const out = run(['--root', temp, 'session_brief']);
       assert(out.includes('# proof-or-stop session brief'), 'core command should still work when lab dist is absent');
-      const failed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
-      assert(!failed.ok, 'lab command should fail when lab extension is unavailable');
+      const failed = runAllowFailure(['--root', temp, 'lab', 'help']);
+      assert(!failed.ok, 'nested lab command should fail when lab extension is unavailable');
       assert(
-        failed.text.includes('Unknown command: lab_create') || failed.text.includes('未知命令: lab_create') || failed.text.includes('Recovery'),
-        'lab failure should show unavailable lab command or recovery hint',
+        failed.text.includes('Unknown command: lab_help') || failed.text.includes('未知命令: lab_help') || failed.text.includes('Recovery'),
+        'nested Lab failure should show unavailable canonical command or recovery hint',
       );
+      const flatFailed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
+      assert(!flatFailed.ok, 'flat Lab compatibility command should also fail when the extension is unavailable');
     } finally {
       if (existsSync(backup)) renameSync(backup, dist);
       rmSync(temp, { recursive: true, force: true });

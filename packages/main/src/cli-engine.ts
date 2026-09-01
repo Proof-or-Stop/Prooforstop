@@ -727,6 +727,7 @@ export async function runCli(opts?: {
   extraTools?: ToolDef[];
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;
   extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
+  extraAllowedPhases?: Readonly<Record<string, readonly string[] | 'all'>>;
 }): Promise<void> {
   // Inject extras: merge tool defs and keep extras register for later invocation.
   TOOLS = opts?.extraTools && opts.extraTools.length > 0
@@ -855,7 +856,17 @@ export async function runCli(opts?: {
   // Phase gate: When an active story exists, reject commands outside the allowlist.
   if (activeStory) {
     const config = loadConfig(root0);
-    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
+    // Optional bootstrap extensions are not members of the core lifecycle
+    // registry. They must independently declare BOTH ownership and lifecycle
+    // phases; a tool definition or ownership class alone cannot bypass the
+    // active-Story phase gate.
+    const hasExtensionOwnership = Object.prototype.hasOwnProperty.call(opts?.extraOwnershipClasses ?? {}, cmd);
+    const hasExtensionLifecycle = Object.prototype.hasOwnProperty.call(opts?.extraAllowedPhases ?? {}, cmd);
+    const extensionPhases = opts?.extraAllowedPhases?.[cmd];
+    const isDeclaredExtensionCommand = hasExtensionOwnership
+      && hasExtensionLifecycle
+      && (extensionPhases === 'all' || (Array.isArray(extensionPhases) && extensionPhases.includes(activeStory.phase)));
+    if (!isDeclaredExtensionCommand && !isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
       console.error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
@@ -1232,7 +1243,7 @@ export async function runCli(opts?: {
     // for BOTH the success and error call sites in run() (and any future
     // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
     // so no post-command process-event surface can bypass the contract.
-    if (isReadOnlyCommand(entry.command, argsObject)) return;
+    if (opts?.extraOwnershipClasses?.[entry.command] === 'readOnly' || isReadOnlyCommand(entry.command, argsObject)) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
     // canonical commit dirty again (and would mutate pre-dirty refusal bytes).
@@ -1375,10 +1386,11 @@ export async function runCli(opts?: {
     // F-028: gate on the arg-aware read-only predicate so a plain (no --out)
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
-    if (config0?.hooks?.preCommand && !isReadOnlyCommand(cmd, parsed)) {
+    const effectiveReadOnly = opts?.extraOwnershipClasses?.[cmd] === 'readOnly' || isReadOnlyCommand(cmd, parsed);
+    if (config0?.hooks?.preCommand && !effectiveReadOnly) {
       process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
-    if (!isReadOnlyCommand(cmd, parsed)) {
+    if (!effectiveReadOnly) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
     try {
@@ -1481,10 +1493,10 @@ export async function runCli(opts?: {
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       // F-028: same arg-aware read-only gate as the preCommand hooks above.
-      if (config0?.hooks?.postCommand && !isReadOnlyCommand(cmd, parsed)) {
+      if (config0?.hooks?.postCommand && !effectiveReadOnly) {
         process.stderr.write(`[proof-or-stop-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
-      if (!isReadOnlyCommand(cmd, parsed)) {
+      if (!effectiveReadOnly) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
           PROOF_OR_STOP_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);

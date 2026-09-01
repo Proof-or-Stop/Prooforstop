@@ -204,6 +204,18 @@ export function createLabHandlers(ctx: LabHandlerContext) {
   const { root } = ctx;
 
   return {
+    lab_help(): string {
+      return [
+        'Proof-or-Stop Lab commands:',
+        '  proof-or-stop lab create   (flat compatibility: lab_create)',
+        '  proof-or-stop lab run      (flat compatibility: lab_run)',
+        '  proof-or-stop lab eval     (flat compatibility: lab_eval)',
+        '  proof-or-stop lab compare  (flat compatibility: lab_compare)',
+        '  proof-or-stop lab promote  (flat compatibility: lab_promote)',
+        '  proof-or-stop lab help     (flat compatibility: lab_help)',
+      ].join('\n');
+    },
+
     lab_create(args: {
       target: string;
       profile: string;

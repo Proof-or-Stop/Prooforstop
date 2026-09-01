@@ -1080,6 +1080,7 @@ npm run test:global-lab-entrypoint
 `proof-or-stop lab` is Proof-or-Stop's offline optimization lab, used to create experiment configs, preview isolated sandboxes, validate the patch allowlist, and leave a uniform skeleton for later compare/promote.
 
 ```bash
+node bin/proof-or-stop.js lab help
 node bin/proof-or-stop.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 node bin/proof-or-stop.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --dry-run
 node bin/proof-or-stop.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".proof-or-stop-codex/agents/test-case-reviewer.md"]}'
@@ -1090,6 +1091,10 @@ By default, the first version supports only offline, safe experiment configs:
 - `lab run` requires a `--dry-run` preview first, and creating a real sandbox needs `--confirm`
 - `lab eval` blocks `docs/story`, `tests/fixtures`, and any path not in the `editableFiles` allowlist by default
 - when `packages/lab` is not built, the ordinary `proof-or-stop` commands still work; only `proof-or-stop lab ...` prompts to build it
+
+The nested `lab create/run/eval/compare/promote/help` commands are canonical. The flat
+`lab_create/lab_run/lab_eval/lab_compare/lab_promote/lab_help` spellings remain available
+as compatibility commands.
 
 The current `reviewer-quality-v1` can already produce real baseline / score / delta / kept-discard decisions:
 

@@ -92,6 +92,17 @@ assert.deepEqual(
   normalizeNestedSpaceAlias(['capability', 'claim', 'formal', 'evaluate', '--help']).argv,
   ['capability_claim_formal_evaluate', '--help'],
 );
+assert.deepEqual(
+  normalizeNestedSpaceAlias(['proof-or-stop', 'lab', 'create', '--target=test-case-reviewer']).argv,
+  ['lab_create', '--target=test-case-reviewer'],
+);
+assert.deepEqual(
+  normalizeNestedSpaceAlias(['lab', 'run', '--config=experiment.json', '--dryRun']).argv,
+  ['lab_run', '--config=experiment.json', '--dryRun'],
+);
+assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'eval', '{}']).argv, ['lab_eval', '{}']);
+assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'help']).argv, ['lab_help']);
+assert.equal(normalizeNestedSpaceAlias(['lab', 'unknown']).matched, false, 'unknown Lab subcommands are not normalized');
 
 // B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'
 // (PROOF_OR_STOP_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy

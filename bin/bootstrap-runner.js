@@ -156,11 +156,20 @@ export async function runLocalBootstrap() {
       },
       ...(typeof labRegister === 'function' ? {
         extraOwnershipClasses: {
+          lab_help: 'readOnly',
           lab_create: 'mainSharedMutating',
           lab_run: 'mainSharedMutating',
           lab_eval: 'readOnly',
           lab_compare: 'readOnly',
           lab_promote: 'readOnly',
+        },
+        extraAllowedPhases: {
+          lab_help: 'all',
+          lab_create: 'all',
+          lab_run: 'all',
+          lab_eval: 'all',
+          lab_compare: 'all',
+          lab_promote: 'all',
         },
       } : {}),
     });

@@ -25,11 +25,20 @@ async function runDirectCli(): Promise<void> {
     extraTools: lab.createLabToolDefs(z),
     extraRegister: (registry, ctx) => lab.register(registry, ctx),
     extraOwnershipClasses: {
+      lab_help: 'readOnly',
       lab_create: 'mainSharedMutating',
       lab_run: 'mainSharedMutating',
       lab_eval: 'readOnly',
       lab_compare: 'readOnly',
       lab_promote: 'readOnly',
+    },
+    extraAllowedPhases: {
+      lab_help: 'all',
+      lab_create: 'all',
+      lab_run: 'all',
+      lab_eval: 'all',
+      lab_compare: 'all',
+      lab_promote: 'all',
     },
   } : undefined);
 }

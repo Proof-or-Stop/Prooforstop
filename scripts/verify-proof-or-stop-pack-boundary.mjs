@@ -854,8 +854,10 @@ function runBoundary() {
     assert(versionProbe.stdout.trim() === `Proof-or-Stop ${sources.core.version}`, `installed CLI version is not ${sources.core.version}`);
     const helpProbe = runInstalledCli(cli, projectDir, ['help']);
     assert(helpProbe.stdout.includes('proof-or-stop'), 'installed CLI help does not identify the canonical command');
-    const labHelpProbe = runInstalledCli(cli, projectDir, ['lab_create', '--help']);
-    assert(labHelpProbe.stdout.includes('proof-or-stop lab_create'), 'installed core cannot load the supplied Lab tarball');
+    const labHelpProbe = runInstalledCli(cli, projectDir, ['lab', 'help']);
+    assert(labHelpProbe.stdout.includes('Proof-or-Stop Lab commands:'), 'installed core cannot run nested Lab help from the supplied Lab tarball');
+    const flatLabHelpProbe = runInstalledCli(cli, projectDir, ['lab_help']);
+    assert(flatLabHelpProbe.stdout === labHelpProbe.stdout, 'installed flat lab_help compatibility surface differs from nested Lab help');
 
     const retiredBin = spawnSync('/bin/sh', ['-c', `${RETIRED_PRODUCT} --version`], {
       cwd: projectDir,
@@ -1219,4 +1221,7 @@ if (cacheWorkerArg) {
   }
   if (!process.argv.includes('--quiet')) console.log(JSON.stringify(transcript, null, 2));
   console.log('PASS proof-or-stop packed clean-install boundary');
+  console.log(`PASS packages: proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, @proof-or-stop/utils; no @${RETIRED_PRODUCT} or file: dependencies`);
+  console.log('PASS canonical identities');
+  console.log('PASS roles: proof-or-stop-review-story-init and complete proof-or-stop-* registry');
 }

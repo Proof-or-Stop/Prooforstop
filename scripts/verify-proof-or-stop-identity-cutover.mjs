@@ -1760,6 +1760,9 @@ function main() {
   }
 
   console.log('PASS identity-cutover');
+  console.log('PASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current');
+  console.log('PASS active prose/assets: Proof-or-Stop only');
+  console.log('PASS frozen history: unchanged');
   console.log(`PASS unchanged: ${FROZEN_SALTS.length} signature salts at ${EXACT_ALLOWLIST.length} exact source rows`);
   console.log(`PASS unchanged: ${CURRENT_LEGACY_CONTEXT_ROWS.length} exact current-doc legacy token/context rows`);
   console.log(`PASS unchanged: ${FROZEN_FILE_BASELINES.length} named historical/provenance byte baselines`);
