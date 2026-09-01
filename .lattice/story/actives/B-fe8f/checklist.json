@@ -323,6 +323,24 @@
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0"
             }
+          },
+          {
+            "desc": "append_assessment_proposal atomically writes exactly one immutable exact-union proposal and one non-recursive FindingLedgerReceipt in the same transaction.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0"
+            }
+          },
+          {
+            "desc": "Mandatory-repair classify and close records are append-only, uniquely allocated and idempotent, and each record plus referenced manifest is either fully visible or absent.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0"
+            }
           }
         ],
         "edge": [
@@ -352,6 +370,24 @@
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.atomic_bundle: PASS halfBundles=0"
             }
+          },
+          {
+            "desc": "Expiry-policy records are append-only, uniquely allocated and idempotent, and an interrupted expiry-policy plus manifest append never exposes either half of the intended bundle.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0"
+            }
+          },
+          {
+            "desc": "Replaying append_assessment_proposal returns the original proposal and receipt IDs without adding rows or changing immutable proposal bytes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true"
+            }
           }
         ],
         "adversarial": [
@@ -380,6 +416,15 @@
             "verification": {
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true"
+            }
+          },
+          {
+            "desc": "append_assessment_proposal rejects wrong authority or signature, altered exact-union payload, missing receipt lookup, stale or expired proposal, and proposal/final divergence before Story 2 acceptance or Story 1 finalization; every rejected case writes zero semantic rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0"
             }
           }
         ]
