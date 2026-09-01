@@ -977,6 +977,47 @@
       "resolvedAt": "2026-09-01T00:49:24.419Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-036",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-cutover.md:3-4 and :188-195 still state that this policy commit must precede RED/production and that this decision is committed alone. Commit 0d68468f6e changed this decision after RED and production to add the decoded ledger-suffix rule, while scripts/verify-proof-or-stop-identity-cutover.mjs:21 and :1320-1354 mechanically bind ordering to the original f245fd614c policy commit; :262-265 separately pins the amended current blob. The new suffix wording itself matches JSON.parse plus recursive decoded key/value scanning, case-insensitive TOKEN_PATTERN classification, immutable-prefix checks, and exact record/token-count/digest provenance, but the document now conflates the original pre-RED decision commit with a post-RED reviewed clarification. WHY: an auditor can incorrectly infer that the amended bytes themselves satisfy the immutable pre-RED ordering claim. Clarify Status/Required order to name the original policy commit as the ordering anchor and label later reviewed amendments without weakening its lineage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-01T00:56:29.806Z",
+      "reviewRound": "2026-09-01T00:42:13.813Z",
+      "reviewRunId": "B-022e:RR-067",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "d24e42a0929dcfdd33578c26a0e26c602eec286f21b4d42d07423f0048354595"
+      },
+      "readDiagnostics": [],
+      "_hash": "e1cb1811eb45f2ee87a9dc927539f7eea5392e56bd49200e0729d8aab12a8366",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
