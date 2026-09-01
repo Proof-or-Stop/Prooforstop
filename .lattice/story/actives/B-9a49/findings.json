@@ -523,6 +523,24 @@
       ],
       "signatureTag": "missing|ts|concept-authority-drift",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-024",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:1 is absent from HEAD, main, the working tree, and repository history even though the operator explicitly named this Markdown artifact, required all-English open-source content, and then asked to execute that document until DONE. Independent searches (`rg --files -uu` plus `git log --all --full-history --name-status`) return no matching proposal, so there is no durable proposal artifact whose scope, Agent/System boundary, compatibility limitations, and Dynamic Finding consistency can be audited or handed off. Add or restore the tracked English proposal, reconcile it with the current authoritative plan (including `not_reproduced_under_current_witness` and signed defer-with-proof semantics), and include it in the Story related-document/digest coverage before claiming the document is fully executed.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T09:55:43.055Z",
+      "reviewRound": "2026-09-01T09:43:56.937Z",
+      "reviewRunId": "B-9a49:RR-029",
+      "_hash": "029e33cc700faa8a97ec7347087df648c446fe22a11dac7e0891ac1215ae9f5e",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
