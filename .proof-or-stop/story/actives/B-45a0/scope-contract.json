@@ -615,10 +615,48 @@
       "phase": "REVIEW",
       "headHash": "b487d38b5cb70fe6ada9e7cf886cdd7c15b6b9d2",
       "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CLAUDE.md version discipline requires a CLI patch bump before merging a story that changes runtime behavior; B-45a0 changes 78 source files. These three carry the version pins (both lockfile self-version entries and LATTICE_CLI_VERSION) that must move together with package.json from 0.3.272 to 0.3.273.",
+      "timestamp": "2026-09-01T14:05:59.139Z",
+      "paths": [
+        "package-lock.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package-lock.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "8eb0799d21698b8cf0c17593478c177e87f89cae",
+      "materialHash": "7155737f853b8064ae7533b69068adbb4e625d8bc985e578df34091eac09f0df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Merging main (B-5a88) regressed this story's own CHK-014 acceptance surface: strict semantic mode keyed on sourceRef shape rather than on whether a row borrows a canonical record, so the live-proof chain went from exitCode=0 to a hard abort. Repairing an acceptance-blocking defect in the current story is required by the defect-triage rule; the smoke file is the regression control proving the borrow path still fails closed.",
+      "timestamp": "2026-09-01T14:06:10.303Z",
+      "paths": [
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "8eb0799d21698b8cf0c17593478c177e87f89cae",
+      "materialHash": "7155737f853b8064ae7533b69068adbb4e625d8bc985e578df34091eac09f0df"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-31T22:18:10.725Z",
+  "updatedAt": "2026-09-01T14:06:10.303Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -721,6 +759,11 @@
     "AGENTS.md": "AGENTS.md",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts",
-    "packages/graph/scripts/verify-no-project-writes.mjs": "packages/graph/scripts/verify-no-project-writes.mjs"
+    "packages/graph/scripts/verify-no-project-writes.mjs": "packages/graph/scripts/verify-no-project-writes.mjs",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts": "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts"
   }
 }
