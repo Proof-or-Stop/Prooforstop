@@ -6437,6 +6437,33 @@
       "cancelReason": "RIE-079 came from the no-OPEN-epoch finalize shortcut, which writes reviewInventoryDigest(cutoff) as scopeDigest (6fc1d3c4) instead of the acceptance-subject digest (5e44ec54) that consumeReviewInventoryReceipt requires; structurally unconsumable. Re-earning via a full OPEN epoch.",
       "terminalRunSequenceBoundary": 826,
       "_hash": "05aeab0b870b1a839a10336d4f095609e6d94c41b468dd46e169c4e0ad59fa3d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-059",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-01T18:34:17.292Z",
+      "updatedAt": "2026-09-01T18:34:17.292Z",
+      "cutoff": {
+        "headHash": "4d87764b625dc9319909d9c8ab7ddf93a61b28a1",
+        "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
+        "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868"
+      },
+      "scopeDigest": "5e44ec54f5b23f30e18fd4c6bcecab53f1c379ea923093f45543451c8e291b42",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 826,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "bda022a1d1f6abc3d1e0fe2ea1cac725064e4163d6079ab135a6f56f5b14cc23"
     }
   ],
   "receipts": [

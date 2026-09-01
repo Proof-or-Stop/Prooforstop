@@ -12962,6 +12962,65 @@
       },
       "readDiagnostics": [],
       "_hash": "fbef5349cfc0270772a0c976659223206d3b8ad41fbf0ab10edac3c2d8f83da9"
+    },
+    {
+      "id": "B-5a15:RP-269",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue re-attestation on a mechanically unchanged tree. RR-827 binds materialHash baf3b78a5761 and storyFilesHash 0b5fe162 -- byte-identical to RR-820 (my RP-264 pass); only headHash moved c1c55ead->4d87764b. Verified independently, not on assertion: `git diff --name-only c1c55ead..HEAD` yields 15 commits touching ONLY .proof-or-stop/story/actives/B-5a15/* story metadata; the same diff restricted to packages/main/src, packages/main/tests, packages/graph, packages/utils and scripts is EMPTY, and no docs/CLAUDE.md/README changed. Working tree carries no non-metadata edits. Concept surface re-checked against main: story diff is additive (7633+/226-) with ZERO file deletions or renames. The sole removed exported symbol, preReviewCaseRequiresSemanticBinding, is a relocation not a deletion -- it is exported from core/pre-review-live-proof.ts:139 and imported by core/pre-review-check.ts:27, with all four call sites resolving. Mechanical gates re-run green on this exact tree: scripts/verify-lattice-residue.mjs all five checks PASS (koala, brand-prose, brand-exec, npm-bin, brand-decision) and scripts/verify-process-fact-contract.mjs prints 'Process fact contract verified'. Closing self-check for doc-promise-undelivered: command-catalog.ts is unchanged by this story so no new CLI surface is promised; the only docs touched are the two plan docs being implemented, whose added lines reference proof-or-stop aux_doc_list (present in command-catalog.ts), session_brief, validate, and LATTICE_SESSION_ID (present across packages/main/src) -- all pre-existing, nothing promised-but-undelivered. Already-dispositioned findings (F-325..F-344) were not re-filed. No blocker for the concept lane.",
+      "createdAt": "2026-09-01T18:39:21.805Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-827",
+      "envelopeId": "a841c9c6abd02061fab14e91dd4f4a9133fa23b33109ed5f37fa70e84032d702",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "df25c6b32c663982d278ddf0ff7bd16376e661bad1f17ac78e5ce95873b647a1"
     }
   ]
 }
