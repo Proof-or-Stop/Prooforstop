@@ -769,9 +769,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T10:26:05.090Z",
-      "endTime": null,
+      "endTime": "2026-09-01T10:26:06.014Z",
       "userSees": "The terminal prints \"ledger.receipt_contract: PASS signedFields=complete\", \"ledger.exact_record_cas: PASS committed=true\", and \"ledger.stale_cas: PASS semanticWrites=0\".",
       "excludes": [
         "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning."
@@ -1808,6 +1808,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Restore completed implementation state after accepted scope-extension lifecycle reopen."
+    },
+    {
+      "timestamp": "2026-09-01T10:26:06.014Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Previously committed and verified work remains unchanged by SEP-B-fe8f-001."
     }
   ]
 }
