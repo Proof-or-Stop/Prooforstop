@@ -1257,7 +1257,7 @@
       "desc": "evidence_inspect current-final-state: CHK-007:pack-boundary-transcript:0 is still stale after F-043 was marked resolved. The live transcript evidence row is bound to storyFilesHash a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258, while current storyFilesHash is 4e45db57769e79fef8270714b8b43e47c0ff5f1082323bb6a7f784262cf91cbe; `node bin/proof-or-stop.js evidence_inspect --storyId=B-022e --format=json` reports overall freshness.status=stale and staleRefs=[CHK-007:pack-boundary-transcript:0]. The 29 standard intent rows are fresh/pass and the focused Lab lifecycle tests pass, but the promised present-fresh packed-boundary transcript is not currently admissible. WHY: F-043 specifically requires recapture/rebinding at the final storyFilesHash, and marking it resolved without a fresh row leaves the exact clean-tarball/nested-Lab supplement unproven at closeout.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T09:41:28.854Z",
@@ -1270,7 +1270,11 @@
         "scripts/verify-proof-or-stop-pack-boundary.mjs"
       ],
       "signatureTag": "missing|json|evidence-inspect-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed through the legal checklist_update path: CHK-007:pack-boundary-transcript:0 was an orphan legacy supplement whose intentRef no longer resolves to a current verificationIntent, so it was removed without manufacturing a new intent; all 29 current intent records remain mechanically passing and fresh. A new 120-command validate at the current story-owned state passed allPass=true and wrote fresh test evidence.",
+      "resolvedAt": "2026-09-01T10:26:29.088Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-048",
