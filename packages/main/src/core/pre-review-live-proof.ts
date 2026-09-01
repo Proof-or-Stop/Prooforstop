@@ -35,11 +35,38 @@ export interface PreReviewCanonicalCaseBindingV1 {
 }
 
 /**
+ * B-5a15: a record is judged against the registered canonical semantics only when it IS
+ * one of those canonical cases.
+ *
+ * The binding tables below are keyed by story-agnostic refs (`intent:CHK-001:happy:0`)
+ * while their VALUES describe specific canonical scenario bodies — role-guidance mirrors,
+ * package-identity migration, bin-alias residue. Every story numbers its checklist the
+ * same way, so applied to ANY record the table silently asserts one story's meaning over
+ * another story's identically-named assertion. For B-5a15 that hijacked 15 of its 51
+ * acceptance assertions (its own `CHK-001:happy:0` is a 58-intent pinned evidence batch,
+ * nothing to do with role guidance) and left the other 36 with no binding at all — which
+ * preReviewCaseRequiresSemanticBinding then demanded, making them unsatisfiable by
+ * construction.
+ *
+ * Keying on the RECORD ID keeps F-339's guarantee exactly where it bites: the canonical
+ * cases (A-POS-n / A-MUT-n / A-TRANSCRIPT-n) that the live-proof runner actually executes
+ * still must match their registered triple, so none of them can borrow another's record.
+ * A story-specific assertion ID (`A-CHK-001-happy-0`) names no canonical case, so it is
+ * judged on its own executed observation plus the unchanged structural contract: unique
+ * IDs, no extra IDs, exact kind, and exact sourceRef.
+ */
+export function isCanonicalPreReviewCaseId(recordId: string): boolean {
+  return /^A-(?:POS|MUT|TRANSCRIPT)-\d+$/.test(recordId);
+}
+
+/**
  * Active topologies may use story-specific assertion IDs, but the live proof
  * runner only executes the registered canonical cases.  This is the verifier-
  * owned semantic bridge between those two namespaces.  It is intentionally
  * finite: an unregistered active source reference cannot borrow a canonical
  * record merely by matching its kind.
+ *
+ * Only meaningful for PRE_REVIEW_ACTIVE_TOPOLOGY_BINDING_STORY_ID — see above.
  */
 export const REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS = new Map<string, PreReviewCanonicalCaseBindingV1>([
   ['intent:CHK-001:happy:0', { canonicalCaseId: 'A-POS-1', target: 'role-guidance:codex-claude-mirrors', mutationKind: 'prompt-contract', operation: 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs' }],
@@ -80,15 +107,43 @@ export const REGISTERED_PRE_REVIEW_ACTIVE_TRANSCRIPT_BINDINGS = new Map<string, 
 export function preReviewCaseSemanticBindingForSourceRef(
   sourceRef: string,
   kind?: PreReviewCaseRecordV1[1],
+  recordId?: string,
 ): PreReviewCanonicalCaseBindingV1 | null {
+  // A record whose ID is not a canonical case is a story-specific assertion these
+  // canonical semantics do not describe; answering would bind it to another story's
+  // meaning. Omitting recordId keeps the historical behaviour for direct lookups.
+  if (recordId !== undefined && !isCanonicalPreReviewCaseId(recordId)) return null;
   return kind === 'transcript'
     ? REGISTERED_PRE_REVIEW_ACTIVE_TRANSCRIPT_BINDINGS.get(sourceRef) ?? null
     : REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS.get(sourceRef) ?? null;
 }
 
-export function preReviewCaseRequiresSemanticBinding(sourceRef: string): boolean {
-  return /^intent:CHK-\d{3}:(happy|edge|adversarial):\d+$/.test(sourceRef)
-    || sourceRef.startsWith('acceptance-binding:');
+/**
+ * B-5a88 F-339 introduced this to stop an active assertion BORROWING a canonical record
+ * by kind/index: if a sourceRef names a canonical case we have registered semantics for,
+ * the executed record must match that registered triple exactly.
+ *
+ * B-5a15: the requirement is scoped to refs that actually HAVE a registered binding.
+ * REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS registers only index :0 of each
+ * CHK-nnn happy/edge/adversarial lane, but a story may declare several assertions per
+ * lane (B-5a15 declares 51, of which 36 are unregistered). Demanding a registered
+ * binding for a ref that has none is unsatisfiable by construction — it rejects a
+ * record no matter what the verifier observed.
+ *
+ * This does NOT reopen the borrowing hole F-339 closed. Where a binding exists it is
+ * still enforced exactly, and records for unregistered refs must still be produced by
+ * real per-assertion execution (see executeActiveScenarioTopology, which forges a
+ * per-assertion signature and runs the real verifier for each one) and still pass every
+ * other contract check: unique IDs, no extra IDs, exact kind, and exact sourceRef.
+ */
+export function preReviewCaseRequiresSemanticBinding(
+  sourceRef: string,
+  kind?: PreReviewCaseRecordV1[1],
+  recordId?: string,
+): boolean {
+  if (!/^intent:CHK-\d{3}:(happy|edge|adversarial):\d+$/.test(sourceRef)
+    && !sourceRef.startsWith('acceptance-binding:')) return false;
+  return preReviewCaseSemanticBindingForSourceRef(sourceRef, kind, recordId) !== null;
 }
 
 export function preReviewCaseSemanticMatches(
@@ -96,7 +151,7 @@ export function preReviewCaseSemanticMatches(
   expectedSourceRef = record[9],
   requireRegisteredBinding = false,
 ): boolean {
-  const activeBinding = preReviewCaseSemanticBindingForSourceRef(expectedSourceRef, record[1]);
+  const activeBinding = preReviewCaseSemanticBindingForSourceRef(expectedSourceRef, record[1], record[0]);
   if (activeBinding) {
     return record[2] === activeBinding.target
       && record[3] === activeBinding.mutationKind
@@ -170,7 +225,11 @@ export function assemblePreReviewCaseRecords(
     if (record[9] !== canonicalPreReviewAssertionSourceRef(assertion.sourceRef)) {
       throw new Error(`pre-review executed record sourceRef mismatch for ${assertion.id}`);
     }
-    if (!preReviewCaseSemanticMatches(record, record[9], preReviewCaseRequiresSemanticBinding(record[9]))) {
+    if (!preReviewCaseSemanticMatches(
+      record,
+      record[9],
+      preReviewCaseRequiresSemanticBinding(record[9], record[1], record[0]),
+    )) {
       throw new Error(`pre-review executed record semantic contract mismatch for ${assertion.id}`);
     }
     return record;
@@ -194,7 +253,7 @@ export function decodePreReviewCaseRecords(value: string): PreReviewCaseRecordV1
   const semanticMismatch = records.find(record => !preReviewCaseSemanticMatches(
     record,
     record[9],
-    preReviewCaseRequiresSemanticBinding(record[9]),
+    preReviewCaseRequiresSemanticBinding(record[9], record[1], record[0]),
   ));
   if (semanticMismatch) {
     throw new Error(`pre-review decoded record semantic contract mismatch for ${semanticMismatch[0]}`);

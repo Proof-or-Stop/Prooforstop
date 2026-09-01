@@ -199,7 +199,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     preReviewCaseSemanticMatches(
       record,
       record[9],
-      preReviewCaseRequiresSemanticBinding(record[9]),
+      preReviewCaseRequiresSemanticBinding(record[9], record[1], record[0]),
     ));
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);
