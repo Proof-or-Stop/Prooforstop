@@ -1,0 +1,21 @@
+{
+  "storyId": "B-9a49",
+  "expected": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
+  "actual": {
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85\n                throw new Error(`unknown active topology assertion ID: ${assertion.id}`);\n                      ^\n\nError: unknown active topology assertion ID: PA-DELIVERY-FULL-ENVELOPE\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85:23\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.8.1\nnode:internal/errors:999\n  const err = new Error(message);\n              ^\n\nError: Command failed: /opt/homebrew/Cellar/node/26.8.1/bin/node /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\nfile:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85\n                throw new Error(`unknown active topology assertion ID: ${assertion.id}`);\n                      ^\n\nError: unknown active topology assertion ID: PA-DELIVERY-FULL-ENVELOPE\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85:23\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.8.1\n\n    at genericNodeError (node:internal/errors:999:15)\n    at wrappedFn (node:internal/errors:544:14)\n    at checkExecSyncError (node:child_process:942:11)\n    at execFileSync (node:child_process:978:15)\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:196:28\n    at ModuleJob.run (\n...[truncated 2767 chars]"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-01T00:25:28.623Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "1b0481708057574987e80f324615e1f475af272d",
+  "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52"
+}
