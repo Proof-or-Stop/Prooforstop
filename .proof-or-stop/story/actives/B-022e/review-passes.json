@@ -2504,6 +2504,34 @@
       },
       "readDiagnostics": [],
       "_hash": "f14b24b66aade52bfa059a4bcb0fc467b893cfe72d196d8d8f7a5d9728df7556"
+    },
+    {
+      "id": "B-022e:RP-065",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round30 test-coverage PASS: dedb68b500 commits direct coverage for both F-057/F-058 composition-smuggling inverses (legacy heartbeat compatibility line plus appended cat/edit, and historical EXP-001 line plus prepended echo/overwrite), exact file/full-line positive pins, and an explicit post-mutation clean-control zero-error recheck. Independent execution passed node syntax, identity self-test, normal identity/frozen-history checks, and the four-tarball offline pack boundary. Checklist inventory remains 29 intents with 29 passing evidence records, zero failing records and zero waivers; evidence_inspect/session freshness classify the current records stale after story-owned storyFilesHash change, so host must re-execute/refresh them, but that is freshness work rather than a missing, duplicate, or waived coverage gap. No new coverage finding.",
+      "createdAt": "2026-09-01T18:55:08.935Z",
+      "reviewRound": "2026-09-01T18:48:36.220Z",
+      "reviewRunId": "B-022e:RR-135",
+      "envelopeId": "cfba894ebdf26c90e1ce3059e4e45b890aea350a45ca22760773d03d832d2321",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "proof-or-stop.config.json",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "196ecccfa85123f28265e916cde050561407545914d44e5997a3589f7bdcd421"
     }
   ]
 }
