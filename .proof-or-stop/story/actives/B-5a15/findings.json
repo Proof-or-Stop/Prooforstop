@@ -18578,6 +18578,53 @@
       ],
       "signatureTag": "twin-predicate-fork-omitted-at-second-consumer",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-340",
+      "desc": "quality-cleanup: core/pre-review-live-proof.ts:161 the `if (requireRegisteredBinding) return false;` guard is unreachable from every production caller, so the requireRegisteredBinding parameter of preReviewCaseSemanticMatches:149 is now inert and the docblock:121-138 describes a guarantee the flag no longer carries. All three production call sites (pre-review-live-proof.ts:228-232, :253-257, pre-review-check.ts:199-203) pass requireRegisteredBinding = preReviewCaseRequiresSemanticBinding(record[9], record[1], record[0]) while passing the SAME record[9] as expectedSourceRef. preReviewCaseRequiresSemanticBinding:139 computes its result as preReviewCaseSemanticBindingForSourceRef(sourceRef, kind, recordId) !== null -- the identical call with identical arguments that preReviewCaseSemanticMatches makes at :154. The two are therefore perfectly correlated: requireRegisteredBinding===true implies activeBinding!==null, which returns inside the `if (activeBinding)` block at :155-159 before :161 is ever reached. Mechanically proven, not reasoned: driving the exported pair over all 42 real registered refs (REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS 21 + _TRANSCRIPT_ 21) crossed with each records real canonicalCaseId and all three kinds yields 126 cases where preReviewCaseRequiresSemanticBinding()===true, and in ZERO of them did toggling the flag change the result of preReviewCaseSemanticMatches (positive control confirmed non-vacuous: the same harness with synthetic non-canonical ids produced 0 true cases, so real canonical ids were required to exercise the branch at all). The flag is still live from the smoke at tasks/proofstory-pre-review-check-smoke.ts:413, which passes the literal true, so this is dead-on-production surface rather than fully dead code. NOT a soundness hole: where a binding exists it is still enforced exactly by the :155-159 branch, which is what actually closes the F-339 borrowing hole; this is the vestigial parameter and the now-inaccurate docblock. Recommend either dropping the parameter and its :161 branch, or documenting that only the smoke exercises it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T10:45:27.990Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-803",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8a8fc49b471b68a44fb78bbdca903f42b87fa6d9cdb652158bcf954ca4662355",
+      "files": [
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "guard-parameter-rendered-inert-by-correlated-precondition",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
