@@ -94,6 +94,7 @@ export interface AliasNormalizationResult {
   cmd: string | undefined;
   arg: string | undefined;
   canonicalAlias?: string;
+  displayAlias?: string;
   consumed?: 2 | 3 | 4;
   aliasStart: 0 | 1;
 }
@@ -126,6 +127,7 @@ export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationRes
     cmd: canonicalAlias,
     arg: normalizedArgv[1],
     canonicalAlias,
+    displayAlias: match.text,
     consumed: match.consumed,
     aliasStart,
   };

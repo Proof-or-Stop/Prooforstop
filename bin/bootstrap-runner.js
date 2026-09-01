@@ -154,24 +154,42 @@ export async function runLocalBootstrap() {
         register(registry, ctx);
         if (typeof labRegister === 'function') labRegister(registry, ctx);
       },
-      ...(typeof labRegister === 'function' ? {
-        extraOwnershipClasses: {
+      extraOwnershipClasses: {
+        aux_coverage: 'readOnly',
+        aux_detail: 'readOnly',
+        aux_diagnose: 'mainSharedMutating',
+        aux_locate: 'readOnly',
+        aux_scan: 'readOnly',
+        aux_sync: 'mainSharedMutating',
+        aux_trace: 'readOnly',
+        tool_status: 'readOnly',
+        ...(typeof labRegister === 'function' ? {
           lab_help: 'readOnly',
           lab_create: 'mainSharedMutating',
           lab_run: 'mainSharedMutating',
           lab_eval: 'readOnly',
           lab_compare: 'readOnly',
           lab_promote: 'readOnly',
-        },
-        extraAllowedPhases: {
+        } : {}),
+      },
+      extraAllowedPhases: {
+        aux_coverage: 'all',
+        aux_detail: 'all',
+        aux_diagnose: ['DEV'],
+        aux_locate: 'all',
+        aux_scan: 'all',
+        aux_sync: ['DEV'],
+        aux_trace: 'all',
+        tool_status: 'all',
+        ...(typeof labRegister === 'function' ? {
           lab_help: 'all',
-          lab_create: 'all',
-          lab_run: 'all',
-          lab_eval: 'all',
+          lab_create: ['DEV'],
+          lab_run: ['DEV'],
+          lab_eval: ['DEV'],
           lab_compare: 'all',
           lab_promote: 'all',
-        },
-      } : {}),
+        } : {}),
+      },
     });
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));

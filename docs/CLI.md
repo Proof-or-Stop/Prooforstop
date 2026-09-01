@@ -1096,6 +1096,11 @@ The nested `lab create/run/eval/compare/promote/help` commands are canonical. Th
 `lab_create/lab_run/lab_eval/lab_compare/lab_promote/lab_help` spellings remain available
 as compatibility commands.
 
+Inside an active Story, `lab create`, `lab run`, and `lab eval` (including their flat
+compatibility spellings) are admitted only in DEV. `lab help`, `lab compare`, and
+`lab promote` are read-only and remain available across phases. Nested `--help`
+headings and Usage lines retain the canonical `proof-or-stop lab <command>` spelling.
+
 The current `reviewer-quality-v1` can already produce real baseline / score / delta / kept-discard decisions:
 
 ```bash

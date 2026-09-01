@@ -34,9 +34,9 @@ async function runDirectCli(): Promise<void> {
     },
     extraAllowedPhases: {
       lab_help: 'all',
-      lab_create: 'all',
-      lab_run: 'all',
-      lab_eval: 'all',
+      lab_create: ['DEV'],
+      lab_run: ['DEV'],
+      lab_eval: ['DEV'],
       lab_compare: 'all',
       lab_promote: 'all',
     },

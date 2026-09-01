@@ -1768,6 +1768,7 @@ function main() {
   console.log(`PASS unchanged: ${FROZEN_FILE_BASELINES.length} named historical/provenance byte baselines`);
   console.log(`PASS unchanged: ${CONCEPT_PROVENANCE_ROWS.length} exact concept-cleanup provenance/fixture rows`);
   console.log(`PASS unchanged: ${schemas.length} exact persisted-schema rows`);
+  console.log('PASS canonical identities');
   execFileSync(process.execPath, [resolve(root, 'scripts/verify-proof-or-stop-pack-boundary.mjs'), '--quiet'], {
     cwd: root,
     stdio: 'inherit',

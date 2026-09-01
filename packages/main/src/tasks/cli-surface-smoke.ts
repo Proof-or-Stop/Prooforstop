@@ -84,8 +84,22 @@ assert.deepEqual(
     cmd: 'host_runtime_list',
     arg: '--json',
     canonicalAlias: 'host_runtime_list',
+    displayAlias: 'host runtime list',
     consumed: 3,
     aliasStart: 1,
+  },
+);
+assert.deepEqual(
+  normalizeNestedSpaceAlias(['lab', 'create', '--help']),
+  {
+    matched: true,
+    argv: ['lab_create', '--help'],
+    cmd: 'lab_create',
+    arg: '--help',
+    canonicalAlias: 'lab_create',
+    displayAlias: 'lab create',
+    consumed: 2,
+    aliasStart: 0,
   },
 );
 assert.deepEqual(

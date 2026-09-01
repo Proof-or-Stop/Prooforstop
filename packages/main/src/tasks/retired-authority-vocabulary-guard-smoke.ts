@@ -429,7 +429,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-022e delivery follow-up: extension phase admission/read-only handling
   // changed elsewhere in runCli; the initPath producer and import() call are
   // byte-identical, so this remains an exact whole-source re-attestation.
-  ['packages/main/src/cli-engine.ts', '69bf311f5944faa25068745d3ea7c1f6828d9c04d94e7f116ac7fe450dc077db'],
+  ['packages/main/src/cli-engine.ts', '71e8f8fb773779c70c70a07e3cb29a6e1a4b0cc775b59cbbf9c146d2490994c0'],
   // B-022e post-merge re-attestation: runtime identity/path tokens changed;
   // startCircuitServe's filePath producer and import(`file://${filePath}`)
   // call shape remain unchanged.
@@ -463,13 +463,13 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // B-022e delivery follow-up: nested Lab routing adds only ownership/phase
   // metadata inside the existing runCli options object. The three approved
   // non-literal import call sites, arguments, and path producers are unchanged.
-  ['bin/bootstrap-runner.js', '9ce76bc29c20fcccabd1010f764e8b9af23e14a1482e6c4161765399f9dd1935'],
+  ['bin/bootstrap-runner.js', '282eebebb8c50bdc538fbd909191bbaa5cc8326ed205d97959433438746ef4d5'],
   // B-022e: main's standalone entrypoint loads the canonical Lab package first,
   // then one repository-relative build fallback. The exact-file pin covers both
   // the loader producer and the dynamically imported Lab namespace calls.
   // B-022e delivery follow-up: nested Lab routing adds only ownership/phase
   // metadata; workspaceLabSpecifier and its import() call remain unchanged.
-  ['packages/main/src/cli.ts', '654b7c2d65b538fb9636fab2d15368e8e4d5c0105c047151dcac11078d2b076a'],
+  ['packages/main/src/cli.ts', 'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1581,10 +1581,10 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // leaves this exception set instead of receiving a broader allowance.
   // B-022e delivery follow-up: the same audited metadata-only executable drift
   // moves this coupled whole-source pin without changing any loader provenance.
-  ['bin/bootstrap-runner.js', '9ce76bc29c20fcccabd1010f764e8b9af23e14a1482e6c4161765399f9dd1935'],
+  ['bin/bootstrap-runner.js', '282eebebb8c50bdc538fbd909191bbaa5cc8326ed205d97959433438746ef4d5'],
   ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
   // Same exact-file review boundary as the dynamic-module-call exemption above.
-  ['packages/main/src/cli.ts', '654b7c2d65b538fb9636fab2d15368e8e4d5c0105c047151dcac11078d2b076a'],
+  ['packages/main/src/cli.ts', 'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {

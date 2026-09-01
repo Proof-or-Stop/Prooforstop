@@ -1222,6 +1222,6 @@ if (cacheWorkerArg) {
   if (!process.argv.includes('--quiet')) console.log(JSON.stringify(transcript, null, 2));
   console.log('PASS proof-or-stop packed clean-install boundary');
   console.log(`PASS packages: proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, @proof-or-stop/utils; no @${RETIRED_PRODUCT} or file: dependencies`);
-  console.log('PASS canonical identities');
+  console.log('PASS packed package/bin/role identities');
   console.log('PASS roles: proof-or-stop-review-story-init and complete proof-or-stop-* registry');
 }

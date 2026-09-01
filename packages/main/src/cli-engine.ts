@@ -55,6 +55,7 @@ import {
   storyIdFromArgs,
   enforceRetiredRootGuard,
   enforceStoryOwnerLeaseGate,
+  resolveEffectiveOwnershipClass,
 } from './cli/ownership-gate.js';
 import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate.js';
 import {
@@ -69,6 +70,10 @@ import {
   printValidationFailure,
 } from './cli/help-renderer.js';
 import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
+import {
+  validateExternalCommandDeclarations,
+  validateExternalCommandHandlers,
+} from './cli/extension-admission.js';
 import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
 import { dispatchUsageSweepAlertWithExit } from './handlers/usage-sweep.js';
@@ -729,6 +734,12 @@ export async function runCli(opts?: {
   extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
   extraAllowedPhases?: Readonly<Record<string, readonly string[] | 'all'>>;
 }): Promise<void> {
+  const externalAdmission = validateExternalCommandDeclarations({
+    mainTools: MAIN_TOOLS,
+    extraTools: opts?.extraTools,
+    extraOwnershipClasses: opts?.extraOwnershipClasses,
+    extraAllowedPhases: opts?.extraAllowedPhases,
+  });
   // Inject extras: merge tool defs and keep extras register for later invocation.
   TOOLS = opts?.extraTools && opts.extraTools.length > 0
     ? [...MAIN_TOOLS, ...opts.extraTools]
@@ -851,7 +862,8 @@ export async function runCli(opts?: {
     process.exit(1);
   }
 
-  if (arg === '--help' || arg === '-h') { printToolHelp(tool, { ownerLeaseHelpBlock }); return; }
+  const helpInvocation = normalizedAlias.matched ? normalizedAlias.displayAlias : undefined;
+  if (arg === '--help' || arg === '-h') { printToolHelp(tool, { ownerLeaseHelpBlock, invocation: helpInvocation }); return; }
 
   // Phase gate: When an active story exists, reject commands outside the allowlist.
   if (activeStory) {
@@ -860,11 +872,8 @@ export async function runCli(opts?: {
     // registry. They must independently declare BOTH ownership and lifecycle
     // phases; a tool definition or ownership class alone cannot bypass the
     // active-Story phase gate.
-    const hasExtensionOwnership = Object.prototype.hasOwnProperty.call(opts?.extraOwnershipClasses ?? {}, cmd);
-    const hasExtensionLifecycle = Object.prototype.hasOwnProperty.call(opts?.extraAllowedPhases ?? {}, cmd);
-    const extensionPhases = opts?.extraAllowedPhases?.[cmd];
-    const isDeclaredExtensionCommand = hasExtensionOwnership
-      && hasExtensionLifecycle
+    const extensionPhases = externalAdmission.allowedPhases[cmd];
+    const isDeclaredExtensionCommand = externalAdmission.commandNames.has(cmd)
       && (extensionPhases === 'all' || (Array.isArray(extensionPhases) && extensionPhases.includes(activeStory.phase)));
     if (!isDeclaredExtensionCommand && !isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
@@ -885,7 +894,7 @@ export async function runCli(opts?: {
     parsed = parseCommandArgs(argv.slice(1), tool);
   } catch (e) {
     console.error((e as Error).message);
-    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
+    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock, invocation: helpInvocation });
     process.exit(1);
   }
 
@@ -939,6 +948,7 @@ export async function runCli(opts?: {
   const ctx: HandlerContext = { store, root, scanRoot, log };
   const registry = createMainRegistry(ctx);
   if (opts?.extraRegister) opts.extraRegister(registry, ctx);
+  validateExternalCommandHandlers(externalAdmission, registry.list());
   const handlers = registry.toObject() as Record<string, Function>;
 
   function appendMilestoneStatusAfterMutation(output: string): string {
@@ -1243,7 +1253,9 @@ export async function runCli(opts?: {
     // for BOTH the success and error call sites in run() (and any future
     // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
     // so no post-command process-event surface can bypass the contract.
-    if (opts?.extraOwnershipClasses?.[entry.command] === 'readOnly' || isReadOnlyCommand(entry.command, argsObject)) return;
+    const eventStoryId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
+    const eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses);
+    if (eventOwnership === 'readOnly' || isReadOnlyCommand(entry.command, argsObject)) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
     // canonical commit dirty again (and would mutate pre-dirty refusal bytes).
@@ -1360,7 +1372,7 @@ export async function runCli(opts?: {
     // before the owner lease gate, so a blocked command cannot trigger hooks
     // or acquire/mutate lease state.
     try {
-      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, opts?.extraOwnershipClasses);
+      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, externalAdmission.ownershipClasses);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1374,7 +1386,7 @@ export async function runCli(opts?: {
     // because those are still writes even though they are intentionally exempt
     // from per-story owner leases.
     try {
-      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root, opts?.extraOwnershipClasses);
+      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root, externalAdmission.ownershipClasses);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1386,7 +1398,9 @@ export async function runCli(opts?: {
     // F-028: gate on the arg-aware read-only predicate so a plain (no --out)
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
-    const effectiveReadOnly = opts?.extraOwnershipClasses?.[cmd] === 'readOnly' || isReadOnlyCommand(cmd, parsed);
+    const commandStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
+    const effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses);
+    const effectiveReadOnly = effectiveOwnership === 'readOnly' || isReadOnlyCommand(cmd, parsed);
     if (config0?.hooks?.preCommand && !effectiveReadOnly) {
       process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
@@ -1412,7 +1426,7 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, opts?.extraOwnershipClasses);
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, externalAdmission.ownershipClasses);
       // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
       // (which owns the canonical-storyId / path-traversal guard and the ownership
       // check) so the breaker only ever derives a story path and writes state for a
