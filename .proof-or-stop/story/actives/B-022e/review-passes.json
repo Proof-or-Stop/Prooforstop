@@ -1802,6 +1802,42 @@
         "scanEscalationReason": null
       },
       "_hash": "70c72469ab6893bcf7147b1bf92b24c75b02d183a7de86db61dfb22b9fe21b42"
+    },
+    {
+      "id": "B-022e:RP-050",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 25 full quality review at current HEAD c43f82517f. Reviewed the complete current product delta, especially requested-full stabilization 0b9c6cd646 and direct material/scope inverse coverage 7874cf8ab8. The exception is exact: only a full envelope selected as REVIEWER_REQUESTED_FULL stops dynamic reinterpretation of three discarded incremental-candidate fields; Prompt Envelope integrity still binds those fields, while impact policy version, freshness classification, prior pass, changed/impacted file digests, task semantic digest, assembled prompt, dispatch, material/story/scope bindings remain authoritatively fail-closed. Updated production smoke proves committed product material drift and direct scope-contract drift both invalidate the pass in verifier and shared gate reader, and proves content/scope restoration re-admits it; envelope tamper, invalid phase/title/checklist, cross-lane metadata, REVIEW-to-TEST, concurrency/ABA, read-only bytes, and cleanup restoration also pass. Process-fact contract, built source/dist inverse anchors, 28/28 entrypoints, identity fail-closed mutations, and 86 version assertions pass. No unsafe type escape, dead code, swallowed failure, test contamination, naming/version drift, gate weakening, or blocking quality finding.",
+      "createdAt": "2026-09-01T16:10:06.654Z",
+      "reviewRound": "2026-09-01T16:06:49.189Z",
+      "reviewRunId": "B-022e:RR-113",
+      "envelopeId": "8d413090998d9c0d428920071788e333beb64367ff8f762015a2d1193713194d",
+      "writerSessionId": "sess-8b578106d88f262e7b8839da1f27faa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/dist/core/review-run.js",
+          "packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Round 25 full safety review of requested-full exception boundaries plus direct material and scope inverse coverage."
+      },
+      "_hash": "3d00ab11fc5657b6a35c40ec9c8192623fd9ce1eb7fff5bfa53f863d085b6aa0"
     }
   ]
 }
