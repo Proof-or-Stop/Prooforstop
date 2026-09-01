@@ -1,94 +1,96 @@
 {
   "storyId": "B-022e",
-  "checkedAt": "2026-09-01T18:33:34.632Z",
-  "headHash": "af5466c539dbf372b8daf740ae515f8f0785d8f5",
-  "materialHash": "eb62f8756c0a127e36e6bc812123bee97c617107df5fd29ad899f2f6d3d229a2",
-  "storyFilesHash": "363a243adfb2e080a9ca5abc6ec20e39ab82c5287905b47d4c2ecd9b9771b67c",
-  "reviewRound": "2026-09-01T18:16:35.588Z",
+  "checkedAt": "2026-09-01T19:37:38.669Z",
+  "headHash": "31683d545ef8cd3772387ce11ad47daab5579cbe",
+  "materialHash": "2d3274644bb0a3537166d13ae5293bc381b6f212f8a47aece01174c599311555",
+  "storyFilesHash": "4f41eb72b90e5de6d5ffc4fab97c0008ad444858908fbabd3d1ad5c606c49075",
+  "reviewRound": "2026-09-01T19:12:48.879Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
-      "promise": "Canonical public package, bin, command, role, prompt, and configuration identity is Proof-or-Stop; retired lattice identities are limited to explicit migration, negative-test, frozen-history, or provenance contexts.",
+      "docPath": ".proof-or-stop/story/actives/B-022e/checklist.json",
+      "promise": "CHK-001: exhaustive active-identity policy and exact frozen-history allowlist are established before migration.",
       "status": "verified",
-      "verifiedBy": "Current identity-cutover verifier receipt plus direct package/help/prompt inspection",
-      "evidence": "Current evidence reports PASS for canonical @proof-or-stop packages, proof-or-stop bin/entrypoint, canonical roles including proof-or-stop-review-story-init, zero active identity violations, and retired-authority negative checks."
+      "verifiedBy": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "evidence": "Current 120-command TEST validation and bound mechanical receipt report PASS identity-cutover policy; every active legacy identity is classified and the frozen evidence allowlist is exact/current."
     },
     {
-      "docPath": "packages/main/templates/agents/proof-or-stop-review-story-init.md",
-      "promise": "The canonical proof-or-stop-review-story-init prompt and generated Claude/Codex mirrors use Proof-or-Stop CLI readers/writers only and do not instruct direct StoryStore access.",
+      "docPath": ".proof-or-stop/story/actives/B-022e/checklist.json",
+      "promise": "CHK-002: committed RED lineage reaches descendant GREEN without rewriting protected history.",
       "status": "verified",
-      "verifiedBy": "Current prompt-baseline focused regression and direct inspection of source/Claude/Codex/assembled surfaces",
-      "evidence": "Current evidence covers source template, .claude mirror, .proof-or-stop-codex mirror, assembled registry payload, forbidden docs/story/actives paths, and cat/echo/Edit/direct StoryStore mutation negatives."
+      "verifiedBy": "red-evidence binding plus identity-cutover normal/self-test receipts",
+      "evidence": "29/29 current mechanical evidence includes the same acceptance target at descendant GREEN; mutation self-test rejects missing, broadened, stale, token/path/context/digest/byte changes and restores clean PASS."
     },
     {
-      "docPath": "package.json",
-      "promise": "Published version truth is root/Core 0.3.270, Utils 0.3.268 with Core peer ^0.3.268, and Lab 0.3.65 with Core peer ^0.3.65.",
+      "docPath": ".proof-or-stop/story/actives/B-022e/checklist.json",
+      "promise": "CHK-003: packed root/Core/Lab/Utils expose only Proof-or-Stop package identities with no @lattice or file: dependency leakage.",
       "status": "verified",
-      "verifiedBy": "Direct manifest read plus current version-bump and packed clean-consumer evidence",
-      "evidence": "Root proof-or-stop=0.3.270; @proof-or-stop/core=0.3.270; @proof-or-stop/utils=0.3.268 peer ^0.3.268; @proof-or-stop/lab=0.3.65 peer ^0.3.65. Packed current tarballs import and dispatch successfully while the compatibility-floor negative fails closed."
+      "verifiedBy": "identity-cutover pack boundary and global Lab entrypoint receipts",
+      "evidence": "Current receipts report PASS packages: proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, @proof-or-stop/utils; no @lattice or file: dependencies, including clean offline four-tarball install."
     },
     {
       "docPath": "docs/CLI.md",
-      "promise": "The user-visible CLI identifies itself as Proof-or-Stop 0.3.270 and exposes canonical nested lab create/run/eval/help commands while retaining documented flat compatibility commands.",
+      "promise": "CHK-004: the user-visible CLI is Proof-or-Stop 0.3.270 with nested Lab help and no lattice command fallback.",
       "status": "verified",
-      "verifiedBy": "Real-machine local CLI transcripts",
-      "evidence": "node bin/proof-or-stop.js --version printed Proof-or-Stop 0.3.270; help printed the Proof-or-Stop entrypoint; lab help listed nested create/run/eval/compare/promote/help and flat compatibility commands."
+      "verifiedBy": "direct reviewer CLI smoke plus entrypoint/absence receipts",
+      "evidence": "Direct output is Proof-or-Stop 0.3.270; proof-or-stop lab help lists canonical nested create/run/eval/compare/promote/help commands and flat compatibility names; retired lattice command/package surfaces remain negative."
     },
     {
-      "docPath": "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
-      "promise": "Identity migration preserves frozen historical proof bytes, signatures, salts, persisted schemas, and compatibility verification baselines.",
+      "docPath": ".proof-or-stop/story/actives/B-022e/checklist.json",
+      "promise": "CHK-005: active runtime and Agent identities are canonical, including proof-or-stop-review-story-init, while legacy lattice role lookup fails.",
       "status": "verified",
-      "verifiedBy": "Current identity-cutover verifier receipt",
-      "evidence": "Verifier reports frozen historical corpus unchanged, 13 signature salts, 35 historical byte baselines, and persisted-schema compatibility all passing."
+      "verifiedBy": "direct agent_prompt positive/negative plus prompt/identity/Codex receipts",
+      "evidence": "agent_prompt resolves proof-or-stop-review-story-init and renders the canonical frontmatter/CLI-only init_check_set guidance; lattice-review-story-init returns unknown role with exit 1. Fresh verify_codex event and current codex_doctor confirm prompt registry/assets and hooks."
     },
     {
-      "docPath": "proof-or-stop.config.json",
-      "promise": "The configured routine validation suite and all story verification intents provide current local delivery assurance.",
+      "docPath": "AGENTS.md",
+      "promise": "CHK-006: current product guidance uses canonical .proof-or-stop StoryStore paths and Proof-or-Stop CLI-only story operations.",
       "status": "verified",
-      "verifiedBy": "Current lifecycle/validation readers",
-      "evidence": "proof-or-stop.config.json contains 120 routine validate commands; latest routine validation is PASS; checklist coverage is 29/29 with current mechanical PASS evidence and no gaps, duplicates, waivers, or failures."
+      "verifiedBy": "current guidance scan plus prompt-baseline receipt",
+      "evidence": "AGENTS.md config names .proof-or-stop/story/actives; CLAUDE.md requires plan_get/plan_set and forbids direct StoryStore editing; docs/CLI.md identifies Proof-or-Stop CLI 0.3.270. Exact legacy heartbeat/history rows remain bounded provenance, not active instructions."
     },
     {
-      "docPath": "README.md",
-      "promise": "Delivery assurance is local non-authority evidence and does not claim production rollout, Authority contact, topology rollout, or production readiness.",
+      "docPath": ".proof-or-stop/story/actives/B-022e/checklist.json",
+      "promise": "CHK-007: GREEN includes builds, packed clean consumers, CLI/Lab behavior, doctor/contracts, active-residue zero, and retired identity negatives.",
       "status": "verified",
-      "verifiedBy": "Current live-smoke, review-escalation, and lifecycle readers",
-      "evidence": "Fresh real-machine transcript and full local 3x2 independent reviewer quorum are present; this delivery review makes no Authority, production, Wave4, topology, or rollout claim."
+      "verifiedBy": "current TEST validation, 29 mechanical receipts, live-smoke status, and full 3x2 local assurance",
+      "evidence": "Latest TEST validation is PASS over the configured 120-command suite; 29/29 evidence is current; live-smoke is present-fresh with successful exit; full quorum is 3/3 rounds x 2 independent hosts. This is local assurance only, not Authority or production readiness."
     },
     {
-      "docPath": "AGENTS.md and CLAUDE.md",
-      "promise": "Active operational documentation uses the configured .proof-or-stop StoryStore path and directs agents to use Proof-or-Stop CLI rather than direct StoryStore reads or writes.",
-      "status": "unverified"
+      "docPath": ".proof-or-stop/story/actives/B-022e/checklist.json",
+      "promise": "CHK-008: root/Core are 0.3.270, Utils is independently 0.3.268 with Core ^0.3.268, Lab is independently 0.3.65 with Core ^0.3.65, and lifecycle closeout remains gate-enforced.",
+      "status": "verified",
+      "verifiedBy": "direct manifest/version inspection, version-bump receipt, lifecycle_check",
+      "evidence": "Direct CLI output and manifests match the stated version contract. Current TEST validation, review passes, evidence freshness, quorum, live-smoke, and clean tree pass; DONE-required validation, summary, done_prepare, and local DONE merge remain downstream host-owned gates and are not claimed completed by this delivery artifact."
     }
   ],
   "realMachineTests": [
     {
+      "featureId": "CHK-003",
+      "transcript": "Current packed clean-consumer evidence installs exactly four offline tarballs, resolves proof-or-stop/Core/Lab/Utils, dispatches public extensions, and rejects @lattice/file: leakage."
+    },
+    {
       "featureId": "CHK-004",
-      "transcript": "node bin/proof-or-stop.js --version => Proof-or-Stop 0.3.270; node bin/proof-or-stop.js help identifies the Proof-or-Stop 0.3.270 entrypoint."
+      "transcript": "Reviewer observed `Proof-or-Stop 0.3.270`; `proof-or-stop lab help` succeeded and listed canonical nested commands; retired role resolution returned unknown role/non-zero."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Canonical `agent_prompt --role=proof-or-stop-review-story-init` rendered the active Agent; legacy `lattice-review-story-init` failed unknown-role. Current codex_doctor passed all executed adapter checks, and host recorded fresh verify_codex evidence in TEST."
     },
     {
       "featureId": "CHK-007",
-      "transcript": "node bin/proof-or-stop.js lab help listed canonical nested lab create/run/eval/compare/promote/help plus explicit flat compatibility commands."
+      "transcript": "Fresh live-smoke artifact is present and records successful command exit; current routine validation PASS covers the configured 120-command suite and all 29 verification intents have current mechanical PASS evidence."
     },
     {
       "featureId": "CHK-008",
-      "transcript": "Direct package manifest inspection confirmed root/Core 0.3.270, Utils 0.3.268 peer Core ^0.3.268, and Lab 0.3.65 peer Core ^0.3.65; current packed-clean-consumer evidence imports and dispatches Utils against installed Core."
-    },
-    {
-      "featureId": "CHK-001,CHK-003,CHK-005,CHK-006",
-      "transcript": "Current identity verifier evidence reports canonical package/bin/role/prompt identity, zero active identity violations, frozen history/signature compatibility preserved, and retired lattice authority rejected outside classified compatibility contexts."
-    },
-    {
-      "featureId": "B-022e-validation",
-      "transcript": "Latest routine validation PASS covers all 120 configured commands; story verification evidence is current for 29/29 intents, and the fresh live-smoke transcript records Proof-or-Stop 0.3.270."
+      "transcript": "Lifecycle readiness reports TEST validation PASS, 29/29 coverage, fresh evidence, clean tree, no bugs, full-3x2 review assurance, and successful live-smoke; no Authority, production, remote push, done_prepare, or DONE completion is asserted here."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
-    "hasUnresolvedTodos": true,
-    "summary": "Delivery is not signable yet. Seven mapped promise groups are verified by current local machine/evidence, with no Authority or production-readiness claim. One active-documentation promise remains unresolved: AGENTS.md:38 still publishes storyDir=docs/story/actives while proof-or-stop.config.json uses .proof-or-stop/story/actives; CLAUDE.md:521 still publishes docs/story/actives and instructs direct plan.md writes although plan_get/plan_set exist and the current contract is CLI-only StoryStore access. These are actionable current instructions, not migration, negative-test, frozen-history, or provenance text. No waiver is asserted."
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passed for the complete user-visible identity cutover: canonical CLI/package/runtime/Agent/docs surfaces, nested Lab route, independent package versions, historical integrity, negative retired identities, packed consumers, validation, evidence, live-smoke, Codex adapter, and 3x2 local review assurance are all supported by current evidence. No unresolved delivery blocker remains; host-owned DONE-required, summary, done_prepare, and local merge steps intentionally remain after this TEST-phase signer. Wave4/Authority/production readiness is not claimed."
   },
-  "_hash": "eb16edcbf0ebb4d6758477c0899f0bd364bba4b596c98dde0a5d655c900d3ab3"
+  "_hash": "ca0430659df1452263b49ab55f171f6603eafdec86384d10f02765f2dd5f64ce"
 }
