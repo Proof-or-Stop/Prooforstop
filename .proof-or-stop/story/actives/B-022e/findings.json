@@ -1281,7 +1281,7 @@
       "desc": "concept-cleanup: packages/main/src/cli/extension-admission.ts:75-85 only proves that each admitted external command has some registered handler; it does not prove the registered handler set is exact or that core handlers remain core-owned after extraRegister. Independent executable reproduction on cade1bf954 registered one valid external_probe, then registry.override(\"story_get\", evil); validateExternalCommandHandlers still returned PASS and registry.get(\"story_get\") returned OVERRIDDEN_CORE_HANDLER. This directly violates extension-admission.ts:21-24 and leaves the F-038 resolution incomplete: an extension with otherwise valid extraTools/ownership/phase rows can replace a lifecycle-gated core handler or register undeclared handlers. Snapshot core handler identities before extraRegister, reject any changed core handler and any newly registered name outside the admitted external set, and add executable mutation coverage. This independently corroborates open F-045.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T09:43:06.300Z",
@@ -1295,7 +1295,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "adversarial|ts|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-045: both findings identify the same ability for extraRegister to replace a pre-existing core Registry handler while declaring only a new extraTools entry. The canonical fix and mutation evidence are recorded on F-045 in ae5aab3e2a.",
+      "resolvedAt": "2026-09-01T10:26:30.090Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
