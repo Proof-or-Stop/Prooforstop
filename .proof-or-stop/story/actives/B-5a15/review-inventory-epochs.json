@@ -5946,6 +5946,33 @@
       "cancelReason": "Receipt RIE-068 is bound to superseded review round 2026-08-26T09:37:09.709Z while the current round is 2026-08-31T20:13:27.698Z, so remediation DEV refuses it; a fresh epoch must be earned against the current round after the main merge and acceptance-basis regeneration.",
       "terminalRunSequenceBoundary": 777,
       "_hash": "154155b79cd1b121433b7da1519ea84b234585b9f8a7ef3c4749f32543f5ec9c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-051",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-01T05:45:27.989Z",
+      "updatedAt": "2026-09-01T05:45:27.989Z",
+      "cutoff": {
+        "headHash": "1f22cf42e8d39d335e978774ab6253da6054d61b",
+        "materialHash": "da24ca06e80437243b4b6a94f765b39c9645b1ae33d62d42a1ccb70a21bdd77c",
+        "storyFilesHash": "4ab9e65cf147f0425def11caeb2555a71bb6ca3dd9e19ef8a7cd63cdeb0debf9"
+      },
+      "scopeDigest": "e300242b462970bdedd684b08c3808f10657e6dcae51ce27d80df045d62c3cef",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 777,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "a71118052b171b97bfb7328604a9281e3b92f7f38b9973f8d90cc84124073835"
     }
   ],
   "receipts": [
