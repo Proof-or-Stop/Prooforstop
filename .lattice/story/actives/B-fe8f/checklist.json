@@ -262,6 +262,95 @@
         "test": [
           "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every committed FindingLedgerReceipt contains and signs the accepted schemaVersion, ledgerSchemaEpoch, minimumWriterCapability, receiptId, storyId, idempotencyKey, operation, recordIds, exact CAS bindings, prior/committed ledger digests, replay flag, commit time, writer session/lease/fence, trust fields, receiptHash and signature.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.receipt_contract: PASS signedFields=complete"
+            }
+          },
+          {
+            "desc": "Under one fenced transaction, a schema-neutral consumer compares the exact persisted referenced-record bytes and current chain-head ID/hash plus predicate digest, then atomically commits every requested record when all predicates match.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.exact_record_cas: PASS committed=true"
+            }
+          },
+          {
+            "desc": "An idempotent retry returns the original semantic record IDs and original receipt ID without writing a second semantic record or a recursive receipt.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A mismatched expected record ID/hash, observed chain-head ID/hash, predicateDigest or priorLedgerDigest returns an explicit conflict and performs exactly zero semantic writes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.stale_cas: PASS semanticWrites=0"
+            }
+          },
+          {
+            "desc": "If a later CandidateRoute CAS fails, a previously committed standalone prevalidated receipt remains byte-identical while no route or half-route is created.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0"
+            }
+          },
+          {
+            "desc": "Initial receipt-plus-four-baseline and later deferral-plus-manifest multi-record transactions are either complete or absent; wrong expected baseline ID/hash, missing kind, changed bytes or caller-verifier refusal writes no partial bundle.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.atomic_bundle: PASS halfBundles=0"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation of any signed receipt field, record ID/order, exact-union payload, trust field, receipt hash or signature is rejected before a later consumer can commit.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.receipt_mutation_matrix: PASS acceptedMutations=0"
+            }
+          },
+          {
+            "desc": "Concurrent revoke or supersede versus apply has a deterministic serialized winner: apply commits against the prior latest receipt before its successor, or observes the successor and aborts; no commit binds a non-latest receipt.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.revoke_apply_serialization: PASS nonLatestCommits=0"
+            }
+          },
+          {
+            "desc": "Crashing after validation but before publication, or making the schema-neutral callback throw, leaves no semantic rows from the attempted transaction and does not let Story 3 interpret route, assessment or gate semantics.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true"
+            }
+          }
+        ]
       }
     },
     {
