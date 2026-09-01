@@ -12714,6 +12714,36 @@
         "scanEscalationReason": null
       },
       "_hash": "5159014115ac40ddcb04e452a8a1fac467e2731112903328b9da7c4eeed4e189"
+    },
+    {
+      "id": "B-5a15:RP-261",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test-coverage review passed (RI-057). F-342 re-verified CLOSED by three-way method against commit 827e4af0a3 block 12f. (1) POSITIVE CONTROL: scratch dist copy with node_modules AND packages/main/templates symlinked runs tool-executed-evidence-receipt-smoke to exit 0 / PASS, so the harness discriminates. (2) COUNTERFACTUAL: reverting the F-339 fork in that same scratch dist (priorHoldsIdentity collapsed to sameEvidenceSemantics for all rows) exits 1 failing on exactly \"F-342 audited note-only edit keeps the original headHash\", actual=drifted HEAD f5b414da vs expected seeded 8b23c7db, i.e. the precise silent rebind F-339 prevents. (3) BRANCH PROBE on the unmutated fork: arm=AUDITED mech=false fires once via INT-F342-AUDITED, whereas pre-fix RI-056 probing observed priorMechanical only in {true, undefined}. Block 12f genuinely executes the audited arm and its assertions bite. Coverage recomputed from checklist.json (validate --story avoided per watchdog): 5 items, 53 intents, 22 must, 0 waivers, 0 must-gaps; CHK-001:edge:3 resolves via named-id precedence, not a gap. Pinned suite re-run: 19 pass / 2 fail, the two being F-247 and the F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264 series (DEV-gated F-329/F-331). 13 of 14 touched smokes green; certification-window-smoke fails as the known pre-existing issue bisected to a2e4e92631. No new findings; review was strictly read-only.",
+      "createdAt": "2026-09-01T11:45:40.160Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-811",
+      "envelopeId": "05ad5a091be43b07e63239c9d17f6a4bc9ba5ac5eb02b7545742ac5814c1291d",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/red-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "packages/main/dist/handlers/checklist.js",
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "packages/main/package.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "61eee9ffba60dbaa89b04ab18036c35aef8a3e98204a5b1c2844af830629a228"
     }
   ]
 }
