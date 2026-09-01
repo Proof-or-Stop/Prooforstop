@@ -102,7 +102,21 @@ export function preReviewCaseSemanticMatches(
       && record[3] === activeBinding.mutationKind
       && record[4] === activeBinding.operation;
   }
-  if (requireRegisteredBinding) return false;
+  if (requireRegisteredBinding) {
+    // B-45a0: the registered binding table exists to police BORROWING -- cloning
+    // an executed canonical record onto a different assertion ID (see
+    // adaptCanonicalScenarioRecordsToActiveTopology, which passes strict=true
+    // only on that path and strict=false for an exact record). A row that was
+    // executed under its own ID against its own sourceRef borrows nothing, so
+    // requiring it to name a canonical case would reject real evidence.
+    //
+    // An active topology larger than the canonical catalog (B-45a0 declares 14
+    // checklist items -> 90 assertions; the table registers 21 across 7) runs
+    // every assertion for real instead of projecting from a canonical case.
+    // Those rows are exact by construction: expectedSourceRef === record[9].
+    // The borrow path always retargets, so it still fails closed here.
+    if (expectedSourceRef !== record[9]) return false;
+  }
   const expected = REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS.get(record[0]);
   return !expected
     || !record[9].startsWith('intent:CHK-')
