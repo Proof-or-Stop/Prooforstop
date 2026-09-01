@@ -55,6 +55,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiut0hu_8tw_c65885b440e44dc6a41950ee53806eef",
       "ledgerCommitReceiptId": "lrc_mtiut0hu_8tw_9944e2b00d1f4144a891ca2d8e46482a"
+    },
+    {
+      "id": "B-fe8f:F-004",
+      "desc": "packages/main/src/handlers/finding.ts:821-843 — finding_resolve still mutates only the findings.json compatibility mirror via readFindings/writeFindings and never appends a fenced ledger status-transition/successor record. The repository itself now demonstrates the lost update: commit e93c480257 resolves F-001, then commit 591642d288 resolves F-002 while reverting F-001 from resolved back to open; current finding_list confirms F-001 is open. This violates Story 3 objective that every Finding-system mutation be durable/exactly-once and lets concurrent closeouts resurrect a gate-consumed finding. Route resolve/dismiss status transitions through one append-only, idempotent fenced ledger transaction, derive the compatibility projection from the ledger, and add a concurrent two-finding resolve regression proving both resolutions survive and replay returns the original transition IDs.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T16:02:29.921Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-007",
+      "_hash": "d75c0e91d1727f5ec077d12c8a9334da75e6164a1f6f6e277187ef04eb76d753",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe",
+      "ledgerCommitReceiptId": "lrc_mtiuvk55_1e94_00fad2d8f5234a4d860d772bf6a628d0"
     }
   ]
 }

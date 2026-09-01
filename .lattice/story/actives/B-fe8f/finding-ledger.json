@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "92ed84fa05fbabb73d0cde0a819602cf1282c00248f1d82aa5de872ff2cf1ac9",
+  "committedLedgerDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -83,6 +83,31 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:00:31.170Z"
+    },
+    {
+      "recordId": "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:ed8fbd8a-5318-4a64-9c7d-f952053d7b75",
+      "payload": {
+        "id": "B-fe8f:F-004",
+        "desc": "packages/main/src/handlers/finding.ts:821-843 — finding_resolve still mutates only the findings.json compatibility mirror via readFindings/writeFindings and never appends a fenced ledger status-transition/successor record. The repository itself now demonstrates the lost update: commit e93c480257 resolves F-001, then commit 591642d288 resolves F-002 while reverting F-001 from resolved back to open; current finding_list confirms F-001 is open. This violates Story 3 objective that every Finding-system mutation be durable/exactly-once and lets concurrent closeouts resurrect a gate-consumed finding. Route resolve/dismiss status transitions through one append-only, idempotent fenced ledger transaction, derive the compatibility projection from the ledger, and add a concurrent two-finding resolve regression proving both resolutions survive and replay returns the original transition IDs.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-concept",
+        "createdAt": "2026-09-01T16:02:29.921Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-007",
+        "_hash": "d75c0e91d1727f5ec077d12c8a9334da75e6164a1f6f6e277187ef04eb76d753",
+        "signatureTag": "adversarial|unknown|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "8cece97469064f150e6f3dbc2e2e1bcb1dac71104615191bab319324359e64e2",
+      "priorDigest": "92ed84fa05fbabb73d0cde0a819602cf1282c00248f1d82aa5de872ff2cf1ac9",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:02:29.945Z"
     }
   ],
   "receipts": [
@@ -156,6 +181,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "badaf308d68136b003bbc77788bd830406aaf31257666f88ab7fc9cf08611431",
         "signature": "bnkG8/mx9fBW6yf2/Ka7MFXcFwFjiAImSs1Ffy7p2iORKRGVaQb2JBTnTkBkyudRaRTuprx0Riml9Gju4lztDQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiuvk55_1e94_00fad2d8f5234a4d860d772bf6a628d0",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:ed8fbd8a-5318-4a64-9c7d-f952053d7b75",
+      "requestDigest": "36974a714a043fceeb6d226d49de9f785b577b796967021dea7984436f5a50c0",
+      "recordIds": [
+        "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe"
+      ],
+      "priorLedgerDigest": "92ed84fa05fbabb73d0cde0a819602cf1282c00248f1d82aa5de872ff2cf1ac9",
+      "committedLedgerDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
+      "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+      "writerFenceToken": "024c6f83-d7f6-4498-a996-e16e8ba99365",
+      "committedAt": "2026-09-01T16:02:29.945Z",
+      "replayed": false,
+      "exactRequestDigest": "0078b42afca4d08bfe13d56743f6f7ebf2fb83c998fb9271b3dfba6957373505",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiuvk55_1e94_00fad2d8f5234a4d860d772bf6a628d0",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:ed8fbd8a-5318-4a64-9c7d-f952053d7b75",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "92ed84fa05fbabb73d0cde0a819602cf1282c00248f1d82aa5de872ff2cf1ac9",
+        "committedLedgerDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:02:29.945Z",
+        "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "024c6f83-d7f6-4498-a996-e16e8ba99365",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "3206771cc36395c147368fce2c9c2f6d7043e2b56328ecae1cd6f8ba3d077cec",
+        "signature": "JhSyeOaJMQ4u0GstcD51MtLMtuUTt3k4MGAAnn3ek2g48Ij8dydR1mPSVQJwUabM4megNzATsJ0NPUiqqNHTDA=="
       }
     }
   ]
