@@ -83,7 +83,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Produce reproducible final evidence that binds the audited AGENTS.md to the current repository state: record the CLI version and git HEAD, exact authoritative source references, exact commands, exit codes and salient outputs for the claim audit, translation-completeness scan, structural or technical-token comparison and command-example checks. A fresh reviewer can rerun the recorded commands from this worktree and reach the same pass or fail conclusions. WHY: the requested proof must be inspectable evidence, not a prose assurance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run whole-file Unicode checks rather than line samples: assert zero Han-script and U+FFFD characters, enumerate every remaining non-ASCII code point with line locations, and explicitly classify each residual as an intentional language-neutral technical symbol or fail the item. Also verify no mixed-language heading, table cell, comment or example was skipped. WHY: hidden residual text and replacement corruption commonly survive visual spot checks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Independently extract all active CLI examples from the final AGENTS.md and smoke them through `node bin/proof-or-stop.js`, using real read-only invocations and an isolated disposable repository or registered-schema validation for mutations. Cross-check command names against `help --full`, require explicit historical labeling for every unavailable command, and add a known-invalid sentinel example that must fail the audit. The evidence must show all genuine active examples pass and the sentinel is rejected. WHY: a command checker that accepts both valid and invalid examples proves nothing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
