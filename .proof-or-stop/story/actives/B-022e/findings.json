@@ -799,7 +799,7 @@
       "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1316-1369 enforces that the policy commit changes exactly docs/requirements/decisions/proof-or-stop-identity-cutover.md, but the committed ordering self-test at :1579-1626 never constructs a policy commit containing that document plus an extra production file. Its fixtures cover valid ordering, a non-ancestor same-tree policy SHA, an uninspectable SHA, production before policy, and production between policy and RED; none fails specifically because policyPaths has more than one path. This leaves the original F-019 wrong-one-path case and the decision requirement that the policy be committed alone without mutation proof. WHY [medium]: current history/guard are correct, but deleting or weakening the policyPaths.length/path equality check would leave --self-test green while CHK-001:adversarial:0 still claims ordering sensitivity. Add a temporary-history fixture whose policy commit also changes a production path and assert the exact one-path diagnostic.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T23:42:16.768Z",
@@ -811,7 +811,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by af344e88ec: ordering self-test now rejects both wrong-only-path and extra-path policy commits, so weakening exact policyPaths equality bites.",
+      "resolvedAt": "2026-09-01T00:13:58.147Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-029",
