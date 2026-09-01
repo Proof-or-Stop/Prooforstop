@@ -587,9 +587,16 @@ function sameAuditedAttestationIdentity(prior: VerificationEvidence, incoming: V
 }
 
 /**
- * Freshness bindings are server-owned. New evidence is bound to the current tree;
- * an exact same-semantic re-persist keeps the original on-disk binding so a caller
+ * Freshness bindings are server-owned. New evidence is bound to the current tree; a
+ * re-persist that holds the row's IDENTITY keeps the original on-disk binding, so a caller
  * cannot rebind a real receipt to hashes for a later tree without re-running it.
+ *
+ * B-5a15 F-339: "holds identity" forks on provenance, matching carryForwardOnDiskProvenance.
+ * A mechanical receipt uses the strict note-sensitive predicate, so ANY semantic drift --
+ * a changed note included -- re-stamps it and drops the stale receipt (F-067). An audited
+ * attestation uses the note-insensitive twin, because its authority comes from the recorded
+ * reason rather than an execution, so a note-only edit must keep both the reason and the
+ * original binding instead of silently rebinding it to a moved tree.
  */
 function evidenceHashesForPersistence(
   gitCwd: string,
