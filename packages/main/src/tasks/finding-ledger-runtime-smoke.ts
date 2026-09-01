@@ -318,6 +318,14 @@ function runStory3DependencyFixture(): void {
   assert.deepEqual(attempt('B-e6d9'), ['B-fe8f', 'B-03b7']);
   assert.equal(transitionWrites, 0);
   console.log('dependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0');
+
+  state.set('B-fe8f', { phase: 'DONE', merged: true });
+  assert.deepEqual(attempt('B-03b7'), []);
+  assert.deepEqual(attempt('B-e6d9'), ['B-03b7']);
+  state.set('B-03b7', { phase: 'DONE', merged: true });
+  assert.deepEqual(attempt('B-e6d9'), []);
+  assert.equal(transitionWrites, 2);
+  console.log('green.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7');
 }
 
 function readTreeText(root: string): string {
@@ -334,6 +342,227 @@ function readTreeText(root: string): string {
 function unsignedRuntimeReceipt(receipt: RuntimeEvidenceReceipt): Omit<RuntimeEvidenceReceipt, 'receiptHash' | 'signature'> {
   const { receiptHash: _hash, signature: _signature, ...unsigned } = receipt;
   return unsigned;
+}
+
+function assertRedGreenRelation(repositoryRoot: string): void {
+  const redPath = join(repositoryRoot, 'packages', 'main', 'tests', 'red', 'red-bfe8f-ledger-runtime-integrity.mjs');
+  const redBlob = git(repositoryRoot, ['hash-object', redPath]);
+  assert.equal(redBlob, '1b913dab2f52e904afc1b7b1870a3a98be0739bc', 'accepted RED assertion bytes changed');
+  const baselineHead = '0cb578583b5139977338d1cf8f7aeed0cc7685ba';
+  const baselineModule = spawnSync('git', [
+    'cat-file', '-e', `${baselineHead}:packages/main/dist/core/finding-ledger.js`,
+  ], { cwd: repositoryRoot, encoding: 'utf8' });
+  assert.notEqual(baselineModule.status, 0, 'accepted pre-fix HEAD unexpectedly contains the GREEN ledger module');
+  const current = spawnSync(process.execPath, [redPath], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(current.status, 0, `immutable RED did not turn GREEN: ${current.stderr}\n${current.stdout}`);
+  assert.match(current.stdout, /gaps=0/);
+  assert.match(current.stdout, /red\.relation_evaluate: PASS baselineFails=true/);
+  assert.match(current.stdout, /red\.genuine_contract_failure:none \(GREEN:/);
+  console.log('green.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true');
+}
+
+function assertVersionSync(repositoryRoot: string): void {
+  const previous = '0.3.269';
+  const expected = '0.3.270';
+  const rootPackage = JSON.parse(readFileSync(join(repositoryRoot, 'package.json'), 'utf8')) as { version: string };
+  const mainPackage = JSON.parse(readFileSync(join(repositoryRoot, 'packages', 'main', 'package.json'), 'utf8')) as { version: string };
+  const lockfile = JSON.parse(readFileSync(join(repositoryRoot, 'package-lock.json'), 'utf8')) as {
+    version: string;
+    packages?: Record<string, { version?: string }>;
+  };
+  const runtimeConstant = readFileSync(join(repositoryRoot, 'packages', 'main', 'src', 'core', 'lattice-brand.ts'), 'utf8');
+  const parts = (value: string): number[] => value.split('.').map((part) => Number(part));
+  const [previousMajor, previousMinor, previousPatch] = parts(previous);
+  const [major, minor, patch] = parts(expected);
+  assert.deepEqual([major, minor, patch], [previousMajor, previousMinor, (previousPatch ?? -1) + 1]);
+  assert.equal(rootPackage.version, expected);
+  assert.equal(mainPackage.version, expected);
+  assert.equal(lockfile.version, expected);
+  assert.equal(lockfile.packages?.['']?.version, expected);
+  assert.match(runtimeConstant, /LATTICE_CLI_VERSION = '0\.3\.270' as const/);
+
+  const local = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), '--version'], {
+    cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(local.status, 0, `local CLI version failed: ${local.stderr}`);
+  assert.match(local.stdout, /Proof-or-Stop 0\.3\.270/);
+  const installed = spawnSync('proof-or-stop', ['--version'], {
+    cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(installed.status, 0, `installed CLI version failed: ${installed.stderr}`);
+  assert.match(installed.stdout, /Proof-or-Stop 0\.3\.270/);
+  console.log('green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true');
+}
+
+function runRollbackKillSwitchMatrix(scratch: string): void {
+  const ledgerFile = join(scratch, 'rollback', 'finding-ledger.json');
+  const lockDir = join(scratch, 'locks', 'rollback.lock');
+  const lock = acquireMkdirLock(lockDir, { label: 'rollback kill-switch', requireHolderToken: true });
+  try {
+    const fence = captureMkdirLockFence(lockDir);
+    appendLedgerTransaction(
+      ledgerFile,
+      request(fence.writerFenceToken, 'rollback:seed', 'finding', { id: 'history-before-kill-switch' }),
+      fence,
+    );
+    const committedBefore = readFileSync(ledgerFile, 'utf8');
+    const unsupported = request(fence.writerFenceToken, 'rollback:unsupported', 'finding', { id: 'must-not-commit' });
+    assert.throws(() => appendLedgerTransaction(
+      ledgerFile,
+      { ...unsupported, ledgerSchemaEpoch: FINDING_LEDGER_SCHEMA_EPOCH + 1 },
+      fence,
+    ), /SCHEMA_EPOCH_UNSUPPORTED|schema epoch/i);
+    assert.equal(readFileSync(ledgerFile, 'utf8'), committedBefore, 'kill-switch refusal changed committed history');
+    const restored = appendLedgerTransaction(
+      ledgerFile,
+      request(fence.writerFenceToken, 'rollback:restored', 'finding', { id: 'supported-after-rollback' }),
+      fence,
+    );
+    assert.equal(restored.action, 'append');
+  } finally {
+    lock.release();
+  }
+  const recovered = readLedger(ledgerFile);
+  assert.deepEqual(recovered.records.map((record) => (record.payload as Record<string, JsonValue>).id), [
+    'history-before-kill-switch', 'supported-after-rollback',
+  ]);
+  console.log('green.rollback_kill_switch: PASS dataLoss=0');
+}
+
+async function runCombinedConcurrencyMatrix(scratch: string): Promise<void> {
+  const ledgerFile = join(scratch, 'combined', 'finding-ledger.json');
+  const lockDir = join(scratch, 'locks', 'combined.lock');
+  const specs: WorkerSpec[] = ['finding', 'candidate_route', 'assessment', 'manifest'].map((recordType, index) => ({
+    ledgerFile,
+    lockDir,
+    prefix: `combined-${index}`,
+    count: 5,
+    recordType,
+    payloadBase: { matrix: 'combined', ref: 'root' },
+  }));
+  const workers = runWorkers(specs);
+
+  // These independent writes run while the external ledger workers contend,
+  // covering the repository's separate process-event and B-META lock trees.
+  const activityStore = new StoryStore(join(scratch, 'combined-activity'));
+  activityStore.writeStory('B-COMBINED', runtimeStory('B-COMBINED'));
+  for (let index = 0; index < 8; index += 1) {
+    activityStore.appendProcessEvent('B-COMBINED', {
+      type: 'verification', storyId: 'B-COMBINED', command: `combined-${index}`, role: 'main', result: 'pass',
+    });
+  }
+  const metaLock = acquireMainWriteLock(join(scratch, 'combined-activity'), {
+    label: 'combined B-META append', onContention: 'wait',
+  });
+  try {
+    const fence = captureMkdirLockFence(metaLock.lockDir);
+    appendLedgerTransaction(
+      activityStore.storyFilePath('B-META-combined', 'finding-ledger.json'),
+      request(fence.writerFenceToken, 'combined:meta', 'finding', { id: 'B-META-combined:F-001' }),
+      fence,
+    );
+  } finally {
+    metaLock.release();
+  }
+
+  const crashLock = acquireMkdirLock(lockDir, {
+    label: 'combined crash injection', requireHolderToken: true, deadlineMs: 60_000,
+  });
+  try {
+    const fence = captureMkdirLockFence(lockDir);
+    assert.throws(() => appendLedgerTransaction(
+      ledgerFile,
+      request(fence.writerFenceToken, 'combined:crash', 'manifest', { id: 'half-visible' }),
+      fence,
+      { beforeRename: () => { throw new Error('combined crash injection'); } },
+    ), /combined crash injection/);
+  } finally {
+    crashLock.release();
+  }
+  await workers;
+
+  const beforeReplay = readLedger(ledgerFile);
+  assert.equal(beforeReplay.records.length, 20);
+  assert.equal(beforeReplay.receipts.length, 20);
+  assert.equal(new Set(beforeReplay.records.map((record) => record.recordId)).size, 20);
+  assert.equal(beforeReplay.records.some((record) => canonicalJson(record.payload).includes('half-visible')), false);
+  const replayLock = acquireMkdirLock(lockDir, { label: 'combined replay', requireHolderToken: true });
+  try {
+    const fence = captureMkdirLockFence(lockDir);
+    for (const record of beforeReplay.records) {
+      const replay = appendLedgerTransaction(
+        ledgerFile,
+        request(fence.writerFenceToken, record.idempotencyKey, record.recordType, record.payload),
+        fence,
+      );
+      assert.equal(replay.action, 'replay');
+    }
+  } finally {
+    replayLock.release();
+  }
+  const afterReplay = readLedger(ledgerFile);
+  assert.equal(afterReplay.records.length, 20);
+  assert.equal(afterReplay.receipts.length, 20);
+  assert.equal(activityStore.readProcessEvents('B-COMBINED').length, 8);
+  assert.equal(activityStore.readFindingLedger('B-META-combined').records.length, 1);
+  console.log('green.combined_concurrency: PASS lost=0 duplicates=0 halfVisible=0 deadlocks=0');
+}
+
+function runFailClosedBoundaryMatrix(scratch: string): void {
+  const ledgerFile = join(scratch, 'fail-closed', 'finding-ledger.json');
+  const lockDir = join(scratch, 'locks', 'fail-closed.lock');
+  const lock = acquireMkdirLock(lockDir, { label: 'fail-closed boundary', requireHolderToken: true });
+  try {
+    const fence = captureMkdirLockFence(lockDir);
+    const base = request(fence.writerFenceToken, 'fail-closed', 'finding', { id: 'unsafe' });
+    const unsafeRequests: AppendRequest<JsonValue>[] = [
+      { ...base, storageCapability: 'nfs-multi-host' },
+      { ...base, ledgerSchemaEpoch: FINDING_LEDGER_SCHEMA_EPOCH + 1 },
+      { ...base, writerCapability: 'unsupported-writer-v0' },
+    ];
+    const refusals = unsafeRequests.map((attempt) => {
+      try {
+        appendLedgerTransaction(ledgerFile, attempt, fence);
+        return false;
+      } catch (error) {
+        return error instanceof LedgerRefusal;
+      }
+    });
+    assert.deepEqual(refusals, [true, true, true]);
+  } finally {
+    lock.release();
+  }
+  assert.equal(existsSync(ledgerFile), false, 'an unsafe boundary request wrote a ledger');
+  console.log('green.fail_closed_boundary: PASS unsafeWrites=0');
+}
+
+function runAggregateTamperMatrix(repositoryRoot: string): void {
+  const mutations = [
+    'story3-promote-query-l4',
+    'story3-promote-runtime-run-l4',
+    'story3-drop-runtime-freshness',
+    'story3-unregistered-direct-consumer',
+  ];
+  const lifecycleBefore = git(repositoryRoot, ['status', '--porcelain=v1']);
+  assert.equal(mutations.filter((mutation) => story3VerifierMutationAccepted(repositoryRoot, mutation)).length, 0);
+  assert.equal(git(repositoryRoot, ['status', '--porcelain=v1']), lifecycleBefore, 'mutation verifier changed lifecycle/worktree state');
+  console.log('green.tamper_matrix: PASS lifecycleDelta=0');
+}
+
+function runDependencyScorecardBoundary(repositoryRoot: string): void {
+  const query = getProcessFactRegistryEntry('finding_ledger_query');
+  assert.ok(query);
+  assert.equal(query.level, 'L0');
+  assert.equal(query.consumerGate, undefined);
+  assert.equal(query.semantics.includes('gate-evidence'), false);
+  assert.equal(story3VerifierMutationAccepted(repositoryRoot, 'story3-forbidden-story2-import'), false);
+  assert.equal(story3VerifierMutationAccepted(repositoryRoot, 'story3-forbidden-story1-import'), false);
+  assert.equal(story3VerifierMutationAccepted(repositoryRoot, 'story3-query-path-leak'), false);
+  console.log('green.dependency_scorecard_boundary: PASS');
 }
 
 function runRuntimeEvidenceMatrix(scratch: string): void {
@@ -1431,6 +1660,7 @@ if (process.argv[2] === '--ledger-worker') {
     assert.equal(readLedger(legacyFile).records.length, 1);
     assert.equal(readFileSync(legacyFindingPath, 'utf8'), legacyBytes);
     console.log('ledger.legacy_binding: PASS singleRecord=true rewrite=false');
+    console.log('green.legacy_migration: PASS legacyRewrites=0');
 
     const refusalFile = join(scratch, 'refusal', 'finding-ledger.json');
     const refusalLockDir = join(scratch, 'locks', 'refusal.lock');
@@ -1530,6 +1760,21 @@ if (process.argv[2] === '--ledger-worker') {
     }
     console.log('ledger.lock_compatibility: PASS deadlocks=0');
     runRuntimeEvidenceMatrix(scratch);
+    runRollbackKillSwitchMatrix(scratch);
+    await runCombinedConcurrencyMatrix(scratch);
+    runFailClosedBoundaryMatrix(scratch);
+
+    const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
+    assertRedGreenRelation(repositoryRoot);
+    assertVersionSync(repositoryRoot);
+    runAggregateTamperMatrix(repositoryRoot);
+    runDependencyScorecardBoundary(repositoryRoot);
+
+    // Each aggregate verdict is emitted only after its detailed assertions and
+    // mutation/refusal fixtures above have completed without an exception.
+    console.log('Finding ledger integrity: PASS');
+    console.log('Runtime evidence integrity: PASS');
+    console.log('green.story3_matrix: PASS');
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }

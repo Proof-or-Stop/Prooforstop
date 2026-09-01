@@ -22,53 +22,17 @@ import {
   signCanonical,
   verifyCanonical,
 } from './authority-signing.js';
+import type {
+  EvidenceBlobRef,
+  RuntimeEvidenceContentType,
+  RuntimeEvidenceReceipt,
+} from './types.js';
 
-export type RuntimeEvidenceContentType =
-  | 'command'
-  | 'stdout'
-  | 'stderr'
-  | 'environment'
-  | 'artifact_manifest';
-
-export interface EvidenceBlobRef {
-  blobId: string;
-  contentDigest: string;
-  contentType: RuntimeEvidenceContentType;
-  redactionPolicyDigest: string;
-}
-
-export interface RuntimeEvidenceReceipt {
-  schemaVersion: 1;
-  receiptId: string;
-  storyId: string;
-  headHash: string;
-  sourceMaterialHash: string;
-  buildPolicyDigest: string;
-  buildCommandDigest: string;
-  executionCommandDigest: string;
-  buildCommand: EvidenceBlobRef;
-  executionCommand: EvidenceBlobRef;
-  stdout: EvidenceBlobRef;
-  stderr: EvidenceBlobRef;
-  environment: EvidenceBlobRef & { allowlistPolicyDigest: string; excludedVariableNames: string[] };
-  artifactManifest: EvidenceBlobRef;
-  artifacts: Array<{ path: string; digest: string; sourceHead: string; realpathPolicyDigest: string }>;
-  startedAt: string;
-  completedAt: string;
-  exitCode: number;
-  stdoutDigest: string;
-  stderrDigest: string;
-  environmentDigest: string;
-  toolchain: { compilerVersion: string; runtimeVersion: string; toolchainDigest: string };
-  commandCanonicalizationPolicyDigest: string;
-  producer: string;
-  keyId: string;
-  algorithm: string;
-  trustRootDigest: string;
-  keyFreshnessPolicyDigest: string;
-  receiptHash: string;
-  signature: string;
-}
+export type {
+  EvidenceBlobRef,
+  RuntimeEvidenceContentType,
+  RuntimeEvidenceReceipt,
+} from './types.js';
 
 export interface RuntimeReceiptSigner {
   privateKey: string;

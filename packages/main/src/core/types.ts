@@ -1630,12 +1630,57 @@ export interface FindingLedgerReceipt {
   signature: string;
 }
 
-// Story 3B runtime receipts are persistence/freshness facts only. Re-exporting
-// the contract here keeps consumers on the shared type surface without giving
-// the record lifecycle, blocker, pass, or unblock authority.
+// Story 3B runtime receipts are persistence/freshness facts only. This shared
+// type surface is their canonical schema; the executable runtime module imports
+// and re-exports these types without defining a second copy.
+export type RuntimeEvidenceContentType =
+  | 'command'
+  | 'stdout'
+  | 'stderr'
+  | 'environment'
+  | 'artifact_manifest';
+
+export interface EvidenceBlobRef {
+  blobId: string;
+  contentDigest: string;
+  contentType: RuntimeEvidenceContentType;
+  redactionPolicyDigest: string;
+}
+
+export interface RuntimeEvidenceReceipt {
+  schemaVersion: 1;
+  receiptId: string;
+  storyId: string;
+  headHash: string;
+  sourceMaterialHash: string;
+  buildPolicyDigest: string;
+  buildCommandDigest: string;
+  executionCommandDigest: string;
+  buildCommand: EvidenceBlobRef;
+  executionCommand: EvidenceBlobRef;
+  stdout: EvidenceBlobRef;
+  stderr: EvidenceBlobRef;
+  environment: EvidenceBlobRef & { allowlistPolicyDigest: string; excludedVariableNames: string[] };
+  artifactManifest: EvidenceBlobRef;
+  artifacts: Array<{ path: string; digest: string; sourceHead: string; realpathPolicyDigest: string }>;
+  startedAt: string;
+  completedAt: string;
+  exitCode: number;
+  stdoutDigest: string;
+  stderrDigest: string;
+  environmentDigest: string;
+  toolchain: { compilerVersion: string; runtimeVersion: string; toolchainDigest: string };
+  commandCanonicalizationPolicyDigest: string;
+  producer: string;
+  keyId: string;
+  algorithm: string;
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+  receiptHash: string;
+  signature: string;
+}
+
 export type {
-  EvidenceBlobRef,
-  RuntimeEvidenceReceipt,
   RuntimeEvidenceRefusalCode,
   RuntimeEvidenceVerification,
   RuntimeReceiptSigner,
