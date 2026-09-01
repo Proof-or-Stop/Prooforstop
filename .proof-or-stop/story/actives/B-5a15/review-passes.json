@@ -12615,6 +12615,39 @@
         "scanEscalationReason": null
       },
       "_hash": "3024985bdbe6f827b91228144c59269621bbf428c59008709707b11899256407"
+    },
+    {
+      "id": "B-5a15:RP-258",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane saturation pass over the story's changed files. (1) VERIFIED THE F-339 FIX (commit 2041075540, checklist.ts:602-612): built a 42-case counterfactual over {prior.mechanical in true|false|undefined} x {identical, note-only, note-whitespace, result, command, file, kind, verdict, waiverType, attestation, actorTrust, factProvenance drift} x {tree-same, tree-drift}, running the real compiled carryForwardOnDiskProvenance -> evidenceHashesForPersistence pipeline semantics from dist. EXACTLY ONE row changes pre/post fix: mechanical:false + note-only + tree-drift, previously restamp, now KEEP. That is F-339 and only F-339. All 14 mechanical:true rows are byte-identical pre/post, and mechanical:true + note-only + tree-drift still restamps, so a stale receipt is still dropped on note drift per F-067. NO MIRROR ASYMMETRY INTRODUCED: the 4 residual prov-dropped/hash-kept cases (mechanical true|undefined, identical/note-whitespace, tree-drift) are all PRE==POST, i.e. pre-existing and untouched by this fix. normalizeEvidence has exactly one call site (checklist.ts:2178), always paired with carryForwardOnDiskProvenance on the same priorEvidence, so the two consumers cannot diverge on provenance source. (2) F-334 sort refactor in evidence-freshness.ts: the old code sorted joined path\\0objectId strings, the new code sorts by path then joins. Fuzzed 200000 random path/oid multisets: 3240 orderings differ, 100 percent explained by duplicate paths, 0 unexplained. changedStoryFilesBetween accumulates into Map<string,...> keyed by path so duplicates are structurally impossible; the refactor is hash-equivalent and no storyFilesHash changes. (3) certification causal DAG (handlers/certification-window.ts:118-125): acyclic; reverse closures match the documented F-336/F-337 rationale (review-subject invalidates integration+test; integration invalidates test; test terminal). certificationDomainForPath requires exactly one rule match, so both unclassified (packages/graph/src, templates, .gitignore, CITATION.cff) and ambiguous (packages/utils/package.json, scripts/tsconfig.json) paths return undefined and fall back to strict whole-tree freshness. Legacy windows frozen before causalInputHashes existed get empty recorded hashes, which drives identityComplete=false -> causalDecision=strict -> gateAdmissible=false: fails CLOSED, no fail-open. Empty domains hash causalDigest([]), a stable non-empty digest, so genuinely-empty domains do not spuriously trip strict. (4) Non-null assertions audited: recordsById.get(id)! (pre-review-live-proof.ts:294,305) is guarded by assemblePreReviewCaseRecords, which throws on any missing/extra/duplicate assertion ID before the map is built over its own return value; decision.identityBinding! (causal-evidence.ts:1381) is guarded by hasCausalDependencyDecisionIdentityBinding on the line above, and causalDecisionMatchesCertificationSnapshot only reaches its binding after that helper returned true. Neither can fire. (5) Standard quality sweep across all seven changed files: zero empty catch blocks (all 15 added catches return an explicit fail-closed value with a diagnostic reason), zero added 'as any' (the single one at pre-review-live-proof.ts:248 gzipSync mtime is pre-existing and unchanged in main), zero @ts-ignore/@ts-nocheck/eslint-disable, no shell-imports-fn violations. New exports all have real call sites except evaluateCausalEvidenceFreshness, already dispositioned as F-332. isCanonicalPreReviewCaseId is used internally at pre-review-live-proof.ts:115. No blocking or non-blocking new defect found; the quality surface is saturated. Read-only review: no file edits, no git operations, counterfactuals run against a scratch copy under /private/tmp.",
+      "createdAt": "2026-09-01T11:04:47.743Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-808",
+      "envelopeId": "a915aa3e47197517aec21756c190a84cb338c67cb2b8fd62dc64335c1458dbd8",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/handlers/checklist.js",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "a348df1123100044f3bad77e6a171fcf426250bcad4db150b35bc768f913a521"
     }
   ]
 }
