@@ -130,6 +130,7 @@ import { createCandidateSpecRoutingHandlers } from './handlers/candidate-spec-ro
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
+import { createFindingLedgerHandlers } from './handlers/finding-ledger.js';
 import { nextStoryId } from './handlers/context.js';
 import { readBrandEnv } from './core/brand-env.js';
 
@@ -204,6 +205,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createReviewRunHandlers(ctx));
   registry.registerBatch(createReviewLoopHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
+  registry.registerBatch(createFindingLedgerHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
   registry.registerBatch(createWorkflowHandlers(ctx));
   registry.registerBatch(createScopeCheckHandlers(ctx));

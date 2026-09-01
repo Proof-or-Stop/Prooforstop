@@ -152,6 +152,12 @@ const proofStoryContractEnvelopeSchema = z.object({
 
 const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
 
+const runtimeEvidenceCommandSchema = z.object({
+  executable: z.string().min(1).describe('Absolute executable path; runtime resolves the realpath and always uses shell=false.'),
+  args: z.array(z.string()).optional().describe('Exact ordered argv passed to the executable.'),
+  cwd: z.string().optional().describe('Project-relative working directory; traversal and realpath escape are refused.'),
+});
+
 const reviewerReadManifestSchema = z.object({
   filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
@@ -2107,6 +2113,31 @@ Behavior:
     cluster: z.boolean().optional().describe('B-9d95 CHK-005: return cluster view { clusters, ungrouped } instead of flat findings.'),
     ...BRIEF_OUTPUT_FLAGS,
     ...JSON_OUTPUT_FLAGS,
+  }},
+  { name: 'finding_runtime_evidence_run', description: 'Run a structured build/execution command and append a content-addressed RuntimeEvidenceReceipt', schema: {
+    storyId: z.string().describe('Story ID.'),
+    idempotencyKey: z.string().min(1).describe('Exactly-once runtime receipt append key.'),
+    buildCommand: runtimeEvidenceCommandSchema.describe('Structured build command.'),
+    executionCommand: runtimeEvidenceCommandSchema.describe('Structured execution command.'),
+    artifactPaths: z.array(z.string().min(1)).min(1).describe('Project-relative artifacts whose bytes and realpaths must remain stable.'),
+    environmentAllowlist: z.array(z.string().min(1)).optional().describe('Environment variable names allowed into the complete child environment and redacted receipt projection.'),
+    excludedEnvironmentVariables: z.array(z.string().min(1)).optional().describe('Environment names explicitly excluded from execution and raw-value storage.'),
+    compilerVersion: z.string().min(1).describe('Compiler/toolchain version bound into the receipt.'),
+    timeoutMs: z.number().int().min(1).max(300000).optional().describe('Per-command timeout in milliseconds (default 60000).'),
+    buildInProgress: z.boolean().optional().describe('Explicit build-state refusal input; true refuses before execution or receipt minting.'),
+    storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
+  }},
+  { name: 'finding_runtime_evidence_verify', description: 'Verify a persisted RuntimeEvidenceReceipt against current blobs, source, artifacts, commands, environment, toolchain and trust', schema: {
+    storyId: z.string().describe('Story ID.'),
+    runtimeReceiptId: z.string().min(1).describe('RuntimeEvidenceReceipt ID returned by finding_runtime_evidence_run.'),
+    buildCommand: runtimeEvidenceCommandSchema.describe('Expected current structured build command.'),
+    executionCommand: runtimeEvidenceCommandSchema.describe('Expected current structured execution command.'),
+    environmentAllowlist: z.array(z.string().min(1)).optional().describe('Expected current environment allowlist.'),
+    excludedEnvironmentVariables: z.array(z.string().min(1)).optional().describe('Expected current excluded environment names.'),
+    compilerVersion: z.string().min(1).describe('Expected current compiler/toolchain version.'),
+    publicKey: z.string().optional().describe('Trusted Ed25519 public key; defaults to PROOF_OR_STOP_RUNTIME_EVIDENCE_PUBLIC_KEY.'),
+    keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Current trusted key-registry state (default fresh).'),
+    storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),

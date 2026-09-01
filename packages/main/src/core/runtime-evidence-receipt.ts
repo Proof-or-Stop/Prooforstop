@@ -87,6 +87,8 @@ export interface RuntimeReceiptTrust {
   keyFreshnessPolicyDigest: string;
   /** Optional key registry check for rotation/revocation/expiry. */
   keyIsFresh?: (keyId: string, policyDigest: string) => boolean;
+  keyStatus?: 'fresh' | 'unknown' | 'revoked' | 'expired'
+    | ((keyId: string, policyDigest: string) => 'fresh' | 'unknown' | 'revoked' | 'expired');
 }
 
 export type RuntimeEvidenceRefusalCode =
@@ -155,6 +157,7 @@ export interface RedactedEnvironment {
 }
 
 const HEX_DIGEST = /^[0-9a-f]{64}$/;
+const GIT_OBJECT_HASH = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 const DEFAULT_COMMAND_POLICY_DIGEST = canonicalDigest({ version: 1, keyOrder: 'unicode-code-point', arrays: 'ordered' });
 const DEFAULT_REALPATH_POLICY_DIGEST = canonicalDigest({ version: 1, containment: 'realpath', paths: 'relative-posix' });
 const DEFAULT_SECRET_PATTERN = /(?:pass(word)?|secret|token|api[_-]?key|private[_-]?key|credential|auth)/i;
@@ -222,6 +225,12 @@ export interface RuntimeArtifactInput {
   realpathPolicyDigest?: string;
 }
 
+interface RuntimeArtifactSnapshot {
+  manifest: RuntimeEvidenceReceipt['artifacts'][number];
+  realPath: string;
+  fingerprint: string;
+}
+
 export function resolveContainedArtifact(root: string, artifactPath: string): { logicalPath: string; absolutePath: string; realPath: string } {
   // Never expose host paths in refusal messages.  Resolve both sides through
   // realpath before containment, so symlink escapes and `..` traversal fail
@@ -242,18 +251,69 @@ export function resolveContainedArtifact(root: string, artifactPath: string): { 
 }
 
 export function captureArtifactManifest(root: string, artifacts: readonly RuntimeArtifactInput[]): RuntimeEvidenceReceipt['artifacts'] {
+  return captureArtifactSnapshots(root, artifacts).map((snapshot) => snapshot.manifest);
+}
+
+function captureArtifactSnapshots(root: string, artifacts: readonly RuntimeArtifactInput[]): RuntimeArtifactSnapshot[] {
   if (!existsSync(root)) throw new RuntimeEvidenceRefusal('unsupported_storage', 'artifact root does not exist');
-  return artifacts.map((input) => {
+  const snapshots = artifacts.map((input) => {
     const resolved = resolveContainedArtifact(root, input.path);
-    const stat = statSync(resolved.realPath);
+    const stat = statSync(resolved.realPath, { bigint: true });
     if (!stat.isFile()) throw new RuntimeEvidenceRefusal('artifact_stale', `${resolved.logicalPath} is not a regular file`);
     return {
-      path: resolved.logicalPath,
-      digest: digestBytes(readFileSync(resolved.realPath)),
-      sourceHead: input.sourceHead,
-      realpathPolicyDigest: input.realpathPolicyDigest ?? DEFAULT_REALPATH_POLICY_DIGEST,
+      manifest: {
+        path: resolved.logicalPath,
+        digest: digestBytes(readFileSync(resolved.realPath)),
+        sourceHead: input.sourceHead,
+        realpathPolicyDigest: input.realpathPolicyDigest ?? DEFAULT_REALPATH_POLICY_DIGEST,
+      },
+      realPath: resolved.realPath,
+      fingerprint: canonicalDigest({
+        dev: stat.dev.toString(),
+        ino: stat.ino.toString(),
+        size: stat.size.toString(),
+        mtimeNs: stat.mtimeNs.toString(),
+        ctimeNs: stat.ctimeNs.toString(),
+      }),
     };
-  }).sort((a, b) => a.path.localeCompare(b.path));
+  }).sort((a, b) => a.manifest.path.localeCompare(b.manifest.path));
+  if (new Set(snapshots.map((snapshot) => snapshot.manifest.path)).size !== snapshots.length) {
+    throw new RuntimeEvidenceRefusal('realpath_policy_violation', 'duplicate artifact realpath');
+  }
+  return snapshots;
+}
+
+function assertArtifactSnapshotsStable(
+  root: string,
+  snapshots: readonly RuntimeArtifactSnapshot[],
+  phase: 'pre' | 'during' | 'post',
+): void {
+  const code = phase === 'during'
+    ? 'artifact_mutated_during_execution'
+    : phase === 'post'
+      ? 'artifact_mutated_after_execution'
+      : 'artifact_stale';
+  try {
+    for (const snapshot of snapshots) {
+      const resolved = resolveContainedArtifact(root, snapshot.manifest.path);
+      const stat = statSync(resolved.realPath, { bigint: true });
+      const fingerprint = canonicalDigest({
+        dev: stat.dev.toString(),
+        ino: stat.ino.toString(),
+        size: stat.size.toString(),
+        mtimeNs: stat.mtimeNs.toString(),
+        ctimeNs: stat.ctimeNs.toString(),
+      });
+      if (resolved.realPath !== snapshot.realPath
+        || digestBytes(readFileSync(resolved.realPath)) !== snapshot.manifest.digest
+        || fingerprint !== snapshot.fingerprint) {
+        throw new RuntimeEvidenceRefusal(code);
+      }
+    }
+  } catch (error) {
+    if (error instanceof RuntimeEvidenceRefusal && error.code === code) throw error;
+    throw new RuntimeEvidenceRefusal(code);
+  }
 }
 
 export function assertArtifactManifestStable(root: string, manifest: RuntimeEvidenceReceipt['artifacts'], phase: 'pre' | 'during' | 'post'): void {
@@ -286,8 +346,8 @@ const RECEIPT_KEYS = [
 const BLOB_KEYS = ['blobId', 'contentDigest', 'contentType', 'redactionPolicyDigest'].sort();
 
 function exactKeys(value: object, keys: readonly string[]): boolean { return JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort()); }
-function validBlob(ref: EvidenceBlobRef): boolean {
-  return exactKeys(ref, BLOB_KEYS) && HEX_DIGEST.test(ref.blobId.replace(/^runtime-/, '')) && HEX_DIGEST.test(ref.contentDigest) && ref.blobId === `runtime-${ref.contentDigest}` && typeof ref.redactionPolicyDigest === 'string' && ref.redactionPolicyDigest.length > 0;
+function validBlob(ref: EvidenceBlobRef, keys: readonly string[] = BLOB_KEYS): boolean {
+  return exactKeys(ref, keys) && HEX_DIGEST.test(ref.blobId.replace(/^runtime-/, '')) && HEX_DIGEST.test(ref.contentDigest) && ref.blobId === `runtime-${ref.contentDigest}` && typeof ref.redactionPolicyDigest === 'string' && ref.redactionPolicyDigest.length > 0;
 }
 
 /** Verify every referenced blob, including the manifest bytes, before use. */
@@ -331,13 +391,17 @@ export function verifyRuntimeEvidenceReceiptSignature(receipt: RuntimeEvidenceRe
   try {
     if (!exactKeys(receipt, RECEIPT_KEYS) || receipt.schemaVersion !== 1 || receipt.algorithm !== 'ed25519') return false;
     if (![receipt.receiptId, receipt.storyId, receipt.headHash, receipt.sourceMaterialHash, receipt.buildPolicyDigest, receipt.buildCommandDigest, receipt.executionCommandDigest, receipt.startedAt, receipt.completedAt, receipt.producer, receipt.keyId, receipt.trustRootDigest, receipt.keyFreshnessPolicyDigest, receipt.receiptHash, receipt.signature].every(value => typeof value === 'string' && value.length > 0)) return false;
-    if (![receipt.headHash, receipt.sourceMaterialHash, receipt.buildPolicyDigest, receipt.buildCommandDigest, receipt.executionCommandDigest, receipt.stdoutDigest, receipt.stderrDigest, receipt.environmentDigest, receipt.toolchain.toolchainDigest, receipt.commandCanonicalizationPolicyDigest, receipt.trustRootDigest, receipt.keyFreshnessPolicyDigest, receipt.receiptHash].every(value => HEX_DIGEST.test(value))) return false;
-    if (!validBlob(receipt.buildCommand) || !validBlob(receipt.executionCommand) || !validBlob(receipt.stdout) || !validBlob(receipt.stderr) || !validBlob(receipt.artifactManifest) || !validBlob(receipt.environment)) return false;
-    if (!exactKeys(receipt.environment, [...BLOB_KEYS, 'allowlistPolicyDigest', 'excludedVariableNames'])) return false;
-    if (!Array.isArray(receipt.artifacts) || receipt.artifacts.some(item => !item || typeof item.path !== 'string' || isAbsolute(item.path) || item.path.includes('..') || !HEX_DIGEST.test(item.digest) || !HEX_DIGEST.test(item.sourceHead) || !HEX_DIGEST.test(item.realpathPolicyDigest))) return false;
+    if (!GIT_OBJECT_HASH.test(receipt.headHash)
+      || ![receipt.sourceMaterialHash, receipt.buildPolicyDigest, receipt.buildCommandDigest, receipt.executionCommandDigest, receipt.stdoutDigest, receipt.stderrDigest, receipt.environmentDigest, receipt.toolchain.toolchainDigest, receipt.commandCanonicalizationPolicyDigest, receipt.trustRootDigest, receipt.keyFreshnessPolicyDigest, receipt.receiptHash].every(value => HEX_DIGEST.test(value))) return false;
+    if (!validBlob(receipt.buildCommand) || !validBlob(receipt.executionCommand) || !validBlob(receipt.stdout) || !validBlob(receipt.stderr) || !validBlob(receipt.artifactManifest) || !validBlob(receipt.environment, [...BLOB_KEYS, 'allowlistPolicyDigest', 'excludedVariableNames'])) return false;
+    if (!Array.isArray(receipt.artifacts) || receipt.artifacts.some(item => !item || typeof item.path !== 'string' || isAbsolute(item.path) || item.path.split(/[\\/]/).includes('..') || !HEX_DIGEST.test(item.digest) || !GIT_OBJECT_HASH.test(item.sourceHead) || !HEX_DIGEST.test(item.realpathPolicyDigest))) return false;
     const key = typeof trust === 'string' ? { publicKey: trust, keyId: receipt.keyId, algorithm: 'ed25519' as const, trustRootDigest: receipt.trustRootDigest, keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest } : trust;
     if (receipt.keyId !== key.keyId || receipt.algorithm !== key.algorithm || receipt.trustRootDigest !== key.trustRootDigest || receipt.keyFreshnessPolicyDigest !== key.keyFreshnessPolicyDigest) return false;
     if (key.keyIsFresh && !key.keyIsFresh(receipt.keyId, receipt.keyFreshnessPolicyDigest)) return false;
+    const keyStatus = typeof key.keyStatus === 'function'
+      ? key.keyStatus(receipt.keyId, receipt.keyFreshnessPolicyDigest)
+      : key.keyStatus;
+    if (keyStatus !== undefined && keyStatus !== 'fresh') return false;
     if (canonicalDigest(unsignedReceipt(receipt)) !== receipt.receiptHash) return false;
     return verifyCanonical({ ...unsignedReceipt(receipt), receiptHash: receipt.receiptHash }, receipt.signature, key.publicKey);
   } catch { return false; }
@@ -345,6 +409,111 @@ export function verifyRuntimeEvidenceReceiptSignature(receipt: RuntimeEvidenceRe
 
 export function verifyRuntimeEvidenceReceipt(receipt: RuntimeEvidenceReceipt, trust: RuntimeReceiptTrust | string): boolean {
   return verifyRuntimeEvidenceReceiptSignature(receipt, trust);
+}
+
+export interface RuntimeEvidenceExpectedState {
+  storyId: string;
+  headHash: string;
+  sourceMaterialHash: string;
+  buildPolicyDigest: string;
+  buildCommand: RuntimeEvidenceReceiptInput['buildCommand'];
+  executionCommand: RuntimeEvidenceReceiptInput['executionCommand'];
+  environment: RedactedEnvironment;
+  toolchain: RuntimeEvidenceReceipt['toolchain'];
+  trust: RuntimeReceiptTrust;
+  blobStore: RuntimeEvidenceBlobStore;
+  artifactRoot: string;
+  producer?: string;
+}
+
+export interface RuntimeEvidenceVerification {
+  valid: boolean;
+  refusal?: RuntimeEvidenceRefusalCode;
+}
+
+function signingKeyStatus(trust: RuntimeReceiptTrust, receipt: RuntimeEvidenceReceipt): 'fresh' | 'unknown' | 'revoked' | 'expired' {
+  if (receipt.keyId !== trust.keyId) return 'unknown';
+  const status = typeof trust.keyStatus === 'function'
+    ? trust.keyStatus(receipt.keyId, receipt.keyFreshnessPolicyDigest)
+    : trust.keyStatus;
+  if (status) return status;
+  if (trust.keyIsFresh && !trust.keyIsFresh(receipt.keyId, receipt.keyFreshnessPolicyDigest)) return 'revoked';
+  return 'fresh';
+}
+
+/** Verify signature, immutable blobs, current source/policy state and current artifacts. */
+export function verifyRuntimeEvidenceCurrent(
+  receipt: RuntimeEvidenceReceipt,
+  expected: RuntimeEvidenceExpectedState,
+): RuntimeEvidenceVerification {
+  const refuse = (refusal: RuntimeEvidenceRefusalCode): RuntimeEvidenceVerification => ({ valid: false, refusal });
+  try {
+    if (receipt.algorithm !== 'ed25519' || expected.trust.algorithm !== 'ed25519') return refuse('unsupported_algorithm');
+    if (receipt.trustRootDigest !== expected.trust.trustRootDigest) return refuse('unsupported_trust_root');
+    const status = signingKeyStatus(expected.trust, receipt);
+    if (status === 'unknown') return refuse('unknown_signing_key');
+    if (status === 'revoked') return refuse('revoked_signing_key');
+    if (status === 'expired') return refuse('expired_signing_key');
+    if (receipt.keyFreshnessPolicyDigest !== expected.trust.keyFreshnessPolicyDigest) return refuse('revoked_signing_key');
+    if (canonicalDigest(unsignedReceipt(receipt)) !== receipt.receiptHash) return refuse('receipt_hash_mismatch');
+    if (!verifyRuntimeEvidenceReceiptSignature(receipt, expected.trust)) return refuse('receipt_signature_invalid');
+
+    const refs: Array<[EvidenceBlobRef, RuntimeEvidenceContentType]> = [
+      [receipt.buildCommand, 'command'], [receipt.executionCommand, 'command'],
+      [receipt.stdout, 'stdout'], [receipt.stderr, 'stderr'],
+      [receipt.environment, 'environment'], [receipt.artifactManifest, 'artifact_manifest'],
+    ];
+    for (const [ref, contentType] of refs) {
+      if (ref.contentType !== contentType) return refuse('blob_digest_mismatch');
+      const bytes = expected.blobStore.get(ref);
+      if (bytes === undefined) return refuse('blob_missing');
+      if (digestBytes(bytes) !== ref.contentDigest || ref.blobId !== `runtime-${ref.contentDigest}`) {
+        return refuse('blob_digest_mismatch');
+      }
+    }
+    if (receipt.stdoutDigest !== receipt.stdout.contentDigest || receipt.stderrDigest !== receipt.stderr.contentDigest) {
+      return refuse('output_tampered');
+    }
+    if (receipt.buildCommandDigest !== receipt.buildCommand.contentDigest
+      || receipt.buildCommandDigest !== digestBytes(canonicalizeRuntimeCommand(expected.buildCommand))) {
+      return refuse('build_command_stale');
+    }
+    if (receipt.executionCommandDigest !== receipt.executionCommand.contentDigest
+      || receipt.executionCommandDigest !== digestBytes(canonicalizeRuntimeCommand(expected.executionCommand))) {
+      return refuse('execution_command_stale');
+    }
+    if (receipt.environmentDigest !== receipt.environment.contentDigest
+      || receipt.environmentDigest !== expected.environment.environmentDigest
+      || receipt.environment.allowlistPolicyDigest !== expected.environment.allowlistPolicyDigest
+      || canonicalDigest(receipt.environment.excludedVariableNames) !== canonicalDigest(expected.environment.excludedVariableNames)) {
+      return refuse('environment_stale');
+    }
+    if (receipt.toolchain.toolchainDigest !== canonicalDigest({
+      compilerVersion: receipt.toolchain.compilerVersion,
+      runtimeVersion: receipt.toolchain.runtimeVersion,
+    }) || canonicalDigest(receipt.toolchain) !== canonicalDigest(expected.toolchain)) return refuse('toolchain_stale');
+    if (receipt.storyId !== expected.storyId || receipt.headHash !== expected.headHash
+      || receipt.artifacts.some((artifact) => artifact.sourceHead !== expected.headHash)) return refuse('source_stale');
+    if (receipt.sourceMaterialHash !== expected.sourceMaterialHash) return refuse('material_stale');
+    if (receipt.buildPolicyDigest !== expected.buildPolicyDigest) return refuse('build_policy_stale');
+    if (expected.producer !== undefined && receipt.producer !== expected.producer) return refuse('receipt_shape_invalid');
+
+    const manifestBytes = expected.blobStore.get(receipt.artifactManifest);
+    if (!manifestBytes || !manifestBytes.equals(canonicalBytes(receipt.artifacts))) {
+      return refuse('artifact_manifest_tampered');
+    }
+    if (receipt.artifacts.some((artifact) => artifact.realpathPolicyDigest !== DEFAULT_REALPATH_POLICY_DIGEST)) {
+      return refuse('realpath_policy_violation');
+    }
+    assertArtifactManifestStable(expected.artifactRoot, receipt.artifacts, 'pre');
+    return { valid: true };
+  } catch (error) {
+    if (error instanceof RuntimeEvidenceRefusal) return refuse(error.code);
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('unsupported_storage')) return refuse('unsupported_storage');
+    if (message.includes('blob_digest_mismatch')) return refuse('blob_digest_mismatch');
+    return refuse('receipt_shape_invalid');
+  }
 }
 
 export interface RuntimeEvidenceReceiptInput {
@@ -370,7 +539,9 @@ export interface RuntimeEvidenceReceiptInput {
 
 export function createRuntimeEvidenceReceipt(input: RuntimeEvidenceReceiptInput, signer: RuntimeReceiptSigner): RuntimeEvidenceReceipt {
   if (!input.storyId || !input.producer || !input.startedAt || !input.completedAt) throw new RuntimeEvidenceRefusal('receipt_shape_invalid', 'receipt identity and timing are required');
-  if (![input.headHash, input.sourceMaterialHash, input.buildPolicyDigest].every(value => HEX_DIGEST.test(value))) throw new RuntimeEvidenceRefusal('receipt_shape_invalid', 'source and policy fields must be sha256 digests');
+  if (!GIT_OBJECT_HASH.test(input.headHash) || ![input.sourceMaterialHash, input.buildPolicyDigest].every(value => HEX_DIGEST.test(value))) throw new RuntimeEvidenceRefusal('receipt_shape_invalid', 'source and policy fields are invalid');
+  if (input.artifacts.some((artifact) => artifact.sourceHead !== input.headHash)) throw new RuntimeEvidenceRefusal('source_stale', 'artifact source head differs from receipt source head');
+  if (input.toolchain.toolchainDigest !== canonicalDigest({ compilerVersion: input.toolchain.compilerVersion, runtimeVersion: input.toolchain.runtimeVersion })) throw new RuntimeEvidenceRefusal('toolchain_stale');
   if (input.exitCode % 1 !== 0 || !Number.isSafeInteger(input.exitCode)) throw new RuntimeEvidenceRefusal('receipt_shape_invalid', 'exitCode must be an integer');
   const commandPolicy = input.commandCanonicalizationPolicyDigest ?? DEFAULT_COMMAND_POLICY_DIGEST;
   const buildBytes = canonicalizeRuntimeCommand(input.buildCommand);
@@ -402,18 +573,22 @@ export interface RuntimeEvidenceExecutionOptions extends Omit<RuntimeEvidenceRec
   artifactInputs: readonly RuntimeArtifactInput[];
   run: () => { stdout: Buffer | string; stderr: Buffer | string; exitCode: number };
   buildInProgress?: boolean;
+  /** Optional durability/barrier callback between during-run and post-run checks. */
+  postRunStabilityBarrier?: () => void;
 }
 
 /** Execute an already policy-authorized callback with pre/during/post artifact checks. */
 export function executeRuntimeEvidence(options: RuntimeEvidenceExecutionOptions, signer: RuntimeReceiptSigner): RuntimeEvidenceExecutionResult {
   if (options.buildInProgress) throw new RuntimeEvidenceRefusal('build_in_progress', 'build is in progress');
-  const artifacts = captureArtifactManifest(options.root, options.artifactInputs);
-  assertArtifactManifestStable(options.root, artifacts, 'pre');
+  const snapshots = captureArtifactSnapshots(options.root, options.artifactInputs);
+  const artifacts = snapshots.map((snapshot) => snapshot.manifest);
+  assertArtifactSnapshotsStable(options.root, snapshots, 'pre');
   const startedAt = nowIso();
   const result = options.run();
-  assertArtifactManifestStable(options.root, artifacts, 'during');
+  assertArtifactSnapshotsStable(options.root, snapshots, 'during');
   const completedAt = nowIso();
-  assertArtifactManifestStable(options.root, artifacts, 'post');
+  options.postRunStabilityBarrier?.();
+  assertArtifactSnapshotsStable(options.root, snapshots, 'post');
   const receipt = createRuntimeEvidenceReceipt({ ...options, artifacts, startedAt, completedAt, stdout: Buffer.from(result.stdout), stderr: Buffer.from(result.stderr), exitCode: result.exitCode }, signer);
   return { receipt, stdout: Buffer.from(result.stdout), stderr: Buffer.from(result.stderr), exitCode: result.exitCode, preStable: true, duringStable: true, postStable: true };
 }

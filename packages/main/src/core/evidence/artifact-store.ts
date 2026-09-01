@@ -12,17 +12,119 @@
 
 import { createHash } from 'crypto';
 import {
+  closeSync,
   mkdirSync,
   writeFileSync,
   readFileSync,
   existsSync,
   appendFileSync,
+  fsyncSync,
+  openSync,
   readdirSync,
+  renameSync,
+  rmSync,
 } from 'fs';
 import { join } from 'path';
 import type { EvidenceArtifact, ArtifactKind, EvidenceScope, SubjectBinding } from './types.js';
 import { EVIDENCE_SCHEMA_VERSION } from './types.js';
 import { PROOF_OR_STOP_DIR } from '../lattice-paths.js';
+import type { EvidenceBlobRef, RuntimeEvidenceBlobStore } from '../runtime-evidence-receipt.js';
+
+export const RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY = 'runtime-evidence-local-fs-atomic-rename-v1' as const;
+
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+
+function runtimeBlobDir(projectRoot: string): string {
+  return join(evidenceRoot(projectRoot), 'runtime-blobs', 'sha256');
+}
+
+function validateRuntimeBlobRef(ref: EvidenceBlobRef): void {
+  if (!SHA256_HEX.test(ref.contentDigest) || ref.blobId !== `runtime-${ref.contentDigest}`) {
+    throw new Error('runtime-evidence: blob_digest_mismatch');
+  }
+}
+
+function assertRuntimeStorageCapability(capability: string): void {
+  if (capability !== RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY) {
+    throw new Error('runtime-evidence: unsupported_storage');
+  }
+}
+
+function runtimeBlobPath(projectRoot: string, ref: EvidenceBlobRef): string {
+  validateRuntimeBlobRef(ref);
+  return join(runtimeBlobDir(projectRoot), `${ref.contentDigest}.blob`);
+}
+
+/**
+ * Publish one immutable runtime-evidence blob. Repeated writes of the same
+ * digest are byte-checked no-ops; callers never receive the protected path.
+ */
+export function writeRuntimeEvidenceBlob(
+  projectRoot: string,
+  ref: EvidenceBlobRef,
+  bytes: Buffer,
+  capability: string = RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+): { created: boolean } {
+  assertRuntimeStorageCapability(capability);
+  validateRuntimeBlobRef(ref);
+  const actualDigest = createHash('sha256').update(bytes).digest('hex');
+  if (actualDigest !== ref.contentDigest) throw new Error('runtime-evidence: blob_digest_mismatch');
+
+  const dir = runtimeBlobDir(projectRoot);
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
+  const destination = runtimeBlobPath(projectRoot, ref);
+  if (existsSync(destination)) {
+    const existing = readFileSync(destination);
+    if (!existing.equals(bytes)) throw new Error('runtime-evidence: blob_digest_mismatch');
+    return { created: false };
+  }
+
+  const temporary = join(dir, `.${ref.contentDigest}.${process.pid}.${Date.now().toString(36)}.tmp`);
+  let descriptor: number | undefined;
+  try {
+    descriptor = openSync(temporary, 'wx', 0o600);
+    writeFileSync(descriptor, bytes);
+    fsyncSync(descriptor);
+    closeSync(descriptor);
+    descriptor = undefined;
+    renameSync(temporary, destination);
+    const directoryDescriptor = openSync(dir, 'r');
+    try { fsyncSync(directoryDescriptor); } finally { closeSync(directoryDescriptor); }
+    const persisted = readFileSync(destination);
+    if (!persisted.equals(bytes)) throw new Error('runtime-evidence: blob_digest_mismatch');
+    return { created: true };
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+    rmSync(temporary, { force: true });
+  }
+}
+
+/** Read and digest-check a runtime blob without exposing its physical path. */
+export function readRuntimeEvidenceBlob(
+  projectRoot: string,
+  ref: EvidenceBlobRef,
+  capability: string = RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+): Buffer | undefined {
+  assertRuntimeStorageCapability(capability);
+  const path = runtimeBlobPath(projectRoot, ref);
+  if (!existsSync(path)) return undefined;
+  const bytes = readFileSync(path);
+  if (createHash('sha256').update(bytes).digest('hex') !== ref.contentDigest) {
+    throw new Error('runtime-evidence: blob_digest_mismatch');
+  }
+  return bytes;
+}
+
+export function createRuntimeEvidenceBlobStore(
+  projectRoot: string,
+  capability: string = RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+): RuntimeEvidenceBlobStore {
+  assertRuntimeStorageCapability(capability);
+  return {
+    put: (ref, bytes) => { writeRuntimeEvidenceBlob(projectRoot, ref, bytes, capability); },
+    get: (ref) => readRuntimeEvidenceBlob(projectRoot, ref, capability),
+  };
+}
 
 export interface CreateArtifactOptions<TPayload> {
   artifactKind: ArtifactKind;

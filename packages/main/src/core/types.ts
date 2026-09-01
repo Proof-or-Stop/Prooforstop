@@ -1630,6 +1630,18 @@ export interface FindingLedgerReceipt {
   signature: string;
 }
 
+// Story 3B runtime receipts are persistence/freshness facts only. Re-exporting
+// the contract here keeps consumers on the shared type surface without giving
+// the record lifecycle, blocker, pass, or unblock authority.
+export type {
+  EvidenceBlobRef,
+  RuntimeEvidenceReceipt,
+  RuntimeEvidenceRefusalCode,
+  RuntimeEvidenceVerification,
+  RuntimeReceiptSigner,
+  RuntimeReceiptTrust,
+} from './runtime-evidence-receipt.js';
+
 export interface ReviewerReadManifest {
   filesReadFully: string[];
   filesTriagedByName: string[];

@@ -1,16 +1,19 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdtempSync,
   mkdirSync,
+  realpathSync,
+  readdirSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   FINDING_LEDGER_LOCAL_FS_CAPABILITY,
@@ -24,7 +27,7 @@ import {
   type DurableCommitTrace,
   type JsonValue,
 } from '../core/finding-ledger.js';
-import { generateEd25519KeyPair } from '../core/authority-signing.js';
+import { canonicalDigest, generateEd25519KeyPair, verifyCanonical } from '../core/authority-signing.js';
 import {
   appendAssessmentProposal,
   appendDeferralExpiryPolicy,
@@ -33,7 +36,11 @@ import {
   canonicalJson,
   classifyMandatoryRepair,
   closeMandatoryRepair,
+  createFindingLedgerHandlers,
   exactLedgerRecordHash,
+  RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST,
+  RUNTIME_EVIDENCE_PRIVATE_KEY_ENV,
+  RUNTIME_EVIDENCE_PUBLIC_KEY_ENV,
   signAssessmentProposal,
   verifyAssessmentProposal,
   verifyFindingLedgerReceipt,
@@ -41,6 +48,25 @@ import {
   type LedgerReceiptTrust,
   type LedgerSigner,
 } from '../handlers/finding-ledger.js';
+import {
+  MemoryRuntimeEvidenceBlobStore,
+  RUNTIME_REALPATH_POLICY_DIGEST,
+  RuntimeEvidenceRefusal,
+  createRuntimeEvidenceReceipt,
+  executeRuntimeEvidence,
+  redactEnvironment,
+  signRuntimeEvidenceReceipt,
+  verifyRuntimeEvidenceCurrent,
+  verifyRuntimeEvidenceReceiptBlobs,
+  verifyRuntimeEvidenceReceiptSignature,
+  type RuntimeEvidenceReceipt,
+  type RuntimeReceiptSigner,
+  type RuntimeReceiptTrust,
+} from '../core/runtime-evidence-receipt.js';
+import {
+  RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+  createRuntimeEvidenceBlobStore,
+} from '../core/evidence/artifact-store.js';
 import {
   acquireMkdirLock,
   captureMkdirLockFence,
@@ -50,7 +76,10 @@ import {
   mainWriteLockPath,
 } from '../core/main-write-lock.js';
 import { StoryStore } from '../core/store.js';
-import type { Finding } from '../core/types.js';
+import { createMainRegistry } from '../registry.js';
+import type { HandlerContext } from '../handlers/context.js';
+import type { Finding, StoryInfo } from '../core/types.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 
 interface WorkerSpec {
   ledgerFile: string;
@@ -179,6 +208,397 @@ function signedApplicableProposal(
 function proposalUnsignedForSmoke(proposal: Record<string, unknown>): Record<string, unknown> {
   const { proposalDigest: _digest, proposalSignature: _signature, ...unsigned } = proposal;
   return unsigned;
+}
+
+function runtimeStory(storyId: string): StoryInfo {
+  const now = '2030-01-01T00:00:00.000Z';
+  return {
+    storyId,
+    name: 'runtime-evidence-smoke',
+    title: 'Runtime evidence smoke',
+    description: 'Synthetic DEV story for RuntimeEvidenceReceipt production adapter verification.',
+    type: 'chore',
+    phase: 'DEV',
+    priority: 'high',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [{ phase: 'DEV', action: 'advance', timestamp: now }],
+  };
+}
+
+function git(root: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function parseCliJson(output: string): Record<string, unknown> {
+  const start = output.indexOf('{');
+  const end = output.lastIndexOf('}');
+  assert.ok(start >= 0 && end > start, `runtime CLI output is not JSON: ${output.slice(0, 200)}`);
+  return JSON.parse(output.slice(start, end + 1)) as Record<string, unknown>;
+}
+
+function runRuntimeCli(
+  repositoryRoot: string,
+  projectRoot: string,
+  command: 'finding_runtime_evidence_run' | 'finding_runtime_evidence_verify',
+  args: Record<string, unknown>,
+  signingEnv: Record<string, string>,
+): { status: number | null; stdout: string; stderr: string; json?: Record<string, unknown> } {
+  const result = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), command, JSON.stringify(args)], {
+    cwd: projectRoot,
+    env: { ...process.env, ...signingEnv },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  return {
+    status: result.status,
+    stdout: result.stdout ?? '',
+    stderr: result.stderr ?? '',
+    ...(result.status === 0 ? { json: parseCliJson(result.stdout ?? '') } : {}),
+  };
+}
+
+function readTreeText(root: string): string {
+  if (!existsSync(root)) return '';
+  const chunks: string[] = [];
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const path = join(root, entry.name);
+    if (entry.isDirectory()) chunks.push(readTreeText(path));
+    else if (entry.isFile()) chunks.push(readFileSync(path).toString('utf8'));
+  }
+  return chunks.join('\n');
+}
+
+function unsignedRuntimeReceipt(receipt: RuntimeEvidenceReceipt): Omit<RuntimeEvidenceReceipt, 'receiptHash' | 'signature'> {
+  const { receiptHash: _hash, signature: _signature, ...unsigned } = receipt;
+  return unsigned;
+}
+
+function runRuntimeEvidenceMatrix(scratch: string): void {
+  const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
+  const root = join(scratch, 'runtime-project');
+  const storyId = 'B-RUNTIME';
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures',
+    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }, null, 2));
+  writeFileSync(join(root, 'source.txt'), 'runtime evidence source\n');
+  git(root, ['init', '-q']);
+  git(root, ['add', 'proof-or-stop.config.json', 'source.txt']);
+  git(root, ['-c', 'user.name=runtime-smoke', '-c', 'user.email=runtime@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'runtime source']);
+  const store = new StoryStore(root);
+  store.writeStory(storyId, runtimeStory(storyId));
+
+  const keyPair = generateEd25519KeyPair();
+  const signingEnv = {
+    [RUNTIME_EVIDENCE_PRIVATE_KEY_ENV]: keyPair.privateKey,
+    [RUNTIME_EVIDENCE_PUBLIC_KEY_ENV]: keyPair.publicKey,
+    RUNTIME_SAFE: 'visible-safe-value',
+    RUNTIME_SECRET_TOKEN: 'never-store-this-secret-value',
+  };
+  const previousEnv = Object.fromEntries(Object.keys(signingEnv).map((name) => [name, process.env[name]]));
+  Object.assign(process.env, signingEnv);
+  try {
+    const buildCommand = {
+      executable: process.execPath,
+      args: ['-e', "const fs=require('node:fs');fs.mkdirSync('build',{recursive:true});fs.writeFileSync('build/runtime-artifact.mjs','process.stdout.write(\\\"runtime-ok\\\\n\\\");\\n')"],
+      cwd: '.',
+    };
+    const executionCommand = { executable: process.execPath, args: ['build/runtime-artifact.mjs'], cwd: '.' };
+    const runArgs = {
+      storyId,
+      idempotencyKey: 'runtime-cli-once',
+      buildCommand,
+      executionCommand,
+      artifactPaths: ['build/runtime-artifact.mjs'],
+      environmentAllowlist: ['RUNTIME_SAFE', 'RUNTIME_SECRET_TOKEN'],
+      excludedEnvironmentVariables: ['RUNTIME_SECRET_TOKEN'],
+      compilerVersion: 'typescript-5.9-smoke',
+      timeoutMs: 30_000,
+      storageCapability: RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+    };
+    const phaseBefore = store.readStory(storyId).phase;
+    const cliRun = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_run', runArgs, signingEnv);
+    assert.equal(cliRun.status, 0, `real runtime run CLI failed: ${cliRun.stderr}\n${cliRun.stdout}`);
+    const runJson = cliRun.json!;
+    assert.equal(runJson.command, 'finding_runtime_evidence_run');
+    assert.equal(runJson.persisted, true);
+    const receipt = runJson.receipt as unknown as RuntimeEvidenceReceipt;
+    const runtimeRecordId = String(runJson.runtimeRecordId);
+    const ledgerReceiptId = String(runJson.ledgerReceiptId);
+    const fileBlobStore = createRuntimeEvidenceBlobStore(root);
+    assert.equal(verifyRuntimeEvidenceReceiptBlobs(receipt, fileBlobStore), true);
+    assert.equal(
+      canonicalDigest(unsignedRuntimeReceipt(receipt)),
+      receipt.receiptHash,
+      `runtime receipt hash changed across CLI serialization; keys=${Object.keys(receipt).sort().join(',')}`,
+    );
+    assert.equal(verifyCanonical(
+      { ...unsignedRuntimeReceipt(receipt), receiptHash: receipt.receiptHash },
+      receipt.signature,
+      keyPair.publicKey,
+    ), true, 'runtime receipt Ed25519 signature is invalid');
+    assert.equal(verifyRuntimeEvidenceReceiptSignature(receipt, keyPair.publicKey), true);
+    console.log('runtime.content_addressed_receipt: PASS blobs=complete signature=valid');
+
+    const signer: RuntimeReceiptSigner = {
+      privateKey: keyPair.privateKey,
+      publicKey: keyPair.publicKey,
+      keyId: receipt.keyId,
+      trustRootDigest: receipt.trustRootDigest,
+      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
+      algorithm: 'ed25519',
+    };
+    const trust: RuntimeReceiptTrust = {
+      publicKey: keyPair.publicKey,
+      keyId: receipt.keyId,
+      algorithm: 'ed25519',
+      trustRootDigest: receipt.trustRootDigest,
+      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
+      keyStatus: 'fresh',
+    };
+    const environment = redactEnvironment(process.env, {
+      allowlist: runArgs.environmentAllowlist,
+      excludedVariableNames: runArgs.excludedEnvironmentVariables,
+    });
+    const expected = {
+      storyId,
+      headHash: currentGitHead(root)!,
+      sourceMaterialHash: currentMaterialHash(root, 'HEAD', root)!,
+      buildPolicyDigest: RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST,
+      buildCommand: { ...buildCommand, executable: realpathSync(process.execPath) },
+      executionCommand: { ...executionCommand, executable: realpathSync(process.execPath) },
+      environment,
+      toolchain: receipt.toolchain,
+      trust,
+      blobStore: fileBlobStore,
+      artifactRoot: root,
+      producer: 'finding_runtime_evidence_run',
+    };
+    assert.equal(verifyRuntimeEvidenceCurrent(receipt, expected).valid, true);
+
+    const stableStore = new MemoryRuntimeEvidenceBlobStore();
+    const stable = executeRuntimeEvidence({
+      storyId,
+      headHash: expected.headHash,
+      sourceMaterialHash: expected.sourceMaterialHash,
+      buildPolicyDigest: expected.buildPolicyDigest,
+      buildCommand: expected.buildCommand,
+      executionCommand: expected.executionCommand,
+      environment,
+      toolchain: receipt.toolchain,
+      producer: 'runtime-stability-smoke',
+      root,
+      artifactInputs: [{ path: 'build/runtime-artifact.mjs', sourceHead: expected.headHash }],
+      blobStore: stableStore,
+      run: () => ({ stdout: 'stable', stderr: '', exitCode: 0 }),
+    }, signer);
+    assert.deepEqual([stable.preStable, stable.duringStable, stable.postStable], [true, true, true]);
+    console.log('runtime.artifact_stability: PASS pre=true during=true post=true');
+
+    assert.equal(store.readStory(storyId).phase, phaseBefore);
+    console.log('runtime.execution_not_semantics: PASS lifecycleDelta=0');
+    console.log('runtime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true');
+
+    const verifyArgs = {
+      storyId,
+      runtimeReceiptId: receipt.receiptId,
+      buildCommand,
+      executionCommand,
+      environmentAllowlist: runArgs.environmentAllowlist,
+      excludedEnvironmentVariables: runArgs.excludedEnvironmentVariables,
+      compilerVersion: runArgs.compilerVersion,
+      publicKey: keyPair.publicKey,
+      storageCapability: RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+    };
+    const cliVerify = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', verifyArgs, signingEnv);
+    assert.equal(cliVerify.status, 0, `real runtime verify CLI failed: ${cliVerify.stderr}\n${cliVerify.stdout}`);
+    assert.equal(cliVerify.json?.verified, true);
+    console.log('runtime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true');
+
+    const changedEnvironment = redactEnvironment({ ...process.env, RUNTIME_SAFE: 'changed-safe-value' }, {
+      allowlist: runArgs.environmentAllowlist,
+      excludedVariableNames: runArgs.excludedEnvironmentVariables,
+    });
+    const changedToolchainValue = { compilerVersion: 'other-compiler', runtimeVersion: process.version };
+    const changedToolchain = { ...changedToolchainValue, toolchainDigest: canonicalDigest(changedToolchainValue) };
+    const outputMutated = signRuntimeEvidenceReceipt({
+      ...unsignedRuntimeReceipt(receipt), stdoutDigest: 'a'.repeat(64),
+    }, signer);
+    const artifactPath = join(root, 'build', 'runtime-artifact.mjs');
+    const artifactBytes = readFileSync(artifactPath);
+    const freshnessResults = [
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, headHash: 'f'.repeat(40) }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, sourceMaterialHash: '1'.repeat(64) }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, buildPolicyDigest: '2'.repeat(64) }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, buildCommand: { ...expected.buildCommand, args: ['--changed-build'] } }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, executionCommand: { ...expected.executionCommand, args: ['--changed-execution'] } }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, environment: changedEnvironment }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, toolchain: changedToolchain }),
+      verifyRuntimeEvidenceCurrent(outputMutated, expected),
+    ];
+    writeFileSync(artifactPath, 'mutated-after-receipt\n');
+    freshnessResults.push(verifyRuntimeEvidenceCurrent(receipt, expected));
+    writeFileSync(artifactPath, artifactBytes);
+    const freshnessReasons = freshnessResults.map((result) => result.refusal);
+    assert.deepEqual(freshnessReasons, [
+      'source_stale', 'material_stale', 'build_policy_stale', 'build_command_stale',
+      'execution_command_stale', 'environment_stale', 'toolchain_stale', 'output_tampered', 'artifact_stale',
+    ]);
+    assert.equal(freshnessResults.some((result) => result.valid), false);
+    console.log('runtime.freshness_matrix: PASS acceptedStale=0');
+
+    const persistedText = `${JSON.stringify(runJson)}\n${readTreeText(join(root, '.lattice', 'evidence'))}\n${readTreeText(store.storyDirPath(storyId))}`;
+    assert.equal(persistedText.includes(signingEnv.RUNTIME_SECRET_TOKEN), false);
+    console.log('runtime.environment_privacy: PASS leakedValues=0');
+
+    const rowsBeforeRefusal = store.readFindingLedger<JsonValue>(storyId).records.length;
+    for (const status of ['unknown', 'revoked', 'expired'] as const) {
+      assert.equal(verifyRuntimeEvidenceCurrent(receipt, { ...expected, trust: { ...trust, keyStatus: status } }).valid, false);
+    }
+    const unsupportedAlgorithm = signRuntimeEvidenceReceipt({ ...unsignedRuntimeReceipt(receipt), algorithm: 'rsa' }, signer);
+    assert.equal(verifyRuntimeEvidenceCurrent(unsupportedAlgorithm, expected).refusal, 'unsupported_algorithm');
+    assert.equal(verifyRuntimeEvidenceCurrent(receipt, {
+      ...expected, trust: { ...trust, trustRootDigest: '3'.repeat(64) },
+    }).refusal, 'unsupported_trust_root');
+    assert.throws(() => createRuntimeEvidenceBlobStore(root, 'nfs-multi-host'), /unsupported_storage/);
+    const buildBusy = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_run', {
+      ...runArgs, idempotencyKey: 'runtime-build-busy', buildInProgress: true,
+    }, signingEnv);
+    assert.notEqual(buildBusy.status, 0);
+    assert.match(`${buildBusy.stdout}\n${buildBusy.stderr}`, /build_in_progress/);
+    assert.equal(store.readFindingLedger<JsonValue>(storyId).records.length, rowsBeforeRefusal);
+    console.log('runtime.trust_storage_boundary: PASS emittedInvalidReceipts=0');
+
+    const beforeReplay = store.readFindingLedger<JsonValue>(storyId);
+    const originalRecordBytes = canonicalJson(beforeReplay.records.find((record) => record.recordId === runtimeRecordId));
+    const cliReplay = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_run', runArgs, signingEnv);
+    assert.equal(cliReplay.status, 0, `runtime replay failed: ${cliReplay.stderr}\n${cliReplay.stdout}`);
+    assert.equal(cliReplay.json?.replayed, true);
+    assert.equal(cliReplay.json?.runtimeRecordId, runtimeRecordId);
+    assert.equal(cliReplay.json?.ledgerReceiptId, ledgerReceiptId);
+    const afterReplay = store.readFindingLedger<JsonValue>(storyId);
+    assert.equal(afterReplay.records.length, beforeReplay.records.length);
+    assert.equal(afterReplay.receipts.length, beforeReplay.receipts.length);
+    assert.equal(canonicalJson(afterReplay.records.find((record) => record.recordId === runtimeRecordId)), originalRecordBytes);
+    console.log('runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true');
+
+    const receiptMutations: RuntimeEvidenceReceipt[] = [];
+    const directMutation = (field: keyof RuntimeEvidenceReceipt, value: unknown): void => {
+      const copy = structuredClone(receipt) as unknown as Record<string, unknown>;
+      copy[field] = value;
+      receiptMutations.push(copy as unknown as RuntimeEvidenceReceipt);
+    };
+    directMutation('storyId', 'B-SUBSTITUTE');
+    directMutation('receiptHash', '4'.repeat(64));
+    directMutation('signature', 'invalid-signature');
+    directMutation('stdout', { ...receipt.stdout, contentDigest: '5'.repeat(64) });
+    directMutation('artifacts', [{ ...receipt.artifacts[0], digest: '6'.repeat(64) }]);
+    const tamperedBlobStore = {
+      put: () => undefined,
+      get: (ref: RuntimeEvidenceReceipt['stdout']) => ref.blobId === receipt.stdout.blobId
+        ? Buffer.from('tampered stdout')
+        : fileBlobStore.get(ref),
+    };
+    const missingBlobStore = { put: () => undefined, get: () => undefined };
+    const tamperResults = [
+      ...receiptMutations.map((candidate) => verifyRuntimeEvidenceCurrent(candidate, expected)),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, blobStore: tamperedBlobStore }),
+      verifyRuntimeEvidenceCurrent(receipt, { ...expected, blobStore: missingBlobStore }),
+    ];
+    assert.equal(tamperResults.filter((result) => result.valid).length, 0);
+    console.log('runtime.tamper_matrix: PASS acceptedMutations=0');
+
+    const outside = join(scratch, 'outside-runtime-artifact.mjs');
+    writeFileSync(outside, 'outside\n');
+    symlinkSync(outside, join(root, 'build', 'escape.mjs'));
+    symlinkSync('runtime-artifact.mjs', join(root, 'build', 'runtime-alias.mjs'));
+    const realpathErrors: string[] = [];
+    for (const paths of [['build/escape.mjs'], ['../outside-runtime-artifact.mjs'], ['build/runtime-artifact.mjs', 'build/runtime-alias.mjs']]) {
+      try {
+        executeRuntimeEvidence({
+          storyId, headHash: expected.headHash, sourceMaterialHash: expected.sourceMaterialHash,
+          buildPolicyDigest: expected.buildPolicyDigest, buildCommand: expected.buildCommand,
+          executionCommand: expected.executionCommand, environment, toolchain: receipt.toolchain,
+          producer: 'realpath-smoke', root, artifactInputs: paths.map((path) => ({ path, sourceHead: expected.headHash })),
+          blobStore: new MemoryRuntimeEvidenceBlobStore(), run: () => ({ stdout: '', stderr: '', exitCode: 0 }),
+        }, signer);
+        assert.fail(`realpath mutation unexpectedly accepted: ${paths.join(',')}`);
+      } catch (error) {
+        assert.ok(error instanceof RuntimeEvidenceRefusal);
+        assert.equal(error.code, 'realpath_policy_violation');
+        realpathErrors.push(error.message);
+      }
+    }
+    assert.equal(realpathErrors.some((message) => message.includes(root) || message.includes(outside)), false);
+    console.log('runtime.realpath_policy: PASS escapes=0 pathsExposed=0');
+
+    const toctouPath = join(root, 'build', 'toctou.mjs');
+    const toctouBytes = Buffer.from('toctou-original\n');
+    writeFileSync(toctouPath, toctouBytes);
+    let receiptsIssued = 0;
+    const countingStore = {
+      put: () => { receiptsIssued += 1; },
+      get: () => undefined,
+    };
+    assert.throws(() => executeRuntimeEvidence({
+      storyId, headHash: expected.headHash, sourceMaterialHash: expected.sourceMaterialHash,
+      buildPolicyDigest: expected.buildPolicyDigest, buildCommand: expected.buildCommand,
+      executionCommand: expected.executionCommand, environment, toolchain: receipt.toolchain,
+      producer: 'toctou-smoke', root, artifactInputs: [{ path: 'build/toctou.mjs', sourceHead: expected.headHash }],
+      blobStore: countingStore,
+      run: () => {
+        writeFileSync(toctouPath, 'temporary-mutated-bytes\n');
+        writeFileSync(toctouPath, toctouBytes);
+        return { stdout: '', stderr: '', exitCode: 0 };
+      },
+    }, signer), (error: unknown) => error instanceof RuntimeEvidenceRefusal && error.code === 'artifact_mutated_during_execution');
+    assert.throws(() => executeRuntimeEvidence({
+      storyId, headHash: expected.headHash, sourceMaterialHash: expected.sourceMaterialHash,
+      buildPolicyDigest: expected.buildPolicyDigest, buildCommand: expected.buildCommand,
+      executionCommand: expected.executionCommand, environment, toolchain: receipt.toolchain,
+      producer: 'post-mutation-smoke', root, artifactInputs: [{ path: 'build/toctou.mjs', sourceHead: expected.headHash }],
+      blobStore: countingStore, run: () => ({ stdout: '', stderr: '', exitCode: 0 }),
+      postRunStabilityBarrier: () => { writeFileSync(toctouPath, 'post-run-mutation\n'); },
+    }, signer), (error: unknown) => error instanceof RuntimeEvidenceRefusal && error.code === 'artifact_mutated_after_execution');
+    assert.equal(receiptsIssued, 0);
+    console.log('runtime.toctou_mutation: PASS receiptsIssued=0');
+
+    const crashStoryId = 'B-RUNTIME-CRASH';
+    store.writeStory(crashStoryId, runtimeStory(crashStoryId));
+    const ctx: HandlerContext = { store, root, scanRoot: root };
+    const handlers = createFindingLedgerHandlers(ctx);
+    const crashArgs = {
+      ...runArgs,
+      storyId: crashStoryId,
+      idempotencyKey: 'runtime-crash-retry',
+      commitOptions: { beforeRename: () => { throw new Error('injected runtime receipt crash'); } },
+    };
+    assert.throws(() => handlers.finding_runtime_evidence_run(crashArgs), /injected runtime receipt crash/);
+    const afterCrash = store.readFindingLedger<JsonValue>(crashStoryId);
+    assert.equal(afterCrash.records.length, 0);
+    assert.equal(afterCrash.receipts.length, 0);
+    const recovered = handlers.finding_runtime_evidence_run({ ...crashArgs, commitOptions: undefined });
+    const recoveredReplay = handlers.finding_runtime_evidence_run({ ...crashArgs, commitOptions: undefined });
+    const recoveredLedger = store.readFindingLedger<JsonValue>(crashStoryId);
+    assert.equal(recoveredLedger.records.filter((record) => record.recordType === 'runtime_evidence_receipt').length, 1);
+    assert.equal(recoveredLedger.records.filter((record) => record.recordType === 'finding_ledger_receipt').length, 0);
+    assert.equal(recoveredLedger.receipts.length, 1);
+    assert.equal(recovered.runtimeRecordId, recoveredReplay.runtimeRecordId);
+    assert.equal(recovered.ledgerReceiptId, recoveredReplay.ledgerReceiptId);
+    console.log('runtime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true');
+  } finally {
+    for (const [name, value] of Object.entries(previousEnv)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  }
 }
 
 if (process.argv[2] === '--ledger-worker') {
@@ -941,6 +1361,7 @@ if (process.argv[2] === '--ledger-worker') {
       main.release();
     }
     console.log('ledger.lock_compatibility: PASS deadlocks=0');
+    runRuntimeEvidenceMatrix(scratch);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
