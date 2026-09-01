@@ -497,6 +497,62 @@
         "scanEscalationReason": null
       },
       "_hash": "18af320ecd5064782c63c55dfc443a0ae7c693bc690d4d30079a741592d16364"
+    },
+    {
+      "id": "B-9a49:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Current-material re-attestation: F-025 through F-035 are strongly resolved; no open findings remain; source and documentation are unchanged since RR-045; prior full quality matrix, exact RED/GREEN pairs, real 60-intent five-role assembly, English, baseline, and protected-runtime checks remain applicable.",
+      "createdAt": "2026-09-01T15:16:48.228Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-049",
+      "envelopeId": "8ec6c3fb93501f41309cab5da54212ca34649533f0f32187c1ebabaa6070f418",
+      "writerSessionId": "sess-3b21d68005d66729dc0b1a07faf245d9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bb870ef6a8a78c88021971ed9742d853444192bddd1ae7c742bbdbca4195c842"
+      },
+      "readDiagnostics": [],
+      "_hash": "ebf5d6a0af738821cfa2ccdc68f461e5b61db32bc91f33f3b92c07051b3ebe5f"
     }
   ]
 }
