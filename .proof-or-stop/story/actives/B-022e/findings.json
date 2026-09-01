@@ -1213,6 +1213,21 @@
       "resolvedAt": "2026-09-01T09:36:30.560Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-045",
+      "desc": "quality-security: packages/main/src/cli/extension-admission.ts:75-85 validates only that every admitted external name appears somewhere in the final registry; it neither rejects extra handlers nor proves MAIN_TOOLS handlers retain their original function identity after extraRegister. packages/main/src/registry.ts:160-162 exposes override(), so a targeted harness declared one fully valid external_probe, registered its handler, then called registry.override(\"story_get\", ...); validateExternalCommandHandlers passed and the real core story_get printed OVERRIDDEN_CORE_HANDLER. This contradicts extension-admission.ts:21-24 that MAIN_TOOLS remain core-owned and leaves core lifecycle handlers replaceable behind valid-looking four-table metadata. Capture the core registry before extraRegister and fail if any core handler identity changes or any newly registered handler lies outside the admitted external set; add an executable override mutation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T09:38:34.681Z",
+      "reviewRound": "2026-09-01T09:35:56.599Z",
+      "reviewRunId": "B-022e:RR-078",
+      "_hash": "b2b657c0db84a4b84633c5d7112f33c795db36d649ced7c84eb36465b79db6d7",
+      "signatureTag": "adversarial|unknown|quality-security-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
