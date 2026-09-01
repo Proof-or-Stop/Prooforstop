@@ -1,0 +1,52 @@
+{
+  "storyId": "B-2220",
+  "checkedAt": "2026-09-01T00:04:22.558Z",
+  "headHash": "657e4884475f2964b756553c28effc09f9a3266e",
+  "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
+  "storyFilesHash": "6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10",
+  "reviewRound": "2026-08-31T23:22:30.466Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "The writer-owned canonical boundary is declined as not currently justified, with no planned or owned follow-up story.",
+      "status": "verified",
+      "verifiedBy": "Full-document delivery review plus CHK-001:happy:0 and CHK-001:adversarial:0.",
+      "evidence": "Decision after B-3434 says No follow-up story is planned or owned; the active-mandate rejection command passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "B-3434 remains accepted and its shipped mechanism, evidence, and known limitations are preserved rather than represented as fixed.",
+      "status": "verified",
+      "verifiedBy": "Full-document delivery review plus CHK-001:happy:1 and build-bound compiled smoke.",
+      "evidence": "The document explicitly says B-3434 remains accepted; the compiled smoke passed and reported that outcome B ships while limitations remain recorded."
+    },
+    {
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "Reconsideration occurs only on concrete new risk evidence and requires a new human-approved story.",
+      "status": "verified",
+      "verifiedBy": "Full-document delivery review plus CHK-001:edge:1.",
+      "evidence": "All listed evidence-based triggers and the new human-approved story requirement are present; the exact verification command passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "A single measured-and-written byte string would provide byte identity only, not input consistency, semantic consistency, or evidence truth.",
+      "status": "verified",
+      "verifiedBy": "Full-document delivery review plus CHK-001:edge:0 and exact document digest check.",
+      "evidence": "The limiting statement is present and the reviewed decision digest fbd665df2456e770e466ebdc77f431ae20f3bae0fab98aab61c06a14ebd11d52 passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Delivery reviewer independently reran all seven pinned verificationIntent commands unchanged: 7/7 PASS. The build-binding plus compiled validation-evidence-buffer smoke exited 0 with validation-evidence-buffer-smoke: PASS and reported no writer-owned-boundary follow-up is currently active. Canonical routine validation is PASS for 120/120 commands with 7/7 required intent coverage. Fresh live-smoke evidence exits 0. DONE-required evidence is PASS for packages/main build and root npm test; root suite reports 58/58 passed with retries=0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met: Round 10 docs, quality, test-coverage, and concept passes are present; canonical three-local-round assurance is satisfied 3/3; all 16 findings are resolved; summary verdict is accepted; no unresolved delivery blocker remains."
+  },
+  "_hash": "556353cf2d8651d5fd22b12ebed4c303cc7dbd5ff92632faa40ac4fdc3e857d7"
+}
