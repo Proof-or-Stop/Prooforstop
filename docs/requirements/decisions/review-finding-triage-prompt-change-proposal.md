@@ -135,7 +135,7 @@ Minimum proposal evidence is verdict-specific:
 | `out_of_scope` | Signed scope or decision evidence naming the excluded contract, no contradictory checklist or acceptance promise, and a valid owner or route. |
 | `duplicate` | A signature-valid live canonical Finding, a live owner or route, and proof that the canonical chain is not circular. |
 | `not_reproduced_under_current_witness` | Current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route. An old DONE outcome is never sufficient. |
-| `unknown` | Missing, invalid, stale, incomplete, or contradictory applicability proof. It fails closed for any issue that would otherwise block. |
+| `unknown` | Current evidence references, an unresolved `direct_scope` or `counter_evidence` basis, current source, scope, and runtime bindings, and the uncertainty that prevents a conclusive verdict; no `nonBlockingProof`, `acceptedRoute`, or `dispositionPlan`. It fails closed for any issue that would otherwise block. |
 
 File disjointness, a matching signature tag, reviewer confidence, historical
 learning, or a prose assertion is never sufficient proof by itself.
@@ -172,11 +172,14 @@ collapsed into this Agent repair rule:
   assessment converts high or critical to the distinct mandatory-repair floor;
   weak, unknown, or invalid proof remains blocked.
 - Invalid claimed deferral lineage is an independent first floor, regardless of
-  the current assessment. Exact strong superseding non-applicable or disproven
-  proof releases only that lineage floor. Invalid or exhausted lineage also
-  creates a downstream mandatory-repair classification; once that obligation is
-  active, only a fresh signed
-  `MandatoryRepairClassification(state='closure_proven')` clears it. The
+  the current assessment. Only a fresh signed superseding
+  `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying
+  its independent strong proof contract, or a signed `disproven` truth
+  transition with current counter-evidence, releases that lineage floor.
+  `not_reproduced_under_current_witness` never releases claimed-deferral lineage
+  or mandatory repair. Invalid or exhausted lineage also creates a downstream
+  mandatory-repair classification; once that obligation is active, only a fresh
+  signed `MandatoryRepairClassification(state='closure_proven')` clears it. The
   superseding proof does not clear the whole block. A transient integrity floor,
   lineage floor, or mandatory-repair floor is machine-derived gate state, not
   permission for an Agent to broaden scope.
@@ -284,7 +287,7 @@ the complete assembled reviewer body:
 - claiming the compatibility CLI can mint or sign future dispositions;
 - treating `finding_dismiss`, `gap_log`, or backlog accounting as deferral
   proof;
-- making unknown applicability non-blocking or deferrable; and
+- making unknown applicability non-blocking or deferrable;
 - allowing an ownerless or receipt-free official deferral;
 - omitting `dispositionPlan` from a final applicable assessment;
 - allowing `repair_current` to carry `acceptedRoute`, allowing a non-applicable
@@ -294,9 +297,13 @@ the complete assembled reviewer body:
 - allowing any of the nine `REQUIRED_ASSESSMENT_INVALID` states to decay through
   round or advisory policy;
 - treating the transient assessment-integrity floor as proof of applicability
-  or an automatic current-Story repair order; and
-- releasing invalid claimed deferral lineage without exact strong superseding
-  non-applicable or disproven proof;
+  or an automatic current-Story repair order;
+- releasing invalid claimed deferral lineage without a fresh signed superseding
+  `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying
+  its independent strong proof contract, or a signed `disproven` truth
+  transition with current counter-evidence;
+- treating `not_reproduced_under_current_witness` as permission to release
+  claimed-deferral lineage or mandatory repair;
 - omitting the downstream mandatory-repair classification created by invalid or
   exhausted lineage; and
 - claiming that lineage-floor superseding proof also clears an already active
@@ -323,7 +330,7 @@ inverse contract after a digest is refreshed.
 | Deferral is a disposition after `applicable`. | Prompts never treat `defer_with_proof` as a verdict or `out_of_scope`. |
 | A final applicable assessment binds exactly one `dispositionPlan`; non-applicable and unknown verdicts follow the exact route/absence union. | Prompts preserve `repair_current` versus `defer_with_proof`, `acceptedRoute` cardinality, and the separate deferral/manifest field names. |
 | Only eligible verified applicable low/medium Findings may defer. | Prompts enumerate the eligibility floor and preserve mandatory repair conditions. |
-| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths, state that superseding proof releases only the lineage floor, and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
+| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths, restrict lineage release to strong `pre_existing_unaffected`, `out_of_scope`, `duplicate`, or `disproven` proof, explicitly exclude `not_reproduced_under_current_witness`, and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
 | Current plan is specification-only until future Stories implement it. | Prompts explicitly say the compatibility CLI cannot exercise the target-state mechanism. |
 | Gates consume signed structured facts. | Prompt prose and compatibility accounting are never presented as gate evidence. |
 

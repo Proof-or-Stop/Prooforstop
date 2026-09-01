@@ -75,12 +75,12 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = '8257e2ea8db701985944140cb47be0a906c620483460e522a79ae048d62aa3af';
+const approvedReviewFindingTriageProposalSha256 = '0211b3bf11c6fb9ef2a083098ef255c626dabd4d2cc5ffb73287f91080fe2d21';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
-const approvedReviewFindingTriageContractSha256 = 'da5c6d6bc7953099fb0853d9b97ec32e9a79f2917ac42c8f01e32581bd958479';
+const approvedReviewFindingTriageContractSha256 = 'cc515bbac1866d7b844311f1551d6eeb2912fe64f5e97417338ed4d6f660c2c3';
 const approvedReviewFindingTriageHeadings = [
   reviewFindingTriageContractMarker,
   '## REVIEW Finding Triage and Routing Contract',
@@ -114,7 +114,7 @@ const approvedReviewFindingTriageNormativeLines = [
   '- If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.',
   '- In the future system, `REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale, unsigned, tampered, mismatched, incomplete, expired, unknown }`. A verified open high or critical Finding in that exact set enters the machine-owned transient assessment-integrity floor before severity, round, and advisory policy. The floor does not itself prove applicability or require current-Story repair.',
   '- A fresh strong non-applicable assessment releases that floor; a fresh `applicable` assessment converts high or critical to the distinct mandatory-repair floor; weak, unknown, or invalid proof remains blocked.',
-  '- Invalid claimed deferral lineage is an independent first floor regardless of the current assessment, including missing, invalid, expired, tampered, ownerless, partially applied, or exhausted lineage. Exact strong superseding non-applicable or disproven proof releases only that lineage floor.',
+  '- Invalid claimed deferral lineage is an independent first floor regardless of the current assessment, including missing, invalid, expired, tampered, ownerless, partially applied, or exhausted lineage. Only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its independent strong proof contract, or a signed `disproven` truth transition with current counter-evidence, releases that lineage floor. `not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair.',
   "- Invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification. Once that mandatory-repair obligation is active, only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it; superseding proof does not clear the whole block.",
   '- These machine-derived floors are not permission for a reviewer to broaden Story scope.',
   '- Evidence may support a `pre_existing_unaffected` or `out_of_scope` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.',
@@ -210,7 +210,8 @@ const requiredReviewFindingTriagePhrases = [
   'does not itself prove applicability or require current-Story repair',
   'fresh strong non-applicable assessment releases that floor; a fresh `applicable` assessment converts high or critical to the distinct mandatory-repair floor; weak, unknown, or invalid proof remains blocked',
   'Invalid claimed deferral lineage is an independent first floor',
-  'Exact strong superseding non-applicable or disproven proof releases only that lineage floor',
+  'Only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its independent strong proof contract, or a signed `disproven` truth transition with current counter-evidence, releases that lineage floor',
+  '`not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair',
   'Invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification',
   "only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it",
   'superseding proof does not clear the whole block',
@@ -343,6 +344,10 @@ const forbiddenReviewFindingTriagePermissions = [
     label: 'superseding proof clears downstream mandatory repair',
     pattern: /superseding\s+(?:(?:non[- ]applicable|disproven)\s+)?proof[^.\n]{0,160}(?:may|can|also|therefore)[^.\n]{0,80}(?:clear|release|remove)[^.\n]{0,100}(?:mandatory[- ]repair|whole\s+block)/iu,
   },
+  {
+    label: 'current negative witness releases claimed lineage or mandatory repair',
+    pattern: /not_reproduced_under_current_witness[^.\n]{0,160}(?:may|can|is permitted to)[^.\n]{0,80}(?:release|clear)[^.\n]{0,100}(?:claimed[- ]deferral|deferral\s+lineage|mandatory[- ]repair)/iu,
+  },
 ] as const;
 
 function extractReviewFindingTriageStructure(contract: string): {
@@ -463,11 +468,12 @@ function assertReviewFindingTriageMutationFailures(): void {
     'The transient assessment-integrity floor itself always requires current-Story repair.',
     'Invalid claimed deferral lineage may clear without exact superseding proof or repair closure.',
     'Superseding non-applicable proof may also clear the downstream mandatory-repair obligation.',
+    'A strong `not_reproduced_under_current_witness` verdict may release claimed-deferral lineage.',
   ];
   assert.equal(originalMutations.length, 13, 'the original semantic mutation inventory remains complete');
   assert.equal(paraphraseMutations.length, 13, 'the independent reviewer paraphrase mutation inventory remains complete');
   assert.equal(digestRefreshedParaphraseMutations.length, 13, 'the digest-refreshed reviewer paraphrase inventory remains complete');
-  assert.equal(currentAuthorityMutations.length, 17, 'the current Dynamic Finding authority mutation inventory remains complete');
+  assert.equal(currentAuthorityMutations.length, 18, 'the current Dynamic Finding authority mutation inventory remains complete');
   for (const [index, mutation] of [...originalMutations, ...paraphraseMutations].entries()) {
     assert.throws(
       () => assertReviewFindingTriageSemantics(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`, `mutation ${index + 1}`),
@@ -627,6 +633,7 @@ function assertReviewFindingTriageProposal(): void {
     'This proposal is its Agent-side projection',
     'This proposal does not authorize changes to:',
     '`not_reproduced_under_current_witness`',
+    '| `unknown` | Current evidence references, an unresolved `direct_scope` or `counter_evidence` basis, current source, scope, and runtime bindings, and the uncertainty that prevents a conclusive verdict; no `nonBlockingProof`, `acceptedRoute`, or `dispositionPlan`.',
     '`defer_with_proof` is a disposition after `applicable`',
     'Every future final `applicable` assessment binds exactly one',
     '`repair_current` forbids `acceptedRoute`',
@@ -637,7 +644,9 @@ function assertReviewFindingTriageProposal(): void {
     '`REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale,',
     'assessment-integrity floor before severity, round, and advisory policy',
     'does not itself prove applicability or require current-Story repair',
-    'proof releases only that lineage floor',
+    'Only a fresh signed superseding',
+    '`pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying',
+    '`not_reproduced_under_current_witness` never releases claimed-deferral lineage',
     'Invalid or exhausted lineage also',
     "`MandatoryRepairClassification(state='closure_proven')` clears it",
     'superseding proof does not clear the whole block',
@@ -696,7 +705,8 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     '`REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale, unsigned, tampered, mismatched, incomplete, expired, unknown }`',
     'transient assessment-integrity floor before severity, round, and advisory policy',
     'it does not itself prove applicability or require current-Story repair',
-    'Exact strong superseding non-applicable or disproven proof releases only that lineage floor',
+    'Only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict',
+    '`not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair',
     'Invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification',
     "only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it",
     'superseding proof does not clear the whole block',
