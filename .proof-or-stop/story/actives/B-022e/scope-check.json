@@ -1,6 +1,6 @@
 {
   "storyId": "B-022e",
-  "checkedAt": "2026-09-01T12:51:01.832Z",
+  "checkedAt": "2026-09-01T12:54:01.061Z",
   "features": [
     {
       "feature": "Active and future product identities are Proof-or-Stop only, with no normal Lattice alias or compatibility surface",
@@ -63,7 +63,7 @@
       "covered_by": "CHK-008",
       "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-022e/checklist.json"
+      "source": ".proof-or-stop/story/actives/B-022e/plan.md"
     },
     {
       "feature": "Completion requires fresh REVIEW, routine TEST, configured DONE-required proof, done_prepare, and local DONE merge",
@@ -85,13 +85,6 @@
       "status": "excluded",
       "excluded_by": "CHK-008 explicitly limits completion to the local merge",
       "source": ".proof-or-stop/story/actives/B-022e/checklist.json"
-    },
-    {
-      "feature": "PLAN CHK-008 says all package/lock/version surfaces become 0.3.268, which conflicts with the corrected CHK-008 intent and actual independent Lab 0.3.65 policy",
-      "covered_by": "CHK-008",
-      "status": "drift",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-022e/plan.md"
     }
   ],
   "readManifest": {
@@ -118,28 +111,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 13,
+    "total": 12,
     "covered": 10,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "2026-09-01T12:38:39.332Z",
-  "_hash": "6f775e60e969c5e063ac48460de1b5cb7a7d9e9600576925204df4dfb7e12a1a",
-  "openQuestions": [
-    {
-      "id": "OQ-SCOPE-001",
-      "q": "Should PLAN CHK-008 be corrected through plan_set to state the same root/Core/Utils 0.3.268 plus independent Lab 0.3.65 policy now recorded by CHK-008:happy:0?",
-      "evidence": "plan_get still says bump all package/lock/version surfaces to 0.3.268, while checklist_get now truthfully requires root/Core/Utils 0.3.268, Lab 0.3.65 with @proof-or-stop/core ^0.3.65, and Utils peer ^0.3.268. The correction is consistent with the original user-visible CLI 0.3.268 promise and existing package policy, but leaving the plan sentence unchanged creates intra-story drift.",
-      "sourcePointers": [
-        "CHK-008",
-        "plan.md#CHK-008",
-        "CHK-008:happy:0",
-        "packages/main/dist/tasks/version-bump-smoke.js"
-      ],
-      "resolution": "Resolved by aligning the CHK-008 execution plan with the signed CHK-008:happy:0 verificationIntent and its mechanical version-bump receipt: root/Core/Utils converge at 0.3.268; Lab intentionally remains 0.3.65 with @proof-or-stop/core ^0.3.65; Utils requires @proof-or-stop/core ^0.3.268 as the extension-API compatibility floor. No Lab product-version change is in scope.",
-      "resolvedAt": "2026-09-01T12:52:28.587Z"
-    }
-  ]
+  "_hash": "9aae0e320ad53d92bb1eb72d8a0636dcc50141e5498d84edff9b8077340f1a21",
+  "openQuestions": []
 }
