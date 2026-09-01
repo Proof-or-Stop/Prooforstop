@@ -1372,6 +1372,34 @@
       "resolvedAt": "2026-09-01T11:28:57.466Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-052",
+      "desc": "quality-regression / published-boundary: F-050 is not fixed in an actual packed consumer. packages/utils/src/handlers/auxiliary.ts:1-9 and the other Utils handlers import runtime code through monorepo-relative `../../../main/dist/...` paths. After `npm pack` and extraction under a clean `node_modules/@proof-or-stop/utils`, importing the shipped dist/index.js exits 1 with `ERR_MODULE_NOT_FOUND: .../node_modules/@proof-or-stop/main/dist/tasks/extract.js`; the real peer package is `@proof-or-stop/core`, so that relative target cannot exist in the published layout. scripts/verify-global-lab-entrypoint.mjs:362-385 calls the new public bootstrap only through workspace file URLs (`packages/main/dist` + `packages/utils/dist`), while scripts/verify-proof-or-stop-pack-boundary.mjs:869-873 checks only `import.meta.resolve(packageName)` and never imports or dispatches the installed Utils tarball. Thus three concurrent global verifiers and the four-tarball boundary both pass while the published clean-consumer contract is unusable. WHY: clean installation is an explicit B-022e product boundary; make Utils runtime imports resolve through the published @proof-or-stop/core contract (or otherwise ship a self-contained valid layout) and extend the four-tarball consumer to actually import the installed package and dispatch a Utils-owned command while retaining strict core-collision rejection.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T11:33:43.829Z",
+      "reviewRound": "2026-09-01T11:28:34.514Z",
+      "reviewRunId": "B-022e:RR-092",
+      "_hash": "e0f524028319b64cd8dd8b96e55142131c91d8075c6d61246630028cfd69edc2",
+      "files": [
+        "packages/utils/src/handlers/auxiliary.ts",
+        "packages/utils/src/handlers/aux-diagnose.ts",
+        "packages/utils/src/handlers/aux-trace.ts",
+        "packages/utils/src/handlers/aux-sync.ts",
+        "packages/utils/src/handlers/aux-doc.ts",
+        "packages/utils/src/handlers/truth.ts",
+        "packages/utils/src/handlers/gap.ts",
+        "packages/utils/src/handlers/tool-status.ts",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "scripts/verify-proof-or-stop-pack-boundary.mjs",
+        "packages/utils/package.json"
+      ],
+      "signatureTag": "missing|ts|quality-regression-published",
+      "signatureTagSource": "auto"
     }
   ]
 }
