@@ -18757,6 +18757,23 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-344",
+      "desc": "acceptance-coverage-basis.ts:262 basisStatus is 'partial' when EITHER diagnostics.length>0 OR blindSpots.length>0, but every AT_UNMAPPED_SCOPE_REF diagnostic is automatically converted into a blindSpot before that check runs, so the designed exclusion escape hatch cannot clear it. TRACE: :379 pushes reconcileTopologyWithCoverageBasis diagnostics; :380-384 immediately maps those same diagnostics into additionalSealIssues as code='derivation_diagnostic'; :386 seals them; :387 derivationBlindSpots = [...preSealBlindSpots, ...snapshotSeal.issues]. The exclusion check at :553 (!pathMapped(path) && !excluded.has(path)) only suppresses diagnostic GENERATION, and our ten blind spots already carry the prefix 'snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:...', proving they came through the seal path. CONSEQUENCE: approving all ten exclusions via topology_exclusion_approval_set would leave blindSpots.length>0, so basisStatus stays 'partial', acceptance_topology_check stays 'inconclusive' (acceptance-topology.ts:695), the F-247 bootstrap at causal-evidence.test.mjs:2474 (which only accepts status==='fail') still fails, the pinned suite stays 19/21, and no evidence can earn a mechanical receipt (verification.ts:139 requires exitCode===0). The sanctioned remediation path is therefore INERT for this diagnostic class. HOW FOUND: while preparing the ten approval commands for a human scope-plan approver, I traced whether the approval would actually clear basisStatus rather than assuming it; it would not. I deleted the prepared script rather than have someone sign ten approvals for no effect. NOT A B-5a15 IMPLEMENTATION DEFECT: the ten refs are internal-helper static-call edges (causalCanonical, causalDigest, effectiveCausalEnvironment, resolveCausalToolVersion, verifyCausalPreflight, causalDependencyContextDigests, plus second call sites of the already-declared CHK-003/CHK-004 producers) that plannedPathDeclarations has no construct to declare. RECOMMENDED HANDLING: a framework story that either (a) lets an approved exclusion also suppress the corresponding seal issue so the escape hatch actually works, or (b) extends plannedPathDeclarations to express internal-helper static-call edges and consumers that are local consts, anonymous callbacks, or top-level statements - the same expressiveness gap that blocks F-329's residual three paths. Both symptoms share one root cause. ESCALATE: this blocks B-5a15 from TEST/DONE and will block any story whose implementation calls internal helpers across module boundaries.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-01T18:01:15.680Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "_hash": "57bad70eeab78d8ebdf229419a65640f825128fe2dc7976cf92d8daf33b99e51",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-coverage-basis",
+      "signatureTagSource": "auto"
     }
   ]
 }
