@@ -938,7 +938,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-cutover.md:37-45,160-172 promises tracked-token classification and mentions case-insensitive searches, but never states that Unicode-escaped JSON spellings are decoded and classified as retired identity residue. The committed implementation mechanically does so at scripts/verify-proof-or-stop-identity-cutover.mjs:936-940 and proves it with the `.\\\\u006cattice` mutation at lines 1560-1562; mixed-case mutations are separately pinned at lines 1573-1580. WHY: without documenting the encoded-token rule, a future maintainer can preserve the prose contract while removing JSON-decoded residue detection, leaving an implementation guarantee with no decision-level requirement. Add an explicit rule that mixed-case variants and Unicode-escaped JSON spellings cannot evade retired-token classification.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-01T00:23:26.323Z",
@@ -950,7 +950,11 @@
         "scripts/verify-proof-or-stop-identity-cutover.mjs"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0d68468f6e: the cutover decision now states that ledger suffix JSON object keys and string values are decoded before case-insensitive retired-identity classification while frozen prefix and exact provenance remain unchanged.",
+      "resolvedAt": "2026-09-01T00:49:23.316Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-035",
