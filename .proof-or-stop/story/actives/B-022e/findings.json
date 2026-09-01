@@ -1465,6 +1465,27 @@
       "resolvedAt": "2026-09-01T16:07:11.498Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-056",
+      "desc": "doc-promise-undelivered: packages/main/templates/agents/proof-or-stop-review-story-init.md:33-43 and the generated .claude/agents/proof-or-stop-review-story-init.md:127-137 / .proof-or-stop-codex/agents/proof-or-stop-review-story-init.md:127-137 still instruct the active canonical INIT reviewer to read docs/story/actives/<storyId>, while proof-or-stop.config.json:7 sets storyDir to .proof-or-stop/story/actives and docs/story does not exist. The generated bodies also direct cat/echo writes to docs/story/actives at lines 261-267, contradicting the embedded runtime prohibition on direct StoryStore access. This leaves CHK-005/CHK-006 active path and prompt cutover undelivered and makes proof-or-stop-review-story-init fail on a fresh current tree.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T17:31:23.327Z",
+      "reviewRound": "2026-09-01T17:24:42.015Z",
+      "reviewRunId": "B-022e:RR-116",
+      "_hash": "269cb31d613f7fcb2a7718428719462408121443332d8c2f83093151f975ea79",
+      "files": [
+        "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+        ".claude/agents/proof-or-stop-review-story-init.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
