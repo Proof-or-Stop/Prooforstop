@@ -13021,6 +13021,42 @@
       },
       "readDiagnostics": [],
       "_hash": "df25c6b32c663982d278ddf0ff7bd16376e661bad1f17ac78e5ce95873b647a1"
+    },
+    {
+      "id": "B-5a15:RP-270",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-059 re-attestation on a provably unchanged tree. RI-059's frozen cutoff (baf3b78a5761) is identical to RI-058's, where this lane passed as RR-821/RP-266. Verified rather than assumed: 'git diff --name-only c1c55ead15..HEAD' (RP-266's bound head to current HEAD 4d87764) lists ONLY 11 story-metadata files under .proof-or-stop/story/actives/B-5a15/ -- zero files under packages/main/src, packages/main/tests, packages/graph, packages/utils, or scripts. Independently, all 17 files in the story's allowedCreate/allowedModify/allowedTest scope were compared by git blob hash at three points (RP-266 commit, HEAD commit, working tree) and are byte-identical at all three, so neither a committed change nor an uncommitted worktree edit exists. Spot-read the four previously verified fixes and confirmed each still present with its rationale comment intact: F-339 provenance fork in handlers/checklist.ts:617-619 (mechanical===false branches to sameAuditedAttestationIdentity, matching carryForwardOnDiskProvenance, closing the note-only rebind hole); F-334 byte ordering at evidence-freshness.ts:483 and :513 (both sort sites use '<'/'>' comparison, no localeCompare, so storyFilesHash is locale-invariant); F-336/F-337 causal edges in handlers/certification-window.ts:119-126 (integration depends on build-input, source, manifest-semantic, review-subject; review-subject terminal); F-338 identity mapping in core/certification-window.ts:809-817 (explicit dependencyGraphDigest/currentInputHashesDigest field mapping rather than passing 'current' raw, so both digest comparisons actually execute). Re-ran the suite: 21 tests, 19 pass / 2 fail, the two failures being exactly F-247 and the F-249-series (AT_COVERAGE_BASIS_PARTIAL / AT_UNMAPPED_SCOPE_REF), matching the known/accepted baseline with no new or changed failure. tsc --noEmit is green across packages/main, packages/graph, packages/utils. No new quality findings: no dead code, type-safety regression, or I/O-isolation violation is reachable on a tree with zero source delta. Already-dispositioned findings were not re-filed. Review was strictly read-only: no file edits and no git operations.",
+      "createdAt": "2026-09-01T18:40:03.896Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-830",
+      "envelopeId": "093e1174aa09e25c1c31e295d64042e7a65c460955b6c6c56092756c8aca6da5",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ce6466854b2cdb98c4552be27c38b90400b36bdb5c430822e482ab719fc09191"
     }
   ]
 }
