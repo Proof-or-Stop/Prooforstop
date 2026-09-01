@@ -1146,6 +1146,40 @@
       },
       "readDiagnostics": [],
       "_hash": "783e3d366eaa46f4e468d7a9b855c14ca30fda6582bc7b353fab1d57945265e2"
+    },
+    {
+      "id": "B-2220:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Round 12 docs review: 1 extracted changed symbol (rationaleDigest), 0 symbol-referencing documentation paragraphs; fallback found no package README, so the full related decision document was compared against the changed smoke digest assertion and live compiled output. All 7 verification intents pass. Every measured-numbers row matches smoke output, SHA-256 6041dbff... is exact, no planned/owned follow-up remains, B-3434 is DONE 5/5 with acceptanceVerdict=accepted, and no promised-but-undelivered behavior was found.",
+      "createdAt": "2026-09-01T00:35:29.423Z",
+      "reviewRound": "2026-09-01T00:32:22.241Z",
+      "reviewRunId": "B-2220:RR-051",
+      "envelopeId": "f65b94785b28f21633a575a853ff7a2c2bd54e133699176352d66f5f784b01d8",
+      "writerSessionId": "sess-a51b51d8803edba2a8e7d8f6379eb028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd03120705eb98eb7d69ea224224d77066bac43b9c75d2ae6c8f341d618af728"
     }
   ]
 }
