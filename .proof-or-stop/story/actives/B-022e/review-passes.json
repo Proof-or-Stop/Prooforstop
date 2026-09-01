@@ -1838,6 +1838,40 @@
         "scanEscalationReason": "Round 25 full safety review of requested-full exception boundaries plus direct material and scope inverse coverage."
       },
       "_hash": "3d00ab11fc5657b6a35c40ec9c8192623fd9ce1eb7fff5bfa53f863d085b6aa0"
+    },
+    {
+      "id": "B-022e:RP-051",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 25 concept review PASS with zero findings. Commit 0b9c6cd keeps the reviewer-metadata stabilization strictly gated by signed contextMode full plus REVIEWER_REQUESTED_FULL; only discarded-candidate eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest stop dynamic comparison, while envelope integrity, prompt assembly, impact policy, freshness, prior pass, changed and impacted file digests, task semantics, and ReviewRun material bindings remain fail-closed. Commit 7874cf8 directly proves requested-full product material and scope-contract drift are rejected by both verifyReviewRunPromptEnvelope and collectReviewerEvidenceState, with acceptance restored only after exact restoration. Active registry, templates, and generated assets use proof-or-stop-review-story-init; legacy lattice-review-story-init hits are bounded migration, history, negative fixture, or exact allowlist contexts. Packed identity verification and version checks pass with root Core Utils 0.3.268, Lab 0.3.65, Lab peer Core ^0.3.65, and Utils peer Core ^0.3.268. Wave4 remains observe-mode, nonblocking, and missing or inconclusive; this pass makes no Authority, production, topology, rollout, or 3x2 claim.",
+      "createdAt": "2026-09-01T16:10:17.192Z",
+      "reviewRound": "2026-09-01T16:06:49.189Z",
+      "reviewRunId": "B-022e:RR-112",
+      "envelopeId": "73aa933079d23369e29ad16b6d984d3aa216d6a29b7fb6b548663381c0587935",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "packages/utils/package.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3f48f1a97b194c870ef4bf04f5084ebca128d81a2a4858393a659a8bc370314"
     }
   ]
 }
