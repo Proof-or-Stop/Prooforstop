@@ -12373,6 +12373,49 @@
       },
       "readDiagnostics": [],
       "_hash": "8600728af8c6a0c515c5c19b469eff3d61d34d0ba79b01019d24a20bc5929ce5"
+    },
+    {
+      "id": "B-5a15:RP-252",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept lane, commits f5c6f8a2f6 + 3172e57e16. No concept was deleted or renamed this round; the change replaces an array-index dependency chain with declared causal edges and restores byte ordering. Repo-wide residue grep is clean: the old 'index - 1' chain survives only in two self-built linear fixtures (causal-evidence-smoke.ts:129, causal-evidence.test.mjs:1054) that deliberately exercise the closure ALGORITHM, not the production graph, plus the docblock line that cites the old shape historically. The stale 'is terminal' / 'nothing is built from it' prose for test and integration was fully rewritten; the sole surviving terminal claim is review-subject, which is correct since its dependencyIds is [] and nothing lists it as upstream. Independently recomputed all six production closures from CERTIFICATION_DOMAIN_DEPENDENCIES and they match the commit message and the regression assertions exactly, all six stay distinct so CHK-003:edge:0 holds, and the graph is acyclic. Verified F-336's premise mechanically (scripts/verify-process-fact-contract.mjs reads AGENTS.md plus decisions docs as load-bearing at lines 119-128 and is DONE-required through test:process-fact-contract inside test:serial-reference) and F-337's (test-domain files execute bin/proof-or-stop.js). Verified F-334 parity: main's localeCompare was inert because currentStoryFilesHash re-sorted the joined path-NUL-objectId strings, and the branch's path-only byte sort is provably equivalent since changedStoryFilesBetween dedups paths through a Map, so the only divergent case (duplicate paths) is unreachable. F-333's positive control genuinely bites: control admit=true, then three distinct blockerCodes. Ran the suite: 19/21, the two stable failures being the DEV-gated acceptance-artifact tests already tracked as F-329/F-331 (CHK-005 flaked once on a first run and passed on re-run). One latent, non-fireable observation recorded here rather than filed: causal-evidence.ts:1096 sorts signed dependencyGraphDigest node ids with localeCompare, the same class F-334 fixed, but the production id set is a fixed six-element ASCII list whose byte and locale orders are identical (verified under LC_ALL=sv_SE), so it cannot currently distort a digest; it is unclaimed by any checklist item and non-blocking. No blocker for this lane.",
+      "createdAt": "2026-09-01T10:15:43.920Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-793",
+      "envelopeId": "6c8b081883ee809c548b2f0c1e5efdbb0da1286f4315822186c41fb4752b061f",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "5361d4a0ecf680e90e9c392cd2f6fc3306a8a456514106d5ba46e7786c3381ca"
     }
   ]
 }
