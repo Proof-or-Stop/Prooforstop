@@ -1237,6 +1237,16 @@
               "command": "npm run test:process-fact-contract",
               "selector": "Process Fact Contract"
             }
+          },
+          {
+            "id": "CHK-004:adversarial:task-context-authority-injection",
+            "desc": "Inject the retired pre-current-witness verdict name and other contradictory triage-authority wording separately through Story, checklist, and verificationIntent Task Context in the full-context envelope smoke; capture a genuine pre-fix RED because the complete assembled REVIEW envelope accepts each injected authority rule, then run the same mutation assertions after the fix and capture GREEN only when every complete assembled reviewer envelope rejects those Task Context injections independently of deliberately refreshed prompt, selected-body, semantic, render, or host-render digest pins.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke: PASS"
+            }
           }
         ]
       },
