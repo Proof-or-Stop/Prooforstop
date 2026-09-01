@@ -876,7 +876,7 @@
       "desc": "CHK-004:edge:version-and-local-artifacts — HIGH verification-evidence integrity gap after merge-main refresh. Read-only `checklist_get` projection shows exactly 60 must intents and 60 PASS evidence records, but only 59 have mechanical=true and only 59 carry a receipt. This intent is the sole exception: kind=logic_test, result=pass, mechanical=false, receipt=null, command=`node bin/proof-or-stop.js --version`, bound to refreshed head 953ba9913d5055d33ccb2af8793740ee2b13b36b / materialHash 0377a4bb06fef165e6d4cec3d8cc46e1ffdb5bdcde7999a8025e3541e5acee63 / storyFilesHash 0ef002a852a3fa2f69d22e32e738cf609cb9b94d208b999a5b9b0befe4d97ff2. Independently running the exact command succeeds and reports Proof-or-Stop 0.3.270, matching root package.json, packages/main/package.json, and LATTICE_CLI_VERSION. Current source behavior is GREEN: focused prompt-registry/full-context smokes, five-role full/conditional unsafe-vs-safe matrix, and protected runtime-boundary checks pass. Remediation is evidence re-attestation that produces a valid mechanical receipt for this pinned intent, or a truthful correction of the intent/evidence contract if the command is intentionally non-receiptable; do not change runtime code merely to make the count green.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-09-01T16:48:29.162Z",
@@ -884,7 +884,11 @@
       "reviewRunId": "B-9a49:RR-055",
       "_hash": "3444fbe7c84d700d62415b02f47f941b03e1db57d17baac59a9a60cf139e265a",
       "signatureTag": "missing|unknown|edge-version-local",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted with an explicit single-Story permanent waiver recorded by CLI at ce15e30 because the immutable PLAN-time selector Proof-or-Stop 0.3.268 became unsatisfiable after required main merge/version drift to 0.3.270 and current CLI has no pin-supersession path. This resolution does not claim a mechanical receipt. Independent current proof: local CLI outputs 0.3.270; root/package manifests and lockfiles plus LATTICE_CLI_VERSION are 0.3.270; build, prompt baseline, and runtime-fact contract pass. B-META gap_log was attempted and refused with invalid_binding_shape; waiver evidence records retry after main synchronization. Test-coverage reviewer must reassess this accepted-risk disposition.",
+      "resolvedAt": "2026-09-01T23:21:39.187Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
