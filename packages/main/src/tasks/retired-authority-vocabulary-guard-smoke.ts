@@ -460,10 +460,10 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // B-022e re-attestation: the zod loader became the bounded literal import('zod'),
   // while MAIN_DIST, UTILS_DIST, and LAB_DIST remain the same path-derived loaders.
   // Ownership metadata and identity text add no executable-code construction sink.
-  // B-022e delivery follow-up: nested Lab routing adds only ownership/phase
-  // metadata inside the existing runCli options object. The three approved
-  // non-literal import call sites, arguments, and path producers are unchanged.
-  ['bin/bootstrap-runner.js', '282eebebb8c50bdc538fbd909191bbaa5cc8326ed205d97959433438746ef4d5'],
+  // B-022e F-049: bootstrap projects the Utils catalog to genuinely
+  // external tools before strict core-name collision admission. Dynamic import
+  // specifiers and all executable-code sites remain unchanged.
+  ['bin/bootstrap-runner.js', '430a920d569dc9785db8b8c5e1ba192e57bfde83bae223a723bd63f7c634ee52'],
   // B-022e: main's standalone entrypoint loads the canonical Lab package first,
   // then one repository-relative build fallback. The exact-file pin covers both
   // the loader producer and the dynamically imported Lab namespace calls.
@@ -1581,7 +1581,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // leaves this exception set instead of receiving a broader allowance.
   // B-022e delivery follow-up: the same audited metadata-only executable drift
   // moves this coupled whole-source pin without changing any loader provenance.
-  ['bin/bootstrap-runner.js', '282eebebb8c50bdc538fbd909191bbaa5cc8326ed205d97959433438746ef4d5'],
+  ['bin/bootstrap-runner.js', '430a920d569dc9785db8b8c5e1ba192e57bfde83bae223a723bd63f7c634ee52'],
   ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
   // Same exact-file review boundary as the dynamic-module-call exemption above.
   ['packages/main/src/cli.ts', 'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3'],

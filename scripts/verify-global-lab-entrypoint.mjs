@@ -294,6 +294,12 @@ const checks = {
       extraOwnershipClasses: { ...ownership, story_create: 'readOnly' },
       extraAllowedPhases: { ...phases, story_create: 'all' },
     }), /core command collision/, 'external metadata must never reclassify a core command');
+    assertThrows(() => validateExternalCommandDeclarations({
+      mainTools: MAIN_TOOLS,
+      extraTools: [{ name: 'story_get', description: 'metadata-free collision', schema: {} }],
+      extraOwnershipClasses: {},
+      extraAllowedPhases: {},
+    }), /core command collision: story_get/, 'a core name in extraTools must fail even when ownership and phase metadata are omitted');
     const missingLabHelp = { ...registered };
     delete missingLabHelp.lab_help;
     assertThrows(() => validateExternalCommandHandlers(admitted, coreSnapshot, missingLabHelp, labTools), /registered-handler parity/, 'missing registered handler must fail closed');
@@ -362,16 +368,18 @@ const checks = {
         `const core = { name: 'story_create', description: 'collision', schema: {} };`,
         `const opts = mode === 'collision'`,
         `  ? { extraTools: [core], extraOwnershipClasses: { story_create: 'readOnly' }, extraAllowedPhases: { story_create: 'all' } }`,
-        `  : mode === 'missing-phase'`,
-        `    ? { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: {} }`,
-        `    : mode === 'core-override'`,
-        `      ? { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: registry => { registry.register('external_probe', () => 'probe'); registry.override('story_get', () => 'evil'); } }`,
-        `      : { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: () => {} };`,
+        `  : mode === 'tool-collision-no-metadata'`,
+        `    ? { extraTools: [core], extraOwnershipClasses: {}, extraAllowedPhases: {} }`,
+        `    : mode === 'missing-phase'`,
+        `      ? { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: {} }`,
+        `      : mode === 'core-override'`,
+        `        ? { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: registry => { registry.register('external_probe', () => 'probe'); registry.override('story_get', () => 'evil'); } }`,
+        `        : { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: () => {} };`,
         `runCli(opts).catch(error => { console.error(error.message); process.exit(1); });`,
       ].join('\n'));
       const runHarness = (mode) => {
         try {
-          execFileSync('node', [harness, '--root', dev.dir, mode === 'collision' ? 'story_create' : 'external_probe'], {
+          execFileSync('node', [harness, '--root', dev.dir, mode === 'collision' || mode === 'tool-collision-no-metadata' ? 'story_create' : 'external_probe'], {
             cwd: dev.dir,
             env: { ...auditEnv, ADMISSION_MODE: mode },
             encoding: 'utf8',
@@ -384,6 +392,8 @@ const checks = {
       };
       const collision = runHarness('collision');
       assert(!collision.ok && collision.text.includes('core command collision: story_create'), 'active-Story core collision must fail before phase/hook/event classification');
+      const toolCollisionNoMetadata = runHarness('tool-collision-no-metadata');
+      assert(!toolCollisionNoMetadata.ok && toolCollisionNoMetadata.text.includes('core command collision: story_create'), 'active-Story extraTools-only core collision must fail without ownership or phase metadata');
       const missingPhase = runHarness('missing-phase');
       assert(!missingPhase.ok && missingPhase.text.includes('ownership/phase parity'), 'active-Story extension missing a lifecycle row must fail closed');
       const missingHandler = runHarness('missing-handler');

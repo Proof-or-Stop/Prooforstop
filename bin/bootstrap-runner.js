@@ -129,7 +129,9 @@ async function importDistModules() {
 
 export async function runLocalBootstrap() {
   try {
-    const [{ runCli }, { register, utilsToolDefs }] = await importDistModules();
+    const [{ runCli, MAIN_TOOLS }, { register, utilsToolDefs }] = await importDistModules();
+    const mainToolNames = new Set(MAIN_TOOLS.map(tool => tool.name));
+    const externalUtilsToolDefs = utilsToolDefs.filter(tool => !mainToolNames.has(tool.name));
     let labRegister = null;
     let labToolDefs = [];
     if (existsSync(LAB_DIST)) {
@@ -149,7 +151,7 @@ export async function runLocalBootstrap() {
     }
 
     await runCli({
-      extraTools: [...utilsToolDefs, ...labToolDefs],
+      extraTools: [...externalUtilsToolDefs, ...labToolDefs],
       extraRegister: (registry, ctx) => {
         register(registry, ctx);
         if (typeof labRegister === 'function') labRegister(registry, ctx);

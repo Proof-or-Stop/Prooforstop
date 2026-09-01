@@ -39,7 +39,12 @@ export function validateExternalCommandDeclarations(input: {
     throw new Error(`External command admission rejected duplicate extraTools: ${duplicateExtraNames.join(', ')}`);
   }
 
-  const externalToolNames = new Set(extraNames.filter(name => !mainNames.has(name)));
+  const toolCollisions = [...new Set(extraNames.filter(name => mainNames.has(name)))].sort();
+  if (toolCollisions.length > 0) {
+    throw new Error(`External command admission rejected core command collision: ${toolCollisions.join(', ')}`);
+  }
+
+  const externalToolNames = new Set(extraNames);
   const ownershipNames = ownKeys(input.extraOwnershipClasses);
   const lifecycleNames = ownKeys(input.extraAllowedPhases);
   const collisions = [...new Set([...ownershipNames, ...lifecycleNames].filter(name => mainNames.has(name)))].sort();
