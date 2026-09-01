@@ -1,9 +1,9 @@
 {
   "storyId": "B-022e",
   "action": "override_budget",
-  "reason": "Human cleared convergence freeze after Round 17; stable core-handler override and shared-test concurrency blockers are fixed, orphan evidence was legally removed, and fresh 120-command validation passed. Authorize exactly one final re-review round.",
-  "reviewRound": "2026-09-01T09:35:56.599Z",
-  "approvedBy": "user",
-  "recordedAt": "2026-09-01T10:25:33.477Z",
-  "_hash": "3d5f621693c1f1b80b638f0b64b3d3c52885d5c8938ab8682670938cd11252ec"
+  "reason": "Round 18 found one stable in-scope inverse gap. Commit 45681d65df fixes the exact collision path, adds the metadata-omitted inverse, refreshes all 29 intent receipts, and passes fresh 120-command validation. Authorize one narrowly scoped re-review round.",
+  "reviewRound": "2026-09-01T10:25:38.607Z",
+  "approvedBy": "main-agent",
+  "recordedAt": "2026-09-01T10:58:59.119Z",
+  "_hash": "8a8b8baf2d7701300dbbf6ce20c83ddf478840c4ee415c88266e29b4b9ac4ab0"
 }
