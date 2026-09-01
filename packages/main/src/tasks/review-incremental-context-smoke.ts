@@ -112,6 +112,7 @@ import type {
   Finding,
   ReviewPass,
   ReviewRun,
+  ScopeContractData,
   StoryEvent,
   StoryInfo,
 } from '../core/types.js';
@@ -506,6 +507,19 @@ function runProductionVerifierTemporalCutoffRegression(): void {
         },
       }],
     });
+    const scopeContract: ScopeContractData = {
+      storyId,
+      mode: 'enforce',
+      allowedModify: ['src/cutoff.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      createdAt: round,
+      updatedAt: round,
+    };
+    store.writeScopeContract(storyId, scopeContract);
     git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed cutoff verifier review metadata']);
 
@@ -595,6 +609,73 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       afterDifferentLane.valid.some(evidence => evidence.id === passB.id),
       'the shared quorum/current-pass reader accepts quality B after the later docs metadata commit',
     );
+
+    write(root, 'src/cutoff.ts', 'export const cutoff = false; // requested-full material drift\n');
+    git(root, ['add', 'src/cutoff.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'mutate requested-full product material']);
+    const materialMutation = verifyReviewRunPromptEnvelope(store, runB);
+    assert.equal(materialMutation.ok, false, 'committed product material drift must invalidate requested-full quality B');
+    assert.match(
+      materialMutation.reason ?? '',
+      /changedFilesDigest|impactedFilesDigest|freshnessClassification/,
+      'product material drift must remain bound by a dynamically recomputed material field',
+    );
+    const materialMutationEvidence = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      materialMutationEvidence.valid.some(evidence => evidence.id === passB.id),
+      false,
+      'the shared quorum/current-pass reader must reject requested-full quality B after product material drift',
+    );
+    assert.ok(
+      materialMutationEvidence.invalid.some(evidence => evidence.reviewRunId === runB.reviewRunId),
+      'the shared quorum/current-pass reader must report requested-full quality B invalid after product material drift',
+    );
+    write(root, 'src/cutoff.ts', 'export const cutoff = true;\n');
+    git(root, ['add', 'src/cutoff.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'restore requested-full product material']);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'restoring product material must restore requested-full envelope acceptance after later cross-lane metadata',
+    );
+    assert.ok(
+      collectReviewerEvidenceState(store, storyId, root).valid.some(evidence => evidence.id === passB.id),
+      'the shared quorum/current-pass reader must accept requested-full quality B after product material restoration',
+    );
+
+    store.writeScopeContract(storyId, {
+      ...scopeContract,
+      allowedModify: [...scopeContract.allowedModify, 'src/out-of-scope.ts'],
+      updatedAt: '2026-07-20T00:01:00.000Z',
+    });
+    const scopeMutation = verifyReviewRunPromptEnvelope(store, runB);
+    assert.equal(scopeMutation.ok, false, 'scope-contract drift must invalidate requested-full quality B');
+    assert.match(
+      scopeMutation.reason ?? '',
+      /taskSemanticDigest/,
+      'scope-contract drift must remain bound by the dynamically recomputed task semantics',
+    );
+    const scopeMutationEvidence = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      scopeMutationEvidence.valid.some(evidence => evidence.id === passB.id),
+      false,
+      'the shared quorum/current-pass reader must reject requested-full quality B after scope-contract drift',
+    );
+    assert.ok(
+      scopeMutationEvidence.invalid.some(evidence => evidence.reviewRunId === runB.reviewRunId),
+      'the shared quorum/current-pass reader must report requested-full quality B invalid after scope-contract drift',
+    );
+    store.writeScopeContract(storyId, scopeContract);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'restoring the scope contract must restore requested-full envelope acceptance after later cross-lane metadata',
+    );
+    assert.ok(
+      collectReviewerEvidenceState(store, storyId, root).valid.some(evidence => evidence.id === passB.id),
+      'the shared quorum/current-pass reader must accept requested-full quality B after scope-contract restoration',
+    );
+
     const envelopeData = store.readPromptEnvelopes(storyId);
     const runBEnvelopeIndex = envelopeData.envelopes.findIndex(envelope => envelope.envelopeId === runB.envelopeId);
     assert.ok(runBEnvelopeIndex >= 0);
