@@ -42,9 +42,30 @@
     "packages/main/src/core/story-recall.ts"
   ],
   "scopeChangeReason": "Apply accepted SEP-B-fe8f-001: add only CLI schema/phase-policy reachability files for real runtime-evidence commands; Story 2/1 semantic files stay protected exclusions.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Accepted scope extensions: the two runtime-evidence facades are required public command boundaries, and build-lock.mjs is required to fix the immutable RED concurrency failure with bounded FIFO admission.",
+      "timestamp": "2026-09-01T13:16:33.382Z",
+      "paths": [
+        "packages/main/src/core/finding-runtime-evidence.ts",
+        "packages/main/src/handlers/finding-runtime-evidence.ts",
+        "scripts/build-lock.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/finding-runtime-evidence.ts",
+        "packages/main/src/handlers/finding-runtime-evidence.ts",
+        "scripts/build-lock.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e0b3d2552f2a521194cad1396f01bdab1be61a4f",
+      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    }
+  ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-01T10:25:41.168Z",
+  "updatedAt": "2026-09-01T13:16:33.382Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -73,6 +94,9 @@
     "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
     "packages/main/src/core/advisory.ts": "packages/main/src/core/advisory.ts",
     "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
-    "packages/main/src/core/story-recall.ts": "packages/main/src/core/story-recall.ts"
+    "packages/main/src/core/story-recall.ts": "packages/main/src/core/story-recall.ts",
+    "packages/main/src/core/finding-runtime-evidence.ts": "packages/main/src/core/finding-runtime-evidence.ts",
+    "packages/main/src/handlers/finding-runtime-evidence.ts": "packages/main/src/handlers/finding-runtime-evidence.ts",
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs"
   }
 }
