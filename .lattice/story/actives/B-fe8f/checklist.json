@@ -1247,9 +1247,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T10:26:06.977Z",
-      "endTime": null,
+      "endTime": "2026-09-01T10:50:37.190Z",
       "userSees": "The terminal prints \"runtime.content_addressed_receipt: PASS blobs=complete signature=valid\", \"runtime.artifact_stability: PASS pre=true during=true post=true\", and a deterministic refusal code for every stale or tampered receipt.",
       "excludes": [
         "The receipt proves executed bytes and freshness only, not semantic correctness or applicability."
@@ -1683,7 +1683,14 @@
           "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
           "timestamp": "2026-09-01T10:50:18.986Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "95817eedebd3fdf716f31d21270299902760bf593227012055c4273447ef5c17",
+        "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
+        "headHash": "7f1fe6f2c5688ac076dfae80e583acda70016f9f",
+        "attestedAt": "2026-09-01T10:50:37.486Z",
+        "materialHash": "cab8f7315e90bad4f4cce517c6d65994cfecc659a73293e2f5f7c18d1e9350d3"
+      }
     },
     {
       "id": "CHK-005",
@@ -2114,6 +2121,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Resume runtime-evidence implementation under accepted SEP-B-fe8f-001 real-CLI reachability scope."
+    },
+    {
+      "timestamp": "2026-09-01T10:50:37.190Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Independent commits dae717d640 and 02ab7826df passed build, all 13 mechanical runtime intents, prior 23 selectors, real CLI run/verify, catalog and ownership contracts."
     }
   ]
 }
