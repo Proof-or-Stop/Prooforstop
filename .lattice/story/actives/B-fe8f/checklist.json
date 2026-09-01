@@ -404,6 +404,28 @@
           "materialHash": "8eb342b0b78314b7e6c2e75830715eec433cb6504ccbaba6179e2404b342d3ca",
           "storyFilesHash": "7aef062735983024b9c03487d2848137da86634280411003d7115fea30036e48",
           "timestamp": "2026-09-01T09:19:41.611Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "logic_test",
+          "verdict": "blocked_classified",
+          "file": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "result": "fail",
+          "note": "Pre-fix RED is expected to exit 1. Tool execution binds the real failure and selector; GREEN must rerun this unchanged command to pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 1,
+            "outputDigest": "ecafb1aab16088467f703c8e619ec5fcaf10fc0aa0ca4936040a4e50d6d05a8b",
+            "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=6\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:ledger.transaction_foundation_missing\nred.genuine_contract_failure:ledger.durable_fsync_commit_missing\nred.genuine_contract_failure:ledger.exact_record_cas_missing\nred.genuine_contract_failure:ledger.signed_receipt_contract_missing\nred.genuine_contract_failure:runtime.evidence_receipt_missing\nred.genuine_contract_failure:runtime.execution_adapter_missing\nRED: 6 accepted Story 3 contract group(s) remain absent; existing serialization/atomic-replacement baselines stayed green.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T09:19:44.620Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "534332a5153a7d8cdec9ec19c6dc4f6f9f8656f2",
+          "materialHash": "8eb342b0b78314b7e6c2e75830715eec433cb6504ccbaba6179e2404b342d3ca",
+          "storyFilesHash": "7aef062735983024b9c03487d2848137da86634280411003d7115fea30036e48",
+          "timestamp": "2026-09-01T09:19:44.751Z"
         }
       ]
     },
