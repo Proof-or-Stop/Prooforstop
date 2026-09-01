@@ -1163,23 +1163,22 @@
         {
           "intentRef": "CHK-008:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/dist/tasks/version-bump-smoke.js",
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
-          "note": "The version verifier confirms root/Core/Utils and canonical CLI authorities at 0.3.268 while Lab remains independently 0.3.65 with @proof-or-stop/core ^0.3.65; packed compatibility-floor evidence separately proves Utils requires Core ^0.3.268.",
-          "headHash": "171d820a8c3832c80c3ae20d24b05566ba6c6296",
-          "materialHash": "eb62f8756c0a127e36e6bc812123bee97c617107df5fd29ad899f2f6d3d229a2",
-          "storyFilesHash": "363a243adfb2e080a9ca5abc6ec20e39ab82c5287905b47d4c2ecd9b9771b67c",
+          "note": "Version verifier confirms root/Core 0.3.270; Utils remains independently 0.3.268 with Core ^0.3.268; Lab remains 0.3.65 with Core ^0.3.65.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T18:14:40.999Z",
+            "executedAt": "2026-09-01T18:15:33.477Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-01T18:14:44.753Z"
+          "headHash": "dc949d1351a41c6a37e5a17e5ffab0d828b9fbbb",
+          "materialHash": "eb62f8756c0a127e36e6bc812123bee97c617107df5fd29ad899f2f6d3d229a2",
+          "storyFilesHash": "363a243adfb2e080a9ca5abc6ec20e39ab82c5287905b47d4c2ecd9b9771b67c",
+          "timestamp": "2026-09-01T18:15:33.610Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
