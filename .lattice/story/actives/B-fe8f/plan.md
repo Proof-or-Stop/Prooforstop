@@ -31,7 +31,7 @@ Execution is serial and dependency-safe: audit-first RED, Story 3A ledger, exact
 - Test: packages/main/src/tasks/finding-ledger-runtime-smoke.ts
 
 **Verify**:
-- `npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js`
+- First run `npm --prefix packages/main run build`; mechanical evidence then pins the single allowlisted entrypoint `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` (no shell chaining)
 - Output includes `ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100`
 - Output includes `ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true`
 - Output includes durable commit, stale fence, crash recovery, legacy binding, mixed transaction and lock-compatibility PASS markers
