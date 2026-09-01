@@ -916,6 +916,29 @@
       "resolvedAt": "2026-09-01T23:48:10.232Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-041",
+      "desc": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:174-180 and packages/main/src/core/prompt-registry.ts:65-66 preserve F-040 downstream closure semantics but broaden the lineage-floor release set to exact strong superseding non-applicable or disproven proof. In this vocabulary, not_reproduced_under_current_witness is a non-applicable assessment verdict (proposal:103-106,115-138), yet the authoritative Dynamic Finding plan permits lineage release only for pre_existing_unaffected, out_of_scope, duplicate, or disproven (dynamic-finding-system-execution-plan.md:1920-1925,3503-3505) and explicitly states that not_reproduced_under_current_witness never releases claimed-deferral lineage or an existing mandatory-repair floor (3506-3512; table line 2284). AGENTS.md:573 and CLAUDE.md:784 repeat the broad phrase byte-identically, and prompt-registry-smoke asserts it rather than rejecting a current-witness lineage release. This can teach an Agent to treat a strong current negative witness as lineage-release proof contrary to future authority. Name the exact three assessment verdicts plus disproven in the proposal, canonical contract, and Owner mirrors; explicitly exclude not_reproduced_under_current_witness from lineage and mandatory-repair release; add an inverse mutation. severity=high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-09-01T23:49:35.128Z",
+      "reviewRound": "2026-09-01T23:46:34.175Z",
+      "reviewRunId": "B-9a49:RR-059",
+      "_hash": "83a0e36bf04fd88332a943602218347b58e48958765a6163a34622d417a84852",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
