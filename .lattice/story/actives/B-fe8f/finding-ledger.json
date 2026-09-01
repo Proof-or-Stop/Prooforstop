@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
+  "committedLedgerDigest": "4b10f5f80d884ae2256968b0479198a9b5e0e3772635eaf52b726587db33ae00",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -756,6 +756,31 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T23:33:42.056Z"
+    },
+    {
+      "recordId": "lr_mtjb13hr_g2a_5f0a03a804ed460f91b3523511e81cac",
+      "recordType": "finding",
+      "idempotencyKey": "review-B-fe8f-RR-010-concept-f004-unsigned-gate-projection",
+      "payload": {
+        "id": "B-fe8f:F-016",
+        "desc": "F-004 lifecycle Authority is not closed: StoryStore.readFindings in packages/main/src/core/store.ts:484-549 consumes finding_lifecycle_transition rows after only core readLedger/validateEnvelope, but validateEnvelope in packages/main/src/core/finding-ledger.ts:289-340 verifies structural hashes/raw receipts and never requires or verifies the signed findingLedgerReceipt. A temp StoryStore repro appended a high/open finding and an unsigned raw append_finding_lifecycle_transition through appendFindingLedgerTransaction; readFindings projected status=resolved with transitionReceiptSigned=false. Because storyMachine/guard-utils consume this projection, unsigned persistence bytes can suppress a REVIEW blocker despite process-fact-registry declaring the transition L4 signed terminal authority. Make the gate projection fail closed unless the carrier receipt is signed/trusted, exact-operation/current-chain bound, and covers the transition/source CAS; add unsigned, bad-signature, and tampered-transition gate regressions in addition to the existing sequential replay test.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-concept",
+        "createdAt": "2026-09-01T23:34:42.158Z",
+        "reviewRound": "2026-09-01T23:24:22.129Z",
+        "reviewRunId": "B-fe8f:RR-010",
+        "_hash": "e0713f02f96973cc6fbad79e7bcf0fc34f75de92c65738b946f72ca4be6957af",
+        "signatureTag": "adversarial|unknown|lifecycle-authority-closed",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "cb45ecaf826da45bf735e47f1fb67445ce2720ce9c15eb82571122a5533c9ea1",
+      "priorDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T23:34:42.159Z"
     }
   ],
   "receipts": [
@@ -2038,6 +2063,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "65c9272aa578d43345176ef663dfd83d07ff0c8906f1f94566c6cef52b53c94f",
         "signature": "HOSNTkEyXA+MfaqCIL/Wemw/z5e+fI/NV26biJA8SsXa9OI/0Nu01dNm4jpfgeeK+C7zgDQP4nVZi6bRZ2HiBw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtjb13hr_g2a_d25a06ff56274bb1a20b17816cbe9c87",
+      "operation": "append_finding",
+      "idempotencyKey": "review-B-fe8f-RR-010-concept-f004-unsigned-gate-projection",
+      "requestDigest": "8ce7776a396449606ca32e27fecebd44b02aafb1557ea838f4d4c9af336bd211",
+      "recordIds": [
+        "lr_mtjb13hr_g2a_5f0a03a804ed460f91b3523511e81cac"
+      ],
+      "priorLedgerDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
+      "committedLedgerDigest": "4b10f5f80d884ae2256968b0479198a9b5e0e3772635eaf52b726587db33ae00",
+      "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+      "writerFenceToken": "7c26813c-9f25-4b07-b17a-048002d2aabe",
+      "committedAt": "2026-09-01T23:34:42.159Z",
+      "replayed": false,
+      "exactRequestDigest": "690b3f2c4b99b47a99a7293dc53d8a93cc4e326a1db3182abd909f480bb97dfd",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtjb13hr_g2a_d25a06ff56274bb1a20b17816cbe9c87",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "review-B-fe8f-RR-010-concept-f004-unsigned-gate-projection",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtjb13hr_g2a_5f0a03a804ed460f91b3523511e81cac"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
+        "committedLedgerDigest": "4b10f5f80d884ae2256968b0479198a9b5e0e3772635eaf52b726587db33ae00",
+        "replayed": false,
+        "committedAt": "2026-09-01T23:34:42.159Z",
+        "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "7c26813c-9f25-4b07-b17a-048002d2aabe",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "ca9ae17ba9dd30deaa338326d36b7fe56e0cb441fed527f4f6f30a789a1cdb74",
+        "signature": "B8vfmyRNbd6uJGdmeuRHnTHrr7C55tzgbmwANfYDvBkSwkw6UYQXD9ItT+GHGGLZtqyAx87ptA1zoOA3OaxMCg=="
       }
     }
   ]

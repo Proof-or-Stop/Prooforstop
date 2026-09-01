@@ -349,6 +349,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtjazt49_1vzf_df4e903956d04edf8a96b45049704bfb",
       "ledgerCommitReceiptId": "lrc_mtjazt49_1vzf_90a5aee4bdad4ec6b8b9eb7ef8361887"
+    },
+    {
+      "id": "B-fe8f:F-016",
+      "desc": "F-004 lifecycle Authority is not closed: StoryStore.readFindings in packages/main/src/core/store.ts:484-549 consumes finding_lifecycle_transition rows after only core readLedger/validateEnvelope, but validateEnvelope in packages/main/src/core/finding-ledger.ts:289-340 verifies structural hashes/raw receipts and never requires or verifies the signed findingLedgerReceipt. A temp StoryStore repro appended a high/open finding and an unsigned raw append_finding_lifecycle_transition through appendFindingLedgerTransaction; readFindings projected status=resolved with transitionReceiptSigned=false. Because storyMachine/guard-utils consume this projection, unsigned persistence bytes can suppress a REVIEW blocker despite process-fact-registry declaring the transition L4 signed terminal authority. Make the gate projection fail closed unless the carrier receipt is signed/trusted, exact-operation/current-chain bound, and covers the transition/source CAS; add unsigned, bad-signature, and tampered-transition gate regressions in addition to the existing sequential replay test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T23:34:42.158Z",
+      "reviewRound": "2026-09-01T23:24:22.129Z",
+      "reviewRunId": "B-fe8f:RR-010",
+      "_hash": "e0713f02f96973cc6fbad79e7bcf0fc34f75de92c65738b946f72ca4be6957af",
+      "signatureTag": "adversarial|unknown|lifecycle-authority-closed",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtjb13hr_g2a_5f0a03a804ed460f91b3523511e81cac",
+      "ledgerCommitReceiptId": "lrc_mtjb13hr_g2a_d25a06ff56274bb1a20b17816cbe9c87"
     }
   ]
 }
