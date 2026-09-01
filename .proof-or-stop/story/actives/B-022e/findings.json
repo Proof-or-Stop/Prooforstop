@@ -1153,7 +1153,7 @@
       "desc": "packages/main/src/cli-engine.ts:1236-1246 and :1385-1395/:1493-1502 newly treat extension-owned lab_help/lab_eval/compare/promote as readOnly for both Codex process-event suppression and pre/post hook suppression, but scripts/verify-global-lab-entrypoint.mjs:84-109 configures neither hooks nor PROOF_OR_STOP_ACTIVITY_SOURCE=codex and never snapshots process-events or hook sentinels. Repository search finds no test of extraOwnershipClasses readOnly behavior. WHY: a regression in either new branch can run mutating hooks or append story process events for a documented read-only nested Lab command, dirtying an active Story while all current nested-entrypoint assertions remain green. Add an active-Story CLI fixture with hooks and Codex activity enabled that invokes real nested lab help and lab eval, then proves hook counters and process-events bytes stay unchanged; include a mutating nested Lab control that proves the test can observe both surfaces.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T08:48:40.996Z",
@@ -1165,7 +1165,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "adversarial|ts|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cade1bf954: E2E byte-compares hook and process-event surfaces for help/eval/compare read-only paths and uses create as a positive control proving both observability surfaces bite.",
+      "resolvedAt": "2026-09-01T09:36:28.462Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-043",
