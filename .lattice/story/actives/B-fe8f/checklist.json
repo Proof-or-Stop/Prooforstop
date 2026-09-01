@@ -68,7 +68,23 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Ledger mutation output includes a signed FindingLedgerReceipt; replay returns its original record and receipt IDs, while a mismatched exact-record or chain-head CAS writes nothing.",
+      "excludes": [
+        "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/finding-ledger.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
