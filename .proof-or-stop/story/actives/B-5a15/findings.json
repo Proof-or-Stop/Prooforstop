@@ -18196,6 +18196,52 @@
       ],
       "signatureTag": "missing|ts|concept-inconsistency-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-333",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:2333-2352 - the evidence for must-intent CHK-005:adversarial:2 is vacuous because its assertion block has no positive control. The intent claims a metrics PASS cannot advance a story to DONE while open findings, missing coverage, dirty tree, or strict whole-tree drift remain. The test builds metricGateFacts with inventory:null and causalDecision:strictMetricDecision, then makes four assert.equal(...admit,false) calls. The UNMUTATED fixture already returns admit:false, so every assertion passes regardless of the mutation under test. Verified mechanically against packages/main/dist: BASE metricGateFacts yields admit=false blockerCode=pre_cert_causal_freshness_required. Line 2349 claims to prove the open-findings blocker but refuses with pre_cert_causal_freshness_required (certification-window.ts:493 fires before the findings check at :516, so openBlockingFindingIds is never read). Lines 2350 and 2351 clear causalDecision but then refuse with pre_cert_inventory_not_finalized (inventoryLineageRefusal at :508 fires because inventory:null), so missingRequiredIntents at :523 and dirtyNonRuntimePaths at :539 are structurally unreachable. Only line 2352 (strict drift) exercises the branch it names. Consequence: three of the four DONE-gate refusal paths this must-intent promises are asserted but not covered; a regression removing the open-findings, missing-coverage, or dirty-tree blocker would leave this test green and the selector B-5a15|CHK-005:adversarial:2|PASS would still be emitted, so the intent-to-evidence mapping overstates coverage. Fix: assert the unmutated fixture admits (positive control) by supplying a FINALIZED inventory and omitting causalDecision, then assert each mutation both refuses AND returns its own expected blockerCode (pre_cert_blocking_findings_open, pre_cert_coverage_missing, pre_cert_dirty_tree, pre_cert_causal_freshness_required).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T08:52:11.719Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-786",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "24de711a89c66831f209d4ce8b15d4189eba88a36055eed5728006a3d67f6d10"
+      },
+      "readDiagnostics": [],
+      "_hash": "6dea127704311150e0dd7c0af59ec2b6fa520258e76620004a8ddd6ea829c7c2",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
