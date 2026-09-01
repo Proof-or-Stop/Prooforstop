@@ -13,11 +13,14 @@
     "Do not change code tokens, CLI identifiers, JSON keys, paths, or the normative meaning of still-current rules.",
     "Preserve legacy material only when it is clearly identified as non-current compatibility background.",
     "Use repository-local CLI/source as the version authority; report the global-runtime drift separately.",
-    "Do not directly edit story or fixture JSON."
+    "Do not directly edit story or fixture JSON.",
+    "Fix critical/high defects, security/data-integrity/destructive-compatibility risks, and any defect that blocks this Story acceptance, REVIEW, TEST, or DONE inside the current Story.",
+    "For medium/low non-blocking defects outside direct acceptance scope, record reproduction, evidence, impact, recommendation, and follow-up ownership before deferring; do not expand scope merely to make every signal green.",
+    "If later evidence upgrades a deferred defect or makes it an acceptance/lifecycle blocker, return it to the current Story immediately."
   ],
   "unknowns": [],
   "touchpoints": [
     "AGENTS.md"
   ],
-  "timestamp": "2026-09-01T23:53:43.674Z"
+  "timestamp": "2026-09-01T23:55:00.866Z"
 }
