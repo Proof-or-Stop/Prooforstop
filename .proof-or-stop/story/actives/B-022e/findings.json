@@ -1509,6 +1509,21 @@
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-058",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1153-1156 quality-guard-bypass: isAllowedLegacyStoryPathContext treats any CLAUDE.md line containing the substring `兼容读取旧版` as an allowed legacy StoryStore context, regardless of the actual path or the rest of the instruction. A line such as `兼容读取旧版 ...；新 story 继续写 docs/story/actives/B-new/plan.md` therefore makes verifyCurrentGuidance accept an active legacy write instruction. The new self-test at lines 1618-1622 only appends an unadorned legacy path on a separate line, so it stays green while this same-line exemption bypass remains. WHY: the exception must bind the exact legacy heartbeat path/context (and reject extra active clauses), otherwise the fail-closed guidance guard can be defeated by retaining one magic phrase.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T18:44:46.701Z",
+      "reviewRound": "2026-09-01T18:40:44.065Z",
+      "reviewRunId": "B-022e:RR-131",
+      "_hash": "5902f47e2fc8f78b6498d6c38c4088ceedb0d8d7e8d19b78115eb60e80fdc911",
+      "signatureTag": "adversarial|unknown|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
