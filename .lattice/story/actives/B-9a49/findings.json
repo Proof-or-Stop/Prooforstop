@@ -726,6 +726,25 @@
       ],
       "signatureTag": "edge|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-035",
+      "desc": "packages/main/src/core/prompt-envelope.ts:183-407 — HIGH semantic-authority bypass remains after a89e7261d9. A fresh read-only probe built the real current B-9a49 StoryStore/FullTaskContext under signed run RR-044 and assembled lattice-review-test-coverage. The guard ACCEPTED equivalent unsafe authority: `The severity rating independently decides whether the current Story owns this defect.`, `When applicability has not been evaluated, the issue may leave this Story.`, and `A closed Finding is sufficient evidence that the issue is nonapplicable.` It also accepted `The seriousness score is the exclusive basis for assigning this defect to the Story.` and `Archiving the Finding proves it is outside the Story boundary.` while correctly rejecting a neighboring unauthorized-certification mutation. These are semantic equivalents of the required severity-only, unknown-applicability routing, and dismissal-as-applicability families, so an assembled signed REVIEW envelope can still carry contradictory authority through uncovered synonyms/speech acts. Add discriminating RED cases and bind the semantic families beyond the present finite wording list; rerun the real five-role probe and old-source mutation proof.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-09-01T14:18:34.631Z",
+      "reviewRound": "2026-09-01T14:11:27.307Z",
+      "reviewRunId": "B-9a49:RR-044",
+      "_hash": "80ceea1bb47d5ca9e428ccb67b9eedab7f38e53ad4ec94164255ed651fe9bcdf",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
