@@ -166,6 +166,7 @@ const safeTaskContextAuthorityStatements = [
   'Applicability remains unknown; routing is not permitted and the REVIEW blocker cannot be removed.',
   'Compatibility dismissal is temporary accounting rather than applicability proof.',
   'Prove the contract preserves the original Finding observation, evidence state, severity, and history: a non-blocking applicability candidate does not resolve or dismiss the Finding and any later severity correction requires append-only revision or supersession rather than silent mutation.',
+  'Verify compatibility dismissal is described only as temporary accounting allowed when the current mechanical round or profile no longer requires current-Story repair, and explicitly not as applicability proof, repair, resolution, or authority to bypass a live blocker.',
 ] as const;
 
 const liveB9a49SafeMetaIntent = 'Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.';
