@@ -1378,7 +1378,7 @@
       "desc": "quality-regression / published-boundary: F-050 is not fixed in an actual packed consumer. packages/utils/src/handlers/auxiliary.ts:1-9 and the other Utils handlers import runtime code through monorepo-relative `../../../main/dist/...` paths. After `npm pack` and extraction under a clean `node_modules/@proof-or-stop/utils`, importing the shipped dist/index.js exits 1 with `ERR_MODULE_NOT_FOUND: .../node_modules/@proof-or-stop/main/dist/tasks/extract.js`; the real peer package is `@proof-or-stop/core`, so that relative target cannot exist in the published layout. scripts/verify-global-lab-entrypoint.mjs:362-385 calls the new public bootstrap only through workspace file URLs (`packages/main/dist` + `packages/utils/dist`), while scripts/verify-proof-or-stop-pack-boundary.mjs:869-873 checks only `import.meta.resolve(packageName)` and never imports or dispatches the installed Utils tarball. Thus three concurrent global verifiers and the four-tarball boundary both pass while the published clean-consumer contract is unusable. WHY: clean installation is an explicit B-022e product boundary; make Utils runtime imports resolve through the published @proof-or-stop/core contract (or otherwise ship a self-contained valid layout) and extend the four-tarball consumer to actually import the installed package and dispatch a Utils-owned command while retaining strict core-collision rejection.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-01T11:33:43.829Z",
@@ -1399,7 +1399,11 @@
         "packages/utils/package.json"
       ],
       "signatureTag": "missing|ts|quality-regression-published",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c45cc496c7: Core exports @proof-or-stop/core/extension-api and injects a Core-owned extension runtime; Utils handlers no longer import monorepo-relative main/dist paths and consume only public types plus injected runtime. The four-tarball offline consumer now imports the installed Utils package and dispatches tool_status successfully, while F-049 exact collisions and F-050 catalog metadata remain enforced. Fresh 29/29 receipts and 120-command validation pass, including builds=806.",
+      "resolvedAt": "2026-09-01T12:04:31.714Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
