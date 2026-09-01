@@ -1,0 +1,135 @@
+{
+  "storyId": "B-d854",
+  "checkedAt": "2026-09-01T23:08:52.836Z",
+  "features": [
+    {
+      "feature": "Audit every root AGENTS.md current-behavior claim against repository-local executable behavior and authoritative implementation, role-prompt, command-registry, and adopted decision sources.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/background.md; .proof-or-stop/story/actives/B-d854/checklist.json"
+    },
+    {
+      "feature": "Distinguish current normative guidance from compatibility-only or historical material, and correct only claims disproven by current authority.",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/background.md; .proof-or-stop/story/actives/B-d854/decision.json"
+    },
+    {
+      "feature": "Classify every command, phase, role, artifact, and example in AGENTS.md; unsupported active commands must be removed or locally labeled historical.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/checklist.json"
+    },
+    {
+      "feature": "Mechanically validate active CLI examples against the repository-local CLI, safely validate mutating forms, and prove the checker rejects a deliberately invalid sentinel.",
+      "covered_by": "CHK-001,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/checklist.json; .proof-or-stop/story/actives/B-d854/plan.md"
+    },
+    {
+      "feature": "Translate every human-language surface of root AGENTS.md into English, including headings, prose, tables, comments, annotations, and example strings.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/background.md; .proof-or-stop/story/actives/B-d854/checklist.json"
+    },
+    {
+      "feature": "Prove translation completeness with whole-file zero-Han and zero-U+FFFD checks and classify every remaining non-ASCII code point.",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/checklist.json; .proof-or-stop/story/actives/B-d854/plan.md"
+    },
+    {
+      "feature": "Preserve Markdown structure and technical tokens, including fences, comments, links, paths, identifiers, JSON keys, phases, roles, and story IDs, except explicitly evidenced corrections.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/checklist.json"
+    },
+    {
+      "feature": "Preserve normative polarity, modality, scope, exceptions, and current-versus-legacy qualifiers, with adversarial mutation checks for semantic drift.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/checklist.json"
+    },
+    {
+      "feature": "Deliver reproducible evidence bound to repository-local CLI version and git HEAD, with exact source references, commands, exit codes, and salient outputs.",
+      "covered_by": "CHK-001,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/background.md; .proof-or-stop/story/actives/B-d854/checklist.json; .proof-or-stop/story/actives/B-d854/proofstory.json"
+    },
+    {
+      "feature": "Report the observed global proof-or-stop runtime drift separately from the repository-local worktree authority.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-d854/understanding.json"
+    },
+    {
+      "feature": "Do not change Proof-or-Stop runtime behavior.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded by the confirmed maintenance scope boundary and enforce-mode scope contract.",
+      "source": ".proof-or-stop/story/actives/B-d854/scope-boundary.json; .proof-or-stop/story/actives/B-d854/scope-contract.json"
+    },
+    {
+      "feature": "Do not translate or materially edit unrelated documents; only root AGENTS.md may be materially changed.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded by the confirmed scope boundary; all CHK file declarations and the enforce-mode scope contract allow only AGENTS.md.",
+      "source": ".proof-or-stop/story/actives/B-d854/scope-boundary.json; .proof-or-stop/story/actives/B-d854/scope-contract.json; .proof-or-stop/story/actives/B-d854/checklist.json"
+    },
+    {
+      "feature": "Do not directly modify generated story artifacts or fixture files.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded by scope and execution boundaries; story evidence must use registered CLI writers.",
+      "source": ".proof-or-stop/story/actives/B-d854/scope-boundary.json; .proof-or-stop/story/actives/B-d854/execution-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-d854/background.md",
+      ".proof-or-stop/story/actives/B-d854/checklist.json",
+      ".proof-or-stop/story/actives/B-d854/decision.json",
+      ".proof-or-stop/story/actives/B-d854/execution-boundary.json",
+      ".proof-or-stop/story/actives/B-d854/intent-collision.json",
+      ".proof-or-stop/story/actives/B-d854/plan.md",
+      ".proof-or-stop/story/actives/B-d854/proofstory.json",
+      ".proof-or-stop/story/actives/B-d854/scope-boundary.json",
+      ".proof-or-stop/story/actives/B-d854/scope-contract.json",
+      ".proof-or-stop/story/actives/B-d854/understanding.json",
+      "AGENTS.md",
+      "docs/CLI.md",
+      "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/truth-source.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 13,
+    "covered": 9,
+    "excluded": 3,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "028665c295869698887894c460e0c0908b82f22d27eadcfe3722c3816a0d2f92",
+  "openQuestions": []
+}

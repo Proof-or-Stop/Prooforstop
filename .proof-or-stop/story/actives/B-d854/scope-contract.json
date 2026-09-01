@@ -1,0 +1,62 @@
+{
+  "storyId": "B-d854",
+  "mode": "enforce",
+  "allowedModify": [
+    "AGENTS.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "proof-or-stop.config.json",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "explicitExcludes": [
+    "docs/**",
+    "packages/**",
+    "scripts/**",
+    "bin/**",
+    ".proof-or-stop-codex/**",
+    ".claude/**"
+  ],
+  "scopeChangeReason": "The user requested changes only to the root AGENTS.md; all implementation and truth-source files are read-only audit inputs.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-01T23:05:12.822Z",
+  "updatedAt": "2026-09-01T23:05:12.822Z",
+  "fileRules": [
+    {
+      "path": "AGENTS.md",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ]
+    }
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "AGENTS.md": "AGENTS.md",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "docs/**": "docs/**",
+    "packages/**": "packages/**",
+    "scripts/**": "scripts/**",
+    "bin/**": "bin/**",
+    ".proof-or-stop-codex/**": ".proof-or-stop-codex/**",
+    ".claude/**": ".claude/**"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}
