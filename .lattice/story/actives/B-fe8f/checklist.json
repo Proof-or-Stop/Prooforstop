@@ -355,14 +355,14 @@
           "kind": "manual_transcript",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
+          "note": "Fresh current verification after F-014/F-015/F-016 remediation.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T22:32:17.235Z",
+            "executedAt": "2026-09-01T23:58:43.683Z",
             "timeoutMs": 600000,
             "timeoutOverride": {
               "timeoutMs": 600000,
@@ -370,24 +370,24 @@
               "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
             }
           },
-          "headHash": "55387c942e1070aed1d82c4668a02cba88757b70",
-          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
-          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
-          "timestamp": "2026-09-01T22:32:34.408Z"
+          "headHash": "95be1a2e62de0f4a119f9d62600a94f046bacfa6",
+          "materialHash": "2dc62922f8deaab0a0b92cab3b049247169fe9c0cd5f41acdd278ddf2e841ea1",
+          "storyFilesHash": "282a5b9f1414cfa1ff670af06ba8c216bea74a4a0755f5df6de610b42d1d0903",
+          "timestamp": "2026-09-01T23:58:59.751Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
+          "note": "Fresh current verification after F-014/F-015/F-016 remediation.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T22:32:25.886Z",
+            "executedAt": "2026-09-01T23:58:51.444Z",
             "timeoutMs": 600000,
             "timeoutOverride": {
               "timeoutMs": 600000,
@@ -395,36 +395,36 @@
               "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
             }
           },
-          "headHash": "55387c942e1070aed1d82c4668a02cba88757b70",
-          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
-          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
-          "timestamp": "2026-09-01T22:32:34.408Z"
+          "headHash": "95be1a2e62de0f4a119f9d62600a94f046bacfa6",
+          "materialHash": "2dc62922f8deaab0a0b92cab3b049247169fe9c0cd5f41acdd278ddf2e841ea1",
+          "storyFilesHash": "282a5b9f1414cfa1ff670af06ba8c216bea74a4a0755f5df6de610b42d1d0903",
+          "timestamp": "2026-09-01T23:58:59.751Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
-          "kind": "docs_check",
+          "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
+          "note": "Mechanical execution of the production-unchanged RED selector, closing F-014.",
           "mechanical": false,
-          "headHash": "55387c942e1070aed1d82c4668a02cba88757b70",
-          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
-          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
-          "timestamp": "2026-09-01T22:32:34.408Z"
+          "headHash": "95be1a2e62de0f4a119f9d62600a94f046bacfa6",
+          "materialHash": "2dc62922f8deaab0a0b92cab3b049247169fe9c0cd5f41acdd278ddf2e841ea1",
+          "storyFilesHash": "282a5b9f1414cfa1ff670af06ba8c216bea74a4a0755f5df6de610b42d1d0903",
+          "timestamp": "2026-09-01T23:58:59.751Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
           "kind": "integration_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
+          "note": "Fresh current verification after F-014/F-015/F-016 remediation.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T22:32:34.155Z",
+            "executedAt": "2026-09-01T23:58:59.217Z",
             "timeoutMs": 600000,
             "timeoutOverride": {
               "timeoutMs": 600000,
@@ -432,10 +432,10 @@
               "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
             }
           },
-          "headHash": "55387c942e1070aed1d82c4668a02cba88757b70",
-          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
-          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
-          "timestamp": "2026-09-01T22:32:34.408Z"
+          "headHash": "95be1a2e62de0f4a119f9d62600a94f046bacfa6",
+          "materialHash": "2dc62922f8deaab0a0b92cab3b049247169fe9c0cd5f41acdd278ddf2e841ea1",
+          "storyFilesHash": "282a5b9f1414cfa1ff670af06ba8c216bea74a4a0755f5df6de610b42d1d0903",
+          "timestamp": "2026-09-01T23:58:59.751Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
