@@ -496,6 +496,95 @@
           "scripts/verify-process-fact-contract.mjs",
           "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The process-fact registry and contract verifier register atomic persistence facts and gate-eligible RuntimeEvidenceReceipt semantics at their intended authority levels while explicitly keeping ledger storage integrity separate from semantic acceptance.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "registry.story3_fact_contract: PASS"
+            }
+          },
+          {
+            "desc": "The public read-only ledger query returns stable signed row digests and exact ledger, CAS, idempotency, runtime-scorecard and migration inputs without returning a filesystem or protected-storage path.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "query.protected_read_only: PASS signedRows=true pathsExposed=0"
+            }
+          },
+          {
+            "desc": "Repeated scorecard queries over the same accepted rows return byte-identical complete numerator and denominator inputs in deterministic canonical order.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "query.deterministic_scorecard: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Persisted candidate, route, baseline, historical, standalone-receipt and ledger-receipt rows remain non-authoritative by themselves and produce zero blocker, pass, unblock or lifecycle-transition delta.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "registry.persistence_non_authority: PASS lifecycleDelta=0"
+            }
+          },
+          {
+            "desc": "The query contract returns deterministic refusal codes for a missing, incomplete, unsigned, digest-mismatched or tampered row rather than returning a partial scorecard or migration snapshot.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "query.incomplete_tamper_refusal: PASS partialRows=0"
+            }
+          },
+          {
+            "desc": "Only registered command policies, producer roles and phase allowlists may create or consume Story 3 facts; an unregistered direct consumer cannot obtain gate evidence through the query API.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "registry.command_phase_policy: PASS bypasses=0"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Independent registry mutations that promote candidate, route, baseline, historical, standalone-receipt or persistence-only rows into L4 blocker/pass/unblock authority fail the shared process-fact verifier.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "registry.non_authority_mutations: PASS acceptedMutations=0"
+            }
+          },
+          {
+            "desc": "Dependency mutations adding a Story 2 or Story 1 import, protected-storage parser, or direct gate consumer to Story 3 fail while the schema-neutral callback/CAS public contract still builds.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "registry.dependency_boundary: PASS forbiddenImportsAccepted=0"
+            }
+          },
+          {
+            "desc": "Path-shaped field injection, diagnostic errors and serialized query results cannot reveal the canonical ledger directory, temp path, lock path, artifact-store root or realpath-resolved protected location.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "query.path_leakage: PASS exposedPaths=0"
+            }
+          }
+        ]
       }
     },
     {
