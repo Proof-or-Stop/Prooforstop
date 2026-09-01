@@ -104,6 +104,16 @@ import {
   assertPlanDevDependenciesDone,
   runStoryTransition,
 } from '../handlers/transition-orchestrator.js';
+import { adapterSessionEnv } from './adapter-session-env.js';
+
+// This smoke launches several fresh CLI processes against one synthetic Story.
+// Give every one the same fixture-only host-adapter identity so correctness does
+// not depend on ambient session transport fields that validation intentionally
+// strips before executing pinned commands.
+const RUNTIME_CLI_TEST_SESSION_ENV = adapterSessionEnv(
+  'bfe8f-runtime-evidence-smoke',
+  'lattice-implementer',
+);
 
 interface WorkerSpec {
   ledgerFile: string;
@@ -275,7 +285,7 @@ function runRuntimeCli(
 ): { status: number | null; stdout: string; stderr: string; json?: Record<string, unknown> } {
   const result = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), command, JSON.stringify(args)], {
     cwd: projectRoot,
-    env: { ...process.env, ...signingEnv },
+    env: { ...process.env, ...RUNTIME_CLI_TEST_SESSION_ENV, ...signingEnv },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -1170,7 +1180,7 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       Buffer.from(JSON.stringify(runArgs)).toString('base64'),
     ], {
       cwd: repositoryRoot,
-      env: { ...process.env, ...signingEnv },
+      env: { ...process.env, ...RUNTIME_CLI_TEST_SESSION_ENV, ...signingEnv },
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -1198,6 +1208,11 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(afterReplay.receipts.length, beforeReplay.receipts.length);
     assert.equal(canonicalJson(afterReplay.records.find((record) => record.recordId === runtimeRecordId)), originalRecordBytes);
     console.log('runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true');
+    assert.doesNotMatch(
+      `${cliRun.stdout}\n${cliRun.stderr}\n${cliReplay.stdout}\n${cliReplay.stderr}`,
+      /session identity degraded: derived-ppid|is owned by Proof-or-Stop session/,
+    );
+    console.log('runtime.validation_executor_session_stability: PASS adapterIdentity=stable ambientSessionRequired=false');
 
     const receiptMutations: RuntimeEvidenceReceipt[] = [];
     const directMutation = (field: keyof RuntimeEvidenceReceipt, value: unknown): void => {
