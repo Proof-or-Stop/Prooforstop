@@ -218,6 +218,47 @@ interface LegacyReceiptBindingSet {
   bindings: LegacyReceiptBindingEntry[];
 }
 
+function verifiedLegacyReceiptBindings(
+  ledger: LedgerEnvelope<JsonValue>,
+  trustedKeys: readonly FindingLedgerQueryTrustedKey[],
+): Map<string, LegacyReceiptBindingEntry> {
+  const recordsById = new Map(ledger.records.map((record) => [record.recordId, record]));
+  const bindings = new Map<string, LegacyReceiptBindingEntry>();
+  for (const carrier of ledger.receipts as PersistedCommitReceipt[]) {
+    const signed = carrier.findingLedgerReceipt;
+    if (!signed || signed.operation !== 'append_legacy_identity_binding') continue;
+    const trust = queryTrust(signed.keyId, signed.trustRootDigest, signed.keyFreshnessPolicyDigest, trustedKeys);
+    if (!trust || !verifyFindingLedgerReceipt(signed, trust)) continue;
+    for (const recordId of signed.recordIds) {
+      const record = recordsById.get(recordId);
+      if (!record || record.recordType !== 'legacy_receipt_binding'
+        || !record.payload || typeof record.payload !== 'object') continue;
+      const payload = record.payload as unknown as LegacyReceiptBindingSet;
+      if (!exactKeys(payload, ['bindingType', 'bindings', 'observedLedgerDigest', 'schemaVersion'])
+        || payload.schemaVersion !== 1
+        || payload.bindingType !== 'legacy-unsigned-receipt-set'
+        || payload.observedLedgerDigest !== signed.priorLedgerDigest
+        || !Array.isArray(payload.bindings)) continue;
+      for (const binding of payload.bindings) {
+        if (!binding || typeof binding !== 'object'
+          || !exactKeys(binding, [
+            'committedLedgerDigest', 'legacyReceiptDigest', 'priorLedgerDigest',
+            'receiptId', 'recordIds',
+          ])
+          || [
+            binding.receiptId, binding.legacyReceiptDigest,
+            binding.priorLedgerDigest, binding.committedLedgerDigest,
+          ].some((value) => typeof value !== 'string' || !value.trim())
+          || !Array.isArray(binding.recordIds)
+          || binding.recordIds.length === 0
+          || binding.recordIds.some((value) => typeof value !== 'string' || !value.trim())) continue;
+        bindings.set(binding.legacyReceiptDigest, binding);
+      }
+    }
+  }
+  return bindings;
+}
+
 function currentChainHead<T>(ledger: LedgerEnvelope<T>): { id: string; hash: string } {
   const head = ledger.records.at(-1);
   return head
@@ -336,6 +377,8 @@ export function appendFindingLedger<T extends JsonValue = JsonValue>(options: Le
 export function bindLegacyFindingLedgerReceipts(options: Omit<LedgerAppendOptions<JsonValue>,
   'operation' | 'idempotencyKey' | 'records'>): FindingLedgerReceipt | null {
   const ledger = options.store.readFindingLedger<JsonValue>(options.storyId);
+  const { privateKey: _privateKey, ...publicSigner } = options.signer;
+  const existingBindings = verifiedLegacyReceiptBindings(ledger, [{ ...publicSigner }]);
   const unsigned = (ledger.receipts as PersistedCommitReceipt[])
     .filter((receipt) => !receipt.findingLedgerReceipt)
     .map((receipt): LegacyReceiptBindingEntry => ({
@@ -344,7 +387,8 @@ export function bindLegacyFindingLedgerReceipts(options: Omit<LedgerAppendOption
       recordIds: [...receipt.recordIds],
       priorLedgerDigest: receipt.priorLedgerDigest,
       committedLedgerDigest: receipt.committedLedgerDigest,
-    }));
+    }))
+    .filter((binding) => !existingBindings.has(binding.legacyReceiptDigest));
   if (unsigned.length === 0) return null;
   const payload: LegacyReceiptBindingSet = {
     schemaVersion: 1,
@@ -833,33 +877,7 @@ export function queryFindingLedger(
   const idempotencyKeyDigests: string[] = [];
   let priorDigest = canonicalHash([]);
 
-  const legacyBindings = new Map<string, LegacyReceiptBindingEntry>();
-  for (const carrier of ledger.receipts as PersistedCommitReceipt[]) {
-    const signed = carrier.findingLedgerReceipt;
-    if (!signed || signed.operation !== 'append_legacy_identity_binding') continue;
-    const trust = queryTrust(signed.keyId, signed.trustRootDigest, signed.keyFreshnessPolicyDigest, trustedKeys);
-    if (!trust || !verifyFindingLedgerReceipt(signed, trust)) continue;
-    for (const recordId of signed.recordIds) {
-      const record = recordsById.get(recordId);
-      if (!record || record.recordType !== 'legacy_receipt_binding'
-        || !record.payload || typeof record.payload !== 'object') continue;
-      const payload = record.payload as unknown as LegacyReceiptBindingSet;
-      if (payload.schemaVersion !== 1
-        || payload.bindingType !== 'legacy-unsigned-receipt-set'
-        || payload.observedLedgerDigest !== signed.priorLedgerDigest
-        || !Array.isArray(payload.bindings)) continue;
-      for (const binding of payload.bindings) {
-        if (!binding || typeof binding !== 'object'
-          || !exactKeys(binding, [
-            'committedLedgerDigest', 'legacyReceiptDigest', 'priorLedgerDigest',
-            'receiptId', 'recordIds',
-          ])
-          || typeof binding.legacyReceiptDigest !== 'string'
-          || !Array.isArray(binding.recordIds)) continue;
-        legacyBindings.set(binding.legacyReceiptDigest, binding);
-      }
-    }
-  }
+  const legacyBindings = verifiedLegacyReceiptBindings(ledger, trustedKeys);
 
   for (const persisted of ledger.receipts as PersistedCommitReceipt[]) {
     const receipt = persisted.findingLedgerReceipt;

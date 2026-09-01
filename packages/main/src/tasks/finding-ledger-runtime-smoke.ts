@@ -982,10 +982,17 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
 
   const legacyStoryId = 'B-LEGACY-QUERY';
   store.writeStory(legacyStoryId, runtimeStory(legacyStoryId));
+  store.writeFindings(legacyStoryId, {
+    findings: [
+      { id: `${legacyStoryId}:F-001`, desc: 'first legacy finding', severity: 'low', category: 'edge', status: 'open' },
+      { id: `${legacyStoryId}:F-002`, desc: 'second legacy finding', severity: 'low', category: 'edge', status: 'open' },
+    ],
+  });
   const legacyLockDir = store.storyFilePath(legacyStoryId, 'findings.lock');
   const legacyLock = acquireMkdirLock(legacyLockDir, {
     label: 'legacy receipt migration regression', requireHolderToken: true,
   });
+  let unsignedReceiptBytesBefore = '';
   try {
     const fence = captureMkdirLockFence(legacyLockDir);
     store.appendFindingLedgerTransaction(
@@ -995,28 +1002,71 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       }),
       fence,
     );
-    const ledgerSigner = findingLedgerSignerFromWorkspace(root);
-    bindLegacyFindingLedgerReceipts({
-      storyId: legacyStoryId,
-      store,
-      writerSessionId: 'legacy-migration-smoke',
-      writerLeaseId: 'legacy-migration-smoke',
-      writerFenceToken: fence.writerFenceToken,
+    store.appendFindingLedgerTransaction(
+      legacyStoryId,
+      request(fence.writerFenceToken, 'legacy-query:unsigned-2', 'finding', {
+        id: `${legacyStoryId}:F-002`, desc: 'second bounded legacy row', severity: 'low', category: 'edge', status: 'open',
+      }),
       fence,
-      signer: ledgerSigner,
-    });
-    const migrated = store.readFindingLedger<JsonValue>(legacyStoryId);
-    assert.equal(queryFindingLedger(migrated, legacyStoryId, ledgerSigner).signedRows, true);
-    const tampered = structuredClone(migrated);
-    (tampered.receipts[0] as typeof tampered.receipts[0] & { writerSessionId: string }).writerSessionId = 'tampered';
-    assert.throws(
-      () => queryFindingLedger(tampered, legacyStoryId, ledgerSigner),
-      /ledger_receipt_unsigned|ledger_incomplete/,
     );
+    unsignedReceiptBytesBefore = canonicalJson(
+      store.readFindingLedger<JsonValue>(legacyStoryId).receipts,
+    );
+  } finally {
+    legacyLock.release();
+  }
+
+  const legacyHandlers = createFindingHandlers({ root, scanRoot: root, store });
+  const priorLegacyAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'lattice-implementer';
+  try {
+    assert.match(legacyHandlers.finding_resolve({
+      storyId: legacyStoryId,
+      findingId: `${legacyStoryId}:F-001`,
+      resolution: 'first sequential legacy resolution',
+      resolutionType: 'fixed',
+      resolveEvidenceStrength: 'strong',
+    }), /resolved/);
+    assert.match(legacyHandlers.finding_resolve({
+      storyId: legacyStoryId,
+      findingId: `${legacyStoryId}:F-002`,
+      resolution: 'second sequential legacy resolution',
+      resolutionType: 'fixed',
+      resolveEvidenceStrength: 'strong',
+    }), /resolved/);
+  } finally {
+    if (priorLegacyAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = priorLegacyAgent;
+  }
+
+  const ledgerSigner = findingLedgerSignerFromWorkspace(root);
+  const migrated = store.readFindingLedger<JsonValue>(legacyStoryId);
+  assert.equal(
+    canonicalJson(migrated.receipts.filter((receipt) => !(
+      receipt as typeof receipt & { findingLedgerReceipt?: unknown }
+    ).findingLedgerReceipt)),
+    unsignedReceiptBytesBefore,
+    'legacy unsigned receipt bytes were rewritten during lifecycle migration',
+  );
+  assert.equal(migrated.records.filter((record) => record.recordType === 'legacy_receipt_binding').length, 1);
+  assert.equal(migrated.records.filter((record) => record.recordType === 'finding_lifecycle_transition').length, 2);
+  assert.equal(queryFindingLedger(migrated, legacyStoryId, ledgerSigner).signedRows, true);
+  const tampered = structuredClone(migrated);
+  (tampered.receipts[0] as typeof tampered.receipts[0] & { writerSessionId: string }).writerSessionId = 'tampered';
+  assert.throws(
+    () => queryFindingLedger(tampered, legacyStoryId, ledgerSigner),
+    /ledger_receipt_unsigned|ledger_incomplete/,
+  );
+
+  const postMigrationLock = acquireMkdirLock(legacyLockDir, {
+    label: 'post-migration unsigned refusal regression', requireHolderToken: true,
+  });
+  try {
+    const fence = captureMkdirLockFence(legacyLockDir);
     store.appendFindingLedgerTransaction(
       legacyStoryId,
       request(fence.writerFenceToken, 'legacy-query:unbound-after-migration', 'finding', {
-        id: `${legacyStoryId}:F-002`, desc: 'must remain untrusted', severity: 'low', category: 'edge', status: 'open',
+        id: `${legacyStoryId}:F-003`, desc: 'must remain untrusted', severity: 'low', category: 'edge', status: 'open',
       }),
       fence,
     );
@@ -1025,8 +1075,9 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       /ledger_receipt_unsigned/,
     );
   } finally {
-    legacyLock.release();
+    postMigrationLock.release();
   }
+  console.log('ledger.legacy_receipt_binding_sequential: PASS resolutions=2 bindingRecords=1 exactBytes=true conflict=0');
   console.log('ledger.legacy_receipt_binding: PASS query=migrated exactBytes=bound tamper=reject postMigrationUnsigned=reject rewrites=0');
 
   const registeredSigner = runtimeEvidenceSignerFromWorkspace(root);
