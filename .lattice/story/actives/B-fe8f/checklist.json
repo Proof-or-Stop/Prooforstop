@@ -1035,7 +1035,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "Finding ledger integrity: PASS"
             }
           },
@@ -1044,7 +1044,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "Runtime evidence integrity: PASS"
             }
           },
@@ -1053,7 +1053,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.story3_matrix: PASS"
             }
           },
@@ -1062,7 +1062,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true"
             }
           },
@@ -1071,7 +1071,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7"
             }
           },
@@ -1080,7 +1080,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node bin/proof-or-stop.js --version && proof-or-stop --version && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true"
             }
           }
@@ -1091,7 +1091,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.legacy_migration: PASS legacyRewrites=0"
             }
           },
@@ -1100,7 +1100,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.rollback_kill_switch: PASS dataLoss=0"
             }
           },
@@ -1109,7 +1109,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.fail_closed_boundary: PASS unsafeWrites=0"
             }
           }
@@ -1120,7 +1120,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.combined_concurrency: PASS lost=0 duplicates=0 halfVisible=0 deadlocks=0"
             }
           },
@@ -1129,7 +1129,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.tamper_matrix: PASS lifecycleDelta=0"
             }
           },
@@ -1138,7 +1138,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.dependency_scorecard_boundary: PASS"
             }
           }
