@@ -13057,6 +13057,36 @@
         "scanEscalationReason": null
       },
       "_hash": "ce6466854b2cdb98c4552be27c38b90400b36bdb5c430822e482ab719fc09191"
+    },
+    {
+      "id": "B-5a15:RP-271",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage re-attestation on an unchanged tree (RI-059 cutoff baf3b78a5761, identical to RI-058 / RR-823 / RP-265; git diff HEAD over packages/main/src and packages/main/tests is empty, only story metadata files are dirty). STRUCTURE, computed from checklist.json rather than validate --story: 5 checklist items all status=done, 53 verificationIntent entries, per-item happy/edge/adversarial lane counts CHK-001 3/4/3, CHK-002 2/3/4, CHK-003 3/3/4, CHK-004 4/8/2, CHK-005 3/4/3. Intent-to-evidence mapping is exactly 1:1: 53 evidence rows, 0 intents lacking evidence, 0 duplicate intentRefs, 0 evidence rows pointing at a nonexistent intent, and every note names its own intentRef. EVIDENCE PROVENANCE, the one thing flagged for careful checking, matches the described expected state on all three points. (1) All 53 rows share ONE storyFilesHash binding, 0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868, a single bucket with no split or leftover older binding. (2) The demotion is uniform and audited: mechanical=false on all 53 rows, 0 rows missing a reason, and exactly one distinct nonMechanicalReason string across all 53 (receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here). (3) No row silently claims coverage it cannot support: 0 rows carry a receipt block, 0 carry a selector, 0 are waivers, 0 have result=fail, and the evidence field set is uniform across all rows. The framework agrees rather than merely the rows being self-consistent: acceptance-basis.json reports basis.status=partial with 0 rows, so these demoted attestations are not being counted as mechanical acceptance coverage anywhere. Read the refresh path at packages/main/src/handlers/checklist.ts writeStaleRefresh (around lines 1417-1530) and confirmed the demote-instead-of-mint behavior is the designed branch: a covered receipt is never minted without a real pass, and the pre-existing note is deliberately carried over while the receipt is replaced by the audit reason, so the notes still reading Re-executed the current pinned causal-evidence suite is carried-over provenance and not a fresh claim, since mechanical=false plus the reason string is what any consumer keys on. PINNED SUITE, re-run independently at this cutoff: node --test packages/main/tests/causal-evidence.test.mjs reports pass 19, fail 2, cancelled 0, skipped 0, todo 0, duration about 39.7s. The two failures are F-247 (verifier-owned topology and pre-review checks are executable and current) failing on AT_COVERAGE_BASIS_PARTIAL plus ten AT_UNMAPPED_SCOPE_REF diagnostics, and the F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264 rollout test failing on the identical topology fail-closed code set. Because the suite exits non-zero, no row can re-earn a mechanical receipt until that is repaired; this is the expected already-understood state and is not filed as new. WAVE 4 COVERAGE BOUNDARY confirmed executable rather than prose: acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read and acceptance_rollout_check are each invoked as real CLI calls (test lines 2470, 2488, 2644, 2645, 2646, 2647); degraded-cohort rejection asserts verdict=fail plus AR_SOURCE_EVIDENCE_INVALID with candidateSampleCount below 6; threshold, membership and freshness mutations each assert AR_REPORT_TAMPERED or a stale verdict; enforce mode and observe/warn/enforce mode-invariant diagnostics are exercised. VERDICT: no new finding. Every defect visible from this lane is already in the dispositioned set (fixed F-325, F-331, F-333, F-334, F-336, F-337, F-338, F-339, F-342; deferred F-326, F-327, F-328, F-330, F-332, F-335, F-340, F-341, F-343, F-344; F-329 partially mitigated). Test coverage review passed with no blocker.",
+      "createdAt": "2026-09-01T18:40:50.849Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-828",
+      "envelopeId": "2dfea41a5d12fe870b060a69f3ec00d9419cb01b09d7c80738495679a747b623",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "780f39c648d0ba4c895d9fa01c35b51505692d7c4f7e2172ba7e0ec646b25b1a"
     }
   ]
 }
