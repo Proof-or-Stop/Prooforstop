@@ -1228,6 +1228,21 @@
       "_hash": "b2b657c0db84a4b84633c5d7112f33c795db36d649ced7c84eb36465b79db6d7",
       "signatureTag": "adversarial|unknown|quality-security-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-046",
+      "desc": "quality-regression: scripts/verify-global-lab-entrypoint.mjs:335-347 is red on the committed cade1bf954 candidate. Independent `node scripts/verify-global-lab-entrypoint.mjs` reaches extension-admission then exits 1 with `lab run --config=experiments/configs/lab-reviewer-reviewer-quality-v1.json --dryRun must be blocked in TEST`; therefore the new active-Story lifecycle proof does not establish the promised TEST fail-closed behavior and the targeted verifier itself cannot pass. Diagnose whether the command is succeeding or failing with a different non-phase reason, then make the real nested and flat TEST controls deterministically assert the intended phase gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T09:41:01.819Z",
+      "reviewRound": "2026-09-01T09:35:56.599Z",
+      "reviewRunId": "B-022e:RR-078",
+      "_hash": "8e5f99cc13e017089b952adb9fd31bf5fd50a6910cd5be497a7b6f5ac2f8a60c",
+      "signatureTag": "missing|unknown|quality-regression-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
