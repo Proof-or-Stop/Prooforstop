@@ -437,9 +437,10 @@
       "title": "Align Story Owner, implementer, and reviewer authority guidance",
       "context": "Own only Story Owner disposition and implementer escalation guidance. The Owner returns applicable blockers to DEV, routes evidence-backed non-applicable work without unowned high/critical findings, fails closed when an otherwise-blocking finding has unknown applicability, and treats compatibility dismissal as temporary round/profile handling rather than applicability proof. The implementer preserves reproduction and impact evidence, reports out-of-item findings, and does not widen scope unilaterally.",
       "relatedDocs": [
-        "AGENTS.md",
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
-        "docs/requirements/decisions/role-separation.md"
+        "AGENTS.md",
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
       "status": "done",
       "startTime": "2026-08-31T14:53:02.724Z",
