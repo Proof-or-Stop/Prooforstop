@@ -7,6 +7,8 @@ export interface ExternalCommandAdmission {
   readonly allowedPhases: Readonly<Record<string, readonly string[] | 'all'>>;
 }
 
+export type RegisteredHandlerSnapshot = ReadonlyMap<string, unknown>;
+
 function ownKeys(value: Readonly<Record<string, unknown>> | undefined): string[] {
   return Object.keys(value ?? {}).sort();
 }
@@ -76,10 +78,31 @@ export function validateExternalCommandDeclarations(input: {
 
 export function validateExternalCommandHandlers(
   admission: ExternalCommandAdmission,
-  registeredHandlerNames: readonly string[],
+  coreHandlers: RegisteredHandlerSnapshot,
+  registeredHandlers: Readonly<Record<string, unknown>>,
+  extraTools: readonly ToolDef[] = [],
 ): void {
-  const handlers = new Set(registeredHandlerNames);
-  const missing = [...admission.commandNames].filter(name => !handlers.has(name)).sort();
+  const registeredNames = Object.keys(registeredHandlers).sort();
+  const registeredNameSet = new Set(registeredNames);
+
+  const changedCore = [...coreHandlers.entries()]
+    .filter(([name, implementation]) => !registeredNameSet.has(name) || registeredHandlers[name] !== implementation)
+    .map(([name]) => name)
+    .sort();
+  if (changedCore.length > 0) {
+    throw new Error(`External command admission rejected replaced or removed core handlers: ${changedCore.join(', ')}`);
+  }
+
+  const expectedAdded = [...new Set(extraTools.map(tool => tool.name).filter(name => !coreHandlers.has(name)))].sort();
+  const actualAdded = registeredNames.filter(name => !coreHandlers.has(name));
+  if (!sameNames(expectedAdded, actualAdded)) {
+    throw new Error(
+      `External command admission requires exact extraTools/registered-handler parity ` +
+      `(tools=${expectedAdded.join(',') || '(none)'}; handlers=${actualAdded.join(',') || '(none)'})`,
+    );
+  }
+
+  const missing = [...admission.commandNames].filter(name => !registeredNameSet.has(name)).sort();
   if (missing.length > 0) {
     throw new Error(`External command admission rejected missing registered handlers: ${missing.join(', ')}`);
   }

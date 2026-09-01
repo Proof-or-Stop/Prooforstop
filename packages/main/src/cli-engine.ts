@@ -947,9 +947,10 @@ export async function runCli(opts?: {
   const scanRoot = join(root, config0.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };
   const registry = createMainRegistry(ctx);
+  const coreHandlerSnapshot = new Map(Object.entries(registry.toObject()));
   if (opts?.extraRegister) opts.extraRegister(registry, ctx);
-  validateExternalCommandHandlers(externalAdmission, registry.list());
   const handlers = registry.toObject() as Record<string, Function>;
+  validateExternalCommandHandlers(externalAdmission, coreHandlerSnapshot, handlers, opts?.extraTools);
 
   function appendMilestoneStatusAfterMutation(output: string): string {
     if (wantsMachineJson(parsed)) return output;

@@ -429,7 +429,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-022e delivery follow-up: extension phase admission/read-only handling
   // changed elsewhere in runCli; the initPath producer and import() call are
   // byte-identical, so this remains an exact whole-source re-attestation.
-  ['packages/main/src/cli-engine.ts', '71e8f8fb773779c70c70a07e3cb29a6e1a4b0cc775b59cbbf9c146d2490994c0'],
+  ['packages/main/src/cli-engine.ts', '7b37de7ab1f95c4803603853a7d58e05c866036dec37021deeec00e9f430e27c'],
   // B-022e post-merge re-attestation: runtime identity/path tokens changed;
   // startCircuitServe's filePath producer and import(`file://${filePath}`)
   // call shape remain unchanged.

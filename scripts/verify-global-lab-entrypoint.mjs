@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { execFileSync } from 'child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'fs';
+import { execFileSync, spawn } from 'child_process';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
-import { pathToFileURL } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { MAIN_TOOLS } from '../packages/main/dist/cli-engine.js';
 import {
   validateExternalCommandDeclarations,
@@ -113,6 +113,28 @@ function readOptional(path) {
   return existsSync(path) ? readFileSync(path, 'utf8') : null;
 }
 
+function runChild(args, options = {}) {
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn(process.execPath, args, {
+      cwd: root,
+      env: process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      ...options,
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout?.setEncoding('utf8');
+    child.stderr?.setEncoding('utf8');
+    child.stdout?.on('data', chunk => { stdout += chunk; });
+    child.stderr?.on('data', chunk => { stderr += chunk; });
+    child.once('error', reject);
+    child.once('close', code => {
+      if (code === 0) resolvePromise({ stdout, stderr });
+      else reject(new Error(`child exited ${code}: ${stdout}${stderr}`));
+    });
+  });
+}
+
 function readPackage(path) {
   return JSON.parse(readFileSync(join(root, path), 'utf8'));
 }
@@ -192,24 +214,45 @@ const checks = {
   },
   'core-without-lab': () => {
     const temp = createTempProject();
-    const dist = join(root, 'packages', 'lab', 'dist');
-    const backup = join(root, 'packages', 'lab', 'dist.global-entrypoint-bak');
     try {
-      renameSync(dist, backup);
-      const out = run(['--root', temp, 'session_brief']);
+      const isolatedRuntime = join(temp, 'isolated-runtime');
+      const isolatedMain = join(isolatedRuntime, 'packages', 'main');
+      mkdirSync(isolatedMain, { recursive: true });
+      cpSync(join(root, 'packages', 'main', 'dist'), join(isolatedMain, 'dist'), { recursive: true });
+      cpSync(join(root, 'packages', 'main', 'templates'), join(isolatedMain, 'templates'), { recursive: true });
+      symlinkSync(join(root, 'node_modules'), join(isolatedRuntime, 'node_modules'), 'dir');
+      const isolatedCli = join(isolatedMain, 'dist', 'cli.js');
+      const isolatedRun = (args) => execFileSync('node', [isolatedCli, '--root', temp, ...args], {
+        cwd: temp,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      const isolatedFailure = (args) => {
+        try {
+          return { ok: true, text: isolatedRun(args) };
+        } catch (error) {
+          return { ok: false, text: `${error.stdout || ''}${error.stderr || ''}` };
+        }
+      };
+
+      const out = isolatedRun(['session_brief']);
       assert(out.includes('# proof-or-stop session brief'), 'core command should still work when lab dist is absent');
-      const failed = runAllowFailure(['--root', temp, 'lab', 'help']);
+      const failed = isolatedFailure(['lab', 'help']);
       assert(!failed.ok, 'nested lab command should fail when lab extension is unavailable');
       assert(
         failed.text.includes('Unknown command: lab_help') || failed.text.includes('未知命令: lab_help') || failed.text.includes('Recovery'),
         'nested Lab failure should show unavailable canonical command or recovery hint',
       );
-      const flatFailed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
+      const flatFailed = isolatedFailure(['lab_create', '--help']);
       assert(!flatFailed.ok, 'flat Lab compatibility command should also fail when the extension is unavailable');
     } finally {
-      if (existsSync(backup)) renameSync(backup, dist);
       rmSync(temp, { recursive: true, force: true });
     }
+  },
+  'core-without-lab-concurrent': async () => {
+    const script = fileURLToPath(import.meta.url);
+    const results = await Promise.all(Array.from({ length: 3 }, () => runChild([script, 'core-without-lab'])));
+    assert(results.every(result => result.stdout.includes('ok core-without-lab')), 'parallel isolated no-Lab checks should all pass');
   },
   'extension-admission': () => {
     const labTools = createLabToolDefs(z);
@@ -228,7 +271,9 @@ const checks = {
       extraAllowedPhases: phases,
     });
     assert(admitted.commandNames.size === 6, 'all six Lab commands should be admitted as declared external commands');
-    validateExternalCommandHandlers(admitted, labTools.map(tool => tool.name));
+    const coreSnapshot = new Map([['story_get', function coreStoryGet() { return 'core'; }]]);
+    const registered = Object.fromEntries([...coreSnapshot, ...labTools.map(tool => [tool.name, () => tool.name])]);
+    validateExternalCommandHandlers(admitted, coreSnapshot, registered, labTools);
 
     const { lab_eval: _omittedEvalPhase, ...missingEvalPhase } = phases;
     assertThrows(() => validateExternalCommandDeclarations({
@@ -249,7 +294,27 @@ const checks = {
       extraOwnershipClasses: { ...ownership, story_create: 'readOnly' },
       extraAllowedPhases: { ...phases, story_create: 'all' },
     }), /core command collision/, 'external metadata must never reclassify a core command');
-    assertThrows(() => validateExternalCommandHandlers(admitted, labTools.slice(1).map(tool => tool.name)), /missing registered handlers: lab_help/, 'missing registered handler must fail closed');
+    const missingLabHelp = { ...registered };
+    delete missingLabHelp.lab_help;
+    assertThrows(() => validateExternalCommandHandlers(admitted, coreSnapshot, missingLabHelp, labTools), /registered-handler parity/, 'missing registered handler must fail closed');
+    assertThrows(() => validateExternalCommandHandlers(
+      admitted,
+      coreSnapshot,
+      { ...registered, story_get: () => 'evil' },
+      labTools,
+    ), /replaced or removed core handlers: story_get/, 'replacing a core handler implementation must fail closed');
+    const removedCore = { ...registered };
+    delete removedCore.story_get;
+    assertThrows(
+      () => validateExternalCommandHandlers(admitted, coreSnapshot, removedCore, labTools),
+      /replaced or removed core handlers: story_get/,
+      'removing a core handler must fail closed',
+    );
+    assertThrows(
+      () => validateExternalCommandHandlers(admitted, coreSnapshot, { ...registered, undeclared_handler: () => 'rogue' }, labTools),
+      /extraTools\/registered-handler parity/,
+      'registering an undeclared handler must fail closed',
+    );
   },
   'active-story-lifecycle': () => {
     const auditEnv = {
@@ -299,7 +364,9 @@ const checks = {
         `  ? { extraTools: [core], extraOwnershipClasses: { story_create: 'readOnly' }, extraAllowedPhases: { story_create: 'all' } }`,
         `  : mode === 'missing-phase'`,
         `    ? { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: {} }`,
-        `    : { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: () => {} };`,
+        `    : mode === 'core-override'`,
+        `      ? { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: registry => { registry.register('external_probe', () => 'probe'); registry.override('story_get', () => 'evil'); } }`,
+        `      : { extraTools: [external], extraOwnershipClasses: { external_probe: 'readOnly' }, extraAllowedPhases: { external_probe: ['DEV'] }, extraRegister: () => {} };`,
         `runCli(opts).catch(error => { console.error(error.message); process.exit(1); });`,
       ].join('\n'));
       const runHarness = (mode) => {
@@ -320,7 +387,14 @@ const checks = {
       const missingPhase = runHarness('missing-phase');
       assert(!missingPhase.ok && missingPhase.text.includes('ownership/phase parity'), 'active-Story extension missing a lifecycle row must fail closed');
       const missingHandler = runHarness('missing-handler');
-      assert(!missingHandler.ok && missingHandler.text.includes('missing registered handlers: external_probe'), 'active-Story extension missing its registered handler must fail closed');
+      assert(!missingHandler.ok && missingHandler.text.includes('extraTools/registered-handler parity'), 'active-Story extension missing its registered handler must fail closed');
+      const coreOverride = runHarness('core-override');
+      assert(!coreOverride.ok && coreOverride.text.includes('replaced or removed core handlers: story_get'), 'active-Story core handler override must fail before dispatch');
+      const canonicalStoryGet = run(['--root', dev.dir, 'story_get', `--storyId=${dev.storyId}`, '--json'], { cwd: dev.dir });
+      assert(
+        canonicalStoryGet.includes('"checklist"') && canonicalStoryGet.includes('"review"') && !canonicalStoryGet.includes('evil'),
+        `after rejected override, canonical CLI must still execute the original story_get implementation: ${canonicalStoryGet.slice(0, 300)}`,
+      );
     } finally {
       rmSync(dev.dir, { recursive: true, force: true });
     }
@@ -356,13 +430,13 @@ const checks = {
 if (mode !== 'all') {
   const check = checks[mode];
   if (!check) throw new Error(`unknown verify-global-lab-entrypoint mode: ${mode}`);
-  check();
+  await check();
   console.log(`ok ${mode}`);
   process.exit(0);
 }
 
 for (const [name, check] of Object.entries(checks)) {
-  check();
+  await check();
   console.log(`ok ${name}`);
 }
 
