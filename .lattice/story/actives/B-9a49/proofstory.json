@@ -36,20 +36,16 @@
       "id": "ACCEPT-REVIEW-TRIAGE-AGENT-CONTRACT",
       "checklistRefs": [
         "CHK-001",
-        "CHK-004",
         "CHK-002",
         "CHK-003",
-        "CHK-005"
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
       ],
       "verificationIntentRefs": [
-        "CHK-001:happy:0",
-        "CHK-001:happy:1",
-        "CHK-004:happy:red-green-same-contract",
-        "CHK-004:happy:delivery-matrix",
-        "CHK-002:adversarial:4",
         "CHK-003:happy:review-only-registration",
-        "CHK-003:adversarial:no-authority-dataflow",
-        "CHK-004:adversarial:authority-boundary-and-local-cli"
+        "CHK-004:adversarial:authority-boundary-and-local-cli",
+        "CHK-004:happy:red-green-same-contract"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
@@ -79,58 +75,6 @@
         ],
         "positiveAssertionRefs": [
           {
-            "id": "A-POS-1",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-001:happy:0"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
-          {
-            "id": "A-POS-2",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-001:happy:1"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
-          {
-            "id": "A-POS-3",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
-          {
-            "id": "A-POS-4",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-004:happy:delivery-matrix"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
-          {
             "id": "A-POS-5",
             "sourceRef": {
               "refKind": "existing",
@@ -145,45 +89,6 @@
           }
         ],
         "mutationCaseRefs": [
-          {
-            "id": "A-MUT-1",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
-          {
-            "id": "A-MUT-2",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-002:adversarial:4"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
-          {
-            "id": "A-MUT-3",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-003:adversarial:no-authority-dataflow"
-            },
-            "producerRefs": [
-              "P-DELIVERY-BASIS-GENERATOR"
-            ],
-            "consumerRefs": [
-              "C-DELIVERY-TOPOLOGY-CHECK"
-            ]
-          },
           {
             "id": "A-MUT-4",
             "sourceRef": {
@@ -267,7 +172,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Active proof assertion IDs use only the verifier-registered A-POS, A-MUT, and A-TRANSCRIPT namespace.",
+  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Representative verifier-registered assertion IDs preserve Story-owned source refs while the separately signed rollout report carries full 3x2 evidence.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-09-01T00:27:17.552Z"
+  "updatedAt": "2026-09-01T08:09:11.389Z"
 }
