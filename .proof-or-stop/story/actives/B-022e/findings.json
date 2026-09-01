@@ -1306,7 +1306,7 @@
       "desc": "packages/main/src/cli/extension-admission.ts:42-45 — WHY: generic extension admission does not reject an extraTools-only collision with a MAIN_TOOLS/core command when the extension omits ownership and phase metadata. externalToolNames filters story_get out before collisions is computed solely from ownership/lifecycle names, so both declaration and handler validation accept the duplicate ToolDef and the merged help/catalog can contain an undeclared core-name collision. Verified repro at HEAD 5637a15: importing MAIN_TOOLS, passing extraTools:[MAIN_TOOLS.find(name=story_get)] with empty ownership/phases, then validating unchanged core handlers prints {accepted:true,admitted:[]}. scripts/verify-global-lab-entrypoint.mjs:291-296 only covers the easier collision that also supplies metadata, so this inverse is untested. Reject any intersection extraTools ∩ MAIN_TOOLS before filtering and add a metadata-omitted mutation case.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T10:33:34.477Z",
@@ -1318,7 +1318,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "adversarial|ts|packages-main-extension",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 45681d65df: validateExternalCommandDeclarations now rejects the exact extraTools intersection with MAIN_TOOLS before any ownership/phase filtering. Pure and active-story inverse regressions prove a metadata-omitted story_get collision fails closed while legitimate new external tools remain admitted; bootstrap projects Utils definitions to non-core names. Focused/global-Lab, CLI/process-fact/entrypoint/identity/pack/806 guard suites and fresh 120-command validation all pass.",
+      "resolvedAt": "2026-09-01T10:59:20.153Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
