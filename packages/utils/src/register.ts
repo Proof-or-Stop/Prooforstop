@@ -1,7 +1,9 @@
 /**
  * Registration entry point for @proof-or-stop/utils.
- * A bootstrap script calls register(registry, ctx) to inject all auxiliary
- * handlers into the main package's Registry.
+ * A bootstrap script passes this function as runCli's extraRegister. Genuinely
+ * Utils-owned handlers are added normally; handler groups whose command names
+ * are already core-owned are compatibility fallbacks and register only when
+ * the host Registry does not already contain them.
  */
 import type { Registry } from '../../main/dist/registry.js';
 import type { HandlerContext } from '../../main/dist/handlers/context.js';

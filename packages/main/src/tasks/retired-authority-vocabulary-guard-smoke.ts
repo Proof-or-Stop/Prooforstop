@@ -460,10 +460,11 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // B-022e re-attestation: the zod loader became the bounded literal import('zod'),
   // while MAIN_DIST, UTILS_DIST, and LAB_DIST remain the same path-derived loaders.
   // Ownership metadata and identity text add no executable-code construction sink.
-  // B-022e F-049: bootstrap projects the Utils catalog to genuinely
-  // external tools before strict core-name collision admission. Dynamic import
-  // specifiers and all executable-code sites remain unchanged.
-  ['bin/bootstrap-runner.js', '430a920d569dc9785db8b8c5e1ba192e57bfde83bae223a723bd63f7c634ee52'],
+  // B-022e F-050: the public Utils catalog now contains only genuinely external
+  // commands and supplies its ownership/phase metadata directly. Bootstrap no
+  // longer performs a private core-name filter; dynamic import specifiers and
+  // all executable-code sites remain unchanged.
+  ['bin/bootstrap-runner.js', 'a9681ef9a0d924ee214800d61f2f78838afe9f67c51cf8930938b32861cd96c6'],
   // B-022e: main's standalone entrypoint loads the canonical Lab package first,
   // then one repository-relative build fallback. The exact-file pin covers both
   // the loader producer and the dynamically imported Lab namespace calls.
@@ -1579,9 +1580,9 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-022e re-attestation: there are now three approved non-literal dist loaders.
   // The former path-derived zod loader is the literal package import('zod'), so it
   // leaves this exception set instead of receiving a broader allowance.
-  // B-022e delivery follow-up: the same audited metadata-only executable drift
-  // moves this coupled whole-source pin without changing any loader provenance.
-  ['bin/bootstrap-runner.js', '430a920d569dc9785db8b8c5e1ba192e57bfde83bae223a723bd63f7c634ee52'],
+  // B-022e F-050: consuming the public Utils ownership/phase exports changes
+  // bootstrap wiring only; the three approved loader arguments are unchanged.
+  ['bin/bootstrap-runner.js', 'a9681ef9a0d924ee214800d61f2f78838afe9f67c51cf8930938b32861cd96c6'],
   ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
   // Same exact-file review boundary as the dynamic-module-call exemption above.
   ['packages/main/src/cli.ts', 'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3'],

@@ -11,6 +11,11 @@ import {
   validateExternalCommandHandlers,
 } from '../packages/main/dist/cli/extension-admission.js';
 import { createLabToolDefs } from '../packages/lab/dist/index.js';
+import {
+  utilsAllowedPhases,
+  utilsOwnershipClasses,
+  utilsToolDefs,
+} from '../packages/utils/dist/index.js';
 import { z } from 'zod';
 
 const root = process.cwd();
@@ -321,6 +326,66 @@ const checks = {
       /extraTools\/registered-handler parity/,
       'registering an undeclared handler must fail closed',
     );
+  },
+  'utils-public-bootstrap': () => {
+    const expectedUtilsCommands = [
+      'aux_coverage',
+      'aux_detail',
+      'aux_diagnose',
+      'aux_locate',
+      'aux_scan',
+      'aux_sync',
+      'aux_trace',
+      'tool_status',
+    ];
+    const publicNames = utilsToolDefs.map(tool => tool.name).sort();
+    assert(
+      JSON.stringify(publicNames) === JSON.stringify(expectedUtilsCommands),
+      `public Utils command catalog mismatch: ${publicNames.join(', ')}`,
+    );
+    const coreNames = new Set(MAIN_TOOLS.map(tool => tool.name));
+    const publicCollisions = publicNames.filter(name => coreNames.has(name));
+    assert(publicCollisions.length === 0, `public Utils catalog must not contain core commands: ${publicCollisions.join(', ')}`);
+    const admitted = validateExternalCommandDeclarations({
+      mainTools: MAIN_TOOLS,
+      extraTools: utilsToolDefs,
+      extraOwnershipClasses: utilsOwnershipClasses,
+      extraAllowedPhases: utilsAllowedPhases,
+    });
+    assert(admitted.commandNames.size === expectedUtilsCommands.length, 'all public Utils commands should pass strict extension admission');
+
+    const declarationText = readFileSync(join(root, 'packages', 'utils', 'dist', 'index.d.ts'), 'utf8');
+    for (const publicExport of ['utilsToolDefs', 'utilsOwnershipClasses', 'utilsAllowedPhases']) {
+      assert(declarationText.includes(publicExport), `published Utils declaration must export ${publicExport}`);
+    }
+
+    const temp = createTempProject();
+    try {
+      const harness = join(temp, 'utils-public-bootstrap.mjs');
+      const engineUrl = pathToFileURL(resolve(root, 'packages/main/dist/cli-engine.js')).href;
+      const utilsUrl = pathToFileURL(resolve(root, 'packages/utils/dist/index.js')).href;
+      writeFileSync(harness, [
+        `import { runCli } from ${JSON.stringify(engineUrl)};`,
+        `import { register, utilsAllowedPhases, utilsOwnershipClasses, utilsToolDefs } from ${JSON.stringify(utilsUrl)};`,
+        `runCli({`,
+        `  extraTools: utilsToolDefs,`,
+        `  extraRegister: register,`,
+        `  extraOwnershipClasses: utilsOwnershipClasses,`,
+        `  extraAllowedPhases: utilsAllowedPhases,`,
+        `}).catch(error => { console.error(error.message); process.exit(1); });`,
+      ].join('\n'));
+      const runPublicBootstrap = args => execFileSync('node', [harness, '--root', temp, ...args], {
+        cwd: temp,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      const utilsOut = runPublicBootstrap(['tool_status', '--format=json']);
+      assert(utilsOut.includes('activity.jsonl not found'), 'public bootstrap should dispatch a genuine Utils-owned handler');
+      const coreOut = runPublicBootstrap(['aux_doc_list', '--format=json']);
+      assert(coreOut.includes('"count"') && coreOut.includes('"docs"'), 'public bootstrap should retain the core-owned aux_doc_list handler');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
   },
   'active-story-lifecycle': () => {
     const auditEnv = {

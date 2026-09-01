@@ -129,9 +129,12 @@ async function importDistModules() {
 
 export async function runLocalBootstrap() {
   try {
-    const [{ runCli, MAIN_TOOLS }, { register, utilsToolDefs }] = await importDistModules();
-    const mainToolNames = new Set(MAIN_TOOLS.map(tool => tool.name));
-    const externalUtilsToolDefs = utilsToolDefs.filter(tool => !mainToolNames.has(tool.name));
+    const [{ runCli }, {
+      register,
+      utilsAllowedPhases,
+      utilsOwnershipClasses,
+      utilsToolDefs,
+    }] = await importDistModules();
     let labRegister = null;
     let labToolDefs = [];
     if (existsSync(LAB_DIST)) {
@@ -151,20 +154,13 @@ export async function runLocalBootstrap() {
     }
 
     await runCli({
-      extraTools: [...externalUtilsToolDefs, ...labToolDefs],
+      extraTools: [...utilsToolDefs, ...labToolDefs],
       extraRegister: (registry, ctx) => {
         register(registry, ctx);
         if (typeof labRegister === 'function') labRegister(registry, ctx);
       },
       extraOwnershipClasses: {
-        aux_coverage: 'readOnly',
-        aux_detail: 'readOnly',
-        aux_diagnose: 'mainSharedMutating',
-        aux_locate: 'readOnly',
-        aux_scan: 'readOnly',
-        aux_sync: 'mainSharedMutating',
-        aux_trace: 'readOnly',
-        tool_status: 'readOnly',
+        ...utilsOwnershipClasses,
         ...(typeof labRegister === 'function' ? {
           lab_help: 'readOnly',
           lab_create: 'mainSharedMutating',
@@ -175,14 +171,7 @@ export async function runLocalBootstrap() {
         } : {}),
       },
       extraAllowedPhases: {
-        aux_coverage: 'all',
-        aux_detail: 'all',
-        aux_diagnose: ['DEV'],
-        aux_locate: 'all',
-        aux_scan: 'all',
-        aux_sync: ['DEV'],
-        aux_trace: 'all',
-        tool_status: 'all',
+        ...utilsAllowedPhases,
         ...(typeof labRegister === 'function' ? {
           lab_help: 'all',
           lab_create: ['DEV'],
