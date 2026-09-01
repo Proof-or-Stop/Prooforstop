@@ -27,6 +27,95 @@
         "test": [
           "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit the existing per-Story Finding, main/B-META, process-event, build and Store write primitives with source references and executable probes; classify every observed contract as an already-passing baseline or a genuinely missing Section 9.3 guarantee and print the exact pre-fix HEAD.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.audit_summary:"
+            }
+          },
+          {
+            "desc": "For every genuinely missing durable-ID, replay, exact-record CAS, crash-boundary, artifact/source-binding or runtime-freshness contract, the executable RED exits non-zero for the demonstrated reason and emits a stable contract-specific reason code; already-correct primitives remain green.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.genuine_contract_failure:"
+            }
+          },
+          {
+            "desc": "The RED artifact is bound to the pre-fix source hash and contains characterization only; production behavior and GREEN implementation files are unchanged by the RED commit.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.production_unchanged: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When an alleged historical race is already prevented by current locking or atomic replacement, the audit records a passing baseline and does not manufacture a failing race; a class with no remaining gap has no fake RED.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.no_fabricated_race: PASS"
+            }
+          },
+          {
+            "desc": "RED evidence is refused when its HEAD differs from the recorded pre-fix HEAD, the working tree is dirty, the executable command is missing, or the asserted reason is absent from output.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.evidence_binding: PASS"
+            }
+          },
+          {
+            "desc": "The audit distinguishes shared lock roots and existing Store atomic replacement from unique allocation, idempotent replay, exact-byte CAS, durable crash recovery and runtime binding; one passing primitive cannot stand in for a different contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.primitive_scope: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Independent mutations remove one claimed missing guarantee at a time and the RED catches the matching defect without turning unrelated passing baselines red.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.mutation_isolation: PASS"
+            }
+          },
+          {
+            "desc": "A concurrency claim without reproducible overlap, lost update, duplicate durable ID, stale-CAS write, half-visible commit or stale-runtime acceptance is rejected as non-evidence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.reproducibility_guard: PASS"
+            }
+          },
+          {
+            "desc": "Changing the bound source hash or substituting successful post-fix output cannot be accepted as the original RED result.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.green_substitution_refused: PASS"
+            }
+          }
+        ]
       }
     },
     {
