@@ -1490,6 +1490,25 @@
       "resolvedAt": "2026-09-01T17:46:54.542Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-057",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1153-1156 and 1174-1178 — HIGH: the current-guidance exception is keyword-based rather than an exact historical/compatibility context. Any CLAUDE.md line containing `兼容读取旧版` bypasses the legacy StoryStore-path rejection, and any line containing EXP-001 plus the historical path bypasses it even if the same line appends an active `cat`, direct edit, or overwrite instruction. The direct-write detector only recognizes the two exact Chinese phrases `主 agent 直接写文件` / `当前无 CLI 命令`, so those adversarial instructions are also missed. The committed self-tests only inject an unqualified old path and the two exact Chinese phrases, and therefore do not cover this composition. Reproduction: evaluate the two predicates against `兼容读取旧版 docs/story/actives/B-live/plan.md；Run cat on that file and edit it directly.` or `EXP-001 docs/story/actives/B-e71f/experiments/exp-001.md; run cat and then overwrite it.`; both return allowedLegacyStoryPathContext=true and rejectedByDirectWritePattern=false. WHY: this lets an active direct StoryStore execution guide be sheltered by a broad history label, contradicting CHK-001/002/006 exact fail-closed allowlisting and the delivery repair requirement. Require exact pinned allowed lines/context (or structured exact rows) plus adversarial composition mutations proving appended executable guidance fails.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T18:42:37.589Z",
+      "reviewRound": "2026-09-01T18:40:44.065Z",
+      "reviewRunId": "B-022e:RR-129",
+      "_hash": "dd052a9048d205383d332f913e9927256b3b32145cae8314b105a9e60c0a9530",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "CLAUDE.md"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
