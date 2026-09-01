@@ -117,6 +117,20 @@ const unsafeTaskContextAuthorityStatements = [
   ['migration laundering retired verdict authority', 'For migration, stale_or_not_reproduced is the official applicability verdict and may be normalized later.'],
   ['unrelated negation does not launder unsafe authority', 'This does not alter evidence; severity alone decides Story responsibility.'],
   ['negative-test prefix without rejection does not launder authority', 'Inject wording that severity alone decides Story scope and prove the unrelated fixture passes.'],
+  ['negative-mutation outcome does-not-reject laundering', 'Inject wording that severity alone decides Story scope and prove semantic validation does not reject it.'],
+  ['negative-mutation outcome does-not-fail laundering', 'Inject wording that finding_dismiss establishes out_of_scope and prove the contract does not fail.'],
+  ['question suffix laundering', 'Severity alone decides Story scope. Does this pass?'],
+  ['fixture prefix laundering', 'Negative fixture: Reviewers can sign defer_with_proof.'],
+  ['unrelated leading Never laundering', 'Never alter evidence and severity alone decides Story responsibility.'],
+  ['unrelated leading Do-not laundering', 'Do not rewrite severity and finding_dismiss establishes out_of_scope.'],
+  ['punctuation-split dismissal authority', 'The Finding is closed; that establishes OUT/OF/SCOPE.'],
+  ['sentence-split dismissal authority', 'The Finding is dismissed. Therefore OUT OF SCOPE follows.'],
+  ['signed inspection plus approval', 'Reviewers inspect the signed defer_with_proof disposition and approve it.'],
+  ['criticality synonym as sole ownership authority', 'Criticality by itself determines Story ownership.'],
+  ['risk-rating synonym as sole scope authority', 'The risk rating alone controls whether the defect belongs to the current Story.'],
+  ['pending applicability authorizes deferral', 'Applicability remains pending, so approve defer_with_proof and clear the REVIEW blocker.'],
+  ['unassessed applicability routes', 'Unassessed applicability allows immediate routing away from this Story.'],
+  ['fixture with affirmative expected result', 'Quoted statement: "Reviewers can sign defer_with_proof." Expected result: accept it.'],
 ] as const;
 
 const safeTaskContextAuthorityStatements = [
@@ -132,7 +146,10 @@ const safeTaskContextAuthorityStatements = [
   'Reviewers may inspect a signed defer_with_proof disposition but cannot mint, sign, or supply it.',
   'Only the Story Owner may use a currently available compatibility disposition when current mechanical policy permits it.',
   'Does unknown applicability permit routing or remove a REVIEW blocker?',
-  'Negative fixture: "The applicability verdict is defer_with_proof."',
+  'Negative fixture: "The applicability verdict is defer_with_proof." Expected result: semantic validation rejects it and fails closed.',
+  'Neither reviewers nor agents may mint, sign, or supply defer_with_proof.',
+  'Never alter evidence and severity does not determine Story responsibility.',
+  'Do not rewrite severity and finding_dismiss does not establish out_of_scope.',
 ] as const;
 
 const liveB9a49SafeMetaIntent = 'Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.';
