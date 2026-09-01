@@ -128,6 +128,28 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv3wdj_11y9_5341237aeeed415483169f076fc70617",
       "ledgerCommitReceiptId": "lrc_mtiv3wdj_11y9_e5f37013353744ef942fec4c2143ab3e"
+    },
+    {
+      "id": "B-fe8f:F-008",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:886-927,1107-1124,1131-1147,1232-1251 derives both the runtime signer and its fresh key status solely from the same invocation environment. A caller can generate a new keypair, set PROOF_OR_STOP_RUNTIME_EVIDENCE_PRIVATE_KEY/PUBLIC_KEY, mint a receipt, and have that same unpersisted key treated as current; it can also omit the caller-controlled revoked-key env to remove revocation. finding_ledger_query additionally accepts caller-supplied trustedKeys. The production smoke itself generates a fresh key at tasks/finding-ledger-runtime-smoke.ts:808-838 and immediately persists a valid receipt, proving there is no independent repository trust/rotation registry. This makes signer freshness and revocation self-asserted rather than verifier-derived.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T16:09:11.992Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-005",
+      "_hash": "ce40ca3a304a1cc0c21192974b9a04bb0650d43d08490a0cd1b3aeba6224b5e4",
+      "files": [
+        "packages/main/src/handlers/finding-ledger.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8",
+      "ledgerCommitReceiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda"
     }
   ]
 }

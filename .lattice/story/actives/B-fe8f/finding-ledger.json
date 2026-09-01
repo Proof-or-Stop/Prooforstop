@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "629a3c84fbaf252d1acf78b26e1fc5c4b5673229adb4770c0fffddf43333b7cb",
+  "committedLedgerDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -188,6 +188,36 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:08:59.047Z"
+    },
+    {
+      "recordId": "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:runtime-key-self-trust",
+      "payload": {
+        "id": "B-fe8f:F-008",
+        "desc": "packages/main/src/handlers/finding-ledger.ts:886-927,1107-1124,1131-1147,1232-1251 derives both the runtime signer and its fresh key status solely from the same invocation environment. A caller can generate a new keypair, set PROOF_OR_STOP_RUNTIME_EVIDENCE_PRIVATE_KEY/PUBLIC_KEY, mint a receipt, and have that same unpersisted key treated as current; it can also omit the caller-controlled revoked-key env to remove revocation. finding_ledger_query additionally accepts caller-supplied trustedKeys. The production smoke itself generates a fresh key at tasks/finding-ledger-runtime-smoke.ts:808-838 and immediately persists a valid receipt, proving there is no independent repository trust/rotation registry. This makes signer freshness and revocation self-asserted rather than verifier-derived.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-quality",
+        "createdAt": "2026-09-01T16:09:11.992Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-005",
+        "_hash": "ce40ca3a304a1cc0c21192974b9a04bb0650d43d08490a0cd1b3aeba6224b5e4",
+        "files": [
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "signatureTag": "adversarial|ts|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "97b9ec49cf5376e6d2b76b655f879cbc0f6b0e7b34000f0a3c8cce3dd7303ea2",
+      "priorDigest": "629a3c84fbaf252d1acf78b26e1fc5c4b5673229adb4770c0fffddf43333b7cb",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:09:12.019Z"
     }
   ],
   "receipts": [
@@ -429,6 +459,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "3f97c2829fedbe2692819fb9cdb2862fe8ea775fced847f55c54fca5b1efd779",
         "signature": "QULCVVbytEKx+AHeuBUTRZLtzD/CUJ9RrRZiJ09s9IhFtt51sftyqWPAAw7AO+5MCmSJffs+SstwsTV58kFgDQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:runtime-key-self-trust",
+      "requestDigest": "9a311790ba5be499a49fe583d059d85e1824aac9ad26d9590007341799644e46",
+      "recordIds": [
+        "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8"
+      ],
+      "priorLedgerDigest": "629a3c84fbaf252d1acf78b26e1fc5c4b5673229adb4770c0fffddf43333b7cb",
+      "committedLedgerDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
+      "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+      "writerFenceToken": "732c5705-0745-40ff-a5ff-bd75a0a42ad6",
+      "committedAt": "2026-09-01T16:09:12.019Z",
+      "replayed": false,
+      "exactRequestDigest": "5d9f9f6832bec0325e546b11d44ee0736125dab7ee6397b43935cfaa413e7105",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f:RR-005:quality:runtime-key-self-trust",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "629a3c84fbaf252d1acf78b26e1fc5c4b5673229adb4770c0fffddf43333b7cb",
+        "committedLedgerDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:09:12.019Z",
+        "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "732c5705-0745-40ff-a5ff-bd75a0a42ad6",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "904614c913795d2f54852364f1b941226244966d8963bd700440f0f1b17b9e67",
+        "signature": "e9JIH3AGV3/CS2WwJ7U31Z2sr0/EXct8VKWPgjrdgA22DU2D001L1RW7O+bjyTaGNz9Fw5+gH2JojDFwUTJEBQ=="
       }
     }
   ]
