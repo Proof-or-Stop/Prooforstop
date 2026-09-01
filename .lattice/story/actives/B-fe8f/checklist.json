@@ -1594,6 +1594,94 @@
           "materialHash": "cab8f7315e90bad4f4cce517c6d65994cfecc659a73293e2f5f7c18d1e9350d3",
           "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
           "timestamp": "2026-09-01T10:49:57.095Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-004 runtime receipt/real CLI verification at commit 02ab7826df; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d15f3ae5c130fdd99a0601b9818b22634f347296c04b26232c841201fc3eb7d5",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\nruntime.content_addressed_receipt: PASS blobs=complete signature=valid\nruntime.artifact_stability: PASS pre=true during=true post=true\nruntime.execution_not_semantics: PASS lifecycleDelta=0\nruntime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true\nruntime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true\nruntime.freshness_matrix: PASS acceptedStale=0\nruntime.environment_privacy: PASS leakedValues=0\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:50:03.181Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "386cfb39a13f43e1b8352b812703123b7dee90ad",
+          "materialHash": "cab8f7315e90bad4f4cce517c6d65994cfecc659a73293e2f5f7c18d1e9350d3",
+          "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
+          "timestamp": "2026-09-01T10:50:18.986Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-004 runtime receipt/real CLI verification at commit 02ab7826df; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d15f3ae5c130fdd99a0601b9818b22634f347296c04b26232c841201fc3eb7d5",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\nruntime.content_addressed_receipt: PASS blobs=complete signature=valid\nruntime.artifact_stability: PASS pre=true during=true post=true\nruntime.execution_not_semantics: PASS lifecycleDelta=0\nruntime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true\nruntime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true\nruntime.freshness_matrix: PASS acceptedStale=0\nruntime.environment_privacy: PASS leakedValues=0\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:50:08.432Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "386cfb39a13f43e1b8352b812703123b7dee90ad",
+          "materialHash": "cab8f7315e90bad4f4cce517c6d65994cfecc659a73293e2f5f7c18d1e9350d3",
+          "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
+          "timestamp": "2026-09-01T10:50:18.986Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-004 runtime receipt/real CLI verification at commit 02ab7826df; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d15f3ae5c130fdd99a0601b9818b22634f347296c04b26232c841201fc3eb7d5",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\nruntime.content_addressed_receipt: PASS blobs=complete signature=valid\nruntime.artifact_stability: PASS pre=true during=true post=true\nruntime.execution_not_semantics: PASS lifecycleDelta=0\nruntime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true\nruntime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true\nruntime.freshness_matrix: PASS acceptedStale=0\nruntime.environment_privacy: PASS leakedValues=0\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:50:13.659Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "386cfb39a13f43e1b8352b812703123b7dee90ad",
+          "materialHash": "cab8f7315e90bad4f4cce517c6d65994cfecc659a73293e2f5f7c18d1e9350d3",
+          "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
+          "timestamp": "2026-09-01T10:50:18.986Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-004 runtime receipt/real CLI verification at commit 02ab7826df; build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d15f3ae5c130fdd99a0601b9818b22634f347296c04b26232c841201fc3eb7d5",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\nruntime.content_addressed_receipt: PASS blobs=complete signature=valid\nruntime.artifact_stability: PASS pre=true during=true post=true\nruntime.execution_not_semantics: PASS lifecycleDelta=0\nruntime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true\nruntime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true\nruntime.freshness_matrix: PASS acceptedStale=0\nruntime.environment_privacy: PASS leakedValues=0\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T10:50:18.837Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "386cfb39a13f43e1b8352b812703123b7dee90ad",
+          "materialHash": "cab8f7315e90bad4f4cce517c6d65994cfecc659a73293e2f5f7c18d1e9350d3",
+          "storyFilesHash": "b120966b20d0b8ef53c7d135ade939673ebcbf904f2c2be72f9a25dfebb50cea",
+          "timestamp": "2026-09-01T10:50:18.986Z"
         }
       ]
     },
