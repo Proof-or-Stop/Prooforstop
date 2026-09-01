@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-9a49",
   "mode": "observe",
-  "cutoffAt": "2026-09-01T08:13:42.566Z",
+  "cutoffAt": "2026-09-01T08:15:06.802Z",
   "planBasisDigest": "sha256:672f1201ecb7ede9a6ee8b20f5e0825fa60c1395491f0995fd1705be73946b38",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -585,30 +585,54 @@
     "storyId": "B-9a49",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:90a65084177ecc63e89873c296ffcaa3b84e3e21500dc3b123dd18d691a02596"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "H4sIAAAAAAACE5WSW2vbQBCF/8qiZy04xUmp3tTYEJGLjeRQijBhvBrZS9a7Yi9q9e87a0uOH9pAX6RBZzR7zjdb10nO16uK3yZp0hknveyRSmuUMsFnrRHBYcNRt8YK5PH7DsQ7tUzS2MqF0Z5qUvA3iuCRjR3sB/TI5mxsZO5o3pH9kv7AxrEpm+amDHTDDtJ5YwfeWXRoe/DSaDbOd3TAOq+qy8vbgGldJ501TRBoOfagAnhskvT22zatE/rThSMpPVrZyijczbbbNJHao/bZ/cMjn83m2QG6bsgsZdpbRM0dHPEcC4RP4qScP79u+JzOPgZ/skUlBH8wVvoha6RF4Xk0T6iwUzBc6x+fzo2siinjAxm5N+0JSkQkIDhQjJpQdj5GLd/y183Dqiw2P9+Kl3zxXFRV8f1p+bk2sZncckqoTgBmMU4jYa+N81Jws4uko3IzIouwybENlPHLX2hBQzgdWAkq+4i4M0E3QLujPXJlBCgulBzhbcr8pbovi/WG35Bx4qqdsOeE2NNwl122OC1tkmjYnuyoC3XhAyGa+pnUPZ12uild5NagI4zaaEkemJItikEoZFdzV+ViWS4X19Vnl+nuH3fp6/9fpe0fSjDG4HgDAAA=",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:d8fd0b2038541ea01e48f1596107b6438f212487f9204df71e6076fc4bf60d85",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "ACCEPT-REVIEW-TRIAGE-AGENT-CONTRACT",
+        "positiveAssertionIds": [
+          "A-POS-5"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "A-MUT-4",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "A-TRANSCRIPT-1",
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          }
+        ]
+      }
+    ]
   },
   "codes": [
     "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-01T08:13:42.566Z",
+  "issuedAt": "2026-09-01T08:15:06.802Z",
   "signerPublicKey": "/X1ZTyM6s6k0Jhbm8ZjD1OjkCoDjf/fslfz1nOrPs2A=",
-  "signature": "CmkZkyiVhdZ7xDu5B9YZt9fBxtpQ3DuYLHMnIeLeK57DBPEtifr0gOysKodn2zYmi2eF1HL+nbh727QadZGYCw=="
+  "signature": "3AjnVY7XgZDBSjyPc2ERLh/ZwM/M3rLGSTaALjvzqWiOteUldqI2DZSMFDNZFvC5YTMK3ppDhcT+MJQTbM54BQ=="
 }
