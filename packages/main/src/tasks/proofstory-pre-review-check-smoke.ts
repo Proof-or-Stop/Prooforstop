@@ -965,16 +965,19 @@ try {
     const productionControl = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(productionControl.ok, true, `production active topology clean control failed: ${JSON.stringify(productionControl.codes)}`);
     executeActiveScenarioWitnesses(activeScenarioAssertions, storyId, store, productionCtx);
-    // main's selector now takes an explicit known-kind map. Production IDs are
-    // issued dynamically by the verifier, so derive the map from the live
-    // assertions themselves -- the same shape the canonical adapter builds.
+    // main's selector replaced our allowDynamicIds escape hatch with an explicit
+    // known-kind map. Production IDs are issued dynamically by the verifier, so
+    // derive the map from the live assertions themselves -- the same shape the
+    // canonical adapter builds. requireExactRecordSet stays false: the ledger
+    // legitimately also holds the focused A-* fixture rows executed earlier,
+    // which the production topology does not enumerate.
     const productionKnownKinds = new Map(activeScenarioKinds);
     for (const [id, assertion] of activeScenarioAssertions) productionKnownKinds.set(id, assertion.kind);
     const selectedRecords = selectActiveScenarioRecords(
       activeScenarioAssertions,
       [...scenarioLedger.values()],
       productionKnownKinds,
-      true,
+      false,
     );
     assert.ok(selectedRecords.length >= activeScenarioAssertions.size, 'production active topology must produce one real row per assertion');
     console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
