@@ -12,8 +12,8 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = '2e7b3d5e5c2925748c1651aec42715997930cca764120c5679ff34ebe9717412';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 45;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '4b57856dec08f4bc46dfc86d98647b1f71eabcbec9ad531f3284fe83fe1fc475';
-const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 163;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'd2910e39754a86a7cbca3ee28cdd68bb6a276c27244c5333ea3e12e04e295a3f';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 170;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
 // Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
@@ -231,7 +231,7 @@ const CURRENT_LEGACY_CONTEXT_ROWS = JSON.parse(readFileSync(
   'utf8',
 ));
 EXACT_ALLOWLIST.push(...CURRENT_LEGACY_CONTEXT_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 249;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 256;
 
 const FROZEN_SALTS = [
   'lattice-review-integrity-v1',

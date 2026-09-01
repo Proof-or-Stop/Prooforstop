@@ -1954,5 +1954,89 @@
     "disposition": "frozen",
     "verificationCommand": "internal:verify-current-legacy-context",
     "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-legacy-identities-01",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "bin/lattice.js', '.lattice/', '.lattice-codex/', 'lattice.config.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "4f56bb512eea85328fa3d49dfc0e74f0ae9e93860bf4c60f4f6fc3ab5e712177",
+    "reason": "Exact retired identities are executable inputs to the migration-contract negative verifier.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-legacy-identities-02",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "lattice.json', '@lattice/core",
+    "expectedOccurrences": 1,
+    "contextSha256": "40e30372a144db9fd8150d69d10793e9d621f67dd4fb92f31b494d8e268ac52f",
+    "reason": "Exact retired identities are executable inputs to the migration-contract negative verifier.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-legacy-comment",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "B-cc10 F-006 follow-up: a tracked file under .lattice is NOT automatically a",
+    "expectedOccurrences": 1,
+    "contextSha256": "dcb13983e74af9a6b7b54742a0d1f0c86174e562d2624939f87cfcd8834d3a22",
+    "reason": "Exact retired state-directory wording explains the bounded migration detector semantics.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-legacy-ls-files",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "'ls-files', '.lattice'",
+    "expectedOccurrences": 1,
+    "contextSha256": "ea355346a95d72f1ea988fb00b4cac39941cf0d07840181630dfe26dbaafb863",
+    "reason": "Exact retired state directory is the legacy side of the tracked-file migration comparison.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-state-path-map",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "f.replace(/^\\.lattice\\//, '.proof-or-stop/')",
+    "expectedOccurrences": 2,
+    "contextSha256": "589853acdc6be8515d872285e8de6232b64deef89ca4e3fdbc6ec1187b94bf24",
+    "reason": "Exact retired-to-canonical path mapping detects duplicated migration state without a broad exemption.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-legacy-warning",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "tracked file(s) exist only under .lattice (",
+    "expectedOccurrences": 1,
+    "contextSha256": "df62671f6a914abe2745290ee3352a54ddde6311e42a8b55ff6b0658838d7e08",
+    "reason": "Exact diagnostic distinguishes legacy-only tracked files from canonical migration state.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
+  },
+  {
+    "id": "migration-contract-duplicate-diagnostic",
+    "class": "migration_input",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "file(s) readable at BOTH .lattice and .proof-or-stop",
+    "expectedOccurrences": 1,
+    "contextSha256": "79374a0809b1b96165a4a7c6745467d1dffd7988739a063765de431551051c53",
+    "reason": "Exact diagnostic names both legacy and canonical state directories for a half-done move.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded context"
   }
 ]
