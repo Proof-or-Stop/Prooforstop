@@ -1,20 +1,37 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-08-31T14:32:03.886Z",
-  "reviewRound": "",
-  "agentId": "product-reviewer",
-  "issues": [],
+  "checkedAt": "2026-09-01T11:06:28.792Z",
+  "reviewRound": "2026-09-01T10:52:52.902Z",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "high",
+      "desc": "The subordinate proposal and Agent contract replace stale_or_not_reproduced and introduce future defer_with_proof semantics while the authoritative Dynamic Finding plan still defines the former and not the latter. Explicitly scope and amend the authority document with compatibility semantics, or retain its current vocabulary; prompts must not redefine System schema facts."
+    },
+    {
+      "id": "I-2",
+      "severity": "high",
+      "desc": "F-025 full Task Context protection is not mechanically bound: the semantic-collapse intent runs only the focused registry smoke, while the full-context smoke has no contradictory Story/checklist/verificationIntent mutation. Bind a must intent to the full-context smoke and implement RED/GREEN complete-envelope rejection independent of digest repinning."
+    }
+  ],
   "agentResults": [
     {
       "agentId": "lattice-review-story-init",
-      "checkedAt": "2026-08-31T14:31:57.758Z",
-      "issues": []
-    },
-    {
-      "agentId": "product-reviewer",
-      "checkedAt": "2026-08-31T14:32:03.886Z",
-      "issues": []
+      "checkedAt": "2026-09-01T11:06:28.792Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "high",
+          "desc": "The subordinate proposal and Agent contract replace stale_or_not_reproduced and introduce future defer_with_proof semantics while the authoritative Dynamic Finding plan still defines the former and not the latter. Explicitly scope and amend the authority document with compatibility semantics, or retain its current vocabulary; prompts must not redefine System schema facts."
+        },
+        {
+          "id": "I-2",
+          "severity": "high",
+          "desc": "F-025 full Task Context protection is not mechanically bound: the semantic-collapse intent runs only the focused registry smoke, while the full-context smoke has no contradictory Story/checklist/verificationIntent mutation. Bind a must intent to the full-context smoke and implement RED/GREEN complete-envelope rejection independent of digest repinning."
+        }
+      ]
     }
   ],
-  "_hash": "e1e1074932c3c2d62bf478a4413fc7467d8e0a754a9734d1c05f2a345a24af0f"
+  "_hash": "6a1adf598ee6ebfd032fb9c3d75fcb7494c1a3b8662cc7c50fbbf20823c29c0b"
 }
