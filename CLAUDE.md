@@ -68,7 +68,7 @@ proof-or-stop decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"opt
 
 ## Claude Prompt Hook
 
-`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.proof-or-stop/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `proof-or-stop session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
+`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.proof-or-stop/activity.jsonl`，并兼容读取旧版 `docs/story/activity.jsonl` 及 story-scoped `docs/story/actives/*/activity.jsonl` heartbeat。默认 60 分钟内跑过 `proof-or-stop session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
 
 ```text
 建议先运行 proof-or-stop session_brief 恢复现场
@@ -518,7 +518,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 | Verify | 是 | 验证命令和期望输出 |
 | DoneWhen | 是 | 完成判定条件（具体、可检查） |
 
-**存储位置**：`docs/story/actives/B-xxxx/plan.md`，和 understanding.json / decision.json / checklist.json 同级。主 agent 直接写文件（当前无 CLI 命令，后续按需加 `plan_set`）。
+**存储位置**：由 `proof-or-stop.config.json` 的 `storyDir` 决定（本仓库为 `.proof-or-stop/story/actives/B-xxxx/plan.md`），和 understanding.json / decision.json / checklist.json 同级。读取必须使用 `proof-or-stop plan_get '{"storyId":"B-xxxx"}'`；写入必须使用 `proof-or-stop plan_set` 并按 `proof-or-stop plan_set --help` 传参，禁止直接读取或编辑 StoryStore 文件。
 
 规则：
 - 每个 checklist item 都必须有对应章节，不允许孤儿章节
@@ -636,7 +636,7 @@ scope-plan reviewer 按搜索预算契约（B-cee5：完整枚举 `<requirements
   "id": "OQ-1",
   "q": "description 说 X，但 decisions/foo.md §2 又说 Y，以哪个为准？",
   "evidence": "引用两处原文",
-  "sourcePointers": ["docs/story/actives/.../index.json#description", "docs/requirements/decisions/foo.md#section-2"]
+  "sourcePointers": [".proof-or-stop/story/actives/.../index.json#description", "docs/requirements/decisions/foo.md#section-2"]
 }
 ```
 

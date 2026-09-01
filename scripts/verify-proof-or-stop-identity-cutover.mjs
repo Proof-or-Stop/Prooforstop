@@ -22,6 +22,9 @@ const POLICY_COMMIT = 'f245fd614c728ce6027bd3a08f25eda4de32429c';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
 const SELF_TEST_PASS_SUMMARY = 'PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted';
 const TRUTH_SOURCE_ENTRYPOINTS = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/requirements/NAV.md'];
+const CURRENT_GUIDANCE_PATHS = ['AGENTS.md', 'CLAUDE.md'];
+const CANONICAL_STORY_DIR = '.proof-or-stop/story/actives';
+const LEGACY_STORY_DIR = 'docs/story/actives';
 const EXPLICIT_HISTORICAL_DECISION_DOCS = new Set([
   'docs/requirements/decisions/authority-client-role.md',
   'docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md',
@@ -1147,6 +1150,38 @@ function isHistoricalLegacyContext(line) {
   return /\b(?:legacy|retired|historical|pre-cutover|predecessor|superseded|compatibility|frozen|persisted schema|signature salt|migration input|old (?:name|path|command|identifier)|negative (?:case|fixture|example)|must reject|is rejected)\b/iu.test(line);
 }
 
+function isAllowedLegacyStoryPathContext(path, line) {
+  if (path !== 'CLAUDE.md') return false;
+  return /兼容读取旧版/u.test(line)
+    || (/EXP-001/u.test(line) && /docs\/story\/actives\/B-e71f\/experiments\/exp-001\.md/u.test(line));
+}
+
+function verifyCurrentGuidance(root, readText = (path) => readFileSync(resolve(root, path), 'utf8')) {
+  const errors = [];
+  const documents = new Map(CURRENT_GUIDANCE_PATHS.map((path) => [path, readText(path)]));
+  const agents = documents.get('AGENTS.md');
+  const claude = documents.get('CLAUDE.md');
+
+  if (!agents.includes(`"storyDir": "${CANONICAL_STORY_DIR}"`)) {
+    errors.push(`current guidance: AGENTS.md must declare canonical storyDir ${CANONICAL_STORY_DIR}`);
+  }
+  if (!claude.includes('proof-or-stop plan_get') || !claude.includes('proof-or-stop plan_set')) {
+    errors.push('current guidance: CLAUDE.md PLAN instructions must use plan_get and plan_set');
+  }
+
+  for (const [path, text] of documents) {
+    for (const [index, line] of text.split(/\r?\n/u).entries()) {
+      if (line.includes(LEGACY_STORY_DIR) && !isAllowedLegacyStoryPathContext(path, line)) {
+        errors.push(`current guidance: ${path}:${index + 1} contains active legacy StoryStore path ${LEGACY_STORY_DIR}`);
+      }
+      if (/主 agent 直接写文件|当前无 CLI 命令/u.test(line)) {
+        errors.push(`current guidance: ${path}:${index + 1} contains direct-write/no-CLI StoryStore guidance`);
+      }
+    }
+  }
+  return errors;
+}
+
 function isHistoricalFilenameToken(token) {
   if (token.length <= 'lattice-'.length) return false;
   return [...HISTORICAL_DECISION_FILENAME_PATHS].some((path) => {
@@ -1571,6 +1606,28 @@ function runSelfTest(root, files) {
     'active retired instruction inside a migration-context document was not classified as active',
   );
 
+  const guidance = new Map(CURRENT_GUIDANCE_PATHS.map((path) => [path, readFileSync(resolve(root, path), 'utf8')]));
+  const guidanceRead = (path) => guidance.get(path);
+  expect(verifyCurrentGuidance(root, guidanceRead).length === 0, 'current guidance baseline is not canonical');
+  const oldAgents = new Map(guidance);
+  oldAgents.set('AGENTS.md', guidance.get('AGENTS.md').replace(CANONICAL_STORY_DIR, LEGACY_STORY_DIR));
+  expect(
+    verifyCurrentGuidance(root, (path) => oldAgents.get(path)).some((error) => error.includes('canonical storyDir') || error.includes('active legacy StoryStore path')),
+    'legacy AGENTS.md storyDir mutation did not fail closed',
+  );
+  const oldClaudePath = new Map(guidance);
+  oldClaudePath.set('CLAUDE.md', `${guidance.get('CLAUDE.md')}\nStore the current plan at ${LEGACY_STORY_DIR}/B-test/plan.md.\n`);
+  expect(
+    verifyCurrentGuidance(root, (path) => oldClaudePath.get(path)).some((error) => error.includes('active legacy StoryStore path')),
+    'active CLAUDE.md legacy StoryStore path mutation did not fail closed',
+  );
+  const directClaudeWrite = new Map(guidance);
+  directClaudeWrite.set('CLAUDE.md', `${guidance.get('CLAUDE.md')}\n主 agent 直接写文件（当前无 CLI 命令）。\n`);
+  expect(
+    verifyCurrentGuidance(root, (path) => directClaudeWrite.get(path)).some((error) => error.includes('direct-write/no-CLI')),
+    'CLAUDE.md direct-write/no-CLI mutation did not fail closed',
+  );
+
   const tracked = new Set(files);
   const first = EXACT_ALLOWLIST[0];
   const source = readFileSync(resolve(root, first.path), 'utf8');
@@ -1804,6 +1861,7 @@ function main() {
   }
 
   const structuralErrors = [
+    ...verifyCurrentGuidance(root),
     ...verifyCurrentLegacyContextManifest(root),
     ...validateExactRows(EXACT_ALLOWLIST, new Set(files), root),
     ...verifyFrozenFiles(root, new Set(files)),

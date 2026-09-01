@@ -35,7 +35,7 @@
   "outDir": "packages/main/dist",     // 编译输出
   "testsDir": "packages/main/tests",  // 测试目录
   "fixturesDir": "packages/main/tests/fixtures",  // fixture 文件目录
-  "storyDir": "docs/story/actives",   // Story 存储目录
+  "storyDir": ".proof-or-stop/story/actives",   // Story 存储目录
   "requirementsDir": "docs/requirements",  // 真相源目录
   "storyPrefix": "B"                  // Story ID 前缀
 }
