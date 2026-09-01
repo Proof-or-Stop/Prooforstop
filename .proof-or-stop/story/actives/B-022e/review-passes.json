@@ -1290,6 +1290,61 @@
         "scanEscalationReason": null
       },
       "_hash": "8c317ff8193e1e6b348dbf6ddf409e45ad517086798f54d38fa0a9a46ad721bb"
+    },
+    {
+      "id": "B-022e:RP-040",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 23 test-coverage review passed: 29/29 must verification intents have fresh mechanical selector-matched PASS evidence, with 0 must gaps and 0 waivers. Corrected CHK-008 version policy and its receipt match the actual manifests: root/Core/Utils 0.3.268, Lab independently 0.3.65 with Core ^0.3.65, and Utils requiring Core ^0.3.268. Story-level executable coverage includes packed positive/negative boundaries, rejection of Core 0.3.267, real packed Utils import and dispatch, extension collision/override/removal inverse cases, and canonical active-agent/retired-authority residue checks. The stored configured 120-command validation is fresh PASS at the current material hash; broader root npm test remains a separately configured DONE-required command, so its later lifecycle execution does not create a current in-scope high/critical coverage gap. Wave4 remains observe/nonblocking and this pass makes no Authority, topology, rollout, or 3x2 PASS claim.",
+      "createdAt": "2026-09-01T13:06:50.855Z",
+      "reviewRound": "2026-09-01T12:54:50.425Z",
+      "reviewRunId": "B-022e:RR-101",
+      "envelopeId": "6f8e6c9430a5e968d04e6043c459d887bb168e71f3f1262ff8a305ef0b215591",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "proof-or-stop.config.json",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/identity-cutover-execution-plan.md",
+          "docs/requirements/decisions/identity-migration-and-bootstrap-compatibility.md",
+          "docs/requirements/decisions/red-evidence-subsystem-boundary.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-infrastructure-expansion-and-observability.md",
+          "docs/requirements/lifecycle.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli.ts",
+          "packages/main/src/core/extension-api.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/retired-authority-vocabulary-guard-smoke.mjs",
+          "scripts/verify-agent-dispatch-registry.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-pack-boundary.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-prompt-baseline.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1cbe51280da50e91692e96db94727dac3dc9ae2fce01839cc5d34d9f202c17c9"
     }
   ]
 }
