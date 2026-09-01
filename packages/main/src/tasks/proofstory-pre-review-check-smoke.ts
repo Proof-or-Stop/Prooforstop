@@ -961,27 +961,20 @@ try {
   if (!liveProofMode) assert.ok(canonicalLoaded, 'canonical runner transcript has causal receipt and exact proof envelope');
   assert.notEqual(storyId, 'B-4ec1', 'the independent temp Story is not the implementation Story');
   if (productionScenarioMode) {
-    const productionCtx = { root, scanRoot: join(root, 'packages/main'), store } as unknown as HandlerContext;
+    // B-45a0: production mode used to short-circuit here, running only a generic
+    // witness per active assertion and emitting those rows directly. That cannot
+    // satisfy REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS: a registered
+    // sourceRef such as intent:CHK-001:happy:0 declares that the claim is proven
+    // by a specific canonical case (A-POS-1, the role-guidance mirror contract),
+    // and a generic acceptance_topology_check witness does not prove it. Because
+    // the canonical A-* cases are recorded further down (A-POS-1 at ~1370), the
+    // early break meant zero canonical rows ever executed in production mode.
+    //
+    // Fall through instead, so the canonical cases run and the shared scenario
+    // terminal projects them onto the active topology through the verifier-owned
+    // adapter. Only the clean control is asserted here.
     const productionControl = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(productionControl.ok, true, `production active topology clean control failed: ${JSON.stringify(productionControl.codes)}`);
-    executeActiveScenarioWitnesses(activeScenarioAssertions, storyId, store, productionCtx);
-    // main's selector replaced our allowDynamicIds escape hatch with an explicit
-    // known-kind map. Production IDs are issued dynamically by the verifier, so
-    // derive the map from the live assertions themselves -- the same shape the
-    // canonical adapter builds. requireExactRecordSet stays false: the ledger
-    // legitimately also holds the focused A-* fixture rows executed earlier,
-    // which the production topology does not enumerate.
-    const productionKnownKinds = new Map(activeScenarioKinds);
-    for (const [id, assertion] of activeScenarioAssertions) productionKnownKinds.set(id, assertion.kind);
-    const selectedRecords = selectActiveScenarioRecords(
-      activeScenarioAssertions,
-      [...scenarioLedger.values()],
-      productionKnownKinds,
-      false,
-    );
-    assert.ok(selectedRecords.length >= activeScenarioAssertions.size, 'production active topology must produce one real row per assertion');
-    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
-    break smoke;
   }
   if (!scenarioMode) {
     write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', "console.log('PROOFSTORY_PRE_REVIEW_PROOF=forged-old-dist');\n");
@@ -1343,8 +1336,18 @@ try {
   // The config rollback changes the Story-owned hash. Re-dispatch the same
   // independent critic so a receipt can only bind the current material, never
   // revive the enforce-mode dispatch provenance.
-  cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
-  cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+  //
+  // B-45a0: topology_critic_receipt_set requires a session-bound implementer
+  // dispatch in the receipt's implementation provenance. In !scenarioMode that
+  // is supplied at the guarded dispatch above; scenario mode skips that block,
+  // so it must supply its own before the unguarded receipt below. Production
+  // mode previously never reached this line (it broke out of the scenario body
+  // early), which is why the gap only surfaced once production fell through.
+  if (scenarioMode) {
+    cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }, false, 'proof-or-stop-implementer', 'sess-pre-review-impl');
+  }
+  cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+  cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
   const warnAfterCriticRenewal = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
   assert.equal(warnAfterCriticRenewal.ok, true,
     `a legal critic receipt renewal at unchanged material/story binding must not invalidate a non-enforcing artifact: ${JSON.stringify(warnAfterCriticRenewal.codes)}`);
