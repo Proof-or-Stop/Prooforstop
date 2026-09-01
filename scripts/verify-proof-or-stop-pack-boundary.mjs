@@ -744,6 +744,7 @@ function verifyPackedArtifacts(packed, sources) {
     assert(filePaths.has('package.json'), `${artifact.row.id} tarball lacks package.json`);
     if (artifact.row.id === 'core') {
       assert(filePaths.has('dist/cli.js'), 'core tarball lacks built dist/cli.js');
+      assert(filePaths.has('dist/extension-api.js'), 'core tarball lacks the public extension runtime API');
       for (const role of CANONICAL_ROLES) {
         assert(filePaths.has(`templates/agents/${role}.md`), `core tarball lacks canonical role asset ${role}`);
       }
@@ -871,6 +872,21 @@ function runBoundary() {
       const result = runInstalledNode(projectDir, `console.log(import.meta.resolve(${JSON.stringify(packageName)}))`);
       assert(result.stdout.includes('node_modules'), `canonical package ${packageName} did not resolve from the clean install`);
     }
+    const utilsDispatchProbe = runInstalledNode(projectDir, `
+      import { runCli } from '@proof-or-stop/core/extension-api';
+      import { register, utilsAllowedPhases, utilsOwnershipClasses, utilsToolDefs } from '@proof-or-stop/utils';
+      process.argv = [process.execPath, 'packed-utils-consumer', '--root', process.cwd(), 'tool_status', '--format=json'];
+      await runCli({
+        extraTools: utilsToolDefs,
+        extraRegister: register,
+        extraOwnershipClasses: utilsOwnershipClasses,
+        extraAllowedPhases: utilsAllowedPhases,
+      });
+    `);
+    assert(
+      utilsDispatchProbe.stdout.includes('activity.jsonl not found'),
+      'clean packed consumer did not import Utils and dispatch a Utils-owned command',
+    );
     for (const suffix of ['core', 'lab', 'utils']) {
       const packageName = `${RETIRED_SCOPE}/${suffix}`;
       const result = runInstalledNode(projectDir, `console.log(import.meta.resolve(${JSON.stringify(packageName)}))`, true);
@@ -914,6 +930,7 @@ function runBoundary() {
         installedTopLevelBins: installedBins,
         retiredCommandExitCode: retiredBin.status,
         canonicalPackageResolutions: canonicalPackages.length,
+        utilsPublicImportAndDispatch: true,
         retiredPackageResolutionFailures: 3,
         canonicalRoleLookups: CANONICAL_ROLES.length,
         retiredRoleLookupFailures: RETIRED_ROLES.length,

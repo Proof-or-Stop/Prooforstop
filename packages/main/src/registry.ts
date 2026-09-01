@@ -133,6 +133,7 @@ import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
 import { createIdentityStateMigrateHandlers } from './handlers/identity-state-migrate.js';
 import { nextStoryId } from './handlers/context.js';
 import { readBrandEnv } from './core/brand-env.js';
+import { createProofOrStopExtensionRuntime } from './core/extension-runtime.js';
 
 export type HandlerFn = (...args: any[]) => any;
 
@@ -179,6 +180,7 @@ export class Registry {
  * 由 bootstrap 脚本调用 utils 的 register() 函数追加注入。
  */
 export function createMainRegistry(ctx: HandlerContext): Registry {
+  ctx.extensionRuntime ??= createProofOrStopExtensionRuntime();
   const registry = new Registry();
 
   registry.registerBatch(createStoryHandlers(ctx));

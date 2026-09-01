@@ -85,6 +85,7 @@ const SHIPPED_EXECUTABLE_ENTRYPOINTS = [
   'bin/proof-or-stop.js',
   'bin/bootstrap-runner.js',
   'packages/main/src/cli.ts',
+  'packages/main/src/extension-api.ts',
   'packages/main/src/index.ts',
   'packages/main/src/tasks/test-flow-e2e.ts',
   'packages/lab/src/index.ts',
@@ -180,9 +181,9 @@ const PACKAGE_ALIAS_MANIFEST_RECORDS: PackageAliasManifestRecord[] = SHIPPED_PAC
 }));
 const PACKAGE_ALIAS_EDGE_INVENTORY = buildPackageAliasEdgeInventory(PACKAGE_ALIAS_MANIFEST_RECORDS);
 const PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM = 'package-imports-self-exports-edge-inventory-sha256-v1';
-// Explicitly re-attested for B-022e after retired package self-export identities
-// moved to @proof-or-stop/{utils,lab}.
-const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75';
+// Explicitly re-attested for B-022e after the public Core extension API was
+// added for packed @proof-or-stop/utils consumers.
+const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = '3b484827d8704b3952b2fe20528d24a1e0b569bce8f5a8aaa36f69f321e3f7eb';
 const RETIRED_PACKAGE_SCOPE = ['@lat', 'tice/'].join('');
 
 function packageAliasEdgeInventoryHash(records: readonly PackageAliasManifestRecord[], edges: readonly PackageAliasEdge[]): string {

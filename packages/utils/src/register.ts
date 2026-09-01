@@ -5,8 +5,7 @@
  * are already core-owned are compatibility fallbacks and register only when
  * the host Registry does not already contain them.
  */
-import type { Registry } from '../../main/dist/registry.js';
-import type { HandlerContext } from '../../main/dist/handlers/context.js';
+import type { HandlerContext, Registry } from '@proof-or-stop/core/extension-api';
 import { createAuxHandlers } from './handlers/auxiliary.js';
 import { createAuxSyncHandlers } from './handlers/aux-sync.js';
 import { createAuxTraceHandlers } from './handlers/aux-trace.js';

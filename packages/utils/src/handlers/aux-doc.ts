@@ -1,6 +1,6 @@
 
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import type { HandlerContext } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 import { join, relative, dirname } from 'path';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 
@@ -65,6 +65,7 @@ function formatAge(days: number): string {
 
 export function createAuxDocHandlers(ctx: HandlerContext) {
   const { root } = ctx;
+  const { loadConfig } = requireCoreRuntime(ctx);
   return {
     /**
      * List project docs (for picking relatedDocs in the PLAN phase).

@@ -4,7 +4,7 @@
  * rejects any extraTools/core collision before registration.
  */
 import { z } from 'zod';
-import type { ToolDef } from '../../main/dist/cli-engine.js';
+import type { ToolDef } from '@proof-or-stop/core/extension-api';
 
 export const utilsToolDefs: ToolDef[] = [
   // Trace / diagnose

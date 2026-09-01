@@ -2024,7 +2024,7 @@ function assertCloseoutTrustBoundary() {
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75',
+    '3b484827d8704b3952b2fe20528d24a1e0b569bce8f5a8aaa36f69f321e3f7eb',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',
