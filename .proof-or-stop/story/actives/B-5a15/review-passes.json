@@ -12472,6 +12472,48 @@
       },
       "readDiagnostics": [],
       "_hash": "e76feb80784c5ff4914d523c950e9a28839965807efe68b3a72870173d2680e2"
+    },
+    {
+      "id": "B-5a15:RP-254",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue lane, saturation re-check for review inventory epoch RI-055 (cutoff 78b3af2eb273). Structural basis re-verified at head 58e61b8, not inherited from RI-053/RI-054: `git diff main...HEAD --name-status -M` yields zero D and zero R entries, so no concept can have been deleted or renamed. Scanned every removed line in packages/main/src and scripts for exported-symbol removals: the single hit, preReviewCaseRequiresSemanticBinding, still exists at pre-review-live-proof.ts:139 with a backward-compatible widened signature (1 required + 2 optional params) and all three call sites (pre-review-live-proof.ts:231,256 and pre-review-check.ts:202) pass three args, with no stale import left in acceptance-discovery-adapters.ts. Extracted all removed string literals as concept candidates: topology_critic_receipt_set (43 occurrences remain) and proof-or-stop.config.json (22 remain) are untouched concepts; the two removed digests fde4ff96 and eaa9538e are merge-conflict repins whose only remaining references repo-wide are in docs/story/actives/B-5a15/activity.jsonl transcript text, i.e. zero code or doc residue. Verified the repins are live and in lockstep by running scripts/verify-process-fact-contract.mjs, which exits 0 with 'Process fact contract verified'. Reviewed the one source commit since RR-796, e507bd8f0d (F-338, certification-window.ts:803): it maps CertificationWindowCurrentIdentity's causalDependencyGraphDigest/causalInputHashesDigest into the dependencyGraphDigest/currentInputHashesDigest parameter shape that causalDependencyDecisionMatchesCurrentIdentity declares at causal-evidence.ts:1369. Confirmed all three call sites in certification-window.ts (:485, :771, :810) now use the identical six-field mapping, that the un-prefixed field names occur only inside causal-evidence.ts and the causal-prefixed ones only in certification-window.ts so the two naming domains stay separated with explicit mapping at every crossing, and that the fix introduces no new vocabulary. Confirmed the commit's diagnostic-only claim mechanically: both ternary branches return drifted:true, and the two reason strings are referenced nowhere outside certification-window.ts:822-823, so no gate outcome, test, or parser changes. Verified packages/main/dist is rebuilt and carries the mapping at both sites. Recursive tsc passes on packages/main, packages/utils, and packages/graph, plus a --noUnusedLocals pass on certification-window.ts, so no orphaned imports were left by the import-line rewrites. No concept deletion or replacement occurred in this story; the change remains purely additive plus in-place edits, so no concept residue is structurally possible. No blocker. Pre-existing certification-window-smoke failure bisected to merge a2e4e92631 and the known causal-evidence.ts:1096 localeCompare item were reported separately and are not re-filed here.",
+      "createdAt": "2026-09-01T10:41:34.442Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-800",
+      "envelopeId": "a2747ff94b10a288b9cc57bfaca97000f6af0a0e266d3891c9c5199ca2db3c31",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "0e64be751ad47c8cfc844808b6b407d94a514295be27a65b273447d6c70e3003"
     }
   ]
 }
