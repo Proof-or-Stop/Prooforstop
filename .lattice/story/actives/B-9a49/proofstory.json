@@ -44,8 +44,7 @@
       ],
       "verificationIntentRefs": [
         "CHK-003:happy:review-only-registration",
-        "CHK-004:adversarial:authority-boundary-and-local-cli",
-        "CHK-004:happy:red-green-same-contract"
+        "CHK-004:adversarial:authority-boundary-and-local-cli"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
@@ -171,8 +170,18 @@
       }
     }
   ],
-  "diagnosticGaps": [],
-  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Representative verifier-registered assertion IDs preserve Story-owned source refs while the separately signed rollout report carries full 3x2 evidence.",
+  "diagnosticGaps": [
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Positive and mutation verification intents are binding coverage; the transcript assertion remains independently exercised by live proof, while the signed rollout report carries full 3x2 evidence.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-09-01T08:09:11.389Z"
+  "updatedAt": "2026-09-01T08:10:28.297Z"
 }
