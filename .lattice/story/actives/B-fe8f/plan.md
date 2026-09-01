@@ -67,7 +67,7 @@ Execution is serial and dependency-safe: audit-first RED, Story 3A ledger, exact
 **Owner**: lattice-implementer
 **DependsOn**: CHK-003
 **Files**:
-- Modify: packages/main/src/core/types.ts, packages/main/src/core/evidence/artifact-store.ts, packages/main/src/handlers/finding-ledger.ts, packages/main/src/registry.ts
+- Modify: packages/main/src/core/types.ts, packages/main/src/core/evidence/artifact-store.ts, packages/main/src/handlers/finding-ledger.ts, packages/main/src/registry.ts, packages/main/src/cli/command-catalog.ts, packages/main/src/core/command-policy.ts, packages/main/src/core/config.ts
 - Create: packages/main/src/core/runtime-evidence-receipt.ts
 - Test: packages/main/src/tasks/finding-ledger-runtime-smoke.ts
 
