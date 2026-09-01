@@ -698,6 +698,15 @@
               "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "query.path_leakage: PASS exposedPaths=0"
             }
+          },
+          {
+            "desc": "A mechanical lifecycle fixture proves B-03b7 cannot advance beyond its dependency boundary until B-fe8f is DONE and merged, and B-e6d9 cannot advance until both B-fe8f and B-03b7 are DONE and merged; failed advances write no phase transition.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "dependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0"
+            }
           }
         ]
       }
