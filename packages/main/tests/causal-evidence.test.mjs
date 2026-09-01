@@ -1251,12 +1251,21 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   };
   assert.deepEqual(productionClosureFor('test'), ['test'],
     'a test-only change must not invalidate any other production domain');
-  assert.deepEqual(productionClosureFor('review-subject'), ['review-subject'],
-    'a docs-only change must not invalidate any compiled domain');
-  assert.deepEqual(productionClosureFor('integration'), ['integration'],
-    'integration entrypoints are terminal in the production graph');
-  assert.deepEqual(productionClosureFor('manifest-semantic'), ['integration', 'manifest-semantic'],
-    'host adapter manifests invalidate only the integration entrypoints that consume them');
+  // B-5a15 F-336: docs are NOT inert for integration. scripts/ holds contract verifiers that
+  // read docs as load-bearing assertion inputs -- verify-process-fact-contract.mjs asserts over
+  // AGENTS.md and five docs/requirements/decisions/*.md files and is DONE-required via
+  // test:serial-reference -- so a docs-only edit must invalidate the integration domain.
+  // Asserting ['review-subject'] here would freeze an UNDER-invalidation false-fresh.
+  assert.deepEqual(productionClosureFor('review-subject'), ['integration', 'review-subject', 'test'],
+    'a docs-only change must invalidate integration, whose script verifiers read those docs, and test through it');
+  // B-5a15 F-337: integration is NOT terminal. 24 test-domain files execute integration
+  // artifacts (codex-heartbeat-timeout-smoke.ts:273 runs bin/proof-or-stop.js), so a bin/
+  // change must invalidate test; otherwise causalRerunComplete admits the gate while the
+  // test node still holds evidence earned against the OLD bin.
+  assert.deepEqual(productionClosureFor('integration'), ['integration', 'test'],
+    'integration artifacts invalidate the tests that execute them');
+  assert.deepEqual(productionClosureFor('manifest-semantic'), ['integration', 'manifest-semantic', 'test'],
+    'host adapter manifests invalidate the integration entrypoints that consume them, and test through them');
   assert.deepEqual(productionClosureFor('source'), ['integration', 'source', 'test'],
     'source invalidates what compiles or runs against it, and must NOT invalidate build-input');
   assert.deepEqual(productionClosureFor('build-input'), ['build-input', 'integration', 'manifest-semantic', 'source', 'test'],
