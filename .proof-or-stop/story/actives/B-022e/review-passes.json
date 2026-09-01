@@ -1734,6 +1734,44 @@
         "scanEscalationReason": "Full-context docs escalation requested after sequential SAFE_INCREMENTAL docs passes became invalid from reviewer metadata-only eligibility and review-basis digest changes."
       },
       "_hash": "85050b1fdde0997578a1207d4c4fb4feefd9280cbfe8cd2bad3b465110102d0f"
+    },
+    {
+      "id": "B-022e:RP-048",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 24 full quality review at HEAD aed00ccc82, bound after product commit 0b9c6cd646 and fresh 120/120 validation. The only new product diff is the four-file requested-full envelope repair. It does not weaken general incremental or safety-selected full verification: only contextMode=full plus selectionReason=REVIEWER_REQUESTED_FULL stops dynamic reinterpretation of eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest from the discarded incremental candidate. Prompt Envelope integrity still binds those immutable fields, and material/freshness, priorPassRef, changedFilesDigest, impactedFilesDigest, taskSemanticDigest, assembled prompt, dispatch, scope, storyFilesHash, and ReviewRun fields remain authoritatively verified. The production regression proves later cross-lane metadata remains admissible, direct envelope mutation fails, illegal phase/title/checklist semantics fail, REVIEW-to-TEST and shared gate oracle agree, and concurrency/ABA/restoration paths pass. Process-fact contract, source/dist anchors, 28/28 entrypoints, global Lab lifecycle, clean four-package packed install, identity fail-closed mutation, and 86 version assertions pass. No dead code, unsafe type escape, swallowed error, product drift after 0b9c6cd, doc promise gap, or blocking quality finding.",
+      "createdAt": "2026-09-01T14:42:07.536Z",
+      "reviewRound": "2026-09-01T14:34:26.976Z",
+      "reviewRunId": "B-022e:RR-110",
+      "envelopeId": "529e019f75f7fded9c878136dbc271a7c85c3e66711f2eecf8b519c41b3534b7",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/dist/core/review-run.js",
+          "packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Round 24 full safety review focused on the exact review-run verifier gate repair while retaining the complete story boundary."
+      },
+      "_hash": "6e76aab90e98f91d151b7a19c7db28e535907269bb80be0d32215c62078fa151"
     }
   ]
 }
