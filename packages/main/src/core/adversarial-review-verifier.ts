@@ -61,7 +61,7 @@ export interface FindingAddArgs {
  * Shape (do NOT emit) the finding_add args for a finding. PURE: performs NO
  * finding_add call. The severity ALWAYS comes from SEVERITY_TO_FINDING_KIND, so
  * an abstract BLOCKER/MAJOR/MINOR can never leak into the ledger. `agent` is
- * caller-supplied (a real lattice-review-* lane); this function never invents it.
+ * caller-supplied (a real proof-or-stop-review-* lane); this function never invents it.
  */
 export function toFindingAddArgs(
   finding: Finding,

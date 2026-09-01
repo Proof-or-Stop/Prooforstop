@@ -266,7 +266,8 @@ try {
   missingFutureMappingTopology.commandRefs = missingFutureMappingTopology.commandRefs
     .filter(ref => ref.refKind !== 'existing' || ref.canonicalSourceRef !== 'process-fact:pre_review_check_read');
   const missingFutureMapping = reconcileTopologyWithCoverageBasis(contract(missingFutureMappingTopology), phasePreReview.basis);
-  assert.equal(missingFutureMapping.length, 0, 'closed PRE_REVIEW control facts remain mapped by the phase-aware verifier without story metadata duplication');
+  assert.ok(missingFutureMapping.some(item => item.code === 'AT_UNMAPPED_SCOPE_REF'
+    && item.pathRef?.startsWith('path:process-fact:pre_review_check_read->')), 'deleting one PRE_REVIEW mapping exposes the newly material path');
   const unrelatedFutureTopology = structuredClone(phaseAwareTopology);
   unrelatedFutureTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'process-fact:review_run_start' });
   assert.ok(reconcileTopologyWithCoverageBasis(contract(unrelatedFutureTopology), phasePlan.basis)
@@ -1036,9 +1037,30 @@ try {
       rmSync(c2File, { force: true });
       const disappearedSource = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
       assert.equal(disappearedSource.status, 'partial', 'disappearing consumer source fails closed without throwing');
+      assert.ok(disappearedSource.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'missing consumer source preserves the consumer diagnostic');
     } finally {
       rmSync(c2File, { force: true });
       rmSync(externalConsumerRoot, { recursive: true, force: true });
+      write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+        "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+        'export const c2 = () => consumeReviewRun();', '',
+      ].join('\n'));
+    }
+    rmSync(c2File, { recursive: true, force: true });
+    mkdirSync(c2File, { recursive: true });
+    const directoryConsumer = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(directoryConsumer.status, 'partial', 'a directory consumer reference cannot satisfy consumerGate');
+    assert.ok(directoryConsumer.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'directory consumer keeps the missing-consumer diagnostic');
+    rmSync(c2File, { recursive: true, force: true });
+    const directorySymlinkTarget = mkdtempSync(join(tmpdir(), 'proofstory-basis-directory-consumer-'));
+    try {
+      symlinkSync(directorySymlinkTarget, c2File, 'dir');
+      const directorySymlinkConsumer = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      assert.equal(directorySymlinkConsumer.status, 'partial', 'a directory symlink consumer reference cannot satisfy consumerGate');
+      assert.ok(directorySymlinkConsumer.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'directory symlink keeps the missing-consumer diagnostic');
+    } finally {
+      rmSync(c2File, { recursive: true, force: true });
+      rmSync(directorySymlinkTarget, { recursive: true, force: true });
       write(genericRoot, 'packages/main/src/consumers/c2.ts', [
         "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
         'export const c2 = () => consumeReviewRun();', '',

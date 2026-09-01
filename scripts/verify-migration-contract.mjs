@@ -10,12 +10,15 @@ import { existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const DOC = 'docs/requirements/decisions/proof-or-stop-identity-migration.md';
+const MAPPING_DOC = 'docs/requirements/decisions/brand-rename-mapping.md';
 let bad = 0;
 const ok = (m) => console.log(`ok ${m}`);
 const fail = (m) => { console.log(`not ok ${m}`); bad++; };
 
 const doc = existsSync(DOC) ? readFileSync(DOC, 'utf8') : '';
+const mappingDoc = existsSync(MAPPING_DOC) ? readFileSync(MAPPING_DOC, 'utf8') : '';
 if (!doc) fail(`${DOC} missing`);
+if (!mappingDoc) fail(`${MAPPING_DOC} missing`);
 
 // CHK-001 happy: the storyFilesHash question is answered in the doc.
 const sfh = (doc.match(/storyFilesHash/g) || []).length;
@@ -32,12 +35,35 @@ missing.length === 0
   : fail(`identities with no verdict row: ${missing.join(', ')}`);
 
 // CHK-001 adversarial: a reader cannot conclude a FROZEN row was silently ignored.
+// The active migration doc cites the package/export rows. The bin row is a
+// supersession in the frozen mapping itself, so verify its actual line and
+// contract rather than trusting a duplicated citation string in the active doc.
+const mappingLine72 = mappingDoc.split(/\r?\n/)[71] || '';
+const supersessionCitations = [
+  { citation: 'brand-rename-mapping.md:72', satisfied: [
+    '| `bin/` entries |',
+    '**SUPERSEDED by B-cc10 CHK-006',
+    '`bin/lattice.js`',
+    '`bin/lattice-codex.js`',
+    '`bin/proof-or-stop.js`',
+    '`bin/proof-or-stop-codex.js`',
+    'canonical-only',
+  ].every((needle) => mappingLine72.includes(needle)) },
+  { citation: 'brand-rename-mapping.md:73', satisfied: doc.includes('brand-rename-mapping.md:73') },
+  { citation: 'brand-rename-mapping.md:130', satisfied: doc.includes('brand-rename-mapping.md:130') },
+];
+console.log(`supersessionCitationsRequired=${supersessionCitations.map(({ citation }) => citation).join(',')}`);
+const binAliasSupersession = /\*\*2\. The bin aliases\.\*/.test(doc)
+  && doc.includes('superseded that documented guarantee')
+  && doc.includes('CHK-006');
+console.log(`binEntriesSupersession=${supersessionCitations[0].satisfied && binAliasSupersession}`);
 const supersessions = /[Ss]upersession/.test(doc)
-  && doc.includes('brand-rename-mapping.md:130') && doc.includes('brand-rename-mapping.md:72');
+  && binAliasSupersession
+  && supersessionCitations.every(({ satisfied }) => satisfied);
 console.log(`supersessionsDocumented=${supersessions}`);
 supersessions
-  ? ok('both FROZEN supersessions documented with citations, not silently ignored')
-  : fail('a FROZEN override lacks an explicit cited supersession');
+  ? ok('all three required FROZEN supersessions are mechanically covered')
+  : fail(`a required FROZEN supersession is not mechanically covered: ${supersessionCitations.filter(({ satisfied }) => !satisfied).map(({ citation }) => citation).join(', ') || 'bin alias migration prose'}`);
 
 // CHK-008 happy: archives readable at the canonical path after the real move.
 const canon = '.proof-or-stop/story/actives';

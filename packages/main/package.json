@@ -7,13 +7,12 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.271",
+  "version": "0.3.272",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "proof-or-stop": "dist/cli.js",
-    "lattice": "dist/cli.js"
+    "proof-or-stop": "dist/cli.js"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -123,7 +122,7 @@
     "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
   },
   "dependencies": {
-    "@lattice/lab": "0.3.65",
+    "@proof-or-stop/lab": "0.3.65",
     "ws": "^8.21.1",
     "xstate": "^5.30.0",
     "zod": "^4.4.3"

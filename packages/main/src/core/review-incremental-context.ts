@@ -38,6 +38,7 @@ import {
 } from './evidence-freshness.js';
 import { verifyReviewPass } from './finding-verify.js';
 import { verifyReviewRun } from './review-run.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { readGitBlobAt, type GitBlobReadResult } from './git-blob-reader.js';
 import {
   classifyImpact,
@@ -293,7 +294,7 @@ function impactedLanes(
     if (reviewer.name === 'test-coverage') return hasTests;
     if (reviewer.name === 'behavior') return false;
     return true;
-  }).map(reviewer => `lattice-review-${reviewer.name}`);
+  }).map(reviewer => canonicalAgentRoleId(`proof-or-stop-review-${reviewer.name}`));
 }
 
 export function postRemediationReviewSelection(
@@ -308,7 +309,7 @@ export function postRemediationReviewSelection(
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
   const reviewRound = story.currentReviewRound ?? '<unavailable>';
-  const activeLanes = active.map(row => `lattice-review-${row.name}`);
+  const activeLanes = active.map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`));
   const checklist = store.readChecklist(storyId);
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
   const data = store.readReviewInventoryEpochs(storyId);
@@ -520,6 +521,33 @@ export interface IncrementalBindingAssessment {
   pureFixtureDrift: boolean;
 }
 
+export const FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS =
+  'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS' as const;
+export const FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS =
+  'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS' as const;
+
+/** Return stable full-context reasons before an invalid bounded basis is built. */
+export function incrementalReviewBasisOverflowReasonCodes(input: {
+  changedFiles: readonly unknown[];
+  impactedFiles: readonly unknown[];
+  authoritativeReferences: readonly unknown[];
+  findingDeltas: readonly unknown[];
+  unresolvedFindings: readonly unknown[];
+  findingDescriptionExceedsTextLimit?: boolean;
+}): string[] {
+  const reasons: string[] = [];
+  if ([input.changedFiles, input.impactedFiles, input.authoritativeReferences]
+    .some(values => values.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList)) {
+    reasons.push(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS);
+  }
+  if ([input.findingDeltas, input.unresolvedFindings]
+    .some(values => values.length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane)) {
+    reasons.push(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS);
+  }
+  if (input.findingDescriptionExceedsTextLimit) reasons.push('FULL_REVIEW_BASIS_TEXT_LIMIT');
+  return reasons;
+}
+
 /** Stable forced-full campaign surface consumed by the production assembler. */
 export function classifyIncrementalBindingReasons(input: IncrementalBindingAssessment): string[] {
   const reasons: string[] = [];
@@ -565,10 +593,10 @@ function latestTrustedPriorPass(
     // pass created in the same millisecond as run.startedAt could otherwise be
     // observed by assembly and rejected by verifier, creating an ABA race.
     if (Number.isFinite(cutoff) && passTime >= cutoff) continue;
-    if (pass.agent !== role || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
+    if (!agentRoleIdsEqual(pass.agent, role) || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
     if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
-    if (!run || run.lane !== role || !verifyReviewRun(run)) continue;
+    if (!run || !agentRoleIdsEqual(run.lane, role) || !verifyReviewRun(run)) continue;
     if (!run.envelopeId || pass.envelopeId !== run.envelopeId || !run.assembledPrompt) continue;
     const envelopes = (promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes).filter(
       envelope => envelope.envelopeId === run.envelopeId,
@@ -578,8 +606,8 @@ function latestTrustedPriorPass(
     if (!verifyPromptEnvelopeIntegrity(envelope)) continue;
     if (
       envelope.storyId !== storyId
-      || envelope.roleId !== role
-      || envelope.lane !== role
+      || !agentRoleIdsEqual(envelope.roleId, role)
+      || !agentRoleIdsEqual(envelope.lane, role)
       || envelope.reviewRunId !== run.reviewRunId
       || envelope.reviewRound !== run.reviewRound
       || envelope.headHash !== run.headHash
@@ -686,12 +714,17 @@ export function fixtureCaseClosure(
 /**
  * Read-only incremental review context for a reviewer `role` on `storyId`.
  *
- * - A prior pass/finding with a bound, resolvable headHash → diff that headHash
- *   against HEAD (rename-aware, material-filtered); scopeChanged = changed > 0;
- *   isFirstPass = false.
+ * - A trusted prior pass with a bound, resolvable headHash whose diff fits the
+ *   bounded review-basis path lists → diff that headHash against HEAD
+ *   (rename-aware, material-filtered); scopeChanged = changed > 0;
+ *   isFirstPass = false; a review basis is emitted.
  * - No prior verdict (or prior verdict has no resolvable bound headHash) →
  *   isFirstPass = true, priorHeadHash = null, scopeChanged = true, and
  *   changedFiles = the full main...HEAD material diff.
+ * - A trusted prior whose diff exceeds the bounded path lists → the full
+ *   story diff against main, with the trusted prior retained for audit only,
+ *   no review basis, and the explicit FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS
+ *   reason code.
  */
 export function reviewIncrementalContext(
   store: StoryStore,
@@ -758,17 +791,21 @@ export function reviewIncrementalContext(
       (item.verificationIntent?.[lane] ?? []).map((_intent, index) =>
         `${storyId}:${item.id}:${lane}:${index}`))));
 
+  let fullStoryDiffContext!: (
+    reasonCodes: string[],
+    resolvedPriorForAudit?: TrustedPriorPass | null,
+  ) => ReviewIncrementalContext;
+
   const finalize = (args: {
     prior: TrustedPriorPass | null;
+    /** The trusted prior resolved but the served diff is the full story diff. */
+    priorNotDiffed?: boolean;
     changedFiles: string[];
     freshnessClassification: EvidenceFreshnessClassification | 'NOT_EVALUATED';
     reasonCodes: string[];
     impact: ImpactClassification;
   }): ReviewIncrementalContext => {
     const eligibilityReasonCodes = [...new Set([...args.reasonCodes, ...args.impact.reasonCodes])].sort();
-    const contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
-      ? 'incremental' as const
-      : 'full' as const;
     const changedFilesDigest = domainSeparatedDigest('incremental.changed-files.v1', args.changedFiles);
     const impactedFilesDigest = domainSeparatedDigest('incremental.impacted-files.v1', args.impact.impactedFiles);
     const affectedPaths = new Set([...args.changedFiles, ...args.impact.impactedFiles]);
@@ -782,7 +819,7 @@ export function reviewIncrementalContext(
         (item.verificationIntent?.[lane] ?? []).map((intent, index) =>
           intent.id?.trim() || `${item.id}:${lane}:${index}`)));
     let reviewBasis: IncrementalReviewBasis | null = null;
-    if (args.prior) {
+    if (args.prior && !args.priorNotDiffed) {
       const priorTime = Date.parse(args.prior.pass.createdAt);
       const cutoff = options.findingsCutoffAt ? Date.parse(options.findingsCutoffAt) : Number.POSITIVE_INFINITY;
       const findingSource = options.findingProjection ?? findings;
@@ -808,19 +845,30 @@ export function reviewIncrementalContext(
           desc: finding.desc,
         }))
         .sort((left, right) => left.id.localeCompare(right.id));
+      const findingDescriptionExceedsBasisLimit = unresolvedFindings.some(
+        finding => Buffer.byteLength(finding.desc, 'utf8') > FULL_TASK_CONTEXT_LIMITS.textBytes,
+      );
       const authoritativeReferences = [...new Set([
         ...affectedItems.flatMap(item => item.relatedDocs ?? []),
         ...args.changedFiles,
         ...args.impact.impactedFiles,
       ])].sort();
-      const exceedsIncrementalCap = args.changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
-        || args.impact.impactedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
-        || authoritativeReferences.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-      if (exceedsIncrementalCap) {
-        reviewBasis = null;
-      } else {
+      const overflowReasons = incrementalReviewBasisOverflowReasonCodes({
+        changedFiles: args.changedFiles,
+        impactedFiles: args.impact.impactedFiles,
+        authoritativeReferences,
+        findingDeltas,
+        unresolvedFindings,
+        findingDescriptionExceedsTextLimit: findingDescriptionExceedsBasisLimit,
+      });
+      if (overflowReasons.length > 0) {
+        // Recompute the authoritative main...HEAD context while retaining the
+        // trusted prior in audit-only fields. Never construct an invalid basis
+        // merely to discover that its bounded contract has been exceeded.
+        return fullStoryDiffContext(overflowReasons, args.prior);
+      }
       reviewBasis = {
-        schemaVersion: 'proofbound.incremental-review-basis.v1',
+        schemaVersion: 'proof-or-stop.incremental-review-basis.v1',
         storyId,
         lane: role,
         priorPassRef: args.prior.pass.id,
@@ -853,8 +901,10 @@ export function reviewIncrementalContext(
         ...(scopeContract ? { scopeAcknowledgementDigest: digestScopeContract(scopeContract) } : {}),
       };
       validateIncrementalReviewBasis(reviewBasis);
-      }
     }
+    const contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
+      ? 'incremental' as const
+      : 'full' as const;
     const reviewBasisDigest = reviewBasis
       ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
       : null;
@@ -875,10 +925,10 @@ export function reviewIncrementalContext(
     };
     return {
       role,
-      isFirstPass: !args.prior || reviewBasis === null,
+      isFirstPass: !args.prior,
       priorHeadHash: args.prior?.run.headHash ?? null,
       priorVerdict: args.prior ? `PASS (${args.prior.pass.id})` : null,
-      scopeChanged: !args.prior || args.changedFiles.length > 0,
+      scopeChanged: !args.prior || args.priorNotDiffed === true || args.changedFiles.length > 0,
       changedFiles: args.changedFiles,
       contextMode,
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -900,11 +950,13 @@ export function reviewIncrementalContext(
     };
   };
 
-  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
-  // fall back to the full story diff against main. We treat a missing bound
-  // headHash as a first pass so we never compute an incremental diff from an
-  // unknown base — the conservative direction is "show everything".
-  if (!prior || !prior.run.headHash) {
+  // Full story diff fallback is shared by first-timer and bounded-paths cases.
+  // The latter retains the trusted prior for audit, but never emits a basis
+  // computed from a diff that exceeded the bounded contract.
+  fullStoryDiffContext = (
+    reasonCodes: string[],
+    resolvedPriorForAudit: TrustedPriorPass | null = null,
+  ): ReviewIncrementalContext => {
     const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', 'HEAD'), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
@@ -918,18 +970,30 @@ export function reviewIncrementalContext(
       changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', 'HEAD'),
     });
     return finalize({
-      prior: null,
+      prior: resolvedPriorForAudit,
+      priorNotDiffed: resolvedPriorForAudit !== null,
       changedFiles: fullDiff,
       freshnessClassification: 'NOT_EVALUATED',
-      reasonCodes: ['FULL_MISSING_TRUSTED_PRIOR_PASS'],
+      reasonCodes,
       impact,
     });
+  };
+
+  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
+  // fall back to the full story diff against main. We treat a missing bound
+  // headHash as a first pass so we never compute an incremental diff from an
+  // unknown base — the conservative direction is "show everything".
+  if (!prior || !prior.run.headHash) {
+    return fullStoryDiffContext(['FULL_MISSING_TRUSTED_PRIOR_PASS']);
   }
 
   const changedFiles = materialOnly(
     changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD'),
     projectRoot,
   );
+  if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
+    return fullStoryDiffContext([FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS], prior);
+  }
   const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
   const freshness = checkEvidenceFreshnessForGit(
     gitCwd,

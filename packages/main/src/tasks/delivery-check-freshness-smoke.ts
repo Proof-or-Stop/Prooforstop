@@ -537,7 +537,7 @@ check('delivery_check_set records materialHash as binding and headHash as audit 
 // for a non-story whole-tree drift (CHK-003 + CHK-004 happy intent). Pinning the
 // literal text guards against the advisory being silently dropped or reworded.
 const EXPECTED_ADVISORY =
-  'whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches; the story diff the reviewer attested is unchanged. Re-attestation advisory: re-run the lattice-review-delivery reviewer if the merged-in (non-story) code could affect the real-machine test claims.';
+  'whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches; the story diff the reviewer attested is unchanged. Re-attestation advisory: re-run the proof-or-stop-review-delivery reviewer if the merged-in (non-story) code could affect the real-machine test claims.';
 
 check('non-story whole-tree drift downgrades to a mandatory re-attestation advisory (DONE row passes with the advisory text)', () => {
   const { root, store } = createFixture();
@@ -756,7 +756,7 @@ check('process-fact registry keeps delivery-check as L4 signed gate evidence pro
   assert.equal(command?.artifact?.path, 'delivery-check.json');
   assert.equal(command?.artifact?.signed, true);
   assert.equal(command?.artifact?.producerCommand, 'delivery_check_set');
-  assert.equal(command?.artifact?.reviewerLane, 'lattice-review-delivery');
+  assert.equal(command?.artifact?.reviewerLane, 'proof-or-stop-review-delivery');
   assert.equal(hasProcessFactSemantic('delivery_check_set', 'gate-evidence'), true);
 
   const artifact = getProcessFactRegistryEntry('artifact:delivery-check.json');

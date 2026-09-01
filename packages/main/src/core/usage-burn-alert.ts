@@ -328,7 +328,7 @@ export function renderBurnFindingBlock(f: BurnAlertFinding): string[] {
   lines.push(`      tripped: ${f.reasons.join(', ')}`);
   lines.push(
     '      → Long-lived interactive thread re-paying its full context every turn. ' +
-      'Close/restart it; lattice cannot stop sessions it did not launch (advisory only, no gate).',
+      'Close/restart it; proof-or-stop cannot stop sessions it did not launch (advisory only, no gate).',
   );
   return lines;
 }

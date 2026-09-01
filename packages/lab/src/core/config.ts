@@ -1,11 +1,11 @@
 /**
  * @task B-9ba3
  * @checklist CHK-001
- * @title lattice-lab config defaults define the safe offline baseline
+ * @title proof-or-stop-lab config defaults define the safe offline baseline
  * @type feature
  * @priority high
  * @description
- *   lattice-lab 第一版的价值在于“默认安全”，不是让实验无限自由。这里集中生成
+ *   proof-or-stop-lab 第一版的价值在于“默认安全”，不是让实验无限自由。这里集中生成
  *   experiment.json 的安全默认值，并拒绝任何试图把 story/fixture 变更打开的
  *   配置，保证离线优化模块从一开始就和正式流程隔离。
  * @changes
@@ -33,15 +33,15 @@ function defaultTarget(targetId: string, editableFiles?: string[]): LabTargetCon
   }
 
   const defaults: Record<string, string[]> = {
-    // B-cc10 F-045: the codex adapter dir was renamed; these targets pointed at files that
-    // no longer exist. Both spellings are listed so a pre-migration checkout still resolves.
-    'test-case-reviewer': ['.proof-or-stop-codex/agents/test-case-reviewer.md', '.lattice-codex/agents/test-case-reviewer.md'],
-    'test-intent': ['.proof-or-stop-codex/agents/test-intent.md', '.lattice-codex/agents/test-intent.md'],
+    // B-cc10 F-045: canonical agent assets use the proof-or-stop-prefixed basename.
+    // Keep only the exact pre-migration .lattice-codex paths as a bounded legacy fallback.
+    'test-case-reviewer': ['.proof-or-stop-codex/agents/proof-or-stop-test-case-reviewer.md', '.lattice-codex/agents/test-case-reviewer.md'],
+    'test-intent': ['.proof-or-stop-codex/agents/proof-or-stop-test-intent.md', '.lattice-codex/agents/test-intent.md'],
     'session-brief': ['packages/main/src/handlers/session.ts'],
   };
   const resolved = defaults[targetId];
   if (!resolved) {
-    throw new Error(`未知 lattice-lab target: ${targetId}`);
+    throw new Error(`未知 proof-or-stop-lab target: ${targetId}`);
   }
   return {
     kind: 'prompt',
@@ -70,7 +70,7 @@ export function buildExperimentConfig(args: {
   const name = args.name || `Optimize ${target.id}`;
 
   return {
-    $schema: 'lattice-lab/experiment.v1',
+    $schema: 'proof-or-stop-lab/experiment.v1',
     id,
     name,
     status: 'draft',
@@ -131,15 +131,15 @@ export function buildExperimentConfig(args: {
 
 export function validateExperimentConfig(config: LabExperimentConfig): void {
   if (config.mode !== 'offline') {
-    throw new Error(`lattice-lab 第一版仅支持 offline 模式，当前收到: ${config.mode}`);
+    throw new Error(`proof-or-stop-lab 第一版仅支持 offline 模式，当前收到: ${config.mode}`);
   }
   if (config.candidatePolicy.allowStoryMutation || config.candidatePolicy.allowFixtureMutation) {
-    throw new Error('lattice-lab 第一版不允许打开 allowStoryMutation / allowFixtureMutation');
+    throw new Error('proof-or-stop-lab 第一版不允许打开 allowStoryMutation / allowFixtureMutation');
   }
   if (config.candidatePolicy.allowDocsStoryMutation || config.candidatePolicy.allowTestsFixturesMutation) {
-    throw new Error('lattice-lab 第一版不允许修改 docs/story 或 tests/fixtures');
+    throw new Error('proof-or-stop-lab 第一版不允许修改 docs/story 或 tests/fixtures');
   }
   if (config.target.editableFiles.length === 0) {
-    throw new Error('lattice-lab 目标至少需要一个 editableFiles 入口');
+    throw new Error('proof-or-stop-lab 目标至少需要一个 editableFiles 入口');
   }
 }
