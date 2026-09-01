@@ -3021,6 +3021,31 @@
       },
       "readDiagnostics": [],
       "_hash": "6fe4f96c18862f284f412a818535ba87f6f391314c70be31f1954a6cced08d88"
+    },
+    {
+      "id": "B-022e:RP-076",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 32 concept re-sign using only the current-worktree local CLI passed: the requested-full audit remains unchanged, the canonical global fixture, legacy-to-canonical migration semantics, gitCwd naming, and exact legacy/canonical package pairing are delivered without gate weakening or false claims. Existing exclusive root-suite evidence is 59/59 PASS; routine validation and 29/29 evidence remain the bound local basis. This records local review assurance only, not Authority, Wave4 rollout, production, or DONE readiness.",
+      "createdAt": "2026-09-01T20:40:55.222Z",
+      "reviewRound": "2026-09-01T20:22:08.642Z",
+      "reviewRunId": "B-022e:RR-147",
+      "envelopeId": "0542d8b911a644bbf1aabbcff62a34c78a113c9d02175ce09f9eaf290a265ae4",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "REVIEWER_REQUESTED_FULL: current-worktree local CLI re-sign of the complete Round 32 concept binding; incremental eligibility was not used."
+      },
+      "_hash": "78680c497a2d0804a60014800281119b343a606e9e0de2079216909f3cbde257"
     }
   ]
 }
