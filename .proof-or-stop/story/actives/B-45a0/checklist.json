@@ -1595,13 +1595,20 @@
           "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
-          "note": "re-earn mechanical receipt after replay campaign regenerated the signed artifact",
-          "headHash": "05c2b8504f54136cc913ed824ad280bb94dc546a",
+          "note": "verification_run executed the pinned verifier for CHK-011:happy:0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9151aac06b9b547421291b538be910aa207f69d3fb984aef9afa3a40dbd9b982",
+            "outputTail": "historical replay artifact admission PASS\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T18:33:10.682Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "48cd05e2be0047618bf1169f66bec93bde2a3751",
           "materialHash": "61ae4c339f66eb6b5cf3d28348395cb512f6a8ead7a46ceca012dce6e0e63ddb",
           "storyFilesHash": "ea0dc5dbe786fe2cf364fe412eceddfac9afb30833f758a6bba2de0cd8d2cd7a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-09-01T17:54:14.803Z"
+          "timestamp": "2026-09-01T18:33:10.906Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
