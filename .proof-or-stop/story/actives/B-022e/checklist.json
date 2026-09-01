@@ -1042,6 +1042,69 @@
           "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
           "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
           "timestamp": "2026-09-01T00:12:28.532Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "command": "node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Global canonical Lab entrypoint and active product boundary pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
+            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:12:45.518Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55f59f7ef2e03ccef1633ec27843d0b940420189",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:55.492Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Clean canonical-only installation resolves Proof-or-Stop identities and rejects retired package identities.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:12:45.691Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55f59f7ef2e03ccef1633ec27843d0b940420189",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:55.492Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Mutation suite proves the active-residue and exact frozen-evidence boundary fails closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
+            "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:12:50.949Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55f59f7ef2e03ccef1633ec27843d0b940420189",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:55.492Z"
         }
       ]
     },
@@ -1118,19 +1181,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "Version authorities agree on 0.3.268; lifecycle evidence is separately gate-enforced.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:31:34.230Z",
+            "executedAt": "2026-09-01T00:12:51.305Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.980Z"
+          "headHash": "55f59f7ef2e03ccef1633ec27843d0b940420189",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:55.492Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1139,19 +1202,19 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Review, validation, delivery, and adapter facts are bound to lifecycle gates.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a69108452f6f1575d3112cf32924474214d28eea1f0ca55882426a7b94e57d08",
             "outputTail": "s; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] p\n...[truncated 42970 chars]",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:31:37.969Z",
+            "executedAt": "2026-09-01T00:12:54.988Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.980Z"
+          "headHash": "55f59f7ef2e03ccef1633ec27843d0b940420189",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:55.492Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -1160,19 +1223,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "Partial and mismatched version authority states are rejected.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:31:34.230Z",
+            "executedAt": "2026-09-01T00:12:55.345Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.980Z"
+          "headHash": "55f59f7ef2e03ccef1633ec27843d0b940420189",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:55.492Z"
         }
       ],
       "userSeesSnapshot": {
