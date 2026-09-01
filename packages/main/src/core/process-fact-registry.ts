@@ -1393,6 +1393,21 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Reviewer finding signatures prevent main-agent forgery.',
   },
   {
+    name: 'artifact:finding-ledger.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence'],
+    level: 'L2',
+    producer: 'handlers/finding + handlers/finding-ledger',
+    artifact: {
+      name: 'finding-ledger.json',
+      path: 'finding-ledger.json',
+      signed: true,
+      signature: 'signFindingLedgerReceipt/verifyFindingLedgerReceipt; every committed semantic row is covered by an exact signed commit receipt',
+      producerCommand: 'finding_add/finding_runtime_evidence_run',
+    },
+    rationale: 'Append-only Finding persistence carrier and REVIEW-retention metadata. It has no lifecycle/gate authority; protected query and runtime verification establish its receipt trust independently.',
+  },
+  {
     name: 'artifact:review-passes.json',
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-pass', 'prompt-envelope', 'no-blocker-evidence'],

@@ -21,10 +21,11 @@ import {
   fsyncSync,
   openSync,
   readdirSync,
+  realpathSync,
   renameSync,
   rmSync,
 } from 'fs';
-import { join } from 'path';
+import { isAbsolute, join, relative } from 'path';
 import type { EvidenceArtifact, ArtifactKind, EvidenceScope, SubjectBinding } from './types.js';
 import { EVIDENCE_SCHEMA_VERSION } from './types.js';
 import { PROOF_OR_STOP_DIR } from '../lattice-paths.js';
@@ -55,6 +56,15 @@ function runtimeBlobPath(projectRoot: string, ref: EvidenceBlobRef): string {
   return join(runtimeBlobDir(projectRoot), `${ref.contentDigest}.blob`);
 }
 
+function assertRuntimeBlobRootContained(projectRoot: string, dir: string): void {
+  const rootReal = realpathSync(projectRoot);
+  const dirReal = realpathSync(dir);
+  const rel = relative(rootReal, dirReal);
+  if (!rel || rel === '..' || rel.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`) || isAbsolute(rel)) {
+    throw new Error('runtime-evidence: unsupported_storage');
+  }
+}
+
 /**
  * Publish one immutable runtime-evidence blob. Repeated writes of the same
  * digest are byte-checked no-ops; callers never receive the protected path.
@@ -72,6 +82,7 @@ export function writeRuntimeEvidenceBlob(
 
   const dir = runtimeBlobDir(projectRoot);
   mkdirSync(dir, { recursive: true, mode: 0o700 });
+  assertRuntimeBlobRootContained(projectRoot, dir);
   const destination = runtimeBlobPath(projectRoot, ref);
   if (existsSync(destination)) {
     const existing = readFileSync(destination);
@@ -106,6 +117,9 @@ export function readRuntimeEvidenceBlob(
   capability: string = RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
 ): Buffer | undefined {
   assertRuntimeStorageCapability(capability);
+  const dir = runtimeBlobDir(projectRoot);
+  if (!existsSync(dir)) return undefined;
+  assertRuntimeBlobRootContained(projectRoot, dir);
   const path = runtimeBlobPath(projectRoot, ref);
   if (!existsSync(path)) return undefined;
   const bytes = readFileSync(path);

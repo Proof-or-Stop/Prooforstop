@@ -42,11 +42,7 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { captureMkdirLockFence, withMkdirLock, type MkdirLockFence } from '../core/mkdir-lock.js';
-import {
-  FINDING_LEDGER_LOCAL_FS_CAPABILITY,
-  FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
-  FINDING_LEDGER_SCHEMA_EPOCH,
-} from '../core/finding-ledger.js';
+import { appendFindingLedger, findingLedgerSignerFromWorkspace } from './finding-ledger.js';
 import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
@@ -566,13 +562,23 @@ export function createFindingHandlers(ctx: HandlerContext) {
       let ledgerCommit: { recordId: string; receiptId: string; replayed: boolean } | undefined;
       const id = withMetaFindingLock(ctx, args.storyId, (fence) => {
         const data = store.readFindings(args.storyId);
-        const nextNum = data.findings.length + 1;
         const ledgerBefore = store.readFindingLedger<Finding>(args.storyId);
         const replayReceipt = ledgerBefore.receipts.find((receipt) => receipt.idempotencyKey === idempotencyKey);
         const replayRecord = replayReceipt
           ? ledgerBefore.records.find((record) => replayReceipt.recordIds.includes(record.recordId))
           : undefined;
         const replayFinding = replayRecord?.recordType === 'finding' ? replayRecord.payload : undefined;
+        const historicalDisplayIds = [
+          ...data.findings.map((candidate) => candidate.id),
+          ...ledgerBefore.records
+            .filter((record) => record.recordType === 'finding')
+            .map((record) => (record.payload as Finding).id),
+        ];
+        const nextNum = historicalDisplayIds.reduce((max, candidate) => {
+          const escapedStoryId = args.storyId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const match = new RegExp(`^${escapedStoryId}:F-(\\d+)$`).exec(candidate);
+          return match ? Math.max(max, Number(match[1])) : max;
+        }, 0) + 1;
         const fid = replayFinding?.id ?? `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
         const timestamp = replayFinding?.createdAt ?? new Date().toISOString();
         const readManifest = readEvidence?.readManifest;
@@ -612,22 +618,26 @@ export function createFindingHandlers(ctx: HandlerContext) {
           // attached AFTER _hash and are never passed into the hashed input).
           ...(signatureTag ? { signatureTag, signatureTagSource } : {}),
         };
-        const plan = store.appendFindingLedgerTransaction(args.storyId, {
+        const signer = findingLedgerSignerFromWorkspace(ctx.root);
+        const receipt = appendFindingLedger({
+          storyId: args.storyId,
+          store,
           operation: 'append_finding',
           idempotencyKey,
-          records: [{ recordType: 'finding', payload: finding }],
-          ledgerSchemaEpoch: FINDING_LEDGER_SCHEMA_EPOCH,
-          writerCapability: FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
+          records: [{ recordType: 'finding', payload: finding as unknown as import('../core/finding-ledger.js').JsonValue }],
           writerSessionId: getSessionIdentity().sessionId,
+          writerLeaseId: readOwnerLease(store.storyDirPath(args.storyId))?.sessionId ?? getSessionIdentity().sessionId,
           writerFenceToken: fence.writerFenceToken,
-          storageCapability: FINDING_LEDGER_LOCAL_FS_CAPABILITY,
-        }, fence);
-        const record = plan.records[0];
+          fence,
+          signer,
+        });
+        const committedLedger = store.readFindingLedger<Finding>(args.storyId);
+        const record = committedLedger.records.find((candidate) => receipt.recordIds.includes(candidate.recordId));
         if (!record) throw new Error('finding_add: committed ledger transaction returned no Finding record');
         const committedFinding: Finding = {
           ...(record.payload as Finding),
           recordId: record.recordId,
-          ledgerCommitReceiptId: plan.receipt.receiptId,
+          ledgerCommitReceiptId: receipt.receiptId,
         };
         const mirrorIndex = data.findings.findIndex((candidate) => candidate.id === committedFinding.id);
         if (mirrorIndex < 0) data.findings.push(committedFinding);
@@ -635,8 +645,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
         store.writeFindings(args.storyId, data);
         ledgerCommit = {
           recordId: record.recordId,
-          receiptId: plan.receipt.receiptId,
-          replayed: plan.action === 'replay',
+          receiptId: receipt.receiptId,
+          replayed: receipt.replayed,
         };
         return fid;
       });

@@ -62,10 +62,42 @@
       "phase": "DEV",
       "headHash": "e0b3d2552f2a521194cad1396f01bdab1be61a4f",
       "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW exposed a blocking integration defect: finding-ledger.json is newly generated protocol metadata but is absent from lifecycle closeout retention, so the first reviewer finding invalidates the same signed review run. This path is required only to classify that artifact without granting lifecycle authority.",
+      "timestamp": "2026-09-01T13:31:04.585Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6a409288fe9cac301c39543d25487ccea0723b9e",
+      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW proved the existing dependency smoke is a local Map simulation while the production PLAN-to-DEV transition only warns on unfinished story.depends. This path is required to make the documented B-fe8f then B-03b7 then B-e6d9 dependency order a fail-closed zero-write lifecycle gate with real regression evidence.",
+      "timestamp": "2026-09-01T13:41:39.831Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6a409288fe9cac301c39543d25487ccea0723b9e",
+      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-01T13:16:33.382Z",
+  "updatedAt": "2026-09-01T13:41:39.831Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -97,6 +129,8 @@
     "packages/main/src/core/story-recall.ts": "packages/main/src/core/story-recall.ts",
     "packages/main/src/core/finding-runtime-evidence.ts": "packages/main/src/core/finding-runtime-evidence.ts",
     "packages/main/src/handlers/finding-runtime-evidence.ts": "packages/main/src/handlers/finding-runtime-evidence.ts",
-    "scripts/build-lock.mjs": "scripts/build-lock.mjs"
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts"
   }
 }

@@ -4717,6 +4717,22 @@ function parseProcessFactArtifactByCommandFromSource(text) {
   return artifacts;
 }
 
+function parseInlineProcessFactArtifactFromSource(block, label) {
+  const artifactMatch = /\bartifact\s*:\s*\{/.exec(block);
+  if (!artifactMatch) return null;
+  const openIndex = artifactMatch.index + artifactMatch[0].lastIndexOf('{');
+  const artifactBlock = extractBalancedBlock(block, openIndex, '{', '}', `${label} inline artifact`);
+  return {
+    path: readStringProperty(artifactBlock, 'path'),
+    signed: /\bsigned:\s*true\b/.test(artifactBlock),
+    signature: readStringProperty(artifactBlock, 'signature'),
+    producerCommand: readStringProperty(artifactBlock, 'producerCommand'),
+    consumerGate: readStringProperty(artifactBlock, 'consumerGate'),
+    reviewerLane: readStringProperty(artifactBlock, 'reviewerLane'),
+    block: artifactBlock,
+  };
+}
+
 function parseProcessFactRequiredSemanticsFromSource(text) {
   const body = extractExportedObjectBody(text, 'PROCESS_FACT_REQUIRED_SEMANTICS', processFactRegistryPath);
   const semantics = new Map();
@@ -4912,7 +4928,9 @@ function parseProcessFactRegistry() {
   });
   const artifactEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_ARTIFACTS').map(entry => {
     const artifactRefMatch = /artifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\.([a-z_][a-z0-9_]*)/.exec(entry.block);
-    const artifact = artifactRefMatch ? artifactByCommand.get(artifactRefMatch[1]) : null;
+    const artifact = artifactRefMatch
+      ? artifactByCommand.get(artifactRefMatch[1])
+      : parseInlineProcessFactArtifactFromSource(entry.block, `${processFactRegistryPath} ${entry.name}`);
     return { ...entry, artifact: artifact || null };
   });
   const flowPolicyEntries = parseFlowFactPolicies().map(entry => ({
@@ -7635,6 +7653,18 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(/level: 'L3'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt must stay L3 gate-eligible input, distinct from L2 persistence');
   assert(/producer: 'core\/runtime-evidence-receipt \+ handlers\/finding-ledger\.verify'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt verifier producer drifted');
   assert(/gateEvidence: false/.test(runtimeReceiptPolicy) && /lifecycleAuthority: 'gate-eligible-input-only'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt policy must not claim direct lifecycle authority');
+  const dependencyTransition = read('packages/main/src/handlers/transition-orchestrator.ts');
+  assert(dependencyTransition.includes('assertPlanDevDependenciesDone(store, story, args.phase);'), 'Story 3: PLAN to DEV dependency gate is not wired before transition mutation');
+  const dependencyGateIndex = dependencyTransition.indexOf('assertPlanDevDependenciesDone(store, story, args.phase);');
+  const firstActorSendAfterGate = dependencyTransition.indexOf('actor.send(', dependencyGateIndex);
+  const firstStoryWriteAfterGate = dependencyTransition.indexOf('store.writeStory(', dependencyGateIndex);
+  assert(dependencyGateIndex >= 0 && firstActorSendAfterGate > dependencyGateIndex && firstStoryWriteAfterGate > dependencyGateIndex, 'Story 3: dependency gate must precede actor.send and writeStory');
+  const levelRegistrySource = read(processFactLevelRegistryPath);
+  assert(/name: 'runtime:story_dependency_plan_dev_gate', level: 'L4'[^\n]+gateConsumer: 'runStoryTransition PLAN to DEV admission before phase mutation'/.test(levelRegistrySource), 'Story 3: PLAN to DEV dependency gate process fact missing');
+  const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
+  assert(/kind: 'signed-artifact'/.test(findingLedgerArtifact), 'Story 3: finding-ledger.json must be registered as a signed artifact');
+  assert(/level: 'L2'/.test(findingLedgerArtifact) && !/consumerGate:/.test(findingLedgerArtifact), 'Story 3: finding-ledger.json must remain L2 persistence-only with no lifecycle gate consumer');
+  assert(/REVIEW_RETENTION_PROTOCOL_METADATA_PATHS[\s\S]*?'finding-ledger\.json'/.test(read('packages/main/src/core/lifecycle-registry.ts')), 'Story 3: finding-ledger.json must be retained as non-authoritative REVIEW protocol metadata');
 }
 
 function formatProcessFactLevelRegistryEntry(entry) {

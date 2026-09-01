@@ -346,6 +346,10 @@ export const LIFECYCLE_ARTIFACTS = [
   'review-runs.json',
   'prompt-envelopes.json',
   'findings.json',
+  // Signed append-only persistence carrier. Lifecycle classification is
+  // provenance only; process-fact registry keeps this artifact at L2 with no
+  // gate authority.
+  'finding-ledger.json',
   'gap-log-provenance.jsonl',
   'review-passes.json',
   'draft-check.json',
@@ -705,6 +709,10 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   'prompt-envelopes.json',
   'review-passes.json',
   'findings.json',
+  // Signed, append-only carrier written atomically with findings.json's
+  // compatibility projection. It has no lifecycle/gate authority of its own,
+  // but a reviewer may append more than one finding in the same round.
+  'finding-ledger.json',
   'process-events.jsonl',
   'process-metrics.json',
   'test-runs.json',

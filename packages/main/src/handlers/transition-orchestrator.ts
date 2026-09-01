@@ -131,6 +131,28 @@ export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): str
   return rendered;
 }
 
+export function unfinishedStoryDependencies(store: StoryStore, story: StoryInfo): string[] {
+  const unfinished: string[] = [];
+  for (const depId of story.depends ?? []) {
+    try {
+      const dependency = store.readStory(depId);
+      if (dependency.phase !== 'DONE') unfinished.push(`${depId}(${dependency.phase})`);
+    } catch {
+      unfinished.push(`${depId}(not found)`);
+    }
+  }
+  return unfinished;
+}
+
+/** PLAN→DEV is the first mutating execution boundary, so dependencies fail closed here. */
+export function assertPlanDevDependenciesDone(store: StoryStore, story: StoryInfo, targetPhase: StoryPhase): void {
+  if (story.phase !== 'PLAN' || targetPhase !== 'DEV') return;
+  const unfinished = unfinishedStoryDependencies(store, story);
+  if (unfinished.length > 0) {
+    throw new Error(`Cannot enter DEV: unfinished Story dependencies: ${unfinished.join(', ')}. Complete and merge dependencies in declared order first.`);
+  }
+}
+
 /** Wave 4 flat-project consumer. Diagnostics are mode-invariant; enforce alone blocks. */
 export function runAcceptanceRolloutGate(ctx: HandlerContext, storyId: string): string {
   const report = evaluateAcceptanceRolloutForContext(ctx, storyId);
@@ -965,6 +987,9 @@ async function runStoryTransitionInner(
     const oldPhase: string = story.phase as string;
     const runtimeGateReport = runRuntimeEnforcementPreflight(ctx, story, args.phase);
 
+    // Dependency admission runs before any actor.send/writeStory mutation.
+    assertPlanDevDependenciesDone(store, story, args.phase);
+
     // CWD gate: PLAN/DEV/TEST phases must execute inside the worktree
     const CWD_GATED: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST'];
     // B-8b69: the PLAN->INIT reopen must also run inside the worktree, even though
@@ -1001,20 +1026,11 @@ async function runStoryTransitionInner(
       preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId) + runAcceptanceRolloutGate(ctx, args.storyId);
     }
 
-    // Dependency completion check (soft warning, non-blocking)
+    // Non-PLAN→DEV transitions retain the historical diagnostic. PLAN→DEV is
+    // already fail-closed above and therefore cannot reach here unfinished.
     let depsWarning = '';
     if (story.depends && story.depends.length > 0) {
-      const unfinished: string[] = [];
-      for (const depId of story.depends) {
-        try {
-          const dep = store.readStory(depId);
-          if (dep.phase !== 'DONE') {
-            unfinished.push(`${depId}(${dep.phase})`);
-          }
-        } catch {
-          unfinished.push(`${depId}(not found)`);
-        }
-      }
+      const unfinished = unfinishedStoryDependencies(store, story);
       if (unfinished.length > 0) {
         depsWarning = `\n⚠ Unfinished dependencies: ${unfinished.join(', ')}`;
       }

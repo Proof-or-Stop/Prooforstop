@@ -95,6 +95,7 @@ export interface LedgerCommitReceipt {
 export interface LedgerFence {
   writerFenceToken: string;
   assertCurrent(): void;
+  publishAtomically<R>(publish: () => R): R;
 }
 
 export interface DurableCommitTrace {
@@ -378,16 +379,17 @@ export function writeLedgerAtomic<T>(
   try {
     JSON.parse(readFileSync(temp, "utf8"));
     options.beforeRename?.();
-    fence.assertCurrent();
-    renameSync(temp, file);
-    trace.atomicRename = true;
-    const directoryFd = openSync(directory, "r");
-    try {
-      fsyncSync(directoryFd);
-      trace.fsyncDirectory = true;
-    } finally {
-      closeSync(directoryFd);
-    }
+    fence.publishAtomically(() => {
+      renameSync(temp, file);
+      trace.atomicRename = true;
+      const directoryFd = openSync(directory, "r");
+      try {
+        fsyncSync(directoryFd);
+        trace.fsyncDirectory = true;
+      } finally {
+        closeSync(directoryFd);
+      }
+    });
   } catch (error) {
     rmSync(temp, { force: true });
     throw error;

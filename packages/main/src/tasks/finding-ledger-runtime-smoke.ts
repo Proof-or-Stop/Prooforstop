@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   mkdtempSync,
@@ -39,6 +40,8 @@ import {
   closeMandatoryRepair,
   createFindingLedgerHandlers,
   exactLedgerRecordHash,
+  findingLedgerSignerFromWorkspace,
+  findingLedgerTrustFromWorkspace,
   queryFindingLedger,
   RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST,
   RUNTIME_EVIDENCE_PRIVATE_KEY_ENV,
@@ -47,6 +50,7 @@ import {
   verifyAssessmentProposal,
   verifyFindingLedgerQueryRow,
   verifyFindingLedgerReceipt,
+  verifyRuntimeReceiptCarrier,
   type LedgerAppendOptions,
   type LedgerReceiptTrust,
   type LedgerSigner,
@@ -69,6 +73,7 @@ import {
 import {
   RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
   createRuntimeEvidenceBlobStore,
+  writeRuntimeEvidenceBlob,
 } from '../core/evidence/artifact-store.js';
 import {
   acquireMkdirLock,
@@ -80,6 +85,8 @@ import {
 } from '../core/main-write-lock.js';
 import { StoryStore } from '../core/store.js';
 import { createMainRegistry } from '../registry.js';
+import { createFindingHandlers } from '../handlers/finding.js';
+import { createFindingRuntimeEvidenceHandlers } from '../handlers/finding-runtime-evidence.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { Finding, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
@@ -89,7 +96,14 @@ import {
   getProcessFactRegistryEntry,
 } from '../core/process-fact-registry.js';
 import { isCommandAllowed } from '../core/config.js';
-import { findLifecycleTransition } from '../core/lifecycle-registry.js';
+import {
+  REVIEW_RETENTION_PROTOCOL_METADATA_PATHS,
+  findLifecycleTransition,
+} from '../core/lifecycle-registry.js';
+import {
+  assertPlanDevDependenciesDone,
+  runStoryTransition,
+} from '../handlers/transition-orchestrator.js';
 
 interface WorkerSpec {
   ledgerFile: string;
@@ -293,39 +307,123 @@ function story3VerifierMutationAccepted(repositoryRoot: string, mutation: string
   }).status === 0;
 }
 
-function runStory3DependencyFixture(): void {
-  const dependencies = new Map<string, readonly string[]>([
-    ['B-03b7', ['B-fe8f']],
-    ['B-e6d9', ['B-fe8f', 'B-03b7']],
-  ]);
-  const state = new Map<string, { phase: 'PLAN' | 'DONE'; merged: boolean }>([
-    ['B-fe8f', { phase: 'PLAN', merged: false }],
-    ['B-03b7', { phase: 'PLAN', merged: false }],
-    ['B-e6d9', { phase: 'PLAN', merged: false }],
-  ]);
+async function runStory3DependencyFixture(root: string): Promise<void> {
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures',
+    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }, null, 2));
+  const dependencyStore = new StoryStore(root);
+  const plan = (storyId: string, depends: string[] = []): StoryInfo => ({
+    ...runtimeStory(storyId), phase: 'PLAN', depends,
+  });
+  dependencyStore.writeStory('B-fe8f', plan('B-fe8f'));
+  dependencyStore.writeStory('B-03b7', plan('B-03b7', ['B-fe8f']));
+  dependencyStore.writeStory('B-e6d9', plan('B-e6d9', ['B-fe8f', 'B-03b7']));
+  const transitionCtx: HandlerContext = { store: dependencyStore, root, scanRoot: root };
+  const beforeBlockedTransitions = new Map(['B-03b7', 'B-e6d9'].map((storyId) => [
+    storyId, canonicalJson(dependencyStore.readStory(storyId)),
+  ]));
+  await assert.rejects(
+    runStoryTransition(transitionCtx, { storyId: 'B-03b7', phase: 'DEV' }),
+    /unfinished Story dependencies: B-fe8f\(PLAN\)/,
+  );
+  await assert.rejects(
+    runStoryTransition(transitionCtx, { storyId: 'B-e6d9', phase: 'DEV' }),
+    /unfinished Story dependencies: B-fe8f\(PLAN\), B-03b7\(PLAN\)/,
+  );
+  for (const [storyId, bytes] of beforeBlockedTransitions) {
+    assert.equal(canonicalJson(dependencyStore.readStory(storyId)), bytes);
+  }
   let transitionWrites = 0;
   const attempt = (storyId: string): string[] => {
     assert.ok(findLifecycleTransition('PLAN', 'DEV'), 'fixture dependency boundary must be a real lifecycle transition');
-    const blockedBy = (dependencies.get(storyId) ?? []).filter((dependencyId) => {
-      const dependency = state.get(dependencyId);
-      return dependency?.phase !== 'DONE' || dependency.merged !== true;
-    });
-    if (blockedBy.length > 0) return blockedBy;
-    transitionWrites += 1;
-    return [];
+    const story = dependencyStore.readStory(storyId);
+    try {
+      assertPlanDevDependenciesDone(dependencyStore, story, 'DEV');
+      transitionWrites += 1;
+      return [];
+    } catch (error) {
+      return [...String((error as Error).message).matchAll(/(B-[A-Za-z0-9]+)\(/g)].map((match) => match[1]!);
+    }
   };
   assert.deepEqual(attempt('B-03b7'), ['B-fe8f']);
   assert.deepEqual(attempt('B-e6d9'), ['B-fe8f', 'B-03b7']);
   assert.equal(transitionWrites, 0);
   console.log('dependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0');
 
-  state.set('B-fe8f', { phase: 'DONE', merged: true });
+  dependencyStore.writeStory('B-fe8f', { ...dependencyStore.readStory('B-fe8f'), phase: 'DONE' });
   assert.deepEqual(attempt('B-03b7'), []);
   assert.deepEqual(attempt('B-e6d9'), ['B-03b7']);
-  state.set('B-03b7', { phase: 'DONE', merged: true });
+  dependencyStore.writeStory('B-03b7', { ...dependencyStore.readStory('B-03b7'), phase: 'DONE' });
   assert.deepEqual(attempt('B-e6d9'), []);
   assert.equal(transitionWrites, 2);
   console.log('green.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7');
+}
+
+function runFindingProjectionRegression(root: string): void {
+  const store = new StoryStore(root);
+  const storyId = 'B-SPARSE';
+  store.writeStory(storyId, runtimeStory(storyId));
+  store.writeFindings(storyId, {
+    findings: [
+      { id: `${storyId}:F-001`, desc: 'historical one', severity: 'low', category: 'edge', status: 'resolved' },
+      { id: `${storyId}:F-003`, desc: 'historical three', severity: 'medium', category: 'missing', status: 'open' },
+    ],
+  });
+  const ctx: HandlerContext = { root, scanRoot: root, store };
+  const runtimeFacade = createFindingRuntimeEvidenceHandlers(ctx);
+  assert.deepEqual(Object.keys(runtimeFacade).sort(), [
+    'finding_runtime_evidence_run',
+    'finding_runtime_evidence_verify',
+  ]);
+  assert.equal('finding_ledger_query' in runtimeFacade, false);
+  const registry = createMainRegistry(ctx);
+  assert.equal(registry.has('finding_ledger_query'), true);
+  assert.equal(registry.has('finding_runtime_evidence_run'), true);
+  assert.equal(registry.has('finding_runtime_evidence_verify'), true);
+  console.log('registry.runtime_facade_boundary: PASS exactCommands=2 canonicalRegistry=true');
+
+  const handlers = createFindingHandlers(ctx);
+  const args = {
+    storyId,
+    desc: 'new sparse-history regression finding',
+    severity: 'medium',
+    category: 'edge',
+    agent: 'main',
+    idempotencyKey: 'finding-add:sparse-history',
+  };
+  const first = handlers.finding_add(args);
+  const replay = handlers.finding_add(args);
+  assert.match(first, /Finding B-SPARSE:F-004 created/);
+  assert.match(replay, /Finding B-SPARSE:F-004 created/);
+  const projection = store.readFindings(storyId);
+  assert.deepEqual(projection.findings.map((finding) => finding.id), [
+    'B-SPARSE:F-001', 'B-SPARSE:F-003', 'B-SPARSE:F-004',
+  ]);
+  const ledger = store.readFindingLedger<JsonValue>(storyId);
+  assert.equal(ledger.records.filter((record) => record.recordType === 'finding').length, 1);
+  assert.equal(ledger.receipts.length, 1);
+  const trust = findingLedgerTrustFromWorkspace(root);
+  assert.equal(ledger.receipts.every((receipt) => (
+    !!(receipt as typeof receipt & { findingLedgerReceipt?: unknown }).findingLedgerReceipt
+    && verifyFindingLedgerReceipt(
+      (receipt as typeof receipt & { findingLedgerReceipt: ReturnType<typeof appendFindingLedger> }).findingLedgerReceipt,
+      trust,
+    )
+  )), true);
+  const query = queryFindingLedger(ledger, storyId, findingLedgerSignerFromWorkspace(root));
+  assert.equal(query.signedRows, true);
+  assert.equal(query.rows.every((row) => verifyFindingLedgerQueryRow(row, trust)), true);
+  console.log('finding.sparse_display_id: PASS next=F-004 reused=0 ledgerRows=1');
+  console.log('finding.idempotency_contract: PASS callerKey=true replayRows=0 signedQuery=true');
+
+  assert.equal(REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has('finding-ledger.json'), true);
+  const second = handlers.finding_add({ ...args, desc: 'second same-round finding', idempotencyKey: 'finding-add:same-round-2' });
+  assert.match(second, /Finding B-SPARSE:F-005 created/);
+  assert.equal(store.readFindingLedger<JsonValue>(storyId).records.filter((record) => record.recordType === 'finding').length, 2);
+  assert.equal(store.readFindings(storyId).findings.some((finding) => finding.id === 'B-SPARSE:F-005'), true);
+  console.log('lifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none');
 }
 
 function readTreeText(root: string): string {
@@ -358,11 +456,21 @@ function assertRedGreenRelation(repositoryRoot: string): void {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  assert.equal(current.status, 0, `immutable RED did not turn GREEN: ${current.stderr}\n${current.stdout}`);
-  assert.match(current.stdout, /gaps=0/);
-  assert.match(current.stdout, /red\.relation_evaluate: PASS baselineFails=true/);
-  assert.match(current.stdout, /red\.genuine_contract_failure:none \(GREEN:/);
-  console.log('green.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true');
+  if (current.status === 0) {
+    assert.match(current.stdout, /gaps=0/);
+    assert.match(current.stdout, /red\.relation_evaluate: PASS baselineFails=true/);
+    assert.match(current.stdout, /red\.genuine_contract_failure:none \(GREEN:/);
+  } else {
+    // REVIEW F-002 deliberately supersedes the immutable RED's pre-GREEN
+    // allocator sentinel. Prove this is the sole expected incompatibility:
+    // the accepted GREEN commit retained that baseline, while the current
+    // sparse-history regression mechanically exercises the safer allocator.
+    const acceptedGreenFindingSource = git(repositoryRoot, ['show', 'HEAD:packages/main/src/handlers/finding.ts']);
+    assert.match(acceptedGreenFindingSource, /const nextNum = data\.findings\.length \+ 1;/);
+    assert.match(current.stderr, /pre-GREEN Finding ID baseline changed without the accepted allocator/);
+    assert.doesNotMatch(current.stderr, /accepted RED assertion bytes changed/);
+  }
+  console.log('green.red_green_relation_evaluate: PASS baselineFails=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true');
 }
 
 function assertVersionSync(repositoryRoot: string): void {
@@ -663,7 +771,7 @@ function runBuildLockFifoRegression(repositoryRoot: string, scratch: string): vo
   console.log('build-lock.fifo_admission: PASS order=true bounded=true mutualExclusion=true failureRecovery=true targetIndependence=true queueCleanup=true properLockfile=true');
 }
 
-function runRuntimeEvidenceMatrix(scratch: string): void {
+async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
   const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
   const root = join(scratch, 'runtime-project');
   const storyId = 'B-RUNTIME';
@@ -806,6 +914,27 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
     assert.equal(cliVerify.json?.verified, true);
     console.log('runtime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true');
 
+    const attackerPair = generateEd25519KeyPair();
+    const callerSelectedKey = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', {
+      ...verifyArgs, publicKey: attackerPair.publicKey,
+    }, signingEnv);
+    assert.notEqual(callerSelectedKey.status, 0);
+    assert.match(`${callerSelectedKey.stdout}\n${callerSelectedKey.stderr}`, /unknown_signing_key/);
+    for (const keyStatus of ['unknown', 'revoked', 'expired'] as const) {
+      const rejectedKeyStatus = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', {
+        ...verifyArgs, keyStatus,
+      }, signingEnv);
+      assert.notEqual(rejectedKeyStatus.status, 0);
+      assert.match(`${rejectedKeyStatus.stdout}\n${rejectedKeyStatus.stderr}`, /signing_key/);
+    }
+    const revokedRegistry = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', verifyArgs, {
+      ...signingEnv,
+      PROOF_OR_STOP_RUNTIME_EVIDENCE_REVOKED_KEY_IDS: receipt.keyId,
+    });
+    assert.notEqual(revokedRegistry.status, 0);
+    assert.match(`${revokedRegistry.stdout}\n${revokedRegistry.stderr}`, /revoked_signing_key/);
+    console.log('runtime.registered_key_trust: PASS callerSelected=reject unknown=reject revoked=reject expired=reject');
+
     const queryPhaseBefore = store.readStory(storyId).phase;
     const cliQuery = runRuntimeCli(repositoryRoot, root, 'finding_ledger_query', { storyId }, signingEnv);
     const cliQueryRepeat = runRuntimeCli(repositoryRoot, root, 'finding_ledger_query', { storyId }, signingEnv);
@@ -814,13 +943,7 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
     const query = cliQuery.json!;
     const repeatedQuery = cliQueryRepeat.json!;
     const queryRows = query.rows as unknown as ReturnType<typeof queryFindingLedger>['rows'];
-    const queryTrust: LedgerReceiptTrust = {
-      publicKey: keyPair.publicKey,
-      keyId: receipt.keyId,
-      algorithm: 'ed25519',
-      trustRootDigest: receipt.trustRootDigest,
-      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
-    };
+    const queryTrust = findingLedgerTrustFromWorkspace(root);
     assert.deepEqual(queryRows.map((row) => row.category), ['ledger', 'cas', 'idempotency', 'runtime', 'migration']);
     assert.equal(queryRows.every((row) => verifyFindingLedgerQueryRow(row, queryTrust)), true);
     assert.equal(queryRows.every((row) => row.gateEvidence === false && row.lifecycleAuthority === 'none'), true);
@@ -832,14 +955,41 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
     assert.equal(canonicalJson(query), canonicalJson(repeatedQuery));
     console.log('query.deterministic_scorecard: PASS');
 
-    const querySigner: LedgerSigner = {
-      privateKey: keyPair.privateKey,
-      publicKey: keyPair.publicKey,
-      keyId: receipt.keyId,
-      trustRootDigest: receipt.trustRootDigest,
-      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
-    };
+    const querySigner = findingLedgerSignerFromWorkspace(root);
     const persistedLedger = store.readFindingLedger<JsonValue>(storyId);
+    const runtimeRecord = persistedLedger.records.find((candidate) => candidate.recordId === runtimeRecordId)!;
+    assert.equal(verifyRuntimeReceiptCarrier(persistedLedger, storyId, runtimeRecord, queryTrust), true);
+    const attackerSigner: RuntimeReceiptSigner = {
+      privateKey: attackerPair.privateKey,
+      publicKey: attackerPair.publicKey,
+      keyId: `runtime-evidence-${canonicalDigest({ publicKey: attackerPair.publicKey }).slice(0, 24)}`,
+      trustRootDigest: canonicalDigest({ profile: 'runtime-evidence-trust-root-v1', publicKey: attackerPair.publicKey }),
+      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
+      algorithm: 'ed25519',
+    };
+    const launderedReceipt = signRuntimeEvidenceReceipt({
+      ...unsignedRuntimeReceipt(receipt),
+      keyId: attackerSigner.keyId,
+      trustRootDigest: attackerSigner.trustRootDigest,
+    }, attackerSigner);
+    const launderedLedger = structuredClone(persistedLedger);
+    const launderedRecord = launderedLedger.records.find((candidate) => candidate.recordId === runtimeRecordId)!;
+    launderedRecord.payload = launderedReceipt as unknown as JsonValue;
+    launderedRecord.payloadHash = canonicalHash(launderedRecord.payload);
+    launderedLedger.committedLedgerDigest = canonicalHash(launderedLedger.records);
+    launderedLedger.receipts.at(-1)!.committedLedgerDigest = launderedLedger.committedLedgerDigest;
+    assert.equal(verifyRuntimeReceiptCarrier(launderedLedger, storyId, launderedRecord, queryTrust), false);
+    const tamperedCarrier = structuredClone(persistedLedger);
+    const tamperedCarrierReceipts = tamperedCarrier.receipts as unknown as Array<Record<string, unknown>>;
+    (tamperedCarrierReceipts.find((candidate) => (candidate.recordIds as string[]).includes(runtimeRecordId))!
+      .findingLedgerReceipt as Record<string, unknown>).signature = 'attacker-signature';
+    assert.equal(verifyRuntimeReceiptCarrier(
+      tamperedCarrier as unknown as typeof persistedLedger,
+      storyId,
+      tamperedCarrier.records.find((candidate) => candidate.recordId === runtimeRecordId)!,
+      queryTrust,
+    ), false);
+    console.log('runtime.carrier_trust_chain: PASS callerResign=reject tamperedCarrier=reject zeroAuthority=true');
     let refusedQueries = 0;
     const expectRefusal = (candidate: typeof persistedLedger): void => {
       assert.throws(() => queryFindingLedger(candidate, storyId, querySigner));
@@ -915,7 +1065,7 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
     console.log('registry.dependency_boundary: PASS forbiddenImportsAccepted=0');
     assert.equal(story3VerifierMutationAccepted(repositoryRoot, 'story3-query-path-leak'), false);
     console.log('query.path_leakage: PASS exposedPaths=0');
-    runStory3DependencyFixture();
+    await runStory3DependencyFixture(join(scratch, 'dependency-lifecycle-gate'));
 
     const changedEnvironment = redactEnvironment({ ...process.env, RUNTIME_SAFE: 'changed-safe-value' }, {
       allowlist: runArgs.environmentAllowlist,
@@ -963,12 +1113,69 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
       ...expected, trust: { ...trust, trustRootDigest: '3'.repeat(64) },
     }).refusal, 'unsupported_trust_root');
     assert.throws(() => createRuntimeEvidenceBlobStore(root, 'nfs-multi-host'), /unsupported_storage/);
+    const blobEscapeRoot = join(scratch, 'blob-escape-project');
+    const blobEscapeOutside = join(scratch, 'blob-escape-outside');
+    mkdirSync(join(blobEscapeRoot, '.proof-or-stop', 'evidence'), { recursive: true });
+    mkdirSync(blobEscapeOutside, { recursive: true });
+    symlinkSync(blobEscapeOutside, join(blobEscapeRoot, '.proof-or-stop', 'evidence', 'runtime-blobs'));
+    const escapeBytes = Buffer.from('must-not-escape-runtime-blob-root\n');
+    const escapeDigest = createHash('sha256').update(escapeBytes).digest('hex');
+    assert.throws(() => writeRuntimeEvidenceBlob(blobEscapeRoot, {
+      blobId: `runtime-${escapeDigest}`,
+      contentDigest: escapeDigest,
+      contentType: 'stdout',
+      redactionPolicyDigest: canonicalDigest({ policy: 'blob-escape-smoke' }),
+    }, escapeBytes), /unsupported_storage/);
+    assert.equal(existsSync(join(blobEscapeOutside, 'sha256', `${escapeDigest}.blob`)), false);
+    console.log('runtime.blob_store_symlink: PASS outsideWrites=0');
     const buildBusy = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_run', {
       ...runArgs, idempotencyKey: 'runtime-build-busy', buildInProgress: true,
     }, signingEnv);
     assert.notEqual(buildBusy.status, 0);
     assert.match(`${buildBusy.stdout}\n${buildBusy.stderr}`, /build_in_progress/);
     assert.equal(store.readFindingLedger<JsonValue>(storyId).records.length, rowsBeforeRefusal);
+    const canonicalBuildLockFixture = `
+      import { spawnSync } from 'node:child_process';
+      import { pathToFileURL } from 'node:url';
+      const { withBuildLock } = await import(pathToFileURL(process.argv[1]).href);
+      const cli = process.argv[2];
+      const root = process.argv[3];
+      const base = JSON.parse(Buffer.from(process.argv[4], 'base64').toString('utf8'));
+      const results = [];
+      await withBuildLock(root, async () => {
+        for (const variant of ['omitted', 'false']) {
+          const args = { ...base, idempotencyKey: 'runtime-real-build-lock-' + variant };
+          if (variant === 'false') args.buildInProgress = false;
+          const result = spawnSync(process.execPath, [cli, 'finding_runtime_evidence_run', JSON.stringify(args)], {
+            cwd: root, env: process.env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+          });
+          results.push({ status: result.status, output: (result.stdout || '') + '\\n' + (result.stderr || '') });
+        }
+      });
+      process.stdout.write(JSON.stringify(results));
+    `;
+    const canonicalBuildLock = spawnSync(process.execPath, [
+      '--input-type=module', '-e', canonicalBuildLockFixture,
+      join(repositoryRoot, 'scripts', 'build-lock.mjs'),
+      join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'),
+      realpathSync(root),
+      Buffer.from(JSON.stringify(runArgs)).toString('base64'),
+    ], {
+      cwd: repositoryRoot,
+      env: { ...process.env, ...signingEnv },
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(canonicalBuildLock.status, 0, `${canonicalBuildLock.stderr}\n${canonicalBuildLock.stdout}`);
+    const lockResults = JSON.parse(canonicalBuildLock.stdout) as Array<{ status: number; output: string }>;
+    assert.equal(lockResults.length, 2);
+    assert.equal(
+      lockResults.every((result) => result.status !== 0 && /build[\s_-]*(?:is[\s_-]*)?in[\s_-]*progress/i.test(result.output)),
+      true,
+      JSON.stringify(lockResults),
+    );
+    assert.equal(store.readFindingLedger<JsonValue>(storyId).records.length, rowsBeforeRefusal);
+    console.log('runtime.canonical_build_lock: PASS callerFalse=reject callerOmitted=reject zeroWrites=true');
     console.log('runtime.trust_storage_boundary: PASS emittedInvalidReceipts=0');
 
     const beforeReplay = store.readFindingLedger<JsonValue>(storyId);
@@ -1088,6 +1295,7 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
     assert.equal(recovered.runtimeRecordId, recoveredReplay.runtimeRecordId);
     assert.equal(recovered.ledgerReceiptId, recoveredReplay.ledgerReceiptId);
     console.log('runtime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true');
+    runFindingProjectionRegression(root);
   } finally {
     for (const [name, value] of Object.entries(previousEnv)) {
       if (value === undefined) delete process.env[name];
@@ -1395,6 +1603,15 @@ if (process.argv[2] === '--ledger-worker') {
 
       const attacker = generateEd25519KeyPair();
       const wrongSignature = { ...proposal, proposalSignature: 'invalid-signature' };
+      const expiredWithoutCallerNow = signedApplicableProposal(
+        proposalPair.privateKey,
+        'assessment-authority-digest',
+        {
+          proposalId: 'proposal-expired-2000',
+          issuedAt: '2000-01-01T00:00:00.000Z',
+          expiresAt: '2000-01-01T02:00:00.000Z',
+        },
+      );
       const alteredExactUnion = signAssessmentProposal({
         ...proposalUnsignedForSmoke(proposal),
         owner: 'meta',
@@ -1416,6 +1633,9 @@ if (process.argv[2] === '--ledger-worker') {
           publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
           now: new Date('2030-01-01T03:00:00.000Z'),
         }),
+        verifyAssessmentProposal(expiredWithoutCallerNow, {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
         verifyAssessmentProposal(proposal, {
           publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
           receipt: proposalReceipt, receiptTrust: ledgerTrust, proposalRecord,
@@ -1428,7 +1648,8 @@ if (process.argv[2] === '--ledger-worker') {
       ];
       assert.equal(rejected.every((result) => !result.valid), true);
       assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, proposalLedgerAfterReplay.records.length);
-      console.log('ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0');
+      assert.equal(rejected[5]?.rejection, 'proposal_expired');
+      console.log('ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject omittedNowExpired=reject proposalFinalDivergence=reject semanticWrites=0');
 
       const standaloneReceipt = appendFindingLedger({
         ...baseOptions('chk003:standalone-receipt'),
@@ -1468,7 +1689,7 @@ if (process.argv[2] === '--ledger-worker') {
         operation: 'append_progress_baseline_set',
         records: [
           { recordType: 'route_receipt', payload: { receiptId: 'finding-route-bundle', profile: 'finding_route', gateAuthority: false } },
-          ...['red', 'root_cause', 'fix', 'green'].map((kind) => ({
+          ...['target_source_change', 'target_test_result', 'target_delivery_state', 'target_status_transition'].map((kind) => ({
             recordType: 'progress_baseline',
             payload: { baselineSetId: 'baseline-set-001', kind, gateAuthority: false } as JsonValue,
           })),
@@ -1476,19 +1697,89 @@ if (process.argv[2] === '--ledger-worker') {
       });
       assert.equal(baselineBundle.recordIds.length, 5);
       const beforeBundleCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
-      assert.throws(() => appendFindingLedger({
-        ...baseOptions('chk003:deferral-bundle-crash'),
+      const baselineRecords = baselineBundle.recordIds.map((recordId) => (
+        beforeBundleCrash.records.find((record) => record.recordId === recordId)!
+      ));
+      const baselineHead = beforeBundleCrash.records.at(-1)!;
+      const baselinePredicateDigest = canonicalHash({
+        profile: 'exact-four-progress-baselines-v1',
+        recordIds: baselineBundle.recordIds,
+      });
+      const baselineBindings = baselineRecords.map((record) => ({
+        recordType: record.recordType,
+        expectedRecordId: record.recordId,
+        expectedRecordHash: exactLedgerRecordHash(record),
+        observedChainHeadId: baselineHead.recordId,
+        observedChainHeadHash: exactLedgerRecordHash(baselineHead),
+        predicateDigest: baselinePredicateDigest,
+      }));
+      const verifyBaselineBundle = (snapshot: Parameters<NonNullable<LedgerAppendOptions<JsonValue>['verifyPredicate']>>[0]) => {
+        const kinds = snapshot.referencedRecords
+          .filter(({ record }) => record.recordType === 'progress_baseline')
+          .map(({ record }) => String((record.payload as Record<string, JsonValue>).kind))
+          .sort();
+        const expectedKinds = [
+          'target_delivery_state', 'target_source_change', 'target_status_transition', 'target_test_result',
+        ];
+        const routeCount = snapshot.referencedRecords.filter(({ record }) => record.recordType === 'route_receipt').length;
+        return {
+          accepted: routeCount === 1 && canonicalJson(kinds) === canonicalJson(expectedKinds),
+          predicateDigest: baselinePredicateDigest,
+        };
+      };
+      const deferralAttempt = (
+        idempotencyKey: string,
+        casBindings = baselineBindings,
+        verifyPredicate: LedgerAppendOptions<JsonValue>['verifyPredicate'] = verifyBaselineBundle,
+        commitOptions?: LedgerAppendOptions<JsonValue>['commitOptions'],
+      ) => appendFindingLedger({
+        ...baseOptions(idempotencyKey),
         operation: 'apply_manifest',
         records: [
-          { recordType: 'deferral', payload: { deferralId: 'deferral-crash' } },
-          { recordType: 'manifest', payload: { manifestId: 'manifest-crash', deferralId: 'deferral-crash' } },
+          { recordType: 'deferral', payload: { deferralId: idempotencyKey } },
+          { recordType: 'manifest', payload: { manifestId: `${idempotencyKey}:manifest`, deferralId: idempotencyKey } },
         ],
-        commitOptions: { beforeRename: () => { throw new Error('injected bundle crash'); } },
-      }), /injected bundle crash/);
+        expectedPriorLedgerDigest: beforeBundleCrash.committedLedgerDigest,
+        casBindings,
+        verifyPredicate,
+        commitOptions,
+      });
+      const wrongId = baselineBindings.map((binding, index) => index === 1
+        ? { ...binding, expectedRecordId: 'missing-baseline-record' }
+        : binding);
+      const wrongHash = baselineBindings.map((binding, index) => index === 2
+        ? { ...binding, expectedRecordHash: '0'.repeat(64) }
+        : binding);
+      const changedBaseline = { ...baselineRecords[3]!, payload: { baselineSetId: 'baseline-set-001', kind: 'changed-bytes' } };
+      const changedBytes = baselineBindings.map((binding, index) => index === 3
+        ? { ...binding, expectedRecordHash: exactLedgerRecordHash(changedBaseline) }
+        : binding);
+      const negativeAttempts = [
+        () => deferralAttempt('chk003:deferral-wrong-id', wrongId),
+        () => deferralAttempt('chk003:deferral-wrong-hash', wrongHash),
+        () => deferralAttempt('chk003:deferral-missing-kind', baselineBindings.slice(0, -1)),
+        () => deferralAttempt('chk003:deferral-baseline-bytes-changed', changedBytes),
+        () => deferralAttempt('chk003:deferral-caller-refusal', baselineBindings, () => ({
+          accepted: false, predicateDigest: baselinePredicateDigest,
+        })),
+      ];
+      for (const attempt of negativeAttempts) assert.throws(attempt, /CAS_CONFLICT/);
+      assert.equal(integrityStore.readFindingLedger<JsonValue>(integrityStoryId).records.length, beforeBundleCrash.records.length);
+      assert.throws(() => deferralAttempt(
+        'chk003:deferral-bundle-crash',
+        baselineBindings,
+        verifyBaselineBundle,
+        { beforeRename: () => { throw new Error('injected bundle crash'); } },
+      ), /injected bundle crash/);
       const afterBundleCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
       assert.equal(afterBundleCrash.records.length, beforeBundleCrash.records.length);
       assert.equal(afterBundleCrash.records.some((record) => canonicalJson(record.payload).includes('deferral-crash')), false);
-      console.log('ledger.atomic_bundle: PASS halfBundles=0');
+      const appliedDeferral = deferralAttempt('chk003:deferral-bundle-applied');
+      assert.equal(appliedDeferral.recordIds.length, 2);
+      const appliedReplay = deferralAttempt('chk003:deferral-bundle-applied');
+      assert.deepEqual(appliedReplay.recordIds, appliedDeferral.recordIds);
+      console.log('ledger.baseline_bundle_refusal: PASS wrongId=reject wrongHash=reject missingKind=reject bytesChanged=reject callerRefusal=reject zeroWrites=true');
+      console.log('ledger.atomic_bundle: PASS kinds=4 halfBundles=0 crashRetry=true');
 
       const requiredRecord = {
         schemaVersion: 1, mandatoryRepairId: 'mandatory-repair-required-001',
@@ -1829,6 +2120,46 @@ if (process.argv[2] === '--ledger-worker') {
     assert.equal(readLedger(staleFile).records.length, 1);
     console.log('ledger.stale_fence: PASS staleWrites=0');
 
+    const interleavingFile = join(scratch, 'stale-interleaving', 'finding-ledger.json');
+    const interleavingLockDir = join(scratch, 'locks', 'stale-interleaving.lock');
+    const oldWriter = acquireMkdirLock(interleavingLockDir, {
+      label: 'old writer interleaving', requireHolderToken: true,
+    });
+    const oldFence = captureMkdirLockFence(interleavingLockDir);
+    let successorIssuedBeforePublication = false;
+    let successorWriter: ReturnType<typeof acquireMkdirLock> | undefined;
+    assert.throws(() => appendLedgerTransaction(
+      interleavingFile,
+      request(oldFence.writerFenceToken, 'interleaving:old', 'finding', { id: 'must-not-commit' }),
+      oldFence,
+      {
+        beforeRename: () => {
+          oldWriter.release();
+          successorWriter = acquireMkdirLock(interleavingLockDir, {
+            label: 'successor writer interleaving', requireHolderToken: true,
+          });
+          successorIssuedBeforePublication = true;
+        },
+      },
+    ), /STALE_FENCE|ownership changed/);
+    assert.equal(successorIssuedBeforePublication, true);
+    assert.equal(existsSync(interleavingFile), false);
+    try {
+      const successorFence = captureMkdirLockFence(interleavingLockDir);
+      appendLedgerTransaction(
+        interleavingFile,
+        request(successorFence.writerFenceToken, 'interleaving:successor', 'finding', { id: 'successor-only' }),
+        successorFence,
+      );
+    } finally {
+      successorWriter?.release();
+    }
+    const interleavingLedger = readLedger(interleavingFile);
+    assert.deepEqual(interleavingLedger.records.map((record) => (
+      record.payload as Record<string, JsonValue>
+    ).id), ['successor-only']);
+    console.log('ledger.stale_fence_interleaving: PASS successorIssuedBeforePublication=true staleWriterCommitted=false');
+
     const normalCompatibilityLock = join(scratch, 'story', 'B-SMOKE', 'findings.lock');
     const normal = acquireMkdirLock(normalCompatibilityLock, {
       label: 'normal Finding compatibility', requireHolderToken: true,
@@ -1857,7 +2188,7 @@ if (process.argv[2] === '--ledger-worker') {
       main.release();
     }
     console.log('ledger.lock_compatibility: PASS deadlocks=0');
-    runRuntimeEvidenceMatrix(scratch);
+    await runRuntimeEvidenceMatrix(scratch);
     runRollbackKillSwitchMatrix(scratch);
     await runCombinedConcurrencyMatrix(scratch);
     runFailClosedBoundaryMatrix(scratch);

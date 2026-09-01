@@ -16,7 +16,8 @@
 //   - A DEAD holder (crashed process) stops refreshing; once `<target>.lock` is
 //     older than `stale`, proper-lockfile's race-safe reclaim lets exactly one
 //     waiter take it. `retries` makes concurrent builders wait rather than fail.
-import { closeSync, openSync } from 'node:fs';
+import { closeSync, existsSync, openSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import lockfile from 'proper-lockfile';
 // buildLockTarget + the stale threshold live in a dependency-free module (only
 // node: built-ins) so bin/bootstrap-runner.js can import them WITHOUT transitively
@@ -103,6 +104,13 @@ export function buildLockAdmissionTargetCount() {
   return buildLockAdmissionQueues.size;
 }
 
+/** Canonical read-only observation of the same proper-lockfile mutex. */
+export async function buildLockInProgress(repoKey) {
+  const target = buildLockTarget(repoKey);
+  if (!existsSync(target)) return false;
+  return lockfile.check(target, BUILD_LOCK_OPTIONS);
+}
+
 // Acquire the mutex, run fn while holding it, and ALWAYS release — on normal
 // completion AND on error (the finally below), so a failed tsc never leaks the
 // lock and deadlocks every subsequent build.
@@ -119,4 +127,11 @@ export async function withBuildLock(repoKey, fn) {
     queue.jobs.push({ fn, resolve, reject });
     void drainAdmissionQueue(target, queue);
   });
+}
+
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url
+  && process.argv[2] === '--proof-or-stop-check') {
+  const repoKey = process.argv[3];
+  if (!repoKey) process.exitCode = 64;
+  else process.exitCode = await buildLockInProgress(repoKey) ? 75 : 0;
 }

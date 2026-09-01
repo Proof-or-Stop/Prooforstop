@@ -1,7 +1,10 @@
 /** Story 3A/CHK-003: public, schema-neutral Finding ledger transaction helpers. */
-import { spawnSync } from 'node:child_process';
-import { realpathSync, statSync } from 'node:fs';
-import { isAbsolute, relative, resolve } from 'node:path';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash, createPublicKey, randomBytes } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import {
   canonicalHash, canonicalJson, planAppend, readLedger,
   validateEnvelope,
@@ -11,7 +14,13 @@ import {
   type JsonValue, type LedgerCommitReceipt, type LedgerEnvelope, type LedgerFence,
   type LedgerRecord,
 } from '../core/finding-ledger.js';
-import { canonicalDigest, signCanonical, verifyCanonical } from '../core/authority-signing.js';
+import {
+  canonicalDigest,
+  exportPublicKeyRaw,
+  importPrivateKeyRaw,
+  signCanonical,
+  verifyCanonical,
+} from '../core/authority-signing.js';
 import type { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -50,6 +59,56 @@ export interface LedgerSigner {
 }
 export interface LedgerReceiptTrust extends Omit<LedgerSigner, 'privateKey'> {
   algorithm: 'ed25519';
+}
+
+const FINDING_LEDGER_KEY_FILE = 'proof-or-stop-finding-ledger-v1.key';
+const require = createRequire(import.meta.url);
+const properLockfile = require('proper-lockfile') as {
+  checkSync(file: string, options: { stale: number; update: number }): boolean;
+};
+export const FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST = canonicalDigest({
+  version: 1,
+  registry: 'git-common-dir-current-key',
+  rotation: 'replacement-invalidates-prior-current-key',
+});
+
+function gitCommonDir(workspaceRoot: string): string {
+  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+    cwd: workspaceRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+  return isAbsolute(raw) ? raw : resolve(workspaceRoot, raw);
+}
+
+/** Registered local non-authority signer shared by every worktree of one repo. */
+export function findingLedgerSignerFromWorkspace(workspaceRoot: string): LedgerSigner {
+  const keyPath = join(gitCommonDir(workspaceRoot), FINDING_LEDGER_KEY_FILE);
+  if (!existsSync(keyPath)) {
+    mkdirSync(dirname(keyPath), { recursive: true });
+    try {
+      writeFileSync(keyPath, `${randomBytes(32).toString('base64')}\n`, {
+        encoding: 'utf8', mode: 0o600, flag: 'wx',
+      });
+    } catch (error) {
+      if (!existsSync(keyPath)) throw error;
+    }
+  }
+  const privateKey = readFileSync(keyPath, 'utf8').trim();
+  const publicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
+  const keyId = `finding-ledger-${canonicalDigest({ publicKey }).slice(0, 24)}`;
+  return {
+    privateKey,
+    publicKey,
+    keyId,
+    trustRootDigest: canonicalDigest({ profile: 'finding-ledger-local-trust-root-v1', publicKey }),
+    keyFreshnessPolicyDigest: FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST,
+  };
+}
+
+export function findingLedgerTrustFromWorkspace(workspaceRoot: string): LedgerReceiptTrust {
+  const { privateKey: _privateKey, ...trust } = findingLedgerSignerFromWorkspace(workspaceRoot);
+  return { ...trust, algorithm: 'ed25519' };
 }
 export interface LedgerExactCasSnapshot<T extends JsonValue = JsonValue> {
   ledger: LedgerEnvelope<T>;
@@ -395,12 +454,12 @@ export function verifyAssessmentProposal(
         || canonicalHash(opts.proposalRecord.payload) !== canonicalHash(proposal)
       )) return reject('proposal_receipt_invalid');
     }
-    const now = opts.now?.getTime();
+    const now = (opts.now ?? new Date()).getTime();
     const expiresAt = typeof proposal.expiresAt === 'string' ? Date.parse(proposal.expiresAt) : Number.NaN;
     const issuedAt = typeof proposal.issuedAt === 'string' ? Date.parse(proposal.issuedAt) : Number.NaN;
     const maxAge = typeof proposal.maxAgeSeconds === 'number' ? proposal.maxAgeSeconds * 1_000 : Number.NaN;
-    if (now !== undefined && (!Number.isFinite(expiresAt) || now >= expiresAt)) return reject('proposal_expired');
-    if (now !== undefined && (!Number.isFinite(issuedAt) || !Number.isFinite(maxAge) || now >= issuedAt + maxAge)) return reject('proposal_stale');
+    if (!Number.isFinite(expiresAt) || now >= expiresAt) return reject('proposal_expired');
+    if (!Number.isFinite(issuedAt) || !Number.isFinite(maxAge) || now >= issuedAt + maxAge) return reject('proposal_stale');
     if ((opts.expectedHeadHash && proposal.headHash !== opts.expectedHeadHash)
       || (opts.expectedMaterialHash && proposal.materialHash !== opts.expectedMaterialHash)
       || (opts.expectedStoryFilesHash && proposal.storyFilesHash !== opts.expectedStoryFilesHash)) {
@@ -809,6 +868,7 @@ export function queryFindingLedger(
 
 export const RUNTIME_EVIDENCE_PRIVATE_KEY_ENV = 'PROOF_OR_STOP_RUNTIME_EVIDENCE_PRIVATE_KEY';
 export const RUNTIME_EVIDENCE_PUBLIC_KEY_ENV = 'PROOF_OR_STOP_RUNTIME_EVIDENCE_PUBLIC_KEY';
+export const RUNTIME_EVIDENCE_REVOKED_KEY_IDS_ENV = 'PROOF_OR_STOP_RUNTIME_EVIDENCE_REVOKED_KEY_IDS';
 export const RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST = canonicalDigest({
   version: 1,
   adapter: 'structured-spawn-sync',
@@ -838,6 +898,21 @@ function runtimeSignerFromEnvironment(): RuntimeReceiptSigner {
     keyFreshnessPolicyDigest: RUNTIME_EVIDENCE_KEY_FRESHNESS_POLICY_DIGEST,
     algorithm: 'ed25519',
   };
+}
+
+function optionalRuntimeSignerFromEnvironment(): RuntimeReceiptSigner | null {
+  const privateKey = process.env[RUNTIME_EVIDENCE_PRIVATE_KEY_ENV]?.trim() ?? '';
+  const publicKey = process.env[RUNTIME_EVIDENCE_PUBLIC_KEY_ENV]?.trim() ?? '';
+  if (!privateKey && !publicKey) return null;
+  return runtimeSignerFromEnvironment();
+}
+
+function registeredRuntimeKeyStatus(keyId: string): 'fresh' | 'unknown' | 'revoked' {
+  const signer = optionalRuntimeSignerFromEnvironment();
+  if (!signer || signer.keyId !== keyId) return 'unknown';
+  const revoked = new Set((process.env[RUNTIME_EVIDENCE_REVOKED_KEY_IDS_ENV] ?? '')
+    .split(',').map((value) => value.trim()).filter(Boolean));
+  return revoked.has(keyId) ? 'revoked' : 'fresh';
 }
 
 function runtimeTrust(publicKey: string, keyStatus: RuntimeReceiptTrust['keyStatus'] = 'fresh'): RuntimeReceiptTrust {
@@ -916,27 +991,30 @@ function runtimeToolchain(compilerVersion: string): RuntimeEvidenceReceipt['tool
   return { ...value, toolchainDigest: canonicalDigest(value) };
 }
 
-function runtimeLedgerTrust(signer: RuntimeReceiptSigner): LedgerReceiptTrust {
-  return {
-    publicKey: signer.publicKey,
-    keyId: signer.keyId,
-    algorithm: 'ed25519',
-    trustRootDigest: signer.trustRootDigest,
-    keyFreshnessPolicyDigest: signer.keyFreshnessPolicyDigest,
-  };
+function canonicalBuildLockInProgress(projectRoot: string): boolean {
+  try {
+    // Exact target/options shared with scripts/build-lock-target.mjs and
+    // scripts/build-lock.mjs. Keep the read in-package so a clean npm install
+    // does not depend on repository-level scripts existing outside the package.
+    const target = join(tmpdir(), `lattice-build-lock-${createHash('sha256').update(String(projectRoot)).digest('hex')}`);
+    if (!existsSync(target)) return false;
+    return properLockfile.checkSync(target, { stale: 30_000, update: 10_000 });
+  } catch {
+    throw new RuntimeEvidenceRefusal('build_in_progress', 'canonical build-lock state is unavailable');
+  }
 }
 
 function runtimeReplay(
   ctx: HandlerContext,
   args: FindingRuntimeEvidenceRunArgs,
-  signer: RuntimeReceiptSigner,
+  ledgerTrust: LedgerReceiptTrust,
   expected: Parameters<typeof verifyRuntimeEvidenceCurrent>[1],
 ): { runtimeReceipt: RuntimeEvidenceReceipt; runtimeRecordId: string; ledgerReceipt: FindingLedgerReceipt } | null {
   const ledger = ctx.store.readFindingLedger<JsonValue>(args.storyId);
   const commit = ledger.receipts.find((candidate) => candidate.idempotencyKey === args.idempotencyKey) as PersistedCommitReceipt | undefined;
   if (!commit) return null;
   if (!commit.findingLedgerReceipt
-    || !verifyFindingLedgerReceipt(commit.findingLedgerReceipt, runtimeLedgerTrust(signer))
+    || !verifyFindingLedgerReceipt(commit.findingLedgerReceipt, ledgerTrust)
     || commit.findingLedgerReceipt.operation !== 'append_runtime_receipt'
     || commit.recordIds.length !== 1) {
     throw new Error('IDEMPOTENCY_CONFLICT: original runtime ledger receipt is invalid');
@@ -951,6 +1029,50 @@ function runtimeReplay(
     throw new Error(`IDEMPOTENCY_CONFLICT: original runtime receipt is not current (${verification.refusal})`);
   }
   return { runtimeReceipt, runtimeRecordId: record.recordId, ledgerReceipt: commit.findingLedgerReceipt };
+}
+
+/**
+ * Establish the complete local trust chain for a persisted runtime receipt.
+ *
+ * The runtime receipt's own signature is necessary but not sufficient: the
+ * record carrying it must also be covered by an untampered, repository-key
+ * signed ledger commit.  Keep this check public so adversarial tests can
+ * exercise the exact production predicate rather than a look-alike.
+ */
+export function verifyRuntimeReceiptCarrier(
+  ledger: LedgerEnvelope<JsonValue>,
+  storyId: string,
+  record: LedgerRecord<JsonValue>,
+  trust: LedgerReceiptTrust,
+): boolean {
+  try {
+    validateEnvelope(ledger);
+    if (record.recordType !== 'runtime_evidence_receipt'
+      || record.payloadHash !== canonicalHash(record.payload)) return false;
+    const recordIndex = ledger.records.findIndex((candidate) => candidate.recordId === record.recordId);
+    if (recordIndex < 0) return false;
+    const carrier = ledger.receipts.find((candidate) => candidate.recordIds.includes(record.recordId)) as PersistedCommitReceipt | undefined;
+    const receipt = carrier?.findingLedgerReceipt;
+    if (!carrier || !receipt
+      || receipt.storyId !== storyId
+      || receipt.operation !== 'append_runtime_receipt'
+      || receipt.receiptId !== carrier.receiptId
+      || receipt.idempotencyKey !== carrier.idempotencyKey
+      || canonicalHash(receipt.recordIds) !== canonicalHash(carrier.recordIds)
+      || receipt.priorLedgerDigest !== carrier.priorLedgerDigest
+      || receipt.committedLedgerDigest !== carrier.committedLedgerDigest
+      || receipt.writerSessionId !== carrier.writerSessionId
+      || receipt.writerFenceToken !== carrier.writerFenceToken
+      || receipt.committedAt !== carrier.committedAt
+      || receipt.replayed !== false
+      || !receipt.recordIds.includes(record.recordId)
+      || receipt.priorLedgerDigest !== record.priorDigest
+      || receipt.committedLedgerDigest !== canonicalHash(ledger.records.slice(0, recordIndex + 1))
+      || !verifyFindingLedgerReceipt(receipt, trust)) return false;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function runtimeExpectedState(
@@ -982,13 +1104,23 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
     finding_ledger_query(args: FindingLedgerQueryArgs) {
       assertText(args.storyId, 'storyId');
       ctx.store.readStory(args.storyId);
-      const signer = runtimeSignerFromEnvironment();
+      const signer = findingLedgerSignerFromWorkspace(ctx.root);
+      const runtimeSigner = optionalRuntimeSignerFromEnvironment();
+      const trustedKeys = [
+        ...(runtimeSigner ? [{
+          publicKey: runtimeSigner.publicKey,
+          keyId: runtimeSigner.keyId,
+          trustRootDigest: runtimeSigner.trustRootDigest,
+          keyFreshnessPolicyDigest: runtimeSigner.keyFreshnessPolicyDigest,
+        }] : []),
+        ...(args.trustedKeys ?? []),
+      ];
       try {
         return queryFindingLedger(
           ctx.store.readFindingLedger<JsonValue>(args.storyId),
           args.storyId,
           signer,
-          args.trustedKeys ?? [],
+          trustedKeys,
         );
       } catch (error) {
         if (error instanceof FindingLedgerQueryRefusal) throw error;
@@ -1001,16 +1133,20 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       assertText(args.idempotencyKey, 'idempotencyKey');
       assertCwdInWorktree(ctx.store, args.storyId);
       ctx.store.readStory(args.storyId);
-      if (args.buildInProgress) throw new RuntimeEvidenceRefusal('build_in_progress');
+      if (args.buildInProgress || canonicalBuildLockInProgress(ctx.root)) {
+        throw new RuntimeEvidenceRefusal('build_in_progress');
+      }
       const timeoutMs = args.timeoutMs ?? 60_000;
       if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
         throw new Error('timeoutMs must be an integer from 1 to 300000');
       }
       const signer = runtimeSignerFromEnvironment();
+      const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
+      const ledgerTrust = findingLedgerTrustFromWorkspace(ctx.root);
       const trust = runtimeTrust(signer.publicKey);
       const expected = runtimeExpectedState(ctx, args, trust);
       const findingLockDir = ctx.store.storyFilePath(args.storyId, 'findings.lock');
-      const replay = withMkdirLock(findingLockDir, () => runtimeReplay(ctx, args, signer, expected), {
+      const replay = withMkdirLock(findingLockDir, () => runtimeReplay(ctx, args, ledgerTrust, expected), {
         label: 'runtime receipt replay lookup', requireHolderToken: true,
       });
       if (replay) {
@@ -1054,7 +1190,7 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
         const identity = getSessionIdentity();
         const ownerLease = readOwnerLease(ctx.store.storyDirPath(args.storyId));
         const persisted = withMkdirLock(findingLockDir, () => {
-          const lateReplay = runtimeReplay(ctx, args, signer, expected);
+          const lateReplay = runtimeReplay(ctx, args, ledgerTrust, expected);
           if (lateReplay) return lateReplay;
           const fence = captureMkdirLockFence(findingLockDir);
           const ledgerReceipt = appendRuntimeReceipt({
@@ -1066,7 +1202,7 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
             writerLeaseId: ownerLease?.sessionId ?? identity.sessionId,
             writerFenceToken: fence.writerFenceToken,
             fence,
-            signer,
+            signer: ledgerSigner,
             commitOptions: args.commitOptions,
           });
           return {
@@ -1098,14 +1234,29 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       assertText(args.runtimeReceiptId, 'runtimeReceiptId');
       assertCwdInWorktree(ctx.store, args.storyId);
       ctx.store.readStory(args.storyId);
-      const publicKey = args.publicKey?.trim() || process.env[RUNTIME_EVIDENCE_PUBLIC_KEY_ENV]?.trim() || '';
-      if (!publicKey) throw new RuntimeEvidenceRefusal('unknown_signing_key');
-      const trust = runtimeTrust(publicKey, args.keyStatus ?? 'fresh');
+      const signer = optionalRuntimeSignerFromEnvironment();
+      if (!signer) throw new RuntimeEvidenceRefusal('unknown_signing_key');
+      if (args.publicKey?.trim() && args.publicKey.trim() !== signer.publicKey) {
+        throw new RuntimeEvidenceRefusal('unknown_signing_key');
+      }
+      if (args.keyStatus && args.keyStatus !== 'fresh') {
+        throw new RuntimeEvidenceRefusal(args.keyStatus === 'expired' ? 'expired_signing_key'
+          : args.keyStatus === 'revoked' ? 'revoked_signing_key' : 'unknown_signing_key');
+      }
+      const keyStatus = registeredRuntimeKeyStatus(signer.keyId);
+      if (keyStatus !== 'fresh') {
+        throw new RuntimeEvidenceRefusal(keyStatus === 'revoked' ? 'revoked_signing_key' : 'unknown_signing_key');
+      }
+      const trust = runtimeTrust(signer.publicKey, keyStatus);
       const expected = runtimeExpectedState(ctx, args, trust);
       const ledger = ctx.store.readFindingLedger<JsonValue>(args.storyId);
       const record = ledger.records.find((candidate) => candidate.recordType === 'runtime_evidence_receipt'
         && (candidate.payload as unknown as RuntimeEvidenceReceipt).receiptId === args.runtimeReceiptId);
       if (!record) throw new Error('runtime-evidence: receipt_not_found');
+      const ledgerTrust = findingLedgerTrustFromWorkspace(ctx.root);
+      if (!verifyRuntimeReceiptCarrier(ledger, args.storyId, record, ledgerTrust)) {
+        throw new RuntimeEvidenceRefusal('receipt_signature_invalid', 'runtime receipt carrier trust chain is invalid');
+      }
       const receipt = record.payload as unknown as RuntimeEvidenceReceipt;
       const verification = verifyRuntimeEvidenceCurrent(receipt, expected);
       if (!verification.valid) throw new RuntimeEvidenceRefusal(verification.refusal ?? 'receipt_shape_invalid');
