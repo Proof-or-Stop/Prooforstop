@@ -101,16 +101,27 @@ const CERTIFICATION_INPUT_IDS = CAUSAL_DEPENDENCY_DOMAINS.map(domain => `certifi
  *  - build-input    (lockfiles, tsconfig, *.config.json) compiles everything -> upstream of all
  *  - source         (packages/main/src, excl. tasks) is exercised by tests and driven by bins
  *  - manifest-semantic (host adapter dirs) is consumed by the integration entrypoints
- *  - test           (tests/, src/tasks/) is terminal: nothing is built from it
- *  - integration    (bin/, scripts/, .githooks/, sibling packages) is terminal
- *  - review-subject (docs/, AGENTS|CLAUDE|README) is terminal and compiles from nothing
+ *  - test           (tests/, src/tasks/) additionally consumes integration, because 24 files
+ *                   in the test domain EXECUTE integration-domain artifacts -- e.g.
+ *                   codex-heartbeat-timeout-smoke.ts:273 runs `bin/proof-or-stop.js`. Without
+ *                   this edge a bin/ change reruns only certification-integration, then
+ *                   causalRerunComplete admits the gate while certification-test still holds
+ *                   evidence earned against the OLD bin (B-5a15 F-337).
+ *  - integration    (bin/, scripts/, .githooks/, sibling packages) additionally consumes
+ *                   review-subject, because scripts/ contains contract verifiers that read
+ *                   docs as LOAD-BEARING assertion inputs -- verify-process-fact-contract.mjs
+ *                   asserts over AGENTS.md and five docs/requirements/decisions/*.md files,
+ *                   and it is DONE-required via test:serial-reference. Omitting this edge
+ *                   under-invalidates: a docs-only edit would leave certification-integration
+ *                   reported FRESH when a real input of it changed (B-5a15 F-336).
+ *  - review-subject (docs/, AGENTS|CLAUDE|README) is terminal: nothing is built from docs
  */
 const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain, readonly CausalDependencyDomain[]>> = {
   'build-input': [],
   'source': ['build-input'],
   'manifest-semantic': ['build-input'],
-  'test': ['build-input', 'source'],
-  'integration': ['build-input', 'source', 'manifest-semantic'],
+  'test': ['build-input', 'source', 'integration'],
+  'integration': ['build-input', 'source', 'manifest-semantic', 'review-subject'],
   'review-subject': [],
 };
 
