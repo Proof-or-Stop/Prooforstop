@@ -95,7 +95,23 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Runtime evidence integrity reports a current signed receipt for stable artifacts and refuses changed source, command, environment, toolchain, trust key, artifact bytes or build-in-progress state with an explicit reason code.",
+      "excludes": [
+        "The receipt proves executed bytes and freshness only, not semantic correctness or applicability."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/evidence/artifact-store.ts"
+        ],
+        "create": [
+          "packages/main/src/core/runtime-evidence-receipt.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
