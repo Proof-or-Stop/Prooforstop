@@ -513,7 +513,7 @@
       "desc": "concept-authority-drift (high): packages/main/src/core/prompt-registry.ts:61 and :68 encode the earlier future verdict `stale_or_not_reproduced` and require current-Story repair for every verified applicable issue outside only non-applicable routing. The current authoritative plan on main has advanced: dynamic-finding-system-execution-plan.md:55-62 and :600 rename the strong negative-witness verdict to `not_reproduced_under_current_witness`, while :2036-2139 defines a distinct signed defer-with-proof disposition for eligible verified applicable low/medium Findings and reserves mandatory current repair for high/critical, protected-surface, regression/acceptance/gate-impact, invalid-lineage, or exhausted-deferral cases. Because the canonical contract tells all five lanes to consume the official future system when available, merging it unchanged would teach obsolete target-state vocabulary and collapse applicability into disposition. Update the Agent projection and its semantic mutation/digest tests to the current authority without pretending the unavailable compatibility CLI implements deferral. B-9a49:F-022 independently corroborates this blocker; this lane does not treat that parallel evidence as resolution.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T09:51:09.245Z",
@@ -526,7 +526,11 @@
         "packages/main/src/tasks/prompt-registry-smoke.ts"
       ],
       "signatureTag": "missing|ts|concept-authority-drift",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 951d4754226ae9594b73c9375cbe40894737dd26 and 3b9768f602df7fe53dacea666fa0702c28749254. Current canonical Agent guidance now distinguishes applicability from disposition, uses not_reproduced_under_current_witness with fresh signed witness proof, permits future official signed defer_with_proof only for eligible verified applicable low/medium Findings, preserves all mandatory current-repair exclusions, and explicitly forbids pretending the current compatibility CLI implements that disposition. Round 8 concept RR-030 independently verified current-main authority alignment, all focused/full prompt and contract suites, 59/59 current evidence, topology/pre-review/rollout PASS, English digest-pinned proposal, valid scope acknowledgements, and zero protected runtime diff.",
+      "resolvedAt": "2026-09-01T10:57:09.963Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-024",
