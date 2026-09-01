@@ -24629,6 +24629,36 @@
       },
       "readDiagnostics": [],
       "_hash": "132c4e81c5ac917094b6dc8cd7e1920389779284f148043cbd3727afc5a68992"
+    },
+    {
+      "id": "B-45a0:RP-527",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage re-review after remediation of F-466/F-468. Independently verified (not just receipts): all 50 verificationEvidence rows are mechanical:true, result:pass, and share materialHash 6d96761e which equals the current-HEAD materialHash I computed myself, so all evidence is fresh under the frameworks own checkEvidenceFreshnessForGit rule despite some stale headHash values that diff to metadata-only changes (checklist.json/index.json/pre-review-check.json/process-events.jsonl only, confirmed by git diff). I ran all four Wave-4 evaluators live myself (acceptance_topology_check, pre_review_check_read, acceptance_rollout_check, acceptance_rollout_report_read): all exit 0 with status=pass/blocking=false. Confirmed paired-performance.json head=52cb346c9810 is an ancestor of current HEAD with zero packages/graph changes since, and that verify-no-project-writes.mjs was NOT added to REPLAY_ADMISSION_NONEXECUTING_PATHS (fresh campaign, not allowlist-widening). Confirmed rollout-report metrics: detectedSeedCount=3/registeredSeedCount=3 (100%), falseBlockRate=0, 6 matched pairs x 6 review rounds each = 3x2 quorum. Deferred CHK-014:edge:0 bare-key selector defect (F-437/452/457/461/463) is traceably dismissed with strong evidence and the DEV->REVIEW pre_review_check gate blocking decision is independently derived from signed executable-proof/mutation/transcript checks, not solely the flawed selector-derived evidence.result field, so no live gate is currently distorted by it. F-465 (low, dead code) and F-467/F-469 (medium, doc count 112 vs 116) remain open/traceable and are correctly deferred per rule 3. Note: F-466/F-468 remain status=open in the registry pending main-agent finding_resolve (outside my allowed command set); their underlying claim is verified fixed. One incidental infra_failure observed during my own validate --story --json run (persistence rejected due to dirty tree from my concurrent dispatch/review_run_start writes) and one transient packages/graph run check failure (UNEXPECTED_PROJECT_WRITE caused by that same concurrent write activity, confirmed by re-running packages/graph check standalone twice with exit 0); both are self-inflicted reviewer-session artifacts, not story defects, and packages/graph is out of B-45a0 declared scope (owned by B-3e16). No blocking test-coverage finding.",
+      "createdAt": "2026-09-01T04:42:14.983Z",
+      "reviewRound": "2026-09-01T04:22:03.645Z",
+      "reviewRunId": "B-45a0:RR-1179",
+      "envelopeId": "13020550e4b12cd82b4ae690b481c0afafb00aa93eedc2dccc0e3bb0d0115bc2",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "32bc3447cea0ac802fd4c27abdd3c7af1086bbbee5636081902cc082c7310447"
     }
   ]
 }
