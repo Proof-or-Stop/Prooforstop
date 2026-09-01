@@ -2952,6 +2952,75 @@
         "scanEscalationReason": "REVIEWER_REQUESTED_FULL: explicitly requested full-context audit of all 29 intent/evidence bindings, both canonical test catalogs, and direct inverse coverage for the Round 32 fixes; incremental eligibility was not used."
       },
       "_hash": "b3e1de7822daf29b24795da21036b68f77c4cd03787a669fbaf4b1da643754e6"
+    },
+    {
+      "id": "B-022e:RP-075",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 32 requested-full full-context docs review extracted 1672 changed symbol tokens from the full story diff and compared 10 focused documentation/executable-diagnostic paragraphs. The migration verifier truthfully treats bin/lattice.js, .lattice, lattice config/manifest, and @lattice/core as retired migration inputs while pairing them with canonical .proof-or-stop and @proof-or-stop/core; exact diagnostics do not imply an active compatibility alias. Current guidance uses proof-or-stop-review-story-init, canonical StoryStore/sourcePointers, and plan_get/plan_set. Root/Core/docs CLI are 0.3.270; Utils is 0.3.268 with Core ^0.3.268; Lab is 0.3.65 with Core ^0.3.65. Wave 4 remains local assurance, not release/production/public Authority. readRetiredRepoRootDiffPaths projectRoot-to-gitCwd is a code-only internal parameter rename with no doc reference or user-facing contract change, so no doc update is required. No doc-code drift, undelivered promise, or blocker.",
+      "createdAt": "2026-09-01T20:36:09.496Z",
+      "reviewRound": "2026-09-01T20:22:08.642Z",
+      "reviewRunId": "B-022e:RR-146",
+      "envelopeId": "b26cedfb87115e79cb271a633f644b098736f084c5630251c62058accb3d50ba",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "README.md",
+          "scripts/verify-migration-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "packages/utils/package.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": "Round 32 explicitly requested full-context docs review of migration diagnostics and all canonical identity/version/Authority boundaries after four fixes."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "70f231b1fa66b072a69785e3bc0f0e40926aca49531a85f039724b83fabcaa90"
+      },
+      "readDiagnostics": [],
+      "_hash": "6fe4f96c18862f284f412a818535ba87f6f391314c70be31f1954a6cced08d88"
     }
   ]
 }
