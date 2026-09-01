@@ -29,8 +29,8 @@ function makeRepoWithWorktree(base) {
 
 function makeGlobalRootLinkedTo(base, target) {
   const globalRoot = join(base, 'global', 'node_modules');
-  mkdirSync(join(globalRoot, '@proofOrStop'), { recursive: true });
-  symlinkSync(target, join(globalRoot, '@proofOrStop', 'core'), 'dir');
+  mkdirSync(join(globalRoot, '@proof-or-stop'), { recursive: true });
+  symlinkSync(target, join(globalRoot, '@proof-or-stop', 'core'), 'dir');
   return globalRoot;
 }
 
