@@ -743,6 +743,59 @@ const SELECTOR = 'MARKER_OK';
   } finally { cleanup(env); }
 }
 
+// ── 12f. B-5a15 F-342: the AUDITED (mechanical:false) arm of the freshness fork.
+//
+// F-339 made evidenceHashesForPersistence fork on prior.mechanical, matching
+// carryForwardOnDiskProvenance, so a note-only edit to an audited attestation keeps its
+// original binding instead of being silently re-stamped to the current tree. Block 12e
+// above cannot witness that: it seeds through checklist_update with no `mechanical`
+// field, so all four rows persist as mechanical:undefined and only ever exercise the
+// STRICT arm. A reviewer proved the gap by reverting the fork and observing this file
+// still pass. This block seeds a genuinely audited row through the escape entry point
+// so the audited arm is actually executed and asserted.
+{
+  const env = makeEnv([{ ref: 'INT-F342-AUDITED', type: 'cli' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-F342-AUDITED',
+      kind: 'manual_transcript', result: 'pass', note: 'baseline audited note',
+      nonMechanicalReason: 'execution genuinely impossible here; recorded as audited non-mechanical escape',
+    });
+    const seededAudited = env.store.readChecklist(env.storyId).items[0].verificationEvidence
+      ?.find(e => e.intentRef === 'INT-F342-AUDITED');
+    assert.equal(seededAudited?.mechanical, false, 'F-342 fixture really is an audited row, not mechanical:undefined');
+
+    // Move the tree so a re-stamp would be observable.
+    writeFileSync(join(env.root, 'f342-drift.txt'), 'drift\n');
+    git(env.root, ['add', 'f342-drift.txt']);
+    git(env.root, ['commit', '-m', 'F-342 material drift']);
+    const driftedHead = currentGitHead(env.root);
+    assert.notEqual(driftedHead, seededAudited?.headHash, 'F-342 fixture moves HEAD');
+
+    // Note-only edit: identity-bearing fields all unchanged, only `note` differs.
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{
+        intentRef: 'INT-F342-AUDITED', kind: 'manual_transcript' as const,
+        result: 'pass' as const, note: 'updated audited note',
+      }],
+    });
+    const afterNoteEdit = env.store.readChecklist(env.storyId).items[0].verificationEvidence
+      ?.find(e => e.intentRef === 'INT-F342-AUDITED');
+    assert.equal(afterNoteEdit?.note, 'updated audited note', 'F-342 note-only edit still updates ordinary metadata');
+    assert.equal(afterNoteEdit?.mechanical, false, 'F-342 note-only edit preserves the audited provenance');
+    assert.ok(afterNoteEdit?.nonMechanicalReason, 'F-342 note-only edit keeps the escape reason attributable');
+    // The load-bearing assertions: a note-only edit must NOT rebind freshness to the
+    // moved tree. Reverting the F-339 fork makes exactly these three fail.
+    assert.equal(afterNoteEdit?.headHash, seededAudited?.headHash,
+      'F-342 audited note-only edit keeps the original headHash');
+    assert.equal(afterNoteEdit?.materialHash, seededAudited?.materialHash,
+      'F-342 audited note-only edit keeps the original materialHash');
+    assert.equal(afterNoteEdit?.storyFilesHash, seededAudited?.storyFilesHash,
+      'F-342 audited note-only edit keeps the original storyFilesHash');
+  } finally { cleanup(env); }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════════
 // B-cdf6 (B-META F-012): distinct receipt-timeout refusal + bounded audited timeout
 // override.
