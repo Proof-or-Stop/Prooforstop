@@ -983,7 +983,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-cutover.md:3-4 and :188-195 still state that this policy commit must precede RED/production and that this decision is committed alone. Commit 0d68468f6e changed this decision after RED and production to add the decoded ledger-suffix rule, while scripts/verify-proof-or-stop-identity-cutover.mjs:21 and :1320-1354 mechanically bind ordering to the original f245fd614c policy commit; :262-265 separately pins the amended current blob. The new suffix wording itself matches JSON.parse plus recursive decoded key/value scanning, case-insensitive TOKEN_PATTERN classification, immutable-prefix checks, and exact record/token-count/digest provenance, but the document now conflates the original pre-RED decision commit with a post-RED reviewed clarification. WHY: an auditor can incorrectly infer that the amended bytes themselves satisfy the immutable pre-RED ordering claim. Clarify Status/Required order to name the original policy commit as the ordering anchor and label later reviewed amendments without weakening its lineage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-01T00:56:29.806Z",
@@ -1017,7 +1017,11 @@
         "scripts/verify-proof-or-stop-identity-cutover.mjs"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f7bf366af7: the decision now distinguishes the original pre-RED policy-only ordering anchor f245fd from later post-RED exact clarifying amendments; verifier separately validates original ordering and current document blob/SHA.",
+      "resolvedAt": "2026-09-01T01:11:52.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
