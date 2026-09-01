@@ -918,6 +918,45 @@
         "scanEscalationReason": "Full-envelope Round 15 re-review covered all checklist intents and focused the only story-owned amendment on policy chronology, immutable pre-RED ordering, current-byte provenance, evidence freshness, and unchanged clean-install coverage."
       },
       "_hash": "9503f6e5f4907ea9f8990134ac519b0d1e5113870e7be010b8fc7ab758c00898"
+    },
+    {
+      "id": "B-022e:RP-031",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Extracted 1517 diff symbols and compared 6 focused documentation sections: policy status/chronology, required ordering, decoded append-only suffix provenance, current CLI 0.3.268, historical CLI 0.3.5 migration, and canonical proof-or-stop-review-story-init. No blocker: f7bf366 truthfully binds ordering to original f245fd while separately pinning later reviewed document bytes; identity and packed clean-install verifier passed and unrelated doc/version/history surfaces are unchanged.",
+      "createdAt": "2026-09-01T01:17:36.540Z",
+      "reviewRound": "2026-09-01T01:11:43.385Z",
+      "reviewRunId": "B-022e:RR-070",
+      "envelopeId": "acbdb8371b1a50ac7f3eb8e07c027fa0c7ee62eafaf5129d44a21e3a8958b6f8",
+      "writerSessionId": "sess-8b578106d88f262e7b8839da1f27faa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "docs/CLI.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "d24e42a0929dcfdd33578c26a0e26c602eec286f21b4d42d07423f0048354595"
+      },
+      "readDiagnostics": [],
+      "_hash": "126ff5c3847bcdb9d00631f4566e27247a53be8275c5ef2354e14ca8aa1085f7"
     }
   ]
 }
