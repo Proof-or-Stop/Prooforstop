@@ -537,7 +537,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:1 is absent from HEAD, main, the working tree, and repository history even though the operator explicitly named this Markdown artifact, required all-English open-source content, and then asked to execute that document until DONE. Independent searches (`rg --files -uu` plus `git log --all --full-history --name-status`) return no matching proposal, so there is no durable proposal artifact whose scope, Agent/System boundary, compatibility limitations, and Dynamic Finding consistency can be audited or handed off. Add or restore the tracked English proposal, reconcile it with the current authoritative plan (including `not_reproduced_under_current_witness` and signed defer-with-proof semantics), and include it in the Story related-document/digest coverage before claiming the document is fully executed.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T09:55:43.055Z",
@@ -548,7 +548,11 @@
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 951d4754226ae9594b73c9375cbe40894737dd26 and 3b9768f602df7fe53dacea666fa0702c28749254. The requested proposal is now a tracked 265-line all-English open-source document, reconciles the Agent/System boundary with current Dynamic Finding authority, is SHA-256 pinned by the prompt baseline verifier, is present in CHK-001 through CHK-004 relatedDocs, and has an explicit reviewer-visible scope acknowledgement. Round 8 quality RR-034 independently verified build, focused triage, full-context envelope, prompt baseline, process/runtime fact contracts, English quality, and zero protected runtime diff.",
+      "resolvedAt": "2026-09-01T10:57:30.620Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-025",
