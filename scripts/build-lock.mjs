@@ -46,15 +46,25 @@ export const BUILD_LOCK_OPTIONS = Object.freeze({
   retries: { retries: 600, minTimeout: 200, maxTimeout: 1000, factor: 2 },
 });
 
-// Acquire the mutex, run fn while holding it, and ALWAYS release — on normal
-// completion AND on error (the finally below), so a failed tsc never leaks the
-// lock and deadlocks every subsequent build.
-export async function withBuildLock(repoKey, fn) {
-  const target = buildLockTarget(repoKey);
-  // Create-or-open the lock target so proper-lockfile can realpath it. openSync(...,'a')
-  // is create-or-open and safe under concurrent callers, so there is no benign error to
-  // swallow: a genuine failure (EACCES, ENOSPC) must SURFACE here rather than be masked
-  // into a confusing downstream proper-lockfile realpath error.
+// proper-lockfile guarantees mutual exclusion, stale recovery and cross-process
+// correctness, but it does not promise arrival order between callers in the
+// same JavaScript process. Keep a small admission queue per canonical target so
+// in-process callers enter proper-lockfile in call order. Different targets use
+// different queues and therefore remain independent.
+const buildLockAdmissionQueues = new Map();
+export const BUILD_LOCK_MAX_IN_PROCESS_WAITERS = 256;
+
+function admissionQueueFor(target) {
+  const current = buildLockAdmissionQueues.get(target);
+  if (current) return current;
+  const created = { running: false, jobs: [] };
+  buildLockAdmissionQueues.set(target, created);
+  return created;
+}
+
+async function executeBuildLockJob(target, fn) {
+  // Create-or-open the lock target so proper-lockfile can realpath it. Every
+  // admitted job still acquires the cross-process primitive independently.
   closeSync(openSync(target, 'a'));
   const release = await lockfile.lock(target, BUILD_LOCK_OPTIONS);
   try {
@@ -62,4 +72,51 @@ export async function withBuildLock(repoKey, fn) {
   } finally {
     await release();
   }
+}
+
+async function drainAdmissionQueue(target, queue) {
+  if (queue.running) return;
+  queue.running = true;
+  while (queue.jobs.length > 0) {
+    const job = queue.jobs.shift();
+    try {
+      job.resolve(await executeBuildLockJob(target, job.fn));
+    } catch (error) {
+      // Reject this caller but continue draining: one failed build must not
+      // poison later builds for the same target.
+      job.reject(error);
+    }
+  }
+  queue.running = false;
+  if (queue.jobs.length === 0 && buildLockAdmissionQueues.get(target) === queue) {
+    buildLockAdmissionQueues.delete(target);
+  }
+}
+
+/** Read-only diagnostics used by build health checks. */
+export function buildLockAdmissionState(repoKey) {
+  const queue = buildLockAdmissionQueues.get(buildLockTarget(repoKey));
+  return queue ? Object.freeze({ running: queue.running, waiting: queue.jobs.length }) : undefined;
+}
+
+export function buildLockAdmissionTargetCount() {
+  return buildLockAdmissionQueues.size;
+}
+
+// Acquire the mutex, run fn while holding it, and ALWAYS release — on normal
+// completion AND on error (the finally below), so a failed tsc never leaks the
+// lock and deadlocks every subsequent build.
+export async function withBuildLock(repoKey, fn) {
+  const target = buildLockTarget(repoKey);
+  return new Promise((resolve, reject) => {
+    const queue = admissionQueueFor(target);
+    if (queue.jobs.length >= BUILD_LOCK_MAX_IN_PROCESS_WAITERS) {
+      const error = new Error(`build lock admission queue is full for ${target}`);
+      error.code = 'EBUILDLOCKQUEUEFULL';
+      reject(error);
+      return;
+    }
+    queue.jobs.push({ fn, resolve, reject });
+    void drainAdmissionQueue(target, queue);
+  });
 }

@@ -565,6 +565,104 @@ function runDependencyScorecardBoundary(repositoryRoot: string): void {
   console.log('green.dependency_scorecard_boundary: PASS');
 }
 
+function runBuildLockFifoRegression(repositoryRoot: string, scratch: string): void {
+  const buildLockPath = join(repositoryRoot, 'scripts', 'build-lock.mjs');
+  const fixture = String.raw`
+    import assert from 'node:assert/strict';
+    import { existsSync } from 'node:fs';
+    import { join } from 'node:path';
+    import { pathToFileURL } from 'node:url';
+    const {
+      BUILD_LOCK_MAX_IN_PROCESS_WAITERS,
+      buildLockAdmissionState,
+      buildLockAdmissionTargetCount,
+      buildLockTarget,
+      withBuildLock,
+    } = await import(pathToFileURL(process.argv[1]).href);
+    const scratch = process.argv[2];
+    const fifoTarget = join(scratch, 'fifo-target');
+    const order = [];
+    let active = 0;
+    let maxActive = 0;
+    const enter = async (label, shouldFail = false) => withBuildLock(fifoTarget, async () => {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      order.push(label + '-enter');
+      assert.equal(existsSync(buildLockTarget(fifoTarget) + '.lock'), true, 'proper-lockfile lock directory missing');
+      await new Promise((resolve) => setTimeout(resolve, 15));
+      active -= 1;
+      order.push(label + (shouldFail ? '-fail' : '-exit'));
+      if (shouldFail) throw new Error('injected build failure');
+      return label;
+    });
+    const jobs = [enter('first'), enter('second', true), enter('third')];
+    assert.deepEqual(buildLockAdmissionState(fifoTarget), { running: true, waiting: 2 });
+    const settled = await Promise.allSettled(jobs);
+    assert.deepEqual(settled.map((item) => item.status), ['fulfilled', 'rejected', 'fulfilled']);
+    assert.deepEqual(order, [
+      'first-enter', 'first-exit', 'second-enter', 'second-fail', 'third-enter', 'third-exit',
+    ]);
+    assert.equal(maxActive, 1);
+    assert.equal(buildLockAdmissionState(fifoTarget), undefined);
+
+    let releaseFirst;
+    let markEntered;
+    const releaseGate = new Promise((resolve) => { releaseFirst = resolve; });
+    const entered = new Promise((resolve) => { markEntered = resolve; });
+    const independentA = join(scratch, 'independent-a');
+    const independentB = join(scratch, 'independent-b');
+    const a = withBuildLock(independentA, async () => {
+      markEntered();
+      await releaseGate;
+    });
+    await entered;
+    const b = withBuildLock(independentB, async () => {
+      assert.equal(existsSync(buildLockTarget(independentB) + '.lock'), true);
+      return 'independent';
+    });
+    const winner = await Promise.race([
+      b,
+      new Promise((resolve) => setTimeout(() => resolve('timeout'), 1000)),
+    ]);
+    assert.equal(winner, 'independent', 'a different target was serialized behind the first target');
+    releaseFirst();
+    await a;
+    assert.equal(buildLockAdmissionTargetCount(), 0);
+
+    let releaseBounded;
+    let markBoundedEntered;
+    const boundedGate = new Promise((resolve) => { releaseBounded = resolve; });
+    const boundedEntered = new Promise((resolve) => { markBoundedEntered = resolve; });
+    const boundedTarget = join(scratch, 'bounded-target');
+    const boundedHolder = withBuildLock(boundedTarget, async () => {
+      markBoundedEntered();
+      await boundedGate;
+    });
+    await boundedEntered;
+    const boundedWaiters = Array.from({ length: BUILD_LOCK_MAX_IN_PROCESS_WAITERS }, () => (
+      withBuildLock(boundedTarget, async () => undefined)
+    ));
+    assert.equal(buildLockAdmissionState(boundedTarget).waiting, BUILD_LOCK_MAX_IN_PROCESS_WAITERS);
+    await assert.rejects(
+      withBuildLock(boundedTarget, async () => undefined),
+      (error) => error?.code === 'EBUILDLOCKQUEUEFULL',
+    );
+    releaseBounded();
+    await Promise.all([boundedHolder, ...boundedWaiters]);
+    assert.equal(buildLockAdmissionState(boundedTarget), undefined);
+    assert.equal(buildLockAdmissionTargetCount(), 0);
+  `;
+  const result = spawnSync(process.execPath, [
+    '--input-type=module', '-e', fixture, buildLockPath, join(scratch, 'build-lock-fifo'),
+  ], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(result.status, 0, `build-lock FIFO regression failed: ${result.stderr}\n${result.stdout}`);
+  console.log('build-lock.fifo_admission: PASS order=true bounded=true mutualExclusion=true failureRecovery=true targetIndependence=true queueCleanup=true properLockfile=true');
+}
+
 function runRuntimeEvidenceMatrix(scratch: string): void {
   const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
   const root = join(scratch, 'runtime-project');
@@ -1765,6 +1863,7 @@ if (process.argv[2] === '--ledger-worker') {
     runFailClosedBoundaryMatrix(scratch);
 
     const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
+    runBuildLockFifoRegression(repositoryRoot, scratch);
     assertRedGreenRelation(repositoryRoot);
     assertVersionSync(repositoryRoot);
     runAggregateTamperMatrix(repositoryRoot);
