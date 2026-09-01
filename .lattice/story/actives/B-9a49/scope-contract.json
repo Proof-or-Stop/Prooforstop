@@ -63,10 +63,26 @@
       "phase": "DEV",
       "headHash": "66e299169f09576c89a2f08bc372c6a6ce67002d",
       "materialHash": "8665c4f532a6756c1cff8bc3ebc193e1b75fed7bb1a75c86029b5293e527a240"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This English proposal is an explicit user-requested deliverable and the missing-document critical REVIEW blocker F-024; tracking it is necessary to make the Agent-side contract open-source, reviewable, and consistent with Dynamic Finding authority without changing runtime scope.",
+      "timestamp": "2026-09-01T10:25:08.372Z",
+      "paths": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "af9bcbadd680bb20100499ba9a0aee757cabd521",
+      "materialHash": "4f22df9a2ed47bf591efcd66bec84a392f2244a1be508454b3ec1bbae82a8fc0"
     }
   ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-01T09:39:47.665Z",
+  "updatedAt": "2026-09-01T10:25:08.372Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -105,6 +121,7 @@
     "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
   }
 }
