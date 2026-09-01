@@ -204,8 +204,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147",
       "ledgerCommitReceiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba",
-      "resolvedAt": "2026-09-01T23:25:01.185Z",
       "resolvedReason": "The canonical build mutex spans the complete build, execution, and publish window, removing the prior check-then-use gap; concurrent build/runtime smoke reports zero unsafe overlaps.",
+      "resolvedAt": "2026-09-01T23:25:01.185Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -214,7 +214,7 @@
       "desc": "packages/main/src/handlers/finding.ts:561-652 makes the ledger/mirror append idempotent, but lines 677-705 unconditionally append reviewer_finding and recompute/write metrics after every replay, outside the ledger transaction and without the idempotency key. Focused synthetic-repo repro calls finding_add twice with identical bytes and idempotencyKey: the ledger has 1 record/1 receipt while process-events contains 2 reviewer_finding rows. Therefore CLI retry is not exactly-once across its durable audit side effects and can make the event history disagree with the canonical transaction count.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T16:09:41.036Z",
@@ -229,7 +229,11 @@
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7",
-      "ledgerCommitReceiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac"
+      "ledgerCommitReceiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac",
+      "resolvedAt": "2026-09-01T23:25:03.426Z",
+      "resolvedReason": "Idempotent finding_add replay reuses the original semantic row and process-event identity without emitting a duplicate process event; replay smoke reports zero new rows/events.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-011",
