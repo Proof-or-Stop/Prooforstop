@@ -1038,73 +1038,10 @@
           "command": "node scripts/verify-proof-or-stop-pack-boundary.mjs",
           "result": "pass",
           "note": "CLI-captured network-disabled four-tarball clean-install transcript supplements CHK-003:edge:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:adversarial:0, CHK-005:adversarial:0, CHK-007:happy:0, and CHK-007:edge:0 without changing their immutable pins.",
-          "headHash": "1d445dcab62fde11a6111a865e39b748ca1bd297",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "timestamp": "2026-08-31T23:35:10.011Z"
-        },
-        {
-          "intentRef": "CHK-007:happy:0",
-          "kind": "integration_test",
-          "file": "scripts/verify-global-lab-entrypoint.mjs",
-          "command": "node scripts/verify-global-lab-entrypoint.mjs",
-          "result": "pass",
-          "note": "Global canonical Lab entrypoint and active product boundary pass.",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
-            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-31T23:35:33.253Z",
-            "timeoutMs": 270000
-          },
-          "headHash": "6b38467363f81342b1b82b2dc33417a451c29c58",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "timestamp": "2026-08-31T23:35:33.414Z"
-        },
-        {
-          "intentRef": "CHK-007:edge:0",
-          "kind": "integration_test",
-          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
-          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
-          "result": "pass",
-          "note": "Clean canonical-only installation resolves Proof-or-Stop identities and rejects retired package identities.",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
-            "outputTail": "proof-or-stop-only absence smoke passed\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-31T23:35:40.074Z",
-            "timeoutMs": 270000
-          },
-          "headHash": "ff8f68558b5323c04188a4dd9d8d6052ea9208dd",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "timestamp": "2026-08-31T23:35:40.218Z"
-        },
-        {
-          "intentRef": "CHK-007:adversarial:0",
-          "kind": "integration_test",
-          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
-          "result": "pass",
-          "note": "Mutation suite proves the active-residue and exact frozen-evidence boundary fails closed.",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
-            "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-31T23:35:51.192Z",
-            "timeoutMs": 270000
-          },
-          "headHash": "0d392f1aed7da64cb46a332c7aeca5144ec48489",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "timestamp": "2026-08-31T23:35:51.337Z"
+          "headHash": "13614d4b0f65ad3d8b79b170259ffba8bf8ceba7",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:12:28.532Z"
         }
       ]
     },
