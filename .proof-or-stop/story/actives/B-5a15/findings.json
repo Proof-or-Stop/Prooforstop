@@ -17549,6 +17549,96 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-326",
+      "desc": "brand-path-decision-residue: packages/main/src/core/runtime-artifact-registry.ts:139 (new B-5a15 entry runtime-causal-evidence-receipts) hardcodes deprecated brand literals inside a path DECISION regex: rx(String.raw \"(?:^|/)(?:\\.lattice|\\.proof-or-stop)/story/actives/[^/]+/causal-evidence(?:/|$)|...\"). WHY this is concept residue: every other state-dir-scoped entry in this same file derives its matcher from the resolver via stateDirExact()/stateDirPrefix() over STATE_DIR_NAMES (lines 110, 179, 188, 215, 224, 239, 348), which packages/main/src/core/brand-paths.ts:145 exports precisely so a state-dir rename needs no literal edits. This one entry freezes the two spellings inline, so the same concept is expressed two contradictory ways in one file. WHY it is currently un-gated: the lattice-residue [brand-decision] check PASSES (ran it: 0 hits) because makeBrandDecisionDetector in scripts/verify-lattice-residue.mjs:225-250 only recognizes .startsWith/.endsWith/.includes/.indexOf(<literal>) and ===/!== operand shapes; a RegExp-shaped path decision matches none of the three, so the check is vacuous for this line. Verified blast radius by probe: the matcher returns true today for .proof-or-stop/, .lattice/ and docs/story/ receipt paths, but false for any renamed state dir; on a future rename findRuntimeArtifactEntry misses, isMaterialExcludedRuntimeArtifactPath (line 423) returns false, and writing a CAS receipt would then move materialHash - exactly the failure the entry comment says it exists to prevent. Latent (rename-triggered), not a live defect today, hence medium and recorded rather than fixed in-story: the file is in allowedModify but no checklist item claims resolver-routing. Follow-up: route the matcher through STATE_DIR_NAMES, and teach the brand-decision detector the regex/path-decision shape so this whole class is gated instead of passing vacuously.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T05:55:15.695Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-780",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "3f823cebd96975ad9fd3cb36d545bf9b96311283175b938693cd1f510ed56a13"
+      },
+      "readDiagnostics": [],
+      "_hash": "04d38f111ea956527465a867c11bd09ad20170215740c43639e386fae7110d7e",
+      "files": [
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|brand-path-decision",
+      "signatureTagSource": "auto"
     }
   ]
 }
