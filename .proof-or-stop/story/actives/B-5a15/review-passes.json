@@ -12923,6 +12923,45 @@
         "scanEscalationReason": null
       },
       "_hash": "8ff3f2138cb80b602915382ae9711b8196534015454a6907342e24b3e02f1710"
+    },
+    {
+      "id": "B-5a15:RP-268",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic PASS for epoch B-5a15:RI-058 (reviewRun B-5a15:RR-825), metadata-correction round. VERDICT: the three reporting lanes collectively DID cover this story's acceptance topology this wave; the RI-051 gap I filed as F-331 is genuinely closed and I found no new completeness gap. FOUR CANONICAL SURFACES, independently executed at epoch cutoff materialHash baf3b78a5761: (1) acceptance_topology_check = inconclusive, structuralPass=false, basisStatus=partial, mode=observe, authority=diagnostic_only, blocking=FALSE, with AT_COVERAGE_BASIS_PARTIAL plus exactly ten AT_UNMAPPED_SCOPE_REF - matches expected known state. (2) pre_review_check_read = inconclusive, mode=observe, plannedActual=incomplete, blocking=FALSE; independently counted 5 plannedPathRecords against exactly 2 plannedActualReconciliations (CHK-001, CHK-003), both relation=exact, so the residual 3 (CHK-002/004/005) are the documented F-329 expressiveness gap, not a new omission. (3) acceptance_rollout_report_read = PASS, ok=true, receipt=current, quorum=full-3x2, blocking=false, diagnostics=[]. (4) acceptance_rollout_check = PASS, same values, verdict=pass. QUORUM NOT DEGRADED: rather than trust the full-3x2 label I decomposed the observation receipts - rounds=3, emittedCount=6, three distinct runIds r1/r2/r3 crossed with two hosts claude-cli and codex-cli at symmetric 36/36 counts, assuranceLevel=full-3x2; this is genuine 3 rounds x 2 hosts, never degraded 3x1. RECEIPT FRESHNESS: the rollout binding materialHash baf3b78a5761 equals the frozen epoch cutoff exactly, so receipt=current is real, not a stale carry-forward - which is precisely the F-331 remediation demand. CONCEPT LANE CLAIM INDEPENDENTLY REPRODUCED: reconstructed all scope-contract revisions from git rather than trusting the narrative - exactly 23 revisions, allowedModify monotonically 9 then 13 then 14 with no shrink, mode=enforce in every one, explicitExcludes constant at 3. TEST-COVERAGE LANE CLAIM INDEPENDENTLY REPRODUCED WITH ONE PRECISION CORRECTION: 53 intents on both sides of the pre-churn revision, but 3 differ (CHK-002:happy:0, CHK-003:happy:2, CHK-004:happy:0), so the lane's literal phrase bit-identical is loose; after excluding the plannedPathDeclarations subobject the remaining assertion content is identical across all 53, and the 3 deltas are exactly the three consumer re-pointings this round deliberately performed. The lane's substantive conclusion - no intent weakening smuggled in under cover of metadata churn - is correct. SCOPE-EXPANSION JUSTIFICATION VERIFIED AT SOURCE: confirmed handlers/certification-window.ts imports evaluateCausalDependencies at :19 and calls it at :206, and that :206 is the return statement inside buildCertificationDecision spanning 169-219, so the CHK-003 re-pointing names the real consumer. One imprecision recorded, non-blocking: the scopeChangeReason asserts certification-window.ts is the only production file importing evaluateCausalDependencies, but core/evidence-freshness.ts also genuinely imports it at :7 and calls it at :63. This does not distort the contract because evidence-freshness.ts is already in allowedModify, so no unscoped file was admitted; the wording is inaccurate but the scope decision is sound. PINNED SUITE RE-EXECUTED: node --test packages/main/tests/causal-evidence.test.mjs gives tests 21 pass 19 fail 2, matching the lane's claim, and both failures abort at causal-evidence.test.mjs:2653 on the shared topology diagnostics before reaching their rollout assertions, confirming diagnostic-only cause rather than rollout regression. GATE-RELEVANT FINDING STATE: the lifetime store holds 342 findings with 226 open, far more than the 18 described to me, so I checked round binding mechanically - zero open findings carry the current round 2026-09-01T13:31:42.515Z; all 226 belong to prior rounds and are round-decayed. F-329 and F-331 both still read status=open evidenceState=verified but are bound to the prior round 2026-08-31T20:13:27.698Z, and F-331's stated remediation (regenerate the rollout receipt against current HEAD) is satisfied by surfaces 3 and 4, so its open label is stale bookkeeping on a decayed finding rather than an unfixed defect. No blocking condition and no new raw findings this wave.",
+      "createdAt": "2026-09-01T13:54:20.477Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-826",
+      "envelopeId": "7c2cc5966301d849be6fda30e94843e6aabdaf49db5f64ca79477cd9c0b051b4",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/index.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbef5349cfc0270772a0c976659223206d3b8ad41fbf0ab10edac3c2d8f83da9"
     }
   ]
 }
