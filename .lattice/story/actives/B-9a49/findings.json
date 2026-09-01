@@ -503,6 +503,26 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-023",
+      "desc": "concept-authority-drift (high): packages/main/src/core/prompt-registry.ts:61 and :68 encode the earlier future verdict `stale_or_not_reproduced` and require current-Story repair for every verified applicable issue outside only non-applicable routing. The current authoritative plan on main has advanced: dynamic-finding-system-execution-plan.md:55-62 and :600 rename the strong negative-witness verdict to `not_reproduced_under_current_witness`, while :2036-2139 defines a distinct signed defer-with-proof disposition for eligible verified applicable low/medium Findings and reserves mandatory current repair for high/critical, protected-surface, regression/acceptance/gate-impact, invalid-lineage, or exhausted-deferral cases. Because the canonical contract tells all five lanes to consume the official future system when available, merging it unchanged would teach obsolete target-state vocabulary and collapse applicability into disposition. Update the Agent projection and its semantic mutation/digest tests to the current authority without pretending the unavailable compatibility CLI implements deferral. B-9a49:F-022 independently corroborates this blocker; this lane does not treat that parallel evidence as resolution.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T09:51:09.245Z",
+      "reviewRound": "2026-09-01T09:43:56.937Z",
+      "reviewRunId": "B-9a49:RR-028",
+      "_hash": "6f46a12b14f606ef0ec9396ef4a2ef226c371cbaa3e9db33d5bc754cde522fd0",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-authority-drift",
+      "signatureTagSource": "auto"
     }
   ]
 }
