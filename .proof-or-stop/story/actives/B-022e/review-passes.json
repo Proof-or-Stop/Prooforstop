@@ -850,6 +850,39 @@
         "scanEscalationReason": "Full-envelope sequential re-review covered every checklist intent and focused the only story-owned code delta on F-035 escaped-key mutation sensitivity, while re-checking evidence freshness and canonical runtime identity absence."
       },
       "_hash": "d16cc4d3db46fc84f154273acf9bb5196bf2a5efe44cf3d52d8225f7564d8cca"
+    },
+    {
+      "id": "B-022e:RP-029",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 15 concept review found no blocker. f7bf366 cleanly separates the immutable original policy-only ordering anchor f245fd614c728ce6027bd3a08f25eda4de32429c from later reviewed clarifications and independently pinned current policy bytes. The original commit contains only the decision file and precedes RED; current blob/SHA-256 match the verifier pin; f7bf366..HEAD contains no product drift; identity self-test passed.",
+      "createdAt": "2026-09-01T01:13:00.009Z",
+      "reviewRound": "2026-09-01T01:11:43.385Z",
+      "reviewRunId": "B-022e:RR-068",
+      "envelopeId": "da4f7862bfa63aff1c48971d98159e0d5e45c3fd5043b1120cd118bf099c2f55",
+      "writerSessionId": "sess-1a50700ae971d14693b0e10a2570a5de",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "d24e42a0929dcfdd33578c26a0e26c602eec286f21b4d42d07423f0048354595"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7642edc9240edd8ae62c49a25e57a5bf2262d44df9b86d6c7685cae39e0af49"
     }
   ]
 }
