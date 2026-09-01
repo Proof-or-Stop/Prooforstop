@@ -470,7 +470,7 @@
     {
       "id": "CHK-005",
       "title": "Register Story 3 process facts and expose a protected read-only ledger query contract",
-      "context": "Register atomic persistence and gate-eligible runtime evidence in the process-fact registry and contract verifier without granting persisted candidate, route, baseline, historical, or receipt bytes semantic gate authority. Expose a stable read-only query contract for ledger, CAS, idempotency, runtime scorecard, and migration inputs; return signed row digests and deterministic refusal reasons while never exposing protected storage paths. Add registry, command-policy, phase-allowlist, forbidden-import, direct-consumer, and non-authority mutation tests.",
+      "context": "Register atomic persistence and gate-eligible runtime evidence in the process-fact registry and contract verifier without granting persisted candidate, route, baseline, historical, or receipt bytes semantic gate authority. Expose stable finding_ledger_query rows for ledger, CAS, idempotency, runtime scorecard, and migration inputs without protected paths. Mechanically verify the declared Story dependency gate: B-03b7 cannot advance past its dependency boundary before B-fe8f is DONE and merged, and B-e6d9 cannot advance before both prerequisites are DONE and merged.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
