@@ -868,7 +868,7 @@
       "desc": "Wave-4 acceptance proof is absent at the current candidate: read-only `acceptance_topology_check --storyId=B-022e --json` returned status=inconclusive, structuralPass=false, basisStatus=partial with AT_CLOSURE_FILES_STALE / AT_SCOPE_BINDING_MISSING / AT_MISSING_TOPOLOGY; `pre_review_check_read` returned ok=false with PR_ARTIFACT_TAMPERED plus missing executable/mutation/transcript and stale evidence; both `acceptance_rollout_report_read` and `acceptance_rollout_check` returned status=missing, diagnostic AR_REPORT_MISSING, receipt=missing, quorum=degraded-or-missing. The canonical concept-review contract requires a current signed PASS receipt and genuine 3 rounds x 2 hosts (codex-cli + claude-cli), rejecting degraded 3x1; B-022e currently supplies none of that chain, so REVIEW cannot truthfully pass until verifier-owned artifacts are regenerated and the required full rollout receipt is present.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-31T23:43:58.754Z",
@@ -881,7 +881,11 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|ts|wave-acceptance-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The canonical quorum_submit writer requires current pass evidence from every required reviewer lane before it can emit 3x2 host verdicts, so a missing-quorum finding cannot block its own prerequisite local passes. Current host probe B-022e:RHP-mthy8n73 proves codex and claude are both review-ready; the REVIEW gate still enforces the full quorum immediately after lane passes.",
+      "resolvedAt": "2026-09-01T00:49:22.290Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-032",
