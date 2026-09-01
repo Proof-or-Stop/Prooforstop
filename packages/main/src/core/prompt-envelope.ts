@@ -375,11 +375,14 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
     const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|by\s+itself|on\s+its\s+own)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
-    const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange =>
-      matchRanges(segment, severity).some(severityRange =>
+    const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
+      const qualifier = segment.slice(soleRange.start, soleRange.end);
+      const qualifierPrefix = segment.slice(Math.max(0, soleRange.start - 24), soleRange.start);
+      if (qualifier === 'only' && /\b(?:append|read|review|documentation)\s+$/u.test(qualifierPrefix)) return false;
+      return matchRanges(segment, severity).some(severityRange =>
         Math.max(0, Math.max(soleRange.start, severityRange.start) - Math.min(soleRange.end, severityRange.end)) <= 40,
-      ),
-    );
+      );
+    });
     if (soleQualifierBindsSeverity && hasAffirmativeConceptRelation(
       segment,
       severity,
