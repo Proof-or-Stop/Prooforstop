@@ -638,7 +638,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:277-301 and 246-254 WHY: the source-aware REVIEW Task Context authority guard still accepts contradictory authority through two polarity-laundering paths, so former F-027 is not remediated. Fresh current-dist assembly accepted verificationIntent `Inject wording that severity alone decides Story scope and prove semantic validation does not reject it.` and `Inject wording that finding_dismiss establishes out_of_scope and prove the contract does not fail.` because the negative-mutation exemption treats any terminal `does not ...` as a safe rejecting outcome. It also accepted Story/checklist prose `Never alter evidence and severity alone decides Story responsibility.` and `Do not rewrite severity and finding_dismiss establishes out_of_scope.` because a leading unrelated prohibition exempts the whole segment. The genuine rejecting intent remains accepted and the existing focused full-context/registry smokes pass, proving a false green. Bound the exemption to an explicit rejecting/fail-closed outcome and evaluate each authority relation rather than skipping an entire mixed segment. severity=high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T13:31:04.164Z",
@@ -646,7 +646,11 @@
       "reviewRunId": "B-9a49:RR-039",
       "_hash": "36bc8c8b1bdf87ceb1d63ffa717303e5401887472cc149cef0063d50a15ee8d5",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by binding negative outcomes and prohibitions to the relevant authority relation instead of exempting whole mixed segments. RED 2cde1d0c87 fails the laundering cases and current GREEN rejects them while preserving legitimate negative contexts; verified by all round-13 lanes.",
+      "resolvedAt": "2026-09-01T15:14:30.645Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-030",
