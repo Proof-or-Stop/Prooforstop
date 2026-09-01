@@ -12682,6 +12682,38 @@
       },
       "readDiagnostics": [],
       "_hash": "e97059e6bb9c2b4e268967babea9a043acb2ca0fe5274dee0c362e6b356de05d"
+    },
+    {
+      "id": "B-5a15:RP-260",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane, RI-057 narrow-delta re-review of the single source commit since RR-808 (827e4af0a3). READ-ONLY; counterfactuals run only against a scratch dist copy under /private/tmp with node_modules AND templates symlinked, positive control established FIRST (unmodified scratch exits 0, PASS). (1) Block 12f is non-vacuous and correctly targeted: reverting the F-339 provenance fork in the scratch dist fails on exactly 'F-342 audited note-only edit keeps the original headHash' (exit 1, actual e735404e vs expected 9e0c8d92), while the unmodified copy passes. (2) Not over-fitted: an instrumented probe of the fork across the whole suite now records mech=false noteDiff=true holds=true arm=AUDITED exactly once (contributed by 12f), where the pre-12f branch probe saw priorMechanical in {true,undefined} only -- the audited arm is genuinely executed for the first time. The strict arm's note-sensitivity is independently witnessed (mech=undefined noteDiff=true holds=false). (3) Seeds what it claims: the mechanical===false seed assertion is a real guard (stripping mechanical:false from the audited-escape stamp site fails the suite), and driftedHead backs a fixture-validity assertion so a no-op tree move cannot fake a pass. (4) Docblock accurate on BOTH arms: strict note-sensitive predicate for mechanical receipts, note-insensitive twin for audited attestations; the 'matching carryForwardOnDiskProvenance' claim holds because that function early-returns on mechanical===undefined, so its prior.mechanical===true?strict:audited fork and this one's prior.mechanical===false?audited:strict are equivalent in effect, with undefined taking the strict fail-closed arm in both. (5) Delta quality: no dead code (every local consumed), no any/ts-ignore/ts-expect-error, only filesystem write scoped to env.root under a finally-cleanup guard. No new findings. The 16 dispositioned findings and the known/accepted items (causal-evidence.ts:1096 localeCompare, F-332 zero callers, pre-existing certification-window-smoke failure bisected to a2e4e92631) were not re-litigated; tsc/lint not re-run per instruction. Quality saturated across the story's changed files.",
+      "createdAt": "2026-09-01T11:43:34.896Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-812",
+      "envelopeId": "5f3ce4d37f3691f695126b422bd9296840c50979c7bb7f135814f585b6f4fffd",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5159014115ac40ddcb04e452a8a1fac467e2731112903328b9da7c4eeed4e189"
     }
   ]
 }
