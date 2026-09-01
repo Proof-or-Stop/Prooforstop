@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T09:18:09.282Z",
-      "endTime": null,
+      "endTime": "2026-09-01T09:19:50.675Z",
       "userSees": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
       "excludes": [
         "Do not manufacture a failing race already prevented by current locking.",
@@ -427,7 +427,14 @@
           "storyFilesHash": "7aef062735983024b9c03487d2848137da86634280411003d7115fea30036e48",
           "timestamp": "2026-09-01T09:19:44.751Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "57c7799bba5adfe024ba35b57102eca0ff8357d05aa8c7569986044a8b838b29",
+        "storyFilesHash": "7aef062735983024b9c03487d2848137da86634280411003d7115fea30036e48",
+        "headHash": "065c7ece6378f2e3de7dd6e3c21e0b4a26755b36",
+        "attestedAt": "2026-09-01T09:19:50.879Z",
+        "materialHash": "8eb342b0b78314b7e6c2e75830715eec433cb6504ccbaba6179e2404b342d3ca"
+      }
     },
     {
       "id": "CHK-002",
@@ -1148,6 +1155,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Accept independent lattice-implementer RED commit afc3d183d9; owner has reproduced expected exit 1 and all 13 selectors."
+    },
+    {
+      "timestamp": "2026-09-01T09:19:50.675Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Independent RED commit afc3d183d9 completed. All 13 intents now have tool-executed blocked_classified receipts from the unchanged pinned RED command; current exit 1 is the expected pre-fix state."
     }
   ]
 }
