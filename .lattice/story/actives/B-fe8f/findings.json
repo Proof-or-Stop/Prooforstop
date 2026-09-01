@@ -194,6 +194,27 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7",
       "ledgerCommitReceiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac"
+    },
+    {
+      "id": "B-fe8f:F-011",
+      "desc": "packages/main/src/core/evidence/artifact-store.ts:59-66,83-103 performs realpath containment once, then reuses the unresolved logical dir for exists/read, openSync(temp), renameSync(destination), and directory fsync. There is no held directory descriptor, no no-follow/openat-style operation, and no lock covering the containment check through publication. A local symlink/directory swap after line 85 therefore makes the later path components resolve outside the project even though the initial check passed; the current smoke at tasks/finding-ledger-runtime-smoke.ts:1134-1148 covers only a symlink already present before the check. This leaves the required symlink-swap/path-escape fail-closed boundary unproved and permits out-of-root blob publication in the race window.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T16:09:54.840Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-005",
+      "_hash": "21137c280d97f50287299d6a6386eaac3ac5d7bf29e9a75da00a989f2618fdc4",
+      "files": [
+        "packages/main/src/core/evidence/artifact-store.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiv53g2_1iq4_510131c8bf1e496c85f4c1e215e8a446",
+      "ledgerCommitReceiptId": "lrc_mtiv53g2_1iq4_76e17cdf54894b65a7282680be81d091"
     }
   ]
 }

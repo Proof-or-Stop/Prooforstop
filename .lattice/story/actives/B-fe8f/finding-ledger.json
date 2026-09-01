@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
+  "committedLedgerDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -278,6 +278,35 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:09:41.059Z"
+    },
+    {
+      "recordId": "lr_mtiv53g2_1iq4_510131c8bf1e496c85f4c1e215e8a446",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:blob-root-symlink-toctou",
+      "payload": {
+        "id": "B-fe8f:F-011",
+        "desc": "packages/main/src/core/evidence/artifact-store.ts:59-66,83-103 performs realpath containment once, then reuses the unresolved logical dir for exists/read, openSync(temp), renameSync(destination), and directory fsync. There is no held directory descriptor, no no-follow/openat-style operation, and no lock covering the containment check through publication. A local symlink/directory swap after line 85 therefore makes the later path components resolve outside the project even though the initial check passed; the current smoke at tasks/finding-ledger-runtime-smoke.ts:1134-1148 covers only a symlink already present before the check. This leaves the required symlink-swap/path-escape fail-closed boundary unproved and permits out-of-root blob publication in the race window.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-quality",
+        "createdAt": "2026-09-01T16:09:54.840Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-005",
+        "_hash": "21137c280d97f50287299d6a6386eaac3ac5d7bf29e9a75da00a989f2618fdc4",
+        "files": [
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "adversarial|ts|packages-main-core",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "c85a04020c358c01fbc1458db981469369388d005f3f1de86aa2cf5063929665",
+      "priorDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:09:54.866Z"
     }
   ],
   "receipts": [
@@ -645,6 +674,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "047e6a4cfbe6ac456b33e183dcd51b5aae7d1b774bfd146bd1dc988297145855",
         "signature": "0XBLzOZRSOEmZAzMl6+pXb2D84FXqpDfjeiztdkJdy1qbQUd6olwVc8X05N1drUoX6PiXFCIqpD6gQEKsylwBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiv53g2_1iq4_76e17cdf54894b65a7282680be81d091",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:blob-root-symlink-toctou",
+      "requestDigest": "57af08cb035d446ddfcfc64e07ac8e72562b76879dcffee1c84da9f3c24fc0d1",
+      "recordIds": [
+        "lr_mtiv53g2_1iq4_510131c8bf1e496c85f4c1e215e8a446"
+      ],
+      "priorLedgerDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
+      "committedLedgerDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
+      "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+      "writerFenceToken": "7e7b9b37-5bfd-4191-a878-d9f9c659f4b7",
+      "committedAt": "2026-09-01T16:09:54.866Z",
+      "replayed": false,
+      "exactRequestDigest": "c8bb4ad1ab6da18d57c69bc61efca6479a11fd52f0aef0e5f2f4db64ea1edf00",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiv53g2_1iq4_76e17cdf54894b65a7282680be81d091",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f:RR-005:quality:blob-root-symlink-toctou",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiv53g2_1iq4_510131c8bf1e496c85f4c1e215e8a446"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
+        "committedLedgerDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:09:54.866Z",
+        "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "7e7b9b37-5bfd-4191-a878-d9f9c659f4b7",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "00ecedb6bd44f5a0cbab63fffe4e5f2fde31ac1c133ffa2ac6c37bdeff182263",
+        "signature": "dkZveZmExnEfxEh0c8qg6MB5nlZ7kfix9b4zz9ITdHJnGVQ5Qj5+QLq4f8gkpKywAIZRi8R8Ts6wkPZ+jwB6BA=="
       }
     }
   ]
