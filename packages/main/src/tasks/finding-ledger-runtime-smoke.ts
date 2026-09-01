@@ -478,7 +478,7 @@ function assertRedGreenRelation(repositoryRoot: string): void {
     true,
     'sparse F-001/F-003 -> F-004 projection regression did not execute before RED/GREEN evaluation',
   );
-  console.log('green.red_green_relation_evaluate: PASS baselineFails=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true');
+  console.log('green.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true');
 }
 
 function assertVersionSync(repositoryRoot: string): void {
@@ -1657,7 +1657,7 @@ if (process.argv[2] === '--ledger-worker') {
       assert.equal(rejected.every((result) => !result.valid), true);
       assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, proposalLedgerAfterReplay.records.length);
       assert.equal(rejected[5]?.rejection, 'proposal_expired');
-      console.log('ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject omittedNowExpired=reject proposalFinalDivergence=reject semanticWrites=0');
+      console.log('ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0 omittedNowExpired=reject');
 
       const standaloneReceipt = appendFindingLedger({
         ...baseOptions('chk003:standalone-receipt'),
@@ -1787,7 +1787,7 @@ if (process.argv[2] === '--ledger-worker') {
       const appliedReplay = deferralAttempt('chk003:deferral-bundle-applied');
       assert.deepEqual(appliedReplay.recordIds, appliedDeferral.recordIds);
       console.log('ledger.baseline_bundle_refusal: PASS wrongId=reject wrongHash=reject missingKind=reject bytesChanged=reject callerRefusal=reject zeroWrites=true');
-      console.log('ledger.atomic_bundle: PASS kinds=4 halfBundles=0 crashRetry=true');
+      console.log('ledger.atomic_bundle: PASS halfBundles=0 kinds=4 crashRetry=true');
 
       const requiredRecord = {
         schemaVersion: 1, mandatoryRepairId: 'mandatory-repair-required-001',
