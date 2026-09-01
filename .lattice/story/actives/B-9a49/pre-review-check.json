@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-9a49",
   "mode": "observe",
-  "cutoffAt": "2026-09-01T08:15:06.802Z",
+  "cutoffAt": "2026-09-01T08:15:52.235Z",
   "planBasisDigest": "sha256:672f1201ecb7ede9a6ee8b20f5e0825fa60c1395491f0995fd1705be73946b38",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -579,7 +579,15 @@
   "scopeContractDigest": "sha256:777431e03d7bf6841f1b63e4dbeda5f018a1d6274321aab4074e1039b1c19b70",
   "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
   "closureFilesHash": "sha256:20772944a8545c00c0c1368f7bc43aaf95e0c33c930482751d6aec410b8faf03",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-004:happy:red-green-same-contract",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:839b0a8ba6d85d667643f1872e1d47c5b75f1be9a65673d9544604125b29ac0c"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-9a49",
@@ -632,7 +640,7 @@
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-01T08:15:06.802Z",
+  "issuedAt": "2026-09-01T08:15:52.235Z",
   "signerPublicKey": "/X1ZTyM6s6k0Jhbm8ZjD1OjkCoDjf/fslfz1nOrPs2A=",
-  "signature": "3AjnVY7XgZDBSjyPc2ERLh/ZwM/M3rLGSTaALjvzqWiOteUldqI2DZSMFDNZFvC5YTMK3ppDhcT+MJQTbM54BQ=="
+  "signature": "gJ44Ls86zMmxCdbx6592DL2w0eR1pJ77oxy36buhUDtcCeZ0EI8XLBcqQprMKgrE3no6OLclqAK081o8XFIdDg=="
 }
