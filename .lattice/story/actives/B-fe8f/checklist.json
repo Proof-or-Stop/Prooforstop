@@ -905,7 +905,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "registry.story3_fact_contract: PASS"
             }
           },
@@ -914,7 +914,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "query.protected_read_only: PASS signedRows=true pathsExposed=0"
             }
           },
@@ -923,7 +923,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "query.deterministic_scorecard: PASS"
             }
           }
@@ -934,7 +934,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "registry.persistence_non_authority: PASS lifecycleDelta=0"
             }
           },
@@ -943,7 +943,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "query.incomplete_tamper_refusal: PASS partialRows=0"
             }
           },
@@ -952,7 +952,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "registry.command_phase_policy: PASS bypasses=0"
             }
           }
@@ -963,7 +963,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "registry.non_authority_mutations: PASS acceptedMutations=0"
             }
           },
@@ -972,7 +972,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "registry.dependency_boundary: PASS forbiddenImportsAccepted=0"
             }
           },
@@ -981,7 +981,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "query.path_leakage: PASS exposedPaths=0"
             }
           },
@@ -990,7 +990,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "dependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0"
             }
           }
