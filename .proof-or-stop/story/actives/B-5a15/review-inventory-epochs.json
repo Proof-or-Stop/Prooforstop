@@ -6062,6 +6062,29 @@
       "cancelReason": "Receipt RIE-070 was minted before its own metadata commit landed, so the acceptance subject moved after finalize and remediation DEV refused it; re-mint on an already-clean tree.",
       "terminalRunSequenceBoundary": 787,
       "_hash": "6bb043345ffe28b4633cb51e7fc5a9cc963e56c1ee1a0f6bfe0155e1dd46d9e6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-071",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-09-01T09:46:55.498Z",
+      "updatedAt": "2026-09-01T09:51:09.647Z",
+      "cutoff": {
+        "headHash": "a9d50b3b94013bb1ef9ef3389a24d1213f8fdabc",
+        "materialHash": "40bfd3f1471abb9891b7b81efd348758ef6bf3310f97f9bd770e5ef72a7db418",
+        "storyFilesHash": "1ce249fb3686a179be540b345e2d160ced604600a1665ea8544f5ed431c0c82f"
+      },
+      "scopeDigest": "babbd02eb470369c4d5f24b720f505862e94c341320b9f766c2ebe99b8fabc24",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-071:RCP-001",
+      "cancelledAt": "2026-09-01T09:51:09.647Z",
+      "cancelReason": "RIE-071 was minted by the no-OPEN-epoch finalize path, which writes reviewInventoryDigest(cutoff) as scopeDigest while consumeReviewInventoryReceipt compares against the acceptance-subject digest; the completeness-only receipt is therefore unconsumable by remediation DEV. Re-earning via a full OPEN epoch, whose begin path writes the correct acceptance-subject digest.",
+      "terminalRunSequenceBoundary": 787,
+      "_hash": "b8a6b410729c82fe9e8bafcb5978998a1439d071486421f618e59889c228fecb"
     }
   ],
   "receipts": [
@@ -7040,6 +7063,30 @@
       "invalidatedAt": "2026-09-01T09:46:38.494Z",
       "invalidationReason": "Receipt RIE-070 was minted before its own metadata commit landed, so the acceptance subject moved after finalize and remediation DEV refused it; re-mint on an already-clean tree.",
       "_hash": "83771509243c3976b559dc60dd530fd86cb3543e0a55dd6b47efea5ef21b2989"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-071:RCP-001",
+      "epochId": "B-5a15:RIE-071",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "cutoff": {
+        "headHash": "a9d50b3b94013bb1ef9ef3389a24d1213f8fdabc",
+        "materialHash": "40bfd3f1471abb9891b7b81efd348758ef6bf3310f97f9bd770e5ef72a7db418",
+        "storyFilesHash": "1ce249fb3686a179be540b345e2d160ced604600a1665ea8544f5ed431c0c82f"
+      },
+      "scopeDigest": "babbd02eb470369c4d5f24b720f505862e94c341320b9f766c2ebe99b8fabc24",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-01T09:46:55.498Z",
+      "invalidatedAt": "2026-09-01T09:51:09.647Z",
+      "invalidationReason": "RIE-071 was minted by the no-OPEN-epoch finalize path, which writes reviewInventoryDigest(cutoff) as scopeDigest while consumeReviewInventoryReceipt compares against the acceptance-subject digest; the completeness-only receipt is therefore unconsumable by remediation DEV. Re-earning via a full OPEN epoch, whose begin path writes the correct acceptance-subject digest.",
+      "_hash": "f2d45b9a11bf0941dbbd76a0616436aebf7b876a897c2ec0a16e4aabf80d0fa7"
     }
   ],
   "criticReceipts": [
