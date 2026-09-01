@@ -260,9 +260,9 @@ const FROZEN_FILE_BASELINES = [
   },
   {
     id: 'cutover-policy-provenance', class: 'provenance_bytes', path: POLICY_PATH,
-    gitBlobOid: '701b933a83e31d7e533f89024ba5369526b204d5',
-    byteSha256: 'e7baa0312b234679f5afd57918ffb0e6000cff566a684b175f622bb3f9c06380',
-    reason: 'The approved clean-break policy preceded RED; the current reviewed policy bytes remain exact.',
+    gitBlobOid: 'd67a7a7a8b99dcf98f420bf1f68367a66eb41623',
+    byteSha256: '05a5d3fe0a1fd904d60e51bfe07cbd84081739a0932779f69dcb7b7f2a9614c0',
+    reason: 'The original policy-only commit preceded RED; the current reviewed policy bytes, including later exact clarifications, remain independently pinned.',
   },
   {
     id: 'B-cdf6-red-evidence', class: 'historical_story', path: '.proof-or-stop/story/actives/B-cdf6/red-evidence.json',

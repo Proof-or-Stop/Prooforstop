@@ -1,7 +1,22 @@
 # Proof-or-Stop identity cutover (B-022e)
 
-**Status:** approved clean-break policy; this policy commit must precede RED and every production
-migration commit.
+**Status:** approved clean-break policy. The original policy-only commit identified below must
+precede RED and every production migration commit; later reviewed clarifications do not replace
+that ordering anchor.
+
+## Policy chronology and amendment boundary
+
+The immutable pre-RED ordering proof is anchored to the original policy-only commit
+`f245fd614c728ce6027bd3a08f25eda4de32429c`. That commit introduced only this decision document,
+and it is the commit referred to as the policy commit in the required ordering below.
+
+The current document also contains exact, reviewed clarifications committed after RED. For
+example, `0d68468f6e87410afca1f2dc15ab025264a992ef` added the append-only release-ledger suffix rule
+after implementation exposed that boundary. Such descendant amendments refine the current
+contract; they do not claim to have preceded RED, rewrite the original policy commit, or
+retroactively alter the original policy-before-RED proof. The verifier therefore checks two
+separate facts: ordering against the original `f245fd...` commit, and the independently pinned
+blob/SHA-256 of the current reviewed document bytes.
 
 ## Decision and supersession
 
