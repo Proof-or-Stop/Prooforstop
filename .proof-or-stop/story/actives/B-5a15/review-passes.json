@@ -12555,6 +12555,43 @@
       },
       "readDiagnostics": [],
       "_hash": "f130fa8b24ec8398049af7e9172dd9a96c45523f6232ad8f08f9c233f4ae7ae4"
+    },
+    {
+      "id": "B-5a15:RP-256",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed at e507bd8f0d. Re-verified all 5 checklist items: 53 declared verificationIntents (22 explicit priority=must plus 29 untagged defaulting to must), 0 must-gaps, 0 waivers, 0 fail-result evidence, 0 orphan evidence refs; all 50 evidence rows are logic_test with result=pass. Gap resolution note: CHK-001:edge:3 is covered by named intent id CHK-001:edge:oversized-output-probe, which is the canonical ref per acceptance-coverage-basis.ts:71 (intent.id takes precedence over the positional form), so it is a naming form and not a gap. Pinned suite 'node --test packages/main/tests/causal-evidence.test.mjs' is stable at 19 pass / 2 fail across a fifth run, with the same two known DEV-gated failures (F-247, and the F-249-series) already tracked as findings F-329/F-331. The F-338 commit e507bd8f0d touches exactly one source file (core/certification-window.ts) and zero test files; it sits inside the drifted:true branch, so no gate outcome changes. The test assertion nearest that branch (line 1526) is a disjunction /current binding|affected dependency closure/ that dates to 8cae04f219 and was not edited, so no assertion was weakened or invalidated. Production-closure expectations were mutation-tested against a scratch copy of dist (worktree untouched): a positive control reproduced 19/2, and removing one declared edge from CERTIFICATION_DOMAIN_DEPENDENCIES flipped CHK-003 to fail, proving those expectations bite. The F-333 positive control holds: admit===true on the unmutated fixture followed by four distinct blocker codes. No blocker.",
+      "createdAt": "2026-09-01T10:48:10.971Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-802",
+      "envelopeId": "cb48b0bb77b797b7100daae8a75ee22821392b8fb8d1d49c57db976b5c0ce149",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f386c7965ecf9131b39a400932fef0a7350d2ff185fe4020aa84083faad7af01"
     }
   ]
 }
