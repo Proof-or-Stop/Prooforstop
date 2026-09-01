@@ -33,20 +33,31 @@
   "originalIntentRequestHash": "sha256:4cce13ffb38f808dd0f37a806945dc6edb4a32cefcd093b0b4ce9c64ca60299b",
   "acceptanceBindings": [
     {
-      "id": "ACCEPT-REVIEW-TRIAGE-DELIVERY",
+      "id": "ACCEPT-REVIEW-TRIAGE-AGENT-CONTRACT",
       "checklistRefs": [
         "CHK-001",
-        "CHK-004"
+        "CHK-004",
+        "CHK-002",
+        "CHK-003",
+        "CHK-005"
       ],
       "verificationIntentRefs": [
         "CHK-001:happy:0",
         "CHK-001:happy:1",
         "CHK-004:happy:red-green-same-contract",
-        "CHK-004:happy:delivery-matrix"
+        "CHK-004:happy:delivery-matrix",
+        "CHK-002:adversarial:4",
+        "CHK-003:happy:review-only-registration",
+        "CHK-003:adversarial:no-authority-dataflow",
+        "CHK-004:adversarial:authority-boundary-and-local-cli",
+        "CHK-005:happy:registry-reconciliation",
+        "CHK-005:happy:story-topology-pass",
+        "CHK-005:happy:live-pre-review-proof",
+        "CHK-005:happy:signed-rollout-full-3x2"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
-      "note": "Binds canonical five-lane/two-mode prompt delivery and genuine RED-to-GREEN proof to the original acceptance claim.",
+      "note": "One verifier-registered acceptance binding covers prompt delivery, Agent/System authority boundaries, authoritative registry reconciliation, live pre-review proof, and the signed full-3x2 rollout.",
       "verificationTopology": {
         "schemaVersion": "proofstory.acceptance_topology.v1",
         "producerRefs": [
@@ -122,6 +133,19 @@
             "consumerRefs": [
               "C-DELIVERY-TOPOLOGY-CHECK"
             ]
+          },
+          {
+            "id": "A-POS-5",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:happy:review-only-registration"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-REVIEW-GATE"
+            ]
           }
         ],
         "mutationCaseRefs": [
@@ -136,6 +160,45 @@
             ],
             "consumerRefs": [
               "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          },
+          {
+            "id": "A-MUT-2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:adversarial:4"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:adversarial:no-authority-dataflow"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-4",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-REVIEW-GATE"
             ]
           }
         ],
@@ -205,158 +268,10 @@
           }
         ]
       }
-    },
-    {
-      "id": "ACCEPT-AGENT-SYSTEM-BOUNDARY",
-      "checklistRefs": [
-        "CHK-002",
-        "CHK-003",
-        "CHK-004"
-      ],
-      "verificationIntentRefs": [
-        "CHK-002:adversarial:4",
-        "CHK-003:happy:review-only-registration",
-        "CHK-003:adversarial:no-authority-dataflow",
-        "CHK-004:adversarial:authority-boundary-and-local-cli"
-      ],
-      "milestoneIds": [],
-      "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
-      "note": "Binds bounded Owner/implementer behavior and declarative non-evidentiary REVIEW metadata to the original acceptance claim.",
-      "verificationTopology": {
-        "schemaVersion": "proofstory.acceptance_topology.v1",
-        "producerRefs": [
-          {
-            "id": "P-BOUNDARY-PRE-REVIEW-CHECK",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "process-fact:acceptance_basis_generate"
-            }
-          }
-        ],
-        "consumerRefs": [
-          {
-            "id": "C-BOUNDARY-REVIEW-GATE",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "process-fact:acceptance_topology_check"
-            },
-            "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
-            ]
-          }
-        ],
-        "positiveAssertionRefs": [
-          {
-            "id": "A-POS-5",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-003:happy:review-only-registration"
-            },
-            "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
-            ],
-            "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
-            ]
-          }
-        ],
-        "mutationCaseRefs": [
-          {
-            "id": "A-MUT-2",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-002:adversarial:4"
-            },
-            "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
-            ],
-            "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
-            ]
-          },
-          {
-            "id": "A-MUT-3",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-003:adversarial:no-authority-dataflow"
-            },
-            "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
-            ],
-            "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
-            ]
-          },
-          {
-            "id": "A-MUT-4",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
-            },
-            "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
-            ],
-            "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
-            ]
-          }
-        ],
-        "transcriptAssertionRefs": [],
-        "commandRefs": [
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis->consumer:<audit-only>"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
-          },
-          {
-            "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
-          }
-        ]
-      }
     }
   ],
   "diagnosticGaps": [],
-  "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection. Active proof assertion IDs use only the verifier-registered A-POS, A-MUT, and A-TRANSCRIPT namespace.",
+  "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Active proof assertion IDs use only the verifier-registered A-POS, A-MUT, and A-TRANSCRIPT namespace.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-09-01T00:26:18.327Z"
+  "updatedAt": "2026-09-01T00:26:52.194Z"
 }
