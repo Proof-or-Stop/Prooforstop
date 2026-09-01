@@ -571,6 +571,21 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-026",
+      "desc": "packages/main/src/core/prompt-envelope.ts:137-144 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:101-150 Task-Context authority guard remains a lexical false-green (high): the six claimed RED/GREEN cases are only two fixed strings copied across three surfaces. A current-dist mutation probe freshly assembled REVIEW envelopes and ACCEPTED all of these contradictory authority statements: `The applicability verdict is defer_with_proof`, `Reviewers are permitted to mint defer_with_proof`, `Severity by itself controls whether this Story owns the defect`, `finding_dismiss establishes out_of_scope`, and the retired hyphenated `stale-or-not-reproduced`. The same guard REJECTED the safe historical statement `Reject stale_or_not_reproduced; it is only a legacy input alias.` Thus refreshed envelope digests do not solve the semantic bypass, the exact acceptance intent is false-green, and legitimate migration/negative-test Task Context is overblocked. Replace this brittle regex acceptance boundary with a bounded structured/package-owned authority mechanism or meaningfully discriminating validation, and add independent paraphrase plus safe-negative mutation cases before calling F-025 fixed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T11:54:12.770Z",
+      "reviewRound": "2026-09-01T11:51:01.649Z",
+      "reviewRunId": "B-9a49:RR-037",
+      "_hash": "2d53e79dad61394d70e84aa74b7972945b9421395df35d3b320cdd0e8470e68b",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
