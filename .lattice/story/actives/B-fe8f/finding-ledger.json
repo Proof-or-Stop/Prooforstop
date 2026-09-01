@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ab370d2de9623d18adfa7cf535abb0ab2a54d90bee6941747f781e182d2bc4b3",
+  "committedLedgerDigest": "e717403e06f9810f44a14c348d7447656b30e345b819c0e54b23494761aafba3",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -28,6 +28,31 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T13:21:14.410Z"
+    },
+    {
+      "recordId": "lr_mtipaotb_kg0_53fa6b7f7c484625a1ac9bd14a0c9440",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:672459d4-9a30-4e68-8de4-2a5ef3689e0e",
+      "payload": {
+        "id": "B-fe8f:F-002",
+        "desc": "packages/main/src/handlers/finding.ts:569 display-ID allocation still uses findings.length + 1, so a sparse legacy set such as F-001/F-003 allocates F-003 again; lines 632-634 then find the old row by display ID and neither replace nor append when recordId differs, silently hiding the newly durable ledger record from readFindings. This preserves the historical ID-reuse/vanishing-row failure despite globally unique recordIds.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-quality",
+        "createdAt": "2026-09-01T13:26:18.128Z",
+        "reviewRound": "2026-09-01T13:16:53.377Z",
+        "reviewRunId": "B-fe8f:RR-004",
+        "_hash": "671fb380c9a12e50a195f0b2e17a74b69f48111eb0b5060cd72403c7b3b2e9fe",
+        "signatureTag": "adversarial|unknown|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "4ce20daff854f16dfb26f922b84cfb8c6ef55621be3d27b7dd793b36ee66db6e",
+      "priorDigest": "ab370d2de9623d18adfa7cf535abb0ab2a54d90bee6941747f781e182d2bc4b3",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T13:26:18.143Z"
     }
   ],
   "receipts": [
@@ -44,6 +69,21 @@
       "writerSessionId": "sess-c0b63670c265a13cbd9a584edc472490",
       "writerFenceToken": "d0a6adfb-aca7-4583-ad88-760a277203f1",
       "committedAt": "2026-09-01T13:21:14.410Z",
+      "replayed": false
+    },
+    {
+      "receiptId": "lrc_mtipaotb_kg0_5cd6d3a815d74e1cb82e487be305c03f",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:672459d4-9a30-4e68-8de4-2a5ef3689e0e",
+      "requestDigest": "ec376df6fb039d034f947a013ee197dd21868382ff103db8fafc4efd86b300ed",
+      "recordIds": [
+        "lr_mtipaotb_kg0_53fa6b7f7c484625a1ac9bd14a0c9440"
+      ],
+      "priorLedgerDigest": "ab370d2de9623d18adfa7cf535abb0ab2a54d90bee6941747f781e182d2bc4b3",
+      "committedLedgerDigest": "e717403e06f9810f44a14c348d7447656b30e345b819c0e54b23494761aafba3",
+      "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+      "writerFenceToken": "5154e3ac-9bfc-4601-a591-b21fab041572",
+      "committedAt": "2026-09-01T13:26:18.143Z",
       "replayed": false
     }
   ]

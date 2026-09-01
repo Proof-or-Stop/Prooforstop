@@ -16,6 +16,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
       "ledgerCommitReceiptId": "lrc_mtip46ga_164g_214745e421594c278e475bc4ecfd90c7"
+    },
+    {
+      "id": "B-fe8f:F-002",
+      "desc": "packages/main/src/handlers/finding.ts:569 display-ID allocation still uses findings.length + 1, so a sparse legacy set such as F-001/F-003 allocates F-003 again; lines 632-634 then find the old row by display ID and neither replace nor append when recordId differs, silently hiding the newly durable ledger record from readFindings. This preserves the historical ID-reuse/vanishing-row failure despite globally unique recordIds.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T13:26:18.128Z",
+      "reviewRound": "2026-09-01T13:16:53.377Z",
+      "reviewRunId": "B-fe8f:RR-004",
+      "_hash": "671fb380c9a12e50a195f0b2e17a74b69f48111eb0b5060cd72403c7b3b2e9fe",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtipaotb_kg0_53fa6b7f7c484625a1ac9bd14a0c9440",
+      "ledgerCommitReceiptId": "lrc_mtipaotb_kg0_5cd6d3a815d74e1cb82e487be305c03f"
     }
   ]
 }
