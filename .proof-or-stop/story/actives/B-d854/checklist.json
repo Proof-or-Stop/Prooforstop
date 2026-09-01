@@ -46,7 +46,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Translate every human-language surface in root AGENTS.md, including headings, prose, table cells, block quotes, HTML comments, code comments and example annotations, then scan the complete file and prove there are zero Unicode Han-script characters and zero U+FFFD replacement characters. Any remaining non-ASCII character must be an intentional language-neutral technical symbol rather than untranslated prose. WHY: a partial translation or corrupted replacement glyph does not satisfy the request for a fully English file.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compare the translated file with the pre-change story baseline using a deterministic structural and token inventory: preserve Markdown hierarchy, list nesting, tables, block quotes, fenced-block boundaries and language tags, HTML-comment boundaries, links, paths, command and role identifiers, JSON keys, phase names, story IDs and other technical tokens, except where the consistency audit explicitly records removal or historical relabeling of an obsolete item. All intentional structural or token differences are listed and justified. WHY: English prose must not silently damage executable syntax or document structure.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Perform a focused semantic-drift review against the pre-translation text for every normative or lifecycle-sensitive sentence, especially MUST, MUST NOT, NEVER, only, current, legacy, advisory, blocking, phase transitions and actor authority. Prove the review detects representative mutations that invert a negation, change advisory to mandatory, or erase the current-versus-legacy qualifier; the final translation preserves polarity, modality, scope and exception boundaries. WHY: fluent English can still reverse a gate or workflow rule.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
