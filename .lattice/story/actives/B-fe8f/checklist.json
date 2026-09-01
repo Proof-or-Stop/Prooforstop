@@ -363,7 +363,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Runtime evidence integrity reports a current signed receipt for stable artifacts and refuses changed source, command, environment, toolchain, trust key, artifact bytes or build-in-progress state with an explicit reason code.",
+      "userSees": "The terminal prints \"runtime.content_addressed_receipt: PASS blobs=complete signature=valid\", \"runtime.artifact_stability: PASS pre=true during=true post=true\", and a deterministic refusal code for every stale or tampered receipt.",
       "excludes": [
         "The receipt proves executed bytes and freshness only, not semantic correctness or applicability."
       ],
