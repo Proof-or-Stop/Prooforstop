@@ -1901,6 +1901,67 @@
         "scanEscalationReason": null
       },
       "_hash": "2668442e09850985ef50cb66c0212f5578dd2888cd9e5447f6f001a8594f2d62"
+    },
+    {
+      "id": "B-022e:RP-053",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 25 full documentation review at HEAD 7304380877b8894aba5bfc14f1fc6301dc8604ea found no blocking documentation issue. The mandated broad symbol scan found 1645 raw declarations and 177 exported symbols; documentation comparison yielded 63 raw hit lines across 29 files and 18 semantically relevant paragraphs after excluding generic register matches. Active role guidance uses proof-or-stop-review-story-init; exact lattice-review-story-init occurrences are confined to migration, negative-test, frozen-history, or provenance contexts. Proof-or-Stop identity, proof-or-stop.config.json, and .proof-or-stop paths are canonical. Version statements match root/Core/Utils 0.3.268 and independently versioned Lab 0.3.65 with Core peer floor ^0.3.65. Live Wave4 topology, pre-review, and rollout readers remain observe, read-only, nonblocking, and diagnostic/inconclusive or missing, with no fabricated Authority, production, topology, or rollout success. The reviewer-requested-full contract matches the process-fact rationale, implementation, and direct mutation tests: only the three discarded incremental-candidate fields cease to be dynamic comparison inputs under exact REVIEWER_REQUESTED_FULL selection, while signed-envelope integrity plus current material, scope, task, prompt, and prior-pass bindings remain fail-closed. Identity and prompt baseline verifiers, including packed clean-consumer role lookup, passed.",
+      "createdAt": "2026-09-01T16:14:16.557Z",
+      "reviewRound": "2026-09-01T16:06:49.189Z",
+      "reviewRunId": "B-022e:RR-115",
+      "envelopeId": "f0b052a3de900355e6205cde182d26acc9f7e276c82abe809f5f3cdcd759a8e2",
+      "writerSessionId": "sess-8b578106d88f262e7b8839da1f27faa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/proof-or-stop.json",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "package.json",
+          "packages/core/package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/utils/package.json",
+          "README.md"
+        ],
+        "scanEscalationReason": "Full-context Round 25 documentation review required a repository-wide active-identity, version, Wave4-claim, and requested-full-contract scan."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e0ee526ab2897eb4d89101d8f2469458f533753adfc55197c8c0b9c9206b2c35"
+      },
+      "readDiagnostics": [],
+      "_hash": "2d29e49ecf76b9a18bdbfe76165e3f8a97cedcf6b02f5dca527d1cead28fe29d"
     }
   ]
 }
