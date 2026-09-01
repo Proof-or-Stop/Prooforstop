@@ -88,6 +88,42 @@ export interface ProcessFactRegistryEntry {
   rationale: string;
 }
 
+export interface Story3PersistenceOnlyRecordPolicy {
+  recordClass: 'persistence' | 'candidate' | 'route' | 'baseline' | 'history' | 'standalone-receipt' | 'ledger-receipt';
+  recordTypes: readonly string[];
+  level: 'L2';
+  producer: string;
+  allowedConsumers: readonly ['finding_ledger_query'];
+  gateEvidence: false;
+  lifecycleAuthority: 'none';
+  rationale: string;
+}
+
+/**
+ * Persistence authority is deliberately narrower than semantic authority.
+ * These rows can prove exact durable bytes only; no row in this table may be
+ * promoted to L4 or consumed directly by a lifecycle predicate.
+ */
+export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
+  { recordClass: 'persistence', recordTypes: ['finding', 'assessment_proposal', 'assessment', 'mandatory_repair', 'deferral_expiry_policy', 'deferral', 'manifest', 'supersession', 'material_drift_reattestation'], level: 'L2', producer: 'core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Atomic persistence proves durable exact bytes, not blocker/pass/unblock truth.' },
+  { recordClass: 'candidate', recordTypes: ['candidate', 'candidate_route'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Candidate bytes remain advisory until a separately registered semantic authority acts.' },
+  { recordClass: 'route', recordTypes: ['route'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Persisted route bytes never establish applicability or lifecycle disposition.' },
+  { recordClass: 'baseline', recordTypes: ['progress_baseline', 'progress_baseline_set', 'baseline_set'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Baseline bytes preserve a non-gate before-state and cannot block, pass, or unblock alone.' },
+  { recordClass: 'history', recordTypes: ['historical', 'canonical_defect', 'canonical_defect_supersession'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Historical identity and recall bytes remain advisory rather than current lifecycle evidence.' },
+  { recordClass: 'standalone-receipt', recordTypes: ['standalone_receipt', 'route_receipt'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'A standalone target receipt remains non-authoritative until an exact-CAS semantic consumer is registered.' },
+  { recordClass: 'ledger-receipt', recordTypes: ['finding_ledger_receipt'], level: 'L2', producer: 'handlers/finding-ledger.appendFindingLedger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'The signed commit receipt proves persistence integrity only and never the truth of committed content.' },
+] as const satisfies readonly Story3PersistenceOnlyRecordPolicy[];
+
+export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
+  recordType: 'runtime_evidence_receipt',
+  level: 'L3',
+  producer: 'core/runtime-evidence-receipt + handlers/finding-ledger.verify',
+  allowedConsumers: ['finding_ledger_query'],
+  gateEvidence: false,
+  lifecycleAuthority: 'gate-eligible-input-only',
+  rationale: 'A current signed runtime receipt can be an input to a separately registered future gate consumer; persistence or query output alone never changes lifecycle state.',
+} as const;
+
 export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   validate: 'validation-status',
   done_required_validate: 'validation-status',
@@ -129,6 +165,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
+  finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
+  finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
   review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],

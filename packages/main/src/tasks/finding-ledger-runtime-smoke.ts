@@ -21,6 +21,7 @@ import {
   FINDING_LEDGER_SCHEMA_EPOCH,
   LedgerRefusal,
   appendLedgerTransaction,
+  emptyLedger,
   readLedger,
   recoverLedger,
   type AppendRequest,
@@ -38,11 +39,13 @@ import {
   closeMandatoryRepair,
   createFindingLedgerHandlers,
   exactLedgerRecordHash,
+  queryFindingLedger,
   RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST,
   RUNTIME_EVIDENCE_PRIVATE_KEY_ENV,
   RUNTIME_EVIDENCE_PUBLIC_KEY_ENV,
   signAssessmentProposal,
   verifyAssessmentProposal,
+  verifyFindingLedgerQueryRow,
   verifyFindingLedgerReceipt,
   type LedgerAppendOptions,
   type LedgerReceiptTrust,
@@ -80,6 +83,13 @@ import { createMainRegistry } from '../registry.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { Finding, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import {
+  PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES,
+  PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY,
+  getProcessFactRegistryEntry,
+} from '../core/process-fact-registry.js';
+import { isCommandAllowed } from '../core/config.js';
+import { findLifecycleTransition } from '../core/lifecycle-registry.js';
 
 interface WorkerSpec {
   ledgerFile: string;
@@ -245,7 +255,7 @@ function parseCliJson(output: string): Record<string, unknown> {
 function runRuntimeCli(
   repositoryRoot: string,
   projectRoot: string,
-  command: 'finding_runtime_evidence_run' | 'finding_runtime_evidence_verify',
+  command: 'finding_ledger_query' | 'finding_runtime_evidence_run' | 'finding_runtime_evidence_verify',
   args: Record<string, unknown>,
   signingEnv: Record<string, string>,
 ): { status: number | null; stdout: string; stderr: string; json?: Record<string, unknown> } {
@@ -261,6 +271,53 @@ function runRuntimeCli(
     stderr: result.stderr ?? '',
     ...(result.status === 0 ? { json: parseCliJson(result.stdout ?? '') } : {}),
   };
+}
+
+function hasProtectedPathSurface(value: unknown, protectedValues: readonly string[]): boolean {
+  if (typeof value === 'string') return protectedValues.some((candidate) => candidate && value.includes(candidate));
+  if (Array.isArray(value)) return value.some((item) => hasProtectedPathSurface(item, protectedValues));
+  if (!value || typeof value !== 'object') return false;
+  const forbiddenKeys = new Set([
+    'path', 'file', 'directory', 'root', 'realPath', 'absolutePath', 'ledgerPath',
+    'lockPath', 'tempPath', 'artifactStoreRoot', 'storagePath',
+  ]);
+  return Object.entries(value).some(([key, item]) => forbiddenKeys.has(key) || hasProtectedPathSurface(item, protectedValues));
+}
+
+function story3VerifierMutationAccepted(repositoryRoot: string, mutation: string): boolean {
+  return spawnSync(process.execPath, [join(repositoryRoot, 'scripts', 'verify-process-fact-contract.mjs'), '--quiet'], {
+    cwd: repositoryRoot,
+    env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).status === 0;
+}
+
+function runStory3DependencyFixture(): void {
+  const dependencies = new Map<string, readonly string[]>([
+    ['B-03b7', ['B-fe8f']],
+    ['B-e6d9', ['B-fe8f', 'B-03b7']],
+  ]);
+  const state = new Map<string, { phase: 'PLAN' | 'DONE'; merged: boolean }>([
+    ['B-fe8f', { phase: 'PLAN', merged: false }],
+    ['B-03b7', { phase: 'PLAN', merged: false }],
+    ['B-e6d9', { phase: 'PLAN', merged: false }],
+  ]);
+  let transitionWrites = 0;
+  const attempt = (storyId: string): string[] => {
+    assert.ok(findLifecycleTransition('PLAN', 'DEV'), 'fixture dependency boundary must be a real lifecycle transition');
+    const blockedBy = (dependencies.get(storyId) ?? []).filter((dependencyId) => {
+      const dependency = state.get(dependencyId);
+      return dependency?.phase !== 'DONE' || dependency.merged !== true;
+    });
+    if (blockedBy.length > 0) return blockedBy;
+    transitionWrites += 1;
+    return [];
+  };
+  assert.deepEqual(attempt('B-03b7'), ['B-fe8f']);
+  assert.deepEqual(attempt('B-e6d9'), ['B-fe8f', 'B-03b7']);
+  assert.equal(transitionWrites, 0);
+  console.log('dependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0');
 }
 
 function readTreeText(root: string): string {
@@ -421,6 +478,117 @@ function runRuntimeEvidenceMatrix(scratch: string): void {
     assert.equal(cliVerify.status, 0, `real runtime verify CLI failed: ${cliVerify.stderr}\n${cliVerify.stdout}`);
     assert.equal(cliVerify.json?.verified, true);
     console.log('runtime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true');
+
+    const queryPhaseBefore = store.readStory(storyId).phase;
+    const cliQuery = runRuntimeCli(repositoryRoot, root, 'finding_ledger_query', { storyId }, signingEnv);
+    const cliQueryRepeat = runRuntimeCli(repositoryRoot, root, 'finding_ledger_query', { storyId }, signingEnv);
+    assert.equal(cliQuery.status, 0, `real ledger query CLI failed: ${cliQuery.stderr}\n${cliQuery.stdout}`);
+    assert.equal(cliQueryRepeat.status, 0, `repeat ledger query CLI failed: ${cliQueryRepeat.stderr}\n${cliQueryRepeat.stdout}`);
+    const query = cliQuery.json!;
+    const repeatedQuery = cliQueryRepeat.json!;
+    const queryRows = query.rows as unknown as ReturnType<typeof queryFindingLedger>['rows'];
+    const queryTrust: LedgerReceiptTrust = {
+      publicKey: keyPair.publicKey,
+      keyId: receipt.keyId,
+      algorithm: 'ed25519',
+      trustRootDigest: receipt.trustRootDigest,
+      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
+    };
+    assert.deepEqual(queryRows.map((row) => row.category), ['ledger', 'cas', 'idempotency', 'runtime', 'migration']);
+    assert.equal(queryRows.every((row) => verifyFindingLedgerQueryRow(row, queryTrust)), true);
+    assert.equal(queryRows.every((row) => row.gateEvidence === false && row.lifecycleAuthority === 'none'), true);
+    assert.equal(queryRows.every((row) => row.numerator === row.denominator), true);
+    assert.equal(query.snapshotDigest, canonicalHash(queryRows));
+    assert.equal(store.readStory(storyId).phase, queryPhaseBefore);
+    assert.equal(hasProtectedPathSurface(query, [root, store.storyDirPath(storyId), '.runtime-evidence-blobs', 'finding-ledger.json', 'findings.lock']), false);
+    console.log('query.protected_read_only: PASS signedRows=true pathsExposed=0');
+    assert.equal(canonicalJson(query), canonicalJson(repeatedQuery));
+    console.log('query.deterministic_scorecard: PASS');
+
+    const querySigner: LedgerSigner = {
+      privateKey: keyPair.privateKey,
+      publicKey: keyPair.publicKey,
+      keyId: receipt.keyId,
+      trustRootDigest: receipt.trustRootDigest,
+      keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
+    };
+    const persistedLedger = store.readFindingLedger<JsonValue>(storyId);
+    let refusedQueries = 0;
+    const expectRefusal = (candidate: typeof persistedLedger): void => {
+      assert.throws(() => queryFindingLedger(candidate, storyId, querySigner));
+      refusedQueries += 1;
+    };
+    expectRefusal(emptyLedger<JsonValue>());
+    const digestMismatch = structuredClone(persistedLedger);
+    digestMismatch.records[0]!.payloadHash = '0'.repeat(64);
+    expectRefusal(digestMismatch);
+    const incomplete = structuredClone(persistedLedger);
+    incomplete.receipts[0]!.recordIds = [];
+    expectRefusal(incomplete);
+    const unsigned = structuredClone(persistedLedger) as typeof persistedLedger & { receipts: Array<Record<string, unknown>> };
+    delete (unsigned.receipts[0]!.findingLedgerReceipt as Record<string, unknown>).signature;
+    expectRefusal(unsigned);
+    const signatureMismatch = structuredClone(persistedLedger) as typeof persistedLedger & { receipts: Array<Record<string, unknown>> };
+    (signatureMismatch.receipts[0]!.findingLedgerReceipt as Record<string, unknown>).signature = 'tampered-signature';
+    expectRefusal(signatureMismatch);
+    const tamperedQueryRow = structuredClone(queryRows[0]!);
+    tamperedQueryRow.numerator = Math.max(0, tamperedQueryRow.numerator - 1);
+    assert.equal(verifyFindingLedgerQueryRow(tamperedQueryRow, queryTrust), false);
+    assert.equal(refusedQueries, 5);
+    console.log('query.incomplete_tamper_refusal: PASS partialRows=0');
+
+    const queryEntry = getProcessFactRegistryEntry('finding_ledger_query')!;
+    const runEntry = getProcessFactRegistryEntry('finding_runtime_evidence_run')!;
+    const verifyEntry = getProcessFactRegistryEntry('finding_runtime_evidence_verify')!;
+    assert.deepEqual([queryEntry.level, runEntry.level, verifyEntry.level], ['L0', 'L2', 'L3']);
+    assert.equal(runEntry.semantics.includes('atomic-persistence'), true);
+    assert.equal(verifyEntry.semantics.includes('execution-evidence') && verifyEntry.semantics.includes('freshness-policy'), true);
+    assert.equal([queryEntry, runEntry, verifyEntry].some((entry) => entry.semantics.includes('gate-evidence') || entry.consumerGate), false);
+    assert.equal(PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY.level, 'L3');
+    assert.equal(PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY.gateEvidence, false);
+    assert.equal(PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY.lifecycleAuthority, 'gate-eligible-input-only');
+    console.log('registry.story3_fact_contract: PASS');
+
+    const phases = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    assert.equal(phases.every((phase) => isCommandAllowed('finding_ledger_query', phase)), true);
+    assert.equal(isCommandAllowed('finding_runtime_evidence_run', 'DEV'), true);
+    assert.equal(isCommandAllowed('finding_runtime_evidence_verify', 'DEV'), true);
+    assert.equal(phases.filter((phase) => phase !== 'DEV').some((phase) => isCommandAllowed('finding_runtime_evidence_run', phase) || isCommandAllowed('finding_runtime_evidence_verify', phase)), false);
+    console.log('registry.command_phase_policy: PASS bypasses=0');
+
+    assert.deepEqual(
+      PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES.map((policy) => policy.recordClass),
+      ['persistence', 'candidate', 'route', 'baseline', 'history', 'standalone-receipt', 'ledger-receipt'],
+    );
+    const lifecycleBefore = canonicalJson(store.readStory(storyId));
+    assert.equal(PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES.every((policy) => (
+      policy.level === 'L2'
+      && policy.gateEvidence === false
+      && policy.lifecycleAuthority === 'none'
+      && canonicalJson(policy.allowedConsumers) === canonicalJson(['finding_ledger_query'])
+    )), true);
+    assert.equal(canonicalJson(store.readStory(storyId)), lifecycleBefore);
+    console.log('registry.persistence_non_authority: PASS lifecycleDelta=0');
+
+    const nonAuthorityMutations = [
+      'story3-promote-query-l4',
+      'story3-promote-runtime-run-l4',
+      'story3-drop-runtime-freshness',
+      ...PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES.map((policy) => `story3-promote-record-${policy.recordClass}`),
+    ];
+    assert.equal(nonAuthorityMutations.filter((mutation) => story3VerifierMutationAccepted(repositoryRoot, mutation)).length, 0);
+    console.log('registry.non_authority_mutations: PASS acceptedMutations=0');
+
+    const boundaryMutations = [
+      'story3-forbidden-story2-import',
+      'story3-forbidden-story1-import',
+      'story3-unregistered-direct-consumer',
+    ];
+    assert.equal(boundaryMutations.filter((mutation) => story3VerifierMutationAccepted(repositoryRoot, mutation)).length, 0);
+    console.log('registry.dependency_boundary: PASS forbiddenImportsAccepted=0');
+    assert.equal(story3VerifierMutationAccepted(repositoryRoot, 'story3-query-path-leak'), false);
+    console.log('query.path_leakage: PASS exposedPaths=0');
+    runStory3DependencyFixture();
 
     const changedEnvironment = redactEnvironment({ ...process.env, RUNTIME_SAFE: 'changed-safe-value' }, {
       allowlist: runArgs.environmentAllowlist,

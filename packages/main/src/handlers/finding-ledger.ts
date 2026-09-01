@@ -4,6 +4,7 @@ import { realpathSync, statSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
 import {
   canonicalHash, canonicalJson, planAppend, readLedger,
+  validateEnvelope,
   FINDING_LEDGER_SCHEMA_EPOCH, FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
   FINDING_LEDGER_LOCAL_FS_CAPABILITY,
   type AppendLedgerOptions, type AppendPlan, type AppendRequest,
@@ -27,6 +28,7 @@ import {
   executeRuntimeEvidence,
   redactEnvironment,
   verifyRuntimeEvidenceCurrent,
+  verifyRuntimeEvidenceReceiptSignature,
   type RuntimeEvidenceReceipt,
   type RuntimeReceiptSigner,
   type RuntimeReceiptTrust,
@@ -531,6 +533,280 @@ export interface FindingRuntimeEvidenceVerifyArgs {
   storageCapability?: string;
 }
 
+export interface FindingLedgerQueryTrustedKey {
+  publicKey: string;
+  keyId: string;
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+}
+
+export interface FindingLedgerQueryArgs {
+  storyId: string;
+  trustedKeys?: FindingLedgerQueryTrustedKey[];
+}
+
+export type FindingLedgerQueryCategory = 'ledger' | 'cas' | 'idempotency' | 'runtime' | 'migration';
+
+interface FindingLedgerQueryRowCore {
+  schemaVersion: 1;
+  category: FindingLedgerQueryCategory;
+  storyId: string;
+  numerator: number;
+  denominator: number;
+  details: JsonValue;
+  evidenceDigests: string[];
+  gateEvidence: false;
+  lifecycleAuthority: 'none';
+}
+
+export interface FindingLedgerQueryRow extends FindingLedgerQueryRowCore {
+  rowDigest: string;
+  keyId: string;
+  algorithm: 'ed25519';
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+  signature: string;
+}
+
+export interface FindingLedgerQueryResult {
+  schemaVersion: 1;
+  command: 'finding_ledger_query';
+  storyId: string;
+  rows: FindingLedgerQueryRow[];
+  snapshotDigest: string;
+  signedRows: true;
+  gateEvidence: false;
+  lifecycleAuthority: 'none';
+  publicKey: string;
+}
+
+export type FindingLedgerQueryRefusalCode =
+  | 'ledger_missing'
+  | 'ledger_digest_mismatch'
+  | 'ledger_incomplete'
+  | 'ledger_receipt_unsigned'
+  | 'ledger_receipt_signature_invalid'
+  | 'runtime_receipt_unsigned'
+  | 'runtime_receipt_signature_invalid'
+  | 'query_row_invalid';
+
+export class FindingLedgerQueryRefusal extends Error {
+  constructor(readonly code: FindingLedgerQueryRefusalCode) {
+    super(`finding-ledger-query:${code}`);
+    this.name = 'FindingLedgerQueryRefusal';
+  }
+}
+
+const QUERY_ROW_KEYS = [
+  'algorithm', 'category', 'denominator', 'details', 'evidenceDigests', 'gateEvidence',
+  'keyFreshnessPolicyDigest', 'keyId', 'lifecycleAuthority', 'numerator', 'rowDigest',
+  'schemaVersion', 'signature', 'storyId', 'trustRootDigest',
+].sort();
+
+function signFindingLedgerQueryRow(core: FindingLedgerQueryRowCore, signer: LedgerSigner): FindingLedgerQueryRow {
+  const rowDigest = canonicalHash(core);
+  const signed = {
+    ...core,
+    rowDigest,
+    keyId: signer.keyId,
+    algorithm: 'ed25519' as const,
+    trustRootDigest: signer.trustRootDigest,
+    keyFreshnessPolicyDigest: signer.keyFreshnessPolicyDigest,
+  };
+  return { ...signed, signature: signCanonical(signed, signer.privateKey) };
+}
+
+export function verifyFindingLedgerQueryRow(row: FindingLedgerQueryRow, trust: LedgerReceiptTrust): boolean {
+  try {
+    if (!exactKeys(row, QUERY_ROW_KEYS)
+      || row.schemaVersion !== 1
+      || !['ledger', 'cas', 'idempotency', 'runtime', 'migration'].includes(row.category)
+      || row.gateEvidence !== false
+      || row.lifecycleAuthority !== 'none'
+      || !Number.isSafeInteger(row.numerator)
+      || !Number.isSafeInteger(row.denominator)
+      || row.numerator < 0
+      || row.denominator < 0
+      || row.numerator > row.denominator
+      || row.keyId !== trust.keyId
+      || row.algorithm !== trust.algorithm
+      || row.trustRootDigest !== trust.trustRootDigest
+      || row.keyFreshnessPolicyDigest !== trust.keyFreshnessPolicyDigest) return false;
+    const { rowDigest, signature, keyId, algorithm, trustRootDigest, keyFreshnessPolicyDigest, ...core } = row;
+    if (rowDigest !== canonicalHash(core)) return false;
+    return verifyCanonical({ ...core, rowDigest, keyId, algorithm, trustRootDigest, keyFreshnessPolicyDigest }, signature, trust.publicKey);
+  } catch { return false; }
+}
+
+function queryTrust(
+  keyId: string,
+  trustRootDigest: string,
+  keyFreshnessPolicyDigest: string,
+  trustedKeys: readonly FindingLedgerQueryTrustedKey[],
+): LedgerReceiptTrust | undefined {
+  const key = trustedKeys.find((candidate) => candidate.keyId === keyId
+    && candidate.trustRootDigest === trustRootDigest
+    && candidate.keyFreshnessPolicyDigest === keyFreshnessPolicyDigest);
+  return key ? { ...key, algorithm: 'ed25519' } : undefined;
+}
+
+function queryRefusalForEnvelope(error: unknown): FindingLedgerQueryRefusal {
+  const message = error instanceof Error ? error.message : '';
+  return new FindingLedgerQueryRefusal(/digest|hash/i.test(message) ? 'ledger_digest_mismatch' : 'ledger_incomplete');
+}
+
+/**
+ * Protected Story 3 query projection. The complete ledger is validated before
+ * any row is returned; public rows contain only signed digests and schema-neutral
+ * scorecard/migration metadata, never record payloads or protected paths.
+ */
+export function queryFindingLedger(
+  ledger: LedgerEnvelope<JsonValue>,
+  storyId: string,
+  signer: LedgerSigner,
+  additionalTrustedKeys: readonly FindingLedgerQueryTrustedKey[] = [],
+): FindingLedgerQueryResult {
+  try { validateEnvelope(ledger); } catch (error) { throw queryRefusalForEnvelope(error); }
+  if (ledger.records.length === 0 || ledger.receipts.length === 0) {
+    throw new FindingLedgerQueryRefusal('ledger_missing');
+  }
+  const trustedKeys: FindingLedgerQueryTrustedKey[] = [{
+    publicKey: signer.publicKey,
+    keyId: signer.keyId,
+    trustRootDigest: signer.trustRootDigest,
+    keyFreshnessPolicyDigest: signer.keyFreshnessPolicyDigest,
+  }, ...additionalTrustedKeys];
+  const recordsById = new Map(ledger.records.map((record) => [record.recordId, record]));
+  const seenRecordIds = new Set<string>();
+  const orderedRecords: LedgerRecord<JsonValue>[] = [];
+  const receiptHashes: string[] = [];
+  const casBindings: FindingLedgerCasBinding[] = [];
+  const idempotencyKeyDigests: string[] = [];
+  let priorDigest = canonicalHash([]);
+
+  for (const persisted of ledger.receipts as PersistedCommitReceipt[]) {
+    const receipt = persisted.findingLedgerReceipt;
+    if (!receipt || !receipt.receiptHash || !receipt.signature) {
+      throw new FindingLedgerQueryRefusal('ledger_receipt_unsigned');
+    }
+    const trust = queryTrust(receipt.keyId, receipt.trustRootDigest, receipt.keyFreshnessPolicyDigest, trustedKeys);
+    if (!trust || !verifyFindingLedgerReceipt(receipt, trust)) {
+      throw new FindingLedgerQueryRefusal('ledger_receipt_signature_invalid');
+    }
+    if (receipt.storyId !== storyId
+      || receipt.receiptId !== persisted.receiptId
+      || receipt.operation !== persisted.operation
+      || receipt.idempotencyKey !== persisted.idempotencyKey
+      || canonicalHash(receipt.recordIds) !== canonicalHash(persisted.recordIds)
+      || receipt.priorLedgerDigest !== persisted.priorLedgerDigest
+      || receipt.committedLedgerDigest !== persisted.committedLedgerDigest
+      || receipt.writerSessionId !== persisted.writerSessionId
+      || receipt.writerFenceToken !== persisted.writerFenceToken
+      || receipt.committedAt !== persisted.committedAt
+      || receipt.replayed !== false
+      || typeof persisted.exactRequestDigest !== 'string'
+      || !/^[0-9a-f]{64}$/.test(persisted.exactRequestDigest)
+      || receipt.priorLedgerDigest !== priorDigest) {
+      throw new FindingLedgerQueryRefusal('ledger_incomplete');
+    }
+    for (const recordId of receipt.recordIds) {
+      const record = recordsById.get(recordId);
+      if (!record) throw new FindingLedgerQueryRefusal('ledger_incomplete');
+      if (!seenRecordIds.has(recordId)) {
+        const expected = ledger.records[orderedRecords.length];
+        if (!expected || expected.recordId !== recordId || record.priorDigest !== priorDigest) {
+          throw new FindingLedgerQueryRefusal('ledger_incomplete');
+        }
+        seenRecordIds.add(recordId);
+        orderedRecords.push(record);
+      }
+    }
+    const committedDigest = canonicalHash(orderedRecords);
+    if (receipt.committedLedgerDigest !== committedDigest) {
+      throw new FindingLedgerQueryRefusal('ledger_digest_mismatch');
+    }
+    priorDigest = committedDigest;
+    receiptHashes.push(receipt.receiptHash);
+    casBindings.push(...receipt.casBindings);
+    idempotencyKeyDigests.push(canonicalHash(receipt.idempotencyKey));
+  }
+  if (orderedRecords.length !== ledger.records.length || priorDigest !== ledger.committedLedgerDigest) {
+    throw new FindingLedgerQueryRefusal('ledger_incomplete');
+  }
+
+  const runtimeReceiptDigests: string[] = [];
+  for (const record of ledger.records.filter((candidate) => candidate.recordType === 'runtime_evidence_receipt')) {
+    const receipt = record.payload as unknown as RuntimeEvidenceReceipt;
+    if (!receipt || typeof receipt.receiptHash !== 'string' || typeof receipt.signature !== 'string') {
+      throw new FindingLedgerQueryRefusal('runtime_receipt_unsigned');
+    }
+    const trust = queryTrust(receipt.keyId, receipt.trustRootDigest, receipt.keyFreshnessPolicyDigest, trustedKeys);
+    if (!trust || !verifyRuntimeEvidenceReceiptSignature(receipt, trust)) {
+      throw new FindingLedgerQueryRefusal('runtime_receipt_signature_invalid');
+    }
+    runtimeReceiptDigests.push(receipt.receiptHash);
+  }
+
+  const migrationRecords = ledger.records.map((record) => ({
+    recordId: record.recordId,
+    recordType: record.recordType,
+    idempotencyKeyDigest: canonicalHash(record.idempotencyKey),
+    ...(record.uniqueBindingKey ? { uniqueBindingKeyDigest: canonicalHash(record.uniqueBindingKey) } : {}),
+    payloadHash: record.payloadHash,
+    recordHash: exactLedgerRecordHash(record),
+    ledgerSchemaEpoch: record.ledgerSchemaEpoch,
+    writerCapability: record.writerCapability,
+    createdAt: record.createdAt,
+  }));
+  const rowCores: FindingLedgerQueryRowCore[] = [
+    {
+      schemaVersion: 1, category: 'ledger', storyId,
+      numerator: ledger.receipts.length, denominator: ledger.receipts.length,
+      details: { committedLedgerDigest: ledger.committedLedgerDigest, recordCount: ledger.records.length, receiptCount: ledger.receipts.length },
+      evidenceDigests: [...receiptHashes].sort(), gateEvidence: false, lifecycleAuthority: 'none',
+    },
+    {
+      schemaVersion: 1, category: 'cas', storyId,
+      numerator: casBindings.length, denominator: casBindings.length,
+      details: casBindings.map((binding) => ({ ...binding })),
+      evidenceDigests: casBindings.map((binding) => canonicalHash(binding)).sort(), gateEvidence: false, lifecycleAuthority: 'none',
+    },
+    {
+      schemaVersion: 1, category: 'idempotency', storyId,
+      numerator: new Set(idempotencyKeyDigests).size, denominator: ledger.receipts.length,
+      details: { keyDigests: [...idempotencyKeyDigests].sort(), receiptCount: ledger.receipts.length },
+      evidenceDigests: [...receiptHashes].sort(), gateEvidence: false, lifecycleAuthority: 'none',
+    },
+    {
+      schemaVersion: 1, category: 'runtime', storyId,
+      numerator: runtimeReceiptDigests.length, denominator: runtimeReceiptDigests.length,
+      details: { receiptDigests: [...runtimeReceiptDigests].sort() },
+      evidenceDigests: [...runtimeReceiptDigests].sort(), gateEvidence: false, lifecycleAuthority: 'none',
+    },
+    {
+      schemaVersion: 1, category: 'migration', storyId,
+      numerator: migrationRecords.length, denominator: ledger.records.length,
+      details: { ledgerSchemaEpoch: ledger.ledgerSchemaEpoch, minimumWriterCapability: ledger.minimumWriterCapability, records: migrationRecords },
+      evidenceDigests: migrationRecords.map((record) => record.recordHash).sort(), gateEvidence: false, lifecycleAuthority: 'none',
+    },
+  ];
+  const rows = rowCores.map((row) => signFindingLedgerQueryRow(row, signer));
+  if (rows.some((row) => !verifyFindingLedgerQueryRow(row, { ...signer, algorithm: 'ed25519' }))) {
+    throw new FindingLedgerQueryRefusal('query_row_invalid');
+  }
+  return {
+    schemaVersion: 1,
+    command: 'finding_ledger_query',
+    storyId,
+    rows,
+    snapshotDigest: canonicalHash(rows),
+    signedRows: true,
+    gateEvidence: false,
+    lifecycleAuthority: 'none',
+    publicKey: signer.publicKey,
+  };
+}
+
 export const RUNTIME_EVIDENCE_PRIVATE_KEY_ENV = 'PROOF_OR_STOP_RUNTIME_EVIDENCE_PRIVATE_KEY';
 export const RUNTIME_EVIDENCE_PUBLIC_KEY_ENV = 'PROOF_OR_STOP_RUNTIME_EVIDENCE_PUBLIC_KEY';
 export const RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST = canonicalDigest({
@@ -703,6 +979,23 @@ function runtimeExpectedState(
 
 export function createFindingLedgerHandlers(ctx: HandlerContext) {
   return {
+    finding_ledger_query(args: FindingLedgerQueryArgs) {
+      assertText(args.storyId, 'storyId');
+      ctx.store.readStory(args.storyId);
+      const signer = runtimeSignerFromEnvironment();
+      try {
+        return queryFindingLedger(
+          ctx.store.readFindingLedger<JsonValue>(args.storyId),
+          args.storyId,
+          signer,
+          args.trustedKeys ?? [],
+        );
+      } catch (error) {
+        if (error instanceof FindingLedgerQueryRefusal) throw error;
+        throw queryRefusalForEnvelope(error);
+      }
+    },
+
     finding_runtime_evidence_run(args: FindingRuntimeEvidenceRunArgs) {
       assertText(args.storyId, 'storyId');
       assertText(args.idempotencyKey, 'idempotencyKey');
