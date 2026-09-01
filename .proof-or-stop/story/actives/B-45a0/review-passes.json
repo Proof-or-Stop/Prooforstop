@@ -24763,6 +24763,26 @@
         "scanEscalationReason": "Full-story dispatch (14 checklist items, wave-4 remediation re-review); relied on prior rounds RR-1170/RR-1176 for claim-by-claim Section 1-27.6/digest verification and confirmed via re-grep that no new packages/main source changed since, so this round is scoped to (a) re-confirming F-467/F-469 drift is unchanged at current HEAD and (b) confirming no gate/selector hardcodes the stale 112 count."
       },
       "_hash": "b5d38279ad5b7405a2c89b009b6b6e6f301584da2e19519912a4b14c33e3b2ab"
+    },
+    {
+      "id": "B-45a0:RP-531",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: all 14 checklist items (CHK-001..CHK-014) have verificationIntent fully covered by verificationEvidence 1:1 (50/50 intents matched by intentRef), zero must-priority gaps, zero waivers, zero fail results, zero stale storyFilesHash. Evidence is mechanical (real receipts: exitCode=0, selectorMatched=true, concrete outputTail) not prose. Wave 4 acceptance-gate boundary (CHK-014) verified: acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check all covered by integration_test evidence hitting the exact verifier-owned commands. CHK-011 replay-threshold evidence current (run-dynamic-validation-replay.mjs --verify-threshold PASS). Evidence-bound commit 30e917e is an ancestor of current HEAD c6b93f6 with only metadata-record commits between them (storyFilesHash unchanged at 56aaeea3...), consistent with headHash-only drift not requiring re-earn. Non-blocking observation (not filed as finding): CHK-012/CHK-013 verificationIntent entries omit the priority field (all other 12 items explicitly set priority=must) but evidence coverage for them is still complete 1:1.",
+      "createdAt": "2026-09-01T14:47:48.541Z",
+      "reviewRound": "2026-09-01T14:39:12.553Z",
+      "reviewRunId": "B-45a0:RR-1185",
+      "envelopeId": "51f82073d6d610ce66b82d946b0cbddc7e01b1f641ac3fc0abe08018770936d9",
+      "writerSessionId": "sess-1788103935-61181",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "checklist_get output (all 14 items verificationIntent+verificationEvidence)",
+          "story_get output"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "743a29e99f0eca9454de80eee78b0d2a9d026a4fdfdca7bc00ebce89ced5ac7c"
     }
   ]
 }
