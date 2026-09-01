@@ -355,12 +355,12 @@
           "kind": "docs_check",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Historical RED selector re-executed at immutable GREEN anchor b236538; current sparse-ID fix is verified separately by Story3 GREEN smoke.",
+          "note": "Replayed immutable RED witness at historical GREEN anchor; current remediation is verified independently by Story3 GREEN smoke.",
           "mechanical": false,
-          "headHash": "c0181279ffeb187d920137128a4351c9428fedfa",
-          "materialHash": "5a9cfa1a5f65248ad5d45a7756adb089d413e8868b080c6a1e3fbdcc790ab69b",
-          "storyFilesHash": "619f1710092a1b2ad3bb2dd2858ffa40cb1d941c0db7330e23ee3d07f65181e0",
-          "timestamp": "2026-09-01T14:37:17.979Z"
+          "headHash": "fbe17d0c9b7d78bf61cef6c521eca6f7883a4865",
+          "materialHash": "224423682eee99ddcb7d5a6354b4e12f2eb22434578e3a3a7d0efae23b63209b",
+          "storyFilesHash": "87bf434ed2144199d3a9508f243187bb754ff3c07bb785950e4ac14f414b9033",
+          "timestamp": "2026-09-01T15:02:29.725Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
