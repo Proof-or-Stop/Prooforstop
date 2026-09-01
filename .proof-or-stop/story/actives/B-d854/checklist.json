@@ -113,6 +113,11 @@
             "desc": "Run whole-file Unicode checks rather than line samples: assert zero Han-script and U+FFFD characters, enumerate every remaining non-ASCII code point with line locations, and explicitly classify each residual as an intentional language-neutral technical symbol or fail the item. Also verify no mixed-language heading, table cell, comment or example was skipped. WHY: hidden residual text and replacement corruption commonly survive visual spot checks.",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "Record and separately report the repository-local worktree CLI and the globally resolved `proof-or-stop` runtime: capture each reported version plus the invoked path and canonical resolved realpath. Treat `node bin/proof-or-stop.js` from the B-d854 worktree as the authority for auditing current repository behavior and active examples; report any global version or path drift as a distinct environment finding without substituting the global runtime for local authority, concealing the drift, or treating unrelated global drift as proof that the worktree documentation is inconsistent. WHY: repository truth and host installation state are separate facts and the evidence must make that boundary reproducible.",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "adversarial": [
