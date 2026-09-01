@@ -814,6 +814,42 @@
       },
       "readDiagnostics": [],
       "_hash": "bb23ec6ab67445a226420369a9cf0c73a52b4a9f670577c49a783698770f34e0"
+    },
+    {
+      "id": "B-022e:RP-028",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed at unchanged story-owned material: 29 standard intent receipts and the custom pack-boundary transcript are fresh with zero waivers; F-035 escaped-key mutation bites independently, value and mixed-case mutations remain covered, and retired runtime aliases remain absent.",
+      "createdAt": "2026-09-01T00:51:58.420Z",
+      "reviewRound": "2026-09-01T00:42:13.813Z",
+      "reviewRunId": "B-022e:RR-066",
+      "envelopeId": "0fd5646b01d85f82c6252994c9e93d4ce05e28f4d0ef6504e78ab62dbcde6d13",
+      "writerSessionId": "sess-7e22cf01f939864f19a38d6283010f65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "README.md",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "scanEscalationReason": "Full-envelope sequential re-review covered every checklist intent and focused the only story-owned code delta on F-035 escaped-key mutation sensitivity, while re-checking evidence freshness and canonical runtime identity absence."
+      },
+      "_hash": "d16cc4d3db46fc84f154273acf9bb5196bf2a5efe44cf3d52d8225f7564d8cca"
     }
   ]
 }
