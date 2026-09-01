@@ -20441,7 +20441,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30 and 46-59 promise the mandatory 30-50 executed historical Story replays, durable per-command receipts, and three alternating current-HEAD full/dynamic pairs, but CHK-011:happy:0 is marked PASS by node scripts/run-dynamic-validation-replay.mjs --verify-threshold even though its own current receipt says historical replay mode: plan-only and historical replay assurance BLOCKED (plan-only or incomplete). The current signed runtime report confirms execute=false, admissible=false, reasons plan-only replay has no executable receipts and one or more Stories were not executed, and does not bind pairedPerformance; the standalone paired artifact is stale at fb107c61 and cannot fulfill current-HEAD assurance. This is verified pre-fix evidence for F-358: execute the --execute --paired campaign and bind the resulting admissible current-HEAD report before treating CHK-011 or the enforcement-evidence promise as delivered.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-26T16:07:03.697Z",
@@ -20485,7 +20485,11 @@
       ],
       "signatureTag": "ri060-current-replay-assurance",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-012"
+      "clusterId": "CL-012",
+      "resolvedReason": "The mandatory executed historical replay campaign has been delivered: the signed current-source report at .proof-or-stop/runtime/dynamic-validation/historical-replay/report.json now records execute=true, storyCount=50 executed historical Story replays with durable per-command receipts, admissibility.admissible=true with zero reasons, and a bound pairedPerformance block (verdictEquivalent=true, executedCount=116, artifact head 8f1213287510d485e3b82d1d5289363fa793b7ae matching paired-performance.json). node scripts/run-dynamic-validation-replay.mjs --verify-threshold passes at current HEAD printing historical replay assurance PASS + discovery threshold PASS + threshold PASS. Plan-only mode can no longer earn assurance: without --execute the script prints historical replay assurance BLOCKED (plan-only or incomplete) and exits before the PASS selectors (scripts/run-dynamic-validation-replay.mjs:81-84).",
+      "resolvedAt": "2026-09-01T14:39:34.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-362",
