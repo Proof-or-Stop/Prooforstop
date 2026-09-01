@@ -17997,6 +17997,77 @@
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-330",
+      "desc": "packages/main/src/handlers/checklist.ts:527-608 (sameEvidenceSemantics vs sameAuditedAttestationIdentity) and packages/main/src/core/pre-review-live-proof.ts:58-119 (isCanonicalPreReviewCaseId record-ID scoping): neither predicate is referenced by name in any file under packages/main/tests/, and no CHK-001..CHK-005 verificationIntent names either behavior directly. sameAuditedAttestationIdentity first appears only in merge commit a2e4e92631 (present in neither parent, i.e. hand-authored during conflict resolution) and governs a real behavior split -- a note-only checklist_update on a mechanical:true receipt drops the receipt (sameEvidenceSemantics is note-sensitive) while the same note-only update on a mechanical:false attestation keeps it (sameAuditedAttestationIdentity ignores note) -- with no direct unit exercising either branch of that split. isCanonicalPreReviewCaseId is exercised only transitively through pre_review_check_read inside the F-247 / F-249-series tests in causal-evidence.test.mjs, and those two tests are themselves currently failing at live HEAD (see B-5a15:F-329), so the only coverage path that reaches this new scoping logic cannot currently demonstrate it behaves as intended. Both are unclaimed by any checklist item's Files/scope declaration and neither is must-priority, so this is recorded as a deferred, non-blocking coverage gap rather than expanded into this story's scope: a follow-up should add a direct logic_test for sameAuditedAttestationIdentity's note-tolerant carry-forward vs sameEvidenceSemantics's note-sensitive drop, and a direct fixture-level test for isCanonicalPreReviewCaseId that does not depend on the full pre-review acceptance chain being green.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T05:56:47.544Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-779",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        }
+      ],
+      "_hash": "493c0663b3aaea627cb287d0a46db98754120705001053a705db038b0c4f4528",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/pre-review-live-proof.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
