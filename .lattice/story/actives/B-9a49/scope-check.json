@@ -1,135 +1,122 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-01T00:32:10.540Z",
+  "checkedAt": "2026-09-01T11:22:32.564Z",
   "features": [
     {
-      "feature": "Deliver one byte-identical canonical Finding triage contract to all five active REVIEW lanes in full-envelope and legacy-full-context modes while excluding every non-REVIEW role.",
-      "covered_by": "CHK-001",
+      "feature": "One byte-identical canonical Finding triage contract is delivered exactly once to all five active REVIEW lanes in both full-envelope and legacy-full-context modes.",
+      "covered_by": "CHK-001, CHK-004",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-001"
+      "excluded_by": "",
+      "source": "Story acceptance; prompt consolidation and role modularization plans"
     },
     {
-      "feature": "Preserve current reviewer protocol and separate evidence state, severity, applicability candidate, and gate impact; fail closed on untrusted applicability and require evidence-backed owned routing without reviewer repair, dismissal, Story creation, gap logging, severity rewrite, or unilateral scope expansion.",
-      "covered_by": "CHK-001",
+      "feature": "The contract keeps evidenceState, severity, applicability candidate, disposition, and gate impact independent; unknown or stale applicability fails closed; disproven, duplicate, and not_reproduced_under_current_witness remain distinct; future defer_with_proof is limited to eligible verified applicable low or medium Findings.",
+      "covered_by": "CHK-001, CHK-004",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-001"
+      "excluded_by": "",
+      "source": "Dynamic Finding authority plan plus accepted SEP-B-9a49-001 terminology migration"
     },
     {
-      "feature": "Keep disproven, duplicate, and stale-or-not-reproduced as distinct outcomes that preserve Finding history.",
-      "covered_by": "CHK-001",
+      "feature": "Current compatibility paths remain bounded: finding_dismiss is temporary round or profile accounting only, gap_log remains a main-Agent or human Proof-or-Stop framework-gap archive, and neither path proves applicability, repair, or resolution.",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-001"
+      "excluded_by": "",
+      "source": "Triage proposal and role-separation authority boundary"
     },
     {
-      "feature": "Align Story Owner and implementer guidance with applicability and gate truth while preventing unbounded implementation scope expansion.",
+      "feature": "Story Owner, implementer, and reviewer responsibilities are separated: reviewers classify and record, owners decide bounded disposition, and implementers preserve evidence and do not widen scope unilaterally.",
       "covered_by": "CHK-002",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-002"
+      "excluded_by": "",
+      "source": "role-separation.md and prompt consolidation role contracts"
     },
     {
-      "feature": "Describe compatibility dismissal as temporary round or profile accounting rather than applicability proof or resolution.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-002"
-    },
-    {
-      "feature": "Register REVIEW-only declarative triage metadata without letting prompt prose or metadata become gate evidence or redefine Dynamic Finding authority.",
+      "feature": "Declarative REVIEW triage metadata is restricted to active REVIEW roles and remains non-evidentiary; prompt prose does not redefine schemas, predicates, freshness, supersession, process facts, or lifecycle gates.",
       "covered_by": "CHK-003",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-003"
+      "excluded_by": "",
+      "source": "Agent/System two-layer boundary in governing prompt plans"
     },
     {
-      "feature": "Prove stale in-flight reviewer envelopes require a fresh review_run_start and redispatch, and keep all added prompt and tracked documentation prose suitable for English-language open source.",
+      "feature": "RED then GREEN verification covers semantic bite, five-role and two-mode delivery, non-REVIEW isolation, stale-envelope redispatch, digest and baseline integrity, and a full Task Context authority-injection rejection independent of repinned digests.",
       "covered_by": "CHK-004",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-004"
+      "excluded_by": "",
+      "source": "Dedicated must verification intents including CHK-004:adversarial:task-context-authority-injection"
     },
     {
-      "feature": "Use the same focused contract for RED and GREEN, then verify prompt delivery, isolation, digest integrity, process and runtime contracts, build output, and Codex adapter compatibility.",
-      "covered_by": "CHK-004",
+      "feature": "The open-source proposal remains English-only and the authoritative Dynamic Finding plan receives only the approved documentation migration: canonical target vocabulary, explicitly legacy input alias, and an explicit statement that current CLI implements neither alias normalization nor signed deferral.",
+      "covered_by": "CHK-001, CHK-004, SEP-B-9a49-001",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-004"
+      "excluded_by": "",
+      "source": "Current INIT scope boundary and accepted SEP-B-9a49-001"
     },
     {
-      "feature": "Repair F-020 by reconciling truthful existing process-fact producer-to-consumer topology edges with verifier-owned canonical basis paths without weakening structural validation.",
+      "feature": "Existing process-fact producer and consumer references reconcile through the authoritative process-fact registry in the coverage-basis reader without fabricated planned declarations, topology-validator edits, or weaker structural closure.",
       "covered_by": "CHK-005",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005"
+      "excluded_by": "",
+      "source": "proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
-      "feature": "Require current signed topology PASS, admissible live pre-review proof, and current full-3x2 signed rollout proof for the F-020 repair, with exact registry consumerGate matching and fail-closed negative controls.",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005.verificationIntent"
-    },
-    {
-      "feature": "Resolve Codex prompt assets in the live pre-review smoke through the shared ADAPTER_DIR_NAMES contract in canonical-first order, retain deprecated read fallback, and fail closed with a bounded diagnosis when neither asset root exists.",
+      "feature": "The pre-review smoke resolves Codex prompt assets canonical-first through accepted adapter directory names, retains deprecated read fallback, and fails closed when both roots are absent without creating a compatibility copy or symlink.",
       "covered_by": "CHK-006",
       "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-006"
+      "excluded_by": "",
+      "source": "proof-or-stop-identity-migration.md and brand-rename-mapping.md"
     },
     {
-      "feature": "Change Dynamic Finding schemas, handlers, shared blocking predicates, process-fact registries, freshness, supersession, severity, or applicability authority.",
-      "covered_by": null,
+      "feature": "Dynamic Finding runtime schemas, applicability writers, signed deferral handlers or commands, blocker predicates, freshness and supersession consumers, process-fact registries, and lifecycle gates are not implemented by this Story.",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "The Story understanding, decision, and enforced scope contract explicitly preserve Dynamic Finding runtime authority and protect or exclude handlers, advisory gate logic, and process-fact registry files.",
-      "source": ".lattice/story/actives/B-9a49/understanding.json#constraints"
+      "excluded_by": "Current INIT scope boundary; CHK-001; CHK-004",
+      "source": "Explicit Agent-side projection boundary"
     },
     {
-      "feature": "Modify acceptance-topology structural validation, accept caller-authored consumer aliases, or fabricate plannedPathDeclarations for already-existing process-fact paths.",
-      "covered_by": null,
+      "feature": "The REVIEW triage contract is not injected into active non-REVIEW, compatibility, or retired roles.",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "CHK-005 explicitly forbids these shortcuts and the enforced scope contract excludes packages/main/src/core/acceptance-topology.ts.",
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005.excludes"
+      "excluded_by": "CHK-001; CHK-004",
+      "source": "Role registry and five-lane rollout boundary"
     },
     {
-      "feature": "Create a .lattice-codex symlink or materialized compatibility copy, modify the shared adapter resolver, or change any runtime handler, lifecycle gate predicate, Dynamic Finding file, or acceptance-topology validator for CHK-006.",
-      "covered_by": null,
+      "feature": "No remote feature branch, push, or alternative delivery workflow is introduced.",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "CHK-006 permits only packages/main/src/tasks/proofstory-pre-review-check-smoke.ts as allowedTest; allowedCreate is empty, canonical ADAPTER_DIR_NAMES already exists, and the scope contract keeps runtime handlers, Dynamic Finding authority files, and acceptance-topology.ts excluded.",
-      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-006.excludes"
+      "excluded_by": "Current INIT scope boundary",
+      "source": "Proof-or-Stop local Story worktree lifecycle"
+    },
+    {
+      "feature": "Unrelated non-blocking defects are not absorbed merely to make all checks green; they remain evidence-backed follow-up work unless current acceptance or gate truth is blocked.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Current INIT scope boundary; CHK-002",
+      "source": "Bounded defect-triage rule"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".lattice/story/actives/B-9a49/background.md",
-      ".lattice/story/actives/B-9a49/checklist.json",
-      ".lattice/story/actives/B-9a49/decision.json",
-      ".lattice/story/actives/B-9a49/plan.md",
-      ".lattice/story/actives/B-9a49/understanding.json",
-      "AGENTS.md"
-    ],
-    "filesTriagedByName": [
       "docs/requirements/decisions/brand-rename-mapping.md",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-identity-migration.md",
       "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
       "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
       "docs/requirements/decisions/role-separation.md"
     ],
+    "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 14,
-    "covered": 11,
-    "excluded": 3,
+    "total": 13,
+    "covered": 9,
+    "excluded": 4,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-31T23:13:35.921Z",
-  "_hash": "5a6b3bb08d7e2c81cfeca4759b6d3e33339c9e22a610f30415a3a251dfc3f1b9",
+  "reviewRound": "2026-09-01T10:52:52.902Z",
+  "_hash": "3ea65192ded2def007331d40721ceef275655130493ec9d07c5ee4b0b4214b1d",
   "openQuestions": []
 }

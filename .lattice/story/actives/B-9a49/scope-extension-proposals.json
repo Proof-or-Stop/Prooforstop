@@ -1,0 +1,32 @@
+{
+  "storyId": "B-9a49",
+  "updatedAt": "2026-09-01T11:14:36.131Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-9a49-001",
+      "storyId": "B-9a49",
+      "proposedBy": "lattice-review-story-init",
+      "proposedAt": "2026-09-01T11:14:31.243Z",
+      "proposal": "Extend allowedModify to docs/requirements/decisions/dynamic-finding-system-execution-plan.md and docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md. Extend the declared checklist mapping to CLAUDE.md (already present in the canonical contract). The two decision documents are documentation-only: align target-state verdict vocabulary, label the former combined verdict solely as a future legacy input alias, and specify future signed defer_with_proof eligibility while stating the current CLI implements neither mechanism. No runtime schema, handler, predicate, process-fact, freshness, supersession, or lifecycle gate changes.",
+      "proposalTextHash": "8500485362f94c75944563be8a7d2017002595ca7cd028683df4c83e8edee05f",
+      "reason": "INIT and PLAN reviewers proved that the Agent proposal otherwise contradicts its declared Dynamic Finding authority, and PLAN round 14 showed the exact document paths were not in the older signed scope contract.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "cb93ed285054433f600f55c14eee6e0eca016d2f82f50fa4292614564e28cc47",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "main-agent",
+        "decidedAt": "2026-09-01T11:14:36.131Z",
+        "rationale": "Accepted from the user’s explicit instruction to keep this Agent-prompt change consistent with the Dynamic Finding System Execution Plan and execute the English proposal until done. The accepted extension is limited to the two named decision documents and explicitly excludes every runtime/gate implementation surface.",
+        "_hash": "4406508455eabd37eff534972ec9260115e4b4b37b140f96263ffc49f269b492"
+      }
+    }
+  ]
+}
