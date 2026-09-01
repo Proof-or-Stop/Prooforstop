@@ -49,11 +49,7 @@
         "CHK-002:adversarial:4",
         "CHK-003:happy:review-only-registration",
         "CHK-003:adversarial:no-authority-dataflow",
-        "CHK-004:adversarial:authority-boundary-and-local-cli",
-        "CHK-005:happy:registry-reconciliation",
-        "CHK-005:happy:story-topology-pass",
-        "CHK-005:happy:live-pre-review-proof",
-        "CHK-005:happy:signed-rollout-full-3x2"
+        "CHK-004:adversarial:authority-boundary-and-local-cli"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
@@ -141,10 +137,10 @@
               "canonicalSourceRef": "intent:CHK-003:happy:review-only-registration"
             },
             "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
+              "P-DELIVERY-BASIS-GENERATOR"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
+              "C-DELIVERY-TOPOLOGY-CHECK"
             ]
           }
         ],
@@ -169,10 +165,10 @@
               "canonicalSourceRef": "intent:CHK-002:adversarial:4"
             },
             "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
+              "P-DELIVERY-BASIS-GENERATOR"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
+              "C-DELIVERY-TOPOLOGY-CHECK"
             ]
           },
           {
@@ -182,10 +178,10 @@
               "canonicalSourceRef": "intent:CHK-003:adversarial:no-authority-dataflow"
             },
             "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
+              "P-DELIVERY-BASIS-GENERATOR"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
+              "C-DELIVERY-TOPOLOGY-CHECK"
             ]
           },
           {
@@ -195,10 +191,10 @@
               "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
             },
             "producerRefs": [
-              "P-BOUNDARY-PRE-REVIEW-CHECK"
+              "P-DELIVERY-BASIS-GENERATOR"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-REVIEW-GATE"
+              "C-DELIVERY-TOPOLOGY-CHECK"
             ]
           }
         ],
@@ -273,5 +269,5 @@
   "diagnosticGaps": [],
   "note": "Acceptance binding for the approved REVIEW Finding triage Agent-behavior projection. Active proof assertion IDs use only the verifier-registered A-POS, A-MUT, and A-TRANSCRIPT namespace.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-09-01T00:26:52.194Z"
+  "updatedAt": "2026-09-01T00:27:17.552Z"
 }
