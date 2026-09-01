@@ -233,7 +233,39 @@ function sleepSync(ms: number): void {
 
 export interface AcquiredMkdirLock {
   lockDir: string;
+  /** Persisted per-acquire token; absent only in the legacy fail-open write-error path. */
+  lockId?: string;
+  /** True only while holder.json still names this exact acquire token. */
+  isCurrent?(): boolean;
   release(): void;
+}
+
+export interface MkdirLockFence {
+  writerFenceToken: string;
+  assertCurrent(): void;
+}
+
+/**
+ * Capture the token of an already-held mkdir lock and return a stale-writer
+ * fence. A caller that cannot prove a persisted token is refused instead of
+ * being allowed to publish after a stale-reclaim/successor-acquire race.
+ */
+export function captureMkdirLockFence(lockDir: string): MkdirLockFence {
+  const token = readMkdirLockHolder(lockDir)?.lockId;
+  if (!token) {
+    throw new Error(`mkdir lock fence unavailable: ${lockDir} has no persisted ownership token`);
+  }
+  return {
+    writerFenceToken: token,
+    assertCurrent() {
+      const current = readMkdirLockHolder(lockDir)?.lockId;
+      if (current !== token) {
+        const error = new Error('STALE_FENCE: mkdir lock ownership changed before commit');
+        error.name = 'StaleFenceError';
+        throw error;
+      }
+    },
+  };
 }
 
 export interface MkdirTicketLockOptions extends MkdirLockOptions {
@@ -369,6 +401,10 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
 
   return {
     lockDir,
+    ...(releaseLockId ? { lockId: releaseLockId } : {}),
+    isCurrent() {
+      return releaseLockId !== undefined && readMkdirLockHolder(lockDir)?.lockId === releaseLockId;
+    },
     release() {
       // B-d877 R4 (codex #2): release is OWNERSHIP-SAFE and NON-recursive. It
       // NEVER recursively force-removes an identity-unverified directory, so a

@@ -45,6 +45,15 @@ import {
   emptyReviewInventoryEpochData,
   type ReviewInventoryEpochData,
 } from './review-inventory-epoch.js';
+import {
+  appendLedgerTransaction,
+  readLedger,
+  type AppendLedgerOptions,
+  type AppendPlan,
+  type AppendRequest,
+  type LedgerEnvelope,
+  type LedgerFence,
+} from './finding-ledger.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -459,15 +468,56 @@ export class StoryStore {
   // JSON passthrough does not affect serialization.
 
   readFindings(storyId: string): FindingData {
+    let data: FindingData;
     try {
-      return this.readJson<FindingData>(storyId, 'findings.json');
+      data = this.readJson<FindingData>(storyId, 'findings.json');
     } catch {
-      return { findings: [] };
+      data = { findings: [] };
     }
+    // The separate append ledger is authoritative for new Finding commits. The
+    // legacy findings.json remains a compatibility mirror and is never rewritten
+    // merely because an old row lacks a recordId. If a process died after the
+    // durable ledger rename but before updating that mirror, project the complete
+    // committed Finding here so no acknowledged row becomes half-visible/lost.
+    const ledgerPath = this.findingLedgerPath(storyId);
+    if (!existsSync(ledgerPath)) return data;
+    const ledger = readLedger<unknown>(ledgerPath);
+    for (const record of ledger.records) {
+      if (record.recordType !== 'finding' || !record.payload || typeof record.payload !== 'object') continue;
+      const payload = record.payload as FindingData['findings'][number];
+      if (typeof payload.id !== 'string' || typeof payload.desc !== 'string') continue;
+      const receipt = ledger.receipts.find((candidate) => candidate.recordIds.includes(record.recordId));
+      const projected = {
+        ...payload,
+        recordId: record.recordId,
+        ...(receipt ? { ledgerCommitReceiptId: receipt.receiptId } : {}),
+      };
+      const index = data.findings.findIndex((finding) => finding.id === payload.id);
+      if (index < 0) data.findings.push(projected);
+      else if (data.findings[index]?.recordId === record.recordId) data.findings[index] = projected;
+    }
+    return data;
   }
 
   writeFindings(storyId: string, data: FindingData): void {
     this.writeJson(storyId, 'findings.json', data);
+  }
+
+  findingLedgerPath(storyId: string): string {
+    return this.storyFilePath(storyId, 'finding-ledger.json');
+  }
+
+  readFindingLedger<T = unknown>(storyId: string): LedgerEnvelope<T> {
+    return readLedger<T>(this.findingLedgerPath(storyId));
+  }
+
+  appendFindingLedgerTransaction<T = unknown>(
+    storyId: string,
+    request: AppendRequest<T>,
+    fence: LedgerFence,
+    options: AppendLedgerOptions = {},
+  ): AppendPlan<T> {
+    return appendLedgerTransaction(this.findingLedgerPath(storyId), request, fence, options);
   }
 
   readReviewPasses(storyId: string): ReviewPassData {

@@ -1440,6 +1440,14 @@ export interface DisprovenEvidence {
 /** Finding: a finding raised by a lattice reviewer (replaces testIntent) */
 export interface Finding {
   id: string;            // format B-xxx:F-001
+  /**
+   * Collision-resistant immutable persistence identity. Legacy Findings omit
+   * this field and remain byte-preserved; their binding is appended to the
+   * separate Finding ledger on first mediated read/backfill.
+   */
+  recordId?: string;
+  /** CHK-002 durable commit acknowledgement; not the signed CHK-003 receipt. */
+  ledgerCommitReceiptId?: string;
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
   category: 'happy' | 'edge' | 'adversarial' | 'missing';
@@ -1547,6 +1555,18 @@ export interface GapLogProvenanceBinding {
 
 export interface FindingData {
   findings: Finding[];
+}
+
+/**
+ * Minimal CHK-002 transaction result exposed to existing Finding callers.
+ * The signed FindingLedgerReceipt contract is deliberately deferred to CHK-003.
+ */
+export interface FindingLedgerCommitRef {
+  recordIds: string[];
+  receiptId: string;
+  priorLedgerDigest: string;
+  committedLedgerDigest: string;
+  replayed: boolean;
 }
 
 export interface ReviewerReadManifest {

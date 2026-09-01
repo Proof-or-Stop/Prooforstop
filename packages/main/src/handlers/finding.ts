@@ -3,6 +3,7 @@
  */
 
 import { existsSync, readdirSync } from 'fs';
+import { randomUUID } from 'node:crypto';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -30,7 +31,7 @@ import { loadConfig } from '../core/config.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { BRAND_ENV_PREFIX } from '../core/brand-env.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
-import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { mainWriteLockPath, withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import {
   hasActiveOrProposedTag,
@@ -40,7 +41,12 @@ import {
 } from '../core/learning-store.js';
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { captureMkdirLockFence, withMkdirLock, type MkdirLockFence } from '../core/mkdir-lock.js';
+import {
+  FINDING_LEDGER_LOCAL_FS_CAPABILITY,
+  FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
+  FINDING_LEDGER_SCHEMA_EPOCH,
+} from '../core/finding-ledger.js';
 import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
@@ -102,15 +108,21 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
  * while already holding the lock), and a non-reentrant acquire would self-
  * deadlock. The reentrant wrapper makes the nested call a pass-through.
  */
-function withMetaFindingLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
+function withMetaFindingLock<T>(ctx: HandlerContext, storyId: string, fn: (fence: MkdirLockFence) => T): T {
   if (!storyId.startsWith('B-META-')) {
     const lockDir = ctx.store.storyFilePath(storyId, 'findings.lock');
-    return withMkdirLock(lockDir, fn, { label: 'findings metadata' });
+    return withMkdirLock(lockDir, () => fn(captureMkdirLockFence(lockDir)), {
+      label: 'findings metadata',
+      requireHolderToken: true,
+    });
   }
   const mainRepoRoot = resolveMainRepoRoot(ctx.root);
   // A B-META finding write is a sub-second critical section — serialize-and-wait
   // on contention so a concurrent write completes rather than fail-fasting.
-  return withReentrantMainWriteLock(mainRepoRoot, fn, {
+  return withReentrantMainWriteLock(mainRepoRoot, () => {
+    const lockDir = mainWriteLockPath(mainRepoRoot);
+    return fn(captureMkdirLockFence(lockDir));
+  }, {
     label: `finding write (${storyId})`,
     onContention: 'wait',
   });
@@ -492,6 +504,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readManifest?: unknown;
       readEvents?: unknown;
       readLog?: unknown;
+      idempotencyKey?: string;
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
@@ -549,11 +562,18 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
       // The readFindings → push → writeFindings critical section uses the
       // unified main lock for B-META and a per-story lock for normal stories.
-      const id = withMetaFindingLock(ctx, args.storyId, () => {
+      const idempotencyKey = args.idempotencyKey?.trim() || `finding_add:${randomUUID()}`;
+      const ledgerCommit = withMetaFindingLock(ctx, args.storyId, (fence) => {
         const data = store.readFindings(args.storyId);
         const nextNum = data.findings.length + 1;
-        const fid = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
-        const timestamp = new Date().toISOString();
+        const ledgerBefore = store.readFindingLedger<Finding>(args.storyId);
+        const replayReceipt = ledgerBefore.receipts.find((receipt) => receipt.idempotencyKey === idempotencyKey);
+        const replayRecord = replayReceipt
+          ? ledgerBefore.records.find((record) => replayReceipt.recordIds.includes(record.recordId))
+          : undefined;
+        const replayFinding = replayRecord?.recordType === 'finding' ? replayRecord.payload : undefined;
+        const fid = replayFinding?.id ?? `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
+        const timestamp = replayFinding?.createdAt ?? new Date().toISOString();
         const readManifest = readEvidence?.readManifest;
         const readLog = readEvidence?.readLog;
         const readDiagnostics = readEvidence?.readDiagnostics;
@@ -591,10 +611,35 @@ export function createFindingHandlers(ctx: HandlerContext) {
           // attached AFTER _hash and are never passed into the hashed input).
           ...(signatureTag ? { signatureTag, signatureTagSource } : {}),
         };
-        data.findings.push(finding);
+        const plan = store.appendFindingLedgerTransaction(args.storyId, {
+          operation: 'append_finding',
+          idempotencyKey,
+          records: [{ recordType: 'finding', payload: finding }],
+          ledgerSchemaEpoch: FINDING_LEDGER_SCHEMA_EPOCH,
+          writerCapability: FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
+          writerSessionId: getSessionIdentity().sessionId,
+          writerFenceToken: fence.writerFenceToken,
+          storageCapability: FINDING_LEDGER_LOCAL_FS_CAPABILITY,
+        }, fence);
+        const record = plan.records[0];
+        if (!record) throw new Error('finding_add: committed ledger transaction returned no Finding record');
+        const committedFinding: Finding = {
+          ...(record.payload as Finding),
+          recordId: record.recordId,
+          ledgerCommitReceiptId: plan.receipt.receiptId,
+        };
+        const mirrorIndex = data.findings.findIndex((candidate) => candidate.id === committedFinding.id);
+        if (mirrorIndex < 0) data.findings.push(committedFinding);
+        else data.findings[mirrorIndex] = committedFinding;
         store.writeFindings(args.storyId, data);
-        return fid;
+        return {
+          id: committedFinding.id,
+          recordId: record.recordId,
+          receiptId: plan.receipt.receiptId,
+          replayed: plan.action === 'replay',
+        };
       });
+      const id = ledgerCommit.id;
 
       // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
       // tag, auto-record it as status=proposed in the signature-registry (audit-only;
@@ -662,7 +707,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const readDiagnosticsHint = readEvidence?.readDiagnostics && readEvidence.readDiagnostics.length > 0
         ? `\n→ reviewer read diagnostics recorded: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`
         : '';
-      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${readDiagnosticsHint}${signatureTagHint}${commitHint}`;
+      const ledgerHint = `\nLedger record=${ledgerCommit.recordId} receipt=${ledgerCommit.receiptId} replayed=${ledgerCommit.replayed}`;
+      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${ledgerHint}${warning}${advisoryHint}${readDiagnosticsHint}${signatureTagHint}${commitHint}`;
     },
 
     review_pass_set(args: {
