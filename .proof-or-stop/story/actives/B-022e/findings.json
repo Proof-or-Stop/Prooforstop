@@ -961,7 +961,7 @@
       "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:858-872 recursively scans both decoded JSON object keys and values, but the executable append-only mutation block at lines 1557-1562 only injects a Unicode-escaped retired token into a value. There is no committed Unicode-escaped retired-key mutation that would fail if the scan(key) branch regressed while scan(entry) stayed green. WHY: this exact encoding class already caused a verifier bypass; current behavior is correct, but CHK-007:adversarial:0 lacks regression coverage for the key half of the boundary. Reproduced by source audit plus passing `node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test`, whose current assertions cover the escaped value only.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T00:24:16.388Z",
@@ -972,7 +972,11 @@
         "scripts/verify-proof-or-stop-identity-cutover.mjs"
       ],
       "signatureTag": "missing|mjs|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0d68468f6e: committed escaped JSON object-key mutation independently fails when key scanning is removed; current full self-test and identity verifier pass.",
+      "resolvedAt": "2026-09-01T00:49:24.419Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
