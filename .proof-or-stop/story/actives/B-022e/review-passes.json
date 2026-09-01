@@ -1684,6 +1684,56 @@
         "scanEscalationReason": "Full-context reviewer escalation requested after sequential SAFE_INCREMENTAL passes became invalid from reviewer metadata-only eligibility and review-basis digest changes."
       },
       "_hash": "be3ea359d24ad9980904a639159eb4914823733923042ae35c61c703f4f55625"
+    },
+    {
+      "id": "B-022e:RP-047",
+      "agent": "proof-or-stop-review-docs",
+      "note": "FULL-CONTEXT docs review (contextMode=full, reasonCode=REVIEWER_REQUESTED_FULL) against the complete current diff. Step 1 produced 1,631 declarations with the mandated broad regex; a corrected exported-only projection contained 177 symbols. Step 2 found 63 raw symbol-hit lines across 29 documentation files; generic coincidental hits were triaged, and 18 semantically relevant identity, role, version, frozen-history, lifecycle, and Wave4 paragraphs were compared to the changed definitions/registries/manifests. Active agent identity is consistently proof-or-stop-review-story-init across Claude, Codex, templates, registry, handlers, dispatch, and docs; retired lattice-review-story-init appears only in exact frozen/superseded historical or negative-verification contexts and is not invocable. Identity-cutover and 17-role prompt verifiers pass, including clean packed role identity and unknown retired-role rejection. Documentation matches root/Core/Utils 0.3.268, independent Lab 0.3.65 with Core ^0.3.65, and Utils Core ^0.3.268. Wave4 text does not claim current PASS, Authority, or full 3x2: live topology/pre-review/rollout remain observe/read-only/nonblocking and inconclusive/missing. No promised-but-undelivered documentation and no blocking doc-code drift found.",
+      "createdAt": "2026-09-01T13:38:01.189Z",
+      "reviewRound": "2026-09-01T12:54:50.425Z",
+      "reviewRunId": "B-022e:RR-108",
+      "envelopeId": "c03d47db85814d525e4c4a16a2e68ff68e3341aa6d85c85e004844babf420e54",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-docs.md",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+          "packages/utils/package.json",
+          "README.md"
+        ],
+        "scanEscalationReason": "Full-context docs escalation requested after sequential SAFE_INCREMENTAL docs passes became invalid from reviewer metadata-only eligibility and review-basis digest changes."
+      },
+      "_hash": "85050b1fdde0997578a1207d4c4fb4feefd9280cbfe8cd2bad3b465110102d0f"
     }
   ]
 }
