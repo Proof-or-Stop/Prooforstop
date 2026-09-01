@@ -18128,6 +18128,74 @@
       ],
       "signatureTag": "missing|json|completeness-topology-critic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-332",
+      "desc": "concept-inconsistency: evidence-freshness.ts:52-64 evaluateCausalEvidenceFreshness is a decorative adapter whose parameter surface contradicts the CausalEvidence concept it claims to expose. Its doc comment names it the 'Explicit opt-in adapter for specialized causal consumers', and process fact runtime:causal_dependency_preflight_metrics_gate (process-fact-levels.ts:437) names core/evidence-freshness a co-owner of that gate. But the adapter (a) EXPOSES rerunNodeIds, which causal-evidence.ts:1284-1287 explicitly voids as 'an untrusted assertion' with 'deliberately no effect on correctness metrics or gate admission', and (b) OMITS rerunEvidence, the only input that can admit a rerun via verifyCausalDependencyRerunEvidence (causal-evidence.ts:1280-1283). So the only rerun knob it offers is the inert one, and the working one is unreachable through it. It also omits storyId, previousHeadHash and currentHeadHash, so every decision it returns has identityBinding.storyId===undefined and identityBinding.currentHeadHash===undefined. Runtime-verified against packages/main/dist: an adapter-produced decision gives hasCausalDependencyDecisionIdentityBinding=true but causalDependencyDecisionMatchesCurrentIdentity(d,{storyId,materialHash,storyFilesHash,headHash})=false, because that predicate (causal-evidence.ts:1385-1392) rejects a binding whose storyId or currentHeadHash does not match the supplied current identity. Both named consumers ALWAYS supply both: evaluateCertificationWindowAdmit passes storyId+headHash (certification-window.ts:485-492) and causalDecisionMatchesCertificationSnapshot passes storyId+headHash (certification-window.ts:771-778). An adapter-produced decision is therefore rejected by construction at both gate sites. Evidence this is dead-on-arrival rather than merely not-yet-used: repo-wide grep (excluding node_modules and dist) finds ZERO callers of evaluateCausalEvidenceFreshness besides its own definition, while the real production producer handlers/certification-window.ts:166-177 bypasses it and calls evaluateCausalDependencies directly WITH storyId, previousHeadHash and currentHeadHash. Impact is conceptual, not a live gate bypass: nothing consumes the adapter today and its omissions fail closed rather than open. The risk is that a future specialized consumer reaches for the officially named adapter, gets a permanently unusable decision, and cannot reach rerunEvidence at all. Not blocking this story's acceptance. Recommended: either delete the adapter so callers use evaluateCausalDependencies directly, or widen it to Parameters<typeof evaluateCausalDependencies>[0] and drop the inert rerunNodeIds from the public shape.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T08:51:36.282Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-785",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f9146a36e773b5f7452302da40558ee67860ecc9e99f0b2a7dc879d23e708202"
+      },
+      "readDiagnostics": [],
+      "_hash": "2ed37683e56373b0f7ea0627fcc2f76b1bef122a8a44ac67f250d904664af8d9",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|concept-inconsistency-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
