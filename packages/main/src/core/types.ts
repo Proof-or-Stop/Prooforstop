@@ -1578,6 +1578,7 @@ export interface FindingLedgerCommitRef {
  */
 export type FindingLedgerOperation =
   | 'append_finding'
+  | 'append_finding_lifecycle_transition'
   | 'append_legacy_identity_binding'
   | 'append_detector_signal'
   | 'append_candidate_route'
@@ -1595,6 +1596,26 @@ export type FindingLedgerOperation =
   | 'append_canonical_defect'
   | 'append_supersession'
   | 'apply_manifest';
+
+/**
+ * Immutable terminal-state fact for a Finding. The original `finding` record
+ * never changes; resolve/dismiss append one of these records and readers fold
+ * the ledger in order to obtain the current projection.
+ */
+export interface FindingLifecycleTransition {
+  schemaVersion: 1;
+  transitionId: string;
+  findingId: string;
+  findingRecordId: string;
+  fromStatus: 'open';
+  toStatus: 'resolved' | 'dismissed';
+  at: string;
+  reason?: string;
+  resolutionType?: Finding['resolutionType'];
+  resolveEvidenceStrength?: Finding['resolveEvidenceStrength'];
+  dismissReasonType?: Finding['dismissReasonType'];
+  dismissEvidenceStrength?: Finding['dismissEvidenceStrength'];
+}
 
 export interface FindingLedgerCasBinding {
   recordType: string;

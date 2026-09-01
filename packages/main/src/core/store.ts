@@ -14,6 +14,7 @@ import type {
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
   AcceptanceBasisArtifactV1,
+  FindingLifecycleTransition,
   PreReviewCheckArtifactV1,
   AcceptanceRolloutArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
@@ -495,7 +496,54 @@ export class StoryStore {
       };
       const index = data.findings.findIndex((finding) => finding.id === payload.id);
       if (index < 0) data.findings.push(projected);
-      else if (data.findings[index]?.recordId === record.recordId) data.findings[index] = projected;
+      else if (data.findings[index]?.recordId === record.recordId) {
+        const compatibility = data.findings[index]!;
+        // Before lifecycle transitions existed, resolve/dismiss was persisted in
+        // findings.json only. Preserve that bounded terminal compatibility fact
+        // instead of resurrecting the immutable original `open` row. New writes
+        // are authoritative lifecycle records and are folded below.
+        data.findings[index] = compatibility.status === 'open'
+          ? projected
+          : {
+              ...projected,
+              status: compatibility.status,
+              ...(compatibility.resolvedReason ? { resolvedReason: compatibility.resolvedReason } : {}),
+              ...(compatibility.resolvedAt ? { resolvedAt: compatibility.resolvedAt } : {}),
+              ...(compatibility.resolutionType ? { resolutionType: compatibility.resolutionType } : {}),
+              ...(compatibility.resolveEvidenceStrength ? { resolveEvidenceStrength: compatibility.resolveEvidenceStrength } : {}),
+              ...(compatibility.dismissReason ? { dismissReason: compatibility.dismissReason } : {}),
+              ...(compatibility.dismissedAt ? { dismissedAt: compatibility.dismissedAt } : {}),
+              ...(compatibility.dismissReasonType ? { dismissReasonType: compatibility.dismissReasonType } : {}),
+              ...(compatibility.dismissEvidenceStrength ? { dismissEvidenceStrength: compatibility.dismissEvidenceStrength } : {}),
+            };
+      }
+    }
+    for (const record of ledger.records) {
+      if (record.recordType !== 'finding_lifecycle_transition'
+        || !record.payload || typeof record.payload !== 'object') continue;
+      const transition = record.payload as unknown as FindingLifecycleTransition;
+      if (transition.schemaVersion !== 1
+        || typeof transition.findingId !== 'string'
+        || typeof transition.findingRecordId !== 'string'
+        || transition.fromStatus !== 'open'
+        || !['resolved', 'dismissed'].includes(transition.toStatus)) continue;
+      const finding = data.findings.find((candidate) => (
+        candidate.id === transition.findingId
+        && candidate.recordId === transition.findingRecordId
+      ));
+      if (!finding) continue;
+      finding.status = transition.toStatus;
+      if (transition.toStatus === 'resolved') {
+        finding.resolvedAt = transition.at;
+        if (transition.reason) finding.resolvedReason = transition.reason;
+        if (transition.resolutionType) finding.resolutionType = transition.resolutionType;
+        if (transition.resolveEvidenceStrength) finding.resolveEvidenceStrength = transition.resolveEvidenceStrength;
+      } else {
+        finding.dismissedAt = transition.at;
+        if (transition.reason) finding.dismissReason = transition.reason;
+        if (transition.dismissReasonType) finding.dismissReasonType = transition.dismissReasonType;
+        if (transition.dismissEvidenceStrength) finding.dismissEvidenceStrength = transition.dismissEvidenceStrength;
+      }
     }
     return data;
   }

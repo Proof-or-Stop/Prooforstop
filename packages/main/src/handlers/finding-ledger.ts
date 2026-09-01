@@ -1,7 +1,7 @@
 /** Story 3A/CHK-003: public, schema-neutral Finding ledger transaction helpers. */
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash, createPublicKey, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
@@ -153,7 +153,8 @@ const CAS_KEYS = [
   'observedChainHeadHash', 'predicateDigest',
 ].sort();
 const LEDGER_OPERATIONS = new Set<FindingLedgerOperation>([
-  'append_finding', 'append_legacy_identity_binding', 'append_detector_signal',
+  'append_finding', 'append_finding_lifecycle_transition',
+  'append_legacy_identity_binding', 'append_detector_signal',
   'append_candidate_route', 'append_candidate', 'append_assessment_proposal',
   'append_assessment', 'append_mandatory_repair', 'append_deferral_expiry_policy',
   'append_deferral', 'append_route_receipt', 'append_progress_baseline_set',
@@ -202,6 +203,20 @@ type PersistedCommitReceipt = LedgerCommitReceipt & {
   exactRequestDigest?: string;
   findingLedgerReceipt?: FindingLedgerReceipt;
 };
+
+interface LegacyReceiptBindingEntry {
+  receiptId: string;
+  legacyReceiptDigest: string;
+  recordIds: string[];
+  priorLedgerDigest: string;
+  committedLedgerDigest: string;
+}
+interface LegacyReceiptBindingSet {
+  schemaVersion: 1;
+  bindingType: 'legacy-unsigned-receipt-set';
+  observedLedgerDigest: string;
+  bindings: LegacyReceiptBindingEntry[];
+}
 
 function currentChainHead<T>(ledger: LedgerEnvelope<T>): { id: string; hash: string } {
   const head = ledger.records.at(-1);
@@ -313,6 +328,43 @@ export function appendFindingLedger<T extends JsonValue = JsonValue>(options: Le
   }, options.commitOptions);
 }
 
+/**
+ * Append a signed, auditable binding for legacy unsigned commit receipts.
+ * Existing rows and receipts are never rewritten. Query acceptance remains
+ * bounded to the exact receipt bytes observed by this signed transaction.
+ */
+export function bindLegacyFindingLedgerReceipts(options: Omit<LedgerAppendOptions<JsonValue>,
+  'operation' | 'idempotencyKey' | 'records'>): FindingLedgerReceipt | null {
+  const ledger = options.store.readFindingLedger<JsonValue>(options.storyId);
+  const unsigned = (ledger.receipts as PersistedCommitReceipt[])
+    .filter((receipt) => !receipt.findingLedgerReceipt)
+    .map((receipt): LegacyReceiptBindingEntry => ({
+      receiptId: receipt.receiptId,
+      legacyReceiptDigest: canonicalHash(receipt),
+      recordIds: [...receipt.recordIds],
+      priorLedgerDigest: receipt.priorLedgerDigest,
+      committedLedgerDigest: receipt.committedLedgerDigest,
+    }));
+  if (unsigned.length === 0) return null;
+  const payload: LegacyReceiptBindingSet = {
+    schemaVersion: 1,
+    bindingType: 'legacy-unsigned-receipt-set',
+    observedLedgerDigest: ledger.committedLedgerDigest,
+    bindings: unsigned,
+  };
+  return appendFindingLedger({
+    ...options,
+    operation: 'append_legacy_identity_binding',
+    idempotencyKey: `legacy-receipt-binding:${canonicalHash(payload)}`,
+    records: [{
+      recordType: 'legacy_receipt_binding',
+      payload: payload as unknown as JsonValue,
+      uniqueBindingKey: `legacy-receipt-binding:${canonicalHash(unsigned)}`,
+    }],
+    expectedPriorLedgerDigest: ledger.committedLedgerDigest,
+  });
+}
+
 export function replayOriginalRecordIds(receipt: FindingLedgerReceipt): string[] { return [...receipt.recordIds]; }
 
 export interface RuntimeReceiptAppendOptions extends Omit<LedgerAppendOptions<JsonValue>, 'operation' | 'records'> {
@@ -390,6 +442,30 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
   const signer = proposal.proposalSigner;
   if (!signer || typeof signer !== 'object'
     || !exactKeys(signer, ['actorId', 'algorithm', 'authorityDigest', 'keyId', 'trustRootDigest'])) return false;
+  const findingRef = proposal.findingRef;
+  if (!findingRef || typeof findingRef !== 'object'
+    || !exactKeys(findingRef, ['findingId', 'recordId', 'storyId'])
+    || Object.values(findingRef).some((value) => typeof value !== 'string' || !value.trim())) return false;
+  const dependencyBundle = proposal.dependencyBundle;
+  if (!dependencyBundle || typeof dependencyBundle !== 'object'
+    || !exactKeys(dependencyBundle, [
+      'digest', 'ledgerSnapshotDigest', 'proofPolicyDigest',
+      'reviewerAuthorityPolicyDigest', 'sourceFinding',
+    ])) return false;
+  const bundle = dependencyBundle as Record<string, unknown>;
+  const sourceFinding = bundle.sourceFinding;
+  if (!sourceFinding || typeof sourceFinding !== 'object'
+    || !exactKeys(sourceFinding, ['findingId', 'hash', 'recordId', 'storyId', 'version'])
+    || Object.values(sourceFinding).some((value) => typeof value !== 'string' || !value.trim())) return false;
+  const { digest: bundleDigest, ...unsignedBundle } = bundle;
+  if (typeof bundleDigest !== 'string' || bundleDigest !== canonicalHash(unsignedBundle)
+    || bundle.proofPolicyDigest === '' || bundle.reviewerAuthorityPolicyDigest === ''
+    || bundle.ledgerSnapshotDigest === ''
+    || (sourceFinding as Record<string, unknown>).storyId !== (findingRef as Record<string, unknown>).storyId
+    || (sourceFinding as Record<string, unknown>).findingId !== (findingRef as Record<string, unknown>).findingId
+    || (sourceFinding as Record<string, unknown>).recordId !== (findingRef as Record<string, unknown>).recordId
+    || (sourceFinding as Record<string, unknown>).hash !== proposal.findingHash
+    || (sourceFinding as Record<string, unknown>).version !== proposal.findingVersion) return false;
   if (proposal.schemaVersion !== 1
     || !['target_story', 'canonical_owner', 'repository_release'].includes(String(proposal.evaluationScope))
     || !Array.isArray(proposal.evidenceRefs)
@@ -406,7 +482,10 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
       && !!witness && typeof witness === 'object'
       && exactKeys(witness, ['receiptIds', 'reproduced'])
       && (witness as Record<string, unknown>).reproduced === true
-      && Array.isArray((witness as Record<string, unknown>).receiptIds);
+      && Array.isArray((witness as Record<string, unknown>).receiptIds)
+      && ((witness as Record<string, unknown>).receiptIds as unknown[]).length > 0
+      && ((witness as Record<string, unknown>).receiptIds as unknown[])
+        .every((value) => typeof value === 'string' && value.trim().length > 0);
   }
   if (verdict === 'pre_existing_unaffected') return (owner === 'meta' || owner === 'other_story') && basis === 'base_head_reproduction';
   if (verdict === 'out_of_scope') return (owner === 'meta' || owner === 'other_story') && basis === 'decision_scope';
@@ -439,7 +518,16 @@ export function verifyAssessmentProposal(
     const { proposalDigest: digest, proposalSignature: signature, ...unsigned } = proposal;
     if (typeof digest !== 'string' || digest !== canonicalHash(unsigned)) return reject('proposal_digest_mismatch');
     const signer = proposal.proposalSigner as Record<string, unknown> | undefined;
-    if (!signer || signer.authorityDigest !== opts.expectedAuthorityDigest) return reject('proposal_authority_invalid');
+    const expectedKeyId = `assessment-proposal-${canonicalHash({ publicKey: opts.publicKey }).slice(0, 24)}`;
+    const expectedTrustRootDigest = canonicalHash({
+      profile: 'assessment-proposal-trust-root-v1', publicKey: opts.publicKey,
+    });
+    if (!signer
+      || signer.authorityDigest !== opts.expectedAuthorityDigest
+      || signer.actorId !== proposal.assessedBy
+      || signer.algorithm !== 'ed25519'
+      || signer.keyId !== expectedKeyId
+      || signer.trustRootDigest !== expectedTrustRootDigest) return reject('proposal_authority_invalid');
     if (typeof signature !== 'string'
       || !verifyCanonical({ proposalDigest: digest }, signature, opts.publicKey)) return reject('proposal_signature_invalid');
     if (opts.expectedFindingHash && proposal.findingHash !== opts.expectedFindingHash) return reject('finding_hash_mismatch');
@@ -448,11 +536,12 @@ export function verifyAssessmentProposal(
       if (!opts.receiptTrust || !verifyFindingLedgerReceipt(opts.receipt, opts.receiptTrust)
         || opts.receipt.operation !== 'append_assessment_proposal'
         || !opts.receipt.recordIds.length
-        || opts.receiptIsCurrent === false) return reject('proposal_receipt_invalid');
-      if (opts.proposalRecord && (
-        !opts.receipt.recordIds.includes(opts.proposalRecord.recordId)
-        || canonicalHash(opts.proposalRecord.payload) !== canonicalHash(proposal)
-      )) return reject('proposal_receipt_invalid');
+        || opts.receiptIsCurrent !== true
+        || !opts.proposalRecord
+        || !opts.receipt.recordIds.includes(opts.proposalRecord.recordId)
+        || canonicalHash(opts.proposalRecord.payload) !== canonicalHash(proposal)) {
+        return reject('proposal_receipt_invalid');
+      }
     }
     const now = (opts.now ?? new Date()).getTime();
     const expiresAt = typeof proposal.expiresAt === 'string' ? Date.parse(proposal.expiresAt) : Number.NaN;
@@ -577,6 +666,8 @@ export interface FindingRuntimeEvidenceRunArgs {
   storageCapability?: string;
   /** Internal fault-injection seam; intentionally absent from the CLI schema. */
   commitOptions?: AppendLedgerOptions;
+  /** Test-only interleaving seam after the canonical build mutex is held. */
+  afterCanonicalBuildLockForTest?: () => void;
 }
 
 export interface FindingRuntimeEvidenceVerifyArgs {
@@ -601,7 +692,6 @@ export interface FindingLedgerQueryTrustedKey {
 
 export interface FindingLedgerQueryArgs {
   storyId: string;
-  trustedKeys?: FindingLedgerQueryTrustedKey[];
 }
 
 export type FindingLedgerQueryCategory = 'ledger' | 'cas' | 'idempotency' | 'runtime' | 'migration';
@@ -743,10 +833,67 @@ export function queryFindingLedger(
   const idempotencyKeyDigests: string[] = [];
   let priorDigest = canonicalHash([]);
 
+  const legacyBindings = new Map<string, LegacyReceiptBindingEntry>();
+  for (const carrier of ledger.receipts as PersistedCommitReceipt[]) {
+    const signed = carrier.findingLedgerReceipt;
+    if (!signed || signed.operation !== 'append_legacy_identity_binding') continue;
+    const trust = queryTrust(signed.keyId, signed.trustRootDigest, signed.keyFreshnessPolicyDigest, trustedKeys);
+    if (!trust || !verifyFindingLedgerReceipt(signed, trust)) continue;
+    for (const recordId of signed.recordIds) {
+      const record = recordsById.get(recordId);
+      if (!record || record.recordType !== 'legacy_receipt_binding'
+        || !record.payload || typeof record.payload !== 'object') continue;
+      const payload = record.payload as unknown as LegacyReceiptBindingSet;
+      if (payload.schemaVersion !== 1
+        || payload.bindingType !== 'legacy-unsigned-receipt-set'
+        || payload.observedLedgerDigest !== signed.priorLedgerDigest
+        || !Array.isArray(payload.bindings)) continue;
+      for (const binding of payload.bindings) {
+        if (!binding || typeof binding !== 'object'
+          || !exactKeys(binding, [
+            'committedLedgerDigest', 'legacyReceiptDigest', 'priorLedgerDigest',
+            'receiptId', 'recordIds',
+          ])
+          || typeof binding.legacyReceiptDigest !== 'string'
+          || !Array.isArray(binding.recordIds)) continue;
+        legacyBindings.set(binding.legacyReceiptDigest, binding);
+      }
+    }
+  }
+
   for (const persisted of ledger.receipts as PersistedCommitReceipt[]) {
     const receipt = persisted.findingLedgerReceipt;
     if (!receipt || !receipt.receiptHash || !receipt.signature) {
-      throw new FindingLedgerQueryRefusal('ledger_receipt_unsigned');
+      const digest = canonicalHash(persisted);
+      const binding = legacyBindings.get(digest);
+      if (!binding
+        || binding.receiptId !== persisted.receiptId
+        || binding.priorLedgerDigest !== persisted.priorLedgerDigest
+        || binding.committedLedgerDigest !== persisted.committedLedgerDigest
+        || canonicalHash(binding.recordIds) !== canonicalHash(persisted.recordIds)
+        || persisted.priorLedgerDigest !== priorDigest) {
+        throw new FindingLedgerQueryRefusal('ledger_receipt_unsigned');
+      }
+      for (const recordId of persisted.recordIds) {
+        const record = recordsById.get(recordId);
+        if (!record) throw new FindingLedgerQueryRefusal('ledger_incomplete');
+        if (!seenRecordIds.has(recordId)) {
+          const expected = ledger.records[orderedRecords.length];
+          if (!expected || expected.recordId !== recordId || record.priorDigest !== priorDigest) {
+            throw new FindingLedgerQueryRefusal('ledger_incomplete');
+          }
+          seenRecordIds.add(recordId);
+          orderedRecords.push(record);
+        }
+      }
+      const committedDigest = canonicalHash(orderedRecords);
+      if (persisted.committedLedgerDigest !== committedDigest) {
+        throw new FindingLedgerQueryRefusal('ledger_digest_mismatch');
+      }
+      priorDigest = committedDigest;
+      receiptHashes.push(digest);
+      idempotencyKeyDigests.push(canonicalHash(persisted.idempotencyKey));
+      continue;
     }
     const trust = queryTrust(receipt.keyId, receipt.trustRootDigest, receipt.keyFreshnessPolicyDigest, trustedKeys);
     if (!trust || !verifyFindingLedgerReceipt(receipt, trust)) {
@@ -879,52 +1026,114 @@ export const RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST = canonicalDigest({
   storageCapability: RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
 });
 export const RUNTIME_EVIDENCE_KEY_FRESHNESS_POLICY_DIGEST = canonicalDigest({
-  version: 1,
-  policy: 'caller-trust-registry-current-key-state-required',
+  version: 2,
+  policy: 'git-common-dir-runtime-key-registry-current-state-required',
 });
 
-function runtimeSignerFromEnvironment(): RuntimeReceiptSigner {
-  const privateKey = process.env[RUNTIME_EVIDENCE_PRIVATE_KEY_ENV]?.trim() ?? '';
-  const publicKey = process.env[RUNTIME_EVIDENCE_PUBLIC_KEY_ENV]?.trim() ?? '';
-  if (!privateKey || !publicKey) {
-    throw new RuntimeEvidenceRefusal('unknown_signing_key', 'runtime evidence signing key is not configured');
+const RUNTIME_EVIDENCE_KEY_FILE = 'proof-or-stop-runtime-evidence-v1.key';
+const RUNTIME_EVIDENCE_TRUST_REGISTRY_FILE = 'proof-or-stop-runtime-evidence-trust-v1.json';
+
+interface RuntimeEvidenceRegisteredKey extends FindingLedgerQueryTrustedKey {
+  status: 'fresh' | 'revoked' | 'expired';
+}
+interface RuntimeEvidenceTrustRegistry {
+  schemaVersion: 1;
+  currentKeyId: string;
+  keys: RuntimeEvidenceRegisteredKey[];
+}
+
+function runtimeKeyIdentity(publicKey: string): Omit<RuntimeEvidenceRegisteredKey, 'status'> {
+  const publicKeyDigest = canonicalDigest({ publicKey });
+  return {
+    publicKey,
+    keyId: `runtime-evidence-${publicKeyDigest.slice(0, 24)}`,
+    trustRootDigest: canonicalDigest({ profile: 'runtime-evidence-trust-root-v1', publicKey }),
+    keyFreshnessPolicyDigest: RUNTIME_EVIDENCE_KEY_FRESHNESS_POLICY_DIGEST,
+  };
+}
+
+function readRuntimeTrustRegistry(workspaceRoot: string): RuntimeEvidenceTrustRegistry {
+  const registryPath = join(gitCommonDir(workspaceRoot), RUNTIME_EVIDENCE_TRUST_REGISTRY_FILE);
+  const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as RuntimeEvidenceTrustRegistry;
+  if (parsed.schemaVersion !== 1 || typeof parsed.currentKeyId !== 'string'
+    || !Array.isArray(parsed.keys) || parsed.keys.length === 0
+    || parsed.keys.some((key) => (
+      !['fresh', 'revoked', 'expired'].includes(key.status)
+      || canonicalHash(runtimeKeyIdentity(key.publicKey)) !== canonicalHash({
+        publicKey: key.publicKey,
+        keyId: key.keyId,
+        trustRootDigest: key.trustRootDigest,
+        keyFreshnessPolicyDigest: key.keyFreshnessPolicyDigest,
+      })
+    ))) {
+    throw new RuntimeEvidenceRefusal('unknown_signing_key', 'runtime evidence trust registry is malformed');
   }
-  const publicKeyDigest = canonicalDigest({ publicKey });
-  return {
-    privateKey,
-    publicKey,
-    keyId: `runtime-evidence-${publicKeyDigest.slice(0, 24)}`,
-    trustRootDigest: canonicalDigest({ profile: 'runtime-evidence-trust-root-v1', publicKey }),
-    keyFreshnessPolicyDigest: RUNTIME_EVIDENCE_KEY_FRESHNESS_POLICY_DIGEST,
-    algorithm: 'ed25519',
-  };
+  return parsed;
 }
 
-function optionalRuntimeSignerFromEnvironment(): RuntimeReceiptSigner | null {
-  const privateKey = process.env[RUNTIME_EVIDENCE_PRIVATE_KEY_ENV]?.trim() ?? '';
-  const publicKey = process.env[RUNTIME_EVIDENCE_PUBLIC_KEY_ENV]?.trim() ?? '';
-  if (!privateKey && !publicKey) return null;
-  return runtimeSignerFromEnvironment();
+/** Repository-owned signer; caller environment cannot register or select it. */
+export function runtimeEvidenceSignerFromWorkspace(workspaceRoot: string): RuntimeReceiptSigner {
+  const commonDir = gitCommonDir(workspaceRoot);
+  const keyPath = join(commonDir, RUNTIME_EVIDENCE_KEY_FILE);
+  const registryPath = join(commonDir, RUNTIME_EVIDENCE_TRUST_REGISTRY_FILE);
+  if (!existsSync(keyPath)) {
+    mkdirSync(dirname(keyPath), { recursive: true });
+    try {
+      writeFileSync(keyPath, `${randomBytes(32).toString('base64')}\n`, {
+        encoding: 'utf8', mode: 0o600, flag: 'wx',
+      });
+    } catch (error) {
+      if (!existsSync(keyPath)) throw error;
+    }
+  }
+  const privateKey = readFileSync(keyPath, 'utf8').trim();
+  const publicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
+  const identity = runtimeKeyIdentity(publicKey);
+  if (!existsSync(registryPath)) {
+    try {
+      writeFileSync(registryPath, `${JSON.stringify({
+        schemaVersion: 1,
+        currentKeyId: identity.keyId,
+        keys: [{ ...identity, status: 'fresh' }],
+      }, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+    } catch (error) {
+      if (!existsSync(registryPath)) throw error;
+    }
+  }
+  const registry = readRuntimeTrustRegistry(workspaceRoot);
+  const registered = registry.keys.find((key) => key.keyId === identity.keyId);
+  if (!registered || registry.currentKeyId !== identity.keyId || registered.status !== 'fresh') {
+    throw new RuntimeEvidenceRefusal(
+      registered?.status === 'revoked' ? 'revoked_signing_key'
+        : registered?.status === 'expired' ? 'expired_signing_key' : 'unknown_signing_key',
+    );
+  }
+  return { privateKey, ...identity, algorithm: 'ed25519' };
 }
 
-function registeredRuntimeKeyStatus(keyId: string): 'fresh' | 'unknown' | 'revoked' {
-  const signer = optionalRuntimeSignerFromEnvironment();
-  if (!signer || signer.keyId !== keyId) return 'unknown';
-  const revoked = new Set((process.env[RUNTIME_EVIDENCE_REVOKED_KEY_IDS_ENV] ?? '')
-    .split(',').map((value) => value.trim()).filter(Boolean));
-  return revoked.has(keyId) ? 'revoked' : 'fresh';
+function runtimeTrustFromWorkspace(workspaceRoot: string): RuntimeReceiptTrust {
+  const registry = readRuntimeTrustRegistry(workspaceRoot);
+  const key = registry.keys.find((candidate) => candidate.keyId === registry.currentKeyId);
+  if (!key || key.status !== 'fresh') {
+    throw new RuntimeEvidenceRefusal(
+      key?.status === 'revoked' ? 'revoked_signing_key'
+        : key?.status === 'expired' ? 'expired_signing_key' : 'unknown_signing_key',
+    );
+  }
+  return { ...key, algorithm: 'ed25519', keyStatus: 'fresh' };
 }
 
-function runtimeTrust(publicKey: string, keyStatus: RuntimeReceiptTrust['keyStatus'] = 'fresh'): RuntimeReceiptTrust {
-  const publicKeyDigest = canonicalDigest({ publicKey });
-  return {
-    publicKey,
-    keyId: `runtime-evidence-${publicKeyDigest.slice(0, 24)}`,
-    algorithm: 'ed25519',
-    trustRootDigest: canonicalDigest({ profile: 'runtime-evidence-trust-root-v1', publicKey }),
-    keyFreshnessPolicyDigest: RUNTIME_EVIDENCE_KEY_FRESHNESS_POLICY_DIGEST,
-    keyStatus,
-  };
+/** Fault-injection helper used only by repository tests; it is not in the CLI catalog. */
+export function setRuntimeEvidenceKeyStatusForTest(
+  workspaceRoot: string,
+  status: RuntimeEvidenceRegisteredKey['status'],
+): void {
+  const registryPath = join(gitCommonDir(workspaceRoot), RUNTIME_EVIDENCE_TRUST_REGISTRY_FILE);
+  const registry = readRuntimeTrustRegistry(workspaceRoot);
+  registry.keys = registry.keys.map((key) => (
+    key.keyId === registry.currentKeyId ? { ...key, status } : key
+  ));
+  writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
 }
 
 type ResolvedRuntimeCommand = Required<Pick<RuntimeEvidenceCommandSpec, 'executable' | 'args'>> & {
@@ -1001,6 +1210,67 @@ function canonicalBuildLockInProgress(projectRoot: string): boolean {
     return properLockfile.checkSync(target, { stale: 30_000, update: 10_000 });
   } catch {
     throw new RuntimeEvidenceRefusal('build_in_progress', 'canonical build-lock state is unavailable');
+  }
+}
+
+/**
+ * Hold the exact build proper-lockfile in an independent broker process. The
+ * handler executes commands synchronously; a same-process heartbeat would stop
+ * while spawnSync blocks and could be age-stolen after 30 seconds. The broker's
+ * event loop keeps the canonical 10s heartbeat alive for the whole build/run/
+ * publish critical section.
+ */
+function withCanonicalBuildLock<T>(projectRoot: string, fn: () => T): T {
+  const target = join(tmpdir(), `lattice-build-lock-${createHash('sha256').update(String(projectRoot)).digest('hex')}`);
+  closeSync(openSync(target, 'a'));
+  const nonce = randomBytes(12).toString('hex');
+  const readyPath = join(tmpdir(), `proof-or-stop-runtime-lock-${nonce}.ready`);
+  const releasePath = join(tmpdir(), `proof-or-stop-runtime-lock-${nonce}.release`);
+  const broker = String.raw`
+    const fs = require('node:fs');
+    const lockfile = require(process.argv[1]);
+    const target = process.argv[2];
+    const ready = process.argv[3];
+    const releaseSignal = process.argv[4];
+    (async () => {
+      try {
+        const release = await lockfile.lock(target, { stale: 30000, update: 10000, retries: 0 });
+        fs.writeFileSync(ready, 'locked');
+        const timer = setInterval(async () => {
+          if (!fs.existsSync(releaseSignal)) return;
+          clearInterval(timer);
+          await release();
+          process.exit(0);
+        }, 20);
+      } catch (error) {
+        fs.writeFileSync(ready, 'refused:' + String(error && error.code || error));
+        process.exit(75);
+      }
+    })();
+  `;
+  const child = spawn(process.execPath, [
+    '-e', broker, require.resolve('proper-lockfile'), target, readyPath, releasePath,
+  ], { stdio: 'ignore' });
+  const waitArray = new Int32Array(new SharedArrayBuffer(4));
+  const deadline = Date.now() + 5_000;
+  while (!existsSync(readyPath) && Date.now() < deadline) Atomics.wait(waitArray, 0, 0, 20);
+  const ready = existsSync(readyPath) ? readFileSync(readyPath, 'utf8') : 'timeout';
+  if (ready !== 'locked') {
+    child.kill();
+    rmSync(readyPath, { force: true });
+    rmSync(releasePath, { force: true });
+    throw new RuntimeEvidenceRefusal('build_in_progress', `canonical build mutex refused: ${ready}`);
+  }
+  try {
+    return fn();
+  } finally {
+    writeFileSync(releasePath, 'release');
+    const lockPath = `${target}.lock`;
+    const releaseDeadline = Date.now() + 5_000;
+    while (existsSync(lockPath) && Date.now() < releaseDeadline) Atomics.wait(waitArray, 0, 0, 20);
+    if (existsSync(lockPath)) child.kill();
+    rmSync(readyPath, { force: true });
+    rmSync(releasePath, { force: true });
   }
 }
 
@@ -1105,22 +1375,23 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       assertText(args.storyId, 'storyId');
       ctx.store.readStory(args.storyId);
       const signer = findingLedgerSignerFromWorkspace(ctx.root);
-      const runtimeSigner = optionalRuntimeSignerFromEnvironment();
-      const trustedKeys = [
-        ...(runtimeSigner ? [{
-          publicKey: runtimeSigner.publicKey,
-          keyId: runtimeSigner.keyId,
-          trustRootDigest: runtimeSigner.trustRootDigest,
-          keyFreshnessPolicyDigest: runtimeSigner.keyFreshnessPolicyDigest,
-        }] : []),
-        ...(args.trustedKeys ?? []),
-      ];
+      let registeredRuntimeKeys: FindingLedgerQueryTrustedKey[] = [];
+      try {
+        registeredRuntimeKeys = readRuntimeTrustRegistry(ctx.root).keys
+          .filter((key) => key.status === 'fresh')
+          .map(({ status: _status, ...key }) => key);
+      } catch {
+        // A ledger without runtime rows remains queryable. A ledger containing
+        // a runtime row will fail closed below because no registered key can
+        // validate it.
+        registeredRuntimeKeys = [];
+      }
       try {
         return queryFindingLedger(
           ctx.store.readFindingLedger<JsonValue>(args.storyId),
           args.storyId,
           signer,
-          trustedKeys,
+          registeredRuntimeKeys,
         );
       } catch (error) {
         if (error instanceof FindingLedgerQueryRefusal) throw error;
@@ -1140,10 +1411,12 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
         throw new Error('timeoutMs must be an integer from 1 to 300000');
       }
-      const signer = runtimeSignerFromEnvironment();
+      return withCanonicalBuildLock(ctx.root, () => {
+      args.afterCanonicalBuildLockForTest?.();
+      const signer = runtimeEvidenceSignerFromWorkspace(ctx.root);
       const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
       const ledgerTrust = findingLedgerTrustFromWorkspace(ctx.root);
-      const trust = runtimeTrust(signer.publicKey);
+      const trust = runtimeTrustFromWorkspace(ctx.root);
       const expected = runtimeExpectedState(ctx, args, trust);
       const findingLockDir = ctx.store.storyFilePath(args.storyId, 'findings.lock');
       const replay = withMkdirLock(findingLockDir, () => runtimeReplay(ctx, args, ledgerTrust, expected), {
@@ -1227,6 +1500,7 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
         failFastIfHeld: true,
         heldMessage: 'runtime-evidence: build_in_progress',
       });
+      });
     },
 
     finding_runtime_evidence_verify(args: FindingRuntimeEvidenceVerifyArgs) {
@@ -1234,20 +1508,14 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       assertText(args.runtimeReceiptId, 'runtimeReceiptId');
       assertCwdInWorktree(ctx.store, args.storyId);
       ctx.store.readStory(args.storyId);
-      const signer = optionalRuntimeSignerFromEnvironment();
-      if (!signer) throw new RuntimeEvidenceRefusal('unknown_signing_key');
-      if (args.publicKey?.trim() && args.publicKey.trim() !== signer.publicKey) {
+      const trust = runtimeTrustFromWorkspace(ctx.root);
+      if (args.publicKey?.trim() && args.publicKey.trim() !== trust.publicKey) {
         throw new RuntimeEvidenceRefusal('unknown_signing_key');
       }
       if (args.keyStatus && args.keyStatus !== 'fresh') {
         throw new RuntimeEvidenceRefusal(args.keyStatus === 'expired' ? 'expired_signing_key'
           : args.keyStatus === 'revoked' ? 'revoked_signing_key' : 'unknown_signing_key');
       }
-      const keyStatus = registeredRuntimeKeyStatus(signer.keyId);
-      if (keyStatus !== 'fresh') {
-        throw new RuntimeEvidenceRefusal(keyStatus === 'revoked' ? 'revoked_signing_key' : 'unknown_signing_key');
-      }
-      const trust = runtimeTrust(signer.publicKey, keyStatus);
       const expected = runtimeExpectedState(ctx, args, trust);
       const ledger = ctx.store.readFindingLedger<JsonValue>(args.storyId);
       const record = ledger.records.find((candidate) => candidate.recordType === 'runtime_evidence_receipt'

@@ -63,13 +63,15 @@ const checks = {
     const lab = readPackage('packages/lab/package.json');
     assert(core.name === '@proof-or-stop/core', `core package name mismatch: ${core.name}`);
     assert(utils.name === '@lattice/utils', `utils package name mismatch: ${utils.name}`);
-    assert(lab.name === '@lattice/lab', `lab package name mismatch: ${lab.name}`);
+    assert(lab.name === '@proof-or-stop/lab', `lab package name mismatch: ${lab.name}`);
     assert(core.version === EXPECTED_CORE_VERSION, `core version mismatch: ${core.version}`);
     assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
     assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
-    assert(core.dependencies?.['@lattice/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @lattice/lab@${EXPECTED_EXTENSION_VERSION}`);
+    assert(core.dependencies?.['@proof-or-stop/lab'] === 'file:../lab', 'core source workspace should resolve canonical @proof-or-stop/lab from packages/lab');
+    const bundled = core.bundleDependencies ?? core.bundledDependencies ?? [];
+    assert(bundled.includes('@proof-or-stop/lab'), 'core package must bundle @proof-or-stop/lab for clean external install');
     assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
-    assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(!lab.dependencies?.['@proof-or-stop/core'], 'bundled lab must not create a cyclic clean-install dependency on core');
     assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
     assert(!utils.dependencies?.['@lattice-agent/core'], 'utils should not depend on retired @lattice-agent/core');
     assert(!lab.dependencies?.['@lattice-agent/core'], 'lab should not depend on retired @lattice-agent/core');
@@ -79,8 +81,8 @@ const checks = {
   },
   'lab-help': () => {
     const out = run(['lab_create', '--help']);
-    assert(out.includes('lattice lab_create'), 'global core bin should show lab_create help through the lattice bootstrap');
-    assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
+    assert(out.includes('proof-or-stop lab_create'), 'global core bin should show canonical lab_create help through the local bootstrap');
+    assert(!out.includes('lattice lab_create') && !out.includes('koala lab_create'), 'global core bin should not advertise a retired lab_create alias');
   },
   'lab-create-policy-gate': () => {
     const temp = createTempProject();

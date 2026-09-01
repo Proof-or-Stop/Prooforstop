@@ -137,7 +137,10 @@ export async function runLocalBootstrap() {
         const labModule = await import(pathToFileURL(LAB_DIST).href);
         labRegister = typeof labModule.register === 'function' ? labModule.register : null;
         if (typeof labModule.createLabToolDefs === 'function') {
-          const zodModule = await import(pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href);
+          // Lab owns only schema factories and receives the same installed Zod
+          // runtime as core. Do not reach into a compiled private core path:
+          // clean/atomic builds never produce dist/core/zod.js.
+          const zodModule = await import('zod');
           labToolDefs = labModule.createLabToolDefs(zodModule.z);
         } else {
           labToolDefs = Array.isArray(labModule.labToolDefs) ? labModule.labToolDefs : [];

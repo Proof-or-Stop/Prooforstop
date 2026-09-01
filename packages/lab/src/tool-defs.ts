@@ -1,5 +1,5 @@
 /**
- * @lattice/lab 提供的 CLI 工具定义。
+ * @proof-or-stop/lab 提供的 CLI 工具定义。
  */
 interface RuntimeToolDef {
   name: string;

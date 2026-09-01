@@ -2117,12 +2117,6 @@ Behavior:
   }},
   { name: 'finding_ledger_query', description: 'Read a complete signed ledger/CAS/idempotency/runtime/migration scorecard projection without exposing protected storage paths', schema: {
     storyId: z.string().describe('Story ID.'),
-    trustedKeys: z.array(z.object({
-      publicKey: z.string().min(1),
-      keyId: z.string().min(1),
-      trustRootDigest: z.string().min(1),
-      keyFreshnessPolicyDigest: z.string().min(1),
-    }).strict()).optional().describe('Additional trusted Ed25519 keys for ledger/runtime receipts produced by registered writers.'),
   }},
   { name: 'finding_runtime_evidence_run', description: 'Run a structured build/execution command and append a content-addressed RuntimeEvidenceReceipt', schema: {
     storyId: z.string().describe('Story ID.'),

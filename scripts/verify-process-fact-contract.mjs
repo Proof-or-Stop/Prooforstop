@@ -630,7 +630,10 @@ function read(relPath) {
     text += '\nconst forbiddenStory3Consumer = finding_ledger_query({ storyId: "B-X" });\n';
   }
   if (mutation === 'story3-query-path-leak' && relPath === 'packages/main/src/handlers/finding-ledger.ts') {
-    text += '\nconst ledgerPath = "/protected/finding-ledger.json";\n';
+    text = text.replace(
+      '): FindingLedgerQueryResult {',
+      '): FindingLedgerQueryResult {\n  const ledgerPath = "/protected/finding-ledger.json";',
+    );
   }
   if (relPath === processFactRegistryPath && mutation?.startsWith('story3-promote-record-')) {
     const recordClass = mutation.slice('story3-promote-record-'.length);
@@ -7618,7 +7621,11 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(handlerText.includes('queryFindingLedger') && handlerText.includes('verifyFindingLedgerQueryRow'), 'Story 3: protected read-only query/verifier contract missing');
   assert(handlerText.includes("gateEvidence: false") && handlerText.includes("lifecycleAuthority: 'none'"), 'Story 3: query rows must carry explicit non-authority markers');
   assert(!/from\s+['"]\.\.\/core\/(?:finding-identity|finding-applicability-gate|dynamic-finding-gate|finding-rollout-scorecard)\.js['"]/.test(handlerText), 'Story 3: forbidden Story 2/Story 1 import accepted');
-  assert(!/\b(?:ledgerPath|protectedPath|lockPath|tempPath|artifactStoreRoot|storagePath|realPath)\b/.test(handlerText), 'Story 3: protected query surface contains a path-bearing field');
+  const protectedQuerySurface = handlerText.slice(
+    handlerText.indexOf('export function queryFindingLedger('),
+    handlerText.indexOf('export const RUNTIME_EVIDENCE_PRIVATE_KEY_ENV'),
+  );
+  assert(!/\b(?:ledgerPath|protectedPath|lockPath|tempPath|artifactStoreRoot|storagePath|realPath)\b/.test(protectedQuerySurface), 'Story 3: protected query surface contains a path-bearing field');
   for (const consumerPath of [
     'packages/main/src/core/machine.ts',
     'packages/main/src/core/advisory.ts',
@@ -7661,10 +7668,28 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(dependencyGateIndex >= 0 && firstActorSendAfterGate > dependencyGateIndex && firstStoryWriteAfterGate > dependencyGateIndex, 'Story 3: dependency gate must precede actor.send and writeStory');
   const levelRegistrySource = read(processFactLevelRegistryPath);
   assert(/name: 'runtime:story_dependency_plan_dev_gate', level: 'L4'[^\n]+gateConsumer: 'runStoryTransition PLAN to DEV admission before phase mutation'/.test(levelRegistrySource), 'Story 3: PLAN to DEV dependency gate process fact missing');
+  assert(dependencyTransition.includes("'show', `main:${store.storyDirRel()}/${depId}/index.json`")
+    && dependencyTransition.includes("'merge-base', '--is-ancestor', branch, 'main'"),
+  'Story 3: dependency gate must prove canonical main DONE and reject an unmerged partial-DONE branch');
   const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
   assert(/kind: 'signed-artifact'/.test(findingLedgerArtifact), 'Story 3: finding-ledger.json must be registered as a signed artifact');
   assert(/level: 'L2'/.test(findingLedgerArtifact) && !/consumerGate:/.test(findingLedgerArtifact), 'Story 3: finding-ledger.json must remain L2 persistence-only with no lifecycle gate consumer');
   assert(/REVIEW_RETENTION_PROTOCOL_METADATA_PATHS[\s\S]*?'finding-ledger\.json'/.test(read('packages/main/src/core/lifecycle-registry.ts')), 'Story 3: finding-ledger.json must be retained as non-authoritative REVIEW protocol metadata');
+  const lifecyclePolicy = extractConstInitializer(
+    registrySource,
+    'PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY',
+    processFactRegistryPath,
+  );
+  assert(/recordType: 'finding_lifecycle_transition'/.test(lifecyclePolicy)
+    && /level: 'L4'/.test(lifecyclePolicy)
+    && /gateEvidence: true/.test(lifecyclePolicy)
+    && /lifecycleAuthority: 'terminal-finding-state'/.test(lifecyclePolicy),
+  'Story 3: signed Finding lifecycle transition must be an explicit L4 terminal-state fact');
+  assert(/name: 'runtime:finding_ledger_lifecycle_transition_gate', level: 'L4'[^\n]+gateConsumer: 'storyMachine\.canPassReview REVIEW to TEST gate'/.test(levelRegistrySource),
+  'Story 3: lifecycle transition gate fact missing from level registry');
+  assert(read('packages/main/src/handlers/finding.ts').includes("operation: 'append_finding_lifecycle_transition'")
+    && read('packages/main/src/core/store.ts').includes("record.recordType !== 'finding_lifecycle_transition'"),
+  'Story 3: resolve/dismiss lifecycle record is not wired to canonical read projection');
 }
 
 function formatProcessFactLevelRegistryEntry(entry) {

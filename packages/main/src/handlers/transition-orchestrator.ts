@@ -52,6 +52,7 @@ import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } f
 // recovery record the surviving store cannot see. core/store.ts imports no
 // handler module, so this stays one-directional (no import cycle).
 import { StoryStore } from '../core/store.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import type { ChecklistData, PendingReopenAudit, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
@@ -136,7 +137,58 @@ export function unfinishedStoryDependencies(store: StoryStore, story: StoryInfo)
   for (const depId of story.depends ?? []) {
     try {
       const dependency = store.readStory(depId);
-      if (dependency.phase !== 'DONE') unfinished.push(`${depId}(${dependency.phase})`);
+      if (dependency.phase !== 'DONE') {
+        unfinished.push(`${depId}(${dependency.phase})`);
+        continue;
+      }
+      // A worktree can contain phase=DONE after the phase write but before the
+      // DONE branch was merged. That is a recoverable partial-DONE state, not a
+      // completion fact a dependent Story may spend. In a git-backed project,
+      // require the canonical DONE artifact on main and, while the story branch
+      // still exists, require that exact branch to be an ancestor of main.
+      const mainRoot = resolveMainRepoRoot(store.projectRoot);
+      let gitBacked = false;
+      try {
+        gitBacked = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], {
+          cwd: mainRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+        }).trim() === 'true';
+      } catch {
+        gitBacked = false;
+      }
+      if (!gitBacked) continue;
+      let mainDependency: StoryInfo | null = null;
+      try {
+        mainDependency = JSON.parse(execFileSync('git', [
+          'show', `main:${store.storyDirRel()}/${depId}/index.json`,
+        ], {
+          cwd: mainRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+        })) as StoryInfo;
+      } catch {
+        mainDependency = null;
+      }
+      if (mainDependency?.phase !== 'DONE') {
+        unfinished.push(`${depId}(DONE:not-on-main)`);
+        continue;
+      }
+      const branch = `story/${depId}`;
+      let branchExists = false;
+      try {
+        execFileSync('git', ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`], {
+          cwd: mainRoot, stdio: 'ignore',
+        });
+        branchExists = true;
+      } catch {
+        branchExists = false;
+      }
+      if (branchExists) {
+        try {
+          execFileSync('git', ['merge-base', '--is-ancestor', branch, 'main'], {
+            cwd: mainRoot, stdio: 'ignore',
+          });
+        } catch {
+          unfinished.push(`${depId}(DONE:not-merged)`);
+        }
+      }
     } catch {
       unfinished.push(`${depId}(not found)`);
     }

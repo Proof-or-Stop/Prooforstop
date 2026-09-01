@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.270",
+  "version": "0.3.271",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "node ../../scripts/build-main-with-binding.mjs",
+    "prepack": "npm --prefix ../lab run build",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test:e2e": "node dist/tasks/cli-e2e.js",
@@ -123,15 +124,18 @@
     "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
   },
   "dependencies": {
-    "@lattice/lab": "0.3.65",
+    "@proof-or-stop/lab": "file:../lab",
     "proper-lockfile": "^4.1.2",
+    "typescript": "^5.9.3",
     "ws": "^8.21.1",
     "xstate": "^5.30.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@types/ws": "^8.18.1",
-    "typescript": "^5.7.0"
-  }
+    "@types/ws": "^8.18.1"
+  },
+  "bundleDependencies": [
+    "@proof-or-stop/lab"
+  ]
 }

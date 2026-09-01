@@ -8,6 +8,7 @@ import {
   realpathSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
   symlinkSync,
   utimesSync,
@@ -16,6 +17,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import {
   FINDING_LEDGER_LOCAL_FS_CAPABILITY,
   FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
@@ -34,6 +36,7 @@ import {
   appendAssessmentProposal,
   appendDeferralExpiryPolicy,
   appendFindingLedger,
+  bindLegacyFindingLedgerReceipts,
   canonicalHash,
   canonicalJson,
   classifyMandatoryRepair,
@@ -46,6 +49,8 @@ import {
   RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST,
   RUNTIME_EVIDENCE_PRIVATE_KEY_ENV,
   RUNTIME_EVIDENCE_PUBLIC_KEY_ENV,
+  runtimeEvidenceSignerFromWorkspace,
+  setRuntimeEvidenceKeyStatusForTest,
   signAssessmentProposal,
   verifyAssessmentProposal,
   verifyFindingLedgerQueryRow,
@@ -92,6 +97,7 @@ import type { Finding, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import {
   PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES,
+  PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY,
   PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY,
   getProcessFactRegistryEntry,
 } from '../core/process-fact-registry.js';
@@ -114,6 +120,7 @@ const RUNTIME_CLI_TEST_SESSION_ENV = adapterSessionEnv(
   'bfe8f-runtime-evidence-smoke',
   'lattice-implementer',
 );
+const require = createRequire(import.meta.url);
 
 interface WorkerSpec {
   ledgerFile: string;
@@ -194,14 +201,22 @@ async function runWorkers(specs: WorkerSpec[]): Promise<void> {
 
 function signedApplicableProposal(
   privateKey: string,
+  publicKey: string,
   authorityDigest: string,
   overrides: Record<string, unknown> = {},
 ): Record<string, unknown> {
   const issuedAt = '2030-01-01T00:00:00.000Z';
+  const findingRef = { storyId: 'B-CAS', findingId: 'B-CAS:F-001', recordId: 'finding-record-001' };
+  const dependencyBundleUnsigned = {
+    sourceFinding: { ...findingRef, hash: 'finding-hash-001', version: 'v1' },
+    proofPolicyDigest: 'proof-policy',
+    reviewerAuthorityPolicyDigest: 'reviewer-policy',
+    ledgerSnapshotDigest: 'ledger-snapshot',
+  };
   return signAssessmentProposal({
     schemaVersion: 1,
     proposalId: 'proposal-001',
-    findingRef: { storyId: 'B-CAS', findingId: 'B-CAS:F-001' },
+    findingRef,
     findingHash: 'finding-hash-001',
     findingVersion: 'v1',
     evaluationScope: 'target_story',
@@ -211,11 +226,8 @@ function signedApplicableProposal(
     freshnessPolicyVersion: 'v1',
     maxAgeSeconds: 7200,
     dependencyBundle: {
-      digest: 'dependency-digest',
-      sourceFinding: { storyId: 'B-CAS', findingId: 'B-CAS:F-001', hash: 'finding-hash-001', version: 'v1' },
-      proofPolicyDigest: 'proof-policy',
-      reviewerAuthorityPolicyDigest: 'reviewer-policy',
-      ledgerSnapshotDigest: 'ledger-snapshot',
+      digest: canonicalHash(dependencyBundleUnsigned),
+      ...dependencyBundleUnsigned,
     },
     evidenceRefs: ['evidence:1'],
     historicalSourceRefs: [],
@@ -229,8 +241,10 @@ function signedApplicableProposal(
     runtimeReceiptIds: [],
     assessedBy: 'assessment-authority',
     proposalSigner: {
-      actorId: 'assessment-authority', authorityDigest, keyId: 'proposal-key',
-      algorithm: 'ed25519', trustRootDigest: 'proposal-trust-root',
+      actorId: 'assessment-authority', authorityDigest,
+      keyId: `assessment-proposal-${canonicalHash({ publicKey }).slice(0, 24)}`,
+      algorithm: 'ed25519',
+      trustRootDigest: canonicalHash({ profile: 'assessment-proposal-trust-root-v1', publicKey }),
     },
     verdict: 'applicable',
     basis: 'direct_scope',
@@ -330,6 +344,9 @@ async function runStory3DependencyFixture(root: string): Promise<void> {
   dependencyStore.writeStory('B-fe8f', plan('B-fe8f'));
   dependencyStore.writeStory('B-03b7', plan('B-03b7', ['B-fe8f']));
   dependencyStore.writeStory('B-e6d9', plan('B-e6d9', ['B-fe8f', 'B-03b7']));
+  git(root, ['init', '-q', '-b', 'main']);
+  git(root, ['add', '.']);
+  git(root, ['-c', 'user.name=dependency-smoke', '-c', 'user.email=dependency@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'initial dependency plans']);
   const transitionCtx: HandlerContext = { store: dependencyStore, root, scanRoot: root };
   const beforeBlockedTransitions = new Map(['B-03b7', 'B-e6d9'].map((storyId) => [
     storyId, canonicalJson(dependencyStore.readStory(storyId)),
@@ -363,11 +380,23 @@ async function runStory3DependencyFixture(root: string): Promise<void> {
   console.log('dependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0');
 
   dependencyStore.writeStory('B-fe8f', { ...dependencyStore.readStory('B-fe8f'), phase: 'DONE' });
+  assert.deepEqual(attempt('B-03b7'), ['B-fe8f']);
+  assert.equal(transitionWrites, 0);
+  git(root, ['checkout', '-q', '-b', 'story/B-fe8f']);
+  git(root, ['add', '.']);
+  git(root, ['-c', 'user.name=dependency-smoke', '-c', 'user.email=dependency@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'partial done dependency']);
+  assert.deepEqual(attempt('B-03b7'), ['B-fe8f']);
+  assert.equal(transitionWrites, 0);
+  git(root, ['checkout', '-q', 'main']);
+  git(root, ['merge', '-q', '--ff-only', 'story/B-fe8f']);
   assert.deepEqual(attempt('B-03b7'), []);
   assert.deepEqual(attempt('B-e6d9'), ['B-03b7']);
   dependencyStore.writeStory('B-03b7', { ...dependencyStore.readStory('B-03b7'), phase: 'DONE' });
+  git(root, ['add', '.']);
+  git(root, ['-c', 'user.name=dependency-smoke', '-c', 'user.email=dependency@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'merged second dependency']);
   assert.deepEqual(attempt('B-e6d9'), []);
   assert.equal(transitionWrites, 2);
+  console.log('dependency.partial_done_gate: PASS phaseDoneOnly=reject unmergedStoryBranch=reject mergedMainFact=accept transitionWritesBeforeMerge=0');
   console.log('green.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7');
 }
 
@@ -428,13 +457,82 @@ function runFindingProjectionRegression(root: string): void {
   assert.equal(query.signedRows, true);
   assert.equal(query.rows.every((row) => verifyFindingLedgerQueryRow(row, trust)), true);
   console.log('finding.sparse_display_id: PASS next=F-004 reused=0 ledgerRows=1');
-  console.log('finding.idempotency_contract: PASS callerKey=true replayRows=0 signedQuery=true');
+  const reviewerFindingEvents = store.readProcessEvents(storyId)
+    .filter((event) => event.type === 'reviewer_finding' && event.findingId === `${storyId}:F-004`);
+  assert.equal(
+    reviewerFindingEvents.length,
+    1,
+    'an idempotent finding_add replay must not duplicate reviewer_finding process facts',
+  );
+  console.log('finding.idempotency_contract: PASS callerKey=true replayRows=0 processEvents=1 signedQuery=true');
+
+  const terminalMirror = store.readFindings(storyId);
+  const terminalFinding = terminalMirror.findings.find((finding) => finding.id === `${storyId}:F-004`)!;
+  terminalFinding.status = 'resolved';
+  terminalFinding.resolvedAt = '2026-09-01T00:00:00.000Z';
+  terminalFinding.resolvedReason = 'fixture terminal transition';
+  store.writeFindings(storyId, terminalMirror);
+  const rereadTerminal = store.readFindings(storyId).findings
+    .find((finding) => finding.id === `${storyId}:F-004`)!;
+  assert.equal(
+    rereadTerminal.status,
+    'resolved',
+    'the append-only finding record must not overwrite a later compatibility terminal state',
+  );
+  console.log('finding.lifecycle_projection: PASS terminal=resolved resurrected=0');
 
   assert.equal(REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has('finding-ledger.json'), true);
   const second = handlers.finding_add({ ...args, desc: 'second same-round finding', idempotencyKey: 'finding-add:same-round-2' });
   assert.match(second, /Finding B-SPARSE:F-005 created/);
   assert.equal(store.readFindingLedger<JsonValue>(storyId).records.filter((record) => record.recordType === 'finding').length, 2);
   assert.equal(store.readFindings(storyId).findings.some((finding) => finding.id === 'B-SPARSE:F-005'), true);
+  const priorAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'lattice-implementer';
+  try {
+    const resolved = handlers.finding_resolve({
+      storyId,
+      findingId: `${storyId}:F-004`,
+      resolution: 'canonical lifecycle regression resolution',
+      resolutionType: 'fixed',
+      resolveEvidenceStrength: 'strong',
+    });
+    const resolvedReplay = handlers.finding_resolve({
+      storyId,
+      findingId: `${storyId}:F-004`,
+      resolution: 'canonical lifecycle regression resolution',
+      resolutionType: 'fixed',
+      resolveEvidenceStrength: 'strong',
+    });
+    assert.match(resolved, /resolved/);
+    assert.match(resolvedReplay, /resolved/);
+    const dismissed = handlers.finding_dismiss({
+      storyId,
+      findingId: `${storyId}:F-005`,
+      reason: 'separate terminal transition regression',
+      dismissReasonType: 'out_of_scope',
+      dismissEvidenceStrength: 'medium',
+    });
+    const dismissedReplay = handlers.finding_dismiss({
+      storyId,
+      findingId: `${storyId}:F-005`,
+      reason: 'separate terminal transition regression',
+      dismissReasonType: 'out_of_scope',
+      dismissEvidenceStrength: 'medium',
+    });
+    assert.match(dismissed, /dismissed/);
+    assert.match(dismissedReplay, /dismissed/);
+  } finally {
+    if (priorAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = priorAgent;
+  }
+  const terminalProjection = store.readFindings(storyId);
+  assert.equal(terminalProjection.findings.find((finding) => finding.id === `${storyId}:F-004`)?.status, 'resolved');
+  assert.equal(terminalProjection.findings.find((finding) => finding.id === `${storyId}:F-005`)?.status, 'dismissed');
+  const lifecycleLedger = store.readFindingLedger<JsonValue>(storyId);
+  assert.equal(lifecycleLedger.records.filter((record) => record.recordType === 'finding_lifecycle_transition').length, 2);
+  assert.equal(lifecycleLedger.receipts.filter((receipt) => receipt.operation === 'append_finding_lifecycle_transition').length, 2);
+  assert.equal(queryFindingLedger(lifecycleLedger, storyId, findingLedgerSignerFromWorkspace(root)).signedRows, true);
+  console.log('finding.lifecycle_transition: PASS appendOnly=true resolveReplay=stable dismissReplay=stable terminalRows=2 resurrected=0');
   sparseProjectionRegressionCompleted = true;
   console.log('lifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none');
 }
@@ -464,6 +562,31 @@ function assertRedGreenRelation(repositoryRoot: string): void {
     'cat-file', '-e', `${baselineHead}:packages/main/dist/core/finding-ledger.js`,
   ], { cwd: repositoryRoot, encoding: 'utf8' });
   assert.notEqual(baselineModule.status, 0, 'accepted pre-fix HEAD unexpectedly contains the GREEN ledger module');
+  const historicalCheckout = mkdtempSync(join(tmpdir(), 'bfe8f-red-anchor-'));
+  try {
+    const clone = spawnSync('git', ['clone', '-q', '--shared', '--no-checkout', repositoryRoot, historicalCheckout], {
+      cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr}`);
+    const checkout = spawnSync('git', ['checkout', '-q', '--detach', baselineHead], {
+      cwd: historicalCheckout, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(checkout.status, 0, `historical RED checkout failed: ${checkout.stderr}`);
+    const anchoredCommand = [
+      '-e', 'import(process.argv[1])', './packages/main/dist/core/finding-ledger.js',
+    ];
+    const historical = spawnSync(process.execPath, anchoredCommand, {
+      cwd: historicalCheckout, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.notEqual(historical.status, 0, 'reviewed historical anchor unexpectedly imported the GREEN module');
+    assert.match(`${historical.stdout}\n${historical.stderr}`, /ERR_MODULE_NOT_FOUND/);
+    const green = spawnSync(process.execPath, anchoredCommand, {
+      cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(green.status, 0, `current GREEN module import failed: ${green.stderr}`);
+  } finally {
+    rmSync(historicalCheckout, { recursive: true, force: true });
+  }
   const current = spawnSync(process.execPath, [redPath], {
     cwd: repositoryRoot,
     encoding: 'utf8',
@@ -489,11 +612,12 @@ function assertRedGreenRelation(repositoryRoot: string): void {
     'sparse F-001/F-003 -> F-004 projection regression did not execute before RED/GREEN evaluation',
   );
   console.log('green.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true');
+  console.log('green.red_historical_anchor_verifier: PASS exactBaselineCheckout=true expectedFailure=ERR_MODULE_NOT_FOUND currentGreenImport=true arbitraryCwdAccepted=false');
 }
 
 function assertVersionSync(repositoryRoot: string): void {
-  const previous = '0.3.269';
-  const expected = '0.3.270';
+  const previous = '0.3.270';
+  const expected = '0.3.271';
   const rootPackage = JSON.parse(readFileSync(join(repositoryRoot, 'package.json'), 'utf8')) as { version: string };
   const mainPackage = JSON.parse(readFileSync(join(repositoryRoot, 'packages', 'main', 'package.json'), 'utf8')) as { version: string };
   const lockfile = JSON.parse(readFileSync(join(repositoryRoot, 'package-lock.json'), 'utf8')) as {
@@ -509,19 +633,65 @@ function assertVersionSync(repositoryRoot: string): void {
   assert.equal(mainPackage.version, expected);
   assert.equal(lockfile.version, expected);
   assert.equal(lockfile.packages?.['']?.version, expected);
-  assert.match(runtimeConstant, /LATTICE_CLI_VERSION = '0\.3\.270' as const/);
+  assert.match(runtimeConstant, /LATTICE_CLI_VERSION = '0\.3\.271' as const/);
 
   const local = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), '--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   assert.equal(local.status, 0, `local CLI version failed: ${local.stderr}`);
-  assert.match(local.stdout, /Proof-or-Stop 0\.3\.270/);
+  assert.match(local.stdout, /Proof-or-Stop 0\.3\.271/);
   const installed = spawnSync('proof-or-stop', ['--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   assert.equal(installed.status, 0, `installed CLI version failed: ${installed.stderr}`);
-  assert.match(installed.stdout, /Proof-or-Stop 0\.3\.270/);
+  assert.match(installed.stdout, /Proof-or-Stop 0\.3\.271/);
   console.log('green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true');
+}
+
+function assertCleanPackInstall(repositoryRoot: string): void {
+  const scratch = mkdtempSync(join(tmpdir(), 'bfe8f-clean-pack-'));
+  const consumer = join(scratch, 'consumer');
+  try {
+    mkdirSync(consumer, { recursive: true });
+    const packed = spawnSync('npm', ['pack', '--json', '--pack-destination', scratch], {
+      cwd: join(repositoryRoot, 'packages', 'main'),
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(packed.status, 0, `npm pack failed: ${packed.stderr}\n${packed.stdout}`);
+    const tarball = readdirSync(scratch).find((name) => name.endsWith('.tgz'));
+    assert.ok(tarball, 'npm pack did not emit a core tarball');
+    const tarListing = spawnSync('tar', ['-tf', join(scratch, tarball)], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(tarListing.status, 0, `tar listing failed: ${tarListing.stderr}`);
+    assert.match(tarListing.stdout, /package\/node_modules\/@proof-or-stop\/lab\/package\.json/);
+    assert.doesNotMatch(tarListing.stdout, /node_modules\/@lattice\/lab/);
+    const initialized = spawnSync('npm', ['init', '-y'], {
+      cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(initialized.status, 0, `clean consumer init failed: ${initialized.stderr}`);
+    const installed = spawnSync('npm', [
+      'install', join(scratch, tarball), '--ignore-scripts', '--no-audit', '--no-fund',
+    ], {
+      cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(installed.status, 0, `clean tarball install failed: ${installed.stderr}\n${installed.stdout}`);
+    const core = JSON.parse(readFileSync(join(consumer, 'node_modules', '@proof-or-stop', 'core', 'package.json'), 'utf8')) as { name: string };
+    const lab = JSON.parse(readFileSync(join(
+      consumer, 'node_modules', '@proof-or-stop', 'core', 'node_modules', '@proof-or-stop', 'lab', 'package.json',
+    ), 'utf8')) as { name: string };
+    assert.equal(core.name, '@proof-or-stop/core');
+    assert.equal(lab.name, '@proof-or-stop/lab');
+    const cli = spawnSync(join(consumer, 'node_modules', '.bin', 'proof-or-stop'), ['--version'], {
+      cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(cli.status, 0, `clean-installed CLI failed: ${cli.stderr}`);
+    assert.match(cli.stdout, /Proof-or-Stop 0\.3\.271/);
+    console.log('green.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=true registryFetch=false cli=true');
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 }
 
 function runRollbackKillSwitchMatrix(scratch: string): void {
@@ -805,6 +975,56 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
   const store = new StoryStore(root);
   store.writeStory(storyId, runtimeStory(storyId));
 
+  const legacyStoryId = 'B-LEGACY-QUERY';
+  store.writeStory(legacyStoryId, runtimeStory(legacyStoryId));
+  const legacyLockDir = store.storyFilePath(legacyStoryId, 'findings.lock');
+  const legacyLock = acquireMkdirLock(legacyLockDir, {
+    label: 'legacy receipt migration regression', requireHolderToken: true,
+  });
+  try {
+    const fence = captureMkdirLockFence(legacyLockDir);
+    store.appendFindingLedgerTransaction(
+      legacyStoryId,
+      request(fence.writerFenceToken, 'legacy-query:unsigned', 'finding', {
+        id: `${legacyStoryId}:F-001`, desc: 'bounded legacy row', severity: 'low', category: 'edge', status: 'open',
+      }),
+      fence,
+    );
+    const ledgerSigner = findingLedgerSignerFromWorkspace(root);
+    bindLegacyFindingLedgerReceipts({
+      storyId: legacyStoryId,
+      store,
+      writerSessionId: 'legacy-migration-smoke',
+      writerLeaseId: 'legacy-migration-smoke',
+      writerFenceToken: fence.writerFenceToken,
+      fence,
+      signer: ledgerSigner,
+    });
+    const migrated = store.readFindingLedger<JsonValue>(legacyStoryId);
+    assert.equal(queryFindingLedger(migrated, legacyStoryId, ledgerSigner).signedRows, true);
+    const tampered = structuredClone(migrated);
+    (tampered.receipts[0] as typeof tampered.receipts[0] & { writerSessionId: string }).writerSessionId = 'tampered';
+    assert.throws(
+      () => queryFindingLedger(tampered, legacyStoryId, ledgerSigner),
+      /ledger_receipt_unsigned|ledger_incomplete/,
+    );
+    store.appendFindingLedgerTransaction(
+      legacyStoryId,
+      request(fence.writerFenceToken, 'legacy-query:unbound-after-migration', 'finding', {
+        id: `${legacyStoryId}:F-002`, desc: 'must remain untrusted', severity: 'low', category: 'edge', status: 'open',
+      }),
+      fence,
+    );
+    assert.throws(
+      () => queryFindingLedger(store.readFindingLedger<JsonValue>(legacyStoryId), legacyStoryId, ledgerSigner),
+      /ledger_receipt_unsigned/,
+    );
+  } finally {
+    legacyLock.release();
+  }
+  console.log('ledger.legacy_receipt_binding: PASS query=migrated exactBytes=bound tamper=reject postMigrationUnsigned=reject rewrites=0');
+
+  const registeredSigner = runtimeEvidenceSignerFromWorkspace(root);
   const keyPair = generateEd25519KeyPair();
   const signingEnv = {
     [RUNTIME_EVIDENCE_PRIVATE_KEY_ENV]: keyPair.privateKey,
@@ -852,21 +1072,22 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(verifyCanonical(
       { ...unsignedRuntimeReceipt(receipt), receiptHash: receipt.receiptHash },
       receipt.signature,
-      keyPair.publicKey,
+      registeredSigner.publicKey,
     ), true, 'runtime receipt Ed25519 signature is invalid');
-    assert.equal(verifyRuntimeEvidenceReceiptSignature(receipt, keyPair.publicKey), true);
+    assert.equal(verifyRuntimeEvidenceReceiptSignature(receipt, registeredSigner.publicKey), true);
+    assert.notEqual(receipt.keyId, `runtime-evidence-${canonicalDigest({ publicKey: keyPair.publicKey }).slice(0, 24)}`);
     console.log('runtime.content_addressed_receipt: PASS blobs=complete signature=valid');
 
     const signer: RuntimeReceiptSigner = {
-      privateKey: keyPair.privateKey,
-      publicKey: keyPair.publicKey,
+      privateKey: registeredSigner.privateKey,
+      publicKey: registeredSigner.publicKey,
       keyId: receipt.keyId,
       trustRootDigest: receipt.trustRootDigest,
       keyFreshnessPolicyDigest: receipt.keyFreshnessPolicyDigest,
       algorithm: 'ed25519',
     };
     const trust: RuntimeReceiptTrust = {
-      publicKey: keyPair.publicKey,
+      publicKey: registeredSigner.publicKey,
       keyId: receipt.keyId,
       algorithm: 'ed25519',
       trustRootDigest: receipt.trustRootDigest,
@@ -924,7 +1145,7 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       environmentAllowlist: runArgs.environmentAllowlist,
       excludedEnvironmentVariables: runArgs.excludedEnvironmentVariables,
       compilerVersion: runArgs.compilerVersion,
-      publicKey: keyPair.publicKey,
+      publicKey: registeredSigner.publicKey,
       storageCapability: RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
     };
     const cliVerify = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', verifyArgs, signingEnv);
@@ -945,12 +1166,11 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       assert.notEqual(rejectedKeyStatus.status, 0);
       assert.match(`${rejectedKeyStatus.stdout}\n${rejectedKeyStatus.stderr}`, /signing_key/);
     }
-    const revokedRegistry = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', verifyArgs, {
-      ...signingEnv,
-      PROOF_OR_STOP_RUNTIME_EVIDENCE_REVOKED_KEY_IDS: receipt.keyId,
-    });
+    setRuntimeEvidenceKeyStatusForTest(root, 'revoked');
+    const revokedRegistry = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', verifyArgs, signingEnv);
     assert.notEqual(revokedRegistry.status, 0);
     assert.match(`${revokedRegistry.stdout}\n${revokedRegistry.stderr}`, /revoked_signing_key/);
+    setRuntimeEvidenceKeyStatusForTest(root, 'fresh');
     console.log('runtime.registered_key_trust: PASS callerSelected=reject unknown=reject revoked=reject expired=reject');
 
     const queryPhaseBefore = store.readStory(storyId).phase;
@@ -1042,6 +1262,17 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY.level, 'L3');
     assert.equal(PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY.gateEvidence, false);
     assert.equal(PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY.lifecycleAuthority, 'gate-eligible-input-only');
+    assert.deepEqual({
+      recordType: PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY.recordType,
+      level: PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY.level,
+      gateEvidence: PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY.gateEvidence,
+      lifecycleAuthority: PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY.lifecycleAuthority,
+    }, {
+      recordType: 'finding_lifecycle_transition',
+      level: 'L4',
+      gateEvidence: true,
+      lifecycleAuthority: 'terminal-finding-state',
+    });
     console.log('registry.story3_fact_contract: PASS');
 
     const phases = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
@@ -1146,6 +1377,27 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     }, escapeBytes), /unsupported_storage/);
     assert.equal(existsSync(join(blobEscapeOutside, 'sha256', `${escapeDigest}.blob`)), false);
     console.log('runtime.blob_store_symlink: PASS outsideWrites=0');
+    const swapRoot = join(scratch, 'blob-swap-project');
+    const swapOutside = join(scratch, 'blob-swap-outside');
+    mkdirSync(swapRoot, { recursive: true });
+    mkdirSync(swapOutside, { recursive: true });
+    const swapBytes = Buffer.from('deterministic-symlink-swap\n');
+    const swapDigest = createHash('sha256').update(swapBytes).digest('hex');
+    const swapDir = join(swapRoot, '.proof-or-stop', 'evidence', 'runtime-blobs', 'sha256');
+    const displacedDir = `${swapDir}.displaced`;
+    assert.throws(() => writeRuntimeEvidenceBlob(swapRoot, {
+      blobId: `runtime-${swapDigest}`,
+      contentDigest: swapDigest,
+      contentType: 'stdout',
+      redactionPolicyDigest: canonicalDigest({ policy: 'blob-swap-smoke' }),
+    }, swapBytes, RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY, {
+      beforePublish: () => {
+        renameSync(swapDir, displacedDir);
+        symlinkSync(swapOutside, swapDir);
+      },
+    }), /unsupported_storage/);
+    assert.equal(existsSync(join(swapOutside, `${swapDigest}.blob`)), false);
+    console.log('runtime.blob_store_symlink_swap: PASS deterministicInterleaving=reject outsideWrites=0');
     const buildBusy = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_run', {
       ...runArgs, idempotencyKey: 'runtime-build-busy', buildInProgress: true,
     }, signingEnv);
@@ -1194,6 +1446,28 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     );
     assert.equal(store.readFindingLedger<JsonValue>(storyId).records.length, rowsBeforeRefusal);
     console.log('runtime.canonical_build_lock: PASS callerFalse=reject callerOmitted=reject zeroWrites=true');
+    const interleavingHandlers = createFindingLedgerHandlers({ store, root, scanRoot: root });
+    let successorBuildAcquired = false;
+    const interleavingResult = interleavingHandlers.finding_runtime_evidence_run({
+      ...runArgs,
+      idempotencyKey: 'runtime-build-lock-successor-interleaving',
+      afterCanonicalBuildLockForTest: () => {
+        const target = join(tmpdir(), `lattice-build-lock-${createHash('sha256').update(String(root)).digest('hex')}`);
+        const probe = spawnSync(process.execPath, ['-e', String.raw`
+          const lockfile = require(process.argv[1]);
+          try {
+            const release = lockfile.lockSync(process.argv[2], { stale: 30000, update: 10000, retries: 0 });
+            release();
+            process.exit(0);
+          } catch { process.exit(75); }
+        `, require.resolve('proper-lockfile'), target]);
+        successorBuildAcquired = probe.status === 0;
+        assert.equal(probe.status, 75, 'a successor build must not enter after runtime admission');
+      },
+    });
+    assert.equal(interleavingResult.persisted, true);
+    assert.equal(successorBuildAcquired, false);
+    console.log('runtime.canonical_build_lock_interleaving: PASS successorStartedAfterAdmission=true successorAcquired=false receiptCommitted=true');
     console.log('runtime.trust_storage_boundary: PASS emittedInvalidReceipts=0');
 
     const beforeReplay = store.readFindingLedger<JsonValue>(storyId);
@@ -1568,7 +1842,7 @@ if (process.argv[2] === '--ledger-worker') {
       assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, staleBaseCount);
       console.log('ledger.stale_cas: PASS semanticWrites=0');
 
-      const proposal = signedApplicableProposal(proposalPair.privateKey, 'assessment-authority-digest');
+      const proposal = signedApplicableProposal(proposalPair.privateKey, proposalPair.publicKey, 'assessment-authority-digest');
       const proposalOptions = {
         ...baseOptions('chk003:proposal'),
         proposal,
@@ -1628,6 +1902,7 @@ if (process.argv[2] === '--ledger-worker') {
       const wrongSignature = { ...proposal, proposalSignature: 'invalid-signature' };
       const expiredWithoutCallerNow = signedApplicableProposal(
         proposalPair.privateKey,
+        proposalPair.publicKey,
         'assessment-authority-digest',
         {
           proposalId: 'proposal-expired-2000',
@@ -1673,6 +1948,39 @@ if (process.argv[2] === '--ledger-worker') {
       assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, proposalLedgerAfterReplay.records.length);
       assert.equal(rejected[5]?.rejection, 'proposal_expired');
       console.log('ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0 omittedNowExpired=reject');
+      const resign = (overrides: Record<string, unknown>) => signAssessmentProposal({
+        ...proposalUnsignedForSmoke(proposal),
+        ...overrides,
+      }, proposalPair.privateKey);
+      const findingRef = proposal.findingRef as Record<string, unknown>;
+      const signerMetadata = proposal.proposalSigner as Record<string, unknown>;
+      const witness = proposal.currentWitness as Record<string, unknown>;
+      const dependencyBundle = proposal.dependencyBundle as Record<string, unknown>;
+      const structuralRejections = [
+        verifyAssessmentProposal(resign({ findingRef: {
+          storyId: findingRef.storyId, findingId: findingRef.findingId,
+        } }), {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
+        verifyAssessmentProposal(resign({ currentWitness: { ...witness, receiptIds: [] } }), {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
+        verifyAssessmentProposal(resign({ proposalSigner: { ...signerMetadata, keyId: 'caller-selected-key' } }), {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
+        verifyAssessmentProposal(resign({ dependencyBundle: { ...dependencyBundle, digest: 'wrong-digest' } }), {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
+        verifyAssessmentProposal(proposal, {
+          publicKey: proposalPair.publicKey,
+          expectedAuthorityDigest: 'assessment-authority-digest',
+          receipt: proposalReceipt,
+          receiptTrust: ledgerTrust,
+          proposalRecord,
+        }),
+      ];
+      assert.equal(structuralRejections.every((result) => !result.valid), true);
+      console.log('ledger.assessment_proposal_structural_chain: PASS findingRecordId=required witness=nonempty signer=truthful dependencyDigest=exact receiptCurrent=required semanticWrites=0');
 
       const standaloneReceipt = appendFindingLedger({
         ...baseOptions('chk003:standalone-receipt'),
@@ -2220,6 +2528,7 @@ if (process.argv[2] === '--ledger-worker') {
     runBuildLockFifoRegression(repositoryRoot, scratch);
     assertRedGreenRelation(repositoryRoot);
     assertVersionSync(repositoryRoot);
+    assertCleanPackInstall(repositoryRoot);
     runAggregateTamperMatrix(repositoryRoot);
     runDependencyScorecardBoundary(repositoryRoot);
 

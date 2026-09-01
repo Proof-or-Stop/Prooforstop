@@ -124,6 +124,16 @@ export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
   rationale: 'A current signed runtime receipt can be an input to a separately registered future gate consumer; persistence or query output alone never changes lifecycle state.',
 } as const;
 
+export const PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY = {
+  recordType: 'finding_lifecycle_transition',
+  level: 'L4',
+  producer: 'handlers/finding.appendFindingLifecycleTransition',
+  allowedConsumers: ['StoryStore.readFindings', 'storyMachine.canPassReview'],
+  gateEvidence: true,
+  lifecycleAuthority: 'terminal-finding-state',
+  rationale: 'A signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. Original Finding rows remain immutable.',
+} as const;
+
 export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   validate: 'validation-status',
   done_required_validate: 'validation-status',
@@ -1406,6 +1416,23 @@ export const PROCESS_FACT_ARTIFACTS = [
       producerCommand: 'finding_add/finding_runtime_evidence_run',
     },
     rationale: 'Append-only Finding persistence carrier and REVIEW-retention metadata. It has no lifecycle/gate authority; protected query and runtime verification establish its receipt trust independently.',
+  },
+  {
+    name: 'artifact:finding-ledger-lifecycle-transition',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'gate-evidence', 'blocker-state', 'finding-state'],
+    level: 'L4',
+    producer: 'handlers/finding.appendFindingLifecycleTransition',
+    consumerGate: 'StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate',
+    artifact: {
+      name: 'finding-ledger-lifecycle-transition',
+      path: 'finding-ledger.json',
+      signed: true,
+      signature: 'FindingLedgerReceipt covers the immutable finding_lifecycle_transition record and exact source-record CAS binding',
+      producerCommand: 'finding_resolve/finding_dismiss',
+      consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    },
+    rationale: 'Only the signed finding_lifecycle_transition record class carries terminal Finding authority; other rows in the same ledger retain their narrower registered levels.',
   },
   {
     name: 'artifact:review-passes.json',

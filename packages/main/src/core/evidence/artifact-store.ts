@@ -13,6 +13,9 @@
 import { createHash } from 'crypto';
 import {
   closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
   mkdirSync,
   writeFileSync,
   readFileSync,
@@ -65,6 +68,60 @@ function assertRuntimeBlobRootContained(projectRoot: string, dir: string): void 
   }
 }
 
+interface RuntimeBlobDirectoryIdentity {
+  projectRootReal: string;
+  dirReal: string;
+  dev: number;
+  ino: number;
+}
+
+function captureRuntimeBlobDirectoryIdentity(projectRoot: string, dir: string): RuntimeBlobDirectoryIdentity {
+  assertRuntimeBlobRootContained(projectRoot, dir);
+  const logical = lstatSync(dir);
+  if (logical.isSymbolicLink() || !logical.isDirectory()) {
+    throw new Error('runtime-evidence: unsupported_storage');
+  }
+  const physical = statIdentity(dir);
+  return {
+    projectRootReal: realpathSync(projectRoot),
+    dirReal: realpathSync(dir),
+    dev: physical.dev,
+    ino: physical.ino,
+  };
+}
+
+function statIdentity(path: string): { dev: number; ino: number } {
+  const descriptor = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  try {
+    const stat = fstatSync(descriptor);
+    return { dev: Number(stat.dev), ino: Number(stat.ino) };
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
+function assertRuntimeBlobDirectoryIdentity(
+  projectRoot: string,
+  dir: string,
+  expected: RuntimeBlobDirectoryIdentity,
+): void {
+  try {
+    const logical = lstatSync(dir);
+    const current = statIdentity(dir);
+    if (logical.isSymbolicLink() || !logical.isDirectory()
+      || realpathSync(projectRoot) !== expected.projectRootReal
+      || realpathSync(dir) !== expected.dirReal
+      || current.dev !== expected.dev
+      || current.ino !== expected.ino) {
+      throw new Error('runtime-evidence: unsupported_storage');
+    }
+    assertRuntimeBlobRootContained(projectRoot, dir);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'runtime-evidence: unsupported_storage') throw error;
+    throw new Error('runtime-evidence: unsupported_storage');
+  }
+}
+
 /**
  * Publish one immutable runtime-evidence blob. Repeated writes of the same
  * digest are byte-checked no-ops; callers never receive the protected path.
@@ -74,6 +131,7 @@ export function writeRuntimeEvidenceBlob(
   ref: EvidenceBlobRef,
   bytes: Buffer,
   capability: string = RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
+  testInterleaving?: { beforeOpen?: () => void; beforePublish?: () => void },
 ): { created: boolean } {
   assertRuntimeStorageCapability(capability);
   validateRuntimeBlobRef(ref);
@@ -82,10 +140,13 @@ export function writeRuntimeEvidenceBlob(
 
   const dir = runtimeBlobDir(projectRoot);
   mkdirSync(dir, { recursive: true, mode: 0o700 });
-  assertRuntimeBlobRootContained(projectRoot, dir);
+  const directoryIdentity = captureRuntimeBlobDirectoryIdentity(projectRoot, dir);
   const destination = runtimeBlobPath(projectRoot, ref);
   if (existsSync(destination)) {
-    const existing = readFileSync(destination);
+    assertRuntimeBlobDirectoryIdentity(projectRoot, dir, directoryIdentity);
+    const descriptor = openSync(destination, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    const existing = readFileSync(descriptor);
+    closeSync(descriptor);
     if (!existing.equals(bytes)) throw new Error('runtime-evidence: blob_digest_mismatch');
     return { created: false };
   }
@@ -93,12 +154,21 @@ export function writeRuntimeEvidenceBlob(
   const temporary = join(dir, `.${ref.contentDigest}.${process.pid}.${Date.now().toString(36)}.tmp`);
   let descriptor: number | undefined;
   try {
-    descriptor = openSync(temporary, 'wx', 0o600);
+    testInterleaving?.beforeOpen?.();
+    assertRuntimeBlobDirectoryIdentity(projectRoot, dir, directoryIdentity);
+    descriptor = openSync(
+      temporary,
+      constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0),
+      0o600,
+    );
     writeFileSync(descriptor, bytes);
     fsyncSync(descriptor);
     closeSync(descriptor);
     descriptor = undefined;
+    testInterleaving?.beforePublish?.();
+    assertRuntimeBlobDirectoryIdentity(projectRoot, dir, directoryIdentity);
     renameSync(temporary, destination);
+    assertRuntimeBlobDirectoryIdentity(projectRoot, dir, directoryIdentity);
     const directoryDescriptor = openSync(dir, 'r');
     try { fsyncSync(directoryDescriptor); } finally { closeSync(directoryDescriptor); }
     const persisted = readFileSync(destination);
@@ -119,10 +189,14 @@ export function readRuntimeEvidenceBlob(
   assertRuntimeStorageCapability(capability);
   const dir = runtimeBlobDir(projectRoot);
   if (!existsSync(dir)) return undefined;
-  assertRuntimeBlobRootContained(projectRoot, dir);
+  const directoryIdentity = captureRuntimeBlobDirectoryIdentity(projectRoot, dir);
   const path = runtimeBlobPath(projectRoot, ref);
   if (!existsSync(path)) return undefined;
-  const bytes = readFileSync(path);
+  assertRuntimeBlobDirectoryIdentity(projectRoot, dir, directoryIdentity);
+  const descriptor = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  const bytes = readFileSync(descriptor);
+  closeSync(descriptor);
+  assertRuntimeBlobDirectoryIdentity(projectRoot, dir, directoryIdentity);
   if (createHash('sha256').update(bytes).digest('hex') !== ref.contentDigest) {
     throw new Error('runtime-evidence: blob_digest_mismatch');
   }
