@@ -17555,7 +17555,7 @@
       "desc": "brand-path-decision-residue: packages/main/src/core/runtime-artifact-registry.ts:139 (new B-5a15 entry runtime-causal-evidence-receipts) hardcodes deprecated brand literals inside a path DECISION regex: rx(String.raw \"(?:^|/)(?:\\.lattice|\\.proof-or-stop)/story/actives/[^/]+/causal-evidence(?:/|$)|...\"). WHY this is concept residue: every other state-dir-scoped entry in this same file derives its matcher from the resolver via stateDirExact()/stateDirPrefix() over STATE_DIR_NAMES (lines 110, 179, 188, 215, 224, 239, 348), which packages/main/src/core/brand-paths.ts:145 exports precisely so a state-dir rename needs no literal edits. This one entry freezes the two spellings inline, so the same concept is expressed two contradictory ways in one file. WHY it is currently un-gated: the lattice-residue [brand-decision] check PASSES (ran it: 0 hits) because makeBrandDecisionDetector in scripts/verify-lattice-residue.mjs:225-250 only recognizes .startsWith/.endsWith/.includes/.indexOf(<literal>) and ===/!== operand shapes; a RegExp-shaped path decision matches none of the three, so the check is vacuous for this line. Verified blast radius by probe: the matcher returns true today for .proof-or-stop/, .lattice/ and docs/story/ receipt paths, but false for any renamed state dir; on a future rename findRuntimeArtifactEntry misses, isMaterialExcludedRuntimeArtifactPath (line 423) returns false, and writing a CAS receipt would then move materialHash - exactly the failure the entry comment says it exists to prevent. Latent (rename-triggered), not a live defect today, hence medium and recorded rather than fixed in-story: the file is in allowedModify but no checklist item claims resolver-routing. Follow-up: route the matcher through STATE_DIR_NAMES, and teach the brand-decision detector the regex/path-decision shape so this whole class is gated instead of passing vacuously.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T05:55:15.695Z",
@@ -17638,7 +17638,11 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "missing|ts|brand-path-decision",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED to a follow-up story; not fixed here. REPRO: runtime-artifact-registry.ts:139 declares the runtime-causal-evidence-receipts matcher as an inline rx() hardcoding the deprecated brand literals, while sibling state-dir entries (110/179/188/215/224/239/348) derive theirs from stateDirExact()/stateDirPrefix() over STATE_DIR_NAMES (brand-paths.ts:145). EVIDENCE: probed the regex directly - it matches .proof-or-stop/, .lattice/ and docs/story/ receipt paths today but misses any renamed state dir. The brand-decision check in scripts/verify-lattice-residue.mjs:225-250 recognises only .startsWith/.endsWith/.includes/.indexOf and ===/!== operand shapes, so a RegExp-shaped path decision is invisible to it and the gate passes vacuously. BLAST RADIUS: latent, rename-triggered only; no live defect because the canonical dir is covered. On a future state-dir rename findRuntimeArtifactEntry would miss, isMaterialExcludedRuntimeArtifactPath would return false, and writing a CAS receipt would move materialHash - the exact failure the entry exists to prevent. WHY DEFERRED: medium severity, no current regression, distorts no lifecycle gate today, and no B-5a15 checklist item claims resolver-routing of the artifact registry. RECOMMENDED HANDLING: dedicated story that routes this entry through the resolver candidate list AND widens makeBrandDecisionDetector to recognise RegExp-shaped path decisions, since the gate blind spot is the more general defect. ESCALATE IF: a state-dir rename is scheduled, or any gate begins consuming this matcher for a pass/fail decision.",
+      "resolvedAt": "2026-09-01T08:45:02.863Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-327",
