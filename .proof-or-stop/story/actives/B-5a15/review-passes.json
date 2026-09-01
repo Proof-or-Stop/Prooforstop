@@ -12592,6 +12592,29 @@
       },
       "readDiagnostics": [],
       "_hash": "f386c7965ecf9131b39a400932fef0a7350d2ff185fe4020aa84083faad7af01"
+    },
+    {
+      "id": "B-5a15:RP-257",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Narrow delta re-review of commit 2041075540 (F-339, checklist.ts, 12+/1-). Lane remains SATURATED; 4th consecutive PASS. (1) Structural basis re-derived independently and unchanged from RP-254: git diff --name-status -M main...HEAD is 80 A + 36 M with ZERO D and ZERO R entries; the 247 deletions in --shortstat are all within-file line edits. A story that deletes and renames no file creates no concept-deletion residue surface, which is this lane subject. (2) The commit removes exactly one line, an inline predicate call, replaced by the forked equivalent; no symbol, concept, or vocabulary term is retired, so the delta adds no residue surface either. (3) Residue scan of the added hunk: zero lattice/koala brand tokens, zero TODO/FIXME/XXX, zero @deprecated markers. Full lattice-residue gate re-run green on all five checks (koala, brand-prose, brand-exec, npm-bin, brand-decision). (4) Predicate-fork consistency verified across both consumers: evidenceHashesForPersistence:610 forks prior.mechanical===false ? audited : strict, carryForwardOnDiskProvenance:844 forks prior.mechanical===true ? strict : audited. These agree on true and false; they differ only on legacy undefined, which carryForward early-returns at :841 and which :610 routes to the STRICT predicate, the conservative direction preserving legacy behavior. No divergence. (5) Cited claims verified true: evidence-freshness.ts does decide fresh off the persisted materialHash (:628-675), and the docblock at :589-592 does promise the rebind the comment says it promises. (6) The new comment hardcodes no line numbers, referring to the docblock above and to carryForwardOnDiskProvenance by name, so it is rot-resistant. tsc clean across 4 tsconfigs. NOT FILED, deliberate under defect-triage rule 3: the pre-existing docblock header at :591 still says exact same-semantic re-persist, which is now narrow prose since an audited row with a changed note also keeps its binding; but its load-bearing claim about receipts stays exactly true (mechanical:true keeps sameEvidenceSemantics), and the correcting comment sits five lines below it in the same visual unit, so a reader cannot reach the fork without passing the correction. Imprecise self-correcting prose, not concept residue or stale vocabulary. Also not filed: commit message cites checklist.ts:2167 for the normalizeEvidence call site which actually sits at :2178, an 11-line drift in a non-gate-consumed artifact. Nothing re-filed from the dispositioned list.",
+      "createdAt": "2026-09-01T11:00:18.157Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-806",
+      "envelopeId": "3c8a19e4efa18f83e5c796d9f98c094501ef62f9455080c2536fc52551b50773",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3024985bdbe6f827b91228144c59269621bbf428c59008709707b11899256407"
     }
   ]
 }
