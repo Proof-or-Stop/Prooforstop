@@ -1,0 +1,93 @@
+{
+  "schema": "proofOrStop.done-required-evidence",
+  "version": 1,
+  "storyId": "B-022e",
+  "status": "FAIL",
+  "startedAt": "2026-09-01T19:38:14.119Z",
+  "endedAt": "2026-09-01T19:41:25.671Z",
+  "durationMs": 191552,
+  "headHash": "ac0510a22b63246fd396ccaa22df80650ffcf6ed",
+  "materialHash": "2d3274644bb0a3537166d13ae5293bc381b6f212f8a47aece01174c599311555",
+  "storyFilesHash": "4f41eb72b90e5de6d5ffc4fab97c0008ad444858908fbabd3d1ad5c606c49075",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-022e",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-022e",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 357,
+      "outputDigest": "6cc5aa34134da2b9299983b24c95a9ec3a1a9669800f6636c83822079b5cbd56",
+      "outputTail": "\n> @proof-or-stop/core@0.3.270 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-09-01T19:38:14.119Z",
+      "endedAt": "2026-09-01T19:38:14.476Z",
+      "effectiveEnvironmentDigest": "2d13212db336d9355357b203114f9e84c87e527fa950df14993e4eb6dbafc99d",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "ac0510a22b63246fd396ccaa22df80650ffcf6ed",
+      "materialHash": "2d3274644bb0a3537166d13ae5293bc381b6f212f8a47aece01174c599311555",
+      "storyFilesHash": "4f41eb72b90e5de6d5ffc4fab97c0008ad444858908fbabd3d1ad5c606c49075"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-022e",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-022e",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 190885,
+      "outputDigest": "a31e757e859d54f4a2f03c5522d37361f6e8522cefa2543ec10ec277196919cd",
+      "outputTail": "n run test:review-assurance-floor-smoke\n\n\n> @proof-or-stop/core@0.3.270 test:review-assurance-floor-smoke\n> node dist/tasks/review-assurance-floor-smoke.js\n\n  ✓ docs-only markdown is not overblocked\n  ✓ zero-review material code is blocked\n  ✓ one fresh local review round passes clean material code\n  ✓ compatibility/retired-only records cannot satisfy the host-verdict assurance floor\n  ✓ stale local review evidence does not count\n  ✓ stale recovery placeholder commands are shell-safe without story or material bindings\n  ✓ stale recovery output truncates ignored verdict details\n  ✓ failure signals require sticky 3x1 local rounds\n  ✓ high-risk lifecycle gate work requires 3x2 or explicit degraded fallback\n  ✓ literal worktree-local guidance executes three complete degraded-only rounds\n  ✓ missing host readiness probe blocks non-human high-risk degraded fallback\n  ✓ temporary host unavailability also requires fresh insufficient-host proof\n  ✓ probe with reviewReadyHostCount below two permits high-risk degraded 3x1\n  ✓ probe with two executable canonical hosts blocks high-risk single-host fallback\n  ✓ explicit-human-approval remains lower assurance without host probe\n  ✓ forged local Authority completion fields remain non-authority\n  ✓ git diff classification detects material code without injected changedFiles\n\n\n--- test:global-core-realpath FAIL ---\n\n> proof-or-stop@0.3.270 test:global-core-realpath\n> npm --prefix packages/main run test:global-core-realpath\n\n\n> @proof-or-stop/core@0.3.270 test:global-core-realpath\n> node tests/global-core-realpath.test.mjs\n\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: worktree-built core with global at canonical main checkout must pass, got warn: global @proof-or-stop/core could not be resolved from `npm root -g`\n\n'warn' !== 'pass'\n\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-022e/packages/main/tests/global-core-realpath.test.mjs:56:12 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 'warn',\n  expected: 'pass',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n\n\n--- test:brand-path-resolver-smoke INTERRUPTED ---\n\n\n--- test:config-filename-migration-smoke INTERRUPTED ---\n\n\n--- test:core-package-rename INTERRUPTED ---\n\n\n--- test:state-dir-migration INTERRUPTED ---\n\n\n--- test:identity-state-migrate-atomicity INTERRUPTED ---\n\n\n--- test:migration-contract INTERRUPTED ---\n\n\n--- test:review-assurance-floor-storyfileshash-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-wrapper-root INTERRUPTED ---\n\n\n--- test:gitroot-cwd-contract INTERRUPTED ---\n\n\n--- test:process-fact-contract INTERRUPTED ---\n\n\n--- test:closeout-trust INTERRUPTED ---\n\n\n--- test:runtime-fact-contract INTERRUPTED ---\n\n\n--- test:evidence-quality INTERRUPTED ---\n\n\n--- test:anti-stall INTERRUPTED ---\n\n\n--- test:storydir-inside-gitroot-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-routing INTERRUPTED ---\n\n\n--- test:bare-gate-gitroot-cwd INTERRUPTED ---\n\n\n--- test:project-gitroot-cwd INTERRUPTED ---\n\n\n--- test:done-oracle-wrapper-root INTERRUPTED ---\n\n\n--- test:done-premerge-mainsha-recheck INTERRUPTED ---\n\n\n--- test:done-escalation-drift-advisory INTERRUPTED ---\n\n\n--- test:review-escalation-freshness-root INTERRUPTED ---\n\n\n--- test:dispatch-checklist-doctor-wrapper-root INTERRUPTED ---\n\n\n--- test:graceful-sites-gitroot-cwd INTERRUPTED ---\n\n\n--- test:experience-hint-worktree-cache INTERRUPTED ---\n\n\n--- test:done-merge-experience-refresh INTERRUPTED ---\n\n\n--- test:experience-coverage-gap INTERRUPTED ---\n\n\n--- test:nested-worktree-bootstrap INTERRUPTED ---\n\n\n--- test:e2e INTERRUPTED ---\n\n\n--- test:experience-arm-gate INTERRUPTED ---\n\n\n--- test:experience-arm-isolation-e2e INTERRUPTED ---\n\n\n--- test:convergence-breaker INTERRUPTED ---\n\n\n--- test:topology-signing-source-guard INTERRUPTED ---\n\n\n--- test:signing-guard-mutation-proof INTERRUPTED ---\n\nfull-suite: 21/59 passed in 190.0s; retries=0; jobs=3\n",
+      "startedAt": "2026-09-01T19:38:14.590Z",
+      "endedAt": "2026-09-01T19:41:25.475Z",
+      "effectiveEnvironmentDigest": "2d13212db336d9355357b203114f9e84c87e527fa950df14993e4eb6dbafc99d",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "ac0510a22b63246fd396ccaa22df80650ffcf6ed",
+      "materialHash": "2d3274644bb0a3537166d13ae5293bc381b6f212f8a47aece01174c599311555",
+      "storyFilesHash": "4f41eb72b90e5de6d5ffc4fab97c0008ad444858908fbabd3d1ad5c606c49075"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
