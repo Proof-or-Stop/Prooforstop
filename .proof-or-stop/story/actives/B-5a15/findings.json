@@ -18011,7 +18011,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:527-608 (sameEvidenceSemantics vs sameAuditedAttestationIdentity) and packages/main/src/core/pre-review-live-proof.ts:58-119 (isCanonicalPreReviewCaseId record-ID scoping): neither predicate is referenced by name in any file under packages/main/tests/, and no CHK-001..CHK-005 verificationIntent names either behavior directly. sameAuditedAttestationIdentity first appears only in merge commit a2e4e92631 (present in neither parent, i.e. hand-authored during conflict resolution) and governs a real behavior split -- a note-only checklist_update on a mechanical:true receipt drops the receipt (sameEvidenceSemantics is note-sensitive) while the same note-only update on a mechanical:false attestation keeps it (sameAuditedAttestationIdentity ignores note) -- with no direct unit exercising either branch of that split. isCanonicalPreReviewCaseId is exercised only transitively through pre_review_check_read inside the F-247 / F-249-series tests in causal-evidence.test.mjs, and those two tests are themselves currently failing at live HEAD (see B-5a15:F-329), so the only coverage path that reaches this new scoping logic cannot currently demonstrate it behaves as intended. Both are unclaimed by any checklist item's Files/scope declaration and neither is must-priority, so this is recorded as a deferred, non-blocking coverage gap rather than expanded into this story's scope: a follow-up should add a direct logic_test for sameAuditedAttestationIdentity's note-tolerant carry-forward vs sameEvidenceSemantics's note-sensitive drop, and a direct fixture-level test for isCanonicalPreReviewCaseId that does not depend on the full pre-review acceptance chain being green.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T05:56:47.544Z",
@@ -18075,7 +18075,11 @@
         "packages/main/src/core/pre-review-live-proof.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED; not fixed here. REPRO: grep for sameEvidenceSemantics, sameAuditedAttestationIdentity and isCanonicalPreReviewCaseId across packages/main/tests returns zero references by name; no CHK-001..CHK-005 verificationIntent names either behavior directly. EVIDENCE: sameAuditedAttestationIdentity first appears in merge commit a2e4e92631, present in neither parent, i.e. hand-authored during conflict resolution to reconcile two contradicting tests. It governs a real behavior split - a note-only checklist_update on a mechanical:true receipt drops the receipt because sameEvidenceSemantics is note-sensitive, while the same update on a mechanical:false attestation keeps it. Both branches ARE exercised today, but only transitively: tool-executed-evidence-receipt-smoke.ts covers the receipt branch (F-067 case 12d, asserts note drift drops the receipt) and proofstory-acceptance-topology-smoke.ts covers the attestation branch (asserts a note-only update carries the audited reason forward). Both suites pass. isCanonicalPreReviewCaseId is exercised via the pre-review live proof. BLAST RADIUS: none at runtime - the behavior is covered, just not by a test that names the predicates, so a future refactor could silently collapse the split without a direct red test. WHY DEFERRED: low severity, both intents involved are should-priority not must, no checklist item claims direct unit coverage of these predicates, and the behavior is already protected by two passing integration suites. RECOMMENDED HANDLING: add focused unit tests naming both predicates and asserting the mechanical:true vs mechanical:false note-handling asymmetry directly. ESCALATE IF: either integration suite stops covering the split, or a further change touches carryForwardOnDiskProvenance.",
+      "resolvedAt": "2026-09-01T08:45:35.226Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a15:F-331",
