@@ -12648,6 +12648,40 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "a348df1123100044f3bad77e6a171fcf426250bcad4db150b35bc768f913a521"
+    },
+    {
+      "id": "B-5a15:RP-259",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Narrow delta check over the single source commit since RR-806 (827e4af0a3). Two hunks reviewed. (1) checklist.ts docblock rewrite above evidenceHashesForPersistence: verified the new prose against the function body at lines 600-625 and against both predicates (sameEvidenceSemantics 526-545, sameAuditedAttestationIdentity 549-586). Both stated arms are accurate -- mechanical/legacy takes the strict note-sensitive predicate, mechanical:false takes the note-insensitive twin. Checked the 'matching carryForwardOnDiskProvenance' claim against that function (840-879): it splits mechanical tri-state differently (undefined returns early at 848 before either predicate; true=strict, false=audited), but the undefined arm is unobservable there, so the two agree wherever both reach a predicate, and the hash function's undefined->strict default is the strictly safer direction. No overclaim: the docblock describes only the two arms, and does not assert identity on legacy undefined. Vocabulary consistent -- 'NARROWER twin' (549) and 'note-insensitive twin' (597) describe the same predicate from different angles and are compatible, since the audited predicate checks a strict field subset. The prior narrow phrase 'an exact same-semantic re-persist' is fully removed; no stale wording remains. (2) New test block 12f in tool-executed-evidence-receipt-smoke.ts (745-797): all terminology matches the source concepts it exercises (audited attestation, mechanical:false, freshness fork, note-only edit, identity-bearing). No dead or superseded concept names introduced, no residue of the pre-F-339 single-predicate model. No new concept deletion or replacement landed in this commit, so there is nothing further to scan for residue. No blocker.",
+      "createdAt": "2026-09-01T11:37:43.004Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-814",
+      "envelopeId": "913f8bbdf15684b18fe638b75ae2985230bd1f1031bf62ee3920acf92e18cb5a",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e97059e6bb9c2b4e268967babea9a043acb2ca0fe5274dee0c362e6b356de05d"
     }
   ]
 }
