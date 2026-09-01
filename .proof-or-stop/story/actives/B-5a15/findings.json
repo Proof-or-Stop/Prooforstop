@@ -17792,7 +17792,7 @@
       "desc": "Finding-hygiene risk: many open findings in this story (e.g. F-069,F-118,F-122,F-125,F-136,F-145,F-151,F-175,F-191,F-194,F-197,F-201,F-204,F-207,F-214,F-215,F-228,F-234,F-312 re: production certification-window.ts calling evaluateCausalDependencies with nodes:[]/currentInputHashes:{}; and F-289,F-292 re: verifyCausalDependencyRerunEvidence not binding storyId/materialHash/storyFilesHash) describe defects that current HEAD no longer has. Verified against current code: certification-window.ts:110-129 deriveCertificationDomainInputHashes + :156-177 buildCertificationDecision now construct real per-domain nodes and non-empty currentInputHashes (fixed across 55a1e00343/0adc7c34ea/cfc8402e1f, landed after those findings were filed); causal-evidence.ts:1167-1179 verifyCausalDependencyRerunEvidence now requires storyId/materialHash/storyFilesHash to match currentIdentity (fixed in 8cae04f219 fix: bind causal rerun receipts to evaluation identity, timestamped after F-289/F-292 were filed). None of these ~20 findings are marked resolved. This creates real risk during REVIEW/TEST acceptance accounting: a human or automated pass over open findings cannot distinguish live defects from already-fixed ones without re-deriving the same trace this reviewer just did. Recommend the main agent re-verify each open finding against current HEAD and either finding_resolve (fixed, citing the landing commit) or explicitly re-confirm still-broken with a fresh repro before REVIEW->TEST.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-01T05:55:55.675Z",
@@ -17928,7 +17928,11 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|json|finding-hygiene-risk",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED to a dedicated finding-hygiene story; not fixed here. REPRO: finding_list --storyId=B-5a15 reports 230 of 330 findings still open. Roughly 21 of them (F-069/F-118/F-122/F-125/F-136/F-145/F-151/F-175/F-191/F-194/F-197/F-201/F-204/F-207/F-214/F-215/F-228/F-234/F-312 on the empty-nodes certification wiring, plus F-289/F-292 on unbound rerun receipts) describe defects current HEAD no longer has. EVIDENCE: independently confirmed in source - certification-window.ts:110-129 deriveCertificationDomainInputHashes plus :156-177 buildCertificationDecision now construct six real per-domain nodes with non-empty currentInputHashes, so the empty-DAG claim is obsolete; causal-evidence.ts:1167-1179 verifyCausalDependencyRerunEvidence now hard-requires storyId/materialHash/storyFilesHash to match currentIdentity. Fix commits 55a1e00343 / 0adc7c34ea / cfc8402e1f / 8cae04f219 all postdate those findings. The independent topology critic reached the same conclusion and dispositioned this verified_family. BLAST RADIUS: no runtime defect. It is an accounting defect - stale open findings mixed with live ones make REVIEW/TEST acceptance harder to read, and the round-decay advisory labelling operates over a polluted set. WHY DEFERRED: medium severity, not a regression of B-5a15 acceptance scope, and bulk re-verification of ~21 findings owned by earlier rounds is squarely outside this story's checklist. Resolving them here would also mean this story asserting dispositions on other rounds' evidence. RECOMMENDED HANDLING: a dedicated hygiene story that re-verifies each cited finding against current HEAD and resolves with resolutionType=superseded plus the fix commit. ESCALATE IF: a gate begins failing because of open-finding count, or one of the cited findings turns out to still reproduce.",
+      "resolvedAt": "2026-09-01T08:45:19.377Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-329",
