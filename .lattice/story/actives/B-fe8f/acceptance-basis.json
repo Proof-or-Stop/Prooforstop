@@ -29,14 +29,17 @@
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "complete_for_scope",
-        "blindSpots": [],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))",
+          "unregistered handler factory createFindingLedgerHandlers"
+        ],
         "provenanceRefs": [
-          "source-file:packages/main/src/cli/command-catalog.ts:sha256:326844c812b705a72427380ac77789caaa336099b1729c495fa5c386c083e979",
-          "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:6bc8c44f180e29f62bf7f6447a87b271040187b9a781cc71f384bad5d9068ecb",
-          "source-file:packages/main/src/handlers/finding.ts:sha256:1d30377b5d2aec1f72b428e09d3f7eb4b9faa497be255074169bf0f0dcfae7d0",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:b09e641abbdc39dbc2a86fdbf13b9622b189903a4d7c03984a127f0f3405f748",
+          "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:0a0f7eb2cf353ab8e3eae5fb7ecec20f9609567eb10ea04be6d83c6269aa3ad8",
+          "source-file:packages/main/src/handlers/finding.ts:sha256:922111d08a63171cdc3d04236b440cf2528d715c5303e122428251a0ab9de478",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-          "source-file:packages/main/src/registry.ts:sha256:b5990be530d15936ec77149eb061f36b2e88fd35d4babd09d3ea6f731c5aa636",
+          "source-file:packages/main/src/registry.ts:sha256:5815a8d7319c959c40ba197166bdac3e333e72c8b3abf0e4d19c37e75743c9ac",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
         ],
         "asymmetryPolicy": {
@@ -72,7 +75,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:76b717eb577526e953699fc24af20996413252efc27569639a31c8816fbb6b00"
+        "resultDigest": "sha256:3270c577cdc5b8e3a27b2e5264e12407234d99a57cbb995a956d0c01eafa54d1"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -84,8 +87,10 @@
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "complete_for_scope",
-        "blindSpots": [],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))"
+        ],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
           "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -93,10 +98,10 @@
           "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
-          "source-file:packages/main/src/registry.ts:sha256:b5990be530d15936ec77149eb061f36b2e88fd35d4babd09d3ea6f731c5aa636",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:f670f7b5312806a63d7da2a81408ed276c38339adf2b936285757a36e693765f",
+          "source-file:packages/main/src/registry.ts:sha256:5815a8d7319c959c40ba197166bdac3e333e72c8b3abf0e4d19c37e75743c9ac",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
-          "source-file:scripts/verify-process-fact-contract.mjs:sha256:7eb559374e1e0f9cce2a5e1bce6ab0ffa1cbe9278e8b3e7abfcd9de44a330914"
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:fb4e917ce240865c410789407dcb3016ef3932cb51432161761f80dfab95bb92"
         ],
         "asymmetryPolicy": {
           "kind": "exhaustive",
@@ -131,7 +136,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:e785eafb52b21460db94bce8235ddca79b8ea2899d44d17e7ba8ba309ff9d176"
+        "resultDigest": "sha256:a181adb7f5e44cf1f7130a39c2eeac7d998882d8f5f54644fe65c70d2d3faad1"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -261,34 +266,36 @@
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "complete_for_scope",
-        "blindSpots": [],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))"
+        ],
         "provenanceRefs": [
           "source-file:package-lock.json:sha256:238f4a2f15cd5475091d6add4d060a3bb9ce54173b11d9240ef3eff2a0fd911d",
           "source-file:package.json:sha256:4d56b9bc8fbb16d18798b5ae253f5dd2b3a711a0ba185a262d5208b8174f6621",
-          "source-file:packages/main/package.json:sha256:3f21e7e35120fe3ef6d386d4605b83b8e2078ba136f227a1a1bd1f561854c46f",
-          "source-file:packages/main/src/cli/command-catalog.ts:sha256:326844c812b705a72427380ac77789caaa336099b1729c495fa5c386c083e979",
+          "source-file:packages/main/package.json:sha256:5fb2edaaa5f9295cae1874cd39ccade41245064bc18ecd78d1e6c66647f3e032",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:b09e641abbdc39dbc2a86fdbf13b9622b189903a4d7c03984a127f0f3405f748",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/core/command-policy.ts:sha256:a4a63061068b5b49ec04138110ed83a89b84da9dde6453b827ba8599e6ef6b45",
           "source-file:packages/main/src/core/config.ts:sha256:4d77de36cd01e82ef0ad5f50af42e2e4d38a1fe152666623d89e44680e63524d",
-          "source-file:packages/main/src/core/evidence/artifact-store.ts:sha256:e7e4ce4fc09e1bd38cef77de3c20cc65e987a65de5bb3f4b89116f74a0182353",
-          "source-file:packages/main/src/core/finding-ledger.ts:sha256:db029611be27726deaa62e18e179e85b9e0d270ce1089330965e9b0ea57fd424",
+          "source-file:packages/main/src/core/evidence/artifact-store.ts:sha256:9577d6eb2311df8e5696998512db74aa6217da830db7bc793cc2d371042fab51",
+          "source-file:packages/main/src/core/finding-ledger.ts:sha256:e4a6fb6fda045d80f06dcdb5dd6041a5e455afd23e75bcc7e0160147485367f3",
           "source-file:packages/main/src/core/lattice-brand.ts:sha256:6c061b806ed7779ba186b2a796c60824fd7892e8d6d48c5fb2ac267afbe195f9",
-          "source-file:packages/main/src/core/mkdir-lock.ts:sha256:9e6f0adca9f3e89902a847b28adc380ef2f0f36c132d88f52d38ce3cabd81d77",
-          "source-file:packages/main/src/core/process-fact-levels.ts:sha256:f81f6d869e009f8db7dc134c7b1f33bfd30f57f0777599ca689c8b868577859e",
-          "source-file:packages/main/src/core/process-fact-registry.ts:sha256:9a7e98bbf5de98de49a0ba7b1834510f2d6b36e63edf8c78d95575cf42e7ab82",
+          "source-file:packages/main/src/core/mkdir-lock.ts:sha256:8dfe44be34a86471bb663466695d3cdec6ccf7cc4e6349990c5ce5eb0cf63f9d",
+          "source-file:packages/main/src/core/process-fact-levels.ts:sha256:33c3160546702aee06a86b7461511b5c22e4da13b37c3d67564ef8e00b7c431e",
+          "source-file:packages/main/src/core/process-fact-registry.ts:sha256:0205e40f7efad4ccc1b346969183595ba9b1a272fea3912cae706161c2dd7294",
           "source-file:packages/main/src/core/runtime-evidence-receipt.ts:sha256:ed40135ba1d1658b9a97024c56ff115330cb2504e0fd585472ddc3bb2cffba39",
           "source-file:packages/main/src/core/store.ts:sha256:a6dc2b6088e70773bced58a0610a93f537c948616044b4e1626682b82041f3b0",
           "source-file:packages/main/src/core/types.ts:sha256:8bbac442ffdfa934cf5ebb267ec87af185dce0c1d41e584b86e1e72afbdd6cad",
-          "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:6bc8c44f180e29f62bf7f6447a87b271040187b9a781cc71f384bad5d9068ecb",
-          "source-file:packages/main/src/handlers/finding.ts:sha256:1d30377b5d2aec1f72b428e09d3f7eb4b9faa497be255074169bf0f0dcfae7d0",
+          "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:0a0f7eb2cf353ab8e3eae5fb7ecec20f9609567eb10ea04be6d83c6269aa3ad8",
+          "source-file:packages/main/src/handlers/finding.ts:sha256:922111d08a63171cdc3d04236b440cf2528d715c5303e122428251a0ab9de478",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
-          "source-file:packages/main/src/registry.ts:sha256:b5990be530d15936ec77149eb061f36b2e88fd35d4babd09d3ea6f731c5aa636",
-          "source-file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts:sha256:95a09c4f30e42abb5bc6ac26a06ba4f057df8ba269e05e1a0c434121754c5a4f",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:f670f7b5312806a63d7da2a81408ed276c38339adf2b936285757a36e693765f",
+          "source-file:packages/main/src/registry.ts:sha256:5815a8d7319c959c40ba197166bdac3e333e72c8b3abf0e4d19c37e75743c9ac",
+          "source-file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts:sha256:e3327977ae36811e655a14794978387e3767e8c0550ac14e7c31932008cef9f0",
           "source-file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:sha256:16499ed91e097dcba33d607c756007c11031235de6e7dc9aa23f42641063b423",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
-          "source-file:scripts/verify-process-fact-contract.mjs:sha256:7eb559374e1e0f9cce2a5e1bce6ab0ffa1cbe9278e8b3e7abfcd9de44a330914"
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:fb4e917ce240865c410789407dcb3016ef3932cb51432161761f80dfab95bb92"
         ],
         "asymmetryPolicy": {
           "kind": "exhaustive",
@@ -323,7 +330,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:e9c0c389c84391029c5ceb67e43c8a0d2f2ecab50b686407435c594f15499520"
+        "resultDigest": "sha256:d5e252465e48e6bea124d2561140c3f87e30dd6d36a935ad03e9d6222bf8b9aa"
       }
     ],
     "scopeRefs": [
@@ -418,16 +425,18 @@
     ],
     "excludedPathRefs": [],
     "blindSpots": [
+      "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "unregistered handler factory createFindingLedgerHandlers"
     ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:3105b5205dc4a0d56f6e78b3b43fba858cdb87ce8ff234aeac7159c14c5f3aba",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:80a2faa85c8257bf6ba1a566d2ead1006ea95b0ce2819e97a06c31a4b5003dbb",
+      "sourceSnapshotDigest": "sha256:8704a41fe74667a2b5876788d19181c77dc8e8192c26dbcf430c803387bcfaa5",
       "sourceSnapshotCount": 829,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "partial",
@@ -453,37 +462,37 @@
           "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         }
       ],
-      "sealDigest": "sha256:259521ecb19d0d16b3a5ce6b49e779652154090a9b1768ce378894abfaa93bb1"
+      "sealDigest": "sha256:d4a102927c685b3988467842588a122744623dd30ea48d15d188161ee04fb611"
     },
     "binding": {
-      "headHash": "ab188ff08e7f7ec52cd4eeb8b1ba75ff6dfda83d",
-      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220",
-      "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
+      "headHash": "7b4ba79d128e34ca9e40c91368011b21a0902b71",
+      "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+      "storyFilesHash": "3b67b90ef90027def801ebb09466410dbe3f009f80f1e6a64d36c3c5fab01f07",
       "scopeCheckDigest": "sha256:6878fcd1db2f638f58dd89f9846c44d93b5475d5b0cb92afaeebe8fc1b49eb92",
-      "scopeContractDigest": "sha256:e5a890b74a41c26e85b81abd69694148e4d62512338e4f0cb3b3761c8532367d",
-      "closureFilesHash": "sha256:694e042fad9b9c590e54f56277ce9e6057e8a2a073b3e98f61d85d3263d308bd"
+      "scopeContractDigest": "sha256:73e1628454428671903dbe73cde2af013195f6d2713dbf93308d3eb60179aa01",
+      "closureFilesHash": "sha256:20e9412a7cf08c57cdc5b1f70600e17085563c6971adda799b9e0c77751499bb"
     },
-    "receiptRef": "receipt:coverage-basis:B-fe8f:plan:a539796008177048",
-    "basisDigest": "sha256:bf68021e5fc9365176d694e3e5c5ea706e16bf5a69c468e1c89bc656ebc0d84a"
+    "receiptRef": "receipt:coverage-basis:B-fe8f:plan:005d140a91cb9faa",
+    "basisDigest": "sha256:d97a657ec3f0f1a4e541ae965d9c7bbaa01cb8b66a63483a516c5f2b0c3cbc50"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-fe8f:plan:a539796008177048",
+    "receiptRef": "receipt:coverage-basis:B-fe8f:plan:005d140a91cb9faa",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:f4ff36c006003589257466d51b93dbde761b171216fe5d18f8b33a5c0f6167eb",
     "signerPublicKey": "tjxYGaesOrQdcymh+37gs6yiu4zRFO+t/N+Zc0kMV78=",
     "storyId": "B-fe8f",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:bf68021e5fc9365176d694e3e5c5ea706e16bf5a69c468e1c89bc656ebc0d84a",
+    "basisDigest": "sha256:d97a657ec3f0f1a4e541ae965d9c7bbaa01cb8b66a63483a516c5f2b0c3cbc50",
     "topologyDigest": "sha256:80f899a6331ce896d652d56b5268b894632aefab95c3b0409a12224e3fb6d3af",
     "scopeCheckDigest": "sha256:6878fcd1db2f638f58dd89f9846c44d93b5475d5b0cb92afaeebe8fc1b49eb92",
-    "scopeContractDigest": "sha256:e5a890b74a41c26e85b81abd69694148e4d62512338e4f0cb3b3761c8532367d",
-    "headHash": "ab188ff08e7f7ec52cd4eeb8b1ba75ff6dfda83d",
-    "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220",
-    "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
-    "closureFilesHash": "sha256:694e042fad9b9c590e54f56277ce9e6057e8a2a073b3e98f61d85d3263d308bd",
-    "sealDigest": "sha256:259521ecb19d0d16b3a5ce6b49e779652154090a9b1768ce378894abfaa93bb1",
+    "scopeContractDigest": "sha256:73e1628454428671903dbe73cde2af013195f6d2713dbf93308d3eb60179aa01",
+    "headHash": "7b4ba79d128e34ca9e40c91368011b21a0902b71",
+    "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+    "storyFilesHash": "3b67b90ef90027def801ebb09466410dbe3f009f80f1e6a64d36c3c5fab01f07",
+    "closureFilesHash": "sha256:20e9412a7cf08c57cdc5b1f70600e17085563c6971adda799b9e0c77751499bb",
+    "sealDigest": "sha256:d4a102927c685b3988467842588a122744623dd30ea48d15d188161ee04fb611",
     "workspaceIdentityDigest": "sha256:9a1fbd2abf1b464dc46a05fa5b6b34444b3ea56e9a6a53f009f20a73a99b6fec",
-    "signature": "ezTFRjU5Nsy3IIZHipLQwymSpuUGsVAWaYvjx6cVp0EmxbUa3yrODT7kC0H3x8xnbwzlIxHQGA/TcU2TixI0Dw=="
+    "signature": "FECjPZBoNKUsOSZJ2WOAfW81/bPha1fGGKAIu3HcGmBi9WLvKOr3G/1ifln6QSCa9d78WVmgdACy2kuyTlOfBg=="
   }
 }
