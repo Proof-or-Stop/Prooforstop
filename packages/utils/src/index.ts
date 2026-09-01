@@ -2,6 +2,7 @@
  * @proof-or-stop/utils public entry point
  *
  * Usage (inside a bootstrap script):
+ *   import { runCli } from '@proof-or-stop/core/extension-api';
  *   import {
  *     register,
  *     utilsAllowedPhases,

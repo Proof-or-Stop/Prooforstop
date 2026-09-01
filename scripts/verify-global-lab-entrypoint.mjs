@@ -22,8 +22,10 @@ const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const cli = join(root, 'bin', 'proof-or-stop.js');
 const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
-const EXPECTED_EXTENSION_VERSION = '0.3.65';
-const EXPECTED_CORE_PEER_RANGE = '^0.3.65';
+const EXPECTED_LAB_VERSION = '0.3.65';
+const EXPECTED_UTILS_VERSION = '0.3.268';
+const EXPECTED_LAB_CORE_PEER_RANGE = '^0.3.65';
+const EXPECTED_UTILS_CORE_PEER_RANGE = '^0.3.268';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -153,11 +155,11 @@ const checks = {
     assert(utils.name === '@proof-or-stop/utils', `utils package name mismatch: ${utils.name}`);
     assert(lab.name === '@proof-or-stop/lab', `lab package name mismatch: ${lab.name}`);
     assert(core.version === EXPECTED_CORE_VERSION, `core version mismatch: ${core.version}`);
-    assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
-    assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
-    assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_EXTENSION_VERSION}`);
-    assert(utils.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_CORE_PEER_RANGE, `utils should accept independently-versioned core releases through peer range ${EXPECTED_CORE_PEER_RANGE}`);
-    assert(lab.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_CORE_PEER_RANGE, `lab should accept independently-versioned core releases through peer range ${EXPECTED_CORE_PEER_RANGE}`);
+    assert(utils.version === EXPECTED_UTILS_VERSION, `utils version mismatch: ${utils.version}`);
+    assert(lab.version === EXPECTED_LAB_VERSION, `lab version mismatch: ${lab.version}`);
+    assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_LAB_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_LAB_VERSION}`);
+    assert(utils.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_UTILS_CORE_PEER_RANGE, `utils should require the first Core extension-runtime release through peer range ${EXPECTED_UTILS_CORE_PEER_RANGE}`);
+    assert(lab.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_LAB_CORE_PEER_RANGE, `lab should accept independently-versioned core releases through peer range ${EXPECTED_LAB_CORE_PEER_RANGE}`);
     assert(!utils.dependencies?.['@proof-or-stop/core'], 'utils should not pin core as an exact runtime dependency');
     assert(!lab.dependencies?.['@proof-or-stop/core'], 'lab should not pin core as an exact runtime dependency');
     assert(!core.dependencies?.['@proof-or-stop-agent/lab'], 'core should not depend on retired @proof-or-stop-agent/lab');

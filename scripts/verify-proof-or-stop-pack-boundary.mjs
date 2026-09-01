@@ -28,8 +28,11 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(SCRIPT_DIR, '..');
 const RETIRED_PRODUCT = ['lat', 'tice'].join('');
 const RETIRED_SCOPE = `@${RETIRED_PRODUCT}`;
-const EXPECTED_EXTENSION_VERSION = '0.3.65';
-const EXPECTED_CORE_PEER_RANGE = '^0.3.65';
+const EXPECTED_LAB_VERSION = '0.3.65';
+const EXPECTED_UTILS_VERSION = '0.3.268';
+const EXPECTED_LAB_CORE_PEER_RANGE = '^0.3.65';
+const FIRST_UTILS_EXTENSION_RUNTIME_CORE_VERSION = '0.3.268';
+const EXPECTED_UTILS_CORE_PEER_RANGE = `^${FIRST_UTILS_EXTENSION_RUNTIME_CORE_VERSION}`;
 const CACHE_FORMAT_VERSION = 'proof-or-stop.pack-boundary-offline-cache.v2';
 const CACHE_MANIFEST_FILE = 'cache-manifest.json';
 const CACHE_LOCK_STALE_MS = 10 * 60_000;
@@ -141,11 +144,11 @@ function validateManifestCohort(manifests) {
     if (manifests[row.id]?.name !== row.name) errors.push(`${row.id} name is not ${row.name}`);
   }
   if (root.version !== core.version) errors.push('root and core versions differ');
-  if (lab.version !== EXPECTED_EXTENSION_VERSION) errors.push('Lab independent version changed');
-  if (utils.version !== EXPECTED_EXTENSION_VERSION) errors.push('Utils independent version changed');
+  if (lab.version !== EXPECTED_LAB_VERSION) errors.push('Lab independent version changed');
+  if (utils.version !== EXPECTED_UTILS_VERSION) errors.push('Utils extension-runtime version changed');
   if (core.dependencies?.['@proof-or-stop/lab'] !== lab.version) errors.push('core does not depend on the supplied Lab tarball version');
-  if (lab.peerDependencies?.['@proof-or-stop/core'] !== EXPECTED_CORE_PEER_RANGE) errors.push('Lab core peer range drifted');
-  if (utils.peerDependencies?.['@proof-or-stop/core'] !== EXPECTED_CORE_PEER_RANGE) errors.push('Utils core peer range drifted');
+  if (lab.peerDependencies?.['@proof-or-stop/core'] !== EXPECTED_LAB_CORE_PEER_RANGE) errors.push('Lab core peer range drifted');
+  if (utils.peerDependencies?.['@proof-or-stop/core'] !== EXPECTED_UTILS_CORE_PEER_RANGE) errors.push('Utils core peer range drifted');
   if (lab.dependencies?.['@proof-or-stop/core']) errors.push('Lab pins core as a regular dependency');
   if (utils.dependencies?.['@proof-or-stop/core']) errors.push('Utils pins core as a regular dependency');
 
@@ -783,6 +786,75 @@ function runInstalledCli(cli, projectDir, args, allowFailure = false) {
   return result;
 }
 
+function verifyUtilsCompatibilityFloor({ tempRoot, packed, offlineDependencies, sources }) {
+  const rejectedCoreVersion = '0.3.267';
+  const peerRange = sources.utils.peerDependencies?.['@proof-or-stop/core'];
+  assert(peerRange === EXPECTED_UTILS_CORE_PEER_RANGE, `unexpected Utils Core peer range ${peerRange}`);
+  assert(!semver.satisfies(rejectedCoreVersion, peerRange), `${rejectedCoreVersion} must remain below the Utils compatibility floor`);
+  assert(semver.satisfies(sources.core.version, peerRange), `current Core ${sources.core.version} must satisfy the Utils compatibility floor`);
+
+  const oldCoreSource = join(tempRoot, 'older-core-source');
+  const oldCorePackDir = join(tempRoot, 'older-core-tarball');
+  const incompatibleConsumer = join(tempRoot, 'older-core-consumer');
+  mkdirSync(oldCoreSource, { recursive: true });
+  mkdirSync(oldCorePackDir, { recursive: true });
+  mkdirSync(incompatibleConsumer, { recursive: true });
+  writeFileSync(join(oldCoreSource, 'package.json'), `${JSON.stringify({
+    name: '@proof-or-stop/core',
+    version: rejectedCoreVersion,
+    type: 'module',
+    main: 'index.js',
+    exports: { '.': './index.js' },
+  }, null, 2)}\n`);
+  writeFileSync(join(oldCoreSource, 'index.js'), 'export async function runCli() {}\n');
+  const packedOldCore = JSON.parse(execFileSync('npm', [
+    'pack', '--json', '--ignore-scripts', '--pack-destination', oldCorePackDir, '.',
+  ], { cwd: oldCoreSource, encoding: 'utf8' }))[0];
+  const oldCoreTarball = join(oldCorePackDir, packedOldCore.filename);
+  const utilsTarball = packed.find(artifact => artifact.row.id === 'utils')?.tarball;
+  assert(utilsTarball, 'Utils tarball missing from compatibility-floor probe');
+  writeFileSync(join(incompatibleConsumer, 'package.json'), `${JSON.stringify({
+    name: 'proof-or-stop-utils-compatibility-floor-consumer',
+    version: '1.0.0',
+    private: true,
+    type: 'module',
+    dependencies: {
+      '@proof-or-stop/core': `file:${oldCoreTarball}`,
+      '@proof-or-stop/utils': `file:${utilsTarball}`,
+    },
+    overrides: offlineDependencies.overrides,
+  }, null, 2)}\n`);
+  const install = spawnSync('npm', [
+    'install',
+    '--offline',
+    '--ignore-scripts',
+    '--no-audit',
+    '--no-fund',
+    '--omit=optional',
+    '--package-lock=false',
+  ], {
+    cwd: incompatibleConsumer,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      NPM_CONFIG_OFFLINE: 'true',
+      NPM_CONFIG_FETCH_RETRIES: '0',
+      NPM_CONFIG_AUDIT: 'false',
+      NPM_CONFIG_FUND: 'false',
+      NPM_CONFIG_UPDATE_NOTIFIER: 'false',
+      HTTP_PROXY: 'http://127.0.0.1:9/',
+      HTTPS_PROXY: 'http://127.0.0.1:9/',
+    },
+  });
+  const diagnostic = `${install.stdout || ''}${install.stderr || ''}`;
+  assert(install.status !== 0, `npm accepted Utils with incompatible Core ${rejectedCoreVersion}`);
+  assert(
+    diagnostic.includes('@proof-or-stop/core') && /peer|ERESOLVE/i.test(diagnostic),
+    `older Core install failed for an unrelated reason: ${diagnostic}`,
+  );
+  return { firstCompatibleCore: FIRST_UTILS_EXTENSION_RUNTIME_CORE_VERSION, rejectedCore: rejectedCoreVersion, peerRange };
+}
+
 function stablePackageSummary(artifact) {
   return {
     id: artifact.row.id,
@@ -810,6 +882,7 @@ function runBoundary() {
     verifyPackedArtifacts(packed, sources);
 
     const offlineDependencies = prepareOfflineDependencyOverrides(sources);
+    const utilsCompatibilityFloor = verifyUtilsCompatibilityFloor({ tempRoot, packed, offlineDependencies, sources });
 
     writeFileSync(join(projectDir, 'package.json'), JSON.stringify({
       name: 'proof-or-stop-pack-boundary-consumer',
@@ -931,6 +1004,7 @@ function runBoundary() {
         retiredCommandExitCode: retiredBin.status,
         canonicalPackageResolutions: canonicalPackages.length,
         utilsPublicImportAndDispatch: true,
+        utilsCompatibilityFloor,
         retiredPackageResolutionFailures: 3,
         canonicalRoleLookups: CANONICAL_ROLES.length,
         retiredRoleLookupFailures: RETIRED_ROLES.length,
@@ -1040,12 +1114,19 @@ async function runSelfTest() {
   assert(validateManifestCohort(sources).length === 0, 'real source manifests must satisfy the pack graph before mutation tests');
 
   const exactPin = structuredClone(sources);
-  exactPin.lab.peerDependencies['@proof-or-stop/core'] = EXPECTED_EXTENSION_VERSION;
+  exactPin.lab.peerDependencies['@proof-or-stop/core'] = EXPECTED_LAB_VERSION;
   assert(validateManifestCohort(exactPin).some((error) => error.includes('peer range drifted')), 'exact stale core pin mutation did not fail');
 
   const unsatisfiedPeer = structuredClone(sources);
   unsatisfiedPeer.utils.peerDependencies['@proof-or-stop/core'] = '^0.4.0';
   assert(validateManifestCohort(unsatisfiedPeer).some((error) => error.includes('rejects supplied')), 'unsatisfied core peer mutation did not fail');
+
+  const olderCore = structuredClone(sources);
+  olderCore.core.version = '0.3.267';
+  assert(
+    validateManifestCohort(olderCore).some((error) => error.includes('utils peerDependencies range @proof-or-stop/core@^0.3.268 rejects supplied 0.3.267')),
+    'Utils compatibility-floor mutation did not reject the immediately preceding Core version',
+  );
 
   const extraBin = structuredClone(sources);
   extraBin.root.bin = { [RETIRED_PRODUCT]: 'dist/cli.js' };
