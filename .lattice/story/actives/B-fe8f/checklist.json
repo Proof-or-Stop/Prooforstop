@@ -664,6 +664,94 @@
           "materialHash": "e0f799a12a8e7650481a5a2f079bd13b8efdec995973015807798c8a2b66fd2d",
           "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
           "timestamp": "2026-09-01T09:53:25.953Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-002 ledger foundation verification at commit 134b57eea9; package build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "45b5cd70a31d55542a8c13a0efb20c8a49a24ae95416bf38929bbf25a4e5f003",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T09:53:29.735Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ae394043ef1a4225b53db37f35ed0463aed5a4b",
+          "materialHash": "e0f799a12a8e7650481a5a2f079bd13b8efdec995973015807798c8a2b66fd2d",
+          "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
+          "timestamp": "2026-09-01T09:53:38.490Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-002 ledger foundation verification at commit 134b57eea9; package build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "45b5cd70a31d55542a8c13a0efb20c8a49a24ae95416bf38929bbf25a4e5f003",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T09:53:32.634Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ae394043ef1a4225b53db37f35ed0463aed5a4b",
+          "materialHash": "e0f799a12a8e7650481a5a2f079bd13b8efdec995973015807798c8a2b66fd2d",
+          "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
+          "timestamp": "2026-09-01T09:53:38.490Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-002 ledger foundation verification at commit 134b57eea9; package build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "45b5cd70a31d55542a8c13a0efb20c8a49a24ae95416bf38929bbf25a4e5f003",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T09:53:35.526Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ae394043ef1a4225b53db37f35ed0463aed5a4b",
+          "materialHash": "e0f799a12a8e7650481a5a2f079bd13b8efdec995973015807798c8a2b66fd2d",
+          "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
+          "timestamp": "2026-09-01T09:53:38.490Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed CHK-002 ledger foundation verification at commit 134b57eea9; package build passed before evidence execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "45b5cd70a31d55542a8c13a0efb20c8a49a24ae95416bf38929bbf25a4e5f003",
+            "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T09:53:38.350Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ae394043ef1a4225b53db37f35ed0463aed5a4b",
+          "materialHash": "e0f799a12a8e7650481a5a2f079bd13b8efdec995973015807798c8a2b66fd2d",
+          "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
+          "timestamp": "2026-09-01T09:53:38.490Z"
         }
       ]
     },
