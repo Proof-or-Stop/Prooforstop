@@ -19,10 +19,10 @@
     ".proof-or-stop-codex/**",
     ".claude/**"
   ],
-  "scopeChangeReason": "The user requested changes only to the root AGENTS.md; all implementation and truth-source files are read-only audit inputs.",
+  "scopeChangeReason": "Add CHK-003:edge:1 to the existing AGENTS.md-only scope after independent verification-intent coverage was expanded to report local/global CLI drift separately.",
   "acknowledgements": [],
   "createdAt": "2026-09-01T23:05:12.822Z",
-  "updatedAt": "2026-09-01T23:05:12.822Z",
+  "updatedAt": "2026-09-01T23:10:08.594Z",
   "fileRules": [
     {
       "path": "AGENTS.md",
@@ -38,6 +38,7 @@
         "CHK-002:adversarial:0",
         "CHK-003:happy:0",
         "CHK-003:edge:0",
+        "CHK-003:edge:1",
         "CHK-003:adversarial:0"
       ]
     }
