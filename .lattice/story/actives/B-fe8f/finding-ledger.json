@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
+  "committedLedgerDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -307,6 +307,35 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:09:54.866Z"
+    },
+    {
+      "recordId": "lr_mtiv6rbr_1lwa_f7afd26842bc45d5b8fb313dbee466a8",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:0fe01804-4659-480a-9c77-35c145441228",
+      "payload": {
+        "id": "B-fe8f:F-012",
+        "desc": "CHK-001 has no admissible current GREEN receipt. At HEAD 723f2ab, the immutable RED blob is still 1b913dab2f52e904afc1b7b1870a3a98be0739bc, but its pinned command `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 1 at line 212 because the accepted sparse allocator no longer matches the pre-GREEN length-based sentinel. The GREEN smoke explicitly expects that non-zero exit at finding-ledger-runtime-smoke.ts:467-483, while all 13 CHK-001 verificationEvidence rows say result=pass/fresh for the direct RED command; CHK-001:happy:2 is additionally mechanical=false with no receipt. `proof-or-stop evidence_plan` nevertheless classifies all 71 rows fresh. Repair the intent/evidence relation with an executable superseding current command and per-intent exitCode=0/selectorMatched=true receipts; do not restamp the old output or weaken the immutable RED.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-test-coverage",
+        "createdAt": "2026-09-01T16:11:12.447Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-008",
+        "_hash": "3ae0aa87e5b49391835da146d0245add6b0497e818a6ac95c55a7d162c26f21a",
+        "files": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "missing|mjs|admissible-current-green",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "7f932a8b680ad9ed7739424e75134693674adb1bf6c00fac2f5b8d9f9e5e834a",
+      "priorDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:11:12.471Z"
     }
   ],
   "receipts": [
@@ -716,6 +745,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "00ecedb6bd44f5a0cbab63fffe4e5f2fde31ac1c133ffa2ac6c37bdeff182263",
         "signature": "dkZveZmExnEfxEh0c8qg6MB5nlZ7kfix9b4zz9ITdHJnGVQ5Qj5+QLq4f8gkpKywAIZRi8R8Ts6wkPZ+jwB6BA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiv6rbr_1lwa_964b9f1d34f047ac923697fb9f03bd77",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:0fe01804-4659-480a-9c77-35c145441228",
+      "requestDigest": "8a9c67d1d997d4c584e526483a0eca13acb52d0aa46b432efc187ee971155885",
+      "recordIds": [
+        "lr_mtiv6rbr_1lwa_f7afd26842bc45d5b8fb313dbee466a8"
+      ],
+      "priorLedgerDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
+      "committedLedgerDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
+      "writerSessionId": "sess-254f7982d3fe6f188e3bd04c95518ec2",
+      "writerFenceToken": "8988adf6-c58a-4ebe-8c6b-d53255781304",
+      "committedAt": "2026-09-01T16:11:12.471Z",
+      "replayed": false,
+      "exactRequestDigest": "e0757e0c17160c91926d95b604edb85e7307215b15ea502f7f668c02570e58a8",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiv6rbr_1lwa_964b9f1d34f047ac923697fb9f03bd77",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:0fe01804-4659-480a-9c77-35c145441228",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiv6rbr_1lwa_f7afd26842bc45d5b8fb313dbee466a8"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "771297c97094d5a1619533c69d523cefd6e818aef8eec369085a9a6fe9ae6f7b",
+        "committedLedgerDigest": "d5083d76d05752cb0208abc58937d373d2dd66c08f8fa0123006c33dbb4395da",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:11:12.471Z",
+        "writerSessionId": "sess-254f7982d3fe6f188e3bd04c95518ec2",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "8988adf6-c58a-4ebe-8c6b-d53255781304",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "2ea5fbedbcb0031349ae2be9a39823ea07781239e973dbb261757efb32a28690",
+        "signature": "MaM7P5JAXiNuXsL4K6eNDmoZeDSVFk4p7GVBqJsr9qH2Gy8acd4z5KxjR9MOFvrnnOVIgrV5DaKzhmI+iL54CA=="
       }
     }
   ]

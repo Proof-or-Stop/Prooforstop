@@ -215,6 +215,27 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv53g2_1iq4_510131c8bf1e496c85f4c1e215e8a446",
       "ledgerCommitReceiptId": "lrc_mtiv53g2_1iq4_76e17cdf54894b65a7282680be81d091"
+    },
+    {
+      "id": "B-fe8f:F-012",
+      "desc": "CHK-001 has no admissible current GREEN receipt. At HEAD 723f2ab, the immutable RED blob is still 1b913dab2f52e904afc1b7b1870a3a98be0739bc, but its pinned command `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 1 at line 212 because the accepted sparse allocator no longer matches the pre-GREEN length-based sentinel. The GREEN smoke explicitly expects that non-zero exit at finding-ledger-runtime-smoke.ts:467-483, while all 13 CHK-001 verificationEvidence rows say result=pass/fresh for the direct RED command; CHK-001:happy:2 is additionally mechanical=false with no receipt. `proof-or-stop evidence_plan` nevertheless classifies all 71 rows fresh. Repair the intent/evidence relation with an executable superseding current command and per-intent exitCode=0/selectorMatched=true receipts; do not restamp the old output or weaken the immutable RED.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-09-01T16:11:12.447Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-008",
+      "_hash": "3ae0aa87e5b49391835da146d0245add6b0497e818a6ac95c55a7d162c26f21a",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|admissible-current-green",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiv6rbr_1lwa_f7afd26842bc45d5b8fb313dbee466a8",
+      "ledgerCommitReceiptId": "lrc_mtiv6rbr_1lwa_964b9f1d34f047ac923697fb9f03bd77"
     }
   ]
 }
