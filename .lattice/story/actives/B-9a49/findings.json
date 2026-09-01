@@ -665,6 +665,25 @@
       "_hash": "85732c1606eb0574dcbcb0d5c5445b83aa583ce474b57b5881e00504896cc7ee",
       "signatureTag": "adversarial|unknown|quality-authority-guard",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-032",
+      "desc": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:8-9,32-40 WHY: the document calls itself the executable definition of exact delivery surfaces but limits scope to Agent prompts/guidance, REVIEW prompt-envelope safety, and prompt tests, and its may-change list omits the authoritative Dynamic Finding plan. The current Story diff nevertheless changes docs/requirements/decisions/dynamic-finding-system-execution-plan.md, exactly as CHK-001 requires for the documentation-only target-state vocabulary/compatibility-boundary migration. The published execution boundary is therefore incomplete and makes an intentional authority-document amendment look unauthorized. Add the bounded documentation-only Dynamic Finding plan amendment to the proposal scope/may-change list while retaining the explicit no-runtime boundary. severity=medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T14:17:21.948Z",
+      "reviewRound": "2026-09-01T14:11:27.307Z",
+      "reviewRunId": "B-9a49:RR-043",
+      "_hash": "e8d37e8b32cced55cc98b9e2050a74fac9acab5675c821b4d188bfb62fd3f3ad",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
