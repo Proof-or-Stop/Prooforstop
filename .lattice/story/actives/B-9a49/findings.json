@@ -488,7 +488,7 @@
       "desc": "doc-code-drift: packages/main/src/core/prompt-registry.ts:61,68 publishes the obsolete future Dynamic Finding verdict stale_or_not_reproduced and an absolute current-Story repair rule, while the authoritative current main docs/requirements/decisions/dynamic-finding-system-execution-plan.md:55-58,146-148,598-600,2036-2070 now specifies not_reproduced_under_current_witness plus a distinct signed defer-with-proof disposition for eligible verified applicable low/medium Findings. Because this canonical contract is injected into all five REVIEW lanes and says agents should consume the future official system, merge-time behavior would contradict the current authority. Update the proposal projection and canonical prompt semantics to use the current verdict/witness requirements and acknowledge the bounded official deferral path without fabricating it in the present compatibility CLI; refresh semantic assertions and approved digests.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-09-01T09:48:01.289Z",
@@ -502,7 +502,11 @@
         "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 951d4754226ae9594b73c9375cbe40894737dd26 and 3b9768f602df7fe53dacea666fa0702c28749254. The canonical contract and English proposal now use not_reproduced_under_current_witness with fresh signed witness requirements, model the future official signed defer_with_proof disposition only for eligible verified applicable low/medium Findings, preserve mandatory current repair exclusions, and explicitly state the current compatibility CLI does not implement or authorize fabricated disposition facts. Round 8 docs RR-032 independently verified proposal digest, English-only quality, AGENTS/CLAUDE parity, obsolete-vocabulary isolation, prompt registry/full-context/baseline, and process/runtime fact checks as PASS.",
+      "resolvedAt": "2026-09-01T10:55:21.793Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-023",
