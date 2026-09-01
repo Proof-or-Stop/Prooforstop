@@ -74,19 +74,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Cutover verifier proves exhaustive policy and zero active residue.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c31782b3781957305260f831f7ecffbfa1f9bf7e8cb482270a5a5b3469bee22f",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 249 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit dc5a3960f515\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:28:22.115Z",
+            "executedAt": "2026-09-01T00:01:31.494Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.979Z"
+          "headHash": "5eddc43b4f2787bc77e93e336baa8ad6577fa298",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:03:06.361Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -95,19 +95,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Exact frozen paths and byte baselines pass without broad exemptions.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c31782b3781957305260f831f7ecffbfa1f9bf7e8cb482270a5a5b3469bee22f",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 249 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit dc5a3960f515\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:29:18.555Z",
+            "executedAt": "2026-09-01T00:02:16.589Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.979Z"
+          "headHash": "5eddc43b4f2787bc77e93e336baa8ad6577fa298",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:03:06.361Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -116,19 +116,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Mutation self-test rejects missing, broadened, or stale evidence.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
             "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:29:24.014Z",
+            "executedAt": "2026-09-01T00:02:22.194Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.979Z"
+          "headHash": "5eddc43b4f2787bc77e93e336baa8ad6577fa298",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:03:06.361Z"
         }
       ]
     },
@@ -223,19 +223,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Original committed RED target now passes at descendant GREEN.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c31782b3781957305260f831f7ecffbfa1f9bf7e8cb482270a5a5b3469bee22f",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 249 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit dc5a3960f515\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:28:22.115Z",
+            "executedAt": "2026-09-01T00:03:06.202Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:31:37.979Z"
+          "headHash": "5eddc43b4f2787bc77e93e336baa8ad6577fa298",
+          "materialHash": "d646ba17319344176c90156c176b2ca17cd1688cc720a1043b24a88de77a7b92",
+          "storyFilesHash": "b66fe353087224e0cd01795ee2b3c5d1dfafcd5fd2a4a60fd1f4146f2fdb7c7e",
+          "timestamp": "2026-09-01T00:03:06.361Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
