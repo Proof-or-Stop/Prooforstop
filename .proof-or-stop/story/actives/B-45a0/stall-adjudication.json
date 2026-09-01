@@ -1,9 +1,9 @@
 {
   "storyId": "B-45a0",
   "action": "override_budget",
-  "reason": "Authorizing exactly one further ordinary REVIEW round to re-attest the two Wave-4 surfaces just repaired in DEV. The high round count is historical, from this story's long remediation, not from unresolved churn: every blocking finding is now closed on real evidence. acceptance_rollout_check reports mode=enforce status=pass blocking=false receipt=current quorum=full-3x2 after regenerating the report with its DEV-only writer. pre_review_check reports PASS with zero codes, down from ten, after refreshing all 50 stale verificationEvidence rows by re-executing their pinned commands and capturing a fresh live-smoke transcript bound to the current storyFilesHash. acceptance_basis is complete with Receipt verification PASS and converged across two consecutive generates to the same receipt. acceptance_topology_check reports Status pass, Structural pass yes, Diagnostics none. The remaining work in REVIEW is bounded and mechanical: resolve findings F-428, F-429 and F-430 against this verified state, then earn fresh reviewer receipts. No code change is outstanding.",
-  "reviewRound": "2026-08-30T15:57:31.479Z",
-  "approvedBy": "stall-adjudication",
-  "recordedAt": "2026-08-31T02:29:10.629Z",
-  "_hash": "6d2d94a35f36e344a759decd26dc40ea56289cd34e46efcd05f6d397de57dc4d"
+  "reason": "Operator-directed closeout of B-45a0 (user goal: complete this story). The 53 ordinary rounds accumulated across the long-running Wave-4 program; the final round 53 epoch RI-115 had all four lanes PASS with zero verified findings, and the two remaining critic findings (F-471 pre-review artifact invalidation, F-472 CHK-014 topology closure gap) plus F-431 have been mechanically repaired in DEV: CHK-014 is bound and mapped (topology structural pass), acceptance basis/rollout regenerated, live-proof recaptured, and pre_review_check now signs PASS with zero codes at current head. One further ordinary round is required solely to re-earn lane verdicts and resolve the repaired findings; no unresolved defect remains.",
+  "reviewRound": "2026-09-01T14:39:12.553Z",
+  "approvedBy": "qipan",
+  "recordedAt": "2026-09-01T15:41:20.477Z",
+  "_hash": "fa3a4cf0e5ea14e4c4ed1b7972e78697c09114eb5c15e4c3dfb5cbe5854a4bba"
 }
