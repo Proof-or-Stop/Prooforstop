@@ -1707,20 +1707,180 @@
           "kind": "logic_test",
           "command": "npm run test:proofstory-acceptance-basis-smoke",
           "result": "pass",
-          "note": "Focused smoke proves authoritative registry reconciliation and signed-basis path retention.",
+          "note": "Tool-executed pinned verifier proves CHK-005:happy:registry-reconciliation at the current committed implementation.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
             "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:14:35.920Z",
+            "executedAt": "2026-09-01T00:19:05.564Z",
             "timeoutMs": 270000
           },
-          "headHash": "c55128fca7ed1c40cb45c2da1b3284b320d2abc7",
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
           "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
           "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
-          "timestamp": "2026-09-01T00:14:36.086Z"
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:story-topology-pass",
+          "kind": "manual_transcript",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:happy:story-topology-pass at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:20:17.541Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:gate-consumer-exactness",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:edge:gate-consumer-exactness at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3f809fb62ff8fee30b3fe2fd9307347fc8676c900b33fcdec052a6e05a5dfe07",
+            "outputTail": "nly; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot\n...[truncated 42536 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:20:21.064Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:source-dist-build",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:edge:source-dist-build at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "be2e2bfac9b47b359e45b6a08fca25dc998471874c4e84eba5e007a992d1c3d1",
+            "outputTail": "\n> @proof-or-stop/core@0.3.268 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:20:21.917Z",
+            "timeoutMs": 290000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:unknown-or-unrelated-facts",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:unknown-or-unrelated-facts at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:21:28.466Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:caller-consumer-alias",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:caller-consumer-alias at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:22:34.202Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:commandref-masking",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:commandref-masking at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:23:29.182Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:fabricated-planned-path",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:fabricated-planned-path at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:24:20.367Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:structural-validation-weakening",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:structural-validation-weakening at the current committed implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:25:11.733Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e0331b856ab2e479c55e78efda331aec5a2d1b33",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:25:11.908Z"
         }
       ]
     }
