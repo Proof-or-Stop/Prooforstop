@@ -34,6 +34,7 @@
         "blindSpots": [],
         "provenanceRefs": [
           "source-file:packages/main/src/cli/command-catalog.ts:sha256:1a422eb7c112f42f53d93d3b9e6d8fd97caeee4010336eb01f341b4300651ead",
+          "source-file:packages/main/src/handlers/certification-window.ts:sha256:875cea460d49ad9c10edd154d1e6654aa14b996e19b133b1723b019feeaca4fb",
           "source-file:packages/main/src/handlers/checklist.ts:sha256:4e479b1c9b0bd1a7abbfb01f60fa935e3de63e17c5ddce2fb490a05cc591c312",
           "source-file:packages/main/src/handlers/live-smoke-transcript.ts:sha256:9fd8e1d0f521f1f9099abd6aa1ddc4b18d47a40d9a70c3ea0ffca4425fe7118f",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:d8963774bc5dded622a50f2038b5cef41b5f46a07070d71115bfbcfbee0b0541",
@@ -60,6 +61,7 @@
             "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/store.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/certification-window.ts",
             "scope:file:packages/main/src/handlers/checklist.ts",
             "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
@@ -68,7 +70,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:07f701812656dc5fdeb1289bbf2aadf2e22391ec8137e8d6ee5c767c19cc05b5"
+        "resultDigest": "sha256:129c4651c56e3fe9ea32af6b2cc07cc62cfd7863014fee7cc89677deac24f396"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -115,6 +117,7 @@
             "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/store.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/certification-window.ts",
             "scope:file:packages/main/src/handlers/checklist.ts",
             "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
@@ -123,7 +126,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:5b79ece55f5a7b7e2d1e48efa1fe88d91a496555c7989fa9a1d5533803c97ed2"
+        "resultDigest": "sha256:eae1d34708f8b5e31b57facc6b75150bf9abbeb4d57b4868e99ba2d006872872"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -155,6 +158,7 @@
             "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/store.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/certification-window.ts",
             "scope:file:packages/main/src/handlers/checklist.ts",
             "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
@@ -163,7 +167,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:926809c7dff58be14fb5d86764503ec903fced22f83f9b5634d308e58675e5bb"
+        "resultDigest": "sha256:444dbb726cbb3e47cb5ee18b3fbd6346f7c4f9778e568219dbcae3e566551ad6"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -172,6 +176,7 @@
         "pathRefs": [
           "planned:CHK-001:happy:0:CHK-001-causal-execution-to-evidence-batch",
           "planned:CHK-002:happy:0:CHK-002-receipt-to-canonical-import",
+          "planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window",
           "planned:CHK-004:happy:0:CHK-004-preflight-to-evidence-enforcement",
           "planned:CHK-005:happy:0:CHK-005-ledger-to-causal-metrics"
         ],
@@ -193,6 +198,7 @@
           "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
           "scope:file:packages/main/src/core/store.ts",
           "scope:file:packages/main/src/core/types.ts",
+          "scope:file:packages/main/src/handlers/certification-window.ts",
           "scope:file:packages/main/src/handlers/checklist.ts",
           "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
           "scope:file:packages/main/src/handlers/verifier.ts",
@@ -200,6 +206,7 @@
           "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
           "scope:file:packages/main/tests/causal-evidence.test.mjs",
           "source-file:packages/main/src/core/causal-evidence.ts:sha256:368ed56454441f37b093a8f7e89ed806487961a5ddfd1243f620b5898c0386ac",
+          "source-file:packages/main/src/handlers/certification-window.ts:sha256:875cea460d49ad9c10edd154d1e6654aa14b996e19b133b1723b019feeaca4fb",
           "source-file:packages/main/src/handlers/checklist.ts:sha256:4e479b1c9b0bd1a7abbfb01f60fa935e3de63e17c5ddce2fb490a05cc591c312",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
         ],
@@ -222,6 +229,7 @@
             "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/store.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/certification-window.ts",
             "scope:file:packages/main/src/handlers/checklist.ts",
             "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
@@ -230,7 +238,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:5c2aaf139ee320e368384283b07bf475e0aba73a3c6619ddf53cd9b4b997c50d"
+        "resultDigest": "sha256:8751a9f92e9a16ce6aac55520153d148f264833c73e7dd2382227e7394ecf01a"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -243,9 +251,12 @@
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:verification_evidence_batch_add->consumer:storyMachine.checklistAllDone and validate verification coverage",
           "path:static-call:packages/main/src/core/causal-evidence.ts#causalCanonical->consumer:packages/main/src/handlers/checklist.ts#causalCanonical",
+          "path:static-call:packages/main/src/core/causal-evidence.ts#causalDependencyContextDigests->consumer:packages/main/src/handlers/certification-window.ts#causalDependencyContextDigests",
+          "path:static-call:packages/main/src/core/causal-evidence.ts#causalDigest->consumer:packages/main/src/handlers/certification-window.ts#causalDigest",
           "path:static-call:packages/main/src/core/causal-evidence.ts#createCausalEvidenceBatch->consumer:packages/main/src/handlers/checklist.ts#createCausalEvidenceBatch",
           "path:static-call:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics->consumer:packages/main/src/handlers/checklist.ts#deriveCausalMetrics",
           "path:static-call:packages/main/src/core/causal-evidence.ts#effectiveCausalEnvironment->consumer:packages/main/src/handlers/checklist.ts#effectiveCausalEnvironment",
+          "path:static-call:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies->consumer:packages/main/src/handlers/certification-window.ts#evaluateCausalDependencies",
           "path:static-call:packages/main/src/core/causal-evidence.ts#executeCausalEvidence->consumer:packages/main/src/handlers/checklist.ts#executeCausalEvidence",
           "path:static-call:packages/main/src/core/causal-evidence.ts#importCausalEvidenceReceipt->consumer:packages/main/src/handlers/checklist.ts#importCausalEvidenceReceipt",
           "path:static-call:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence->consumer:packages/main/src/handlers/checklist.ts#preflightCausalEvidence",
@@ -266,6 +277,7 @@
           "source-file:packages/main/src/core/runtime-artifact-registry.ts:sha256:7c978a0af53589b0d03e9e5ee2c0a49083290128b5b68a5130f3c585b099cb49",
           "source-file:packages/main/src/core/store.ts:sha256:da2fbc474e3823ad2b48c9ad461866d3edee4c0c8617fcc9464ff145f6e5039f",
           "source-file:packages/main/src/core/types.ts:sha256:ce443e40908b5ee74ecc65a03876b9df901b75e90d191c3b44403702cdc690d8",
+          "source-file:packages/main/src/handlers/certification-window.ts:sha256:875cea460d49ad9c10edd154d1e6654aa14b996e19b133b1723b019feeaca4fb",
           "source-file:packages/main/src/handlers/checklist.ts:sha256:4e479b1c9b0bd1a7abbfb01f60fa935e3de63e17c5ddce2fb490a05cc591c312",
           "source-file:packages/main/src/handlers/live-smoke-transcript.ts:sha256:9fd8e1d0f521f1f9099abd6aa1ddc4b18d47a40d9a70c3ea0ffca4425fe7118f",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:d8963774bc5dded622a50f2038b5cef41b5f46a07070d71115bfbcfbee0b0541",
@@ -296,6 +308,7 @@
             "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/store.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/certification-window.ts",
             "scope:file:packages/main/src/handlers/checklist.ts",
             "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
@@ -304,7 +317,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:2bb84d3e650bb1e3ffdff3b54e7cef3a7d80d2d924997362fd6440ba8a133e16"
+        "resultDigest": "sha256:056a39a8d6cccd996f540ae5cc56919987f34ed35981f974a950cc269eb0635a"
       }
     ],
     "scopeRefs": [
@@ -323,6 +336,7 @@
       "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
       "scope:file:packages/main/src/core/store.ts",
       "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/handlers/certification-window.ts",
       "scope:file:packages/main/src/handlers/checklist.ts",
       "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
       "scope:file:packages/main/src/handlers/verifier.ts",
@@ -355,6 +369,7 @@
       "source-file:closure:packages/main/src/core/runtime-artifact-registry.ts",
       "source-file:closure:packages/main/src/core/store.ts",
       "source-file:closure:packages/main/src/core/types.ts",
+      "source-file:closure:packages/main/src/handlers/certification-window.ts",
       "source-file:closure:packages/main/src/handlers/checklist.ts",
       "source-file:closure:packages/main/src/handlers/live-smoke-transcript.ts",
       "source-file:closure:packages/main/src/handlers/proofstory.ts",
@@ -387,8 +402,10 @@
       "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
       "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts",
       "source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
+      "source_file:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies",
       "source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
       "source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
+      "source_file:packages/main/src/handlers/certification-window.ts#buildCertificationDecision",
       "source_file:packages/main/src/handlers/checklist.ts#commitCanonicalCausalEvidence",
       "source_file:packages/main/src/handlers/checklist.ts#enforceAndStampEvidence"
     ],
@@ -464,6 +481,42 @@
           "CHK-002:files:modify:1"
         ],
         "plannedPathDigest": "sha256:63ec817168dcea22874bb3fdb7bbccbd4c250eaf4de8fc9b2f384d9b00e556f1"
+      },
+      {
+        "schemaVersion": "proofstory.planned_coverage_path.v1",
+        "plannedPathRef": "planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window",
+        "plannedPathDeclarationRef": "CHK-003:happy:2:CHK-003-causal-decision-to-certification-window",
+        "declarationDigest": "sha256:921eef4de9cb8f910115c25d9b539d432db473b8319dce148875f8e3cb2f64ad",
+        "producer": {
+          "id": "CHK-003-causal-decision",
+          "role": "producer",
+          "expectedArtifactKind": "source_file",
+          "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+          "expectedSymbolOrFact": "evaluateCausalDependencies",
+          "fileDeclarationRef": "CHK-003:files:modify:0"
+        },
+        "consumers": [
+          {
+            "id": "CHK-003-certification-window",
+            "role": "consumer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/handlers/certification-window.ts",
+            "expectedSymbolOrFact": "buildCertificationDecision",
+            "fileDeclarationRef": "CHK-003:files:modify:3"
+          }
+        ],
+        "outputFactRef": "CausalDependencyDecision",
+        "acceptanceBindingRefs": [
+          "acceptance-binding:ACC-001"
+        ],
+        "verificationIntentRefs": [
+          "CHK-003:happy:2"
+        ],
+        "declarationRefs": [
+          "CHK-003:files:modify:0",
+          "CHK-003:files:modify:3"
+        ],
+        "plannedPathDigest": "sha256:ef905f376b4df53b31919b4010fb756cffda3f578c044795afde31e55fdf33c3"
       },
       {
         "schemaVersion": "proofstory.planned_coverage_path.v1",
@@ -546,9 +599,12 @@
       "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "path:process-fact:verification_evidence_batch_add->consumer:storyMachine.checklistAllDone and validate verification coverage",
       "path:static-call:packages/main/src/core/causal-evidence.ts#causalCanonical->consumer:packages/main/src/handlers/checklist.ts#causalCanonical",
+      "path:static-call:packages/main/src/core/causal-evidence.ts#causalDependencyContextDigests->consumer:packages/main/src/handlers/certification-window.ts#causalDependencyContextDigests",
+      "path:static-call:packages/main/src/core/causal-evidence.ts#causalDigest->consumer:packages/main/src/handlers/certification-window.ts#causalDigest",
       "path:static-call:packages/main/src/core/causal-evidence.ts#createCausalEvidenceBatch->consumer:packages/main/src/handlers/checklist.ts#createCausalEvidenceBatch",
       "path:static-call:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics->consumer:packages/main/src/handlers/checklist.ts#deriveCausalMetrics",
       "path:static-call:packages/main/src/core/causal-evidence.ts#effectiveCausalEnvironment->consumer:packages/main/src/handlers/checklist.ts#effectiveCausalEnvironment",
+      "path:static-call:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies->consumer:packages/main/src/handlers/certification-window.ts#evaluateCausalDependencies",
       "path:static-call:packages/main/src/core/causal-evidence.ts#executeCausalEvidence->consumer:packages/main/src/handlers/checklist.ts#executeCausalEvidence",
       "path:static-call:packages/main/src/core/causal-evidence.ts#importCausalEvidenceReceipt->consumer:packages/main/src/handlers/checklist.ts#importCausalEvidenceReceipt",
       "path:static-call:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence->consumer:packages/main/src/handlers/checklist.ts#preflightCausalEvidence",
@@ -556,13 +612,15 @@
       "path:static-call:packages/main/src/core/causal-evidence.ts#resolveCausalToolVersion->consumer:packages/main/src/handlers/checklist.ts#resolveCausalToolVersion",
       "planned:CHK-001:happy:0:CHK-001-causal-execution-to-evidence-batch",
       "planned:CHK-002:happy:0:CHK-002-receipt-to-canonical-import",
+      "planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window",
       "planned:CHK-004:happy:0:CHK-004-preflight-to-evidence-enforcement",
       "planned:CHK-005:happy:0:CHK-005-ledger-to-causal-metrics"
     ],
     "excludedPathRefs": [],
     "blindSpots": [
-      "snapshot-seal:derivation_diagnostic:inventory:AT_PLANNED_PATH_OUTSIDE_BASIS:planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window->planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window"
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDependencyContextDigests->consumer:packages/main/src/handlers/certification-window.ts#causalDependencyContextDigests",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDigest->consumer:packages/main/src/handlers/certification-window.ts#causalDigest",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies->consumer:packages/main/src/handlers/certification-window.ts#evaluateCausalDependencies"
     ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
@@ -576,45 +634,50 @@
         {
           "code": "derivation_diagnostic",
           "targetKind": "inventory",
-          "canonicalRef": "AT_PLANNED_PATH_OUTSIDE_BASIS:planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window"
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDependencyContextDigests->consumer:packages/main/src/handlers/certification-window.ts#causalDependencyContextDigests"
         },
         {
           "code": "derivation_diagnostic",
           "targetKind": "inventory",
-          "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window->planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window"
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDigest->consumer:packages/main/src/handlers/certification-window.ts#causalDigest"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies->consumer:packages/main/src/handlers/certification-window.ts#evaluateCausalDependencies"
         }
       ],
-      "sealDigest": "sha256:c65e9bdb46fa06240fcec6de2aba6bba192befcdccce5d5f083a442b1fef4cc8"
+      "sealDigest": "sha256:d513cc6d838c93c457d68bcff0f0e4302d70547a0d478f1f1f3a3a0bcb4be034"
     },
     "binding": {
-      "headHash": "d5081832a6cf236213656c7029e09abccf67424c",
+      "headHash": "d7db5d44cf3ad4dcf1da47f5a0623061f4196423",
       "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
       "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868",
       "scopeCheckDigest": "sha256:dd962ed6ed303ead91819555f25ab01762c8183354c6e5b7076d37b8c0e733b8",
-      "scopeContractDigest": "sha256:347ee462ff620f4a75f66717a924cc9acf0cbc21d3fe916ea9eddf922f74946c",
-      "closureFilesHash": "sha256:cf35dac1c1863d56cde462158f6e264f80d1999a7320d72301b08242b6d8e2b6"
+      "scopeContractDigest": "sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae",
+      "closureFilesHash": "sha256:f975abe4f0a9f92f948e73f97f39cd34ee785cf190000273159dc1077137e1a1"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a15:plan:9bd84b6d1186810f",
-    "basisDigest": "sha256:89cc03a5cec6e4ab37502502d49afdac830a733f22b9328916f0658a91b9d8b5"
+    "receiptRef": "receipt:coverage-basis:B-5a15:plan:c6702f04d685af1f",
+    "basisDigest": "sha256:4cf33af10e5e28c284abad9818b817193ba96fafdee1a894ba656ccb75ce8255"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a15:plan:9bd84b6d1186810f",
+    "receiptRef": "receipt:coverage-basis:B-5a15:plan:c6702f04d685af1f",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a15",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:89cc03a5cec6e4ab37502502d49afdac830a733f22b9328916f0658a91b9d8b5",
+    "basisDigest": "sha256:4cf33af10e5e28c284abad9818b817193ba96fafdee1a894ba656ccb75ce8255",
     "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
     "scopeCheckDigest": "sha256:dd962ed6ed303ead91819555f25ab01762c8183354c6e5b7076d37b8c0e733b8",
-    "scopeContractDigest": "sha256:347ee462ff620f4a75f66717a924cc9acf0cbc21d3fe916ea9eddf922f74946c",
-    "headHash": "d5081832a6cf236213656c7029e09abccf67424c",
+    "scopeContractDigest": "sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae",
+    "headHash": "d7db5d44cf3ad4dcf1da47f5a0623061f4196423",
     "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
     "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868",
-    "closureFilesHash": "sha256:cf35dac1c1863d56cde462158f6e264f80d1999a7320d72301b08242b6d8e2b6",
-    "sealDigest": "sha256:c65e9bdb46fa06240fcec6de2aba6bba192befcdccce5d5f083a442b1fef4cc8",
+    "closureFilesHash": "sha256:f975abe4f0a9f92f948e73f97f39cd34ee785cf190000273159dc1077137e1a1",
+    "sealDigest": "sha256:d513cc6d838c93c457d68bcff0f0e4302d70547a0d478f1f1f3a3a0bcb4be034",
     "workspaceIdentityDigest": "sha256:502be69be3d8741b5a049f6ed4e08a9bea5b0c7a099a24169e0b2582e7422b78",
-    "signature": "4Y5XWcQ+0y7PCKPAhQnh9913aLld0BQmqhwgeK6ttzhcRtnhJlCrNJuX3qolpb94NM7F0F848aB73LnVqy00Aw=="
+    "signature": "xTP7Pahziceg9ajoxC2k+A2+uGSWN7kPeaSCeXfeg3W04HrNrOJGFPbYLWbvTWsdepU1+XxgWgnvW/T01LefDA=="
   }
 }

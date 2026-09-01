@@ -14,7 +14,8 @@
     "packages/main/src/core/acceptance-coverage-basis.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/core/pre-review-live-proof.ts",
-    "packages/main/src/handlers/live-smoke-transcript.ts"
+    "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/handlers/certification-window.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/causal-evidence.ts",
@@ -30,7 +31,7 @@
     "tests/fixtures/**",
     "packages/main/src/**/unrelated-*"
   ],
-  "scopeChangeReason": "The hardened B-5a15 implementation includes acceptance-basis discovery, bounded live-proof binding, and the acceptance-basis smoke producer; these five files are required to enforce and prove the story gate.",
+  "scopeChangeReason": "PLAN-time omission, not an expansion: handlers/certification-window.ts carries 164 insertions across five of this story CHK-003 commits (55a1e00343 derived the certification causal domain inputs; f5c6f8a2f6 and 3172e57e16 fixed the causal edge model; e10f82859b, 0adc7c34ea). It is the only production file importing evaluateCausalDependencies (:19) and calling it (:206) inside buildCertificationDecision, so it is the sole file that can anchor CHK-003 planned acceptance path. It was already recorded as an acknowledged out-of-scope change; scopeAllows (acceptance-coverage-basis.ts:83-86) reads only the signed lists, so the acknowledgement could not admit the endpoint and the record was dropped from the basis entirely.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -506,7 +507,7 @@
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-09-01T05:44:09.527Z",
+  "updatedAt": "2026-09-01T13:21:12.978Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
