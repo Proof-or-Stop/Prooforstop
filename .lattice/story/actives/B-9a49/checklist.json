@@ -1949,7 +1949,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-01T00:32:35.835Z",
       "endTime": "2026-09-01T00:39:52.703Z",
       "userSeesSnapshot": {
@@ -1983,6 +1983,15 @@
       "reason": "A fail-closed live transcript exposed this current-Story acceptance blocker after CHK-005 topology became structurally valid.",
       "addedTitle": "Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier",
       "addedContext": "The signed live transcript failed because proofstory-pre-review-check-smoke hard-coded the deprecated .lattice-codex/agents path while this repository tracks canonical .proof-or-stop-codex/agents assets. Use the shared canonical-first ADAPTER_DIR_NAMES migration contract, retain deprecated read fallback, and fail closed when neither exists."
+    },
+    {
+      "timestamp": "2026-09-01T00:42:22.757Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen after the registered rollout producer exposed a second acceptance-blocking defect in the same pre-review verifier: reviewer subprocesses inherited the producer actor."
     }
   ]
 }
