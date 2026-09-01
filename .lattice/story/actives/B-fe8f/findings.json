@@ -37,8 +37,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtipaotb_kg0_53fa6b7f7c484625a1ac9bd14a0c9440",
       "ledgerCommitReceiptId": "lrc_mtipaotb_kg0_5cd6d3a815d74e1cb82e487be305c03f",
-      "resolvedAt": "2026-09-01T23:24:49.136Z",
       "resolvedReason": "Finding display and durable identities no longer derive uniqueness from mutable array length; fenced ledger append proves 100 concurrent unique rows and collision-free record IDs on the current HEAD.",
+      "resolvedAt": "2026-09-01T23:24:49.136Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -47,7 +47,7 @@
       "desc": "packages/main/src/core/store.ts:486-499 overwrites a matching findings.json row with the original append-only ledger finding payload whenever recordId matches. finding_resolve only updates findings.json at handlers/finding.ts:821-843 and appends no ledger status mutation. At HEAD 591642d, commits e93c480 and 591642d are finding_resolve metadata commits, yet proof-or-stop finding_list --storyId=B-fe8f --json still returns F-001 and F-002 status=open. Thus resolution/dismissal is reverted on read, making user output and lifecycle consumers observe stale open state and invalidating exactly-once historical correction. Add append-only status-transition records/current projection plus a regression that resolves and rereads a ledger-backed Finding.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-09-01T16:00:31.146Z",
@@ -62,7 +62,11 @@
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiut0hu_8tw_c65885b440e44dc6a41950ee53806eef",
-      "ledgerCommitReceiptId": "lrc_mtiut0hu_8tw_9944e2b00d1f4144a891ca2d8e46482a"
+      "ledgerCommitReceiptId": "lrc_mtiut0hu_8tw_9944e2b00d1f4144a891ca2d8e46482a",
+      "resolvedAt": "2026-09-01T23:24:50.792Z",
+      "resolvedReason": "The findings projection now folds signed append-only finding_lifecycle_transition records, so terminal state is preserved and the original add row cannot resurrect a resolved finding; current lifecycle projection smoke passes.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-004",
