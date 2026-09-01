@@ -810,6 +810,30 @@
       ],
       "signatureTag": "adversarial|md|post-merge-dynamic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-037",
+      "desc": "doc-code-drift: post-merge Dynamic Finding pre-round floors are missing from the Agent projection. The proposal at lines 119 and 124-144, canonical REVIEW contract at packages/main/src/core/prompt-registry.ts:56-57, and Owner mirrors at AGENTS.md:572-573 / CLAUDE.md:783-784 condition unknown fail-closed on an issue that would otherwise block under the current round/policy and place invalid lineage under a verified-applicable repair rule. The current authority instead defines REQUIRED_ASSESSMENT_INVALID at dynamic-finding-system-execution-plan.md:1931-1958 and requires verified open high/critical invalid assessments to block before severity, round, or advisory policy (2024-2035); it separately makes an invalid claimed lineage a first floor independent of the current assessment (1888-1925, 2015-2018), with exact strong superseding release or repair closure, while the mandatory-repair floor remains distinct (1966-1989). Evidence: current `prompt-full-context-envelope-smoke`, `prompt-registry-smoke`, and prompt baseline checks all PASS despite this authority mismatch. Impact: Agents can be taught a late-round false advisory for high/critical invalid assessment evidence, or can expand scope by treating a releasable lineage as unconditional repair. Remediation: update the proposal, canonical contract, and byte-identical Owner mirrors to name the machine-owned transient assessment-integrity floor and independent lineage floor, their distinct release/convert/remain paths, and the rule that prompt prose is not gate evidence; add post-merge semantic mutations for all nine invalid states, round-decay bypass, strong non-applicable release, applicable conversion, and lineage release without changing runtime gates in this Story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-09-01T16:47:20.366Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-054",
+      "_hash": "c835ef11133ef39bab164705a5a857ec36bd6e345a026302f04a6e6bbcbbaf75",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-post",
+      "signatureTagSource": "auto"
     }
   ]
 }
