@@ -31,7 +31,8 @@
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "scripts/verify-runtime-fact-contract.mjs"
+    "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "protectedFiles": [
     "packages/main/src/core/advisory.ts",
@@ -45,10 +46,12 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/acceptance-topology.ts"
   ],
-  "scopeChangeReason": "REVIEW blocker extension for B-9a49:F-020, corrected by formal scope reviewer: allow only packages/main/src/core/acceptance-coverage-basis.ts and its focused proofstory-acceptance-basis smoke to normalize proven existing process-fact topology edges into the verifier basis canonical path space. Do not weaken acceptance-topology structural validation or fabricate plannedPathDeclarations. Dynamic Finding handlers, advisory gate logic, and process-fact registries remain protected and excluded.",
+  "scopeChangeReason": "A current-Story live proof blocker exposed a deprecated hard-coded Codex asset root in the pre-review smoke. Add only packages/main/src/tasks/proofstory-pre-review-check-smoke.ts as a test-scoped repair: resolve canonical .proof-or-stop-codex/agents first, retain deprecated read fallback, and fail closed when neither exists. No runtime handler, gate predicate, Dynamic Finding file, or acceptance-topology validator changes.",
   "acknowledgements": [],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-08-31T23:39:35.825Z",
+  "updatedAt": "2026-09-01T00:30:37.745Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -83,6 +86,7 @@
     "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
-    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }

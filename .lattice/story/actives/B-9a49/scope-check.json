@@ -1,6 +1,6 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-01T00:10:08.397Z",
+  "checkedAt": "2026-09-01T00:32:10.540Z",
   "features": [
     {
       "feature": "Deliver one byte-identical canonical Finding triage contract to all five active REVIEW lanes in full-envelope and legacy-full-context modes while excluding every non-REVIEW role.",
@@ -73,6 +73,13 @@
       "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005.verificationIntent"
     },
     {
+      "feature": "Resolve Codex prompt assets in the live pre-review smoke through the shared ADAPTER_DIR_NAMES contract in canonical-first order, retain deprecated read fallback, and fail closed with a bounded diagnosis when neither asset root exists.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-006"
+    },
+    {
       "feature": "Change Dynamic Finding schemas, handlers, shared blocking predicates, process-fact registries, freshness, supersession, severity, or applicability authority.",
       "covered_by": null,
       "status": "excluded",
@@ -85,6 +92,13 @@
       "status": "excluded",
       "excluded_by": "CHK-005 explicitly forbids these shortcuts and the enforced scope contract excludes packages/main/src/core/acceptance-topology.ts.",
       "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005.excludes"
+    },
+    {
+      "feature": "Create a .lattice-codex symlink or materialized compatibility copy, modify the shared adapter resolver, or change any runtime handler, lifecycle gate predicate, Dynamic Finding file, or acceptance-topology validator for CHK-006.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-006 permits only packages/main/src/tasks/proofstory-pre-review-check-smoke.ts as allowedTest; allowedCreate is empty, canonical ADAPTER_DIR_NAMES already exists, and the scope contract keeps runtime handlers, Dynamic Finding authority files, and acceptance-topology.ts excluded.",
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-006.excludes"
     }
   ],
   "readManifest": {
@@ -97,8 +111,10 @@
       "AGENTS.md"
     ],
     "filesTriagedByName": [
+      "docs/requirements/decisions/brand-rename-mapping.md",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
       "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
       "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
       "docs/requirements/decisions/role-separation.md"
@@ -106,14 +122,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 12,
-    "covered": 10,
-    "excluded": 2,
+    "total": 14,
+    "covered": 11,
+    "excluded": 3,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-08-31T23:13:35.921Z",
-  "_hash": "b9258eead631a42ff8d0ca48e45d588fca382fd29ae4b4996db15cc389dc981e",
+  "_hash": "5a6b3bb08d7e2c81cfeca4759b6d3e33339c9e22a610f30415a3a251dfc3f1b9",
   "openQuestions": []
 }

@@ -1883,6 +1883,68 @@
           "timestamp": "2026-09-01T00:25:11.908Z"
         }
       ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier",
+      "context": "The signed live transcript failed because proofstory-pre-review-check-smoke hard-coded the deprecated .lattice-codex/agents path while this repository tracks canonical .proof-or-stop-codex/agents assets. Use the shared canonical-first ADAPTER_DIR_NAMES migration contract, retain deprecated read fallback, and fail closed when neither exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "userSees": "The live proof emits `PROOFSTORY_PRE_REVIEW_PROOF=` instead of `ENOENT ... .lattice-codex/agents/lattice-implementer.md`.",
+      "excludes": [
+        "Do not create a .lattice-codex symlink or materialized compatibility copy.",
+        "Do not change Dynamic Finding runtime or lifecycle gate predicates."
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-006:happy:canonical-adapter-root",
+            "desc": "Build and run the full pre-review smoke in the current repository, where only the canonical .proof-or-stop-codex/agents asset root is tracked, and require the smoke to complete instead of reading the deprecated .lattice-codex path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-006:edge:legacy-read-fallback",
+            "desc": "Prove the resolver probes accepted adapter directory names in canonical-first order and still reads a deprecated .lattice-codex/agents tree when the canonical tree is absent, preserving migration compatibility without writing the deprecated path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-006:adversarial:missing-assets-fail-closed",
+            "desc": "Prove that when neither canonical nor deprecated Codex agent assets exist, the pre-review smoke fails with a bounded missing-assets diagnosis rather than silently skipping prompt-guidance verification or inventing a path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ],
   "auditLog": [
@@ -1896,6 +1958,17 @@
       "reason": "Add the explicit delivery item required by PLAN review for verified high blocker F-020 and the approved minimal scope extension.",
       "addedTitle": "Reconcile truthful existing process-fact topology edges with verifier-owned acceptance basis paths",
       "addedContext": "F-020 proved that schema-valid existing process-fact producer/consumer refs could not reconcile with registry-derived basis paths. Normalize only through the authoritative process-fact registry in the coverage-basis reconciler, keep structural validation fail-closed, and provide a complete reference-only topology plus signed basis/rollout proof."
+    },
+    {
+      "timestamp": "2026-09-01T00:30:15.910Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "A fail-closed live transcript exposed this current-Story acceptance blocker after CHK-005 topology became structurally valid.",
+      "addedTitle": "Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier",
+      "addedContext": "The signed live transcript failed because proofstory-pre-review-check-smoke hard-coded the deprecated .lattice-codex/agents path while this repository tracks canonical .proof-or-stop-codex/agents assets. Use the shared canonical-first ADAPTER_DIR_NAMES migration contract, retain deprecated read fallback, and fail closed when neither exists."
     }
   ]
 }
