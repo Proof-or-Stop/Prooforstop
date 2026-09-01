@@ -332,6 +332,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtjawsof_1pg4_c46e4fcd68c341c2b7af4ed97a45ce36",
       "ledgerCommitReceiptId": "lrc_mtjawsof_1pg4_8a0ca16e2c59455fa7981a40de8bd1df"
+    },
+    {
+      "id": "B-fe8f:F-015",
+      "desc": "F-011 remains semantically open: packages/main/src/core/evidence/artifact-store.ts:158-170 and 169-175 revalidate the runtime blob directory by pathname and then separately call openSync/renameSync/readFileSync by pathname; every validation descriptor is closed inside statIdentity, so no directory descriptor or lock spans validation through publication. A directory-to-symlink swap in the interval after assertRuntimeBlobDirectoryIdentity returns and before openSync or renameSync can therefore redirect creation/publication outside the project; the post-rename check can only report after the external write and cannot undo it. The regression at packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1449-1455 swaps inside beforePublish, before the final identity assertion, so it does not exercise this remaining check-to-use window. Preserve a directory capability/descriptor across open+publish (or provide an equivalent serialized primitive with no path re-resolution), and add a deterministic interleaving after validation/before pathname use proving outsideWrites=0.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T23:33:42.056Z",
+      "reviewRound": "2026-09-01T23:24:22.129Z",
+      "reviewRunId": "B-fe8f:RR-010",
+      "_hash": "64ede2394ac15d29c29bdb1d3c4ef77716b3aefa09dce63965dadcdc40bc260f",
+      "signatureTag": "adversarial|unknown|remains-semantically-open",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtjazt49_1vzf_df4e903956d04edf8a96b45049704bfb",
+      "ledgerCommitReceiptId": "lrc_mtjazt49_1vzf_90a5aee4bdad4ec6b8b9eb7ef8361887"
     }
   ]
 }

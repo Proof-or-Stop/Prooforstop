@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
+  "committedLedgerDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -731,6 +731,31 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T23:31:21.519Z"
+    },
+    {
+      "recordId": "lr_mtjazt49_1vzf_df4e903956d04edf8a96b45049704bfb",
+      "recordType": "finding",
+      "idempotencyKey": "review-B-fe8f-RR-010-concept-f011-toctou-still-open",
+      "payload": {
+        "id": "B-fe8f:F-015",
+        "desc": "F-011 remains semantically open: packages/main/src/core/evidence/artifact-store.ts:158-170 and 169-175 revalidate the runtime blob directory by pathname and then separately call openSync/renameSync/readFileSync by pathname; every validation descriptor is closed inside statIdentity, so no directory descriptor or lock spans validation through publication. A directory-to-symlink swap in the interval after assertRuntimeBlobDirectoryIdentity returns and before openSync or renameSync can therefore redirect creation/publication outside the project; the post-rename check can only report after the external write and cannot undo it. The regression at packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1449-1455 swaps inside beforePublish, before the final identity assertion, so it does not exercise this remaining check-to-use window. Preserve a directory capability/descriptor across open+publish (or provide an equivalent serialized primitive with no path re-resolution), and add a deterministic interleaving after validation/before pathname use proving outsideWrites=0.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-concept",
+        "createdAt": "2026-09-01T23:33:42.056Z",
+        "reviewRound": "2026-09-01T23:24:22.129Z",
+        "reviewRunId": "B-fe8f:RR-010",
+        "_hash": "64ede2394ac15d29c29bdb1d3c4ef77716b3aefa09dce63965dadcdc40bc260f",
+        "signatureTag": "adversarial|unknown|remains-semantically-open",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "b376a23eba1518e8bd0071df80f93242e73c67ac7ab9247deb20ad2047c41e3a",
+      "priorDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T23:33:42.056Z"
     }
   ],
   "receipts": [
@@ -1971,6 +1996,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "303d9dbc0ad0bf1af7a4613aff952691978e3109bb5973d9c18fb5a1cd98641d",
         "signature": "BnxBfbjHVLg/oFiTEpoaEODwEWLGWoK8Ex/BM+g8w8OhH6LQvSXN3pVv4C5zlxHgLzjpPTBDcYKakf1a2gqsAg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtjazt49_1vzf_90a5aee4bdad4ec6b8b9eb7ef8361887",
+      "operation": "append_finding",
+      "idempotencyKey": "review-B-fe8f-RR-010-concept-f011-toctou-still-open",
+      "requestDigest": "dc903dc1e13a05d14f4123cea0c25b76654086901fb473539b3f55c0dedb96a8",
+      "recordIds": [
+        "lr_mtjazt49_1vzf_df4e903956d04edf8a96b45049704bfb"
+      ],
+      "priorLedgerDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
+      "committedLedgerDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
+      "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+      "writerFenceToken": "f847ce42-dab2-4d96-8de3-60e1545d64ff",
+      "committedAt": "2026-09-01T23:33:42.056Z",
+      "replayed": false,
+      "exactRequestDigest": "e3768895785a2a26996ed604fd12ad81984c6512d33c37f9a14803923c3ea6ce",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtjazt49_1vzf_90a5aee4bdad4ec6b8b9eb7ef8361887",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "review-B-fe8f-RR-010-concept-f011-toctou-still-open",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtjazt49_1vzf_df4e903956d04edf8a96b45049704bfb"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
+        "committedLedgerDigest": "f08c07732fe3f4cf8c98cdd0f685969bddaac97d4926398d4c16bc709095f29e",
+        "replayed": false,
+        "committedAt": "2026-09-01T23:33:42.056Z",
+        "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "f847ce42-dab2-4d96-8de3-60e1545d64ff",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "65c9272aa578d43345176ef663dfd83d07ff0c8906f1f94566c6cef52b53c94f",
+        "signature": "HOSNTkEyXA+MfaqCIL/Wemw/z5e+fI/NV26biJA8SsXa9OI/0Nu01dNm4jpfgeeK+C7zgDQP4nVZi6bRZ2HiBw=="
       }
     }
   ]
