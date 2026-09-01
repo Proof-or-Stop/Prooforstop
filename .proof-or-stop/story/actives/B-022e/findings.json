@@ -1471,7 +1471,7 @@
       "desc": "doc-promise-undelivered: packages/main/templates/agents/proof-or-stop-review-story-init.md:33-43 and the generated .claude/agents/proof-or-stop-review-story-init.md:127-137 / .proof-or-stop-codex/agents/proof-or-stop-review-story-init.md:127-137 still instruct the active canonical INIT reviewer to read docs/story/actives/<storyId>, while proof-or-stop.config.json:7 sets storyDir to .proof-or-stop/story/actives and docs/story does not exist. The generated bodies also direct cat/echo writes to docs/story/actives at lines 261-267, contradicting the embedded runtime prohibition on direct StoryStore access. This leaves CHK-005/CHK-006 active path and prompt cutover undelivered and makes proof-or-stop-review-story-init fail on a fresh current tree.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T17:31:23.327Z",
@@ -1485,7 +1485,11 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "missing|md|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "RootCause: the live legacy-full-context story-init tail and prompt-baseline allowlists still grandfathered direct docs/story/actives reads plus init-self-check cat/echo/Edit writes after the canonical StoryStore migration. Repro: the three active story-init prompt surfaces contained docs/story/actives while proof-or-stop.config.json sets .proof-or-stop/story/actives and docs/story is absent; agent_prompt reproduced the unsafe instructions. ReproTest: node scripts/verify-proof-or-stop-prompt-baseline.mjs now binds the source template, Claude mirror, Codex mirror, and assembled role, requires background_get/story_get/checklist_get/init_check_set, rejects docs/story/actives, .proof-or-stop/story/actives, init-self-check.json, and permits zero active direct StoryStore writes; retired direct-read/write probes fail closed. Fix: commit 7c635b3099 routes all live story-init metadata access through Proof-or-Stop CLI and removes the sidecar write. Verification: main build PASS; prompt baseline PASS; identity-cutover plus four-tarball offline boundary PASS; verify_codex PASS with only the known global-fallback realpath advisory; verify-codex-assets PASS; retired-authority vocabulary guard PASS builds=806.",
+      "resolvedAt": "2026-09-01T17:46:54.542Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
