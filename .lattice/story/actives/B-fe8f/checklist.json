@@ -122,7 +122,25 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Read-only ledger query returns signed row digests and exact scorecard inputs without filesystem paths; registry verification refuses any mutation that promotes persistence-only rows into blocker, pass or unblock authority.",
+      "excludes": [
+        "No direct protected-storage parsing by downstream scorecards.",
+        "No L4 authority for standalone candidate, route, baseline, historical or ledger receipt rows."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-006",
