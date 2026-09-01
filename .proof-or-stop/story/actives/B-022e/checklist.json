@@ -1042,6 +1042,69 @@
           "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
           "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
           "timestamp": "2026-09-01T01:10:54.070Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "command": "node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Global canonical Lab entrypoint and active product boundary pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
+            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T01:11:09.957Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6b1ba7f62ac963309fa8135101031dc6f49d4308",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:11:19.262Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Clean canonical-only installation resolves Proof-or-Stop identities and rejects retired package identities.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T01:11:10.115Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6b1ba7f62ac963309fa8135101031dc6f49d4308",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:11:19.262Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Mutation suite proves the active-residue and exact frozen-evidence boundary fails closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
+            "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T01:11:14.880Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6b1ba7f62ac963309fa8135101031dc6f49d4308",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:11:19.262Z"
         }
       ]
     },
@@ -1124,13 +1187,13 @@
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:41:41.311Z",
+            "executedAt": "2026-09-01T01:11:15.215Z",
             "timeoutMs": 270000
           },
-          "headHash": "d9104de8d4244f6013aabdfe611aa41518d24749",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:41:45.683Z"
+          "headHash": "6b1ba7f62ac963309fa8135101031dc6f49d4308",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:11:19.262Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1145,13 +1208,13 @@
             "outputDigest": "a69108452f6f1575d3112cf32924474214d28eea1f0ca55882426a7b94e57d08",
             "outputTail": "s; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] p\n...[truncated 42970 chars]",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:41:45.121Z",
+            "executedAt": "2026-09-01T01:11:18.804Z",
             "timeoutMs": 270000
           },
-          "headHash": "d9104de8d4244f6013aabdfe611aa41518d24749",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:41:45.683Z"
+          "headHash": "6b1ba7f62ac963309fa8135101031dc6f49d4308",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:11:19.262Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -1166,13 +1229,13 @@
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:41:45.482Z",
+            "executedAt": "2026-09-01T01:11:19.136Z",
             "timeoutMs": 270000
           },
-          "headHash": "d9104de8d4244f6013aabdfe611aa41518d24749",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:41:45.683Z"
+          "headHash": "6b1ba7f62ac963309fa8135101031dc6f49d4308",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:11:19.262Z"
         }
       ],
       "userSeesSnapshot": {
