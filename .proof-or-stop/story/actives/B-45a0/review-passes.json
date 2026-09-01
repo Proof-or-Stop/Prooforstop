@@ -24717,6 +24717,52 @@
         "scanEscalationReason": "review_incremental_context confirmed zero changed/impacted files since prior full-scope PASS (RP-524, head 8a20bcf54b1d556c88f2fac38b9a6da6d2c96446); scope narrowed to independently re-verifying the single named remediation commit (9f5b0d96b1) plus the allowlist judgement the dispatch asked me to confirm, rather than re-reading the full unchanged diff already covered in RP-524."
       },
       "_hash": "374b6135e7533da0c0a08b7a0858d6225a1e006005d0b7a2729719c13303c0a4"
+    },
+    {
+      "id": "B-45a0:RP-530",
+      "agent": "lattice-review-docs",
+      "note": "Re-verified at wave 3 (no packages/main source or Wave-4 doc changed since RR-1176/F-469; only cross-story delta is 9f5b0d96b1, a one-file comment fix in packages/graph/scripts/verify-no-project-writes.mjs unrelated to CHK-001/CHK-002/CHK-010/CHK-011). Step1 symbol extraction against git diff main...HEAD yields the full-story symbol set (~60+ exported classes/consts across dynamic-validation-*.ts, validation-catalog.ts, etc.); Step2 grep located the referencing paragraphs in the three Wave-4 decision docs plus CLAUDE.md/docs/CLI.md sections already covered by prior rounds. F-467/F-469 (112-vs-116 root inventory count drift in dynamic-validation-enforcement-evidence.md:6, dynamic-validation-operations.md:30, story-aware-dynamic-validation-current-main-characterization.md:18-19) remains open and UNFIXED at this HEAD -- confirmed by direct re-run: scripts/verify-validation-inventory.mjs reports current-main inventory=116 (58 full-only + 58 story-selectable) vs docs literal 112 (58+54). Root cause re-confirmed: sibling merge 5b5c80530e (B-3e16 graph migration) added 4 story-selectable rows after these docs were authored; the full-only count (58) the DYN-3 authority boundary depends on is untouched. Explicit deferral judgement (not silent pass-through): (1) grep across packages/main/src/core, /handlers, /tasks confirms no gate, selector, or authority check hardcodes 112 -- TEST/DONE authority is derived live from verify-validation-inventory.mjs, not from doc prose; (2) the docs normative claims that ARE gate-relevant -- Section 1-27.6 byte-for-byte import, payload-prefix digest sourceSha256, DYN-1 observe-only vs DYN-3 fail-closed authority boundary, B-38b7 stale-zombie labeling -- are unaffected by this count and were separately re-verified claim-by-claim in RR-1170/RR-1176; (3) the 112 count is an inherently moving snapshot (any future story adding a validate.commands row re-drifts it) so treating it as a permanent fixed contract this story must forever re-satisfy is not a stable acceptance bar; (4) this is a within-story regression of NEITHER Wave-4 authority scope NOR the users core result (dynamic TEST authority correctness), so under defect-triage rule 3 it is medium/deferrable, not a blocker. Decision: PASS this round. F-467/F-469 intentionally left open/unresolved as a traceable deferred-to-follow-up record -- not resolved by this reviewer, and not silently dropped. Recommend a narrow follow-up (or DEV note) to refresh the three literal counts to the then-current verify-validation-inventory.mjs output, ideally phrased as \"current count is emitted by the verifier, historical snapshot was N at time of writing\" to avoid repeat staleness.",
+      "createdAt": "2026-09-01T04:55:14.343Z",
+      "reviewRound": "2026-09-01T04:22:03.645Z",
+      "reviewRunId": "B-45a0:RR-1182",
+      "envelopeId": "e2fba3b0d5facd980df83565f2895e89c4b64c3dd842be215b1ebc200a7b2c13",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/NAV.md",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/dynamic-validation-enforcement.ts",
+          "packages/main/src/core/dynamic-validation-observer.ts",
+          "packages/main/src/core/dynamic-validation-report.ts",
+          "packages/main/src/core/dynamic-validation-scheduling.ts",
+          "packages/main/src/core/dynamic-validation-selection.ts",
+          "packages/main/src/core/dynamic-validation-shadow.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/validation-baseline-epoch.ts",
+          "packages/main/src/core/validation-build-proof.ts",
+          "packages/main/src/core/validation-catalog.ts",
+          "packages/main/src/core/validation-closure-certificate.ts",
+          "packages/main/src/core/validation-command-receipt.ts",
+          "packages/main/src/core/validation-revocation-ledger.ts",
+          "packages/main/src/core/validation-selection-manifest.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Full-story dispatch (14 checklist items, wave-4 remediation re-review); relied on prior rounds RR-1170/RR-1176 for claim-by-claim Section 1-27.6/digest verification and confirmed via re-grep that no new packages/main source changed since, so this round is scoped to (a) re-confirming F-467/F-469 drift is unchanged at current HEAD and (b) confirming no gate/selector hardcodes the stale 112 count."
+      },
+      "_hash": "b5d38279ad5b7405a2c89b009b6b6e6f301584da2e19519912a4b14c33e3b2ab"
     }
   ]
 }
