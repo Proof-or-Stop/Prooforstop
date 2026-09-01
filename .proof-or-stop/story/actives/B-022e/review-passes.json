@@ -1772,6 +1772,36 @@
         "scanEscalationReason": "Round 24 full safety review focused on the exact review-run verifier gate repair while retaining the complete story boundary."
       },
       "_hash": "6e76aab90e98f91d151b7a19c7db28e535907269bb80be0d32215c62078fa151"
+    },
+    {
+      "id": "B-022e:RP-049",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 24 concept review PASS with 0 findings. Commit 0b9c6cd limits stabilization exactly to signed contextMode=full plus selectionReason=REVIEWER_REQUESTED_FULL: eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest remain immutable envelope-integrity facts but are not dynamically recomputed from a discarded incremental candidate. Prompt integrity and exact assembly, impact policy, freshness, prior-pass identity, changed and impacted file digests, taskSemanticDigest, ReviewRun hashes, and current story-owned material remain fail-closed. Focused production regression and process-fact verification passed, including later cross-lane reviewer metadata acceptance and rejection of envelope tamper, non-REVIEW or TEST phases, title mutation, and checklist mutation. Canonical identity checks passed with proof-or-stop-review-story-init and no active lattice-review-story-init; root/Core/Utils are 0.3.268 while Lab remains independently 0.3.65 with Core ^0.3.65 and Utils requires Core ^0.3.268. Wave4 topology and rollout remain observe-mode, nonblocking, incomplete or missing; this pass makes no Authority, rollout, topology, or 3x2 claim.",
+      "createdAt": "2026-09-01T14:42:45.149Z",
+      "reviewRound": "2026-09-01T14:34:26.976Z",
+      "reviewRunId": "B-022e:RR-109",
+      "envelopeId": "7fdc0b82dd1bb5cb7400ada6c2c7ff5c33e3e0af86d24f9c355c337bb361c819",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "70c72469ab6893bcf7147b1bf92b24c75b02d183a7de86db61dfb22b9fe21b42"
     }
   ]
 }
