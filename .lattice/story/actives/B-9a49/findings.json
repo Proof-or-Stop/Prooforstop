@@ -482,6 +482,27 @@
       "resolvedAt": "2026-09-01T08:40:15.955Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-022",
+      "desc": "doc-code-drift: packages/main/src/core/prompt-registry.ts:61,68 publishes the obsolete future Dynamic Finding verdict stale_or_not_reproduced and an absolute current-Story repair rule, while the authoritative current main docs/requirements/decisions/dynamic-finding-system-execution-plan.md:55-58,146-148,598-600,2036-2070 now specifies not_reproduced_under_current_witness plus a distinct signed defer-with-proof disposition for eligible verified applicable low/medium Findings. Because this canonical contract is injected into all five REVIEW lanes and says agents should consume the future official system, merge-time behavior would contradict the current authority. Update the proposal projection and canonical prompt semantics to use the current verdict/witness requirements and acknowledge the bounded official deferral path without fabricating it in the present compatibility CLI; refresh semantic assertions and approved digests.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-09-01T09:48:01.289Z",
+      "reviewRound": "2026-09-01T09:43:56.937Z",
+      "reviewRunId": "B-9a49:RR-026",
+      "_hash": "d87ce65468d1dd2bbc3c84b10e78c389fd872429e4508966e4cbf4a9b1963c34",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
