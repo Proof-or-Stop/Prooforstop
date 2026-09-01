@@ -17414,7 +17414,7 @@
       "desc": "packages/main/src/handlers/certification-window.ts:156-161 buildCertificationDecision chains each of the 6 CAUSAL_DEPENDENCY_DOMAINS node to only the PREVIOUS domain in array declaration order (source->test->build-input->manifest-semantic->integration->review-subject via dependencyIds:[prevDomain]), not to any real causal relationship between domains. Reproduced with the actual dependencyClosure algorithm: a change touching ONLY the test domain input marks build-input, manifest-semantic, integration, and review-subject (4 unrelated domains) stale too, because closure walks the linear chain forward from test. This contradicts CHK-003:edge:0 (the node in the changed domain and only its declared dependents become stale, while nodes in the other five domains remain fresh) and the plan.md domain-independence requirement. The per-domain input hashes ARE correctly distinct (deriveCertificationDomainInputHashes at :110-129 classifies files per domain, refuting the now-stale F-312/F-234/F-228 empty-nodes claim), but the artificial array-order dependencyIds chain still causes over-invalidation whenever a non-source, non-terminal domain changes alone.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-01T05:54:43.450Z",
@@ -17548,7 +17548,11 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in commit f5c6f8a2f6. ROOT CAUSE: buildCertificationDecision declared dependencyIds as [CAUSAL_DEPENDENCY_DOMAINS[index-1]], a linear chain following array declaration order rather than causal relationships. FIX: added CERTIFICATION_DOMAIN_DEPENDENCIES, derived from what CERTIFICATION_DOMAIN_PATH_RULES actually classifies into each domain, and built dependencyIds from it. VERIFICATION: probed buildCertificationDecision directly against dist - test now invalidates only test (was 5 domains including docs and lockfiles); review-subject and integration are terminal; manifest-semantic adds only integration; source adds test and integration and no longer invalidates build-input; build-input invalidates every compiled domain but not review-subject. All six closures remain distinct, so CHK-003:edge:0's distinct-boundary requirement still holds. TEST DEBT ALSO FIXED: F-314's expectation listed five nodes for a test-only change while its own title said 'invalidate only the declared transitive closure' - the assertion had frozen the bug and now expects ['certification-test']. Added a new regression test asserting the real PRODUCTION graph shape; nothing covered it before, which is why the defect survived earlier review rounds. The generic closure loop was deliberately left intact since it builds its own graph and validates the algorithm, not the production wiring.",
+      "resolvedAt": "2026-09-01T09:12:40.537Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-326",
