@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T11:29:21.207Z",
-      "endTime": null,
+      "endTime": "2026-09-01T11:29:22.225Z",
       "userSees": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
       "excludes": [
         "Do not manufacture a failing race already prevented by current locking.",
@@ -2476,6 +2476,15 @@
       "action": "update",
       "from": "pending",
       "to": "in_progress",
+      "reason": "Restore immutable RED completion after accepted SEP-B-fe8f-003 lifecycle reopen; RED artifact, probe and relation are unchanged."
+    },
+    {
+      "timestamp": "2026-09-01T11:29:22.225Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
       "reason": "Restore immutable RED completion after accepted SEP-B-fe8f-003 lifecycle reopen; RED artifact, probe and relation are unchanged."
     }
   ]
