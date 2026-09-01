@@ -1558,6 +1558,162 @@
         "attestedAt": "2026-08-31T20:09:19.074Z",
         "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5"
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Reconcile truthful existing process-fact topology edges with verifier-owned acceptance basis paths",
+      "context": "F-020 proved that schema-valid existing process-fact producer/consumer refs could not reconcile with registry-derived basis paths. Normalize only through the authoritative process-fact registry in the coverage-basis reconciler, keep structural validation fail-closed, and provide a complete reference-only topology plus signed basis/rollout proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "userSees": "Running `proof-or-stop acceptance_topology_check --storyId=B-9a49 --json` shows `\"status\":\"pass\"`, `\"structuralPass\":true`, `\"basisStatus\":\"complete\"`, and `\"diagnostics\":[]`; rollout readers later show a current signed full-3x2 PASS receipt.",
+      "excludes": [
+        "Do not fabricate plannedPathDeclarations for already-existing process-fact paths merely to make acceptance coverage green.",
+        "Do not weaken acceptance-topology structural validation or accept caller-authored consumer aliases."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-coverage-basis.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:registry-reconciliation",
+            "desc": "Using a schema-valid reference-only topology whose existing producer is process-fact:acceptance_basis_generate and whose existing consumer is process-fact:acceptance_topology_check, prove reconciliation resolves only through the authoritative process-fact registry to the producer entry's exact consumerGate path, derives a complete verifier-owned basis, and retains that exact lifecycle consumer path in the signed acceptance-basis artifact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:happy:story-topology-pass",
+            "desc": "After the Owner installs the complete CHK-005 topology and regenerates the verifier-owned basis, read the canonical B-9a49 topology report and require status=pass, structuralPass=true, basisStatus=complete, and an empty diagnostics array; observe mode may make a failure non-blocking but must not count as acceptance.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const{execFileSync}=require('node:child_process');const j=JSON.parse(execFileSync(process.execPath,['bin/proof-or-stop.js','acceptance_topology_check','--storyId=B-9a49','--json'],{encoding:'utf8'}));if(!(j.status==='pass'&&j.structuralPass===true&&j.basisStatus==='complete'&&Array.isArray(j.diagnostics)&&j.diagnostics.length===0))throw new Error(JSON.stringify(j));console.log('CHK-005 topology complete signed-basis PASS')\"",
+              "selector": "CHK-005 topology complete signed-basis PASS"
+            }
+          },
+          {
+            "id": "CHK-005:happy:live-pre-review-proof",
+            "desc": "After the Owner captures the exact registered live pre-review command and runs the sole pre_review_check writer at final committed source, require the read-only verifier to report ok=true, status=pass, authority=admissible, executableEvidence=current, mutations=biting, transcript=related, and no diagnostic codes; prompt text or topology PASS alone cannot substitute.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const{execFileSync}=require('node:child_process');const j=JSON.parse(execFileSync(process.execPath,['bin/proof-or-stop.js','pre_review_check_read','--storyId=B-9a49','--json'],{encoding:'utf8'}));if(!(j.ok===true&&j.status==='pass'&&j.authority==='admissible'&&j.executableEvidence==='current'&&j.mutations==='biting'&&j.transcript==='related'&&Array.isArray(j.codes)&&j.codes.length===0))throw new Error(JSON.stringify(j));console.log('CHK-005 live pre-review signed proof PASS')\"",
+              "selector": "CHK-005 live pre-review signed proof PASS"
+            }
+          },
+          {
+            "id": "CHK-005:happy:signed-rollout-full-3x2",
+            "desc": "After the Owner runs the sole acceptance_rollout_report producer once at final committed source, require both independent read surfaces to return ok=true, status=pass, receipt=current, quorum=full-3x2, and no diagnostics from the same persisted signed report; a lifecycle observe-mode non-block or a degraded or missing receipt cannot count.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const{execFileSync}=require('node:child_process');const run=n=>JSON.parse(execFileSync(process.execPath,['bin/proof-or-stop.js',n,'--storyId=B-9a49','--json'],{encoding:'utf8'}));const a=run('acceptance_rollout_report_read'),b=run('acceptance_rollout_check');for(const j of[a,b])if(!(j.ok===true&&j.status==='pass'&&j.receipt==='current'&&j.quorum==='full-3x2'&&Array.isArray(j.diagnostics)&&j.diagnostics.length===0))throw new Error(JSON.stringify({a,b}));console.log('CHK-005 signed rollout current full-3x2 PASS')\"",
+              "selector": "CHK-005 signed rollout current full-3x2 PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:gate-consumer-exactness",
+            "desc": "Prove registry resolution accepts the consumer process fact only when the producer's authoritative consumerGate names that exact fact on a bounded token boundary, and that the process-fact registry, PROCESS_FACT_LEVELS projection, artifact entry, source references, and lifecycle consumer retain the same exact gate semantics; prefixes, suffixes, substrings, missing facts, or registry/level drift must not reconcile.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:process-fact-contract && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "Process fact contract verified"
+            }
+          },
+          {
+            "id": "CHK-005:edge:source-dist-build",
+            "desc": "Build packages/main from the committed TypeScript source immediately before executing the dist-based focused smoke, so stale generated JavaScript, a build failure, or a source-only fix cannot satisfy CHK-005; the resulting dist test must exercise the registry-backed reconciliation and its negative controls.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:unknown-or-unrelated-facts",
+            "desc": "Replace either endpoint with an unregistered process fact, or pair acceptance_basis_generate with a registered but unrelated consumer such as review_run_start, and prove reconciliation emits AT_TOPOLOGY_OUTSIDE_BASIS instead of inventing a path or accepting registry membership as sufficient relationship evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:caller-consumer-alias",
+            "desc": "Replace the registry-backed process-fact consumer with a caller-authored existing consumer:acceptance_topology_check alias and prove it remains provenance-qualified and fails AT_TOPOLOGY_OUTSIDE_BASIS; only the registry may translate a process-fact pair into a canonical consumer path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:commandref-masking",
+            "desc": "Add a commandRef that correctly names acceptance_basis_generate while the actual producer-to-consumer edge is unrelated, unknown, or absent, and prove the matching commandRef cannot mask the bad edge, clear AT_TOPOLOGY_OUTSIDE_BASIS, or convert an incomplete mapping into complete basis coverage.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:fabricated-planned-path",
+            "desc": "Attempt to make the existing registry edge green by adding a plannedPathDeclaration, a fabricated planned endpoint, or a well-formed basis-path for nonexistent source; prove frozen declaration and actual-path reconciliation still emits the applicable AT_PLANNED_PATH_OUTSIDE_BASIS, AT_UNMAPPED_SCOPE_REF, PR_PLANNED_PATH_UNRESOLVED, or AT_TOPOLOGY_OUTSIDE_BASIS diagnostic and never treats fabricated planning prose as discovered fact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:structural-validation-weakening",
+            "desc": "Mutate or remove registry lookup, exact gateConsumer matching, existing-reference provenance qualification, reverse basis-to-topology coverage, or schema/version rejection and prove at least one focused negative control fails; refreshing expected output, deleting assertions, accepting every process-fact pair, or treating non-blocking observe mode as PASS must be rejected by the smoke plus process-fact contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke && npm run test:process-fact-contract",
+              "selector": "Process fact contract verified"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-31T23:58:30.521Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add the explicit delivery item required by PLAN review for verified high blocker F-020 and the approved minimal scope extension.",
+      "addedTitle": "Reconcile truthful existing process-fact topology edges with verifier-owned acceptance basis paths",
+      "addedContext": "F-020 proved that schema-valid existing process-fact producer/consumer refs could not reconcile with registry-derived basis paths. Normalize only through the authoritative process-fact registry in the coverage-basis reconciler, keep structural validation fail-closed, and provide a complete reference-only topology plus signed basis/rollout proof."
     }
   ]
 }
