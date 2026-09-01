@@ -5954,7 +5954,7 @@
       "reviewRound": "2026-08-31T20:13:27.698Z",
       "state": "OPEN",
       "begunAt": "2026-09-01T05:45:27.989Z",
-      "updatedAt": "2026-09-01T05:45:27.989Z",
+      "updatedAt": "2026-09-01T07:04:34.440Z",
       "cutoff": {
         "headHash": "1f22cf42e8d39d335e978774ab6253da6054d61b",
         "materialHash": "da24ca06e80437243b4b6a94f765b39c9645b1ae33d62d42a1ccb70a21bdd77c",
@@ -5970,9 +5970,66 @@
       ],
       "initialRunSequenceBoundary": 777,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-01T05:45:27.989Z",
+          "completedAt": "2026-09-01T07:04:34.440Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a15:RR-780",
+              "terminal": "finding",
+              "hostIdentity": "9cbef5e318453b2c30cf2c6dd6f59231337cd59d8a8d6d33c40e1846ab777355",
+              "promptIdentity": "935fe0ce273a0a4ee40ece2916ee5243335aa7f7542e336980985d8cec37feb4",
+              "evidenceIds": [
+                "B-5a15:F-326"
+              ],
+              "coverageDigest": "bbbb3fb50668c6721b2f90e408e45df76588a5e37eba6763466ed066305f87d2"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a15:RR-778",
+              "terminal": "finding",
+              "hostIdentity": "9cbef5e318453b2c30cf2c6dd6f59231337cd59d8a8d6d33c40e1846ab777355",
+              "promptIdentity": "0d124dc7a204e6df7d6aa49c66835e3b34efe790c438676dd6ab0db5cb5efee9",
+              "evidenceIds": [
+                "B-5a15:F-325",
+                "B-5a15:F-327",
+                "B-5a15:F-328"
+              ],
+              "coverageDigest": "80a8a949e5fbda93da15c5e5b0be68227bb0e4f0e7f0ffccee31d752414b67c1"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-779",
+              "terminal": "finding",
+              "hostIdentity": "9cbef5e318453b2c30cf2c6dd6f59231337cd59d8a8d6d33c40e1846ab777355",
+              "promptIdentity": "7c7030d635aaae2ef1dc37d7dff3fd04ab72a87d713264c42cbbcbc56393d691",
+              "evidenceIds": [
+                "B-5a15:F-329",
+                "B-5a15:F-330"
+              ],
+              "coverageDigest": "47024ad2c84bfb395f568ff5f9fc8680621fbb441f197d8511b2002994b71405"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "brand-path-decision-regex-ungated",
+            "certification-dependency-graph-shape",
+            "evidence-asserts-pass-while-pinned-command-fails",
+            "rerun-evidence-no-production-producer",
+            "stale-open-finding-inventory-hygiene",
+            "untested-predicates-behavior-split"
+          ],
+          "verifiedFindingSetDigest": "b13330549310f899d2a0aa5d3c05390d97eef3572efa1eda9d49f4aa07361570",
+          "newVerifiedFindingCount": 6,
+          "criticDigest": "990b244a725e706b3d7ba83f2a30ad14f881a95815e110714421bcd31a478578",
+          "saturated": false,
+          "nextRunSequenceBoundary": 782
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "a71118052b171b97bfb7328604a9281e3b92f7f38b9973f8d90cc84124073835"
+      "_hash": "2b3268a16ec3d395dbb758a3eb025e30fdbb06afff58179ecb78df22e861f02e"
     }
   ],
   "receipts": [
@@ -11849,6 +11906,67 @@
       "findingDispositions": [],
       "createdAt": "2026-08-26T07:16:27.744Z",
       "_hash": "20d6e927b663b91f919003f36023870415c9b94ad231766d618ab4eae1464751"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-051:CRIT-01",
+      "epochId": "B-5a15:RI-051",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "1f22cf42e8d39d335e978774ab6253da6054d61b",
+        "materialHash": "da24ca06e80437243b4b6a94f765b39c9645b1ae33d62d42a1ccb70a21bdd77c",
+        "storyFilesHash": "4ab9e65cf147f0425def11caeb2555a71bb6ca3dd9e19ef8a7cd63cdeb0debf9"
+      },
+      "aggregateFindingSetDigest": "b13330549310f899d2a0aa5d3c05390d97eef3572efa1eda9d49f4aa07361570",
+      "requiredLaneCoverageDigest": "1ec870adadcbcd8c2b5dc853cfaebef88b130b9b554819e8183af33a61b6f31b",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-782",
+      "terminalEvidenceIds": [
+        "B-5a15:F-331"
+      ],
+      "readEvidenceDigest": "15b95f55845a99a5642bf98be466ec4282833891aded8e1ade929728df0cd5a0",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-325",
+          "disposition": "verified_family",
+          "familyKey": "certification-dependency-graph-shape",
+          "reason": "Independently confirmed at handlers/certification-window.ts:156-161: dependencyIds is literally [certification-CAUSAL_DEPENDENCY_DOMAINS[index-1]], a linear chain keyed on array declaration index, not any causal relation. Distinct from the older nodes:[]/currentInputHashes:{} family: deriveCertificationDomainInputHashes:110-129 does classify per domain correctly, so this is a graph-EDGE defect (over-invalidation of unrelated domains), not the empty-DAG defect."
+        },
+        {
+          "findingId": "B-5a15:F-326",
+          "disposition": "verified_family",
+          "familyKey": "brand-path-decision-regex-ungated",
+          "reason": "Independently confirmed both halves. runtime-artifact-registry.ts:139 is the only state-dir entry using an inline rx() with hardcoded (?:\\.lattice|\\.proof-or-stop) while siblings at 110/179/188/215/224/239 all route through stateDirExact/stateDirPrefix over STATE_DIR_NAMES. And makeBrandDecisionDetector (verify-lattice-residue.mjs:225-250) only matches .startsWith/.endsWith/.includes/.indexOf and ===/!== operand shapes, so a RegExp-shaped path decision is invisible to the [brand-decision] check. Latent rename-triggered gap plus a real detector blind spot; distinct family from all causal-evidence findings."
+        },
+        {
+          "findingId": "B-5a15:F-327",
+          "disposition": "verified_family",
+          "familyKey": "rerun-evidence-no-production-producer",
+          "reason": "Independently confirmed by exhaustive grep: rerunEvidence appears in src/ only as the declaration (causal-evidence.ts:1207) and its consumer (:1280); the sole other hit is an unrelated local in tasks/evidence-plan-smoke.ts. evidence-freshness.ts:53-64 exposes only rerunNodeIds, which :1287 explicitly discards (void args.rerunNodeIds), and createCausalDependencyRerunEvidence/causalDependencyExecutionInputs have zero non-test callers. So affectedNodeRerun=100% is unreachable in production, exactly as claimed. Distinct from F-325: that is graph shape, this is a missing producer."
+        },
+        {
+          "findingId": "B-5a15:F-328",
+          "disposition": "verified_family",
+          "familyKey": "stale-open-finding-inventory-hygiene",
+          "reason": "Independently confirmed the factual premise: all 21 cited findings (F-069..F-312, F-289, F-292) are still status=open, yet HEAD 62f8d51 no longer has the defects they describe. buildCertificationDecision now builds six real per-domain nodes with non-empty currentInputHashes (refuting the nodes:[] family), and verifyCausalDependencyRerunEvidence:1167-1179 now hard-requires storyId/materialHash/storyFilesHash to equal currentIdentity (refuting F-289/F-292). 230 of 330 findings are open, so this is a real accounting defect in its own right, not a duplicate of any code finding."
+        },
+        {
+          "findingId": "B-5a15:F-329",
+          "disposition": "verified_family",
+          "familyKey": "evidence-asserts-pass-while-pinned-command-fails",
+          "reason": "Independently REPRODUCED. Ran the pinned command node --test packages/main/tests/causal-evidence.test.mjs at current HEAD: fail 2, exactly the two named tests -- F-247 (AssertionError 'fail' !== 'pass') and the F-249/F-251/... series (assert.ok(preReviewFresh || preReviewFailClosed) falsy). Independently corroborated the cause: pre_review_check_read returns FAIL with PR_ARTIFACT_TAMPERED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE. A should-intent evidence row asserting result=pass while non-mechanical AND reproducibly failing its own pinned command is an evidence-integrity family distinct from the acceptance-chain findings F-003..F-006."
+        },
+        {
+          "findingId": "B-5a15:F-330",
+          "disposition": "verified_family",
+          "familyKey": "untested-predicates-behavior-split",
+          "reason": "Independently confirmed: grep over packages/main/tests/ returns zero references to sameAuditedAttestationIdentity or isCanonicalPreReviewCaseId. sameAuditedAttestationIdentity (checklist.ts:569, used at :835) governs a real note-sensitivity behavior split with no direct unit test, and isCanonicalPreReviewCaseId (pre-review-live-proof.ts:58-60) is reached only transitively through the two tests I just reproduced as FAILING, so its only coverage path cannot demonstrate intended behavior. Correctly scoped as a deferred non-blocking coverage gap; a distinct coverage family, not a duplicate of F-329's integrity defect."
+        }
+      ],
+      "createdAt": "2026-09-01T07:04:02.630Z",
+      "_hash": "0bf44882c4f539c91c5d2582b04a5579e92d9cf6a6955fa080608299a0c5bd2e"
     }
   ]
 }
