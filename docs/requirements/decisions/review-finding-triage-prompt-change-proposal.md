@@ -172,9 +172,14 @@ collapsed into this Agent repair rule:
   assessment converts high or critical to the distinct mandatory-repair floor;
   weak, unknown, or invalid proof remains blocked.
 - Invalid claimed deferral lineage is an independent first floor, regardless of
-  the current assessment. It is released only by exact strong superseding
-  lineage proof or repair closure. A transient integrity floor or lineage floor
-  is machine-derived gate state, not permission for an Agent to broaden scope.
+  the current assessment. Exact strong superseding non-applicable or disproven
+  proof releases only that lineage floor. Invalid or exhausted lineage also
+  creates a downstream mandatory-repair classification; once that obligation is
+  active, only a fresh signed
+  `MandatoryRepairClassification(state='closure_proven')` clears it. The
+  superseding proof does not clear the whole block. A transient integrity floor,
+  lineage floor, or mandatory-repair floor is machine-derived gate state, not
+  permission for an Agent to broaden scope.
 
 ## 7. Future official defer-with-proof disposition
 
@@ -291,7 +296,11 @@ the complete assembled reviewer body:
 - treating the transient assessment-integrity floor as proof of applicability
   or an automatic current-Story repair order; and
 - releasing invalid claimed deferral lineage without exact strong superseding
-  lineage proof or repair closure.
+  non-applicable or disproven proof;
+- omitting the downstream mandatory-repair classification created by invalid or
+  exhausted lineage; and
+- claiming that lineage-floor superseding proof also clears an already active
+  mandatory-repair obligation without `closure_proven` evidence.
 
 The Task Context authority guard must compare normalized concepts, their
 semantic relationship, and assertion polarity. It must reject equivalent
@@ -314,7 +323,7 @@ inverse contract after a digest is refreshed.
 | Deferral is a disposition after `applicable`. | Prompts never treat `defer_with_proof` as a verdict or `out_of_scope`. |
 | A final applicable assessment binds exactly one `dispositionPlan`; non-applicable and unknown verdicts follow the exact route/absence union. | Prompts preserve `repair_current` versus `defer_with_proof`, `acceptedRoute` cardinality, and the separate deferral/manifest field names. |
 | Only eligible verified applicable low/medium Findings may defer. | Prompts enumerate the eligibility floor and preserve mandatory repair conditions. |
-| Required-assessment integrity and invalid claimed lineage are distinct pre-round machine floors. | Agents preserve the exact invalid set and release/convert/remain paths without treating transient integrity as automatic repair or scope expansion. |
+| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths, state that superseding proof releases only the lineage floor, and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
 | Current plan is specification-only until future Stories implement it. | Prompts explicitly say the compatibility CLI cannot exercise the target-state mechanism. |
 | Gates consume signed structured facts. | Prompt prose and compatibility accounting are never presented as gate evidence. |
 
