@@ -1699,9 +1699,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T10:50:38.624Z",
-      "endTime": null,
+      "endTime": "2026-09-01T11:18:35.940Z",
       "userSees": "The terminal prints \"registry.story3_fact_contract: PASS\", \"query.protected_read_only: PASS signedRows=true pathsExposed=0\", and \"registry.persistence_non_authority: PASS lifecycleDelta=0\".",
       "excludes": [
         "No direct protected-storage parsing by downstream scorecards.",
@@ -2019,7 +2019,14 @@
           "storyFilesHash": "63c9ada18ef16336dee7c304cec25d1c5481b31a480ad4b5dca6e2e4e37b1a01",
           "timestamp": "2026-09-01T11:18:27.552Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "06df98981d694c91cc4daceca3b038d79bafe21be774ff507c8ff5c66e9fc102",
+        "storyFilesHash": "63c9ada18ef16336dee7c304cec25d1c5481b31a480ad4b5dca6e2e4e37b1a01",
+        "headHash": "c015890bae808e39b6cb179ab39cc8bce1de17f5",
+        "attestedAt": "2026-09-01T11:18:36.157Z",
+        "materialHash": "60033ad74ab935c5eee0b41c55ba70601a0de2ae1da8de56743b9cbcafcacf12"
+      }
     },
     {
       "id": "CHK-006",
@@ -2341,6 +2348,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin Story 3 process-fact levels, protected read-only query, and mechanical dependency lifecycle gate after runtime evidence contract is green."
+    },
+    {
+      "timestamp": "2026-09-01T11:18:35.940Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Independent commit 025073d0bf passed owner rebuild, process-fact verifier, lifecycle registry, full 46-selector smoke, and all ten tool-executed CHK-005 intents."
     }
   ]
 }
