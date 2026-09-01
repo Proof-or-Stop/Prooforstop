@@ -146,6 +146,95 @@
         "test": [
           "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "One hundred concurrent unique Finding appends through the shared fenced transaction produce exactly 100 durable rows and 100 collision-free record IDs that do not depend on mutable array length.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100"
+            }
+          },
+          {
+            "desc": "Replaying all 100 idempotency keys returns the original record and receipt IDs and creates zero additional semantic rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true"
+            }
+          },
+          {
+            "desc": "A successful supported-local-filesystem commit persists ledgerSchemaEpoch and minimumWriterCapability and completes temp-file write, file fsync, atomic rename and directory fsync before its durable receipt is returned.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Concurrent mixed Finding, candidate-route, assessment, mandatory-repair, expiry-policy, deferral, route, baseline, re-attestation and manifest appends lose no records and preserve every referenced record ID.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.mixed_transactions: PASS lost=0 brokenRefs=0"
+            }
+          },
+          {
+            "desc": "Concurrent or replayed append_legacy_identity_binding first reads converge on one immutable tuple/hash and one record ID; a tuple collision, changed hash or second record ID fails closed without rewriting the legacy Finding.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.legacy_binding: PASS singleRecord=true rewrite=false"
+            }
+          },
+          {
+            "desc": "An unsupported multi-host/NFS or corruption assumption, stale schema epoch, or writer below minimumWriterCapability is refused before semantic mutation with an explicit reason code.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.capability_boundary: PASS writes=0"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Killing the writer between prepare and commit boundaries yields deterministic recovery to the complete intended transaction or none; partial temp data is never visible as a semantic row.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.crash_recovery: PASS halfVisible=0"
+            }
+          },
+          {
+            "desc": "After a successor fence token is issued, a paused stale writer cannot rename, append or publish a receipt; only the current fenced writer commits.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.stale_fence: PASS staleWrites=0"
+            }
+          },
+          {
+            "desc": "The new transaction path reuses canonical per-Story and B-META lock roots and completes competing Finding/B-META/process-event/build operations without nested-lock deadlock or an uncoordinated lock tree.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "ledger.lock_compatibility: PASS deadlocks=0"
+            }
+          }
+        ]
       }
     },
     {
