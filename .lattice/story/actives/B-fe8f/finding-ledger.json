@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
+  "committedLedgerDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -248,6 +248,36 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:09:23.738Z"
+    },
+    {
+      "recordId": "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:finding-add-event-idempotency",
+      "payload": {
+        "id": "B-fe8f:F-010",
+        "desc": "packages/main/src/handlers/finding.ts:561-652 makes the ledger/mirror append idempotent, but lines 677-705 unconditionally append reviewer_finding and recompute/write metrics after every replay, outside the ledger transaction and without the idempotency key. Focused synthetic-repo repro calls finding_add twice with identical bytes and idempotencyKey: the ledger has 1 record/1 receipt while process-events contains 2 reviewer_finding rows. Therefore CLI retry is not exactly-once across its durable audit side effects and can make the event history disagree with the canonical transaction count.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-quality",
+        "createdAt": "2026-09-01T16:09:41.036Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-005",
+        "_hash": "ef44cd3c1f47769fe54f494c70ef3c7228c55c33c6544a0b6a7d708889e654ff",
+        "files": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "adversarial|ts|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "1b240313fb45f8de2bd88c09d9dea82ee0b4265cb5ef5c9293c5339fe8df7fd4",
+      "priorDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:09:41.059Z"
     }
   ],
   "receipts": [
@@ -573,6 +603,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "73ea8a30979e8bb44ac8e1d3bc2ab0d83201aec6694f3d9d9e6e41827cbb7fa3",
         "signature": "GLWhABLTwaVpWiLZWF90PjEm5DSTGH4fZ0nguxCp9Yumq1OfztNL2RkRspMMXY2u1mZ20AbeThDb8CAulk0aDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:finding-add-event-idempotency",
+      "requestDigest": "c052f284608d88ecc131bd11ae5257c0ac2c47274053c9391136bff34a99d4fb",
+      "recordIds": [
+        "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7"
+      ],
+      "priorLedgerDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
+      "committedLedgerDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
+      "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+      "writerFenceToken": "2dd4be76-8076-4c91-8f2c-a8081f79e1d0",
+      "committedAt": "2026-09-01T16:09:41.059Z",
+      "replayed": false,
+      "exactRequestDigest": "4f9daeda11ddf16d71702ef2018a10aad7f452ed5710d6dd8ed704f6910e609f",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f:RR-005:quality:finding-add-event-idempotency",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
+        "committedLedgerDigest": "21d9abf2c467f4bb868c7f7ee1acf31d58f306fcc57d92265a3641149526a2f1",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:09:41.059Z",
+        "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "2dd4be76-8076-4c91-8f2c-a8081f79e1d0",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "047e6a4cfbe6ac456b33e183dcd51b5aae7d1b774bfd146bd1dc988297145855",
+        "signature": "0XBLzOZRSOEmZAzMl6+pXb2D84FXqpDfjeiztdkJdy1qbQUd6olwVc8X05N1drUoX6PiXFCIqpD6gQEKsylwBA=="
       }
     }
   ]

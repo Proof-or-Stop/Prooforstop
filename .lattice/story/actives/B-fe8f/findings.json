@@ -172,6 +172,28 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147",
       "ledgerCommitReceiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba"
+    },
+    {
+      "id": "B-fe8f:F-010",
+      "desc": "packages/main/src/handlers/finding.ts:561-652 makes the ledger/mirror append idempotent, but lines 677-705 unconditionally append reviewer_finding and recompute/write metrics after every replay, outside the ledger transaction and without the idempotency key. Focused synthetic-repo repro calls finding_add twice with identical bytes and idempotencyKey: the ledger has 1 record/1 receipt while process-events contains 2 reviewer_finding rows. Therefore CLI retry is not exactly-once across its durable audit side effects and can make the event history disagree with the canonical transaction count.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T16:09:41.036Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-005",
+      "_hash": "ef44cd3c1f47769fe54f494c70ef3c7228c55c33c6544a0b6a7d708889e654ff",
+      "files": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/process-events.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7",
+      "ledgerCommitReceiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac"
     }
   ]
 }
