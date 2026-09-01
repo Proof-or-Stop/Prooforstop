@@ -599,7 +599,18 @@ function evidenceHashesForPersistence(
 ): ReturnType<typeof evidenceHashes> {
   const current = evidenceHashes(gitCwd, metadataRoot);
   const prior = existing?.find(e => e.intentRef === input.intentRef);
-  if (!prior || !sameEvidenceSemantics(prior, input)) return current;
+  // B-5a15 F-339: fork on provenance exactly as carryForwardOnDiskProvenance does. These two
+  // consumers run on the SAME row moments apart, so a predicate mismatch between them opens a
+  // hole: with the strict predicate here, a note-only edit to an audited (mechanical:false) row
+  // PRESERVED the attestation (sameAuditedAttestationIdentity ignores note) while RE-STAMPING
+  // its freshness hashes to the current tree (sameEvidenceSemantics sees the note differ) --
+  // the precise rebind the docblock above promises to prevent, reached through the one field
+  // the audited twin declares non-identity-bearing. evidence-freshness.ts decides `fresh` off
+  // that persisted materialHash, so a stale attestation would report fresh.
+  const priorHoldsIdentity = prior !== undefined && (prior.mechanical === false
+    ? sameAuditedAttestationIdentity(prior, input)
+    : sameEvidenceSemantics(prior, input));
+  if (!prior || !priorHoldsIdentity) return current;
   return {
     ...(prior.headHash ? { headHash: prior.headHash } : {}),
     ...(prior.materialHash ? { materialHash: prior.materialHash } : {}),
