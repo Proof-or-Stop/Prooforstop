@@ -1,6 +1,6 @@
 {
   "storyId": "B-fe8f",
-  "updatedAt": "2026-09-01T11:21:54.122Z",
+  "updatedAt": "2026-09-01T11:28:46.170Z",
   "proposals": [
     {
       "proposalId": "SEP-B-fe8f-001",
@@ -52,6 +52,32 @@
         "decidedAt": "2026-09-01T11:21:54.122Z",
         "rationale": "Independent INIT reviewer proved the immutable CHK-001 RED cannot become GREEN without an equivalent production restructure in packages/main/src/handlers/finding.ts. Accept exactly that file for CHK-006; no additional behavior or Story 2/1 scope.",
         "_hash": "e979e00d14840e58be01d8107df31a2fedd216aaae631ef9c3fab6dce9a1e0d7"
+      }
+    },
+    {
+      "proposalId": "SEP-B-fe8f-003",
+      "storyId": "B-fe8f",
+      "proposedBy": "lattice-init-requirements-reviewer",
+      "proposedAt": "2026-09-01T11:28:27.028Z",
+      "proposal": "Add exactly packages/main/src/core/finding-runtime-evidence.ts and packages/main/src/handlers/finding-runtime-evidence.ts to CHK-006 files.create as public compatibility facades. The core facade must re-export the implemented runtime receipt, verification, execution, and realpath policy contract from core/runtime-evidence-receipt.ts, including a real compatibility export for realpathPolicyDigest. The handler facade must delegate the real finding_runtime_evidence_run and finding_runtime_evidence_verify handler methods and re-export appendRuntimeReceipt as the real append_runtime_receipt compatibility entry from handlers/finding-ledger.ts. Comments or inert string tokens are not acceptable.",
+      "proposalTextHash": "e8bd5849b4701f6ebdd5c7eced832f0a0a89b9505d8a34f399b41d1218ae1e3e",
+      "reason": "The immutable RED reads only these two named public paths via sourceMaybe at lines 147-148 and classifies runtime.execution_adapter_missing unless its four required contract identifiers are present. Both files are absent. The actual implementations exist in core/runtime-evidence-receipt.ts and handlers/finding-ledger.ts, so two narrow executable re-export/delegation facades make the intended public contract reachable without duplicating semantics or falsifying RED. Adding tokens to registry or comments would be architecturally dishonest.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "14c93d51bcc22e363e29d40eb3c74fb2f41614e9cebb405608354e9c5f3bdf83",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "jek",
+        "decidedAt": "2026-09-01T11:28:46.170Z",
+        "rationale": "Independent INIT reviewer confirmed the immutable RED and accepted architecture require real public runtime-evidence core/handler facades. Accept exactly two facade files, with executable delegation/re-exports only; comments or token-only shims are forbidden.",
+        "_hash": "426dc7cdaabc7d4cba7a78f6238d0cb4f6d433a357741c3fff213d49e07d82c9"
       }
     }
   ]
