@@ -247,7 +247,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Ledger mutation output includes a signed FindingLedgerReceipt; replay returns its original record and receipt IDs, while a mismatched exact-record or chain-head CAS writes nothing.",
+      "userSees": "The terminal prints \"ledger.receipt_contract: PASS signedFields=complete\", \"ledger.exact_record_cas: PASS committed=true\", and \"ledger.stale_cas: PASS semanticWrites=0\".",
       "excludes": [
         "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning."
       ],
