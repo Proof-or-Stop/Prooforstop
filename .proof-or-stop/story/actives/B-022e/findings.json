@@ -1263,6 +1263,27 @@
       ],
       "signatureTag": "missing|json|evidence-inspect-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-048",
+      "desc": "concept-cleanup: packages/main/src/cli/extension-admission.ts:75-85 only proves that each admitted external command has some registered handler; it does not prove the registered handler set is exact or that core handlers remain core-owned after extraRegister. Independent executable reproduction on cade1bf954 registered one valid external_probe, then registry.override(\"story_get\", evil); validateExternalCommandHandlers still returned PASS and registry.get(\"story_get\") returned OVERRIDDEN_CORE_HANDLER. This directly violates extension-admission.ts:21-24 and leaves the F-038 resolution incomplete: an extension with otherwise valid extraTools/ownership/phase rows can replace a lifecycle-gated core handler or register undeclared handlers. Snapshot core handler identities before extraRegister, reject any changed core handler and any newly registered name outside the admitted external set, and add executable mutation coverage. This independently corroborates open F-045.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T09:43:06.300Z",
+      "reviewRound": "2026-09-01T09:35:56.599Z",
+      "reviewRunId": "B-022e:RR-082",
+      "_hash": "9c3dbb135970cb4b38cef5ab47c5d344bcc3ebe3b79362eaf6deef323fdbd89a",
+      "files": [
+        "packages/main/src/cli/extension-admission.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/registry.ts",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "adversarial|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
