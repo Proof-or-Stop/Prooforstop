@@ -94,10 +94,50 @@
       "phase": "DEV",
       "headHash": "6a409288fe9cac301c39543d25487ccea0723b9e",
       "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to complete F-013 canonical @proof-or-stop/lab packaging, bootstrap registration, executable promotion, and clean-install verification without leaving legacy @lattice/lab entrypoints.",
+      "timestamp": "2026-09-01T16:53:23.133Z",
+      "paths": [
+        "packages/lab/package-lock.json",
+        "packages/lab/package.json",
+        "packages/lab/src/index.ts",
+        "packages/lab/src/register.ts",
+        "packages/lab/src/tool-defs.ts",
+        "packages/main/package-lock.json",
+        "packages/utils/package-lock.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "bin/bootstrap-runner.js"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/lab/package-lock.json",
+        "packages/lab/package.json",
+        "packages/lab/src/index.ts",
+        "packages/lab/src/register.ts",
+        "packages/lab/src/tool-defs.ts",
+        "packages/main/package-lock.json",
+        "packages/utils/package-lock.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "bin/bootstrap-runner.js"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "b400f22f1dfcc9b660c7257946d2c0416b944f2f",
+      "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+      "anchors": [
+        "finding.F013",
+        "canonical_lab_package",
+        "clean_install",
+        "repo_local_bootstrap"
+      ]
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-01T13:41:39.831Z",
+  "updatedAt": "2026-09-01T16:53:23.133Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -131,6 +171,16 @@
     "packages/main/src/handlers/finding-runtime-evidence.ts": "packages/main/src/handlers/finding-runtime-evidence.ts",
     "scripts/build-lock.mjs": "scripts/build-lock.mjs",
     "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
-    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts"
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/lab/package-lock.json": "packages/lab/package-lock.json",
+    "packages/lab/package.json": "packages/lab/package.json",
+    "packages/lab/src/index.ts": "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts": "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts": "packages/lab/src/tool-defs.ts",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/utils/package-lock.json": "packages/utils/package-lock.json",
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/verify-global-lab-entrypoint.mjs": "scripts/verify-global-lab-entrypoint.mjs",
+    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js"
   }
 }
