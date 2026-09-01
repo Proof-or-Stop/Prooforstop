@@ -1242,20 +1242,20 @@
           "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
           "result": "pass",
-          "note": "Accepted RED is recorded in red-evidence.json; the same canonical marker and semantic contract now pass on the final source without weakening assertions.",
-          "headHash": "36cbadf9af2bbf4d130b9aa858a102f981686d85",
-          "materialHash": "0e5a35fa989a6f6f0c4ca69ceef69be5bc0c7c8eb1f370b0115430424e135527",
-          "storyFilesHash": "2a41896ccbb0e95b177aae035387a9db0f6573ca322f29f36559a1ccb2513dc3",
+          "note": "Accepted RED remains bound to the same canonical marker; the final committed source re-executes the identical pinned GREEN contract without weakening assertions.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
             "outputTail": "review finding triage registry delivery smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T23:12:05.260Z",
+            "executedAt": "2026-09-01T08:15:36.950Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T23:12:33.495Z"
+          "headHash": "4ce644233e269a4ff20c2b0a5c1546f790817707",
+          "materialHash": "15d0d66654c1db3c87212281ee8228678463e1bda44f94b5f55cb7510770585f",
+          "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
+          "timestamp": "2026-09-01T08:15:37.078Z"
         },
         {
           "intentRef": "CHK-004:happy:delivery-matrix",
