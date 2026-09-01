@@ -66,6 +66,11 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * verified new content addresses, never a relaxation. Audited before repinning: normalizing
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
+ *
+ * B-022e F-056 re-approved only proof-or-stop-review-story-init after replacing
+ * its live direct StoryStore reads/writes with background_get, story_get,
+ * checklist_get, and init_check_set. The CLI-only surface invariant below binds
+ * the source template, both generated mirrors, and the assembled registry body.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -114,7 +119,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-story-init',
-    templateHash: 'bb180c2f5173d1a5747ded577ec6c148abb0194bfe5da0bb2942e50220a594a2',
+    templateHash: 'c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
@@ -187,14 +192,9 @@ const ROLE_MATRIX_COMMANDS_CONTRACT = {
 };
 const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
   'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
-const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
-const DIRECT_STORY_WRITE_ALLOWLIST = [
-  {
-    role: 'proof-or-stop-review-story-init',
-    excerpt: STORY_INIT_SELF_CHECK_WRITE,
-    reason: 'Current INIT anti-self-exemption sidecar pending CLI migration.',
-  },
-];
+const RETIRED_STORY_INIT_DIRECT_READ = '3. `docs/story/actives/<storyId>/background.md` (full text)';
+const RETIRED_STORY_INIT_DIRECT_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
+const DIRECT_STORY_WRITE_ALLOWLIST = [];
 const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
     role: 'proof-or-stop-review-channel',
@@ -212,53 +212,29 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
     excerpt: '- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)',
   },
   {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '3. `docs/story/actives/<storyId>/background.md` (full text)',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'other',
-    excerpt: '- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: 'cat docs/story/actives/<storyId>/init-self-check.json',
-  },
-  {
     role: 'product-reviewer',
     classification: 'read-only-reference',
     excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
   },
 ];
 const DIRECT_STORY_POLICY_RULE =
-  'The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted diagnostically; every other docs/story reference is reported as unsafe.';
+  'The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references and strict whole-instruction negative/CLI policy forms are accepted diagnostically; no active direct StoryStore write is allowed, and every other docs/story reference is reported as unsafe.';
+const STORY_INIT_PROMPT_SURFACES = [
+  'packages/main/templates/agents/proof-or-stop-review-story-init.md',
+  '.claude/agents/proof-or-stop-review-story-init.md',
+  '.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md',
+];
+const STORY_INIT_REQUIRED_CLI_COMMANDS = [
+  'proof-or-stop background_get',
+  'proof-or-stop story_get',
+  'proof-or-stop checklist_get',
+  'proof-or-stop init_check_set',
+];
+const STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS = [
+  'docs/story/actives',
+  '.proof-or-stop/story/actives',
+  'init-self-check.json',
+];
 const STORY_INSTRUCTION_CONTEXT_RADIUS = 2;
 const DIRECT_STORY_SAFE_NEGATIVE_ACTIONS = Object.freeze([
   'read',
@@ -466,13 +442,13 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
-    commands: 'Read/Grep story inputs; init_check_set; cat/echo/Edit init-self-check.json.',
-    directFileAccess: 'Grandfathered direct docs/story reads plus init-self-check cat/echo/Edit write wording.',
+    commands: 'background_get; story_get; checklist_get; init_check_set.',
+    directFileAccess: 'Reads story metadata only through Proof-or-Stop CLI; reads CLAUDE.md, package docs, templates, and source for bounded factual verification.',
     inputs: 'Story background, index fields, checklist title/context.',
-    outputs: 'init_check_set issues/pass plus init-self-check audit file wording.',
+    outputs: 'init_check_set issues/pass plus a textual CLAUDE.md self-check.',
     capabilities: 'Fresh-context intake review; story clarity; risk sanity check.',
     overlapCategory: 'overlaps scope-plan on checklist sanity',
-    notes: 'Baseline includes grandfathered direct story-file reads and init-self-check write wording.',
+    notes: 'No direct StoryStore read or write is permitted.',
   },
   'proof-or-stop-review-topology-critic': {
     status: 'active',
@@ -867,11 +843,11 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     grandfathered: false,
   },
   {
-    name: 'exact current story-init write is grandfathered',
+    name: 'retired story-init sidecar write fails closed',
     role: 'proof-or-stop-review-story-init',
-    excerpt: STORY_INIT_SELF_CHECK_WRITE,
+    excerpt: RETIRED_STORY_INIT_DIRECT_WRITE,
     classification: 'direct-write',
-    grandfathered: true,
+    grandfathered: false,
   },
   {
     name: 'unregistered read-only story reference fails closed',
@@ -1272,17 +1248,17 @@ const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
   {
     name: 'registered reference followed across a blank line',
     role: 'proof-or-stop-review-story-init',
-    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\nFrobnicate it.`,
+    addition: `${RETIRED_STORY_INIT_DIRECT_READ}\n\nFrobnicate it.`,
   },
   {
     name: 'registered reference followed across heading and list boundaries',
     role: 'proof-or-stop-review-story-init',
-    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\n## Next\n\n- Frobnicate it.`,
+    addition: `${RETIRED_STORY_INIT_DIRECT_READ}\n\n## Next\n\n- Frobnicate it.`,
   },
   {
     name: 'action prepended across a blank line to a registered reference',
     role: 'proof-or-stop-review-story-init',
-    addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}`,
+    addition: `Frobnicate it.\n\n${RETIRED_STORY_INIT_DIRECT_READ}`,
   },
 ];
 
@@ -2125,7 +2101,29 @@ async function collectCurrentPromptState() {
   return collectPromptStateFromSource();
 }
 
+function assertStoryInitCliOnlyPromptSurfaces(roleEntries) {
+  const assembled = roleEntries.find(entry => entry.role === 'proof-or-stop-review-story-init');
+  if (!assembled) throw new Error('missing assembled proof-or-stop-review-story-init prompt');
+  const surfaces = [
+    ...STORY_INIT_PROMPT_SURFACES.map(path => ({ path, content: readFileSync(join(ROOT, path), 'utf8') })),
+    { path: 'assembled:proof-or-stop-review-story-init', content: assembled.content },
+  ];
+  const errors = [];
+  for (const surface of surfaces) {
+    for (const command of STORY_INIT_REQUIRED_CLI_COMMANDS) {
+      if (!surface.content.includes(command)) errors.push(`${surface.path}: missing ${command}`);
+    }
+    for (const fragment of STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS) {
+      if (surface.content.includes(fragment)) errors.push(`${surface.path}: forbidden active fragment ${fragment}`);
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`story-init CLI-only prompt policy failed:\n- ${errors.join('\n- ')}`);
+  }
+}
+
 function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
+  assertStoryInitCliOnlyPromptSurfaces(roleEntries);
   assertApprovedPromptPolicyManifest(roleEntries);
 
   const roleMatrix = roleEntries.map(entry => {
@@ -3012,7 +3010,7 @@ function verifyDirectStoryWritePolicy(findings, label, failures) {
 function verifyDirectStoryClassifierProbes(failures) {
   requireEqual(
     DIRECT_STORY_WRITE_ALLOWLIST.length,
-    1,
+    0,
     'direct story-write explicit allow entry count',
     failures,
   );
@@ -3462,7 +3460,8 @@ async function verifyBaseline() {
   console.log('INFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies');
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
   console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
-  console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write');
+  console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics allow no active StoryStore writes');
+  console.log('PASS proof-or-stop prompt baseline: story-init source, Claude mirror, Codex mirror, and assembled prompt are CLI-only');
   console.log(`PASS proof-or-stop prompt baseline: deterministic ${EXPECTED_ROLE_COUNT}-role PromptMeasurementRecord sidecar verified without refresh authority`);
 }
 

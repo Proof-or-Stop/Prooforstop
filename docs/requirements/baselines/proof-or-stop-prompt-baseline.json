@@ -55,7 +55,7 @@
       },
       {
         "role": "proof-or-stop-review-story-init",
-        "templateHash": "bb180c2f5173d1a5747ded577ec6c148abb0194bfe5da0bb2942e50220a594a2"
+        "templateHash": "c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432"
       },
       {
         "role": "proof-or-stop-review-test-coverage",
@@ -141,7 +141,7 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "81b5513f2065d74cfb990a026da8f1a214a001eb267bb94ae8fc89cf73e945a9",
+    "materialHash": "48694912406bd22fc7ea3cb6fd9f30e9652337c46d4c88f3b947e9d9720dd8f3",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -243,9 +243,9 @@
         "role": "proof-or-stop-review-story-init",
         "file": "proof-or-stop-review-story-init.md",
         "relPath": "templates/agents/proof-or-stop-review-story-init.md",
-        "templateHash": "bb180c2f5173d1a5747ded577ec6c148abb0194bfe5da0bb2942e50220a594a2",
-        "bytes": 18493,
-        "lines": 271
+        "templateHash": "c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432",
+        "bytes": 18226,
+        "lines": 259
       },
       {
         "role": "proof-or-stop-review-test-coverage",
@@ -359,9 +359,9 @@
       },
       {
         "role": "proof-or-stop-review-story-init",
-        "sha256": "58ab5dc462545d2b4fa0c7b5e42076eae08bc38caa9b12f906a81c46f0c0c957",
-        "bytes": 18494,
-        "lines": 272
+        "sha256": "ee00dac5128c2195366998e9670caec6c63117465f3a0677c9d234d4df0c3606",
+        "bytes": 18227,
+        "lines": 260
       },
       {
         "role": "proof-or-stop-review-test-coverage",
@@ -551,13 +551,13 @@
       "status": "active",
       "phase": "INIT",
       "purpose": "Reviews new story readability, facts, risk wording, and initial checklist sanity.",
-      "commands": "Read/Grep story inputs; init_check_set; cat/echo/Edit init-self-check.json.",
-      "directFileAccess": "Grandfathered direct docs/story reads plus init-self-check cat/echo/Edit write wording.",
+      "commands": "background_get; story_get; checklist_get; init_check_set.",
+      "directFileAccess": "Reads story metadata only through Proof-or-Stop CLI; reads CLAUDE.md, package docs, templates, and source for bounded factual verification.",
       "inputs": "Story background, index fields, checklist title/context.",
-      "outputs": "init_check_set issues/pass plus init-self-check audit file wording.",
+      "outputs": "init_check_set issues/pass plus a textual CLAUDE.md self-check.",
       "capabilities": "Fresh-context intake review; story clarity; risk sanity check.",
       "overlapCategory": "overlaps scope-plan on checklist sanity",
-      "notes": "Baseline includes grandfathered direct story-file reads and init-self-check write wording."
+      "notes": "No direct StoryStore read or write is permitted."
     },
     {
       "role": "proof-or-stop-review-test-coverage",
@@ -704,7 +704,7 @@
         {
           "role": "proof-or-stop-review-story-init",
           "relPath": "templates/agents/proof-or-stop-review-story-init.md",
-          "templateHash": "bb180c2f5173d1a5747ded577ec6c148abb0194bfe5da0bb2942e50220a594a2"
+          "templateHash": "c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432"
         },
         {
           "role": "proof-or-stop-review-test-coverage",
@@ -1718,59 +1718,13 @@
           "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)"
         },
         {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "read-only-reference",
-          "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "read-only-reference",
-          "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "read-only-reference",
-          "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "other",
-          "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\")."
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`."
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`."
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json"
-        },
-        {
           "role": "product-reviewer",
           "classification": "read-only-reference",
           "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`"
         }
       ],
-      "exactWrites": [
-        {
-          "role": "proof-or-stop-review-story-init",
-          "excerpt": "echo '{\"question\":\"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.\",\"answer\":\"\"}' > docs/story/actives/<storyId>/init-self-check.json",
-          "reason": "Current INIT anti-self-exemption sidecar pending CLI migration."
-        }
-      ],
-      "rule": "The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted diagnostically; every other docs/story reference is reported as unsafe."
+      "exactWrites": [],
+      "rule": "The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references and strict whole-instruction negative/CLI policy forms are accepted diagnostically; no active direct StoryStore write is allowed, and every other docs/story reference is reported as unsafe."
     },
     "classifications": [
       "policy-reminder",
@@ -1913,115 +1867,6 @@
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "fad0ba0878215a2f",
-        "role": "proof-or-stop-review-story-init",
-        "line": 127,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)",
-        "classification": "read-only-reference",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "a1716ad7ea38c21d",
-        "role": "proof-or-stop-review-story-init",
-        "line": 128,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields",
-        "classification": "read-only-reference",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "8e0085a25eb5fc94",
-        "role": "proof-or-stop-review-story-init",
-        "line": 129,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`",
-        "classification": "read-only-reference",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "32895cb5e4646de9",
-        "role": "proof-or-stop-review-story-init",
-        "line": 137,
-        "references": [
-          "docs/story/actives/",
-          "docs/story/archived/"
-        ],
-        "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)",
-        "classification": "other",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "fa1d4c52fa33d610",
-        "role": "proof-or-stop-review-story-init",
-        "line": 206,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\").",
-        "classification": "direct-read",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "20bc7edfec228fcc",
-        "role": "proof-or-stop-review-story-init",
-        "line": 207,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.",
-        "classification": "direct-read",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "8e2b9764cde83f7c",
-        "role": "proof-or-stop-review-story-init",
-        "line": 208,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.",
-        "classification": "direct-read",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "e08bb651588534d0",
-        "role": "proof-or-stop-review-story-init",
-        "line": 261,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json",
-        "classification": "direct-read",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "0defcd22ee06b1d7",
-        "role": "proof-or-stop-review-story-init",
-        "line": 267,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "echo '{\"question\":\"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.\",\"answer\":\"\"}' > docs/story/actives/<storyId>/init-self-check.json",
-        "classification": "direct-write",
-        "grandfathered": true,
-        "note": "Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones."
       }
     ]
   }

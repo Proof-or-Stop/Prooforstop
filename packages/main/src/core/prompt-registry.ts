@@ -71,7 +71,7 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
-  'proof-or-stop-review-story-init': 'bb180c2f5173d1a5747ded577ec6c148abb0194bfe5da0bb2942e50220a594a2',
+  'proof-or-stop-review-story-init': 'c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432',
   'proof-or-stop-review-scope-plan': '935913dfd492de56bb1b2d5b2507a2ae6b714e59f6c067e6c94a9e54755b75cd',
   'proof-or-stop-implementer': '6c2484dcef54a7d82e0c5f191c5e04030bba225f9455cc1712f21a7279d90404',
   'proof-or-stop-review-delivery': 'caa813c1f1bc6ed54a8d7d48b0bfda8f0492cf922656f2227ae600ee7a9d8d16',
@@ -90,6 +90,37 @@ const STORY_INIT_LEGACY_TAIL_GZIP_BASE64 = 'H4sIAAAAAAACE51Y2Y7cxhV976+4oB7UPerF
 const STORY_INIT_LEGACY_TAIL = gunzipSync(
   Buffer.from(STORY_INIT_LEGACY_TAIL_GZIP_BASE64, 'base64'),
 ).toString('utf8');
+
+const STORY_INIT_CLI_ONLY_REPLACEMENTS: ReadonlyArray<readonly [string, string]> = [
+  ['## 4. Procedure (8 steps)', '## 4. Procedure (7 steps)'],
+  [
+    '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
+    '2. **Read the background through the CLI**: run `proof-or-stop background_get \'{"storyId":"<storyId>"}\'`, read the full returned background, note all letter codes, abbreviations, jargon, and first definitions, and mark factual claims about the existing system.',
+  ],
+  [
+    '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
+    '3. **Read the story fields through the CLI**: run `proof-or-stop story_get \'{"storyId":"<storyId>"}\'` and extract only `title` / `description` / `type` / `priority` / `riskSignals`.',
+  ],
+  [
+    '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
+    '4. **Read the checklist through the CLI**: run `proof-or-stop checklist_get \'{"storyId":"<storyId>"}\'`, iterate over `items[]`, and use only `title` and `context`.',
+  ],
+  [
+    'After all review work is finished and `init_check_set` has been called, you must read the following JSON file and write into the answer:\n\n```bash\ncat docs/story/actives/<storyId>/init-self-check.json\n```\n\nIf the file does not exist, create it first:\n\n```bash\necho \'{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}\' > docs/story/actives/<storyId>/init-self-check.json\n```\n\nThen use the Edit tool to fill in the `answer` field completely (answer honestly). This is for audit traceability and does not affect the signature.',
+    'After `init_check_set`, state in the answer whether you read `CLAUDE.md`. Do not create, read, or edit a StoryStore sidecar directly; `init_check_set` is the only persisted reviewer result.',
+  ],
+];
+
+function rewriteStoryInitLegacyTailForCliOnly(content: string): string {
+  let rewritten = content;
+  for (const [before, after] of STORY_INIT_CLI_ONLY_REPLACEMENTS) {
+    if (!rewritten.includes(before)) {
+      throw new Error(`story-init CLI-only rewrite source drift: ${before.slice(0, 80)}`);
+    }
+    rewritten = rewritten.replace(before, after);
+  }
+  return rewritten;
+}
 
 const TEST_COVERAGE_LEGACY_PROCESS_CONTRACT = `
 ## Two-Layer Process Fact Contract
@@ -285,6 +316,7 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
     // live dispatch material. Rewrite the retired role only at that active boundary.
     const retiredStoryInitRole = ['lat', 'tice-review-story-init'].join('');
     restored = restored.replaceAll(retiredStoryInitRole, entry.agentId);
+    restored = rewriteStoryInitLegacyTailForCliOnly(restored);
   }
   const actualDigest = sha256(restored);
   const expectedDigest = isModularReviewerRoleId(entry.agentId)
