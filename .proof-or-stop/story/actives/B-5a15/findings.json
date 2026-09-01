@@ -18537,7 +18537,7 @@
       "desc": "quality-correctness: handlers/checklist.ts:602 evidenceHashesForPersistence uses the STRICT note-sensitive predicate (sameEvidenceSemantics) where the audited branch needs the note-insensitive twin, so a note-only edit on an audited (mechanical:false) evidence row silently REBINDS its freshness hashes to the current tree. B-5a15 added sameAuditedAttestationIdentity:569 as the deliberate note-insensitive twin and forked on it in carryForwardOnDiskProvenance:834-835 (prior.mechanical===true ? sameEvidenceSemantics : sameAuditedAttestationIdentity), but evidenceHashesForPersistence:602 -- added in the same change and run on the same row moments later via checklist_update:2162 then :2167 -- was NOT given the same fork. The two predicates are identical except for the single clause `incoming.note.trim() === prior.note` (compare :543 against :585). Mechanically reproduced against the two predicate bodies: for an audited row where ONLY note changed, sameAuditedAttestationIdentity=true (so :2162 carries mechanical:false + the prior nonMechanicalReason forward, row survives as an attestation) while sameEvidenceSemantics=false (so :602 falls through to `return current` and re-stamps headHash/materialHash/storyFilesHash to today tree). Mechanical rows are unaffected: they take the strict predicate on BOTH sides, so this is a pure asymmetry, not a global hole. This is gate-distorting, not cosmetic: core/evidence-freshness.ts:627-630 checkEvidenceFreshnessForGit decides fresh by comparing the persisted evidence materialHash against the current tree, so a re-stamped stale audited attestation now reports fresh=true. It is exactly the rebind evidenceHashesForPersistence own docblock:588-591 promises to prevent (a caller cannot rebind a real receipt to hashes for a later tree without re-running it), reached through the one field the new twin predicate declared non-identity-bearing. Fix: apply the identical mechanical-vs-audited fork at :602.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-01T10:45:00.329Z",
@@ -18577,7 +18577,11 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "twin-predicate-fork-omitted-at-second-consumer",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "FIXED (pending commit). This was MY OWN regression, introduced by the F-333-era predicate split. ROOT CAUSE: B-5a15 added sameAuditedAttestationIdentity (note-insensitive) alongside sameEvidenceSemantics (note-sensitive) and forked on prior.mechanical in carryForwardOnDiskProvenance:834-835 -- but the SECOND consumer running on the same row moments later, evidenceHashesForPersistence:602 (reached via normalizeEvidence from checklist.ts:2167), was left on the strict predicate. REPRODUCED before fixing: for a note-only edit to an audited mechanical:false row, sameAuditedAttestationIdentity returns TRUE so the attestation is preserved, while sameEvidenceSemantics returns FALSE so the freshness hashes are re-stamped to the current tree. That is precisely the rebind the docblock at :589-592 promises to prevent, reached through the one field the audited twin declares non-identity-bearing. GATE-DISTORTING: evidence-freshness.ts decides fresh off that persisted materialHash, so a stale attestation would report fresh. FIX: evidenceHashesForPersistence now forks on provenance exactly as carryForwardOnDiskProvenance does -- audited rows use sameAuditedAttestationIdentity, everything else keeps sameEvidenceSemantics -- with a comment recording why the two consumers must agree. Mechanical rows were never affected (strict on both sides); this was a pure asymmetry. VERIFICATION: build + recursive tsc clean. CREDIT: found and mechanically reproduced by the RI-055 quality lane (RR-803), which traced both consumers rather than reasoning from the diff.",
+      "resolvedAt": "2026-09-01T10:49:17.079Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-340",
