@@ -443,8 +443,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-01T10:26:03.191Z",
       "endTime": null,
       "userSees": "The terminal prints \"ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\", \"ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\", and \"ledger.crash_recovery: PASS halfVisible=0\".",
       "excludes": [
@@ -1781,6 +1781,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Previously committed and verified work remains unchanged by SEP-B-fe8f-001."
+    },
+    {
+      "timestamp": "2026-09-01T10:26:03.191Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Restore completed implementation state after accepted scope-extension lifecycle reopen."
     }
   ]
 }
