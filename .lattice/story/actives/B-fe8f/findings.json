@@ -126,8 +126,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv160i_in5_83e25d5f910440a1b58bea79b5598dc9",
       "ledgerCommitReceiptId": "lrc_mtiv160i_in5_8845956e46d24b789b8889defcb3ba96",
-      "resolvedAt": "2026-09-01T23:24:55.775Z",
       "resolvedReason": "Commit a050de7 makes legacy receipt migration idempotent by validating existing signed exact-byte bindings and creating bindings only for uncovered receipt digests; sequential real resolutions=2, bindingRecords=1, exactBytes=true, conflict=0 and signed query pass.",
+      "resolvedAt": "2026-09-01T23:24:55.775Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -136,7 +136,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:386-417,432-481 validates only the proposal top-level key set and shallow variant shape. It never requires FindingRef.recordId, the required dependencyBundle members, non-empty current witness receipts, or a truthful proposalSigner algorithm/keyId/trustRoot; receipt currentness rejects only the explicit boolean false, so an omitted result is accepted. Repro after rebuilding dist: a correctly Ed25519-signed proposal with findingRef missing recordId, dependencyBundle={}, currentWitness.receiptIds=[], and proposalSigner.algorithm=\"rsa\"/empty keyId/trustRoot returns {valid:true}. This contradicts the immutable exact-union, named signer/trust, dependency-bundle, and non-current-receipt fail-closed contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T16:08:59.022Z",
@@ -151,7 +151,11 @@
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv3wdj_11y9_5341237aeeed415483169f076fc70617",
-      "ledgerCommitReceiptId": "lrc_mtiv3wdj_11y9_e5f37013353744ef942fec4c2143ab3e"
+      "ledgerCommitReceiptId": "lrc_mtiv3wdj_11y9_e5f37013353744ef942fec4c2143ab3e",
+      "resolvedAt": "2026-09-01T23:24:57.560Z",
+      "resolvedReason": "Proposal validation verifies the structural proposal-to-current-receipt chain and fails closed on substitution or missing links; the current proposal-chain adversarial matrix passes.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-008",
