@@ -164,6 +164,7 @@ const safeTaskContextAuthorityStatements = [
   'Never alter evidence and severity does not determine Story responsibility.',
   'Do not rewrite severity and finding_dismiss does not establish out_of_scope.',
   'Applicability remains unknown; routing is not permitted and the REVIEW blocker cannot be removed.',
+  'Compatibility dismissal is temporary accounting rather than applicability proof.',
 ] as const;
 
 const liveB9a49SafeMetaIntent = 'Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.';
