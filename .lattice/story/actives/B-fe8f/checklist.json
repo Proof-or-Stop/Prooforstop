@@ -769,9 +769,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T11:47:52.992Z",
-      "endTime": null,
+      "endTime": "2026-09-01T11:47:53.948Z",
       "userSees": "The terminal prints \"ledger.receipt_contract: PASS signedFields=complete\", \"ledger.exact_record_cas: PASS committed=true\", and \"ledger.stale_cas: PASS semanticWrites=0\".",
       "excludes": [
         "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning."
@@ -2713,6 +2713,15 @@
       "action": "update",
       "from": "pending",
       "to": "in_progress",
+      "reason": "Restore CHK-003 completed state after accepted SEP-B-fe8f-006 lifecycle reopen."
+    },
+    {
+      "timestamp": "2026-09-01T11:47:53.948Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
       "reason": "Restore CHK-003 completed state after accepted SEP-B-fe8f-006 lifecycle reopen."
     }
   ]
