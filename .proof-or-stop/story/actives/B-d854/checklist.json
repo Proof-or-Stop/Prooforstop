@@ -12,7 +12,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build a claim-by-claim audit ledger for every root AGENTS.md statement that asserts current Proof-or-Stop behavior; each row names the exact AGENTS.md section, verdict, authoritative implementation, command registry, canonical role prompt or adopted decision source with a line reference, plus a reproducible repository-local CLI command and captured result wherever the claim is CLI-observable. The ledger contains no unsupported current-behavior conclusion. WHY: consistency must be demonstrated from live authority rather than asserted from memory.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Classify every command, phase, role, artifact and example mentioned in AGENTS.md as current, compatibility-only or historical. Any command absent from `node bin/proof-or-stop.js help --full` is removed from active guidance or explicitly and locally labeled legacy or historical; no nonexistent command remains presented as an executable current instruction. WHY: retained background is acceptable only when a reader cannot mistake it for the current interface.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mechanically enumerate every active `proof-or-stop` command example in AGENTS.md and verify it against the repository-local CLI version reported by `node bin/proof-or-stop.js --version`: every referenced command resolves and its `--help` succeeds, read-only examples execute with concrete repository-valid arguments, and mutating examples are exercised only in an isolated disposable repository or validated through the same registered command schema without changing this story. Include a deliberately nonexistent sentinel command and prove that the checker rejects it. WHY: active examples must be operational and the audit must discriminate unsupported commands instead of returning a false green.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
