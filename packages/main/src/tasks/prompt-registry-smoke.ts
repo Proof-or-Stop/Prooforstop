@@ -75,7 +75,7 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = 'dabb185662429fea9b44252b81035bb16226900f2ca9fe5ae97540626722a89a';
+const approvedReviewFindingTriageProposalSha256 = '0dccef5903efe7aef773c52b8f170e46a332986779a16f76e5a66ef3f1bd451a';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline

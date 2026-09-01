@@ -5,7 +5,8 @@ Status: executable Agent-side proposal
 Authority: subordinate projection of
 `docs/requirements/decisions/dynamic-finding-system-execution-plan.md`
 
-Scope: Agent prompts, public Agent guidance, and semantic prompt tests only
+Scope: Agent prompts, public Agent guidance, REVIEW-only prompt-envelope
+assembly safety, and semantic prompt tests only
 
 ## 1. Decision
 
@@ -33,6 +34,8 @@ This proposal may change:
 - the canonical REVIEW Finding triage contract appended to active REVIEW roles;
 - Story Owner guidance in `AGENTS.md` and `CLAUDE.md`;
 - bounded implementer handoff guidance;
+- pre-digest REVIEW Task Context authority validation in prompt-envelope
+  assembly, without changing Dynamic Finding records or lifecycle facts;
 - semantic mutation tests and approved prompt digests; and
 - a non-runtime digest check for this proposal.
 
@@ -154,7 +157,6 @@ Eligibility requires all of the following:
 - a live owner and an already existing target Story or B-META gap;
 - target-side acceptance of the exact immutable route proposal through a valid
   route receipt;
-- required initial progress baselines;
 - recheck triggers and finite expiry; and
 - an unexhausted ledger-derived cumulative horizon and renewal count.
 
