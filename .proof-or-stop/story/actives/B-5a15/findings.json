@@ -18684,6 +18684,50 @@
       "resolvedAt": "2026-09-01T10:49:52.452Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5a15:F-342",
+      "desc": "F-339 is an UNTESTED behavioral change: the audited branch it added at packages/main/src/handlers/checklist.ts:610-612 (evidenceHashesForPersistence, prior.mechanical === false -> sameAuditedAttestationIdentity) is never executed by any test.\n\nMechanically proven three ways against a scratch copy of dist under /private/tmp (read-only; no repo file was touched).\n\n(1) COUNTERFACTUAL: reverting :610-612 to the pre-F-339 strict predicate leaves tool-executed-evidence-receipt-smoke = PASS and proofstory-acceptance-topology-smoke = PASS. Neither smoke detects the regression F-339 fixed.\n\n(2) BRANCH PROBE: instrumenting the function entry shows it is reached 16 times in the receipt smoke with priorMechanical in {true, undefined} only -- ZERO reaches with priorMechanical=false. The forked branch is unexecuted, so the audited arm is dead under test.\n\n(3) POSITIVE CONTROL (proves the harness is sound, so (1) is real absence and not a broken probe): breaking the SIBLING audited fork in carryForwardOnDiskProvenance:844-846 the same way DOES fail proofstory-acceptance-topology-smoke with a genuine assertion. The suite therefore covers the attestation-preservation half of the audited pair but not the freshness-hash half.\n\nSPECIFIC GAP: the F-067 block at tool-executed-evidence-receipt-smoke.ts:678-745 is the only place asserting that an exact re-persist KEEPS headHash/materialHash/storyFilesHash (:712-714) and that a semantic mutation RE-STAMPS them (:739-742). It seeds all four rows via checklist_update with no mechanical field, so they persist as mechanical:undefined (confirmed by probe: INT-F067-NOTE/VERDICT/FILE/ATTESTATION all report priorMechanical=undefined) and exercise only the sameEvidenceSemantics else-branch. Nothing anywhere asserts that a note-only edit to an audited (mechanical:false) row KEEPS its original freshness hashes.\n\nThe mechanical-row half of F-067 IS covered: tool-executed-evidence-receipt-smoke.ts:561 asserts semantic note drift drops the prior receipt. proofstory-acceptance-topology-smoke.ts:505-521 performs exactly the note-only edit to an audited row but asserts only mechanical/nonMechanicalReason/note carry-forward; that file contains zero materialHash/headHash/storyFilesHash assertions.\n\nIMPACT is bounded and NOT acceptance-blocking: the shipped source behavior is correct, story coverage is otherwise unchanged at 53 intents / 51 must / 0 must-gaps / 0 waivers / 0 fail-results / 0 orphan refs, and the pinned suite is stable at 19 pass / 2 fail with the same two known DEV-gated failures. The risk is regression-only: because the branch is unexecuted, a future edit reverting the audited fork restores a gate-distorting rebind (evidence-freshness.ts decides fresh off the persisted materialHash, so a stale attestation would report fresh) with a fully green suite.\n\nRECOMMENDED FOLLOW-UP: extend the F-067 block with a fifth row seeded through verification_evidence_add + nonMechanicalReason so it persists mechanical:false, then re-persist it with only the note changed after a material drift and assert headHash/materialHash/storyFilesHash are UNCHANGED -- the assertion that fails on the pre-F-339 predicate.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T11:21:50.744Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-809",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b94242ed75745c84cf1d241f825dfeb6e1bf5a1497361cd40edeadbe4f3bd1cc",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|untested-behavioral-change",
+      "signatureTagSource": "auto"
     }
   ]
 }
