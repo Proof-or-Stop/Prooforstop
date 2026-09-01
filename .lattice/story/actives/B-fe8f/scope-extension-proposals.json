@@ -1,0 +1,32 @@
+{
+  "storyId": "B-fe8f",
+  "updatedAt": "2026-09-01T10:24:51.591Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-fe8f-001",
+      "storyId": "B-fe8f",
+      "proposedBy": "main-agent",
+      "proposedAt": "2026-09-01T10:24:45.385Z",
+      "proposal": "Extend CHK-004 files.modify with packages/main/src/cli/command-catalog.ts, packages/main/src/core/command-policy.ts, and packages/main/src/core/config.ts solely to expose finding_runtime_evidence_run and finding_runtime_evidence_verify as real schema-validated, phase-allowlisted CLI commands. Process-fact authority registry changes remain exclusively CHK-005.",
+      "proposalTextHash": "d9c9527d248b88f256b8b766689450dc3db1686568adaa336f66bf53a14b4836",
+      "reason": "The accepted CHK-004 requirement explicitly mandates real CLI handlers. registry.ts plus handler code alone is not reachable through the production CLI without catalog schema and command/phase policy registration; a test-only registry invocation would not satisfy acceptance.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "d0c4fc37a69f7a1f9ad925eb83e22633c24b9c2cb39b3204335aff25b42a1524",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "main-agent",
+        "decidedAt": "2026-09-01T10:24:51.591Z",
+        "rationale": "Accepted because these three files are the minimal production reachability surface for the already-approved real CLI commands; no new product behavior or process-fact authority is added.",
+        "_hash": "a4f0b52e6d1ac31dc837bac8e81d3c8124b5f735dbe19ea7497ece43ff45fd2b"
+      }
+    }
+  ]
+}
