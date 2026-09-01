@@ -1872,6 +1872,35 @@
         "scanEscalationReason": null
       },
       "_hash": "e3f48f1a97b194c870ef4bf04f5084ebca128d81a2a4858393a659a8bc370314"
+    },
+    {
+      "id": "B-022e:RP-052",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 25 test-coverage review PASS. Coverage summary: 29 verification intents, 29 fresh passing evidence records, 0 must gaps, 0 waivers, and 0 findings. Commit 7874cf8 is an ancestor of current HEAD and contains executable requested-full inverse cases: a committed story-owned src/cutoff.ts mutation makes verifyReviewRunPromptEnvelope and collectReviewerEvidenceState reject the quality pass, exact byte restoration makes both accept again, a separate scope-contract mutation is rejected through taskSemanticDigest and the shared collector, and exact scope restoration re-establishes acceptance. This lane executed the committed review-incremental-context smoke successfully, including later cross-lane metadata stability, envelope tamper, invalid phases and task mutations, CLI read-only concurrency, mixed writer ABA, deterministic mixed-mask replay, and restoration. The fresh stored routine validate remains current for the same material and includes quorum-submit smoke; its recorded resolution reports 120 of 120 commands. Packed clean-install identity evidence, active proof-or-stop-review-story-init registry coverage, version and legacy-negative evidence are fresh. No Authority, Wave4 rollout, production, or 3x2 claim is made.",
+      "createdAt": "2026-09-01T16:13:38.699Z",
+      "reviewRound": "2026-09-01T16:06:49.189Z",
+      "reviewRunId": "B-022e:RR-114",
+      "envelopeId": "500437ee02621dfda01fe219d2202513af1bebf0fbdee5bf5fb1678783e2186d",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2668442e09850985ef50cb66c0212f5578dd2888cd9e5447f6f001a8594f2d62"
     }
   ]
 }
