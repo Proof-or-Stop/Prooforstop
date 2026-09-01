@@ -443,8 +443,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-01T09:19:58.741Z",
       "endTime": null,
       "userSees": "The terminal prints \"ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\", \"ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\", and \"ledger.crash_recovery: PASS halfVisible=0\".",
       "excludes": [
@@ -1164,6 +1164,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Independent RED commit afc3d183d9 completed. All 13 intents now have tool-executed blocked_classified receipts from the unchanged pinned RED command; current exit 1 is the expected pre-fix state."
+    },
+    {
+      "timestamp": "2026-09-01T09:19:58.741Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin Story 3A ledger foundation only after CHK-001 RED is committed and evidence-bound."
     }
   ]
 }
