@@ -260,9 +260,9 @@ const FROZEN_FILE_BASELINES = [
   },
   {
     id: 'cutover-policy-provenance', class: 'provenance_bytes', path: POLICY_PATH,
-    gitBlobOid: '58d0003d952a111cdf0345eee72eb12a6427b338',
-    byteSha256: '61b3680f4df3917a0611cb847eb462459b08aed1c6d82e52a5525d02b3e972f8',
-    reason: 'The approved clean-break policy must precede and remain unchanged through RED.',
+    gitBlobOid: '701b933a83e31d7e533f89024ba5369526b204d5',
+    byteSha256: 'e7baa0312b234679f5afd57918ffb0e6000cff566a684b175f622bb3f9c06380',
+    reason: 'The approved clean-break policy preceded RED; the current reviewed policy bytes remain exact.',
   },
   {
     id: 'B-cdf6-red-evidence', class: 'historical_story', path: '.proof-or-stop/story/actives/B-cdf6/red-evidence.json',
@@ -1560,6 +1560,10 @@ function runSelfTest(root, files) {
     const escapedRetiredLine = JSON.stringify(retiredPayload).replace('.lattice', '.\\u006cattice');
     const escapedRetiredAppend = Buffer.from(`${escapedRetiredLine}\n`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, escapedRetiredAppend])).some((error) => error.includes('unclassified retired identity tokens')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a Unicode-escaped retired-token payload`);
+    const retiredKeyPayload = { ...validRecord, '.lattice/injected identity': true };
+    const escapedRetiredKeyLine = JSON.stringify(retiredKeyPayload).replace('".lattice/injected identity"', '".\\u006cattice/injected identity"');
+    const escapedRetiredKeyAppend = Buffer.from(`${escapedRetiredKeyLine}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, escapedRetiredKeyAppend])).some((error) => error.includes('unclassified retired identity tokens')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a Unicode-escaped retired-token object key`);
     const wrongSchemaAppend = Buffer.from(`${JSON.stringify({ ...validRecord, schemaVersion: 'wrong.schema.v1' })}\n`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, wrongSchemaAppend])).some((error) => error.includes('schemaVersion')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted another schema`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend.subarray(0, validAppend.length - 1)])).some((error) => error.includes('truncated')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a truncated appended record`);

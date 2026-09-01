@@ -175,6 +175,11 @@ Rules are mechanical:
 - Allowlisted bytes are never rewritten merely to reach zero residue. New occurrences cannot be
   added to a frozen class after the baseline unless a separate reviewed decision proves that they
   are genuinely historical/provenance-bound.
+- For append-only release ledgers, the frozen JSONL prefix remains byte-exact. Every appended
+  suffix record is parsed as JSON, and both object keys and string values are decoded before
+  case-insensitive retired-identity classification. Any retired identity in that decoded suffix
+  requires the existing exact record, token/count, and record-digest provenance; an unpinned or
+  altered occurrence fails closed without weakening the frozen-prefix rule.
 
 ## Required RED-before-production order
 
