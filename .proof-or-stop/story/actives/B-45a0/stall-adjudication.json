@@ -1,9 +1,9 @@
 {
   "storyId": "B-45a0",
   "action": "override_budget",
-  "reason": "Operator-directed closeout of B-45a0 (user goal: complete this story). The 53 ordinary rounds accumulated across the long-running Wave-4 program; the final round 53 epoch RI-115 had all four lanes PASS with zero verified findings, and the two remaining critic findings (F-471 pre-review artifact invalidation, F-472 CHK-014 topology closure gap) plus F-431 have been mechanically repaired in DEV: CHK-014 is bound and mapped (topology structural pass), acceptance basis/rollout regenerated, live-proof recaptured, and pre_review_check now signs PASS with zero codes at current head. One further ordinary round is required solely to re-earn lane verdicts and resolve the repaired findings; no unresolved defect remains.",
-  "reviewRound": "2026-09-01T14:39:12.553Z",
+  "reason": "Operator-directed closeout continues (user goal: complete B-45a0). Round 54 closed with all four lanes PASS, a signed topology-critic pass receipt, and a finalized epoch; the DONE-required certification then exposed one real latent defect (F-473: the runtime tracer wrapper dropped util.promisify.custom, crashing the rollout cohort under traced execution). The defect is fixed with a regression smoke and a negative control (commit 8532bbdc36), the finding auto-resolved via the commit trailer, all 50 stale evidence receipts were refreshed, and pre_review_check signs PASS at the current head. One further ordinary round is needed solely to re-earn lane verdicts over this single surgical fix.",
+  "reviewRound": "2026-09-01T15:41:35.801Z",
   "approvedBy": "qipan",
-  "recordedAt": "2026-09-01T15:41:20.477Z",
-  "_hash": "fa3a4cf0e5ea14e4c4ed1b7972e78697c09114eb5c15e4c3dfb5cbe5854a4bba"
+  "recordedAt": "2026-09-01T17:55:42.176Z",
+  "_hash": "d89119a52651f205241c2f0259a2b853c66435af7e1872e2676d8af31af35166"
 }
