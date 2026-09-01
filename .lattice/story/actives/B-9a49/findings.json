@@ -417,7 +417,7 @@
       "desc": "acceptance-proof-chain-missing: the current formal concept-review contract requires the verifier-owned acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read / acceptance_rollout_check chain to have a current signed PASS receipt with genuine full 3 rounds x 2 hosts. At HEAD c8195155155a3b2ed38749a05a00f6f488df5cf6, acceptance_topology_check reports status=inconclusive, basis=partial, structural pass=no and missing topology for ACCEPT-AGENT-SYSTEM-BOUNDARY and ACCEPT-REVIEW-TRIAGE-DELIVERY; pre_review_check_read reports FAIL with authority=inadmissible and missing executable/mutation/transcript proof; both rollout readers report FAIL AR_REPORT_MISSING with receipt=missing and quorum=degraded-or-missing. The 45/45 current checklist receipts and passing prompt smokes do not substitute for that explicitly required signed rollout proof. Observe mode is non-blocking to the lifecycle gate, but it cannot support a formal concept PASS under this reviewer contract. Generate the required verifier-owned proof or repair the Story acceptance topology/rollout basis before re-review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T23:19:11.711Z",
@@ -458,7 +458,11 @@
         "packages/main/templates/agents/lattice-review-concept.md"
       ],
       "signatureTag": "missing|md|acceptance-proof-chain",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits ea14734 and 8ae6e650 plus the final Story-owned acceptance contract correction. Current local acceptance_topology_check reports status=pass, structuralPass=true, basisStatus=complete, diagnostics=[]; pre_review_check reports ok=true, status=pass, codes=[], executableEvidence=current, mutations=biting, transcript=related, authority=admissible; acceptance_rollout_report_read and acceptance_rollout_check both report ok=true, status=pass, receipt=current, quorum=full-3x2, diagnostics=[].",
+      "resolvedAt": "2026-09-01T08:40:14.914Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-021",
