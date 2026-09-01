@@ -106,6 +106,28 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv160i_in5_83e25d5f910440a1b58bea79b5598dc9",
       "ledgerCommitReceiptId": "lrc_mtiv160i_in5_8845956e46d24b789b8889defcb3ba96"
+    },
+    {
+      "id": "B-fe8f:F-007",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:386-417,432-481 validates only the proposal top-level key set and shallow variant shape. It never requires FindingRef.recordId, the required dependencyBundle members, non-empty current witness receipts, or a truthful proposalSigner algorithm/keyId/trustRoot; receipt currentness rejects only the explicit boolean false, so an omitted result is accepted. Repro after rebuilding dist: a correctly Ed25519-signed proposal with findingRef missing recordId, dependencyBundle={}, currentWitness.receiptIds=[], and proposalSigner.algorithm=\"rsa\"/empty keyId/trustRoot returns {valid:true}. This contradicts the immutable exact-union, named signer/trust, dependency-bundle, and non-current-receipt fail-closed contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T16:08:59.022Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-005",
+      "_hash": "6bc1b4aa436996bed150d30af836b41a6edf70d4a6f547773870a63642e05c25",
+      "files": [
+        "packages/main/src/handlers/finding-ledger.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiv3wdj_11y9_5341237aeeed415483169f076fc70617",
+      "ledgerCommitReceiptId": "lrc_mtiv3wdj_11y9_e5f37013353744ef942fec4c2143ab3e"
     }
   ]
 }
