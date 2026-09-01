@@ -9,6 +9,11 @@ Created: 2026-08-30
 Scope: future implementation Stories; this document does not implement schemas,
 commands, persistence, gates, package renames, or historical-data migration.
 
+Compatibility boundary: the current CLI implements neither the future legacy
+verdict-alias normalization described below nor a signed
+`FindingDeferralDisposition` / `defer_with_proof` path. Nothing in this plan is
+evidence that either target-state mechanism ran.
+
 ## 1. Executive decision
 
 Proof-or-Stop should build a **Dynamic Finding System**, but "dynamic" must not
@@ -518,7 +523,7 @@ non-responsibilities.
 
 | Contract | Definition |
 | --- | --- |
-| Inputs | Proposed Finding, assessment, supersession, manifest, route, and receipt mutations; actor/session; idempotency key; expected prior digest |
+| Inputs | Proposed Finding, assessment, deferral disposition, supersession, manifest, route, and receipt mutations; actor/session; idempotency key; expected prior digest |
 | Records | Immutable ledger entries, unique IDs, transaction/commit digest, `FindingLedgerReceipt`, lock/lease diagnostics |
 | Authority | Authoritative only for persistence integrity: whether exact bytes were durably committed once. It does not attest that the content is true. |
 | Outputs | Exactly-once append result, durable ID, previous/new ledger digest, replay result, explicit conflict/refusal |
@@ -547,9 +552,9 @@ same defect, and several independent sources may describe one semantic defect.
 | Contract | Definition |
 | --- | --- |
 | Inputs | One verified/open Finding, target Story, signed scope contract/digest, base/head evidence, current diff/touchpoints, canonical owner, routing candidates, review run, freshness verdicts |
-| Records | Signed `FindingApplicabilityAssessment`, signed batch disposition manifest, reviewer override/adjudication with reason |
+| Records | Signed `FindingApplicabilityAssessment`, signed `FindingDeferralDisposition`, signed batch disposition manifest, reviewer override/adjudication with reason |
 | Authority | Advisory in observe/warn. In enforce, only the designated CLI writer plus eligible current reviewer may mint the signed L4 assessment consumed by the shared predicate. |
-| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; owner/route; evidence references; gate projection |
+| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `not_reproduced_under_current_witness`, or `unknown`; owner/route; evidence references; gate projection; and, only after `applicable`, an optional signed deferral disposition |
 | Non-responsibilities | Changing Finding truth/severity/status, declaring semantic identity from similarity, proving bytes were stored, producing runtime receipts, or deleting the underlying issue |
 
 Applicability is target-specific and expiring. A Finding may be applicable to
@@ -559,8 +564,8 @@ Story A, pre-existing for Story B, and duplicate of a canonical owner in Story C
 
 | Contract | Definition |
 | --- | --- |
-| Inputs | Assessment signature and bindings, current `headHash`, `materialHash`, `storyFilesHash`, scope digest, runtime receipts, predecessor/successor Finding records, source hashes |
-| Records | `RuntimeEvidenceReceipt`, `FindingSupersession`, freshness evaluation, canonical-current-record projection, re-attestation advisory |
+| Inputs | Assessment and deferral-disposition signatures and bindings, current `headHash`, `materialHash`, `storyFilesHash`, scope digest, runtime receipts, predecessor/successor Finding records, source hashes |
+| Records | `RuntimeEvidenceReceipt`, `FindingSupersession`, assessment/disposition freshness evaluation, canonical-current-record projection, re-attestation advisory |
 | Authority | Runtime receipts and signed assessment freshness are authoritative only for the evidence they bind. Supersession is authoritative for historical record selection after signature/chain validation. Historical content remains non-authoritative for a new Story until revalidated. |
 | Outputs | fresh, valid-with-re-attestation-advisory, stale, tampered, missing; canonical current historical record; exact invalidation reason |
 | Non-responsibilities | Deciding whether a detector hit is a defect, whether two sources are semantically equivalent, assigning severity, or persisting records without the ledger component |
@@ -665,7 +670,7 @@ interface FindingApplicabilityAssessment {
     | 'pre_existing_unaffected'
     | 'out_of_scope'
     | 'duplicate'
-    | 'stale_or_not_reproduced'
+    | 'not_reproduced_under_current_witness'
     | 'unknown';
   basis:
     | 'introduced_by_diff'
@@ -701,6 +706,38 @@ interface FindingApplicabilityAssessment {
   assessedBy: string;
   assessedAt: string;
   assessmentHash: string;
+  signature: string;
+}
+
+interface FindingDeferralDisposition {
+  schemaVersion: 1;
+  dispositionId: string;
+  storyId: string;
+  findingId: string;
+  assessmentId: string;
+  action: 'defer_with_proof';
+  severityAtDecision: 'medium' | 'low';
+  canonicalDefectId: string;
+  owner: 'meta' | 'other_story';
+  route: { targetStoryId: string; targetFindingId: string };
+  routeReceiptId: string;
+  reproductionEvidenceRefs: string[];
+  noWorseningEvidenceRefs: string[];
+  recheckTriggers: string[];
+  expiresAt: string;
+  predecessorDispositionId?: string;
+  cumulativeDeferralCount: number;
+  cumulativeDeferralLimit: number;
+  reviewRunId: string;
+  reviewRound: string;
+  scopeDigest: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  runtimeReceiptIds: string[];
+  createdBy: string;
+  createdAt: string;
+  dispositionHash: string;
   signature: string;
 }
 
@@ -746,12 +783,15 @@ interface FindingDispositionManifest {
   storyId: string;
   reviewRunId: string;
   assessmentIds: string[];
+  deferralDispositionIds: string[];
   dispositions: Array<{
     findingId: string;
     assessmentId: string;
+    deferralDispositionId?: string;
     expectedFindingHash: string;
     expectedAssessmentHash: string;
-    action: 'retain_blocker' | 'route' | 'canonical_duplicate' | 'retain_unknown';
+    expectedDeferralDispositionHash?: string;
+    action: 'retain_blocker' | 'route' | 'canonical_duplicate' | 'retain_unknown' | 'defer_with_proof';
   }>;
   scopeDigest: string;
   storyFilesHash: string;
@@ -765,7 +805,7 @@ interface FindingLedgerReceipt {
   receiptId: string;
   storyId: string;
   idempotencyKey: string;
-  operation: 'append_finding' | 'append_assessment' | 'append_supersession' | 'apply_manifest';
+  operation: 'append_finding' | 'append_assessment' | 'append_deferral_disposition' | 'append_supersession' | 'apply_manifest';
   recordIds: string[];
   priorLedgerDigest: string;
   committedLedgerDigest: string;
@@ -779,7 +819,9 @@ interface FindingLedgerReceipt {
 The existing `Finding` remains the verified observation type. A candidate is
 not a Finding. A canonical defect is not an applicability verdict. A ledger
 receipt proves persistence, not truth. A runtime receipt proves what was run,
-not whether the resulting problem belongs to the Story.
+not whether the resulting problem belongs to the Story. A deferral disposition
+is a signed decision after `applicable`; it is not an applicability verdict and
+does not change the Finding's truth, severity, open status, or owner history.
 
 ## 7. Shared gate contract
 
@@ -789,12 +831,13 @@ Enforcement must extend one shared predicate rather than adding per-consumer
 interpretations:
 
 ```ts
-isDynamicFindingBlocking(finding, assessmentState, policy, round) =
+isDynamicFindingBlocking(finding, assessmentState, deferralState, policy, round) =
   finding.status === 'open'
   && policy.effectiveBlockingSeverities.includes(finding.severity)
   && isEvidenceStateBlocking(finding.evidenceState)
   && !isAdvisoryThisRound(finding.severity, round)
   && applicabilityBlocks(finding, assessmentState)
+  && dispositionBlocks(finding, assessmentState, deferralState, policy)
 ```
 
 `applicabilityBlocks` is:
@@ -821,6 +864,19 @@ assessment projects to `unknown`; any Finding blocked by the previous predicate
 continues to block. Legacy missing `evidenceState` keeps the current compatibility
 projection to verified. No bulk rewrite is needed.
 
+`dispositionBlocks` returns false only for a fresh, signature-valid
+`defer_with_proof` disposition attached to a fresh `applicable` assessment and
+an otherwise eligible verified applicable low or medium Finding. It returns
+true for every mandatory current-repair case: critical or high severity; a
+defect introduced or worsened by the current Story; direct acceptance,
+verification-intent, core-user-result, or public-compatibility impact; known or
+uncertain protected-surface impact; lifecycle or gate evidence that would
+become misleading; or missing, invalid, expired, tampered, partially applied,
+ownerless, exhausted, or otherwise invalid disposition lineage. Deferral can
+therefore narrow current work only through stronger signed proof. It cannot
+turn a Finding into `out_of_scope`, dismiss it, resolve it, rewrite severity,
+or make unknown applicability non-blocking.
+
 ### 7.2 Proof required for a non-blocking verdict
 
 | Verdict | Minimum proof before it may be non-blocking |
@@ -828,13 +884,45 @@ projection to verified. No bulk rewrite is needed.
 | `pre_existing_unaffected` | Deterministic base and head reproduction receipts; same defect exists at base and head; Story does not worsen severity/impact; Story scope does not promise its repair; valid owner/route |
 | `out_of_scope` | Signed scope/decision evidence naming the excluded contract; no contradictory checklist/acceptance promise; route to a valid owner; high/critical cannot be left unowned |
 | `duplicate` | Reviewer-confirmed canonical defect; referenced canonical Finding exists and is signature-valid; live owning Story/Finding is named; no circular duplicate chain |
-| `stale_or_not_reproduced` | Current commands/receipts showing non-reproduction, with source/runtime freshness; it is not inferred from an old DONE outcome |
+| `not_reproduced_under_current_witness` | Current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route; it is never inferred from an old DONE outcome |
 | `unknown` | Never a non-blocking reason for an otherwise blocking Finding |
 
 File disjointness, model confidence, historical similarity, a signature tag,
 source-lineage equality, or an old out-of-scope result is insufficient.
 
-### 7.3 Freshness rules
+Future migration note: the retired input spelling
+`stale_or_not_reproduced` may be accepted only as an explicitly versioned legacy
+alias that normalizes to `not_reproduced_under_current_witness` before signing.
+It is not a second verdict, must never be emitted as canonical output, and is
+not accepted or normalized by the current compatibility CLI.
+
+### 7.3 Proof required for `defer_with_proof`
+
+Deferral is a disposition after `applicable`, never an applicability verdict.
+The future signer may mint it only when all of the following are true:
+
+- the Finding is verified, applicable, open, and low or medium severity;
+- current reproduction evidence exists and proves that the Story did not
+  introduce or worsen the defect;
+- the defect has no direct acceptance, verification-intent, core-user-result,
+  public-compatibility, protected-surface, lifecycle-evidence, or gate-truth
+  impact, including uncertainty on any protected surface;
+- a canonical defect, live owner, existing target Finding, and accepted
+  target-side route receipt are signature-valid and fresh;
+- source, scope, Story-file, runtime, review-run, and command-policy bindings
+  are current;
+- recheck triggers and a finite expiry are present; and
+- ledger-derived predecessor lineage proves that cumulative deferral and
+  renewal limits are not exhausted.
+
+A missing, invalid, expired, tampered, partially applied, ownerless, or
+exhausted disposition fails closed to mandatory current-Story repair. The
+deferred Finding remains verified, applicable, open, visible, and unchanged in
+severity. The current CLI implements no signed deferral command or artifact;
+prompt prose and compatibility `finding_dismiss`, gap, or backlog accounting
+cannot substitute for one.
+
+### 7.4 Freshness rules
 
 - Matching `materialHash`, `storyFilesHash`, scope digest, and required runtime
   receipts: fresh.
@@ -850,7 +938,7 @@ source-lineage equality, or an old out-of-scope result is insufficient.
 - Missing current `storyFilesHash`: strict `materialHash` fallback.
 - Invalid assessment or receipt signature/hash: tampered and fail closed.
 
-### 7.4 Consumers and process-fact contract
+### 7.5 Consumers and process-fact contract
 
 The implementation Story must first re-run this source search to discover the
 complete current consumer set:
@@ -910,9 +998,10 @@ Secondary mitigation is named without creating duplicate ownership.
 
 ### 9.1 Story 1 — Dynamic Finding Applicability
 
-**Objective.** Add target-Story verdict, owner/routing, batch disposition, signed
-freshness binding, and the shared gate predicate. This is the product-facing
-Dynamic Finding behavior.
+**Objective.** Add target-Story verdict, owner/routing, the narrow signed
+`defer_with_proof` disposition, batch disposition, signed freshness binding,
+and the shared gate predicate. This is the product-facing Dynamic Finding
+behavior.
 
 **Included component responsibility.** Own the Dynamic Applicability component
 and the assessment-consumer portion of Freshness and Supersession. Consume, but
@@ -932,6 +1021,8 @@ authoritative artifacts and cannot alter lifecycle output.
 
 - `FindingApplicabilityAssessment` schema, signer/verifier, append-only reader,
   and current projection.
+- `FindingDeferralDisposition` schema, signer/verifier, finite expiry,
+  cumulative-lineage accounting, and accepted-route receipt validation.
 - Exact verdict/basis/owner/route enums and proof validators.
 - Base/head reproduction adapter and no-worsening decision.
 - Scope, head, material, story-files, review-run, and runtime-receipt bindings.
@@ -952,6 +1043,16 @@ authoritative artifacts and cannot alter lifecycle output.
 - Missing, unsigned, tampered, scope-stale, story-files-stale, or runtime-stale
   assessment fails closed for an otherwise blocking Finding.
 - Unknown high/critical is never downgraded by applicability.
+- `defer_with_proof` is refused unless the Finding is verified, applicable,
+  open, low or medium, current, owned, receipted, unexpired, and within its
+  cumulative lineage limits.
+- Critical/high, introduced/worsened, direct acceptance or
+  verification-intent, protected-surface uncertainty, misleading lifecycle or
+  gate evidence, and invalid/exhausted lineage remain blocking even when a
+  deferral-shaped record is present.
+- A valid deferral preserves the Finding's verified truth, severity, open
+  status, visibility, and applicability; compatibility dismissal/gap/backlog
+  records cannot impersonate it.
 - `materialHash`-only drift with matching signed `storyFilesHash` emits the
   required re-attestation advisory and does not silently rebind.
 - Repeated manifest apply is idempotent.
@@ -961,8 +1062,9 @@ authoritative artifacts and cannot alter lifecycle output.
 
 **Non-goals.** No detector/index implementation; no canonical defect inference;
 no ledger primitive; no runtime receipt implementation; no historical bulk
-assessment; no lab rename; no new convergence breaker; no claim that routed or
-duplicate real issues cease to exist.
+assessment; no current-CLI compatibility shim for alias normalization or
+deferral; no lab rename; no new convergence breaker; no claim that routed,
+duplicate, or deferred real issues cease to exist.
 
 ### 9.2 Story 2 — Finding Identity and Historical Lineage
 
@@ -1120,6 +1222,12 @@ the existing review assurance floor to make the combination pass.
   current CLI/gate compatibility rule.
 - Legacy missing assessment projects to unknown; it cannot downgrade an old
   blocker.
+- A future versioned reader may normalize the single retired verdict alias
+  described in section 7.2, but the current CLI does not. Canonical writers and
+  outputs always use `not_reproduced_under_current_witness`.
+- Historical compatibility dismissal, gap, or backlog records never migrate
+  into signed deferral dispositions. A future disposition must be freshly
+  assessed, signed, receipted, expiring, and lineage-bound.
 - Resolve supersession chains during lookup, while preserving predecessor
   access and audit history.
 - All new records are additive and versioned. Older binaries can ignore them
@@ -1131,7 +1239,7 @@ the existing review assurance floor to make the combination pass.
 | --- | --- | --- | --- | --- | --- |
 | `observe` | Read-only classifier/index prototype passes structural tests | None; stdout/report only. Benchmark artifacts, if explicitly exported outside lifecycle state, remain non-authoritative. | Existing `isFindingBlocking` only | Candidate groups, proposed verdicts, evidence gaps, predicted blocker delta, latency | Exit to warn after labeled replay shows no safety violation and Story 3/2 dependencies needed by persisted advice are ready; kill switch simply disables output |
 | `warn` | Story 3 atomic persistence accepted; Story 2 candidate/identity/supersession accepted; observe qualification thresholds met | Append non-authoritative candidate/triage reports and reviewer overrides with audit lineage; no L4 assessment may affect lifecycle | Existing predicate only; advice cannot change transition result | Old blocker set plus proposed dynamic set, reasons, stale/unknown/routing warnings, override audit | Return to observe on data/persistence defect; advance only after merged-state enforce qualification |
-| `enforce` | All three Stories accepted; signed current-material assessment; runtime receipt; shared predicate/process-fact contract; legacy compatibility; adversarial and rollback tests green | Atomic/idempotent L4 assessment and manifest records plus audit records | Shared `isDynamicFindingBlocking` only | Effective blocker set, verdict/evidence/owner, freshness state, advisory whole-tree drift, kill-switch state | Any safety threshold breach immediately changes feature state to warn and restores previous predicate; records remain append-only |
+| `enforce` | All three Stories accepted; signed current-material assessment; runtime receipt; shared predicate/process-fact contract; legacy compatibility; signed-deferral eligibility and lineage checks; adversarial and rollback tests green | Atomic/idempotent L4 assessment, optional deferral-disposition, and manifest records plus audit records | Shared `isDynamicFindingBlocking` only | Effective blocker set, verdict/evidence/owner, optional disposition and expiry/lineage state, freshness state, advisory whole-tree drift, kill-switch state | Any safety threshold breach immediately changes feature state to warn and restores previous predicate; records remain append-only |
 
 The feature-state downgrade is a policy switch, not a data rollback. Disabling
 enforce must restore the previous authoritative blocker predicate and treat all
@@ -1146,7 +1254,7 @@ requires freshness evaluation; no old assessment is silently rebound.
 - Advisory records never become evidence after downgrade.
 - Repeated manifest apply remains idempotent across the state change.
 - Scope, Story-owned material, and runtime artifact changes invalidate exactly
-  the dependent assessments.
+  the dependent assessments and deferral dispositions.
 - Whole-tree-only drift is surfaced for re-attestation and is never silently
   classified by the host.
 - Rollback/recovery performs no historical record rewrite or deletion.
@@ -1188,6 +1296,7 @@ merged-state dependency review.
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
 | Duplicate/routed disposition accuracy | Correct canonical duplicate or valid routed-owner decisions / all independently reviewed duplicate/routed decisions | Manifest, canonical lookup, route target validation | >=98%; 100% of real high/critical non-blocking issues have a valid owner | Any unowned high/critical or <98% |
+| Deferral safety | Correctly signed, eligible, current, unexpired, receipted low/medium deferrals / all independently reviewed proposed deferrals | Assessment, disposition, route receipt, expiry, and cumulative-lineage validation | 100%; zero mandatory current-repair case deferred | Any invalid deferral or mandatory current-repair case accepted |
 | Manual Finding-operation reduction | Avoided individual resolve/dismiss commands on batch-eligible rows / baseline individual operations for matched Story class | Process events; matched before/after or randomized warn cohort | >=50% on Finding-heavy cohort with safety floor intact | Safety breach, or no reduction after two windows |
 | Review convergence | Median change in genuine review-round count and REVIEW elapsed time for matched Story classes | Phase/process events; runs/lanes reported separately | >=30% reduction in either round count or elapsed review time, with simple-Story regression <=10% | >10% simple-Story regression for two windows or any safety breach |
 | Triage latency | p50/p95 wall time from candidate-set freeze to signed proposed manifest; retries separately reported | Monotonic timing in scorecard, fixed qualification corpus/hardware | p50 <=2s and p95 <=5s for the 2,273-Finding-scale qualification corpus | p95 >10s for two windows or timeouts >1% |
@@ -1285,6 +1394,7 @@ operator's lab request is not authority to rename utils.
 | A correct assessment survives changed runtime bytes | Receipt omits artifact/build binding | False blocker or false pass | Story 3 runtime receipt prerequisite; mutation/tamper campaign; no enforce without 100% rejection |
 | Parallel reviewers lose or alias records | New record path bypasses shared transaction | Audit evidence disappears | Story 3 first; concurrency/idempotency tests; contract verifier requires atomic persistence |
 | Historical similarity becomes authority | Recall/tag/playbook is read by gate | Old context silently changes lifecycle | Hard `authority=non_authoritative`, `gateEvidence=false`; process-fact verifier rejects dependency |
+| A deferral-shaped record waives mandatory current repair | Severity, Story causation, acceptance impact, protected-surface uncertainty, gate truth, expiry, or lineage is not checked | Applicable defect ships under a false deferral | Signed disposition only after applicable; all eligibility predicates fail closed; any accepted invalid deferral stops enforce |
 | Review work does not converge after filtering/routing | Genuine defects remain or task is ill-posed | Dynamic system is blamed or used to waive work | Keep existing `stall_resolution_set` adjudication; stop promising further efficiency and replan/split when convergence backstop fires |
 
 If Story 3 cannot prove lossless idempotent writes, Story 2 may remain a read-only
@@ -1333,6 +1443,16 @@ The program is complete only when all of the following are true in merged state:
 - Runtime execution evidence binds the bytes actually executed to source and
   command.
 - Applicability is target-Story-specific, signed, fresh, and routed.
+- The canonical negative-witness verdict is
+  `not_reproduced_under_current_witness`; legacy input normalization is
+  versioned, explicit, and never emitted as canonical output.
+- `defer_with_proof` exists only as a signed disposition after `applicable`,
+  only for eligible verified applicable low or medium Findings, and preserves
+  the Finding's truth, severity, open status, visibility, and owner history.
+- Every mandatory current-repair case remains blocking, including
+  critical/high, introduced/worsened, direct acceptance or
+  verification-intent impact, protected-surface uncertainty, misleading
+  lifecycle or gate evidence, and invalid or exhausted disposition lineage.
 - Every non-blocking real high/critical issue has a valid owner.
 - Missing/stale/tampered/unknown cannot downgrade an otherwise blocking Finding.
 - One shared predicate drives every blocker consumer and is registered as an L4

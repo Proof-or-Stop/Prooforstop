@@ -20,6 +20,7 @@ import {
 import { LATTICE_CLI_VERSION } from './lattice-brand.js';
 import type { ChecklistData, ScopeContractData, StoryInfo } from './types.js';
 import { digestScopeContract } from './guard-session.js';
+import { isModularReviewerRoleId } from './prompt-registry.js';
 
 export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proofbound.full-context-assembler.v1';
 export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proofbound.prompt-dispatch.v1';
@@ -130,6 +131,59 @@ function assertContractRenderCoherence(
   const roleRenderDigest = domainSeparatedDigest('role-contract.render.v1', rolePrompt);
   if (roleContract.renderDigest !== roleRenderDigest) {
     throw new Error(`Role Contract renderDigest does not match the canonical prompt bytes for ${roleContract.roleId}`);
+  }
+}
+
+const RETIRED_REVIEW_APPLICABILITY_VERDICT = /\bstale_or_not_reproduced\b/u;
+const CONTRADICTORY_REVIEW_TRIAGE_AUTHORITY = [
+  /\btreat\s+defer_with_proof\s+as\s+an?\s+applicability\s+verdict\b/iu,
+  /\bdefer_with_proof\s+is\s+an?\s+applicability\s+verdict\b/iu,
+  /\breviewers?\s+(?:may|can|must|should)\s+(?:sign|mint|approve)\s+defer_with_proof\b/iu,
+  /\bseverity\s+alone\s+(?:decides|determines)\s+(?:the\s+)?(?:story\s+)?scope\b/iu,
+  /\bfinding_dismiss\s+proves\s+(?:out_of_scope|deferral|repair|resolution)\b/iu,
+] as const;
+
+function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Array<[string, string]> {
+  const values: Array<[string, string]> = [
+    ['story.title', taskContext.title],
+    ['story.description', taskContext.description],
+  ];
+  for (const item of taskContext.checklist) {
+    values.push([`checklist.${item.id}.title`, item.title]);
+    if (item.context !== undefined) values.push([`checklist.${item.id}.context`, item.context]);
+    if (item.userSees !== undefined) values.push([`checklist.${item.id}.userSees`, item.userSees]);
+    for (const lane of ['happy', 'edge', 'adversarial'] as const) {
+      for (const intent of item.verificationIntent[lane]) {
+        values.push([`verificationIntent.${intent.id}.desc`, intent.desc]);
+      }
+    }
+  }
+  return values;
+}
+
+/**
+ * REVIEW role authority is package-owned. Story-authored Task Context may
+ * describe work and acceptance, but it cannot revive a retired verdict or
+ * assert a contradictory Finding-triage rule. This check runs before envelope
+ * digests are minted, so recomputing every content address cannot bless an
+ * authority injection.
+ */
+function assertReviewerTaskContextAuthoritySafety(
+  roleId: string,
+  taskContext: FullTaskContext,
+): void {
+  if (!isModularReviewerRoleId(roleId)) return;
+  for (const [location, text] of reviewerTaskContextAuthorityText(taskContext)) {
+    if (RETIRED_REVIEW_APPLICABILITY_VERDICT.test(text)) {
+      throw new Error(
+        `REVIEW Task Context contains retired Finding-triage authority at ${location}`,
+      );
+    }
+    if (CONTRADICTORY_REVIEW_TRIAGE_AUTHORITY.some(pattern => pattern.test(text))) {
+      throw new Error(
+        `REVIEW Task Context contains contradictory Finding-triage authority at ${location}`,
+      );
+    }
   }
 }
 
@@ -274,6 +328,7 @@ export function verifyPromptEnvelopeIntegrity(envelope: PromptEnvelope): boolean
 
 export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): FullPromptAssembly {
   validateFullTaskContext(input.taskContext);
+  assertReviewerTaskContextAuthoritySafety(input.roleContract.roleId, input.taskContext);
   const environment = input.knownExecutionEnvironment ?? captureKnownExecutionEnvironment();
   validateKnownExecutionEnvironment(environment);
   if (input.roleContract.status !== 'active') {

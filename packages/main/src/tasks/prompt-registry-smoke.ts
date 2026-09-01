@@ -74,6 +74,7 @@ const qualityProofMetadataPhrases = [
 ];
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
+const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
 const approvedReviewFindingTriageProposalSha256 = '507c92ba1c8fbfe4fc20fba9a3ff99364bc44ec6b5c48b8c0ed0bee51ca62947';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
@@ -561,6 +562,33 @@ function assertReviewFindingTriageProposal(): void {
   }
 }
 
+function assertDynamicFindingAuthorityProjection(): void {
+  const plan = readFileSync(join(projectRoot, dynamicFindingExecutionPlanPath), 'utf8');
+  const normalizedPlan = plan.replace(/\s+/gu, ' ');
+  assert.doesNotMatch(plan, /[\u3400-\u9fff]/u, 'the Dynamic Finding target-state plan is English-only');
+  assert.equal(
+    occurrenceCount(plan, '`stale_or_not_reproduced`'),
+    1,
+    'the authority plan retains the retired verdict exactly once as a labeled future legacy alias',
+  );
+  for (const phrase of [
+    '`not_reproduced_under_current_witness`',
+    'interface FindingDeferralDisposition',
+    "action: 'defer_with_proof'",
+    'Deferral is a disposition after `applicable`, never an applicability verdict.',
+    'critical or high severity',
+    'introduced or worsened by the current Story',
+    'direct acceptance,',
+    'known or uncertain protected-surface impact',
+    'lifecycle or gate evidence that would become misleading',
+    'exhausted, or otherwise invalid disposition lineage',
+    'the current CLI implements neither the future legacy',
+    'The current CLI implements no signed deferral command or artifact',
+  ]) {
+    assert.ok(normalizedPlan.includes(phrase), `the Dynamic Finding authority plan keeps target-state phrase: ${phrase}`);
+  }
+}
+
 function assertOwnerAndImplementerTriageGuidance(): void {
   const ownerGuide = readFileSync(join(projectRoot, 'AGENTS.md'), 'utf8');
   for (const phrase of [
@@ -636,6 +664,7 @@ function assertOwnerAndImplementerTriageGuidance(): void {
 }
 
 assertReviewFindingTriageProposal();
+assertDynamicFindingAuthorityProjection();
 assertReviewFindingTriageDelivery();
 assertOwnerAndImplementerTriageGuidance();
 if (process.argv.includes('--review-finding-triage-only')) {
