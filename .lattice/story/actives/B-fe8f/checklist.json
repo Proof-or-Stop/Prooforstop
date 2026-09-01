@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-01T10:26:01.219Z",
       "endTime": null,
       "userSees": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
       "excludes": [
@@ -1763,6 +1763,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin content-addressed RuntimeEvidenceReceipt and real CLI adapter after signed ledger/CAS contract is committed."
+    },
+    {
+      "timestamp": "2026-09-01T10:26:01.219Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Restore completed implementation state after accepted scope-extension lifecycle reopen."
     }
   ]
 }
