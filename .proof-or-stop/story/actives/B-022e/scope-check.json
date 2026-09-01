@@ -1,97 +1,97 @@
 {
   "storyId": "B-022e",
-  "checkedAt": "2026-09-01T17:10:51.516Z",
+  "checkedAt": "2026-09-01T17:16:39.603Z",
   "features": [
     {
-      "feature": "Active package, CLI, config, path, runtime, prompt, and documentation identities use Proof-or-Stop only.",
-      "covered_by": "CHK-001/CHK-003/CHK-004/CHK-005/CHK-006/CHK-007",
+      "feature": "Active package/CLI/config/path/runtime/prompt/docs surfaces use Proof-or-Stop identity only",
+      "covered_by": "CHK-001, CHK-003, CHK-004, CHK-005, CHK-006, CHK-007",
       "status": "covered",
-      "excluded_by": null,
-      "source": "background.md; checklist CHK-001,003-007; proof-or-stop-identity-cutover.md"
+      "excluded_by": "",
+      "source": "background.md; checklist.json"
     },
     {
-      "feature": "Historical stories, signature salts, schemas, changelog records, and provenance-bound bytes remain exact and verifiable.",
-      "covered_by": "CHK-001/CHK-002/CHK-005/CHK-006/CHK-007",
+      "feature": "Historical proof bytes remain exact and independently verifiable",
+      "covered_by": "CHK-001, CHK-002, CHK-005, CHK-006, CHK-007",
       "status": "covered",
-      "excluded_by": null,
-      "source": "background.md; decision.json; checklist CHK-001,002,005-007"
+      "excluded_by": "",
+      "source": "background.md; checklist.json"
     },
     {
-      "feature": "The canonical CLI and Core converge to 0.3.270 after merging current main.",
-      "covered_by": "CHK-004/CHK-008",
+      "feature": "Root and @proof-or-stop/core converge on version 0.3.270",
+      "covered_by": "CHK-004, CHK-008",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-004 userSees and CHK-008 happy; package.json; packages/main/package.json; bcfc0b581a merge delta"
+      "excluded_by": "",
+      "source": "understanding.json; plan.md; package manifests"
     },
     {
-      "feature": "Utils remains independently versioned at 0.3.268 and requires @proof-or-stop/core ^0.3.268.",
+      "feature": "@proof-or-stop/utils remains independently 0.3.268 with @proof-or-stop/core peer floor ^0.3.268",
       "covered_by": "CHK-008",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-008 happy; packages/utils/package.json"
+      "excluded_by": "",
+      "source": "understanding.json; plan.md; packages/utils/package.json"
     },
     {
-      "feature": "Lab remains independently versioned at 0.3.65 and requires @proof-or-stop/core ^0.3.65.",
+      "feature": "@proof-or-stop/lab remains independently 0.3.65 with @proof-or-stop/core peer floor ^0.3.65",
       "covered_by": "CHK-008",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-008 happy; packages/lab/package.json"
+      "excluded_by": "",
+      "source": "understanding.json; plan.md; packages/lab/package.json"
     },
     {
-      "feature": "Adversarial version coverage rejects any older or mismatched active version authority without freezing a superseded patch literal.",
+      "feature": "Adversarial version verification rejects any older or mismatched authority without freezing an obsolete patch number",
       "covered_by": "CHK-008",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-008 adversarial"
+      "excluded_by": "",
+      "source": "checklist.json"
     },
     {
-      "feature": "The post-main-merge version correction is convergence-only and introduces no new product feature or compatibility alias.",
+      "feature": "Main-merge version correction is convergence-only and does not widen features or legacy aliases",
       "covered_by": "CHK-008",
       "status": "covered",
-      "excluded_by": null,
-      "source": "bcfc0b581a merge delta; checklist CHK-004/CHK-008"
+      "excluded_by": "",
+      "source": "plan.md; decision.json"
     },
     {
-      "feature": "The active INIT reviewer remains proof-or-stop-review-story-init and retired lattice role names remain unresolvable.",
-      "covered_by": "CHK-005/CHK-006",
+      "feature": "Active INIT reviewer identity is proof-or-stop-review-story-init and retired role identities remain unresolvable",
+      "covered_by": "CHK-005, CHK-006",
       "status": "covered",
-      "excluded_by": null,
-      "source": "background operator clarification; init-check-gate.ts; agent-dispatch-registry.ts; active agent assets"
+      "excluded_by": "",
+      "source": "background.md; checklist.json"
     },
     {
-      "feature": "Packed clean consumers expose only proof-or-stop and @proof-or-stop packages with no retired alias or file dependency escape hatch.",
-      "covered_by": "CHK-003/CHK-004/CHK-007",
+      "feature": "Packed clean consumers expose only canonical Proof-or-Stop package and command identities",
+      "covered_by": "CHK-003, CHK-004, CHK-007",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-003/004/007; proof-or-stop-identity-cutover.md"
+      "excluded_by": "",
+      "source": "plan.md; checklist.json"
     },
     {
-      "feature": "Remote publish or push is outside B-022e closeout.",
-      "covered_by": null,
+      "feature": "Remote publish and push are outside this story",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "CHK-007 and CHK-008 explicitly exclude remote publish and task/main push.",
-      "source": "checklist CHK-007/CHK-008 excludes"
+      "excluded_by": "CHK-007, CHK-008",
+      "source": "plan.md"
     },
     {
-      "feature": "The execution plan states the current final version contract.",
+      "feature": "Execution plan states the current final version contract",
       "covered_by": "CHK-008",
-      "status": "drift",
-      "excluded_by": null,
-      "source": "plan.md CHK-008 still says root/Core/Utils synchronize at 0.3.268, conflicting with current checklist and manifests."
-    },
-    {
-      "feature": "The understanding outcome states the current user-visible CLI version.",
-      "covered_by": "CHK-004/CHK-008",
-      "status": "drift",
-      "excluded_by": null,
-      "source": "understanding.json outcome still promises Proof-or-Stop 0.3.268, while current checklist/manifests/CLI are 0.3.270."
-    },
-    {
-      "feature": "Current CLI documentation will be reconciled to the final canonical version during the existing documentation checklist scope.",
-      "covered_by": "CHK-006/CHK-008",
       "status": "covered",
-      "excluded_by": null,
-      "source": "docs/CLI.md currently says 0.3.268; CHK-006 covers current product documentation and CHK-008 covers final version synchronization."
+      "excluded_by": "",
+      "source": "plan.md"
+    },
+    {
+      "feature": "Understanding outcome states current CLI and package-version split",
+      "covered_by": "CHK-004, CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.json"
+    },
+    {
+      "feature": "docs/CLI.md version correction remains within existing CHK-006/CHK-008 DEV touchpoints and is not a PLAN scope gap",
+      "covered_by": "CHK-006, CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist relatedDocs; docs/CLI.md"
     }
   ],
   "readManifest": {
@@ -104,10 +104,7 @@
       "package.json",
       "packages/lab/package.json",
       "packages/main/package.json",
-      "packages/main/src/core/agent-dispatch-registry.ts",
-      "packages/main/src/core/init-check-gate.ts",
-      "packages/utils/package.json",
-      "proof-or-stop.config.json"
+      "packages/utils/package.json"
     ],
     "filesTriagedByName": [
       "AGENTS.md",
@@ -127,29 +124,13 @@
   },
   "summary": {
     "total": 13,
-    "covered": 10,
+    "covered": 12,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 2
+    "drift": 0
   },
   "reviewRound": "2026-09-01T16:06:49.189Z",
-  "_hash": "ef3ca79e4b5f713270ba456e32b7b01b4d618bfac1a7c6f86cde49a759785fb2",
-  "openQuestions": [
-    {
-      "id": "OQ-SCOPE-VERSION-001",
-      "q": "Will the owner update the PLAN execution plan and understanding outcome through authorized lifecycle commands so every active planning truth source matches root/Core 0.3.270, Utils 0.3.268 with Core ^0.3.268, and Lab 0.3.65 with Core ^0.3.65 before DEV?",
-      "evidence": "Current package manifests and CLI report 0.3.270 for root/Core, while plan.md CHK-008 still synchronizes root/Core/Utils at 0.3.268 and understanding.outcome still promises CLI 0.3.268. The checklist correction itself is narrow and correct, but the PLAN corpus is internally inconsistent.",
-      "sourcePointers": [
-        ".proof-or-stop/story/actives/B-022e/plan.md#CHK-008",
-        ".proof-or-stop/story/actives/B-022e/understanding.json#outcome",
-        ".proof-or-stop/story/actives/B-022e/checklist.json#CHK-004",
-        ".proof-or-stop/story/actives/B-022e/checklist.json#CHK-008",
-        "package.json#version",
-        "packages/main/package.json#version",
-        "packages/utils/package.json#version",
-        "packages/lab/package.json#version"
-      ]
-    }
-  ]
+  "_hash": "e030dfcdb03240af064a0cd848d7278fb06590feef5f2c50e3703908cca0b38e",
+  "openQuestions": []
 }
