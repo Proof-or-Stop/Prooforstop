@@ -48,6 +48,7 @@ import {
 import {
   appendLedgerTransaction,
   readLedger,
+  writeLedgerAtomic,
   type AppendLedgerOptions,
   type AppendPlan,
   type AppendRequest,
@@ -518,6 +519,27 @@ export class StoryStore {
     options: AppendLedgerOptions = {},
   ): AppendPlan<T> {
     return appendLedgerTransaction(this.findingLedgerPath(storyId), request, fence, options);
+  }
+
+  /**
+   * Schema-neutral choke point for exact-CAS consumers that must add their
+   * signed acknowledgement to the same durable envelope publication. The
+   * caller owns predicate meaning; this method only preserves fencing and
+   * atomicity around the supplied plan.
+   */
+  transactFindingLedger<T = unknown, R = unknown>(
+    storyId: string,
+    fence: LedgerFence,
+    prepare: (current: LedgerEnvelope<T>) => { plan: AppendPlan<T>; result: R },
+    options: AppendLedgerOptions = {},
+  ): R {
+    fence.assertCurrent();
+    const current = readLedger<T>(this.findingLedgerPath(storyId));
+    const prepared = prepare(current);
+    if (prepared.plan.action === 'append') {
+      writeLedgerAtomic(this.findingLedgerPath(storyId), prepared.plan.envelope, fence, options);
+    }
+    return prepared.result;
   }
 
   readReviewPasses(storyId: string): ReviewPassData {

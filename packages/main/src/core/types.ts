@@ -1569,6 +1569,67 @@ export interface FindingLedgerCommitRef {
   replayed: boolean;
 }
 
+/**
+ * Signed acknowledgement for one durable Finding-ledger transaction.
+ *
+ * This is deliberately a persistence fact, not a Finding/route/assessment
+ * verdict. Consumers must still verify the exact referenced records and their
+ * own predicate before assigning semantic authority.
+ */
+export type FindingLedgerOperation =
+  | 'append_finding'
+  | 'append_legacy_identity_binding'
+  | 'append_detector_signal'
+  | 'append_candidate_route'
+  | 'append_candidate'
+  | 'append_assessment_proposal'
+  | 'append_assessment'
+  | 'append_mandatory_repair'
+  | 'append_deferral_expiry_policy'
+  | 'append_deferral'
+  | 'append_route_receipt'
+  | 'append_progress_baseline_set'
+  | 'append_material_drift_reattestation'
+  | 'append_runtime_receipt'
+  | 'append_canonical_defect_supersession'
+  | 'append_canonical_defect'
+  | 'append_supersession'
+  | 'apply_manifest';
+
+export interface FindingLedgerCasBinding {
+  recordType: string;
+  expectedRecordId: string;
+  expectedRecordHash: string;
+  observedChainHeadId: string;
+  observedChainHeadHash: string;
+  predicateDigest: string;
+}
+
+export interface FindingLedgerReceipt {
+  schemaVersion: 1;
+  ledgerSchemaEpoch: number;
+  minimumWriterCapability: string;
+  receiptId: string;
+  storyId: string;
+  idempotencyKey: string;
+  operation: FindingLedgerOperation;
+  recordIds: string[];
+  casBindings: FindingLedgerCasBinding[];
+  priorLedgerDigest: string;
+  committedLedgerDigest: string;
+  replayed: boolean;
+  committedAt: string;
+  writerSessionId: string;
+  writerLeaseId: string;
+  writerFenceToken: string;
+  keyId: string;
+  algorithm: string;
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+  receiptHash: string;
+  signature: string;
+}
+
 export interface ReviewerReadManifest {
   filesReadFully: string[];
   filesTriagedByName: string[];

@@ -24,6 +24,23 @@ import {
   type DurableCommitTrace,
   type JsonValue,
 } from '../core/finding-ledger.js';
+import { generateEd25519KeyPair } from '../core/authority-signing.js';
+import {
+  appendAssessmentProposal,
+  appendDeferralExpiryPolicy,
+  appendFindingLedger,
+  canonicalHash,
+  canonicalJson,
+  classifyMandatoryRepair,
+  closeMandatoryRepair,
+  exactLedgerRecordHash,
+  signAssessmentProposal,
+  verifyAssessmentProposal,
+  verifyFindingLedgerReceipt,
+  type LedgerAppendOptions,
+  type LedgerReceiptTrust,
+  type LedgerSigner,
+} from '../handlers/finding-ledger.js';
 import {
   acquireMkdirLock,
   captureMkdirLockFence,
@@ -110,6 +127,58 @@ async function runWorkers(specs: WorkerSpec[]): Promise<void> {
       else reject(new Error(`ledger worker exited ${code}: ${stderr || stdout}`));
     });
   })));
+}
+
+function signedApplicableProposal(
+  privateKey: string,
+  authorityDigest: string,
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+  const issuedAt = '2030-01-01T00:00:00.000Z';
+  return signAssessmentProposal({
+    schemaVersion: 1,
+    proposalId: 'proposal-001',
+    findingRef: { storyId: 'B-CAS', findingId: 'B-CAS:F-001' },
+    findingHash: 'finding-hash-001',
+    findingVersion: 'v1',
+    evaluationScope: 'target_story',
+    owner: 'current_story',
+    issuedAt,
+    expiresAt: '2030-01-01T02:00:00.000Z',
+    freshnessPolicyVersion: 'v1',
+    maxAgeSeconds: 7200,
+    dependencyBundle: {
+      digest: 'dependency-digest',
+      sourceFinding: { storyId: 'B-CAS', findingId: 'B-CAS:F-001', hash: 'finding-hash-001', version: 'v1' },
+      proofPolicyDigest: 'proof-policy',
+      reviewerAuthorityPolicyDigest: 'reviewer-policy',
+      ledgerSnapshotDigest: 'ledger-snapshot',
+    },
+    evidenceRefs: ['evidence:1'],
+    historicalSourceRefs: [],
+    protectedSurfaceEvaluation: [],
+    reviewRunId: 'review-run-001',
+    reviewRound: '1',
+    scopeDigest: 'scope-001',
+    headHash: 'head-001',
+    materialHash: 'material-001',
+    storyFilesHash: 'story-files-001',
+    runtimeReceiptIds: [],
+    assessedBy: 'assessment-authority',
+    proposalSigner: {
+      actorId: 'assessment-authority', authorityDigest, keyId: 'proposal-key',
+      algorithm: 'ed25519', trustRootDigest: 'proposal-trust-root',
+    },
+    verdict: 'applicable',
+    basis: 'direct_scope',
+    currentWitness: { receiptIds: ['runtime-001'], reproduced: true },
+    ...overrides,
+  }, privateKey);
+}
+
+function proposalUnsignedForSmoke(proposal: Record<string, unknown>): Record<string, unknown> {
+  const { proposalDigest: _digest, proposalSignature: _signature, ...unsigned } = proposal;
+  return unsigned;
 }
 
 if (process.argv[2] === '--ledger-worker') {
@@ -214,6 +283,498 @@ if (process.argv[2] === '--ledger-worker') {
     assert.equal(existsSync(store.storyFilePath(storeStoryId, 'findings.json')), false);
     assert.match(store.readFindings(storeStoryId).findings[0]?.recordId ?? '', /^lr_/);
     console.log('ledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true');
+
+    const signerPair = generateEd25519KeyPair();
+    const proposalPair = generateEd25519KeyPair();
+    const ledgerSigner: LedgerSigner = {
+      privateKey: signerPair.privateKey,
+      publicKey: signerPair.publicKey,
+      keyId: 'ledger-key-001',
+      trustRootDigest: 'ledger-trust-root-001',
+      keyFreshnessPolicyDigest: 'ledger-key-freshness-v1',
+    };
+    const ledgerTrust: LedgerReceiptTrust = {
+      publicKey: signerPair.publicKey,
+      keyId: ledgerSigner.keyId,
+      algorithm: 'ed25519',
+      trustRootDigest: ledgerSigner.trustRootDigest,
+      keyFreshnessPolicyDigest: ledgerSigner.keyFreshnessPolicyDigest,
+    };
+    const integrityStore = new StoryStore(join(scratch, 'chk003-store'));
+    const integrityStoryId = 'B-CAS';
+    const integrityLockDir = integrityStore.storyFilePath(integrityStoryId, 'findings.lock');
+    const integrityLock = acquireMkdirLock(integrityLockDir, {
+      label: 'CHK-003 exact CAS', requireHolderToken: true,
+    });
+    try {
+      const fence = captureMkdirLockFence(integrityLockDir);
+      const baseOptions = (idempotencyKey: string): Omit<LedgerAppendOptions<JsonValue>, 'operation' | 'records'> => ({
+        storyId: integrityStoryId,
+        store: integrityStore,
+        idempotencyKey,
+        writerSessionId: 'chk003-smoke-session',
+        writerLeaseId: 'chk003-smoke-lease',
+        writerFenceToken: fence.writerFenceToken,
+        fence,
+        signer: ledgerSigner,
+      });
+
+      const seedReceipt = appendFindingLedger({
+        ...baseOptions('chk003:seed'),
+        operation: 'append_finding',
+        records: [{ recordType: 'finding', payload: { id: 'B-CAS:F-001', status: 'open' } }],
+      });
+      const seedLedger = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const seedRecord = seedLedger.records[0]!;
+      const predicateDigest = canonicalHash({ decision: 'caller-approved', recordId: seedRecord.recordId });
+      const seedHeadHash = exactLedgerRecordHash(seedRecord);
+      const casBinding = {
+        recordType: seedRecord.recordType,
+        expectedRecordId: seedRecord.recordId,
+        expectedRecordHash: exactLedgerRecordHash(seedRecord),
+        observedChainHeadId: seedRecord.recordId,
+        observedChainHeadHash: seedHeadHash,
+        predicateDigest,
+      };
+      const casOptions: LedgerAppendOptions<JsonValue> = {
+        ...baseOptions('chk003:exact-cas'),
+        operation: 'append_candidate_route',
+        records: [{ recordType: 'candidate_route', payload: { findingId: 'B-CAS:F-001', advisoryOnly: true } }],
+        casBindings: [casBinding],
+        expectedPriorLedgerDigest: seedLedger.committedLedgerDigest,
+        verifyPredicate: (snapshot) => {
+          assert.equal(snapshot.referencedRecords.length, 1);
+          assert.equal(snapshot.referencedRecords[0]?.canonicalBytes, canonicalJson(seedRecord));
+          assert.equal(snapshot.currentChainHeadId, seedRecord.recordId);
+          assert.equal(snapshot.currentChainHeadHash, seedHeadHash);
+          return { accepted: true, predicateDigest };
+        },
+      };
+      const casReceipt = appendFindingLedger(casOptions);
+      const afterCas = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.equal(afterCas.records.length, 2);
+      assert.equal(verifyFindingLedgerReceipt(seedReceipt, ledgerTrust), true);
+      assert.equal(verifyFindingLedgerReceipt(casReceipt, ledgerTrust), true);
+      const acceptedReceiptKeys = [
+        'schemaVersion', 'ledgerSchemaEpoch', 'minimumWriterCapability', 'receiptId', 'storyId',
+        'idempotencyKey', 'operation', 'recordIds', 'casBindings', 'priorLedgerDigest',
+        'committedLedgerDigest', 'replayed', 'committedAt', 'writerSessionId', 'writerLeaseId',
+        'writerFenceToken', 'keyId', 'algorithm', 'trustRootDigest', 'keyFreshnessPolicyDigest',
+        'receiptHash', 'signature',
+      ].sort();
+      assert.deepEqual(Object.keys(casReceipt).sort(), acceptedReceiptKeys);
+      console.log('ledger.receipt_contract: PASS signedFields=complete');
+      console.log('ledger.exact_record_cas: PASS committed=true');
+
+      const replay = appendFindingLedger(casOptions);
+      const afterReplay = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.equal(replay.receiptId, casReceipt.receiptId);
+      assert.deepEqual(replay.recordIds, casReceipt.recordIds);
+      assert.equal(replay.signature, casReceipt.signature);
+      assert.equal(afterReplay.records.length, afterCas.records.length);
+      assert.equal(afterReplay.receipts.length, afterCas.receipts.length);
+      assert.equal(afterReplay.records.filter((record) => record.recordType === 'finding_ledger_receipt').length, 0);
+      console.log('ledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0');
+
+      const staleBaseCount = afterReplay.records.length;
+      const staleAttempts: Array<LedgerAppendOptions<JsonValue>> = [
+        {
+          ...baseOptions('chk003:stale-id'), operation: 'append_candidate_route',
+          records: [{ recordType: 'candidate_route', payload: { rejected: 'record-id' } }],
+          casBindings: [{ ...casBinding, expectedRecordId: 'missing-record' }],
+          expectedPriorLedgerDigest: afterReplay.committedLedgerDigest,
+          verifyPredicate: () => ({ accepted: true, predicateDigest }),
+        },
+        {
+          ...baseOptions('chk003:stale-hash'), operation: 'append_candidate_route',
+          records: [{ recordType: 'candidate_route', payload: { rejected: 'record-hash' } }],
+          casBindings: [{ ...casBinding, expectedRecordHash: '0'.repeat(64) }],
+          expectedPriorLedgerDigest: afterReplay.committedLedgerDigest,
+          verifyPredicate: () => ({ accepted: true, predicateDigest }),
+        },
+        {
+          ...baseOptions('chk003:stale-head'), operation: 'append_candidate_route',
+          records: [{ recordType: 'candidate_route', payload: { rejected: 'chain-head' } }],
+          casBindings: [{ ...casBinding }],
+          expectedPriorLedgerDigest: afterReplay.committedLedgerDigest,
+          verifyPredicate: () => ({ accepted: true, predicateDigest }),
+        },
+        {
+          ...baseOptions('chk003:stale-predicate'), operation: 'append_candidate_route',
+          records: [{ recordType: 'candidate_route', payload: { rejected: 'predicate' } }],
+          casBindings: [{
+            ...casBinding,
+            observedChainHeadId: afterReplay.records.at(-1)!.recordId,
+            observedChainHeadHash: exactLedgerRecordHash(afterReplay.records.at(-1)!),
+          }],
+          expectedPriorLedgerDigest: afterReplay.committedLedgerDigest,
+          verifyPredicate: () => ({ accepted: true, predicateDigest: 'different-predicate' }),
+        },
+        {
+          ...baseOptions('chk003:stale-ledger'), operation: 'append_candidate_route',
+          records: [{ recordType: 'candidate_route', payload: { rejected: 'prior-ledger' } }],
+          expectedPriorLedgerDigest: '0'.repeat(64),
+        },
+      ];
+      for (const attempt of staleAttempts) {
+        assert.throws(() => appendFindingLedger(attempt), /CAS_CONFLICT/);
+      }
+      assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, staleBaseCount);
+      console.log('ledger.stale_cas: PASS semanticWrites=0');
+
+      const proposal = signedApplicableProposal(proposalPair.privateKey, 'assessment-authority-digest');
+      const proposalOptions = {
+        ...baseOptions('chk003:proposal'),
+        proposal,
+        proposalPublicKey: proposalPair.publicKey,
+        expectedAuthorityDigest: 'assessment-authority-digest',
+        now: new Date('2030-01-01T00:30:00.000Z'),
+      };
+      const proposalReceipt = appendAssessmentProposal(proposalOptions);
+      const proposalLedger = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const proposalRecord = proposalLedger.records.find((record) => record.recordType === 'assessment_proposal')!;
+      const proposalReceiptRows = proposalLedger.receipts.filter((receipt) => (
+        receipt as typeof receipt & { findingLedgerReceipt?: unknown }
+      ).findingLedgerReceipt !== undefined);
+      assert.equal(proposalLedger.records.filter((record) => record.recordType === 'assessment_proposal').length, 1);
+      assert.equal(proposalReceiptRows.filter((receipt) => receipt.receiptId === proposalReceipt.receiptId).length, 1);
+      assert.equal(proposalLedger.records.filter((record) => record.recordType.includes('receipt')).length, 0);
+      console.log('ledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0');
+
+      const validProposal = verifyAssessmentProposal(proposal, {
+        publicKey: proposalPair.publicKey,
+        expectedAuthorityDigest: 'assessment-authority-digest',
+        now: new Date('2030-01-01T00:30:00.000Z'),
+        expectedFindingHash: 'finding-hash-001',
+        expectedHeadHash: 'head-001',
+        expectedMaterialHash: 'material-001',
+        expectedStoryFilesHash: 'story-files-001',
+        receipt: proposalReceipt,
+        receiptTrust: ledgerTrust,
+        proposalRecord,
+        requireReceipt: true,
+        receiptIsCurrent: true,
+        finalAssessment: {
+          ...proposal,
+          assessmentId: 'assessment-001',
+          assessmentProposalDigest: proposal.proposalDigest,
+          proposalReceipt: {
+            receiptId: proposalReceipt.receiptId,
+            receiptHash: proposalReceipt.receiptHash,
+            operation: 'append_assessment_proposal',
+          },
+          assessmentHash: 'assessment-hash-001',
+          signature: 'final-signature-placeholder',
+        },
+      });
+      assert.equal(validProposal.valid, true);
+
+      const proposalReplayBefore = canonicalJson(proposalRecord);
+      const proposalReplay = appendAssessmentProposal(proposalOptions);
+      const proposalLedgerAfterReplay = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.equal(proposalReplay.receiptId, proposalReceipt.receiptId);
+      assert.deepEqual(proposalReplay.recordIds, proposalReceipt.recordIds);
+      assert.equal(proposalLedgerAfterReplay.records.length, proposalLedger.records.length);
+      assert.equal(canonicalJson(proposalLedgerAfterReplay.records.find((record) => record.recordId === proposalRecord.recordId)), proposalReplayBefore);
+      console.log('ledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true');
+
+      const attacker = generateEd25519KeyPair();
+      const wrongSignature = { ...proposal, proposalSignature: 'invalid-signature' };
+      const alteredExactUnion = signAssessmentProposal({
+        ...proposalUnsignedForSmoke(proposal),
+        owner: 'meta',
+      }, proposalPair.privateKey);
+      const rejected = [
+        verifyAssessmentProposal(proposal, {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'wrong-authority',
+        }),
+        verifyAssessmentProposal(wrongSignature, {
+          publicKey: attacker.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
+        verifyAssessmentProposal(alteredExactUnion, {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+        }),
+        verifyAssessmentProposal(proposal, {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest', requireReceipt: true,
+        }),
+        verifyAssessmentProposal(proposal, {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+          now: new Date('2030-01-01T03:00:00.000Z'),
+        }),
+        verifyAssessmentProposal(proposal, {
+          publicKey: proposalPair.publicKey, expectedAuthorityDigest: 'assessment-authority-digest',
+          receipt: proposalReceipt, receiptTrust: ledgerTrust, proposalRecord,
+          finalAssessment: {
+            ...proposal,
+            findingHash: 'altered-final-finding-hash',
+            assessmentProposalDigest: proposal.proposalDigest,
+          },
+        }),
+      ];
+      assert.equal(rejected.every((result) => !result.valid), true);
+      assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, proposalLedgerAfterReplay.records.length);
+      console.log('ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0');
+
+      const standaloneReceipt = appendFindingLedger({
+        ...baseOptions('chk003:standalone-receipt'),
+        operation: 'append_route_receipt',
+        records: [{
+          recordType: 'route_receipt',
+          payload: { receiptId: 'route-receipt-standalone', profile: 'candidate_route', gateAuthority: false },
+          uniqueBindingKey: 'route-receipt:standalone',
+        }],
+      });
+      const beforeStandaloneConflict = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const standaloneRecord = beforeStandaloneConflict.records.find((record) => record.recordId === standaloneReceipt.recordIds[0])!;
+      const standaloneBytes = canonicalJson(standaloneRecord);
+      const standaloneHead = beforeStandaloneConflict.records.at(-1)!;
+      assert.throws(() => appendFindingLedger({
+        ...baseOptions('chk003:standalone-route-conflict'),
+        operation: 'append_candidate_route',
+        records: [{ recordType: 'candidate_route', payload: { id: 'must-not-exist' } }],
+        expectedPriorLedgerDigest: beforeStandaloneConflict.committedLedgerDigest,
+        casBindings: [{
+          recordType: standaloneRecord.recordType,
+          expectedRecordId: standaloneRecord.recordId,
+          expectedRecordHash: '0'.repeat(64),
+          observedChainHeadId: standaloneHead.recordId,
+          observedChainHeadHash: exactLedgerRecordHash(standaloneHead),
+          predicateDigest: 'standalone-route-predicate',
+        }],
+        verifyPredicate: () => ({ accepted: true, predicateDigest: 'standalone-route-predicate' }),
+      }), /CAS_CONFLICT/);
+      const afterStandaloneConflict = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.equal(canonicalJson(afterStandaloneConflict.records.find((record) => record.recordId === standaloneRecord.recordId)), standaloneBytes);
+      assert.equal(afterStandaloneConflict.records.some((record) => (record.payload as Record<string, JsonValue>).id === 'must-not-exist'), false);
+      console.log('ledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0');
+
+      const baselineBundle = appendFindingLedger({
+        ...baseOptions('chk003:baseline-bundle'),
+        operation: 'append_progress_baseline_set',
+        records: [
+          { recordType: 'route_receipt', payload: { receiptId: 'finding-route-bundle', profile: 'finding_route', gateAuthority: false } },
+          ...['red', 'root_cause', 'fix', 'green'].map((kind) => ({
+            recordType: 'progress_baseline',
+            payload: { baselineSetId: 'baseline-set-001', kind, gateAuthority: false } as JsonValue,
+          })),
+        ],
+      });
+      assert.equal(baselineBundle.recordIds.length, 5);
+      const beforeBundleCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.throws(() => appendFindingLedger({
+        ...baseOptions('chk003:deferral-bundle-crash'),
+        operation: 'apply_manifest',
+        records: [
+          { recordType: 'deferral', payload: { deferralId: 'deferral-crash' } },
+          { recordType: 'manifest', payload: { manifestId: 'manifest-crash', deferralId: 'deferral-crash' } },
+        ],
+        commitOptions: { beforeRename: () => { throw new Error('injected bundle crash'); } },
+      }), /injected bundle crash/);
+      const afterBundleCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.equal(afterBundleCrash.records.length, beforeBundleCrash.records.length);
+      assert.equal(afterBundleCrash.records.some((record) => canonicalJson(record.payload).includes('deferral-crash')), false);
+      console.log('ledger.atomic_bundle: PASS halfBundles=0');
+
+      const requiredRecord = {
+        schemaVersion: 1, mandatoryRepairId: 'mandatory-repair-required-001',
+        findingRef: { storyId: integrityStoryId, findingId: 'B-CAS:F-001' },
+        state: 'required', classificationHash: 'classification-required-hash',
+      };
+      const requiredManifest = {
+        schemaVersion: 1, manifestId: 'mandatory-manifest-required-001',
+        mandatoryRepairId: requiredRecord.mandatoryRepairId,
+      };
+      const requiredOptions = {
+        ...baseOptions('chk003:mandatory-required'),
+        record: requiredRecord,
+        manifest: requiredManifest,
+      };
+      const requiredReceipt = classifyMandatoryRepair(requiredOptions);
+      const afterRequired = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const requiredBytes = requiredReceipt.recordIds.map((recordId) => canonicalJson(afterRequired.records.find((record) => record.recordId === recordId)));
+      const requiredReplay = classifyMandatoryRepair(requiredOptions);
+      assert.deepEqual(requiredReplay.recordIds, requiredReceipt.recordIds);
+      assert.equal(requiredReplay.receiptId, requiredReceipt.receiptId);
+
+      const closedRecord = {
+        schemaVersion: 1, mandatoryRepairId: 'mandatory-repair-closure-001',
+        supersedesMandatoryRepairId: requiredRecord.mandatoryRepairId,
+        state: 'closure_proven', classificationHash: 'classification-closure-hash',
+        closure: {
+          redOrReproductionEvidenceRefs: ['red:1'], rootCauseEvidenceRefs: ['root:1'],
+          fixEvidenceRefs: ['fix:1'], greenEvidenceRefs: ['green:1'], closureEvidenceRefs: ['close:1'],
+        },
+      };
+      const closeReceipt = closeMandatoryRepair({
+        ...baseOptions('chk003:mandatory-closure'),
+        record: closedRecord,
+        manifest: {
+          schemaVersion: 1, manifestId: 'mandatory-manifest-closure-001',
+          mandatoryRepairId: closedRecord.mandatoryRepairId,
+          supersedesMandatoryRepairId: requiredRecord.mandatoryRepairId,
+        },
+      });
+      assert.equal(closeReceipt.recordIds.length, 2);
+      const beforeMandatoryCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.throws(() => classifyMandatoryRepair({
+        ...baseOptions('chk003:mandatory-crash'),
+        record: { ...requiredRecord, mandatoryRepairId: 'mandatory-repair-crash' },
+        manifest: { manifestId: 'mandatory-manifest-crash', mandatoryRepairId: 'mandatory-repair-crash' },
+        commitOptions: { beforeRename: () => { throw new Error('injected mandatory crash'); } },
+      }), /injected mandatory crash/);
+      const afterMandatoryCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.equal(afterMandatoryCrash.records.length, beforeMandatoryCrash.records.length);
+      assert.deepEqual(requiredReceipt.recordIds.map((recordId) => canonicalJson(afterMandatoryCrash.records.find((record) => record.recordId === recordId))), requiredBytes);
+      assert.equal(new Set([...requiredReceipt.recordIds, ...closeReceipt.recordIds]).size, 4);
+      console.log('ledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0');
+
+      const expiryRecord = {
+        schemaVersion: 1, policyVersion: 'v1', policyDigest: 'expiry-policy-digest-001',
+        effectiveAt: '2030-01-01T00:00:00.000Z', signedByAuthority: 'command_policy_authority',
+      };
+      const expiryOptions = {
+        ...baseOptions('chk003:expiry-policy'),
+        record: expiryRecord,
+        manifest: { schemaVersion: 1, manifestId: 'expiry-manifest-001', policyDigest: expiryRecord.policyDigest },
+      };
+      const expiryReceipt = appendDeferralExpiryPolicy(expiryOptions);
+      const expiryReplay = appendDeferralExpiryPolicy(expiryOptions);
+      assert.equal(expiryReplay.receiptId, expiryReceipt.receiptId);
+      assert.deepEqual(expiryReplay.recordIds, expiryReceipt.recordIds);
+      const beforeExpiryCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      assert.throws(() => appendDeferralExpiryPolicy({
+        ...baseOptions('chk003:expiry-policy-crash'),
+        record: { ...expiryRecord, policyDigest: 'expiry-policy-digest-crash' },
+        manifest: { manifestId: 'expiry-manifest-crash', policyDigest: 'expiry-policy-digest-crash' },
+        commitOptions: { beforeRename: () => { throw new Error('injected expiry crash'); } },
+      }), /injected expiry crash/);
+      assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, beforeExpiryCrash.records.length);
+      console.log('ledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0');
+
+      const mutatedReceipts: Array<typeof casReceipt> = [];
+      const mutate = (field: string, value: unknown): void => {
+        const copy = structuredClone(casReceipt) as unknown as Record<string, unknown>;
+        copy[field] = value;
+        mutatedReceipts.push(copy as unknown as typeof casReceipt);
+      };
+      mutate('schemaVersion', 2);
+      mutate('ledgerSchemaEpoch', 2);
+      mutate('minimumWriterCapability', 'other-writer');
+      mutate('receiptId', 'other-receipt');
+      mutate('storyId', 'B-OTHER');
+      mutate('idempotencyKey', 'other-idempotency');
+      mutate('operation', 'append_deferral');
+      mutate('recordIds', [...casReceipt.recordIds, 'extra-record']);
+      mutate('casBindings', [{ ...casReceipt.casBindings[0]!, predicateDigest: 'other-predicate' }]);
+      mutate('priorLedgerDigest', '1'.repeat(64));
+      mutate('committedLedgerDigest', '2'.repeat(64));
+      mutate('replayed', true);
+      mutate('committedAt', '2031-01-01T00:00:00.000Z');
+      mutate('writerSessionId', 'other-session');
+      mutate('writerLeaseId', 'other-lease');
+      mutate('writerFenceToken', 'other-fence');
+      mutate('keyId', 'other-key');
+      mutate('algorithm', 'other-algorithm');
+      mutate('trustRootDigest', 'other-trust-root');
+      mutate('keyFreshnessPolicyDigest', 'other-freshness');
+      mutate('receiptHash', '3'.repeat(64));
+      mutate('signature', 'invalid-signature');
+      const reorderedIds = structuredClone(baselineBundle);
+      reorderedIds.recordIds = [...reorderedIds.recordIds].reverse();
+      mutatedReceipts.push(reorderedIds);
+      const extraField = structuredClone(casReceipt) as unknown as Record<string, unknown>;
+      extraField.unaccepted = true;
+      mutatedReceipts.push(extraField as unknown as typeof casReceipt);
+      assert.equal(mutatedReceipts.filter((candidate) => verifyFindingLedgerReceipt(candidate, ledgerTrust)).length, 0);
+      console.log('ledger.receipt_mutation_matrix: PASS acceptedMutations=0');
+
+      const applySeed = appendFindingLedger({
+        ...baseOptions('chk003:apply-seed'), operation: 'append_route_receipt',
+        records: [{ recordType: 'route_receipt', payload: { receiptId: 'apply-seed', status: 'current' } }],
+      });
+      const beforeApply = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const applyRecord = beforeApply.records.find((record) => record.recordId === applySeed.recordIds[0])!;
+      const applyHead = beforeApply.records.at(-1)!;
+      const applyPredicate = 'apply-current-receipt';
+      const applyBinding = {
+        recordType: applyRecord.recordType,
+        expectedRecordId: applyRecord.recordId,
+        expectedRecordHash: exactLedgerRecordHash(applyRecord),
+        observedChainHeadId: applyHead.recordId,
+        observedChainHeadHash: exactLedgerRecordHash(applyHead),
+        predicateDigest: applyPredicate,
+      };
+      appendFindingLedger({
+        ...baseOptions('chk003:apply-wins'), operation: 'apply_manifest',
+        records: [
+          { recordType: 'deferral', payload: { deferralId: 'serialized-apply' } },
+          { recordType: 'manifest', payload: { manifestId: 'serialized-apply-manifest', deferralId: 'serialized-apply' } },
+        ],
+        expectedPriorLedgerDigest: beforeApply.committedLedgerDigest,
+        casBindings: [applyBinding],
+        verifyPredicate: () => ({ accepted: true, predicateDigest: applyPredicate }),
+      });
+      assert.throws(() => appendFindingLedger({
+        ...baseOptions('chk003:late-revoke'), operation: 'append_supersession',
+        records: [{ recordType: 'supersession', payload: { supersedes: 'apply-seed' } }],
+        expectedPriorLedgerDigest: beforeApply.committedLedgerDigest,
+        casBindings: [applyBinding],
+        verifyPredicate: () => ({ accepted: true, predicateDigest: applyPredicate }),
+      }), /CAS_CONFLICT/);
+
+      const revokeSeed = appendFindingLedger({
+        ...baseOptions('chk003:revoke-seed'), operation: 'append_route_receipt',
+        records: [{ recordType: 'route_receipt', payload: { receiptId: 'revoke-seed', status: 'current' } }],
+      });
+      const beforeRevoke = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const revokeRecord = beforeRevoke.records.find((record) => record.recordId === revokeSeed.recordIds[0])!;
+      const revokeBinding = {
+        recordType: revokeRecord.recordType,
+        expectedRecordId: revokeRecord.recordId,
+        expectedRecordHash: exactLedgerRecordHash(revokeRecord),
+        observedChainHeadId: revokeRecord.recordId,
+        observedChainHeadHash: exactLedgerRecordHash(revokeRecord),
+        predicateDigest: 'revoke-current-receipt',
+      };
+      appendFindingLedger({
+        ...baseOptions('chk003:revoke-wins'), operation: 'append_supersession',
+        records: [{ recordType: 'supersession', payload: { supersedes: 'revoke-seed' } }],
+        expectedPriorLedgerDigest: beforeRevoke.committedLedgerDigest,
+        casBindings: [revokeBinding],
+        verifyPredicate: () => ({ accepted: true, predicateDigest: 'revoke-current-receipt' }),
+      });
+      assert.throws(() => appendFindingLedger({
+        ...baseOptions('chk003:late-apply'), operation: 'apply_manifest',
+        records: [{ recordType: 'deferral', payload: { deferralId: 'non-latest-must-not-commit' } }],
+        expectedPriorLedgerDigest: beforeRevoke.committedLedgerDigest,
+        casBindings: [revokeBinding],
+        verifyPredicate: () => ({ accepted: true, predicateDigest: 'revoke-current-receipt' }),
+      }), /CAS_CONFLICT/);
+      assert.equal(integrityStore.readFindingLedger<JsonValue>(integrityStoryId).records.some((record) => canonicalJson(record.payload).includes('non-latest-must-not-commit')), false);
+      console.log('ledger.revoke_apply_serialization: PASS nonLatestCommits=0');
+
+      const beforeCallbackCrash = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const callbackRecord = beforeCallbackCrash.records.at(-1)!;
+      const callbackPredicate = 'opaque-caller-predicate';
+      assert.throws(() => appendFindingLedger({
+        ...baseOptions('chk003:callback-crash'), operation: 'append_candidate',
+        records: [{ recordType: 'opaque_future_record', payload: { uninterpreted: ['route', 'assessment', 'gate'] } }],
+        expectedPriorLedgerDigest: beforeCallbackCrash.committedLedgerDigest,
+        casBindings: [{
+          recordType: callbackRecord.recordType,
+          expectedRecordId: callbackRecord.recordId,
+          expectedRecordHash: exactLedgerRecordHash(callbackRecord),
+          observedChainHeadId: callbackRecord.recordId,
+          observedChainHeadHash: exactLedgerRecordHash(callbackRecord),
+          predicateDigest: callbackPredicate,
+        }],
+        verifyPredicate: () => { throw new Error('schema-neutral callback crash'); },
+      }), /schema-neutral callback crash/);
+      assert.equal(integrityStore.readFindingLedger(integrityStoryId).records.length, beforeCallbackCrash.records.length);
+      console.log('ledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true');
+    } finally {
+      integrityLock.release();
+    }
 
     const mixedFile = join(scratch, 'mixed', 'finding-ledger.json');
     const mixedLock = join(scratch, 'locks', 'mixed.lock');
