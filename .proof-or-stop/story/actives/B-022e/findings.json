@@ -1346,6 +1346,24 @@
       ],
       "signatureTag": "missing|ts|quality-regression-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-051",
+      "desc": "packages/main/templates/agents/proof-or-stop-review-concept.md Wave 4 concept boundary — WHY: the current assembled concept-review contract explicitly requires a current signed PASS and genuine full 3 rounds × 2 hosts, but the canonical verifier-owned chain is not PASS at HEAD 18c08945. acceptance_topology_check reports mode=observe, readOnly=true, evidentiary=false, authority=diagnostic_only, status=inconclusive, structuralPass=false, topologyState=legacy_missing; pre_review_check_read reports mode=observe, status=inconclusive, ok=false; acceptance_rollout_report_read and acceptance_rollout_check both report status=missing, receipt=missing, quorum=degraded-or-missing, blocking=false. Prompt prose cannot satisfy its own evidence requirement, and an observe-only receipt must not be fabricated. Either produce the mandated genuine signed 3x2 evidence through the authority-owned flow or revise the unconditional reviewer policy in a separately authorized scope before this lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T11:03:04.228Z",
+      "reviewRound": "2026-09-01T10:59:04.100Z",
+      "reviewRunId": "B-022e:RR-090",
+      "_hash": "e00855875a92ad44f91d402c68133c152fe8fccdc75ff4c2126efc456a4d5b42",
+      "files": [
+        "packages/main/templates/agents/proof-or-stop-review-concept.md"
+      ],
+      "signatureTag": "missing|md|packages-main-templates",
+      "signatureTagSource": "auto"
     }
   ]
 }
