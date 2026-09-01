@@ -1,0 +1,108 @@
+{
+  "storyId": "B-022e",
+  "checkedAt": "2026-09-01T16:27:04.538Z",
+  "headHash": "1d22ef52a365297706fdec79f338e702d2db55cf",
+  "materialHash": "31ed18c636eaacc95ce3e187b5871d87c2de57b8f56973573f3c91f7f488a334",
+  "storyFilesHash": "d957f57986463dd7e775ad9c157bcac12cf8904bb89dfb0d65a12fef5e7a6ab4",
+  "reviewRound": "2026-09-01T16:06:49.189Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-cutover.md#policy",
+      "promise": "The identity verifier classifies every active legacy identity and accepts only exact frozen historical or provenance evidence.",
+      "status": "verified",
+      "verifiedBy": "fresh executable identity verifier and mutation self-test",
+      "evidence": "node scripts/verify-proof-or-stop-identity-cutover.mjs printed PASS identity-cutover policy, active prose/assets, frozen history, canonical identities, packed identities, and canonical role registry; --self-test rejected current-truth, broad exemption, stale, token, path, context, digest, and byte mutations."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#RED-to-GREEN",
+      "promise": "The committed pre-migration identity acceptance target has genuine RED evidence and the unchanged target passes at descendant GREEN while frozen baselines remain unchanged.",
+      "status": "verified",
+      "verifiedBy": "canonical red_evidence_get plus fresh execution of the unchanged GREEN command",
+      "evidence": "RED-20260830222000 binds baseline cb1499d4 to CHK-002:happy:0 and command node scripts/verify-proof-or-stop-identity-cutover.mjs; the same command now passes together with named unchanged baselines."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-cutover.md#package-boundary",
+      "promise": "Packed artifacts are proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, and @proof-or-stop/utils with no @lattice or file dependencies.",
+      "status": "verified",
+      "verifiedBy": "fresh four-tarball offline clean-consumer execution and manifest inspection",
+      "evidence": "The pack-boundary run installed exactly four product tarballs offline and printed PASS packages with no @lattice or file dependencies; public Utils import and dispatch were also exercised."
+    },
+    {
+      "docPath": "README.md#CLI",
+      "promise": "proof-or-stop is the sole supported command identity; version/help/Lab nested commands work and the retired lattice command is not an active alias.",
+      "status": "verified",
+      "verifiedBy": "direct CLI execution plus packed negative boundary",
+      "evidence": "node bin/proof-or-stop.js --version printed Proof-or-Stop 0.3.268; proof-or-stop lab help and nested create/run/eval help succeeded; the clean-install boundary rejects the retired bin and package identities."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#reviewer-roles",
+      "promise": "Active Agent and reviewer identities use proof-or-stop-* including proof-or-stop-review-story-init, and retired lattice role lookup does not resolve.",
+      "status": "verified",
+      "verifiedBy": "fresh packed role lookup, active-source scan, prompt baseline, and adapter asset audit",
+      "evidence": "The packed boundary printed PASS roles: proof-or-stop-review-story-init and complete proof-or-stop-* registry; active source/assets contain the canonical role; the 17-role prompt baseline and Codex adapter asset checks passed."
+    },
+    {
+      "docPath": "docs/CLI.md#Identity-contract",
+      "promise": "Active config, state, environment, wrapper, prompt, and documentation surfaces use Proof-or-Stop while exact historical and provenance bytes remain verifiable.",
+      "status": "verified",
+      "verifiedBy": "fresh exact residue classifier, runtime/package checks, and prompt baseline",
+      "evidence": "Identity verification printed PASS active prose/assets, frozen history unchanged, canonical identities, and exact historical/provenance baselines; prompt baseline verified all 17 exact role IDs and bodies."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-cutover.md#GREEN",
+      "promise": "The GREEN product boundary includes build/package/clean-install, CLI/Lab, extension API, public Utils bootstrap, and negative legacy identity checks.",
+      "status": "verified",
+      "verifiedBy": "fresh identity-cutover and global Lab entrypoint executions",
+      "evidence": "Identity and four-tarball clean-install passed; global Lab entrypoint reported versions, lab-help, lab-create, concurrent core-without-lab, strict extension admission, Utils public bootstrap, and active-story lifecycle verified."
+    },
+    {
+      "docPath": "AGENTS.md#version-and-DONE-convergence",
+      "promise": "Root, Core, and Utils report 0.3.268; Lab remains independently 0.3.65 with Core ^0.3.65; Utils requires Core ^0.3.268; lifecycle closeout is mechanically gated after delivery review.",
+      "status": "verified",
+      "verifiedBy": "direct manifests/version command, 86-assertion version smoke, current lifecycle diagnostics, and stored routine validation binding",
+      "evidence": "Direct manifests and CLI output match the intended version policy; version-bump smoke passed 86 assertions. REVIEW and the fresh 120/120 routine validation are satisfied. DONE-required validation, main sync, summary, done_prepare, and local DONE merge remain subsequent owner-only gate actions and are not claimed as already executed by this delivery signature."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh identity-cutover verifier passed exact active classification, canonical identities, frozen historical baselines, four packed artifacts, and canonical role registry."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Canonical RED record RED-20260830222000 binds the unchanged command and target; current GREEN execution passes, while the fresh mutation self-test fails closed across broad, stale, token, path, context, digest, and byte mutations."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh pack boundary packed and installed exactly root/Core/Lab/Utils tarballs offline, rejected @lattice and file dependencies, imported Utils, and dispatched its public command."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Direct proof-or-stop version and nested Lab help/create/run/eval help executed successfully; packed clean-consumer negative checks reject retired command/package identities."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Fresh role boundary resolved proof-or-stop-review-story-init and the full proof-or-stop registry, rejected retired roles, and prompt baseline verified all 17 active roles plus mutation negatives."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Fresh identity residue verifier reported active prose/assets Proof-or-Stop only and frozen history unchanged; Codex asset and prompt mirror audits passed without creating Authority claims."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Fresh global Lab entrypoint covered version truth, nested commands, Lab absence and concurrency, extension collisions and handler identity, public Utils bootstrap, and active-story lifecycle; fresh four-tarball clean install also passed."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Direct CLI/manifests and version-bump smoke passed the 0.3.268 root/Core/Utils versus independent Lab 0.3.65 contract. Current routine validation is 120/120 PASS and requested-full material/scope inverse tests are committed; remaining DONE-only commands are lifecycle closeout, not a delivery-review waiver."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "All eight delivery promises are verified by direct source inspection and executable product-boundary evidence, including adversarial and clean-consumer cases. Two recorded medium findings remain deliberately deferred and a pre-existing future-improvement TODO survives in a historical design document; neither is a high or critical B-022e delivery blocker. Wave4 topology and rollout remain observe-only and are explicitly not claimed."
+  },
+  "_hash": "db358ba226b8f5612158af8c98fb25ddf02be8240ae8ec8ecc358e6896a50f25"
+}
