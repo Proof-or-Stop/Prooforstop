@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fe8f",
+  "allowedCommands": [
+    "git status, diff, log, add, commit and local main merge through the Proof-or-Stop lifecycle",
+    "node focused RED and GREEN test scripts",
+    "npm and pnpm build or test commands required by repository validation",
+    "proof-or-stop lifecycle and evidence commands for B-fe8f"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "local compiler and test runner",
+    "Proof-or-Stop CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "pnpm-lock.yaml",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "network publication or package publish",
+    "rm -rf on repository or workspace roots"
+  ],
+  "excludedTools": [
+    "destructive filesystem tools",
+    "external messaging",
+    "remote deployment"
+  ],
+  "excludedPaths": [
+    ".git refs outside normal local Story lifecycle",
+    "docs/story",
+    "node_modules",
+    "tests/fixtures direct access"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Only B-fe8f Story 3A then 3B is executable now. B-03b7 and B-e6d9 remain INIT until their declared dependencies are DONE and merged.",
+  "createdAt": "2026-09-01T08:15:42.674Z",
+  "updatedAt": "2026-09-01T08:15:42.674Z",
+  "_hash": "86453291cd41ae0565debca193d9243ddf77f29c8b40c9c825adca86025c23af"
+}

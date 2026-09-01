@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fe8f",
+  "mode": "feature",
+  "allowed": [
+    "legacy read compatibility and migrations needed by Story 3 only",
+    "necessary CLI wiring, build output, package metadata and accepted execution-plan clarification",
+    "per-story and B-META compatible fenced lock, deterministic append-only ID, idempotency, CAS, durable atomic commit and recovery",
+    "process fact and runtime fact registration for Story 3 contracts",
+    "RED and GREEN unit, integration, concurrency, crash, mutation, scorecard and dependency-boundary tests",
+    "Story 3A schema-neutral Finding ledger transaction and query primitives",
+    "Story 3B signed RuntimeEvidenceReceipt creation, verification, artifact stability and freshness"
+  ],
+  "excluded": [
+    "CandidateFinding classification or canonicalDefectId policy owned by B-03b7",
+    "current-Story applicability verdicts, defer-with-proof policy, routing authority or lifecycle gate enforcement owned by B-e6d9",
+    "historical recall, supersession judgment or lineage semantics owned by B-03b7",
+    "lab rename work or unrelated repository defects",
+    "remote publication or feature branches"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly approved executing the three Stories from the accepted B-1fa6 plan in dependency order with RED then GREEN; B-fe8f is the first Story and is limited to Section 9.3.",
+  "createdAt": "2026-09-01T08:15:42.236Z",
+  "updatedAt": "2026-09-01T08:15:42.236Z",
+  "_hash": "78ae5bdd02a800c8418e604aae45dd2ad71f6a95173e33f0416aa1ecfb0f555f"
+}
