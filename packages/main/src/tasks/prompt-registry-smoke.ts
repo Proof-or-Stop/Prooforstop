@@ -73,17 +73,20 @@ const qualityProofMetadataPhrases = [
   'not receipt-backed production proof',
 ];
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
+const approvedReviewFindingTriageProposalSha256 = '507c92ba1c8fbfe4fc20fba9a3ff99364bc44ec6b5c48b8c0ed0bee51ca62947';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
-const approvedReviewFindingTriageContractSha256 = '66c3b113d98c127db56b8b3315d91d5e05ab8eea8e94444ad1ac6820f7a6cce9';
+const approvedReviewFindingTriageContractSha256 = 'd951823bab6aae3ef92ab80d150ab051665b3ebbc74de72d14b60eba3fbe77f8';
 const approvedReviewFindingTriageHeadings = [
   reviewFindingTriageContractMarker,
   '## REVIEW Finding Triage and Routing Contract',
   '### Current compatibility boundary',
   '### Record evidence before disposition',
   '### Decide current-Story responsibility without widening scope',
+  '### Apply future defer-with-proof only through official authority',
   '### Respect reviewer authority',
 ] as const;
 // Independent normative-clause proof. This deliberately duplicates the approved
@@ -93,24 +96,28 @@ const approvedReviewFindingTriageHeadings = [
 const approvedReviewFindingTriageNormativeLines = [
   'Apply this contract while reviewing. It governs reviewer behavior; it does not replace the CLI, handler, or gate as the authority for lifecycle state.',
   '- The Dynamic Finding System execution plan is the future authority for signed applicability, ownership, routing, freshness, and supersession. Until its official CLI and artifacts exist, use only commands and fields exposed by the current CLI compatibility path. Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt, and never claim that a target-state mechanism ran.',
-  '- In the current compatibility path, a reviewer records the observation through `finding_add` with the current `reviewRunId` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. `finding_dismiss` is compatibility accounting; it is not applicability proof, `out_of_scope` proof, repair, or resolution.',
+  '- In the current compatibility path, a reviewer records the observation through `finding_add` with the current `reviewRunId` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. `finding_dismiss` and gap or backlog routes are compatibility accounting; they are not applicability proof, `out_of_scope` proof, deferral proof, repair, or resolution.',
+  '- The current compatibility CLI does not implement the future signed `FindingDeferralDisposition` or `defer_with_proof` path. Never fabricate a disposition plan, accepted route, signature, freshness binding, expiry, lineage, receipt, or manifest action, and never claim that compatibility accounting exercised the future mechanism.',
   '- When the Dynamic Finding CLI becomes available, request or consume its official signed assessment and follow its fail-closed result. Prompt prose and compatibility records never substitute for that assessment.',
   '- Start the current lane with `proof-or-stop review_run_start`. Carry its current `reviewRunId` on every `finding_add` or `review_pass_set` submission.',
   '- A role-body or policy change makes an already assembled in-flight reviewer envelope stale. Stop, start a fresh current-material run with `review_run_start`, and redispatch the reviewer; never submit evidence from the older envelope.',
   '- Keep four axes separate: `evidenceState` says whether the observation is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; gate impact is computed by the current lifecycle policy. Severity does not determine scope by itself.',
   '- Preserve reproduction steps, source or command evidence, observed impact, and uncertainty. Report an applicability candidate in the evidence supported by the current command; do not invent unsupported fields or present the candidate as a gate decision.',
   '- The machine-owned handler and gate derive the actual blocking result from structured facts. Reviewer prose, a routing proposal, or a claimed deferral is not gate evidence.',
-  '- Require repair in the current Story when a verified issue was introduced or worsened by the Story, directly violates its acceptance or public compatibility promise, threatens security or data integrity, or would make REVIEW, TEST, DONE, or their evidence misleading.',
+  '- Require repair in the current Story when a verified applicable issue is critical or high; was introduced or worsened by the Story; directly violates acceptance, a verification intent, the core user result, or a public compatibility promise; has known or uncertain protected-surface impact; would make REVIEW, TEST, DONE, or their evidence misleading; has invalid claimed deferral lineage; or has exhausted its cumulative deferral horizon or renewal allowance.',
   '- If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.',
   '- Evidence may support a `pre_existing_unaffected` or `out_of_scope` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.',
   '- A `pre_existing_unaffected` candidate requires deterministic base and head reproduction receipts for the same defect, proof that the Story did not worsen severity or impact, confirmation that Story scope does not promise its repair, and a valid owner or route.',
   '- An `out_of_scope` candidate requires signed scope or decision evidence naming the excluded contract, no contradictory checklist or acceptance promise, and a valid owner or route; critical or high Findings cannot be left unowned.',
   '- A `duplicate` candidate requires a signature-valid live canonical Finding, its live owner or route, and proof that the duplicate chain is not circular. Similar text or a matching signature tag is insufficient.',
-  '- A `stale_or_not_reproduced` candidate requires current command receipts bound to fresh source and runtime evidence and must never be inferred from an old DONE outcome. If the current CLI cannot provide the required proof for any candidate, applicability remains unknown and fails closed.',
+  '- A `not_reproduced_under_current_witness` candidate requires current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route. It must never be inferred from an old DONE outcome. If the current CLI cannot provide the required proof for any candidate, applicability remains unknown and fails closed.',
   '- Do not expand the Story merely to make the repository globally green. A bounded, evidence-backed route is not dismissal, resolution, or proof that the problem disappeared.',
+  '- `defer_with_proof` is a disposition after `applicable`, not an applicability verdict. Only the future official Dynamic Finding System may sign it, and only for a verified applicable low or medium Finding.',
+  '- Future deferral eligibility requires current reproduction evidence, proof that the Story did not introduce or worsen the defect, no direct acceptance or verification-intent impact, no known or uncertain protected-surface impact, a canonical defect, fresh bindings, a live owner and existing target, an accepted target-side route receipt, recheck triggers, finite expiry, and unexhausted ledger-derived cumulative lineage.',
+  '- A missing, invalid, expired, tampered, ownerless, partially applied, or exhausted claimed deferral fails closed to current-Story mandatory repair. A valid deferred Finding remains verified, open, visible, and unchanged in severity; it is not `out_of_scope`, `pre_existing_unaffected`, `duplicate`, `disproven`, dismissed, resolved, or repaired.',
   '- Reviewers audit and record; they do not repair implementation, rewrite scope, or create follow-up Stories. Do not call `finding_dismiss`, `story_create`, or `gap_log` from a REVIEW lane. Return repair work to the Story Owner and propose routing for non-applicable work.',
   '- If no finding remains to report, record the lane result with `review_pass_set`; never encode a pass as a synthetic Finding.',
-  '- Distinguish `disproven` (evidence refutes the observation), `duplicate` (another tracked Finding owns the same defect), and `stale_or_not_reproduced` (current evidence cannot reproduce an older claim). Do not collapse any of them into resolved.',
+  '- Distinguish `disproven` (evidence refutes the observation), `duplicate` (another tracked Finding owns the same defect), and `not_reproduced_under_current_witness` (fresh target-bound negative witness evidence does not reproduce an older claim). Do not collapse any of them, or `defer_with_proof`, into resolved.',
   '- Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.',
 ] as const;
 const frozenReviewerLegacyReconstructionDigests = {
@@ -137,7 +144,8 @@ const requiredReviewFindingTriagePhrases = [
   'The Dynamic Finding System execution plan is the future authority',
   'use only commands and fields exposed by the current CLI compatibility path',
   'Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt',
-  '`finding_dismiss` is compatibility accounting; it is not applicability proof, `out_of_scope` proof, repair, or resolution',
+  '`finding_dismiss` and gap or backlog routes are compatibility accounting',
+  'The current compatibility CLI does not implement the future signed `FindingDeferralDisposition` or `defer_with_proof` path',
   'evidenceState',
   'severity says how harmful it is',
   'applicability reports whether it belongs to this Story',
@@ -157,7 +165,10 @@ const requiredReviewFindingTriagePhrases = [
   'no contradictory checklist or acceptance promise',
   'a signature-valid live canonical Finding',
   'proof that the duplicate chain is not circular',
-  'current command receipts bound to fresh source and runtime evidence',
+  'current target-bound negative command and runtime receipts',
+  'fresh source and runtime bindings',
+  'a signed command-policy and witness digest',
+  'a live receipted owner or route',
   'must never be inferred from an old DONE outcome',
   'applicability remains unknown and fails closed',
   'Do not expand the Story merely to make the repository globally green',
@@ -166,7 +177,14 @@ const requiredReviewFindingTriagePhrases = [
   'Do not call `finding_dismiss`, `story_create`, or `gap_log` from a REVIEW lane',
   '`disproven` (evidence refutes the observation)',
   '`duplicate` (another tracked Finding owns the same defect)',
-  '`stale_or_not_reproduced` (current evidence cannot reproduce an older claim)',
+  '`not_reproduced_under_current_witness` (fresh target-bound negative witness evidence does not reproduce an older claim)',
+  '`defer_with_proof` is a disposition after `applicable`, not an applicability verdict',
+  'only for a verified applicable low or medium Finding',
+  'no known or uncertain protected-surface impact',
+  'an accepted target-side route receipt',
+  'unexhausted ledger-derived cumulative lineage',
+  'fails closed to current-Story mandatory repair',
+  'remains verified, open, visible, and unchanged in severity',
   'Never delete the original observation',
   'silently rewrite its severity',
   'report the new evidence to the Story Owner',
@@ -209,7 +227,7 @@ const forbiddenReviewFindingTriagePermissions = [
   },
   {
     label: 'routing collapses outcome to resolved',
-    pattern: /(?:routed?|deferred|dismissed)[^.\n]{0,120}(?:Finding|issue|defect)?[^.\n]{0,80}(?:is|becomes?|counts?\s+as|means?)[^.\n]{0,40}resolved/iu,
+    pattern: /(?:routed?|deferred|dismissed)[^.\n]{0,120}(?:Finding|issue|defect)?[^.\n]{0,80}(?:is|are|becomes?|counts?\s+as|means?)\s+(?!not\b)[^.\n]{0,40}resolved/iu,
   },
   {
     label: 'evidence-free or ownerless routing',
@@ -226,6 +244,38 @@ const forbiddenReviewFindingTriagePermissions = [
   {
     label: 'unsigned stale or ownerless duplicate target',
     pattern: /(?:unsigned|stale|ownerless|unowned)[^.\n]{0,100}(?:Finding|issue|target)[^.\n]{0,100}(?:may|can|should|must)[^.\n]{0,80}(?:serve|act|count|qualify)[^.\n]{0,60}(?:duplicate|canonical)/iu,
+  },
+  {
+    label: 'obsolete stale-or-not-reproduced verdict',
+    pattern: /\bstale_or_not_reproduced\b/u,
+  },
+  {
+    label: 'deferral collapsed into applicability',
+    pattern: /`?defer_with_proof`?\s+(?:is|means|becomes|counts\s+as)\s+(?:an?\s+)?(?:applicability\s+)?verdict|(?:applicability\s+)?verdict\s+(?:is|may\s+be|can\s+be)\s+`?defer_with_proof`?/iu,
+  },
+  {
+    label: 'high or critical deferral permission',
+    pattern: /(?:critical|high)[^.\n]{0,100}(?:Finding|issue|defect)[^.\n]{0,120}(?:may|can|is eligible to|is permitted to)[^.\n]{0,80}(?:defer_with_proof|be deferred)/iu,
+  },
+  {
+    label: 'uncertain protected-surface deferral permission',
+    pattern: /(?:defer_with_proof|deferral)[^.\n]{0,140}(?:may|can|is permitted to|remains eligible)[^.\n]{0,100}(?:protected[- ]surface|security|data integrity)[^.\n]{0,60}(?:unknown|uncertain)/iu,
+  },
+  {
+    label: 'compatibility CLI fabricates future deferral authority',
+    pattern: /(?:current\s+)?compatibility\s+CLI\s+(?:implements?|mints?|signs?|creates?|supports?)[^.\n]{0,100}(?:FindingDeferralDisposition|defer_with_proof|signed deferral)/iu,
+  },
+  {
+    label: 'compatibility accounting proves deferral',
+    pattern: /(?:finding_dismiss|gap_log|backlog)[^.\n]{0,100}(?:proves?|establishes?|confirms?|counts?\s+as)[^.\n]{0,80}(?:deferral|defer_with_proof)/iu,
+  },
+  {
+    label: 'unknown applicability becomes deferrable or non-blocking',
+    pattern: /(?:unknown applicability|applicability is unknown)[^.\n]{0,120}(?:may|can|should|must|becomes?|is)[^.\n]{0,80}(?:defer|non[- ]blocking|advisory)/iu,
+  },
+  {
+    label: 'ownerless or receipt-free official deferral',
+    pattern: /(?:defer_with_proof|official deferral)[^.\n]{0,140}(?:may|can|is eligible to|is permitted to)[^.\n]{0,80}(?:without|no)[^.\n]{0,60}(?:owner|target|route receipt|receipt)/iu,
   },
 ] as const;
 
@@ -329,9 +379,20 @@ function assertReviewFindingTriageMutationFailures(): void {
     'A non-overlapping diff proves the defect is inherited and unaffected.',
     'A stale unowned canonical record is a valid duplicate destination.',
   ];
+  const currentAuthorityMutations = [
+    'The future assessment may use `stale_or_not_reproduced` when an old report no longer fails.',
+    '`defer_with_proof` is an applicability verdict for issues that can wait.',
+    'A high Finding may be deferred through `defer_with_proof` when a later owner agrees.',
+    'Deferral remains eligible when protected-surface impact is uncertain.',
+    'The current compatibility CLI implements a signed `FindingDeferralDisposition`.',
+    '`finding_dismiss` proves deferral for the current Story.',
+    'Unknown applicability may become non-blocking through deferral.',
+    'Official deferral may proceed without an owner or route receipt.',
+  ];
   assert.equal(originalMutations.length, 13, 'the original semantic mutation inventory remains complete');
   assert.equal(paraphraseMutations.length, 13, 'the independent reviewer paraphrase mutation inventory remains complete');
   assert.equal(digestRefreshedParaphraseMutations.length, 13, 'the digest-refreshed reviewer paraphrase inventory remains complete');
+  assert.equal(currentAuthorityMutations.length, 8, 'the current Dynamic Finding authority mutation inventory remains complete');
   for (const [index, mutation] of [...originalMutations, ...paraphraseMutations].entries()) {
     assert.throws(
       () => assertReviewFindingTriageSemantics(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`, `mutation ${index + 1}`),
@@ -355,6 +416,54 @@ function assertReviewFindingTriageMutationFailures(): void {
       /independently approved pre-contract reviewer body/,
       `pre-marker digest-refreshed semantic mutation ${index + 1} must fail independently of the terminal contract digest`,
     );
+  }
+  for (const [index, mutation] of currentAuthorityMutations.entries()) {
+    const changedTerminalContract = `${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`;
+    const refreshedContractDigest = createHash('sha256').update(changedTerminalContract).digest('hex');
+    assert.throws(
+      () => assertReviewFindingTriageSemantics(
+        changedTerminalContract,
+        `terminal digest-refreshed authority mutation ${index + 1}`,
+        refreshedContractDigest,
+      ),
+      /normative-clause manifest|heading manifest|rejects contradictory/,
+      `terminal authority mutation ${index + 1} must fail after its contract digest is refreshed`,
+    );
+    const assembledBody = `${mutation}\n${REVIEW_FINDING_TRIAGE_CONTRACT}`;
+    const refreshedPrefixDigest = createHash('sha256').update(mutation).digest('hex');
+    assert.throws(
+      () => assertReviewFindingTriageSemantics(
+        assembledBody,
+        `complete-body digest-refreshed authority mutation ${index + 1}`,
+        approvedReviewFindingTriageContractSha256,
+        refreshedPrefixDigest,
+      ),
+      /rejects contradictory/,
+      `complete assembled reviewer body mutation ${index + 1} must fail even after its prefix digest is refreshed`,
+    );
+  }
+  for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+    const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
+    for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
+      const completeBody = resolvePromptTemplateBody(entry, mode);
+      const markerIndex = completeBody.indexOf(reviewFindingTriageContractMarker);
+      const approvedPrefix = completeBody.slice(0, markerIndex).trimEnd();
+      for (const [index, mutation] of currentAuthorityMutations.entries()) {
+        const changedPrefix = `${approvedPrefix}\n${mutation}`;
+        const changedCompleteBody = `${changedPrefix}\n${completeBody.slice(markerIndex)}`;
+        const refreshedPrefixDigest = createHash('sha256').update(changedPrefix).digest('hex');
+        assert.throws(
+          () => assertReviewFindingTriageSemantics(
+            changedCompleteBody,
+            `${roleId}/${mode} digest-refreshed complete-body authority mutation ${index + 1}`,
+            approvedReviewFindingTriageContractSha256,
+            refreshedPrefixDigest,
+          ),
+          /rejects contradictory/,
+          `${roleId}/${mode} complete assembled mutation ${index + 1} must fail after prefix digest repinning`,
+        );
+      }
+    }
   }
 }
 
@@ -420,21 +529,57 @@ function assertReviewFindingTriageDelivery(): void {
   assertReviewFindingTriageMutationFailures();
 }
 
+function assertReviewFindingTriageProposal(): void {
+  const proposalPath = join(projectRoot, reviewFindingTriageProposalPath);
+  assert.ok(existsSync(proposalPath), 'the executable REVIEW Finding triage proposal is tracked');
+  const proposal = readFileSync(proposalPath, 'utf8');
+  assert.equal(
+    createHash('sha256').update(proposal).digest('hex'),
+    approvedReviewFindingTriageProposalSha256,
+    'the Agent-side proposal requires independent non-runtime digest approval',
+  );
+  assert.doesNotMatch(proposal, /[\u3400-\u9fff]/u, 'the open-source proposal is English-only');
+  assert.equal(
+    occurrenceCount(proposal, '`stale_or_not_reproduced`'),
+    1,
+    'the proposal names the retired vocabulary exactly once to prohibit its delivery',
+  );
+  assert.ok(
+    proposal.includes('The retired name `stale_or_not_reproduced` must not appear in delivered Agent'),
+    'the proposal explicitly rejects retired applicability vocabulary in delivered prompts',
+  );
+  for (const phrase of [
+    'This proposal is its Agent-side projection',
+    'This proposal does not authorize changes to:',
+    '`not_reproduced_under_current_witness`',
+    '`defer_with_proof` is a disposition after `applicable`',
+    'The current compatibility CLI does not implement the future signed',
+    '`finding_dismiss`, `gap_log`, and backlog notes are compatibility accounting',
+    'Digest pins provide change review, but they are not the semantic oracle',
+  ]) {
+    assert.ok(proposal.includes(phrase), `the proposal keeps authority boundary phrase: ${phrase}`);
+  }
+}
+
 function assertOwnerAndImplementerTriageGuidance(): void {
   const ownerGuide = readFileSync(join(projectRoot, 'AGENTS.md'), 'utf8');
   for (const phrase of [
     'Every Finding reported only in reviewer prose must be redispatched for structured registration',
-    'introduced or worsened by the current Story',
+    'introduced or worsened by the Story',
     'directly blocks acceptance or the core user result',
+    'critical or high',
+    'known or uncertain protected-surface impact',
     'would make lifecycle gate evidence or gate truth misleading',
+    'invalid claimed deferral lineage',
+    'future official `defer_with_proof` disposition',
     'including a medium Finding in a policy round where medium is blocking',
-    'Critical or high Findings must never be left without a traceable owner',
+    '`not_reproduced_under_current_witness` requires fresh target-bound negative command and runtime receipts',
     'the Dynamic Finding System execution plan is future authority',
-    'use only fields and commands exposed by the current CLI compatibility path',
-    'never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt',
-    '`finding_dismiss` is temporary compatibility accounting for a round or profile',
-    'proves neither applicability nor `out_of_scope`',
-    'is not proof of repair or resolution',
+    'The current compatibility CLI does not implement a signed `FindingDeferralDisposition` or `defer_with_proof`',
+    'never fabricate an assessment, disposition, owner, route, signature, freshness binding, expiry, lineage, receipt, or manifest action',
+    '`finding_dismiss` and gap or backlog routes are temporary compatibility accounting',
+    'prove neither applicability nor `out_of_scope`',
+    'deferral, repair, or resolution',
     'Prompt text alone does not mechanically enforce this discipline',
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
@@ -454,8 +599,8 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
   for (const [file, lines] of [['AGENTS.md', ownerTriageLines], ['CLAUDE.md', claudeTriageLines]] as const) {
     const compatibilityLine = lines.find(line => line.includes('**Compatibility boundary and dismissal**')) ?? '';
-    assert.match(compatibilityLine, /`finding_dismiss` is temporary compatibility accounting for a round or profile;/u, `${file} keeps bounded compatibility accounting`);
-    assert.match(compatibilityLine, /it proves neither applicability nor `out_of_scope`, and it is not proof of repair or resolution\./u, `${file} keeps each non-proof conclusion once`);
+    assert.match(compatibilityLine, /`finding_dismiss` and gap or backlog routes are temporary compatibility accounting;/u, `${file} keeps bounded compatibility accounting`);
+    assert.match(compatibilityLine, /they prove neither applicability nor `out_of_scope`, deferral, repair, or resolution\./u, `${file} keeps each non-proof conclusion once`);
     assert.match(compatibilityLine, /Prompt text alone does not mechanically enforce this discipline\./u, `${file} keeps the prompt-enforcement limitation once`);
     for (const term of ['applicability', '`out_of_scope`', 'repair', 'resolution'] as const) {
       assert.equal(occurrenceCount(compatibilityLine, term), 1, `${file} states the ${term} compatibility conclusion once`);
@@ -478,6 +623,7 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   assert.doesNotMatch(implementerTriageLine, /[\u3400-\u9fff]/u, 'the added implementer triage rule is English-only');
 }
 
+assertReviewFindingTriageProposal();
 assertReviewFindingTriageDelivery();
 assertOwnerAndImplementerTriageGuidance();
 if (process.argv.includes('--review-finding-triage-only')) {

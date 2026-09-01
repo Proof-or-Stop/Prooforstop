@@ -39,7 +39,8 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 ### Current compatibility boundary
 
 - The Dynamic Finding System execution plan is the future authority for signed applicability, ownership, routing, freshness, and supersession. Until its official CLI and artifacts exist, use only commands and fields exposed by the current CLI compatibility path. Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt, and never claim that a target-state mechanism ran.
-- In the current compatibility path, a reviewer records the observation through \`finding_add\` with the current \`reviewRunId\` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. \`finding_dismiss\` is compatibility accounting; it is not applicability proof, \`out_of_scope\` proof, repair, or resolution.
+- In the current compatibility path, a reviewer records the observation through \`finding_add\` with the current \`reviewRunId\` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. \`finding_dismiss\` and gap or backlog routes are compatibility accounting; they are not applicability proof, \`out_of_scope\` proof, deferral proof, repair, or resolution.
+- The current compatibility CLI does not implement the future signed \`FindingDeferralDisposition\` or \`defer_with_proof\` path. Never fabricate a disposition plan, accepted route, signature, freshness binding, expiry, lineage, receipt, or manifest action, and never claim that compatibility accounting exercised the future mechanism.
 - When the Dynamic Finding CLI becomes available, request or consume its official signed assessment and follow its fail-closed result. Prompt prose and compatibility records never substitute for that assessment.
 
 ### Record evidence before disposition
@@ -52,20 +53,26 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 
 ### Decide current-Story responsibility without widening scope
 
-- Require repair in the current Story when a verified issue was introduced or worsened by the Story, directly violates its acceptance or public compatibility promise, threatens security or data integrity, or would make REVIEW, TEST, DONE, or their evidence misleading.
+- Require repair in the current Story when a verified applicable issue is critical or high; was introduced or worsened by the Story; directly violates acceptance, a verification intent, the core user result, or a public compatibility promise; has known or uncertain protected-surface impact; would make REVIEW, TEST, DONE, or their evidence misleading; has invalid claimed deferral lineage; or has exhausted its cumulative deferral horizon or renewal allowance.
 - If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.
 - Evidence may support a \`pre_existing_unaffected\` or \`out_of_scope\` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.
 - A \`pre_existing_unaffected\` candidate requires deterministic base and head reproduction receipts for the same defect, proof that the Story did not worsen severity or impact, confirmation that Story scope does not promise its repair, and a valid owner or route.
 - An \`out_of_scope\` candidate requires signed scope or decision evidence naming the excluded contract, no contradictory checklist or acceptance promise, and a valid owner or route; critical or high Findings cannot be left unowned.
 - A \`duplicate\` candidate requires a signature-valid live canonical Finding, its live owner or route, and proof that the duplicate chain is not circular. Similar text or a matching signature tag is insufficient.
-- A \`stale_or_not_reproduced\` candidate requires current command receipts bound to fresh source and runtime evidence and must never be inferred from an old DONE outcome. If the current CLI cannot provide the required proof for any candidate, applicability remains unknown and fails closed.
+- A \`not_reproduced_under_current_witness\` candidate requires current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route. It must never be inferred from an old DONE outcome. If the current CLI cannot provide the required proof for any candidate, applicability remains unknown and fails closed.
 - Do not expand the Story merely to make the repository globally green. A bounded, evidence-backed route is not dismissal, resolution, or proof that the problem disappeared.
+
+### Apply future defer-with-proof only through official authority
+
+- \`defer_with_proof\` is a disposition after \`applicable\`, not an applicability verdict. Only the future official Dynamic Finding System may sign it, and only for a verified applicable low or medium Finding.
+- Future deferral eligibility requires current reproduction evidence, proof that the Story did not introduce or worsen the defect, no direct acceptance or verification-intent impact, no known or uncertain protected-surface impact, a canonical defect, fresh bindings, a live owner and existing target, an accepted target-side route receipt, recheck triggers, finite expiry, and unexhausted ledger-derived cumulative lineage.
+- A missing, invalid, expired, tampered, ownerless, partially applied, or exhausted claimed deferral fails closed to current-Story mandatory repair. A valid deferred Finding remains verified, open, visible, and unchanged in severity; it is not \`out_of_scope\`, \`pre_existing_unaffected\`, \`duplicate\`, \`disproven\`, dismissed, resolved, or repaired.
 
 ### Respect reviewer authority
 
 - Reviewers audit and record; they do not repair implementation, rewrite scope, or create follow-up Stories. Do not call \`finding_dismiss\`, \`story_create\`, or \`gap_log\` from a REVIEW lane. Return repair work to the Story Owner and propose routing for non-applicable work.
 - If no finding remains to report, record the lane result with \`review_pass_set\`; never encode a pass as a synthetic Finding.
-- Distinguish \`disproven\` (evidence refutes the observation), \`duplicate\` (another tracked Finding owns the same defect), and \`stale_or_not_reproduced\` (current evidence cannot reproduce an older claim). Do not collapse any of them into resolved.
+- Distinguish \`disproven\` (evidence refutes the observation), \`duplicate\` (another tracked Finding owns the same defect), and \`not_reproduced_under_current_witness\` (fresh target-bound negative witness evidence does not reproduce an older claim). Do not collapse any of them, or \`defer_with_proof\`, into resolved.
 - Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.`;
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [

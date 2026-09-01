@@ -84,6 +84,11 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * the fail-closed semantic mutation inventory. The source templates and frozen
  * legacy reconstruction inputs remain unchanged; only the appended canonical
  * contract and its derived body/host-render identities move.
+ * F-022/F-023/F-024 follow-up: re-approved the five assembled reviewer bodies
+ * after the canonical contract adopted the current-witness verdict and the
+ * future signed defer-with-proof disposition boundary. The source templates and
+ * frozen legacy reconstructions remain unchanged. Focused RED/GREEN mutations
+ * reject obsolete and inverse semantics even after deliberate digest repinning.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -104,7 +109,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-behavior',
-    templateHash: '19cf8e457c5ae93b887018cea139349b1694dcbe5c15fcb976e9ec0ae35f587c',
+    templateHash: '43947708332e94851d9615a9d4d5f54bdc0d7b0232edee5733f9aa45d0af0446',
   },
   {
     role: 'lattice-review-channel',
@@ -112,7 +117,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-concept',
-    templateHash: '83079f87f5d244f52daad322fecc64bf5ce58e69600d2e739ec2e3083a46ff55',
+    templateHash: 'cd157f046dcdb1ccc7b7fc9db6f168e7f2ad8d6d536f1037d4a6e82d2036321e',
   },
   {
     role: 'lattice-review-delivery',
@@ -120,11 +125,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-docs',
-    templateHash: '0b56018b3cc9dba0a52854bfcdedec7096504a865e43d0fb72dad86770574135',
+    templateHash: '45e41ccafbc1991943c08cdb1e645edb1a7b0a85fc7a45d125f9bddb108cec2e',
   },
   {
     role: 'lattice-review-quality',
-    templateHash: '6f5f4de45b2ec52cc142dc8c4e2909975b9bcd462b8c58f2ccdcbcd192bd30cf',
+    templateHash: '6c3916fb283cc596825f7cc62fb2c635e1aa42adbda0fb2a8c2a4f35f65c2bcf',
   },
   {
     role: 'lattice-review-scope-plan',
@@ -136,7 +141,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-test-coverage',
-    templateHash: '5e3a5cf195d3334e751f1bd28d3a5f27b95d01f137e45b54f5a3ba788887fbd9',
+    templateHash: '237fa14f8cc29e8aef0612899bf4f5731bb9892027c1f298d1f113d90530541d',
   },
   {
     role: 'lattice-review-topology-critic',
