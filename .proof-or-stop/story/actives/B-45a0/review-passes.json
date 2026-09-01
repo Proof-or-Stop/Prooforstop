@@ -24659,6 +24659,40 @@
         "scanEscalationReason": null
       },
       "_hash": "32bc3447cea0ac802fd4c27abdd3c7af1086bbbee5636081902cc082c7310447"
+    },
+    {
+      "id": "B-45a0:RP-528",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmation pass post-DEV-remediation (prior verdict B-45a0:RP-523). No source under packages/** changed except commit 9f5b0d96b1, verified byte-additive to verify-no-project-writes.mjs PRUNED regex. No new concept-deletion residue found.",
+      "createdAt": "2026-09-01T04:46:22.311Z",
+      "reviewRound": "2026-09-01T04:22:03.645Z",
+      "reviewRunId": "B-45a0:RR-1180",
+      "envelopeId": "e9a3efb3e8ed529a2d27023c94bd2749914bc44133a218086e3b0e6884a3d93a",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-shards.ts",
+          "packages/main/src/tasks/review-pass-shards.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a64b09c9d2510c5cad50a1c21c8f7d740aaab4b78506d12e22f20ba9ca029fac"
     }
   ]
 }
