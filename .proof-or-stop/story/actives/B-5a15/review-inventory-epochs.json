@@ -5929,9 +5929,9 @@
       "epochId": "B-5a15:RIE-068",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-26T09:37:09.709Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T19:55:53.926Z",
-      "updatedAt": "2026-08-31T19:55:53.926Z",
+      "updatedAt": "2026-09-01T05:43:43.807Z",
       "cutoff": {
         "headHash": "37fc7052a341777bc63fede468dfbc9dfae29a4e",
         "materialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a",
@@ -5942,7 +5942,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a15:RIE-068:RCP-001",
-      "_hash": "ed41ef2ec150127ef829dfb072fbaf33a1ea856370134e8ddd792216390bea71"
+      "cancelledAt": "2026-09-01T05:43:43.807Z",
+      "cancelReason": "Receipt RIE-068 is bound to superseded review round 2026-08-26T09:37:09.709Z while the current round is 2026-08-31T20:13:27.698Z, so remediation DEV refuses it; a fresh epoch must be earned against the current round after the main merge and acceptance-basis regeneration.",
+      "terminalRunSequenceBoundary": 777,
+      "_hash": "154155b79cd1b121433b7da1519ea84b234585b9f8a7ef3c4749f32543f5ec9c"
     }
   ],
   "receipts": [
@@ -6894,7 +6897,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-31T19:55:53.926Z",
-      "_hash": "e8352be76ed25ee6db19b6e3359674be2326c038617f4983bc049cefa832e528"
+      "invalidatedAt": "2026-09-01T05:43:43.807Z",
+      "invalidationReason": "Receipt RIE-068 is bound to superseded review round 2026-08-26T09:37:09.709Z while the current round is 2026-08-31T20:13:27.698Z, so remediation DEV refuses it; a fresh epoch must be earned against the current round after the main merge and acceptance-basis regeneration.",
+      "_hash": "2e19133a2cb3bc2b436e7ae7f26168bd34808d89cef399c0be381d4d53373c22"
     }
   ],
   "criticReceipts": [
