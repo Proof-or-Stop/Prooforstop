@@ -155,40 +155,50 @@
           "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Current verifier proves fixed historical RED blob, baseline failure, and current GREEN import without arbitrary-cwd substitution.",
+          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T17:11:13.449Z",
-            "timeoutMs": 270000
+            "executedAt": "2026-09-01T22:32:26.069Z",
+            "timeoutMs": 600000,
+            "timeoutOverride": {
+              "timeoutMs": 600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
+            }
           },
-          "headHash": "c38a71273a44a699d9f61cb5856262b0c5b0f8da",
-          "materialHash": "0db029b54f7cfc8ac33eeecaf5ed2a1d280e99fc6c49cab17ca929a019dd97fc",
-          "storyFilesHash": "f49f917c455cd62738806f79f166795fd3c2e7a11f6bd1249133a0870a3d980f",
-          "timestamp": "2026-09-01T17:11:13.585Z"
+          "headHash": "bda9b20ea307dbf25014af26d524de41a05ea8a4",
+          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
+          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
+          "timestamp": "2026-09-01T22:32:34.849Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Current verifier proves fixed historical RED blob, baseline failure, and current GREEN import without arbitrary-cwd substitution.",
+          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T17:11:18.723Z",
-            "timeoutMs": 270000
+            "executedAt": "2026-09-01T22:32:34.456Z",
+            "timeoutMs": 600000,
+            "timeoutOverride": {
+              "timeoutMs": 600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
+            }
           },
-          "headHash": "76b82e07319cfff6e96e875159ac4e46ea647bc9",
-          "materialHash": "0db029b54f7cfc8ac33eeecaf5ed2a1d280e99fc6c49cab17ca929a019dd97fc",
-          "storyFilesHash": "f49f917c455cd62738806f79f166795fd3c2e7a11f6bd1249133a0870a3d980f",
-          "timestamp": "2026-09-01T17:11:18.858Z"
+          "headHash": "bda9b20ea307dbf25014af26d524de41a05ea8a4",
+          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
+          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
+          "timestamp": "2026-09-01T22:32:34.849Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -402,20 +412,25 @@
           "kind": "integration_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Current verifier proves fixed historical RED blob, baseline failure, and current GREEN import without arbitrary-cwd substitution.",
+          "note": "Fresh current verification after the F-006 sequential legacy-binding RED/GREEN fix.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T17:11:08.201Z",
-            "timeoutMs": 270000
+            "executedAt": "2026-09-01T22:32:17.235Z",
+            "timeoutMs": 600000,
+            "timeoutOverride": {
+              "timeoutMs": 600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
+            }
           },
-          "headHash": "9b2fc0f635886e2084890b68b54893f5fcc292e0",
-          "materialHash": "0db029b54f7cfc8ac33eeecaf5ed2a1d280e99fc6c49cab17ca929a019dd97fc",
-          "storyFilesHash": "f49f917c455cd62738806f79f166795fd3c2e7a11f6bd1249133a0870a3d980f",
-          "timestamp": "2026-09-01T17:11:08.338Z"
+          "headHash": "bda9b20ea307dbf25014af26d524de41a05ea8a4",
+          "materialHash": "56d4239a10234ec67e07b960e4b97f8e76b5a02f6b5f4c6efee0e8091a20a223",
+          "storyFilesHash": "d1588a44048e344eff74a7571761bf3107852ef63f1cc7b35e4931d8705d5163",
+          "timestamp": "2026-09-01T22:32:34.849Z"
         }
       ],
       "userSeesSnapshot": {
