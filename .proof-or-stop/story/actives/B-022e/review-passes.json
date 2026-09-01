@@ -978,6 +978,32 @@
         "scanEscalationReason": "Round15 was explicitly bounded to f7bf366; the complete changed decision was read and the only executable-file delta was independently checked as a three-field exact provenance-pin update, then exercised by both identity self-test and full verifier."
       },
       "_hash": "b7115d4dcad8451586dfc576e059b15b2572306c3582007fa428732d8772091d"
+    },
+    {
+      "id": "B-022e:RP-033",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: orphan CHK-007:pack-boundary-transcript:0 evidence was legally removed because it did not resolve to any current verificationIntent; evidence_inspect now reports fresh with 29/29 current standard intents mechanically passing and fresh, zero checklist orphan refs, zero transcript refs, and latest 120-command validation PASS. F-045/F-046 coverage is executable: three concurrent full global-Lab verifier runs passed, each covering isolated three-way core-without-Lab concurrency, exact external handler parity, core handler replace/remove mutation rejection, canonical story_get positive control, nested+flat DEV/REVIEW/TEST lifecycle, and hook/process-event invariants.",
+      "createdAt": "2026-09-01T10:30:04.903Z",
+      "reviewRound": "2026-09-01T10:25:38.607Z",
+      "reviewRunId": "B-022e:RR-085",
+      "envelopeId": "3bb9c6882ec6a7ddc3edd0b4dedf9c64e3e10acb7b35adb4f1ec4cca6354601b",
+      "writerSessionId": "sess-8b578106d88f262e7b8839da1f27faa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/extension-admission.ts",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2865fcedc7b805203968d8ec0746ec57f6bd39cfef6588982f3fae6af2b3142c"
     }
   ]
 }
