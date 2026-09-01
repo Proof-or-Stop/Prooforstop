@@ -6414,6 +6414,29 @@
       "cancelReason": "RI-058 receipt bound to a superseded acceptance subject after the human breaker-resume and lease transfer; remediation DEV refuses it. Minting a fresh epoch at the current subject so the proofstory contract declaration fix can land.",
       "terminalRunSequenceBoundary": 826,
       "_hash": "ade80d5b0ff46005a56d5c365d115693540fb411ef11ba533e6159884020f869"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-079",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-09-01T18:33:43.087Z",
+      "updatedAt": "2026-09-01T18:34:16.117Z",
+      "cutoff": {
+        "headHash": "87c5989a3c5a5afd135ae5d7c3d9828b0697d0e6",
+        "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
+        "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868"
+      },
+      "scopeDigest": "6fc1d3c4a72c5d2469ce51b6d001945c85d3e53cd463de57bba24bbc2102059e",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-079:RCP-001",
+      "cancelledAt": "2026-09-01T18:34:16.117Z",
+      "cancelReason": "RIE-079 came from the no-OPEN-epoch finalize shortcut, which writes reviewInventoryDigest(cutoff) as scopeDigest (6fc1d3c4) instead of the acceptance-subject digest (5e44ec54) that consumeReviewInventoryReceipt requires; structurally unconsumable. Re-earning via a full OPEN epoch.",
+      "terminalRunSequenceBoundary": 826,
+      "_hash": "05aeab0b870b1a839a10336d4f095609e6d94c41b468dd46e169c4e0ad59fa3d"
     }
   ],
   "receipts": [
@@ -7471,6 +7494,30 @@
       "invalidatedAt": "2026-09-01T18:33:41.837Z",
       "invalidationReason": "RI-058 receipt bound to a superseded acceptance subject after the human breaker-resume and lease transfer; remediation DEV refuses it. Minting a fresh epoch at the current subject so the proofstory contract declaration fix can land.",
       "_hash": "f348b4bc184d9c14d84f9c00fc4e93ca01711dc7ea93138112d41b55e44209bc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-079:RCP-001",
+      "epochId": "B-5a15:RIE-079",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "cutoff": {
+        "headHash": "87c5989a3c5a5afd135ae5d7c3d9828b0697d0e6",
+        "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
+        "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868"
+      },
+      "scopeDigest": "6fc1d3c4a72c5d2469ce51b6d001945c85d3e53cd463de57bba24bbc2102059e",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-01T18:33:43.087Z",
+      "invalidatedAt": "2026-09-01T18:34:16.117Z",
+      "invalidationReason": "RIE-079 came from the no-OPEN-epoch finalize shortcut, which writes reviewInventoryDigest(cutoff) as scopeDigest (6fc1d3c4) instead of the acceptance-subject digest (5e44ec54) that consumeReviewInventoryReceipt requires; structurally unconsumable. Re-earning via a full OPEN epoch.",
+      "_hash": "88b31450bf5db627720edcc8d3d9042569116b15a00679b5e22e36219f045525"
     }
   ],
   "criticReceipts": [
