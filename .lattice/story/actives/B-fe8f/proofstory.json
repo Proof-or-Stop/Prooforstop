@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-fe8f",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:c0ca5cf0704bb295701e318af91528d176fbe6e71ada4148a7e194dcab533aeb",
+  "confirmedMilestoneLedgerHash": "sha256:058ba001d5eba1661a63d9f34e6b42e2c75348fa304da58e3d2b3d4588bd1351",
+  "acceptanceBindings": [
+    {
+      "id": "AB-STORY3-FOUNDATION",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:3",
+        "CHK-001:happy:4",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-003:happy:0",
+        "CHK-003:happy:3",
+        "CHK-004:happy:0",
+        "CHK-004:happy:3",
+        "CHK-004:happy:4",
+        "CHK-005:happy:0",
+        "CHK-005:adversarial:3",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:happy:3",
+        "CHK-006:happy:4",
+        "CHK-006:happy:5"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "acceptanceClaim": "The final Story 3 smoke prints Finding ledger integrity: PASS and Runtime evidence integrity: PASS while the CLI dependency graph keeps B-03b7 and B-e6d9 blocked until B-fe8f is DONE.",
+      "note": "Binds the accepted user outcome to official RED/GREEN relation, ledger/runtime implementation, protected query/process facts, dependency gate and version synchronization."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "Pre-DEV Story 3 contract; persistence authority remains separate from downstream identity and applicability semantics.",
+  "createdAt": "2026-09-01T09:00:15.621Z",
+  "updatedAt": "2026-09-01T09:00:15.621Z"
+}

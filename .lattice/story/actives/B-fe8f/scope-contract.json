@@ -1,0 +1,72 @@
+{
+  "storyId": "B-fe8f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/core/finding-ledger.ts",
+    "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/core/runtime-evidence-receipt.ts",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/story-recall.ts"
+  ],
+  "scopeChangeReason": "Initialize enforce scope from the fresh gap-free PLAN: Story 3 ledger/runtime implementation only; downstream identity, applicability and gate predicate semantics are protected exclusions.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-01T08:59:27.516Z",
+  "updatedAt": "2026-09-01T08:59:27.516Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/core/evidence/artifact-store.ts": "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/handlers/finding-ledger.ts": "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/core/finding-ledger.ts": "packages/main/src/core/finding-ledger.ts",
+    "packages/main/src/core/runtime-evidence-receipt.ts": "packages/main/src/core/runtime-evidence-receipt.ts",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/advisory.ts": "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/story-recall.ts": "packages/main/src/core/story-recall.ts"
+  }
+}
