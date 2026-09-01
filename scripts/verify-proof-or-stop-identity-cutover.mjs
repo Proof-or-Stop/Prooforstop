@@ -25,6 +25,16 @@ const TRUTH_SOURCE_ENTRYPOINTS = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/r
 const CURRENT_GUIDANCE_PATHS = ['AGENTS.md', 'CLAUDE.md'];
 const CANONICAL_STORY_DIR = '.proof-or-stop/story/actives';
 const LEGACY_STORY_DIR = 'docs/story/actives';
+const ALLOWED_LEGACY_STORY_PATH_CONTEXTS = new Set([
+  [
+    'CLAUDE.md',
+    '`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.proof-or-stop/activity.jsonl`，并兼容读取旧版 `docs/story/activity.jsonl` 及 story-scoped `docs/story/actives/*/activity.jsonl` heartbeat。默认 60 分钟内跑过 `proof-or-stop session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：',
+  ],
+  [
+    'CLAUDE.md',
+    '**反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。',
+  ],
+].map(([path, line]) => `${path}\0${line}`));
 const EXPLICIT_HISTORICAL_DECISION_DOCS = new Set([
   'docs/requirements/decisions/authority-client-role.md',
   'docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md',
@@ -1151,9 +1161,7 @@ function isHistoricalLegacyContext(line) {
 }
 
 function isAllowedLegacyStoryPathContext(path, line) {
-  if (path !== 'CLAUDE.md') return false;
-  return /兼容读取旧版/u.test(line)
-    || (/EXP-001/u.test(line) && /docs\/story\/actives\/B-e71f\/experiments\/exp-001\.md/u.test(line));
+  return ALLOWED_LEGACY_STORY_PATH_CONTEXTS.has(`${path}\0${line}`);
 }
 
 function verifyCurrentGuidance(root, readText = (path) => readFileSync(resolve(root, path), 'utf8')) {
@@ -1626,6 +1634,42 @@ function runSelfTest(root, files) {
   expect(
     verifyCurrentGuidance(root, (path) => directClaudeWrite.get(path)).some((error) => error.includes('direct-write/no-CLI')),
     'CLAUDE.md direct-write/no-CLI mutation did not fail closed',
+  );
+  const compatibilityLine = guidance.get('CLAUDE.md').split(/\r?\n/u).find((line) => line.includes('兼容读取旧版'));
+  expect(Boolean(compatibilityLine), 'current guidance self-test requires the exact legacy heartbeat compatibility line');
+  if (compatibilityLine) {
+    const compatibilityComposition = new Map(guidance);
+    compatibilityComposition.set(
+      'CLAUDE.md',
+      guidance.get('CLAUDE.md').replace(
+        compatibilityLine,
+        `${compatibilityLine} Run cat on ${LEGACY_STORY_DIR}/B-live/plan.md and edit it directly.`,
+      ),
+    );
+    expect(
+      verifyCurrentGuidance(root, (path) => compatibilityComposition.get(path)).some((error) => error.includes('active legacy StoryStore path')),
+      'legacy heartbeat compatibility label plus appended direct StoryStore instruction did not fail closed',
+    );
+  }
+  const historicalExperimentLine = guidance.get('CLAUDE.md').split(/\r?\n/u).find((line) => line.includes('EXP-001') && line.includes('docs/story/actives/B-e71f/experiments/exp-001.md'));
+  expect(Boolean(historicalExperimentLine), 'current guidance self-test requires the exact historical EXP-001 line');
+  if (historicalExperimentLine) {
+    const historicalComposition = new Map(guidance);
+    historicalComposition.set(
+      'CLAUDE.md',
+      guidance.get('CLAUDE.md').replace(
+        historicalExperimentLine,
+        `Run echo overwrite against ${LEGACY_STORY_DIR}/B-live/index.json, then ${historicalExperimentLine}`,
+      ),
+    );
+    expect(
+      verifyCurrentGuidance(root, (path) => historicalComposition.get(path)).some((error) => error.includes('active legacy StoryStore path')),
+      'historical EXP-001 label plus prepended overwrite instruction did not fail closed',
+    );
+  }
+  expect(
+    verifyCurrentGuidance(root, guidanceRead).length === 0,
+    'current guidance clean control did not restore to PASS after composition mutations',
   );
 
   const tracked = new Set(files);
