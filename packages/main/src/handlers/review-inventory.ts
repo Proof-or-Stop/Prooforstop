@@ -26,6 +26,7 @@ import {
   withReviewInventoryMutationLock,
 } from '../core/review-inventory-epoch.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
 import { verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { verifyCandidateSpecSet } from '../core/candidate-spec-routing.js';
 import { writeFileSync } from 'node:fs';
@@ -83,7 +84,7 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   const validCandidate = candidateArtifactInvalid ? null : candidate;
   return {
     requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
-      .map(row => `lattice-review-${row.name}`),
+      .map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
     scopeDigest: reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId),
     // B-3f3d F-103: bind the candidate set's SEMANTICS, not its identity digest.
     // artifactDigest is the artifact's tamper-detection identity and deliberately
@@ -232,13 +233,13 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   let next: string;
   if (epoch.state === 'OPEN') {
     if (blockers.includes('REVIEW_INVENTORY_BUDGET_EXHAUSTED')) {
-      next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="replan or decompose after wave budget exhaustion"`;
+      next = `proof-or-stop review_inventory_cancel --storyId=${epoch.storyId} --reason="replan or decompose after wave budget exhaustion"`;
     } else if (live?.baselineMismatchIds.length) {
-      next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="baseline finding set changed; reopen a fresh signed epoch"`;
+      next = `proof-or-stop review_inventory_cancel --storyId=${epoch.storyId} --reason="baseline finding set changed; reopen a fresh signed epoch"`;
     } else if (live?.missingLanes.length) {
-      next = `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"${live.missingLanes[0]}"}'`;
+      next = `proof-or-stop dispatch '{"storyId":"${epoch.storyId}","agentType":"${live.missingLanes[0]}"}'`;
     } else if (live?.duplicateIdentities.length) {
-      next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="re-dispatch independent reviewer identities"`;
+      next = `proof-or-stop review_inventory_cancel --storyId=${epoch.storyId} --reason="re-dispatch independent reviewer identities"`;
     } else if (live && !projection.criticComplete) {
       const conservativeDispositions = live.rawFindingIds.map(findingId => ({
         findingId,
@@ -247,19 +248,19 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
         reason: 'Conservative executable default: retain this verified finding as its own family',
       }));
       next = projection.criticReviewRunId
-        ? `lattice review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'lattice-review-topology-critic', findingDispositions: conservativeDispositions })}'`
-        : `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"lattice-review-topology-critic"}'`;
+        ? `proof-or-stop review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'proof-or-stop-review-topology-critic', findingDispositions: conservativeDispositions })}'`
+        : `proof-or-stop dispatch '{"storyId":"${epoch.storyId}","agentType":"proof-or-stop-review-topology-critic"}'`;
     } else if (live?.newFamilies.length) {
-      next = `lattice review_inventory_wave_advance --storyId=${epoch.storyId}`;
+      next = `proof-or-stop review_inventory_wave_advance --storyId=${epoch.storyId}`;
     } else {
-      next = `lattice review_inventory_finalize --storyId=${epoch.storyId}`;
+      next = `proof-or-stop review_inventory_finalize --storyId=${epoch.storyId}`;
     }
   } else if (epoch.state === 'FINALIZED') {
     next = epoch.consumedAt
-      ? `lattice review_inventory_begin --storyId=${epoch.storyId}`
-      : `lattice story_advance --storyId=${epoch.storyId} --phase=DEV`;
+      ? `proof-or-stop review_inventory_begin --storyId=${epoch.storyId}`
+      : `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;
   } else {
-    next = `lattice review_inventory_begin --storyId=${epoch.storyId}`;
+    next = `proof-or-stop review_inventory_begin --storyId=${epoch.storyId}`;
   }
   return [
     `Review inventory epoch: ${epoch.epochId}`,
@@ -282,7 +283,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
       ? ['Invalid candidate routing artifact: persisted candidate-spec-set.json failed structural and artifactDigest verification.']
       : []),
     ...(epoch.state === 'FINALIZED' && !epoch.consumedAt
-      ? [`Recovery for genuine late evidence: lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="late evidence invalidated finalized receipt"; then begin a fresh epoch and fresh ReviewRun`]
+      ? [`Recovery for genuine late evidence: proof-or-stop review_inventory_cancel --storyId=${epoch.storyId} --reason="late evidence invalidated finalized receipt"; then begin a fresh epoch and fresh ReviewRun`]
       : []),
     `Next: ${next}`,
   ].join('\n');
@@ -331,7 +332,7 @@ function currentCriticReviewRunId(ctx: HandlerContext, epoch: ReviewInventoryEpo
     Date.parse(evidenceById.find(row => row.id === id)?.createdAt ?? ''),
   )).filter(Number.isFinite));
   const latest = ctx.store.readReviewRuns(epoch.storyId).runs
-    .filter(run => verifyReviewRun(run) && run.lane === 'lattice-review-topology-critic'
+    .filter(run => verifyReviewRun(run) && canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
       && run.reviewRound === epoch.reviewRound && run.materialHash === epoch.cutoff.materialHash
       && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
       && Date.parse(run.startedAt) > latestLaneEvidenceAt)
@@ -358,7 +359,7 @@ export function renderReviewInventoryBegin(epoch: ReviewInventoryEpoch): string 
     `Review inventory epoch: ${epoch.epochId}`,
     'State: OPEN',
     `Frozen cutoff: ${epoch.cutoff.materialHash}`,
-    `Next: lattice review_inventory_status --storyId=${epoch.storyId}`,
+    `Next: proof-or-stop review_inventory_status --storyId=${epoch.storyId}`,
   ].join('\n');
 }
 
@@ -371,7 +372,7 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
       throw new Error(
         `${refreshed.invalidation?.blockerCode ?? 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION'}\nEpoch: ${epoch.epochId}\n` +
         `Changed lineage: ${refreshed.invalidation?.oldMaterialHash} -> ${refreshed.invalidation?.currentMaterialHash}\n` +
-        `Recovery: lattice review_inventory_begin --storyId=${storyId}`,
+    `Recovery: proof-or-stop review_inventory_begin --storyId=${storyId}`,
       );
     }
   });
@@ -394,7 +395,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (pendingReceipt) {
           throw new Error(
             `REVIEW_INVENTORY_RECEIPT_UNCONSUMED: ${pendingReceipt.receipt.receiptId}; ` +
-            `Next: lattice story_advance --storyId=${args.storyId} --phase=DEV`,
+            `Next: proof-or-stop story_advance --storyId=${args.storyId} --phase=DEV`,
           );
         }
         const {
@@ -481,8 +482,8 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         command: 'review_inventory_critic_set',
         payloadActors: [args.agent],
       });
-      if (authority.actor !== 'lattice-review-topology-critic') {
-        throw new Error('review_inventory_critic_set: only lattice-review-topology-critic may write critic authority');
+      if (!authority.actor || canonicalAgentRoleId(authority.actor) !== 'proof-or-stop-review-topology-critic') {
+        throw new Error('review_inventory_critic_set: only proof-or-stop-review-topology-critic may write critic authority');
       }
       return inventoryLock(ctx, args.storyId, () => {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
@@ -501,7 +502,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (evaluation.invalidDispositionIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: ${evaluation.invalidDispositionIds.join(', ')}`);
         const story = ctx.store.readStory(args.storyId);
         const run = assertCurrentReviewRunForEvidence(
-          ctx.store, story, ctx.root, 'lattice-review-topology-critic', args.reviewRunId,
+          ctx.store, story, ctx.root, 'proof-or-stop-review-topology-critic', args.reviewRunId,
         );
         const passes = ctx.store.readReviewPasses(args.storyId).passes
           .filter(row => row.reviewRunId === run.reviewRunId && verifyReviewPass(args.storyId, row));
@@ -523,7 +524,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           cutoff: epoch.cutoff,
           aggregateFindingSetDigest: reviewInventoryDigest(reviewInventoryAggregateFamilies(epoch, evaluation)),
           requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
-          criticLane: 'lattice-review-topology-critic',
+          criticLane: 'proof-or-stop-review-topology-critic',
           reviewRunId: run.reviewRunId,
           terminalEvidenceIds,
           readEvidenceDigest: reviewInventoryDigest(readEvidence),
@@ -579,7 +580,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           throw new Error(`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED: ${evaluation.baselineMismatchIds.join(', ')}; cancel and begin a fresh signed epoch`);
         }
         if (evaluation.missingLanes.length > 0) {
-          throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}; Next: lattice review_inventory_status --storyId=${args.storyId}`);
+          throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}; Next: proof-or-stop review_inventory_status --storyId=${args.storyId}`);
         }
         if (evaluation.duplicateIdentities.length > 0) {
           throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}; independent lane evidence required`);
@@ -602,7 +603,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (!wave.saturated) {
           throw new Error(
             `REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE: ${evaluation.newFamilies.join(', ')}; ` +
-            `Next: lattice review_inventory_wave_advance --storyId=${args.storyId}`,
+            `Next: proof-or-stop review_inventory_wave_advance --storyId=${args.storyId}`,
           );
         }
         const aggregateFamilies = wave.verifiedFindingFamilies;
@@ -668,7 +669,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         });
         if (!critic.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INCOMPLETE: ${critic.reason}`);
         if (evaluation.newFamilies.length === 0) {
-          throw new Error(`REVIEW_INVENTORY_ZERO_NEW_READY_TO_FINALIZE: Next: lattice review_inventory_finalize --storyId=${args.storyId}`);
+          throw new Error(`REVIEW_INVENTORY_ZERO_NEW_READY_TO_FINALIZE: Next: proof-or-stop review_inventory_finalize --storyId=${args.storyId}`);
         }
         const now = new Date().toISOString();
         const wave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));

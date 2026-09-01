@@ -13,6 +13,11 @@ import {
   PROOF_OR_STOP_STORY_DIR_NAMES,
   LEGACY_DOCS_STORY_DIR,
 } from './lattice-paths.js';
+import {
+  EVIDENCE_HASH_SNAPSHOT_SCHEMA,
+  isEvidenceHashSnapshotSchema,
+  type EvidenceHashSnapshotSchema,
+} from './artifact-schema.js';
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
@@ -95,7 +100,7 @@ export function classifyEvidenceFreshness(
 }
 
 export interface EvidenceHashSnapshot {
-  schemaVersion: 'lattice.evidence_hash_snapshot.v1';
+  schemaVersion: EvidenceHashSnapshotSchema;
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
@@ -285,7 +290,7 @@ export function captureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArg
   const materialHash = currentMaterialHash(gitCwd, ref, metadataRoot);
   const storyFilesHash = currentStoryFilesHash(gitCwd, ref, metadataRoot);
   return {
-    schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+    schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA,
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
@@ -322,7 +327,7 @@ export function checkEvidenceHashSnapshotReuse(
     };
   }
 
-  if (snapshot.schemaVersion !== 'lattice.evidence_hash_snapshot.v1') {
+  if (!isEvidenceHashSnapshotSchema(snapshot.schemaVersion)) {
     reasons.push('snapshot schemaVersion is not supported');
   }
   if (snapshot.gitCwd !== gitCwd) reasons.push('snapshot gitCwd does not match current git cwd');

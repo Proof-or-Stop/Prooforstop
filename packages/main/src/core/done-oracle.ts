@@ -622,7 +622,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'delivery-check',
       detail: deliveryCheckFreshness.reason,
-      hint: 'Run the lattice-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign.',
+      hint: 'Run the proof-or-stop-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with proof-or-stop-review-delivery provenance / agentId=proof-or-stop-review-delivery; the main agent must not self-sign.',
       source: 'delivery-check.json',
     }));
   } else {
@@ -632,7 +632,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: 'fail',
         label: 'delivery-check',
         detail: deliveryCheckFreshness.reason,
-        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json',
+        hint: 'Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check.json',
         source: 'delivery-check.json._hash',
       }));
     } else if (deliveryCheckFreshness.code === 'stale_delivery_check') {
@@ -641,7 +641,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: 'fail',
         label: 'delivery-check',
         detail: deliveryCheckFreshness.reason,
-        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json bound to the current materialHash',
+        hint: 'Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check.json bound to the current materialHash',
         source: 'delivery-check.json.materialHash',
       }));
     } else {
@@ -652,7 +652,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'delivery-check',
           detail: `${unverified.length} docsPromise entries are unverified and not waived`,
-          hint: 'Use delivery_waiver_add to write a waiver, or re-run the lattice-review-delivery reviewer to add verification evidence',
+          hint: 'Use delivery_waiver_add to write a waiver, or re-run the proof-or-stop-review-delivery reviewer to add verification evidence',
           source: 'delivery-check.json.docsPromises',
         }));
       } else {

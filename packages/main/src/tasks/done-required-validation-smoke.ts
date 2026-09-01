@@ -1124,7 +1124,7 @@ function assertDoneRequiredBlocked(
     const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
     assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
     assert.equal(evidence.receipts.length, 1);
-    assert.equal(evidence.receipts[0].commandSpec?.schema, 'lattice.command-spec.v2');
+    assert.equal(evidence.receipts[0].commandSpec?.schema, 'proof-or-stop.command-spec.v2');
     assert.equal(evidence.receipts[0].commandSpec?.command, 'node');
 
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });

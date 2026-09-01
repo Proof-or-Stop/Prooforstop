@@ -239,7 +239,7 @@ function packageTarget(target) {
 
 function writeManifest(results) {
   writeFileSync(manifestPath, JSON.stringify({
-    entry: 'bin/lattice.js via generated pkg-entry.js',
+    entry: 'bin/proof-or-stop.js via generated pkg-entry.js',
     artifacts: results,
   }, null, 2) + '\n', 'utf8');
 }

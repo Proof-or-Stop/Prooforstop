@@ -149,13 +149,13 @@ function seedProofStoryAcceptance(store: StoryStore): void {
 const first = setup();
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
-const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
-  LATTICE_AGENT: 'lattice-review-topology-critic',
+const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
+  LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
 });
 assert.match(criticDispatch, /findingDispositions/);
-const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'lattice-review-topology-critic' }, {
-  LATTICE_AGENT: 'lattice-review-topology-critic',
+const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
+  LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
 });
 assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
@@ -248,47 +248,47 @@ assert.throws(
   'real wave_advance rejects a complete lane set without critic authority',
 );
 assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeCriticAdvance, 'critic-incomplete rejection is side-effect free');
-cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
-  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
+cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
+  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
 });
-const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'lattice-review-topology-critic' }, {
-  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
+const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
+  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
 });
 const criticReviewRunId = criticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(criticReviewRunId, `real critic review_run_start must return a signed run: ${criticStarted}`);
 cli(first.root, 'review_pass_set', {
   storyId,
-  agent: 'lattice-review-topology-critic',
+  agent: 'proof-or-stop-review-topology-critic',
   reviewRunId: criticReviewRunId,
   note: 'Independent critic reviewed the exact aggregate and lane coverage.',
   readManifest,
   readEvents,
-}, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
+}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
 const criticPassCount = reloaded.readReviewPasses(storyId).passes.length;
 const criticPassRetry = cli(first.root, 'review_pass_set', {
   storyId,
-  agent: 'lattice-review-topology-critic',
+  agent: 'proof-or-stop-review-topology-critic',
   reviewRunId: criticReviewRunId,
   note: 'Independent critic reviewed the exact aggregate and lane coverage.',
   readManifest,
   readEvents,
-}, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
+}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
 assert.match(criticPassRetry, /already recorded/, 'F046: critic pass uses the same idempotent terminal writer');
 assert.equal(reloaded.readReviewPasses(storyId).passes.length, criticPassCount);
 const critic = cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: criticReviewRunId,
-  agent: 'lattice-review-topology-critic',
+  agent: 'proof-or-stop-review-topology-critic',
   findingDispositions: [{
     findingId: realFindingId,
     disposition: 'verified_family',
     familyKey: `finding:${realFindingId}`,
     reason: 'Independent critic conservatively retained this verified family',
   }],
-}, { LATTICE_AGENT: 'lattice-review-topology-critic' });
+}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic' });
 assert.match(critic, /Completeness critic: complete/);
 const discoveryStatus = cli(first.root, 'review_inventory_status', { storyId });
 assert.match(discoveryStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
-assert.match(discoveryStatus, /Next: lattice review_inventory_wave_advance/);
+assert.match(discoveryStatus, /Next: proof-or-stop review_inventory_wave_advance/);
 assert.equal((discoveryStatus.match(/^Next:/gm) ?? []).length, 1);
 assert.throws(
   () => cli(first.root, 'review_inventory_finalize', { storyId }),
@@ -344,22 +344,22 @@ for (const lane of epoch.requiredLanes) {
     readManifest, readEvents,
   }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
 }
-cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
-  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
+cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
+  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
 });
-const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'lattice-review-topology-critic' }, {
-  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
+const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
+  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
 });
 const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(secondCriticReviewRunId);
 cli(first.root, 'review_pass_set', {
-  storyId, agent: 'lattice-review-topology-critic', reviewRunId: secondCriticReviewRunId,
+  storyId, agent: 'proof-or-stop-review-topology-critic', reviewRunId: secondCriticReviewRunId,
   note: 'Second-wave critic verified zero new finding families.', readManifest, readEvents,
-}, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic' });
+}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic' });
 cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: secondCriticReviewRunId,
-  agent: 'lattice-review-topology-critic', findingDispositions: [],
-}, { LATTICE_AGENT: 'lattice-review-topology-critic' });
+  agent: 'proof-or-stop-review-topology-critic', findingDispositions: [],
+}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic' });
 const beforeZeroNewAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
 assert.throws(
   () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
@@ -482,19 +482,19 @@ writeFileSync(join(first.root, 'packages/main/tests/isolated.test.ts'), 'export 
 git(first.root, ['add', 'packages/main/tests/isolated.test.ts']);
 git(first.root, ['commit', '-m', 'narrow post-remediation repair']);
 const activeReviewers: ActiveReviewer[] = [
-  { name: 'concept', reason: 'baseline' },
-  { name: 'quality', reason: 'baseline' },
-  { name: 'test-coverage', reason: 'baseline' },
-  { name: 'behavior', reason: 'riskSignal: gate' },
-  { name: 'docs', reason: 'touchpoints .md' },
+  { name: 'concept', lane: 'proof-or-stop-review-concept', legacyAliases: [], reason: 'baseline' },
+  { name: 'quality', lane: 'proof-or-stop-review-quality', legacyAliases: [], reason: 'baseline' },
+  { name: 'test-coverage', lane: 'proof-or-stop-review-test-coverage', legacyAliases: [], reason: 'baseline' },
+  { name: 'behavior', lane: 'proof-or-stop-review-behavior', legacyAliases: [], reason: 'riskSignal: gate' },
+  { name: 'docs', lane: 'proof-or-stop-review-docs', legacyAliases: [], reason: 'touchpoints .md' },
 ];
 const narrowClosure = computeCanonicalDependencyClosure(first.root, ['packages/main/tests/isolated.test.ts']);
 assert.equal(narrowClosure.complete, true, JSON.stringify(narrowClosure));
 const narrowSelection = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
 assert.equal(narrowSelection.selection, 'dependency-closure', JSON.stringify(narrowSelection));
 assert.deepEqual(narrowSelection.selectedLanes, [
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
 ]);
 assert.equal(narrowSelection.requiredHostAssurance, 'unchanged');
 assert.equal(verifyPostRemediationReviewSelection(narrowSelection), true);
@@ -512,7 +512,7 @@ for (const forged of [
 const roster = computeFinalReviewRoster(reloaded, first.root, storyId, activeReviewers);
 assert.deepEqual(roster.requiredReviewers.map(row => row.name), ['quality', 'test-coverage']);
 const rosterStatus = renderFinalReviewRoster(roster, storyId);
-assert.match(rosterStatus, /^Final-review lanes: lattice-review-quality, lattice-review-test-coverage$/m);
+assert.match(rosterStatus, /^Final-review lanes: proof-or-stop-review-quality, proof-or-stop-review-test-coverage$/m);
 assert.match(rosterStatus, /^Selection: dependency-closure \(PROVEN_CANONICAL_DEPENDENCY_CLOSURE: 1 changed file\(s\) close over 1 tracked dependency file\(s\)\)$/m);
 assert.equal((rosterStatus.match(/^Next:/gm) ?? []).length, 1);
 assert.deepEqual(
@@ -619,7 +619,7 @@ assert.match(cli(cancelled.root, 'review_inventory_begin', { storyId }), /State:
 
 const cancelRace = setup();
 cli(cancelRace.root, 'review_inventory_begin', { storyId });
-const raceLane = 'lattice-review-concept';
+const raceLane = 'proof-or-stop-review-concept';
 const raceSession = 'sess-inventory-cancel-race';
 cli(cancelRace.root, 'dispatch', { storyId, agentType: raceLane }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession });
 const raceStarted = cli(cancelRace.root, 'review_run_start', { storyId, agent: raceLane }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession });
@@ -680,7 +680,7 @@ assert.equal(finalizedUnconsumedReviewInventory(finalizedRecovery.store, storyId
 assert.match(cli(finalizedRecovery.root, 'review_inventory_begin', { storyId }), /State: OPEN/);
 
 const carryForward = setup();
-const carryLane = 'lattice-review-concept';
+const carryLane = 'proof-or-stop-review-concept';
 const carrySession = 'sess-inventory-carry-forward';
 cli(carryForward.root, 'dispatch', { storyId, agentType: carryLane }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
 const carryStarted = cli(carryForward.root, 'review_run_start', { storyId, agent: carryLane }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
@@ -975,7 +975,7 @@ console.log('B-8af0 handler artifactDigest tamper fail closed: PASS');
 
 const publicationRace = setup();
 cli(publicationRace.root, 'review_inventory_begin', { storyId });
-const publicationLane = 'lattice-review-concept';
+const publicationLane = 'proof-or-stop-review-concept';
 const publicationSession = 'sess-review-run-publication-race';
 cli(publicationRace.root, 'dispatch', { storyId, agentType: publicationLane }, {
   LATTICE_AGENT: publicationLane, LATTICE_SESSION_ID: publicationSession,
@@ -1007,7 +1007,7 @@ assert.throws(
 );
 
 const longHolder = setup();
-const longLanes = ['lattice-review-concept', 'lattice-review-quality'];
+const longLanes = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality'];
 const longRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const lane of longLanes) {
   const sessionId = `sess-long-holder-${lane}`;
@@ -1067,9 +1067,9 @@ const unsupportedEpoch = unsupported.store.readReviewInventoryEpochs(storyId).ep
 const before = JSON.stringify(unsupported.store.readReviewInventoryEpochs(storyId));
 assert.throws(() => unsupported.handlers.review_inventory_critic_set({
   storyId, epochId: unsupportedEpoch.epochId, reviewRunId: 'unsupported-run',
-  agent: 'lattice-review-topology-critic', findingDispositions: [],
-}), /only lattice-review-topology-critic|agent_dispatch_mutation_denied|LANES_INCOMPLETE/);
+  agent: 'proof-or-stop-review-topology-critic', findingDispositions: [],
+}), /only proof-or-stop-review-topology-critic|agent_dispatch_mutation_denied|LANES_INCOMPLETE/);
 assert.equal(JSON.stringify(unsupported.store.readReviewInventoryEpochs(storyId)), before, 'rejected critic mutation is side-effect free');
-assert.match(unsupportedBegin, /Next: lattice review_inventory_status/);
+assert.match(unsupportedBegin, /Next: proof-or-stop review_inventory_status/);
 
 console.log('review inventory real handler smoke: PASS');

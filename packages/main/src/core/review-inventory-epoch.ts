@@ -15,6 +15,7 @@ import type {
 } from './types.js';
 import { verifyReviewRun } from './review-run.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { withMkdirLock } from './mkdir-lock.js';
 
 export const REVIEW_INVENTORY_EPOCHS_FILE = 'review-inventory-epochs.json';
@@ -176,7 +177,7 @@ export function verifyReviewInventoryCriticReceipt(receipt: ReviewInventoryCriti
   if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_critic_receipt.v1') return false;
   const { _hash, ...unsigned } = receipt;
   return _hash === signReviewInventoryCriticReceipt(unsigned)
-    && receipt.criticLane === 'lattice-review-topology-critic'
+    && canonicalAgentRoleId(receipt.criticLane) === 'proof-or-stop-review-topology-critic'
     && receipt.terminalEvidenceIds.length > 0
     && Array.isArray(receipt.findingDispositions)
     && Boolean(receipt.readEvidenceDigest);
@@ -484,7 +485,7 @@ export function assertReviewInventoryCutoff(store: StoryStore, storyId: string, 
   throw new Error(
     `OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\nEpoch: ${epoch.epochId}\n` +
     `Changed lineage: ${epoch.cutoff.materialHash} -> ${current.materialHash}\n` +
-    `Recovery: lattice review_inventory_begin --storyId=${storyId}`,
+    `Recovery: proof-or-stop review_inventory_begin --storyId=${storyId}`,
   );
 }
 
@@ -511,7 +512,7 @@ export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId
       `REVIEW_INVENTORY_EVIDENCE_SEALED: ${latest.epochId} finalized reviewRound ${latest.reviewRound}; ` +
       (latest.consumedAt
         ? 'reviewer evidence for that round remains sealed after receipt consumption'
-        : `for genuine late evidence run lattice review_inventory_cancel --storyId=${storyId} --reason="late evidence invalidated finalized receipt", then begin a fresh epoch and fresh ReviewRun`),
+        : `for genuine late evidence run proof-or-stop review_inventory_cancel --storyId=${storyId} --reason="late evidence invalidated finalized receipt", then begin a fresh epoch and fresh ReviewRun`),
     );
   }
   if (latest.state === 'CANCELLED' || latest.state === 'INVALIDATED') {
@@ -609,28 +610,28 @@ export function reviewInventoryRemediationGate(store: StoryStore, storyId: strin
     required: true,
     ok: false,
     reason: 'no frozen review inventory epoch exists for this remediation',
-    nextCommand: `lattice review_inventory_begin --storyId=${storyId}`,
+    nextCommand: `proof-or-stop review_inventory_begin --storyId=${storyId}`,
   };
   const latest = data.epochs.at(-1);
   if (latest?.state === 'OPEN') return {
     required: true,
     ok: false,
     reason: `latest review inventory ${latest.epochId} is still OPEN`,
-    nextCommand: `lattice review_inventory_status --storyId=${storyId}`,
+    nextCommand: `proof-or-stop review_inventory_status --storyId=${storyId}`,
   };
   const pair = finalizedUnconsumedReviewInventory(store, storyId);
   if (!pair) return {
     required: true,
     ok: false,
     reason: 'missing valid unconsumed FINALIZED review inventory receipt',
-    nextCommand: `lattice review_inventory_status --storyId=${storyId}`,
+    nextCommand: `proof-or-stop review_inventory_status --storyId=${storyId}`,
   };
   if (reviewRound && pair.epoch.reviewRound !== reviewRound) {
     return {
       required: true,
       ok: false,
       reason: `receipt reviewRound ${pair.epoch.reviewRound} != current ${reviewRound}`,
-      nextCommand: `lattice review_inventory_begin --storyId=${storyId}`,
+      nextCommand: `proof-or-stop review_inventory_begin --storyId=${storyId}`,
     };
   }
   return { required: true, ok: true };

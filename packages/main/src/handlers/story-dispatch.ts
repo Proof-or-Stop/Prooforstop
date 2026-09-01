@@ -1,7 +1,7 @@
 /**
  * story_dispatch — B-45ed CHK-005
  *
- * Generate the standard lattice-implementer prompt string (the main agent copy-pastes it into Agent({subagent_type, prompt})).
+ * Generate the standard proof-or-stop-implementer prompt string (the main agent copy-pastes it into Agent({subagent_type, prompt})).
  *
  * Core goals:
  *   - Unify the prompt structure the main agent uses to dispatch implementers, avoiding paraphrased pastes of plan.md by the main agent
@@ -9,14 +9,14 @@
  *   - Does not spawn the subagent; only outputs the string, preserving the main agent's dispatch decision authority
  *
  * agent-type tiered injection (full matrix see CLAUDE.md "background.md tiered injection"):
- *   - required: lattice-implementer / lattice-review-scope-plan / lattice-review-behavior / lattice-review-concept
+ *   - required: proof-or-stop-implementer / proof-or-stop-review-scope-plan / proof-or-stop-review-behavior / proof-or-stop-review-concept
  *     → first line of prompt labeled "must read", forcing the subagent to read background to understand intent
- *   - advisory: lattice-review-quality / lattice-review-docs
+ *   - advisory: proof-or-stop-review-quality / proof-or-stop-review-docs
  *     → prompt labeled "optional reference", does not disrupt mechanical check logic
- *   - none: lattice-review-channel
+ *   - none: proof-or-stop-review-channel
  *     → not injected at all, to avoid mechanical commit author checks being polluted by background noise
  *   - unknown agentType → downgraded to required (safest; better to over-read than miss reading)
- *   - agentType not passed → defaults to lattice-implementer semantics (required)
+ *   - agentType not passed → defaults to proof-or-stop-implementer semantics (required)
  */
 
 import { existsSync, readFileSync } from 'fs';
@@ -61,17 +61,17 @@ import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
 type BackgroundPolicy = 'required' | 'advisory' | 'none';
 const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
-  'lattice-implementer': 'required',
-  'lattice-review-scope-plan': 'required',
-  'lattice-review-topology-critic': 'required',
-  'lattice-review-behavior': 'required',
-  'lattice-review-concept': 'required',
-  'lattice-review-quality': 'advisory',
-  'lattice-review-docs': 'advisory',
-  'lattice-review-channel': 'none',
+  'proof-or-stop-implementer': 'required',
+  'proof-or-stop-review-scope-plan': 'required',
+  'proof-or-stop-review-topology-critic': 'required',
+  'proof-or-stop-review-behavior': 'required',
+  'proof-or-stop-review-concept': 'required',
+  'proof-or-stop-review-quality': 'advisory',
+  'proof-or-stop-review-docs': 'advisory',
+  'proof-or-stop-review-channel': 'none',
 };
 
-const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
+const IMPLEMENTER_COMMIT_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>';
 
 // A nested dispatch can be triggered synchronously by an instrumented event
 // sink. Ticket locks are process-safe but intentionally non-reentrant, so keep
@@ -123,7 +123,7 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
 
 function appendImplementerCommitSteps(lines: string[], message: string): void {
   lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
-  lines.push('- Do not omit `--author`; normal-channel author fallback only accepts author=lattice-implementer.');
+  lines.push('- Do not omit `--author`; normal-channel author fallback only accepts author=proof-or-stop-implementer.');
 }
 
 /**
@@ -195,7 +195,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   }): void {
     const persistEvent = (): void => {
       const story = store.readStory(args.storyId);
-      const agentType = args.agentType || 'lattice-implementer';
+      const agentType = args.agentType || 'proof-or-stop-implementer';
       const budgetViolation = args.budgetViolation
         ?? (args.promptBudget && !args.promptBudget.withinBudget ? args.promptBudget.contextMode : undefined);
       store.appendProcessEvent(args.storyId, {
@@ -370,7 +370,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       prompt: [
         `Review the initial background + checklist for story ${args.storyId}.`,
         '',
-        'You are the lattice-review-story-init reviewer; please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        'You are the proof-or-stop-review-story-init reviewer; please review in a fresh context, do not carry over the main agent\'s conclusions.',
         `Must read: ${bgPath}`,
         `Must read: ${checklistPath}`,
         '',
@@ -379,15 +379,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether the checklist is broken down into items that are user-observable, verifiable, and non-overlapping',
         '- Whether there are high-risk signals but insufficient PLAN/decision/verification preparation',
         '',
-        renderAgentLivenessGuidance({ label: 'lattice-review-story-init/story', startSignal: 'INIT_REVIEW_START' }),
+        renderAgentLivenessGuidance({ label: 'proof-or-stop-review-story-init/story', startSignal: 'INIT_REVIEW_START' }),
         '- After starting, first output `INIT_REVIEW_START`; after finishing reading background/checklist, output `INIT_REVIEW_READ_DONE`.',
         '- Within 5 minutes at the latest, you must choose one of two: call init_check_set, or output an explicit blocker + current blocking point.',
         '',
         'Hard requirements:',
         `- Regardless of whether the conclusion is pass or fail, you must call init_check_set once to record the result; merely outputting a textual conclusion does not count as complete.`,
-        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"lattice-review-story-init"}'`,
-        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"lattice-review-story-init"}'`,
-        '- The INIT_CHECK gate also requires product-reviewer to call init_check_set; you are only responsible for the lattice-review-story-init record.',
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"proof-or-stop-review-story-init"}'`,
+        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"proof-or-stop-review-story-init"}'`,
+        '- The INIT_CHECK gate also requires proof-or-stop-product-reviewer to call init_check_set; you are only responsible for the proof-or-stop-review-story-init record.',
         '- Do not directly edit story files.',
       ].join('\n'),
     };
@@ -409,7 +409,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       prompt: [
         `Review whether the INIT of story ${args.storyId} is ready to advance, from a user value perspective.`,
         '',
-        'You are product-reviewer, not lattice-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        'You are proof-or-stop-product-reviewer, not proof-or-stop-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
         '',
@@ -418,13 +418,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether each checklist item has a user-observable outcome',
         '- Whether the post-completion outcome lets the user recognize the work as complete, rather than still wondering what comes next',
         '',
-        renderAgentLivenessGuidance({ label: 'product-reviewer/story', startSignal: 'DISPATCH_START:product-reviewer/story' }),
+        renderAgentLivenessGuidance({ label: 'proof-or-stop-product-reviewer/story', startSignal: 'DISPATCH_START:proof-or-stop-product-reviewer/story' }),
         '',
         'Hard requirements:',
         '- Whether the conclusion is pass or fail, you must call init_check_set once to record the result; outputting only a text conclusion does not count as complete.',
-        `- agentId must be passed exactly as "product-reviewer". Do not pass "lattice-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing product-reviewer.`,
-        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
-        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
+        `- agentId must be passed exactly as "proof-or-stop-product-reviewer". Do not pass "proof-or-stop-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing proof-or-stop-product-reviewer.`,
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"proof-or-stop-product-reviewer"}'`,
+        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"proof-or-stop-product-reviewer"}'`,
         '- critical/high issues will hard-block INIT_CHECK; medium/low will be recorded as advisory.',
         '- Do not edit story files directly.',
       ].join('\n'),
@@ -446,7 +446,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (story.phase !== 'PLAN') {
       throw new Error(
         `scope_check_save is PLAN-only; current phase ${story.phase} is unsupported for ` +
-        `story-level lattice-review-scope-plan dispatch on ${args.storyId}. ` +
+        `story-level proof-or-stop-review-scope-plan dispatch on ${args.storyId}. ` +
         'Run this dispatch only while the story is in PLAN, or use proof-or-stop session_brief / proof-or-stop next for current-phase guidance.',
       );
     }
@@ -462,10 +462,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const lines: string[] = [];
     lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
     lines.push('');
-    lines.push('You are the lattice-review-scope-plan reviewer; review in a fresh context and do not carry over the main agent\'s conclusions.');
+    lines.push('You are the proof-or-stop-review-scope-plan reviewer; review in a fresh context and do not carry over the main agent\'s conclusions.');
     lines.push(`Working directory (subagent must cd here): ${root}`);
     lines.push('');
-    appendDispatchLivenessGuidance(lines, 'lattice-review-scope-plan/story-scope');
+    appendDispatchLivenessGuidance(lines, 'proof-or-stop-review-scope-plan/story-scope');
     lines.push('Role boundary:');
     lines.push('- Review only; do not change code, tests, checklist items, plan text, or story metadata.');
     lines.push('- Dispatch output is not gate evidence; only scope_check_save writes the PLAN scope evidence consumed by story_review.');
@@ -511,20 +511,20 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
       '',
-      renderAgentLivenessGuidance({ label: 'lattice-review-topology-critic/story', startSignal: 'DISPATCH_START:lattice-review-topology-critic/story' }),
+      renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/story', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/story' }),
       '',
-      'Use the canonical lattice-review-topology-critic role. Do not edit implementation or story files.',
+      'Use the canonical proof-or-stop-review-topology-critic role. Do not edit implementation or story files.',
       `Run proof-or-stop acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
       'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
-      'Every exclusion must already have a separately attributable lattice-review-scope-plan approval.',
+      'Every exclusion must already have a separately attributable proof-or-stop-review-scope-plan approval.',
       `Finish with proof-or-stop topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
       `Then run proof-or-stop topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
     ];
     if (story.phase === 'REVIEW') {
       lines.push('',
         'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
-        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"lattice-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
-        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
+        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"proof-or-stop-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
+        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"proof-or-stop-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
       );
     }
     return { prompt: lines.join('\n') };
@@ -607,7 +607,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/${args.itemId}`);
     lines.push('Role boundary:');
     lines.push('- Define adversarial acceptance intent only; do not implement, edit code/tests, or change checklist completion.');
-    lines.push('- The legacy requested alias, if any, has exactly the same verification-intent authority.');
+    lines.push('- You may write only verificationIntent through checklist_update; do not write status, verificationEvidence, or checklist definition fields.');
     lines.push('');
     lines.push('Required reading:');
     lines.push(`1. ${storyDir}/background.md`);
@@ -655,7 +655,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       // 4. agent-type tiered injection decision (fully reuses story_dispatch's AGENT_BG_POLICY)
       const bgPolicy = resolveBackgroundPolicy(agentType);
-      const displayAgent = agentType || 'lattice-implementer';
+      const displayAgent = resolveAgentDispatchType(agentType).canonicalType;
 
       // 5. finding field fallback. Note: Finding schema has no separate location/suggestion fields—
       //    reviewer writes file:line and fix suggestions directly in the desc body (by convention), so they are no longer rendered separately here.
@@ -816,7 +816,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       // 8. Assemble implementer prompt
       const lines: string[] = [];
-      lines.push(`As lattice-implementer implementing ${args.storyId} ${args.itemId}: ${item.title}`);
+      lines.push(`As ${resolvedAgent.canonicalType} implementing ${args.storyId} ${args.itemId}: ${item.title}`);
       lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
       // which does not necessarily land in the worktree (especially cross-repo scenarios), causing reviewer/handler to read docs/story/... in the main repo cwd
@@ -824,7 +824,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // and is currently the most reliable absolute path source (better than process.cwd()—the latter depends on the caller's shell current directory).
       lines.push(`Working directory (subagent must cd here): ${root}`);
       lines.push('');
-      appendDispatchLivenessGuidance(lines, `${agentType || 'lattice-implementer'}/${args.itemId}`);
+      appendDispatchLivenessGuidance(lines, `${resolvedAgent.canonicalType}/${args.itemId}`);
       lines.push('Required reading (in order):');
       let idx = 1;
       if (bgPolicy === 'required') {
@@ -1088,7 +1088,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           itemId: args.itemId,
           agentType: canonicalType,
         });
-        const wrapped = canonicalType === 'lattice-implementer'
+        const wrapped = canonicalType === 'proof-or-stop-implementer'
           ? assembleComplexStoryDispatch(story, canonicalType, result.prompt)
           : { prompt: result.prompt };
         appendDispatchEvent({

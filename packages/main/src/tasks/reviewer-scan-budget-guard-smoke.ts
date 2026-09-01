@@ -63,12 +63,12 @@ interface Violation {
 }
 
 const guardedPromptFiles = [
-  'packages/main/templates/agents/lattice-review-scope-plan.md',
-  'packages/main/templates/agents/lattice-review-behavior.md',
-  '.claude/agents/lattice-review-scope-plan.md',
-  '.claude/agents/lattice-review-behavior.md',
-  `${CODEX_AGENTS_REL}/lattice-review-scope-plan.md`,
-  `${CODEX_AGENTS_REL}/lattice-review-behavior.md`,
+  'packages/main/templates/agents/proof-or-stop-review-scope-plan.md',
+  'packages/main/templates/agents/proof-or-stop-review-behavior.md',
+  '.claude/agents/proof-or-stop-review-scope-plan.md',
+  '.claude/agents/proof-or-stop-review-behavior.md',
+  `${CODEX_AGENTS_REL}/proof-or-stop-review-scope-plan.md`,
+  `${CODEX_AGENTS_REL}/proof-or-stop-review-behavior.md`,
 ] as const;
 
 // Active modular reviewers keep their selected role body only in the package
@@ -76,8 +76,8 @@ const guardedPromptFiles = [
 // so the bounded-search vocabulary is checked in the canonical template rather
 // than falsely required in these two entrypoints.
 const bodyFreeReviewerBootstrapFiles = new Set<string>([
-  '.claude/agents/lattice-review-behavior.md',
-  `${CODEX_AGENTS_REL}/lattice-review-behavior.md`,
+  '.claude/agents/proof-or-stop-review-behavior.md',
+  `${CODEX_AGENTS_REL}/proof-or-stop-review-behavior.md`,
 ]);
 
 // Unconditional broad-scan instructions that must never return without
@@ -251,7 +251,7 @@ function initReviewEvidenceStore() {
   resetConfigCache();
   const store = new StoryStore(root);
   const storyId = 'B-readhandler';
-  const agent = 'lattice-review-behavior';
+  const agent = 'proof-or-stop-review-behavior';
   const reviewRound = '2026-07-10T11:01:00.000Z';
   const reviewRunId = `${storyId}:RR-001`;
   const now = '2026-07-10T11:00:00.000Z';

@@ -22,6 +22,7 @@ import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { getSessionId } from '../core/owner-session.js';
 import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import {
   isAcceptanceMatrixDerivedEvidence,
   plannedPathDeclarationSnapshot,
@@ -190,7 +191,8 @@ function checklistActorFrom(args: { agent?: string; actor?: string }): string {
 }
 
 function isInitReviewerChecklistActor(actor: string): boolean {
-  return INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS.has(actor.trim());
+  return Array.from(INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS)
+    .some(blockedAgent => agentRoleIdsEqual(actor, blockedAgent));
 }
 
 function assertInitReviewerChecklistMutationAllowed(args: {
@@ -544,6 +546,47 @@ function sameEvidenceSemantics(prior: VerificationEvidence, incoming: Verificati
 }
 
 /**
+ * B-5a15: the NARROWER twin of sameEvidenceSemantics, used ONLY to carry forward an
+ * AUDITED NON-MECHANICAL attestation (prior.mechanical === false).
+ *
+ * The two questions differ by provenance type, so they cannot share one predicate:
+ *
+ *  - A MECHANICAL receipt records that a verifier actually ran and what it printed.
+ *    checklist_update does not execute anything, so ANY semantic drift — a changed `note`
+ *    included — must drop that receipt rather than let the row inherit execution
+ *    authority it did not earn (F-067, 12d). That path keeps using sameEvidenceSemantics.
+ *
+ *  - An AUDITED attestation records a human's reason for an escape. Its authority comes
+ *    from the reason, not from an execution, so re-persisting the same evidence with only
+ *    an updated `note` must keep that reason ATTRIBUTABLE instead of silently dropping it
+ *    and laundering the row as un-escaped.
+ *
+ * So `note` is identity-bearing for receipts and ordinary metadata for attestations.
+ * Every field that could change what the evidence ASSERTS — command, file, result,
+ * verdict, waiverType, kind, structured trust metadata — remains identity-bearing here,
+ * so a mutated one still drops prior provenance and is re-judged fresh.
+ */
+function sameAuditedAttestationIdentity(prior: VerificationEvidence, incoming: VerificationEvidenceInput): boolean {
+  const incomingStructuredMetadata = digestCanonicalJson({
+    attestation: incoming.attestation ?? null,
+    actorTrust: incoming.actorTrust ?? null,
+    factProvenance: incoming.factProvenance ?? null,
+  });
+  const priorStructuredMetadata = digestCanonicalJson({
+    attestation: prior.attestation ?? null,
+    actorTrust: prior.actorTrust ?? null,
+    factProvenance: prior.factProvenance ?? null,
+  });
+  return normalizeEvidenceKind(incoming.kind) === prior.kind
+    && incoming.verdict === prior.verdict
+    && incoming.waiverType === prior.waiverType
+    && incoming.file === prior.file
+    && incoming.command === prior.command
+    && incoming.result === prior.result
+    && incomingStructuredMetadata === priorStructuredMetadata;
+}
+
+/**
  * Freshness bindings are server-owned. New evidence is bound to the current tree;
  * an exact same-semantic re-persist keeps the original on-disk binding so a caller
  * cannot rebind a real receipt to hashes for a later tree without re-running it.
@@ -785,7 +828,12 @@ function carryForwardOnDiskProvenance(
   const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
   const prior = existing?.find(e => e.intentRef === incoming.intentRef);
   if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
-  if (!sameEvidenceSemantics(prior, incoming)) return trusted;
+  // Receipts (mechanical:true) keep the strict note-sensitive identity; audited
+  // attestations (mechanical:false) tolerate an updated note. See the two predicates above.
+  const identityHolds = prior.mechanical === true
+    ? sameEvidenceSemantics(prior, incoming)
+    : sameAuditedAttestationIdentity(prior, incoming);
+  if (!identityHolds) return trusted;
   if (prior.mechanical === true) {
     // A receipt is bound to both the exact evidence semantics and the material that was
     // executed. checklist_update does not run the verifier, so it may preserve authority

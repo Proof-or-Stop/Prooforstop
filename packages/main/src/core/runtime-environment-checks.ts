@@ -11,6 +11,10 @@ import {
   type RuntimeFactScope,
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
+import {
+  PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME,
+  PROOF_OR_STOP_ROOT_PACKAGE_NAME,
+} from './lattice-brand.js';
 import { readBrandEnv } from './brand-env.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
@@ -113,11 +117,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
-// B-cc10 CHK-005: the ROOT package name stays `lattice` (deliberately out of scope, see
-// proof-or-stop-identity-migration.md); only the core package was renamed.
-const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
+const CANONICAL_ROOT_PACKAGE_NAME = PROOF_OR_STOP_ROOT_PACKAGE_NAME;
+const DEPRECATED_ROOT_PACKAGE_NAME = PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME;
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
 const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+const SELF_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set([
+  CANONICAL_ROOT_PACKAGE_NAME,
+  DEPRECATED_ROOT_PACKAGE_NAME,
+]);
 // Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
 // self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
 const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
@@ -489,8 +496,8 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
     return {
       status: statusForDrift(severity),
       actual: null,
-      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'lattice executable on PATH',
-      warnings: ['PATH lookup for `lattice` did not resolve a CLI executable'],
+      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'proof-or-stop executable on PATH',
+      warnings: ['PATH lookup for `proof-or-stop` did not resolve a CLI executable'],
     };
   }
   const commandRealpath = safeRealpath(commandPath);
@@ -550,7 +557,7 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
       matchesEntrypoint,
       shadowsEntrypoint,
     },
-    expected: 'project-local lattice should be absent or resolve to the active CLI entrypoint',
+    expected: 'project-local proof-or-stop should be absent or resolve to the active CLI entrypoint',
     ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.activeCliEntrypoint ?? context.cliEntrypoint)] } : {}),
   };
 }
@@ -686,7 +693,7 @@ function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
     case 'repo-local-dist':
       return 'compatibility launcher is using the repository-local Proof-or-Stop dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/lattice as the active CLI';
+      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/proof-or-stop as the active CLI';
     case 'packaged-runtime':
       return 'compatibility launcher is using a packaged Proof-or-Stop runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
@@ -965,10 +972,10 @@ function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: Id
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('lattice', projectRoot);
+  return resolveCommandOnPath('proof-or-stop', projectRoot) ?? resolveCommandOnPath('lattice', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'lattice', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -983,7 +990,7 @@ function resolveCommandOnPath(command: 'lattice', projectRoot: string): string |
   return null;
 }
 
-function commandPathNames(command: 'lattice'): string[] {
+function commandPathNames(command: 'proof-or-stop' | 'lattice'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')
@@ -1050,7 +1057,7 @@ function detectSelfProject(projectRoot: string): boolean {
   const corePackage = readPackageJson(join(projectRoot, 'packages', 'main'));
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
-  return rootName === CANONICAL_ROOT_PACKAGE_NAME
+  return SELF_ROOT_PACKAGE_NAMES.has(rootName)
     && typeof coreName === 'string'
     && SELF_CORE_PACKAGE_NAMES.has(coreName);
 }
@@ -1187,8 +1194,8 @@ function projectLocalBinPath(projectRoot: string): string {
 function projectLocalBinCandidates(projectRoot: string): string[] {
   const binDir = join(projectRoot, 'node_modules', '.bin');
   return process.platform === 'win32'
-    ? [join(binDir, 'lattice.cmd')]
-    : [join(binDir, 'lattice')];
+    ? [join(binDir, 'proof-or-stop.cmd')]
+    : [join(binDir, 'proof-or-stop')];
 }
 
 function isPackagedRuntime(): boolean {
@@ -1196,11 +1203,13 @@ function isPackagedRuntime(): boolean {
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
-// B-cc10 CHK-006: the deprecated basenames below are INTENTIONAL and stay. This predicate
+// B-cc10 CHK-006: the deprecated basenames below remain recognized for older checkouts and
+// compatibility provenance. This predicate
 // asks "was a retained COMPATIBILITY launcher used?", so recognizing the old names is the
 // whole point — adding the canonical spellings would make every ordinary canonical
 // invocation look like a compatibility launcher and invert the classification at line 626.
-// The `lattice` npm bin is still retained, so this signal remains reachable.
+// The current package ships only the proof-or-stop bin; an older checkout may still reach this
+// signal through its legacy launcher and must remain classifiable as compatibility traffic.
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;

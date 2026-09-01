@@ -1,12 +1,15 @@
 /**
  * Handler Registry — Proof-or-Stop 的工具注册中心
  *
- * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @lattice/utils）
+ * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @proof-or-stop/utils）
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
  * 而 main 自身完全不知道这些扩展包的存在。
  *
- * main 的 cli.ts 启动时会调用 createMainRegistry(ctx) 完成内置 handler 的注册；
+ * main 的 proof-or-stop CLI 启动时会调用 createMainRegistry(ctx) 完成内置 handler 的注册；
  * 第三方 bootstrap 脚本可以在此基础上再调用扩展包的 register 函数追加注册。
+ *
+ * npm 的 executable identity 不在这里注册：`proof-or-stop` 是唯一 active bin，
+ * 历史 `lattice` wrapper/path 兼容由各自的 filesystem/read fallback 负责。
  */
 
 import { StoryStore } from './core/store.js';
@@ -175,7 +178,7 @@ export class Registry {
 /**
  * 创建 main 内置的 Registry，只注册流程相关的 handler。
  *
- * 辅助工具（aux/truth/gap 等）已移到 @lattice/utils 包，
+ * 辅助工具（aux/truth/gap 等）已移到 @proof-or-stop/utils 包，
  * 由 bootstrap 脚本调用 utils 的 register() 函数追加注入。
  */
 export function createMainRegistry(ctx: HandlerContext): Registry {

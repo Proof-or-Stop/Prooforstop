@@ -13,13 +13,9 @@
  *               NEW name (packages/utils imports main's build output, so a stale reference
  *               would surface as a cross-package resolution break).
  *
- *   adversarial the OQ-2 scope boundary still holds: the ROOT package name stays `lattice`
- *               while packages/main is `@proof-or-stop/core`. This is the assertion that
- *               would otherwise regress SILENTLY — a future sweep that "finishes the
- *               rename" by renaming the root would violate the recorded scope boundary
- *               (docs/requirements/decisions/proof-or-stop-identity-migration.md, and
- *               brand-rename-mapping.md:131 which freezes the root as a publish-level
- *               change owned by its own story). Renaming the root makes this exit non-zero.
+ *   adversarial the root package identity and packages/main identity are both canonical.
+ *               This catches a partial migration where the root still exposes the
+ *               retired `lattice` package identity while the core package has moved.
  *
  * Read-only: asserts, never writes.
  */
@@ -31,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CANONICAL_CORE = '@proof-or-stop/core';
-const FROZEN_ROOT = 'lattice';
+const CANONICAL_ROOT = 'proof-or-stop';
 
 const failures = [];
 
@@ -80,15 +76,15 @@ const utilsDistExists = existsSync(join(repoRoot, 'packages/utils/dist/index.js'
 console.log(`utilsDistExists=${utilsDistExists}`);
 check('packages/utils built against the renamed core (cross-package resolution intact)', utilsDistExists);
 
-// ---- adversarial: the OQ-2 boundary must NOT be "helpfully" completed ----
+// ---- adversarial: the root package identity is migrated too ----------------
 const rootPkg = readPackage('package.json');
 const rootName = rootPkg?.name ?? '<unreadable>';
 console.log(`rootPackageName=${rootName}`);
-const oq2BoundaryHeld = rootName === FROZEN_ROOT && coreName === CANONICAL_CORE;
-console.log(`oq2BoundaryHeld=${oq2BoundaryHeld}`);
+const rootIdentityMigrated = rootName === CANONICAL_ROOT && coreName === CANONICAL_CORE;
+console.log(`rootIdentityMigrated=${rootIdentityMigrated}`);
 check(
-  `ROOT package name stays "${FROZEN_ROOT}" (OQ-2 exclusion) while core is renamed`,
-  oq2BoundaryHeld,
+  `ROOT package name is "${CANONICAL_ROOT}" while core is renamed`,
+  rootIdentityMigrated,
 );
 
 // B-cc10 F-024: the failure gate MOVED to the very end of this file. It used to sit
