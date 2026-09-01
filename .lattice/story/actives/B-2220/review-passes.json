@@ -1010,6 +1010,39 @@
       },
       "readDiagnostics": [],
       "_hash": "715629b11176cf79b5a2a946f831173b91d7ff5511e770e3ab288fc26cb0df71"
+    },
+    {
+      "id": "B-2220:RP-029",
+      "agent": "lattice-review-docs",
+      "note": "Round 11 Prompt Envelope re-attestation: 1 exported symbol extracted (rationaleDigest), 0 direct documentation symbol-reference paragraphs found; fallback compared 2 bounded documentation/code sections (the full related decision document and smoke section 13). The decision has no planned or owned follow-up, B-3434 remains accepted, all 7 verification intents and build-bound compiled smoke passed, and the 4-promise delivery row remains pass with unchanged storyFilesHash.",
+      "createdAt": "2026-09-01T00:26:35.890Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-046",
+      "envelopeId": "b973e9372af725fd2d50610c60c56519208787532566a62f9df149a126cd00ed",
+      "writerSessionId": "sess-4296685e5704daba13ff649e3a2dd22d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "e197e665fd87f6df9f3a0f9d1a5a0be8e4decc5acb7feb38d62192823e999d35"
     }
   ]
 }
