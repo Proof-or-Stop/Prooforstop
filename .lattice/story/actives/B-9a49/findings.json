@@ -684,6 +684,28 @@
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-033",
+      "desc": "packages/main/templates/agents/lattice-review-channel.md:51-58 WHY: main...HEAD makes whitespace-only rewrap changes to the retired, non-default lattice-review-channel prompt and both host mirrors, then repins its template/assembled digests in the prompt baselines. CHK-004 edge:pin-diff-allowlist requires unrelated roles and unchanged legacy bodies to retain prior digests and every unexpected movement to fail; the current baseline verifier passes only because this retired-role churn was approved into the baseline. The triage contract is correctly absent, but the unrelated digest movement weakens the claimed allowlist boundary. Revert the retired channel rewrap and restore its baseline hashes unless a necessary semantic change is identified. severity=medium",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T14:17:24.393Z",
+      "reviewRound": "2026-09-01T14:11:27.307Z",
+      "reviewRunId": "B-9a49:RR-043",
+      "_hash": "3126d8836b6f4aa6bd6fcea86c715725d13919d16a9bdf7a5ac7777191534478",
+      "files": [
+        "packages/main/templates/agents/lattice-review-channel.md",
+        ".claude/agents/lattice-review-channel.md",
+        ".proof-or-stop-codex/agents/lattice-review-channel.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "signatureTag": "adversarial|md|packages-main-templates",
+      "signatureTagSource": "auto"
     }
   ]
 }
