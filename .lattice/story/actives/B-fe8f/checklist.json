@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "RED: audit current primitives and reproduce only remaining Story 3 contract failures",
-      "context": "First audit and characterize existing per-Story Finding locks, main/B-META locks, process-event append locks, build locks, Store atomic replacement, and current execution receipts. Preserve already-correct behavior as passing baseline evidence. For each still-missing Section 9.3 contract, add an executable RED that fails for the demonstrated reason, including as applicable unique durable allocation, idempotent replay, exact-record CAS, durable crash boundary, artifact/source binding, or runtime freshness. Bind every RED result to the pre-fix source hash; do not assert a historical race that current serialization already prevents.",
+      "context": "First audit and characterize existing per-Story Finding locks, main/B-META locks, process-event append locks, build locks, Store atomic replacement, and current execution receipts without modifying those production files. Preserve already-correct behavior as passing baseline evidence. For each still-missing Section 9.3 contract, add an executable RED that fails for the demonstrated reason and bind the pre-fix HEAD/material through the official red_evidence_create flow. Create and evaluate an explicit red_green_relation covering the unchanged assertion and planned GREEN target; do not assert a historical race that current serialization already prevents.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
@@ -16,11 +16,7 @@
         "Do not implement the GREEN fix in the RED commit."
       ],
       "files": {
-        "modify": [
-          "packages/main/src/core/store.ts",
-          "packages/main/src/handlers/finding.ts",
-          "packages/main/src/handlers/checklist.ts"
-        ],
+        "modify": [],
         "create": [
           "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
         ],
