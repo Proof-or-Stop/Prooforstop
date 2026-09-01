@@ -1448,7 +1448,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:589-778 — the new REVIEWER_REQUESTED_FULL regression proves later cross-lane reviewer metadata is accepted and rejects direct envelope eligibilityDigest tamper plus phase/title/checklist task mutations, but it never mutates a real product file or the signed scope contract while re-verifying the same requested-full run through verifyReviewRunPromptEnvelope and collectReviewerEvidenceState. This is a high-severity adversarial coverage gap because the production fix intentionally stops dynamically comparing three eligibility fields; a future accidental expansion that also stops comparing changedFilesDigest/impactedFilesDigest or taskSemanticDigest/scope policy could satisfy every new assertion while admitting product- or scope-stale reviewer passes at quorum. Add direct requested-full inverse cases that change committed story-owned material and scope policy independently, assert both the verifier and shared current-pass/quorum reader fail closed with the expected surviving binding field, then restore and prove acceptance returns.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T14:45:54.191Z",
@@ -1460,7 +1460,11 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 7874cf8ab8c8bc2d80034148de0ee726ddee9b98. The production fixture now mutates a real src/cutoff.ts story-owned product file and proves both verifyReviewRunPromptEnvelope and collectReviewerEvidenceState reject the drift, then accept after byte restoration; it separately mutates the scope contract and proves verifier rejection via taskSemanticDigest plus collector rejection, then accepts after exact restoration. Focused quorum-submit smoke passed 71 assertions, and the current canonical 120-command validate passed 120/120 at HEAD 022b48262c.",
+      "resolvedAt": "2026-09-01T16:07:11.498Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
