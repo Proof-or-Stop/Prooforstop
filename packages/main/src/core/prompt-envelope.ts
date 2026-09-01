@@ -201,7 +201,7 @@ function relationIsNegated(
   if (/\b(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b[^,;]{0,32}$/u.test(localPrefix)) return true;
   if (/^\s+not\b/u.test(suffix)) return true;
   const followingConcept = leftRange.start > relationRange.start ? leftRange : rightRange.start > relationRange.start ? rightRange : null;
-  if (followingConcept && /\b(?:not|never|neither|nor|without)\b/u.test(segment.slice(relationRange.end, followingConcept.start))) return true;
+  if (followingConcept && /\b(?:not|never|neither|nor|without|rather\s+than)\b/u.test(segment.slice(relationRange.end, followingConcept.start))) return true;
   return false;
 }
 
