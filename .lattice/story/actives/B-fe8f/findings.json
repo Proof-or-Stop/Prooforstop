@@ -280,8 +280,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv6rbr_1lwa_f7afd26842bc45d5b8fb313dbee466a8",
       "ledgerCommitReceiptId": "lrc_mtiv6rbr_1lwa_964b9f1d34f047ac923697fb9f03bd77",
-      "resolvedAt": "2026-09-01T23:25:07.454Z",
       "resolvedReason": "The RED verifier loads immutable historical blob 1b913dab2f52e904afc1b7b1870a3a98be0739bc, proves baseline 0cb578 import failure and current import success, and rejects arbitrary-cwd substitution; all 13 RED receipts are fresh.",
+      "resolvedAt": "2026-09-01T23:25:07.454Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -290,7 +290,7 @@
       "desc": "CHK-006:happy:5 proves only an already-installed global binary, not the publishable package. Independent clean-install repro `npm pack ./packages/main --ignore-scripts` followed by `npm install <proof-or-stop-core-0.3.270.tgz>` fails E404 for `@lattice/lab@0.3.65`. packages/main/package.json:126 still depends on the retired package name and packages/lab/package.json:2 still declares `@lattice/lab`; the registry has neither that package nor `@proof-or-stop/lab`. Therefore the changed CLI cannot be clean-installed and no installed CLI gate can execute from the produced tarball. Rename/publish or bundle/link the lab dependency under the accepted proof-or-stop namespace, update lockfiles, and add a temp-directory pack+clean-install+`proof-or-stop --version` plus Story-3 command-availability smoke.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-09-01T16:11:39.320Z",
@@ -306,7 +306,11 @@
       "signatureTag": "missing|json|happy-proves-already",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv7c28_1n9y_f961afdff6964bb392de4bc239958c7d",
-      "ledgerCommitReceiptId": "lrc_mtiv7c28_1n9y_4cabfe5ded1d4d0bb52ad12add7863ba"
+      "ledgerCommitReceiptId": "lrc_mtiv7c28_1n9y_4cabfe5ded1d4d0bb52ad12add7863ba",
+      "resolvedAt": "2026-09-01T23:25:09.240Z",
+      "resolvedReason": "The publishable lab package is canonically @proof-or-stop/lab, bundled/local-linked for clean external install, and clean-pack/global-entrypoint checks pass without registry fetch at version 0.3.271.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
