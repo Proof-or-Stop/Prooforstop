@@ -178,8 +178,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8",
       "ledgerCommitReceiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda",
-      "resolvedAt": "2026-09-01T23:24:59.188Z",
       "resolvedReason": "Runtime receipt trust resolves keys through the repository-owned independent runtime key registry instead of trusting same-process environment material; independent-process trust and tamper checks pass.",
+      "resolvedAt": "2026-09-01T23:24:59.188Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -188,7 +188,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:994-1005,1131-1165 checks the canonical proper-lockfile mutex once, then runs build/execution under a different Story runtime mkdir lock. The canonical mutex is neither acquired nor rechecked at commit. Deterministic repro: pause the adapter inside its buildCommand after the initial check, acquire scripts/build-lock.mjs withBuildLock(root), resume while holding that canonical lock through CLI exit; finding_runtime_evidence_run exits 0 and persists a runtime_evidence_receipt. Thus a build that starts in the check-to-run window is accepted, so the build-in-progress refusal is not one atomic boundary with receipt production.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T16:09:23.713Z",
@@ -203,7 +203,11 @@
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147",
-      "ledgerCommitReceiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba"
+      "ledgerCommitReceiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba",
+      "resolvedAt": "2026-09-01T23:25:01.185Z",
+      "resolvedReason": "The canonical build mutex spans the complete build, execution, and publish window, removing the prior check-then-use gap; concurrent build/runtime smoke reports zero unsafe overlaps.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-010",
