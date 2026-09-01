@@ -18774,6 +18774,25 @@
       ],
       "signatureTag": "missing|ts|acceptance-coverage-basis",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-345",
+      "desc": "DEFERRED (non-blocking, unclaimed scope): pre_review basis reconciles only 2 of 5 planned paths, leaving PR_PLANNED_PATH_UNRESOLVED for CHK-002/CHK-004/CHK-005. ROOT CAUSE (verified, not inferred): producerConsumerRelation (core/acceptance-discovery-adapters.ts:1773) resolves an edge only via graph.sourceScans, and sourceScans is populated ONLY for files inside the bounded closure built at :1290-1310, which grows from registry entries matching planned/explicit-topology/phase-control facts and explicitly excludes hub files (const hubs = new Set(registryFiles), :1283). The four undiscovered actual: refs are therefore outside the closure, NOT defective code. EVIDENCE the edges are real: (a) CHK-004 packages/main/src/handlers/verifier.ts imports preflightCausalEvidence at :90 and calls it at :670, lexically inside the declared consumer createValidationCausalPreflightGate (:617-:687) - a correct, correctly-nested edge that still does not resolve; (b) CHK-002 consumer commitCanonicalCausalEvidence is a CausalRefreshCommitter property (checklist.ts:1441), not a callable function symbol; (c) CHK-005 deriveCausalMetrics is called at checklist.ts:2579 but its enclosing function is createChecklistHandlers (:1585), not the declared consumer verification_evidence_batch_add, so the declaration itself is mis-targeted. NOT A REGRESSION FROM THIS STORY: plannedActualReconciliations is populated only when phaseBasis === 'pre_review' (core/acceptance-coverage-basis.ts:319), so the plan-phase basis showing 0/5 is correct by design. WHY DEFERRED: mechanically non-blocking on every gate - acceptance_topology_check reports Status pass / Blocking no / authority diagnostic_only with zero diagnostics; pre_review_check reports mode observe blocking=false; and lifecycle_check --target=REVIEW lists exactly one blocker (missing_verification_evidence) with no PR_* code present. Fixing it means either widening the discovery closure or re-declaring three planned-path endpoint symbols, neither claimed by any B-5a15 checklist item. FOLLOW-UP MUST: decide whether the closure should admit declared planned-path endpoint files, and correct the CHK-005 consumer symbol to createChecklistHandlers (or the true enclosing callable) and the CHK-002 consumer to a real callable rather than a property.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-01T19:21:44.738Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "_hash": "bc0832f6d3bcf3f9f3a93eb1e7b4f2bdb24c345ac82c743fba070000b5721bab",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|deferred-blocking-unclaimed",
+      "signatureTagSource": "auto"
     }
   ]
 }
