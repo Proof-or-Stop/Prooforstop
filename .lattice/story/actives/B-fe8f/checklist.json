@@ -369,6 +369,19 @@
           "materialHash": "8eb342b0b78314b7e6c2e75830715eec433cb6504ccbaba6179e2404b342d3ca",
           "storyFilesHash": "7aef062735983024b9c03487d2848137da86634280411003d7115fea30036e48",
           "timestamp": "2026-09-01T09:19:37.292Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "blocked_classified",
+          "file": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "note": "Pre-fix RED is expected to exit 1. Tool execution binds the real failure and selector; GREEN must rerun this unchanged command to pass.",
+          "mechanical": false,
+          "headHash": "ed1ff9dd9182ee8acc41d9e2b4bf9688992255be",
+          "materialHash": "8eb342b0b78314b7e6c2e75830715eec433cb6504ccbaba6179e2404b342d3ca",
+          "storyFilesHash": "7aef062735983024b9c03487d2848137da86634280411003d7115fea30036e48",
+          "timestamp": "2026-09-01T09:19:38.357Z"
         }
       ]
     },
