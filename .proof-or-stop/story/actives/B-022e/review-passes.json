@@ -2336,6 +2336,29 @@
       },
       "readDiagnostics": [],
       "_hash": "53e9a9be93566a167031dbd8edbf66f193c4645d8cf857f337612276b6204049"
+    },
+    {
+      "id": "B-022e:RP-061",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 28 test-coverage freshness review passed. Incremental reader reports CURRENT_MATERIAL with no changed or impacted files and trusts prior pass RP-058. CLI-derived checklist audit proves exactly 29 intents and 29 unique current mechanical PASS evidence records, with zero missing, duplicate, waiver, fail, non-mechanical, command mismatch, or selectorMatched failure; all bind material eb62f875 and storyFiles 363a243. Lifecycle reader accepts latest routine validation PASS, whose evidence head 3288a540 is an ancestor of current HEAD and whose material/storyFiles bindings are unchanged, so metadata-descendant reuse is legitimate. Focused prompt baseline and direct-story probes re-pass, covering source, Claude, Codex, assembled output and zero direct StoryStore writes after F-056.",
+      "createdAt": "2026-09-01T18:23:00.551Z",
+      "reviewRound": "2026-09-01T18:16:35.588Z",
+      "reviewRunId": "B-022e:RR-127",
+      "envelopeId": "3e892eb94288c8f4d8873bde4904d03418c45f02397feaca87051ef85e5878ac",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb1e10f7c358badbf4207c6d8631b40afcdc6e67dc582bad53f0421897bb262d"
     }
   ]
 }
