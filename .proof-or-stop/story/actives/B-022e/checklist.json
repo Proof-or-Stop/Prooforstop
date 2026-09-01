@@ -789,13 +789,13 @@
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:38:56.483Z",
+            "executedAt": "2026-09-01T01:09:00.075Z",
             "timeoutMs": 270000
           },
-          "headHash": "6a95f89f112fc5798309088fc1ffe5a1c89ede59",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:40:13.736Z"
+          "headHash": "f69eb54c8e050abb486df4016b0899b47053779a",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:09:59.338Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -809,13 +809,13 @@
             "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
             "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:39:04.301Z",
+            "executedAt": "2026-09-01T01:09:04.926Z",
             "timeoutMs": 270000
           },
-          "headHash": "6a95f89f112fc5798309088fc1ffe5a1c89ede59",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:40:13.736Z"
+          "headHash": "f69eb54c8e050abb486df4016b0899b47053779a",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:09:59.338Z"
         }
       ]
     },
@@ -909,13 +909,13 @@
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:39:13.615Z",
+            "executedAt": "2026-09-01T01:09:11.654Z",
             "timeoutMs": 270000
           },
-          "headHash": "6a95f89f112fc5798309088fc1ffe5a1c89ede59",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:40:13.736Z"
+          "headHash": "f69eb54c8e050abb486df4016b0899b47053779a",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:09:59.338Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -930,13 +930,13 @@
             "outputDigest": "c31782b3781957305260f831f7ecffbfa1f9bf7e8cb482270a5a5b3469bee22f",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 249 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit dc5a3960f515\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:40:05.983Z",
+            "executedAt": "2026-09-01T01:09:52.420Z",
             "timeoutMs": 270000
           },
-          "headHash": "6a95f89f112fc5798309088fc1ffe5a1c89ede59",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:40:13.736Z"
+          "headHash": "f69eb54c8e050abb486df4016b0899b47053779a",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:09:59.338Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -951,13 +951,13 @@
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T00:40:13.531Z",
+            "executedAt": "2026-09-01T01:09:59.212Z",
             "timeoutMs": 270000
           },
-          "headHash": "6a95f89f112fc5798309088fc1ffe5a1c89ede59",
-          "materialHash": "2b1b94f04c362707b7b8d479e4eb0a08db104a2af59810c4837223fff8d5b556",
-          "storyFilesHash": "6d94a8ab246b9743d6a09735ab5e433df24f2ef8c27ea0a023a9c492827d318d",
-          "timestamp": "2026-09-01T00:40:13.736Z"
+          "headHash": "f69eb54c8e050abb486df4016b0899b47053779a",
+          "materialHash": "e4efecdc68842f123642f20079f09fcc767f6de48d899643dd7b109fe38f88df",
+          "storyFilesHash": "a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258",
+          "timestamp": "2026-09-01T01:09:59.338Z"
         }
       ]
     },
