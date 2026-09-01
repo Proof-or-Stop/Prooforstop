@@ -615,6 +615,95 @@
           "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every genuine CHK-001 pre-fix RED is demonstrably failing at its recorded pre-fix HEAD and passes after the GREEN implementation without weakening or deleting the original assertion; the suite prints the required ledger verdict.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "Finding ledger integrity: PASS"
+            }
+          },
+          {
+            "desc": "The complete stable-artifact, source/command/environment/toolchain/trust/tamper/freshness matrix passes and prints the required runtime verdict.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "Runtime evidence integrity: PASS"
+            }
+          },
+          {
+            "desc": "The final suite covers 100 unique appends, 100 same-ID replays with zero duplicates, stale exact-CAS zero writes, deterministic crash recovery, protected queries, complete signed scorecard rows and preserved already-correct audit baselines.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.story3_matrix: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy Findings remain byte-preserved while concurrent first-read legacy bindings, schema-epoch migration and minimum-writer-capability upgrades are unique, idempotent and recoverable.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.legacy_migration: PASS legacyRewrites=0"
+            }
+          },
+          {
+            "desc": "Rollback and kill-switch fixtures stop new Story 3 writes or gate use at the declared boundary, preserve readable committed history, reject newer unsupported epochs and restore the previous supported mode without data loss.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.rollback_kill_switch: PASS dataLoss=0"
+            }
+          },
+          {
+            "desc": "Unsupported filesystem/trust assumptions and incomplete migration inputs fail closed with deterministic diagnostics, while supported local crash/retry recovery remains available.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.fail_closed_boundary: PASS unsafeWrites=0"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A combined stress run interleaves mixed-record writes, idempotent replay, stale writers, revoke-versus-apply, process events, B-META writes and crash injection with no lost row, duplicate, half-visible bundle, non-latest binding or nested-lock deadlock.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.combined_concurrency: PASS lost=0 duplicates=0 halfVisible=0 deadlocks=0"
+            }
+          },
+          {
+            "desc": "The complete mutation suite rejects receipt/signature/trust/blob/source/command/environment/artifact/CAS/registry/query tampering and confirms each refusal leaves semantic records and lifecycle state unchanged.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.tamper_matrix: PASS lifecycleDelta=0"
+            }
+          },
+          {
+            "desc": "Independent dependency mutations prove Story 3 imports neither Story 2 nor Story 1, persistence rows cannot become semantic gate authority, and deterministic scorecard consumers use only the protected public query contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.dependency_scorecard_boundary: PASS"
+            }
+          }
+        ]
       }
     }
   ]
