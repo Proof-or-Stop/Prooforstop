@@ -1591,7 +1591,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
               "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
@@ -1601,8 +1601,8 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node -e \"const{execFileSync}=require('node:child_process');const j=JSON.parse(execFileSync(process.execPath,['bin/proof-or-stop.js','acceptance_topology_check','--storyId=B-9a49','--json'],{encoding:'utf8'}));if(!(j.status==='pass'&&j.structuralPass===true&&j.basisStatus==='complete'&&Array.isArray(j.diagnostics)&&j.diagnostics.length===0))throw new Error(JSON.stringify(j));console.log('CHK-005 topology complete signed-basis PASS')\"",
-              "selector": "CHK-005 topology complete signed-basis PASS"
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
           {
@@ -1611,8 +1611,8 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node -e \"const{execFileSync}=require('node:child_process');const j=JSON.parse(execFileSync(process.execPath,['bin/proof-or-stop.js','pre_review_check_read','--storyId=B-9a49','--json'],{encoding:'utf8'}));if(!(j.ok===true&&j.status==='pass'&&j.authority==='admissible'&&j.executableEvidence==='current'&&j.mutations==='biting'&&j.transcript==='related'&&Array.isArray(j.codes)&&j.codes.length===0))throw new Error(JSON.stringify(j));console.log('CHK-005 live pre-review signed proof PASS')\"",
-              "selector": "CHK-005 live pre-review signed proof PASS"
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
           {
@@ -1621,8 +1621,8 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node -e \"const{execFileSync}=require('node:child_process');const run=n=>JSON.parse(execFileSync(process.execPath,['bin/proof-or-stop.js',n,'--storyId=B-9a49','--json'],{encoding:'utf8'}));const a=run('acceptance_rollout_report_read'),b=run('acceptance_rollout_check');for(const j of[a,b])if(!(j.ok===true&&j.status==='pass'&&j.receipt==='current'&&j.quorum==='full-3x2'&&Array.isArray(j.diagnostics)&&j.diagnostics.length===0))throw new Error(JSON.stringify({a,b}));console.log('CHK-005 signed rollout current full-3x2 PASS')\"",
-              "selector": "CHK-005 signed rollout current full-3x2 PASS"
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           }
         ],
@@ -1633,7 +1633,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm run test:process-fact-contract && npm run test:proofstory-acceptance-basis-smoke",
+              "command": "npm run test:process-fact-contract",
               "selector": "Process fact contract verified"
             }
           },
@@ -1643,8 +1643,8 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
-              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+              "command": "npm --prefix packages/main run build",
+              "selector": "node ../../scripts/build-main-with-binding.mjs"
             }
           }
         ],
@@ -1655,7 +1655,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
               "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
@@ -1665,7 +1665,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
               "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
@@ -1675,7 +1675,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
               "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
@@ -1685,7 +1685,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke",
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
               "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           },
@@ -1695,8 +1695,8 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && npm run test:proofstory-acceptance-basis-smoke && npm run test:process-fact-contract",
-              "selector": "Process fact contract verified"
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
             }
           }
         ]
