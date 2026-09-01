@@ -1044,6 +1044,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-bootstrap",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-038",
+      "desc": "packages/main/src/cli-engine.ts:856-869 does not prove that a declared extension command is actually external: isDeclaredExtensionCommand checks only that cmd appears in extraOwnershipClasses and extraAllowedPhases. It does not reject overlap with MAIN_TOOLS/COMMAND_POLICIES or require membership in opts.extraTools/the injected handler set. A bootstrap extension can therefore list an existing core command in both metadata maps and bypass the active-Story phase restriction of that core command; resolveEffectiveOwnershipClass keeps the core ownership policy, but the separate phase gate has already been skipped. This contradicts the adjacent claim that optional extension rows are commands outside the core lifecycle registry and turns an extension metadata typo/collision into a core lifecycle escape. Fail closed on core-name overlap and enforce exact parity among extraTools, registered extension handlers, ownership rows, and lifecycle rows, with an active-Story collision test.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T08:46:14.188Z",
+      "reviewRound": "2026-09-01T08:42:04.267Z",
+      "reviewRunId": "B-022e:RR-072",
+      "_hash": "732bd4dc9780eb07fd69d9efb0130dc17c4939e7f0be37553f838ef38ceaeb6e",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
