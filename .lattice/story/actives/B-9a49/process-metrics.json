@@ -1,12 +1,12 @@
 {
   "storyId": "B-9a49",
-  "generatedAt": "2026-09-01T00:27:37.716Z",
+  "generatedAt": "2026-09-01T00:32:29.801Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
-    "checklistItems": 5,
-    "reviewRounds": 12,
+    "checklistItems": 6,
+    "reviewRounds": 13,
     "findings": 21,
     "bugs": 0,
     "testRuns": 0,
@@ -107,7 +107,7 @@
           ]
         },
         "replanCount": {
-          "value": 9,
+          "value": 10,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -219,7 +219,7 @@
           "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
-          "value": 9,
+          "value": 10,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -227,7 +227,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 40,
+          "value": 41,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -238,25 +238,24 @@
     },
     "subagentCollaboration": {
       "effective": {
-        "value": "n/a",
-        "unit": "text",
+        "value": true,
+        "unit": "bool",
         "confidence": "high",
         "sources": [
-          "checklist.json",
-          "index.json"
-        ],
-        "note": "fast channel — main agent allowed to write code itself"
+          "findings.json"
+        ]
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": "n/a",
-          "unit": "text",
-          "confidence": "high",
+          "value": true,
+          "unit": "bool",
+          "confidence": "low",
           "sources": [
+            "findings.json",
             "checklist.json",
             "index.json"
           ],
-          "note": "fast channel — main agent allowed to write code itself"
+          "note": "proxy: uses reviewer findings as signal, not git commit author data"
         },
         "reviewerIndependence": {
           "value": true,
@@ -269,11 +268,13 @@
         "mainAgentCodeViolation": {
           "value": false,
           "unit": "bool",
-          "confidence": "high",
+          "confidence": "low",
           "sources": [
-            "checklist.json"
+            "findings.json",
+            "checklist.json",
+            "index.json"
           ],
-          "note": "fast channel — main agent allowed to write code itself — no violation possible"
+          "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
           "value": 16,
@@ -308,7 +309,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 12,
+          "value": 13,
           "unit": "count",
           "confidence": "medium",
           "sources": [
