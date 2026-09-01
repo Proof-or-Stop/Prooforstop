@@ -468,7 +468,7 @@
       "status": "done",
       "startTime": "2026-08-30T22:28:53.710Z",
       "endTime": "2026-08-30T22:47:41.726Z",
-      "userSees": "The isolated install prints `Proof-or-Stop 0.3.268` for `proof-or-stop --version`; `proof-or-stop help` and `proof-or-stop lab help` succeed; invoking `lattice` prints command-not-found or equivalent non-zero resolution failure.",
+      "userSees": "The isolated install prints `Proof-or-Stop 0.3.270` for `proof-or-stop --version`; `proof-or-stop help` and `proof-or-stop lab help` succeed; invoking `lattice` prints command-not-found or equivalent non-zero resolution failure.",
       "excludes": [
         "Deprecated lattice command aliases",
         "Legacy lattice wrapper files"
@@ -492,11 +492,11 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Install the packed CLI globally into an isolated prefix and enumerate executable bins -> proof-or-stop is the sole product bin; proof-or-stop --version, help, lab help, and representative help/error/hint paths succeed and begin with or teach proof-or-stop only. WHY: verifies the user-visible command surface end to end.",
+            "desc": "Install the packed CLI globally into an isolated prefix and enumerate executable bins -> proof-or-stop is the sole product bin; proof-or-stop --version reports 0.3.270, help, lab help, and representative help/error/hint paths succeed and begin with or teach proof-or-stop only. WHY: verifies the user-visible command surface end to end.",
             "type": "cli",
             "verification": {
               "command": "node bin/proof-or-stop.js --version",
-              "selector": "Proof-or-Stop 0.3.268"
+              "selector": "Proof-or-Stop 0.3.270"
             }
           }
         ],
