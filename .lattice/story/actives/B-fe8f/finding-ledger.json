@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "3ff189fb29abb35800caa6f9f32cfe6a7a53e800ee947ea72a4905ca04957e10",
+  "committedLedgerDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -702,6 +702,35 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T23:25:09.241Z"
+    },
+    {
+      "recordId": "lr_mtjawsof_1pg4_c46e4fcd68c341c2b7af4ed97a45ce36",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:ee632ea3-6f8a-4ea1-8f5d-4503e2611d09",
+      "payload": {
+        "id": "B-fe8f:F-014",
+        "desc": "CHK-001:happy:2 still lacks the executable receipt explicitly required by resolved F-012. .lattice/story/actives/B-fe8f/checklist.json records this must intent as kind=docs_check, mechanical=false, with no receipt/exitCode/selectorMatched, while F-012 resolvedReason claims all 13 RED receipts are fresh. Independent current execution of `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 0 and prints `red.production_unchanged: PASS`, so the test exists but its result is not bound to this intent. This leaves only 70/71 mechanical current receipts and makes the strong resolution claim false. Record this selector through the mechanical verification path and require exitCode=0/selectorMatched=true; retain the immutable historical RED binding.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-test-coverage",
+        "createdAt": "2026-09-01T23:31:21.519Z",
+        "reviewRound": "2026-09-01T23:24:22.129Z",
+        "reviewRunId": "B-fe8f:RR-012",
+        "_hash": "61fc214015b96d184db2a2ff349285e54a5a610aa25cd8bfb251ef58101a424b",
+        "files": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "missing|mjs|happy-still-lacks",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "9c16e9687dc7570992f9537603587b4c19cd0892ef4d8a9959e9e2cd1923a159",
+      "priorDigest": "3ff189fb29abb35800caa6f9f32cfe6a7a53e800ee947ea72a4905ca04957e10",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T23:31:21.519Z"
     }
   ],
   "receipts": [
@@ -1900,6 +1929,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "6ff9f9098202662957b7b7a2fe8c224fa3fffe8bc60ae6ab2372c6a659d14a00",
         "signature": "jl4euGFeGLipOqRDTHM3NSEFqPvN8ajoARDM6ViSvZMCyx8As32PNV+Vnjeo7MU1NQYKE5Yx6DS4Zn5n1UeGCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtjawsof_1pg4_8a0ca16e2c59455fa7981a40de8bd1df",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:ee632ea3-6f8a-4ea1-8f5d-4503e2611d09",
+      "requestDigest": "efab8a6104fa48cbfbe463dd3290f51eac4d47a83417b6466649afbfe3d5658e",
+      "recordIds": [
+        "lr_mtjawsof_1pg4_c46e4fcd68c341c2b7af4ed97a45ce36"
+      ],
+      "priorLedgerDigest": "3ff189fb29abb35800caa6f9f32cfe6a7a53e800ee947ea72a4905ca04957e10",
+      "committedLedgerDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
+      "writerSessionId": "sess-efdd0b5c52b6dca37dc5b8892f9a9bbb",
+      "writerFenceToken": "ae9516a1-09f6-4397-b00f-565c1eb936b5",
+      "committedAt": "2026-09-01T23:31:21.519Z",
+      "replayed": false,
+      "exactRequestDigest": "f29ff03d24391c2553d07b913839585fde96a645ba98260be810d5a49fb9a63c",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtjawsof_1pg4_8a0ca16e2c59455fa7981a40de8bd1df",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:ee632ea3-6f8a-4ea1-8f5d-4503e2611d09",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtjawsof_1pg4_c46e4fcd68c341c2b7af4ed97a45ce36"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "3ff189fb29abb35800caa6f9f32cfe6a7a53e800ee947ea72a4905ca04957e10",
+        "committedLedgerDigest": "addac8a799f45af917e5f395758d4a488060324de2053e41fc30a7401739c719",
+        "replayed": false,
+        "committedAt": "2026-09-01T23:31:21.519Z",
+        "writerSessionId": "sess-efdd0b5c52b6dca37dc5b8892f9a9bbb",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "ae9516a1-09f6-4397-b00f-565c1eb936b5",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "303d9dbc0ad0bf1af7a4613aff952691978e3109bb5973d9c18fb5a1cd98641d",
+        "signature": "BnxBfbjHVLg/oFiTEpoaEODwEWLGWoK8Ex/BM+g8w8OhH6LQvSXN3pVv4C5zlxHgLzjpPTBDcYKakf1a2gqsAg=="
       }
     }
   ]

@@ -307,10 +307,31 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv7c28_1n9y_f961afdff6964bb392de4bc239958c7d",
       "ledgerCommitReceiptId": "lrc_mtiv7c28_1n9y_4cabfe5ded1d4d0bb52ad12add7863ba",
-      "resolvedAt": "2026-09-01T23:25:09.240Z",
       "resolvedReason": "The publishable lab package is canonically @proof-or-stop/lab, bundled/local-linked for clean external install, and clean-pack/global-entrypoint checks pass without registry fetch at version 0.3.271.",
+      "resolvedAt": "2026-09-01T23:25:09.240Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-014",
+      "desc": "CHK-001:happy:2 still lacks the executable receipt explicitly required by resolved F-012. .lattice/story/actives/B-fe8f/checklist.json records this must intent as kind=docs_check, mechanical=false, with no receipt/exitCode/selectorMatched, while F-012 resolvedReason claims all 13 RED receipts are fresh. Independent current execution of `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 0 and prints `red.production_unchanged: PASS`, so the test exists but its result is not bound to this intent. This leaves only 70/71 mechanical current receipts and makes the strong resolution claim false. Record this selector through the mechanical verification path and require exitCode=0/selectorMatched=true; retain the immutable historical RED binding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-09-01T23:31:21.519Z",
+      "reviewRound": "2026-09-01T23:24:22.129Z",
+      "reviewRunId": "B-fe8f:RR-012",
+      "_hash": "61fc214015b96d184db2a2ff349285e54a5a610aa25cd8bfb251ef58101a424b",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-still-lacks",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtjawsof_1pg4_c46e4fcd68c341c2b7af4ed97a45ce36",
+      "ledgerCommitReceiptId": "lrc_mtjawsof_1pg4_8a0ca16e2c59455fa7981a40de8bd1df"
     }
   ]
 }
