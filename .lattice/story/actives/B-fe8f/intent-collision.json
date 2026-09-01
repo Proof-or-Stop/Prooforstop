@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-fe8f",
+  "id": "IC-20260901083052",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-fe8f implements only Section 9.3 Story 3A then 3B. RED is audit-first and demonstrates only contracts still missing at the pre-fix anchor; GREEN proves the accepted ledger/runtime contracts. Identity, lineage and applicability remain in the dependent Stories.",
+  "acceptedInterpretationHash": "sha256:6af5da2d41cd7b9c751b178baf4178e884aa35cc857bf6fd06b9b70c6a49f075",
+  "notes": "This resolves the apparent collision between historical evidence language and current code that may already contain partial locking, and between persistence record identity and downstream semantic defect identity.",
+  "createdAt": "2026-09-01T08:30:52.842Z",
+  "updatedAt": "2026-09-01T08:30:52.842Z"
+}

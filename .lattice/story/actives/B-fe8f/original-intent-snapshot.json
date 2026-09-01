@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-fe8f",
+  "sourceText": "根据 docs/requirements/decisions/dynamic-finding-system-execution-plan.md 按顺序执行三个 Story；每个 Story 先用 RED 证明仍存在的历史问题，再用 GREEN 修复，并完整经过 DEV、REVIEW、TEST、DONE。第一步是 Finding Ledger and Runtime Evidence Integrity，完成后才执行 Finding Identity and Historical Lineage，最后执行 Dynamic Finding Applicability。",
+  "normalizedOutcome": "The first dependency Story finishes with exactly-once Finding ledger mutations and fresh signed runtime evidence, proven by executable RED-to-GREEN evidence before either dependent Story starts.",
+  "acceptanceClaim": "The final Story 3 smoke prints Finding ledger integrity: PASS and Runtime evidence integrity: PASS while the CLI dependency graph keeps B-03b7 and B-e6d9 blocked until B-fe8f is DONE.",
+  "keyRequirementIds": [
+    "REQ-LEDGER-EXACTLY-ONCE",
+    "REQ-RED-GREEN",
+    "REQ-RUNTIME-EVIDENCE-FRESHNESS",
+    "REQ-STRICT-DEPENDENCY-ORDER"
+  ],
+  "requestHash": "sha256:c0ca5cf0704bb295701e318af91528d176fbe6e71ada4148a7e194dcab533aeb",
+  "createdAt": "2026-09-01T08:30:52.339Z",
+  "updatedAt": "2026-09-01T08:30:52.339Z"
+}

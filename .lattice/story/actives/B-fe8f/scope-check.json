@@ -1,0 +1,233 @@
+{
+  "storyId": "B-fe8f",
+  "checkedAt": "2026-09-01T08:37:49.556Z",
+  "features": [
+    {
+      "feature": "Audit current locks, Store replacement, and execution receipts before claiming a RED; preserve already-correct baselines and bind each genuine failure to the pre-fix source hash.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Execute Story 3A ledger integrity before Story 3B runtime evidence integrity, with no authoritative Story 2 or Story 1 path before the prerequisite is accepted.",
+      "covered_by": "CHK-002,CHK-003,CHK-004,CHK-005,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Use one canonical local-filesystem fenced writer with schema epoch, minimum writer capability, session, lease, and monotonic fence token.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Allocate collision-resistant durable record IDs independently of mutable array length.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Make idempotent retry return the original semantic record IDs and receipt ID with zero duplicate rows or recursive receipts.",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Define and test the durable local-filesystem crash boundary: temp write, file fsync, atomic rename, directory fsync, recovery, stale-writer refusal, unsupported NFS or corruption refusal, and no nested-lock deadlock.",
+      "covered_by": "CHK-002,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Provide a shared schema-neutral multi-record transaction for Finding, route, assessment, mandatory-repair, expiry-policy, deferral, supersession, baseline, re-attestation, manifest, and receipt persistence without interpreting downstream semantics.",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Compare exact persisted record bytes, record IDs and hashes, current chain head, predicate digest, and prior ledger digest under one fence; any conflict or callback refusal writes no semantic rows.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Implement the complete signed FindingLedgerReceipt field and trust contract.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Append LegacyFindingIdentityBinding exactly once on first read or backfill while preserving historical Finding bytes and failing closed on tuple, hash, or record-ID collision.",
+      "covered_by": "CHK-002,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Atomically persist FindingAssessmentProposal plus one non-recursive ledger receipt and expose the shared verifier or query path that rejects wrong authority or signature, altered exact-union payload, missing receipt, stale or expired proposal, and proposal-to-final divergence.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Prove mandatory-repair classify and close plus expiry-policy records are append-only, unique, idempotent, and never half-visible with their manifest references.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Create a signed content-addressed RuntimeEvidenceReceipt binding source head and material, build and execution policy and commands, outputs, redacted allowlisted environment, artifacts, toolchain, producer, and trust metadata.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Persist append_runtime_receipt through the exactly-once ledger path and prove crash and replay return the same runtime record and ledger receipt IDs.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Reject build-in-progress, pre/during/post artifact mutation, source or command or environment drift, blob tamper, symlink or realpath escape, unsupported trust, revoked or expired keys, and secret leakage.",
+      "covered_by": "CHK-004,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Register atomic persistence separately from gate-eligible runtime evidence so persisted candidate, route, baseline, historical, and receipt bytes never become semantic lifecycle authority.",
+      "covered_by": "CHK-005,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Expose a signed deterministic protected read-only query for ledger, CAS, idempotency, migration, and runtime scorecard inputs with no protected path leakage and fail-closed incomplete or tampered rows.",
+      "covered_by": "CHK-005,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Reject reverse imports from Story 2 or Story 1 and preserve the schema-neutral public callback and query boundary.",
+      "covered_by": "CHK-005,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#94-dependency-dag-and-reconciliation"
+    },
+    {
+      "feature": "Mechanically prove B-03b7 and B-e6d9 cannot advance into implementation before B-fe8f is DONE, matching the original strict dependency-order acceptance claim.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "proof-or-stop original_intent_snapshot_get B-fe8f: REQ-STRICT-DEPENDENCY-ORDER"
+    },
+    {
+      "feature": "Create gate-consumable RED evidence at the pre-fix anchor and an explicit RED-to-GREEN relation, rather than relying only on terminal prose or a mutable test file.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "proof-or-stop original_intent_snapshot_get B-fe8f: REQ-RED-GREEN"
+    },
+    {
+      "feature": "Provide rollback and kill-switch coverage that stops unsafe new writes or use, preserves readable committed history, refuses unsupported newer epochs, and restores the previous supported mode without data loss.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#10-migration-rollout-and-rollback"
+    },
+    {
+      "feature": "Integrate the RuntimeEvidenceReceipt into a real build or execution adapter entrypoint rather than demonstrating only a core helper in the Story smoke.",
+      "covered_by": "CHK-004",
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Do not implement canonical defect judgment, detector classification, historical recall, applicability verdicts, route semantic authority, or lifecycle gate enforcement in Story 3.",
+      "covered_by": "CHK-002,CHK-003,CHK-005,CHK-006",
+      "status": "excluded",
+      "excluded_by": "Owned by B-03b7 or B-e6d9; Story 3 is schema-neutral persistence and runtime evidence only.",
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "Do not treat a durable ledger row or valid runtime receipt as proof of semantic truth, correctness, applicability, pass, block, or unblock.",
+      "covered_by": "CHK-004,CHK-005",
+      "status": "excluded",
+      "excluded_by": "Persistence proves bytes and runtime evidence proves what ran; downstream semantic authority is explicitly outside Story 3.",
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#5-four-component-architecture"
+    },
+    {
+      "feature": "Do not rename the lab package or absorb the historical package-rename concern into this Story.",
+      "covered_by": "CHK-006",
+      "status": "excluded",
+      "excluded_by": "Section 9.3 non-goal assigns no lab rename to Story 3.",
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+    },
+    {
+      "feature": "The RED item must leave production behavior unchanged, but CHK-001 and plan.md declare store.ts, finding.ts, and checklist.ts as files to modify during RED.",
+      "covered_by": "CHK-001",
+      "status": "drift",
+      "excluded_by": null,
+      "source": "B-fe8f checklist_get CHK-001 and plan_get CHK-001"
+    },
+    {
+      "feature": "Package manifest changes in CHK-006 are implementation-process work rather than a Section 9.3 product deliverable.",
+      "covered_by": "CHK-006",
+      "status": "orphan-suspect",
+      "excluded_by": "Potentially justified only by repository patch-version policy; the current plan does not state that reason.",
+      "source": "B-fe8f plan_get CHK-006"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 27,
+    "covered": 17,
+    "excluded": 3,
+    "gaps": 5,
+    "orphanSuspect": 1,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "c07a8f5e9aeee55fa34682481aa5b575f4576456d7a283952a5ba1d73424faa4",
+  "openQuestions": [
+    {
+      "id": "BFE8F-SCOPE-Q1",
+      "q": "Is CHK-001 intended to modify production files in the RED commit, or are store.ts, finding.ts, and checklist.ts read-only audit sources that must be removed from files.modify?",
+      "evidence": "CHK-001 files.modify lists three production files while its excludes and plan DoneWhen require production behavior and GREEN implementation to remain unchanged.",
+      "sourcePointers": [
+        "B-fe8f checklist_get CHK-001",
+        "B-fe8f plan_get CHK-001"
+      ]
+    },
+    {
+      "id": "BFE8F-SCOPE-Q2",
+      "q": "Which real build or execution command or handler will mint and verify RuntimeEvidenceReceipt outside the direct Story smoke?",
+      "evidence": "Section 9.3 requires a build/execution adapter, while CHK-004 names only core types, artifact-store, a new runtime-evidence module, and the direct smoke task.",
+      "sourcePointers": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+        "B-fe8f checklist_get CHK-004",
+        "B-fe8f plan_get CHK-004"
+      ]
+    }
+  ]
+}
