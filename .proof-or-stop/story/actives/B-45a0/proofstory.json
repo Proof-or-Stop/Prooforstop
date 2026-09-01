@@ -337,6 +337,45 @@
             "consumerRefs": [
               "consumer-planned-impact-graph"
             ]
+          },
+          {
+            "id": "positive-16",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:happy:0"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "positive-17",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:happy:1"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "positive-18",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:happy:2"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
           }
         ],
         "mutationCaseRefs": [
@@ -722,6 +761,32 @@
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-013:adversarial:0"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "mutation-31",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:edge:0"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "mutation-32",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:adversarial:0"
             },
             "producerRefs": [
               "producer-planned-change-manifest"
@@ -1316,6 +1381,71 @@
             "consumerRefs": [
               "consumer-planned-impact-graph"
             ]
+          },
+          {
+            "id": "transcript-46",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:happy:0"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "transcript-47",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:happy:1"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "transcript-48",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:happy:2"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "transcript-49",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:edge:0"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
+          },
+          {
+            "id": "transcript-50",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-014:adversarial:0"
+            },
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ]
           }
         ],
         "commandRefs": [
@@ -1362,5 +1492,5 @@
   "diagnosticGaps": [],
   "note": "B-45a0 complete dynamic validation acceptance binding with planned-path topology.",
   "createdAt": "2026-08-21T07:07:10.956Z",
-  "updatedAt": "2026-09-01T15:20:00.000Z"
+  "updatedAt": "2026-09-01T15:25:00.000Z"
 }
