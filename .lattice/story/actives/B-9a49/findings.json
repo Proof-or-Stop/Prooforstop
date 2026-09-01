@@ -748,7 +748,7 @@
       "desc": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:56-64 maintainability advisory (low): the open-source executable proposal hardcodes the package registry total as seventeen and calls the exact five-role roster active REVIEW lanes. Current readPromptRegistry/PROMPT_ROLE_CONTRACTS output confirms 17 and ACTIVE_MODULAR_REVIEWER_ROLE_IDS confirms the listed five, so this is not a present behavior defect. It is nevertheless a drift-prone second copy of registry cardinality and slightly blurs active modular REVIEW-role definitions with per-Story reviewer selection. Prefer registry-derived wording such as the five active modular REVIEW roles and omit the total role count. severity=low",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T14:17:26.544Z",
@@ -761,7 +761,11 @@
         "packages/main/src/core/prompt-role-contract-registry.ts"
       ],
       "signatureTag": "edge|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by removing the hardcoded registry total and describing only the five registry-derived active modular REVIEW roles. Current registry and proposal wording were independently checked by all round-13 lanes.",
+      "resolvedAt": "2026-09-01T15:14:36.663Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-035",
