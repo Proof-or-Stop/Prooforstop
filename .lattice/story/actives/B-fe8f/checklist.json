@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:34:13.874Z",
-      "endTime": "2026-09-01T11:34:14.889Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
       "excludes": [
         "Do not manufacture a failing race already prevented by current locking.",
@@ -443,9 +443,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:34:15.958Z",
-      "endTime": "2026-09-01T11:34:16.939Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "The terminal prints \"ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\", \"ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\", and \"ledger.crash_recovery: PASS halfVisible=0\".",
       "excludes": [
         "No canonicalDefectId or semantic duplicate policy.",
@@ -769,9 +769,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:34:17.921Z",
-      "endTime": "2026-09-01T11:34:18.885Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "The terminal prints \"ledger.receipt_contract: PASS signedFields=complete\", \"ledger.exact_record_cas: PASS committed=true\", and \"ledger.stale_cas: PASS semanticWrites=0\".",
       "excludes": [
         "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning."
@@ -1247,9 +1247,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:34:19.937Z",
-      "endTime": "2026-09-01T11:34:20.876Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "The terminal prints \"runtime.content_addressed_receipt: PASS blobs=complete signature=valid\", \"runtime.artifact_stability: PASS pre=true during=true post=true\", and a deterministic refusal code for every stale or tampered receipt.",
       "excludes": [
         "The receipt proves executed bytes and freshness only, not semantic correctness or applicability."
@@ -1699,9 +1699,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:34:21.814Z",
-      "endTime": "2026-09-01T11:34:22.713Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "The terminal prints \"registry.story3_fact_contract: PASS\", \"query.protected_read_only: PASS signedRows=true pathsExposed=0\", and \"registry.persistence_non_authority: PASS lifecycleDelta=0\".",
       "excludes": [
         "No direct protected-storage parsing by downstream scorecards.",
@@ -2035,8 +2035,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
-      "startTime": "2026-09-01T11:34:23.675Z",
+      "status": "pending",
+      "startTime": null,
       "endTime": null,
       "userSees": "The final verification prints \"Finding ledger integrity: PASS\", \"Runtime evidence integrity: PASS\", and \"green.story3_matrix: PASS\".",
       "excludes": [
@@ -2051,7 +2051,8 @@
           "packages/main/src/core/lattice-brand.ts",
           "packages/main/src/handlers/finding.ts",
           "packages/main/src/core/types.ts",
-          "packages/main/src/core/runtime-evidence-receipt.ts"
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "scripts/build-lock.mjs"
         ],
         "create": [
           "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",

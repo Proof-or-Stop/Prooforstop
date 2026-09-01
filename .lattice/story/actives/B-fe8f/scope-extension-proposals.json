@@ -1,6 +1,6 @@
 {
   "storyId": "B-fe8f",
-  "updatedAt": "2026-09-01T11:33:49.824Z",
+  "updatedAt": "2026-09-01T11:47:28.849Z",
   "proposals": [
     {
       "proposalId": "SEP-B-fe8f-001",
@@ -130,6 +130,32 @@
         "decidedAt": "2026-09-01T11:33:49.824Z",
         "rationale": "Corrected independent proposal names both irreducible edit sites required for a single canonical RuntimeEvidenceReceipt type source. Accept exactly core/types.ts and core/runtime-evidence-receipt.ts under the no-duplicate/no-token-shim contract.",
         "_hash": "bb9e77b00d04262612a6eb0963c60a8a567b9c3bc636f13cc996811549852f43"
+      }
+    },
+    {
+      "proposalId": "SEP-B-fe8f-006",
+      "storyId": "B-fe8f",
+      "proposedBy": "lattice-init-requirements-reviewer",
+      "proposedAt": "2026-09-01T11:47:03.899Z",
+      "proposal": "Add exactly scripts/build-lock.mjs to CHK-006 files.modify. Add a bounded, per-build-target, in-process FIFO admission layer around withBuildLock so same-process calls enter in invocation order. Each admitted call must still acquire and release the existing proper-lockfile mutex with unchanged stale, heartbeat, retry, cross-process exclusion, and crash-recovery semantics. Queue state must be removed after the last waiter and released in finally on callback or lock failure. Add regression coverage through already-scoped CHK-006 test surfaces for FIFO order, mutual exclusion, failure-not-poisoning, target independence, queue cleanup, and retained proper-lockfile behavior. Modifying the immutable RED or rerunning until scheduling happens to pass is forbidden.",
+      "proposalTextHash": "3cadd3b8f3086671899b823337550ce8c629faac30eb616a055de4c0d6309626",
+      "reason": "The immutable RED invokes two withBuildLock calls synchronously and requires first-enter, first-exit, second-enter, second-exit. Current withBuildLock reaches await lockfile.lock independently in both calls; proper-lockfile supplies a correct cross-process crash-safe mutex but no invocation-order fairness, so either promise may acquire first. The observed second-before-first result is therefore a genuine nondeterministic contract failure. A per-target FIFO admission layer is the minimal architecture-preserving fix because it orders only same-process admission while retaining proper-lockfile as the cross-process authority.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "ac4bc9319d13775a4925384a431049cee791dfc19083eca2c4e9593f0d32cf30",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "jek",
+        "decidedAt": "2026-09-01T11:47:28.849Z",
+        "rationale": "Independent rerun and INIT review prove a genuine same-process FIFO determinism gap. Accept exactly scripts/build-lock.mjs, preserving every existing proper-lockfile cross-process and crash-safety invariant with explicit cleanup/failure/target-isolation regressions.",
+        "_hash": "db2baebdfa1153c6ca86e4f08b41e15e56b34c91618b54d9adfdb14eae20e3cb"
       }
     }
   ]
