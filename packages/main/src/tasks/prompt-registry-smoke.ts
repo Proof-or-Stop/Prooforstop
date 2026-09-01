@@ -75,12 +75,12 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = '507c92ba1c8fbfe4fc20fba9a3ff99364bc44ec6b5c48b8c0ed0bee51ca62947';
+const approvedReviewFindingTriageProposalSha256 = 'dabb185662429fea9b44252b81035bb16226900f2ca9fe5ae97540626722a89a';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
-const approvedReviewFindingTriageContractSha256 = 'd951823bab6aae3ef92ab80d150ab051665b3ebbc74de72d14b60eba3fbe77f8';
+const approvedReviewFindingTriageContractSha256 = '26ad0049198fe58a03aa22e3e88af3f719f08ed33c9eb6210e4c85af00f64646';
 const approvedReviewFindingTriageHeadings = [
   reviewFindingTriageContractMarker,
   '## REVIEW Finding Triage and Routing Contract',
@@ -102,7 +102,7 @@ const approvedReviewFindingTriageNormativeLines = [
   '- When the Dynamic Finding CLI becomes available, request or consume its official signed assessment and follow its fail-closed result. Prompt prose and compatibility records never substitute for that assessment.',
   '- Start the current lane with `proof-or-stop review_run_start`. Carry its current `reviewRunId` on every `finding_add` or `review_pass_set` submission.',
   '- A role-body or policy change makes an already assembled in-flight reviewer envelope stale. Stop, start a fresh current-material run with `review_run_start`, and redispatch the reviewer; never submit evidence from the older envelope.',
-  '- Keep four axes separate: `evidenceState` says whether the observation is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; gate impact is computed by the current lifecycle policy. Severity does not determine scope by itself.',
+  '- Keep four input axes separate: observation and `evidenceState` preserve what was seen and whether it is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; disposition records the authorized next action after applicability. Gate impact is a fifth, derived result: the current gate uses only facts recognized by current policy, and the future official Dynamic Finding gate derives it from fresh signed applicability and disposition facts. Severity does not determine scope by itself.',
   '- Preserve reproduction steps, source or command evidence, observed impact, and uncertainty. Report an applicability candidate in the evidence supported by the current command; do not invent unsupported fields or present the candidate as a gate decision.',
   '- The machine-owned handler and gate derive the actual blocking result from structured facts. Reviewer prose, a routing proposal, or a claimed deferral is not gate evidence.',
   '- Require repair in the current Story when a verified applicable issue is critical or high; was introduced or worsened by the Story; directly violates acceptance, a verification intent, the core user result, or a public compatibility promise; has known or uncertain protected-surface impact; would make REVIEW, TEST, DONE, or their evidence misleading; has invalid claimed deferral lineage; or has exhausted its cumulative deferral horizon or renewal allowance.',
@@ -148,9 +148,13 @@ const requiredReviewFindingTriagePhrases = [
   '`finding_dismiss` and gap or backlog routes are compatibility accounting',
   'The current compatibility CLI does not implement the future signed `FindingDeferralDisposition` or `defer_with_proof` path',
   'evidenceState',
+  'observation and `evidenceState` preserve what was seen',
   'severity says how harmful it is',
   'applicability reports whether it belongs to this Story',
-  'gate impact is computed by the current lifecycle policy',
+  'disposition records the authorized next action after applicability',
+  'Gate impact is a fifth, derived result',
+  'the current gate uses only facts recognized by current policy',
+  'the future official Dynamic Finding gate derives it from fresh signed applicability and disposition facts',
   'Severity does not determine scope by itself',
   'Start the current lane with `proof-or-stop review_run_start`',
   'Carry its current `reviewRunId` on every `finding_add` or `review_pass_set` submission',

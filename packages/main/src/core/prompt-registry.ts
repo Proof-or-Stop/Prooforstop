@@ -47,7 +47,7 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 
 - Start the current lane with \`proof-or-stop review_run_start\`. Carry its current \`reviewRunId\` on every \`finding_add\` or \`review_pass_set\` submission.
 - A role-body or policy change makes an already assembled in-flight reviewer envelope stale. Stop, start a fresh current-material run with \`review_run_start\`, and redispatch the reviewer; never submit evidence from the older envelope.
-- Keep four axes separate: \`evidenceState\` says whether the observation is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; gate impact is computed by the current lifecycle policy. Severity does not determine scope by itself.
+- Keep four input axes separate: observation and \`evidenceState\` preserve what was seen and whether it is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; disposition records the authorized next action after applicability. Gate impact is a fifth, derived result: the current gate uses only facts recognized by current policy, and the future official Dynamic Finding gate derives it from fresh signed applicability and disposition facts. Severity does not determine scope by itself.
 - Preserve reproduction steps, source or command evidence, observed impact, and uncertainty. Report an applicability candidate in the evidence supported by the current command; do not invent unsupported fields or present the candidate as a gate decision.
 - The machine-owned handler and gate derive the actual blocking result from structured facts. Reviewer prose, a routing proposal, or a claimed deferral is not gate evidence.
 

@@ -67,20 +67,24 @@ out-of-item issue, and never widen the assigned item or Story unilaterally.
 This assembly model makes the five reviewers consistent without creating five
 independent copies that can drift.
 
-## 4. Keep the decision axes separate
+## 4. Keep inputs separate and derive gate impact
 
-Agents must reason about four independent axes:
+Agents must keep four decision inputs independent and treat gate impact as a
+separate machine-derived result:
 
-| Axis | Question | Agent obligation |
-| --- | --- | --- |
-| Evidence state | Is the observation suspected, verified, or disproven? | Preserve the observed truth and its evidence. |
-| Severity | How harmful is the observation? | Preserve the original severity; do not use it as a scope shortcut. |
-| Applicability | Does the verified Finding belong to this target Story and current material? | Propose only the verdict supported by current evidence; unknown fails closed. |
-| Disposition and gate impact | Must an applicable Finding be repaired now, or may the future system defer it? Does current policy block? | Consume official structured facts; prompt prose never decides the gate. |
+| Kind | Dimension | Question | Agent obligation |
+| --- | --- | --- | --- |
+| Input | Observation and evidence state | What was observed, and is it suspected, verified, or disproven? | Preserve the observation, its evidence, and its evidence state. |
+| Input | Severity | How harmful is the observation? | Preserve the original severity; do not use it as a scope shortcut. |
+| Input | Applicability | Does the verified Finding belong to this target Story and current material? | Propose only the verdict supported by current evidence; unknown fails closed. |
+| Input | Disposition | After applicability is established, what authorized action applies: current repair, evidence-backed routing, or a future official signed deferral? | Consume only an available official disposition; never infer or mint one in prompt prose. |
+| Derived result | Gate impact | Does current machine policy block this lifecycle transition? | Consume the current machine-computed result from facts recognized by current policy. In the future official system, the gate derives it from fresh signed applicability and disposition facts; prompt prose never decides it. |
 
 Severity does not determine applicability. Applicability does not rewrite
 severity or Finding truth. Deferral is a disposition after `applicable`, not an
-applicability verdict and not a resolution state.
+applicability verdict and not a resolution state. Disposition does not itself
+rewrite the observation, evidence state, severity, or applicability. Gate
+impact is not a fifth discretionary Agent input.
 
 ## 5. Applicability vocabulary and minimum evidence
 
@@ -228,6 +232,13 @@ the complete assembled reviewer body:
   proof;
 - making unknown applicability non-blocking or deferrable; and
 - allowing an ownerless or receipt-free official deferral.
+
+The Task Context authority guard must compare normalized concepts, their
+semantic relationship, and assertion polarity. It must reject equivalent
+authority claims after underscore, hyphen, word-order, or punctuation changes;
+it must accept explicit prohibitions and documented legacy-input migration that
+normalizes the alias before any official signing step. It remains REVIEW-only
+and runs before envelope digests are minted.
 
 Digest pins provide change review, but they are not the semantic oracle. The
 independent normative manifest and contradiction mutations must still reject an

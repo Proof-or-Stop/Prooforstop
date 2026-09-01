@@ -134,14 +134,154 @@ function assertContractRenderCoherence(
   }
 }
 
-const RETIRED_REVIEW_APPLICABILITY_VERDICT = /\bstale_or_not_reproduced\b/u;
-const CONTRADICTORY_REVIEW_TRIAGE_AUTHORITY = [
-  /\btreat\s+defer_with_proof\s+as\s+an?\s+applicability\s+verdict\b/iu,
-  /\bdefer_with_proof\s+is\s+an?\s+applicability\s+verdict\b/iu,
-  /\breviewers?\s+(?:may|can|must|should)\s+(?:sign|mint|approve)\s+defer_with_proof\b/iu,
-  /\bseverity\s+alone\s+(?:decides|determines)\s+(?:the\s+)?(?:story\s+)?scope\b/iu,
-  /\bfinding_dismiss\s+proves\s+(?:out_of_scope|deferral|repair|resolution)\b/iu,
-] as const;
+type ReviewTriageAuthorityViolation =
+  | 'retired applicability verdict used as authority'
+  | 'disposition collapsed into applicability'
+  | 'unauthorized disposition minting'
+  | 'severity used as sole ownership or scope authority'
+  | 'dismissal used as applicability proof'
+  | 'unknown applicability used to route or unblock';
+
+const TRIAGE_NEGATION = /\b(?:not|never|cannot|prohibited|forbidden|disallowed)\b/u;
+const RETIRED_APPLICABILITY_ALIAS = /\bstale\s+or\s+not\s+reproduced\b/u;
+
+function normalizeTriageAuthorityText(text: string): string {
+  return text
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[`'"“”‘’]/gu, ' ')
+    .replace(/[_\-‐‑‒–—]+/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim();
+}
+
+function triageAuthoritySegments(text: string): string[] {
+  return normalizeTriageAuthorityText(text)
+    .split(/(?:[.!?;\n]+|\b(?:but|however|yet|although)\b)/u)
+    .map(segment => segment.trim())
+    .filter(Boolean);
+}
+
+function matchRanges(text: string, pattern: RegExp): Array<{ start: number; end: number }> {
+  const matcher = new RegExp(pattern.source, pattern.flags.includes('u') ? 'gu' : 'g');
+  return [...text.matchAll(matcher)].map(match => ({
+    start: match.index ?? 0,
+    end: (match.index ?? 0) + match[0].length,
+  }));
+}
+
+/**
+ * Detect an affirmative semantic relation between two concepts in either word
+ * order. Negation inside the bounded bridge reverses the relation and is safe.
+ * This is deliberately concept-based rather than an exact sentence denylist:
+ * Task Context remains prose, but it cannot assert package-owned authority.
+ */
+function hasAffirmativeBridge(
+  segment: string,
+  left: RegExp,
+  right: RegExp,
+  relation: RegExp,
+  maxBridgeLength = 180,
+): boolean {
+  for (const leftRange of matchRanges(segment, left)) {
+    for (const rightRange of matchRanges(segment, right)) {
+      const bridgeStart = Math.min(leftRange.end, rightRange.end);
+      const bridgeEnd = Math.max(leftRange.start, rightRange.start);
+      if (bridgeEnd < bridgeStart || bridgeEnd - bridgeStart > maxBridgeLength) continue;
+      const bridge = segment.slice(bridgeStart, bridgeEnd);
+      if (relation.test(bridge) && !TRIAGE_NEGATION.test(bridge)) return true;
+    }
+  }
+  return false;
+}
+
+function retiredAliasIsSafeMigrationOrRejection(segment: string): boolean {
+  const explicitRejection = /\b(?:reject|retire|retired|obsolete|deprecated|prohibit|forbid|disallow)\b/u.test(segment)
+    || /\b(?:do|does|must|may|should|can)\s+not\s+(?:use|accept|emit|sign|treat)\b/u.test(segment);
+  const migration = /\b(?:legacy|compatibility|migration|input\s+alias)\b/u.test(segment)
+    && /\b(?:normalize|map|translate|migrate|canonicalize)\b/u.test(segment);
+  return explicitRejection || migration;
+}
+
+function reviewTriageAuthorityViolation(text: string): ReviewTriageAuthorityViolation | null {
+  for (const segment of triageAuthoritySegments(text)) {
+    if (RETIRED_APPLICABILITY_ALIAS.test(segment)) {
+      const assertsCurrentVerdict = /\b(?:current|official|applicability)\s+verdict\b/u.test(segment)
+        && /\b(?:use|treat|accept|is|becomes|means|counts|classify|set)\b/u.test(segment)
+        && !TRIAGE_NEGATION.test(segment);
+      if (assertsCurrentVerdict || !retiredAliasIsSafeMigrationOrRejection(segment)) {
+        return 'retired applicability verdict used as authority';
+      }
+    }
+
+    const deferral = /\b(?:defer\s+with\s+proof|deferral|finding\s+deferral\s+disposition)\b/u;
+    const applicabilityVerdict = /\b(?:applicability\s+)?verdict\b/u;
+    if (hasAffirmativeBridge(
+      segment,
+      deferral,
+      applicabilityVerdict,
+      /\b(?:is|as|means|becomes|counts|equals|qualifies|serves|treat|classify|set|use)\b/u,
+    )) {
+      return 'disposition collapsed into applicability';
+    }
+
+    const unauthorizedActor = /\b(?:reviewers?|review\s+lane|agents?|story\s+owner)\b/u;
+    const dispositionMinting = /\b(?:mint|sign|approve|create|issue|generate|authorize)(?:s|ing)?\b/u;
+    if (deferral.test(segment) && hasAffirmativeBridge(
+      segment,
+      unauthorizedActor,
+      dispositionMinting,
+      /\b(?:may|can|must|should|will|permitted|allowed|authorized|able|is|are|to|for)\b/u,
+    )) {
+      return 'unauthorized disposition minting';
+    }
+    const compatibilityAuthority = /\b(?:current\s+cli|compatibility\s+cli|compatibility\s+path)\b/u;
+    const futureCapability = /\b(?:implement|support|mint|sign|create|issue)(?:s|ing)?\b/u;
+    if (deferral.test(segment) && hasAffirmativeBridge(
+      segment,
+      compatibilityAuthority,
+      futureCapability,
+      /\b(?:does|can|will|is|are|to)\b/u,
+    )) {
+      return 'unauthorized disposition minting';
+    }
+
+    const severity = /\b(?:severity|critical|high|medium|low)\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|automatically|by\s+itself|on\s+its\s+own)\b/u;
+    const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|current\s+story|routing|repair)\b/u;
+    if (soleAuthority.test(segment) && hasAffirmativeBridge(
+      segment,
+      severity,
+      storyResponsibility,
+      /\b(?:control|determine|decide|set|establish|make|define|assign|require)\w*\b/u,
+    )) {
+      return 'severity used as sole ownership or scope authority';
+    }
+
+    const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed)\b/u;
+    const applicabilityOutcome = /\b(?:out\s+of\s+scope|non\s+applicable|applicability|deferral|repair|resolution|resolved)\b/u;
+    if (hasAffirmativeBridge(
+      segment,
+      dismissal,
+      applicabilityOutcome,
+      /\b(?:prove|establish|confirm|demonstrate|mean|make|classify|set|count)\w*\b/u,
+    )) {
+      return 'dismissal used as applicability proof';
+    }
+
+    const unknownApplicability = /\b(?:unknown\s+applicability|applicability\s+(?:is|remains)\s+unknown)\b/u;
+    const routingOrGateRelief = /\b(?:routing|route|defer|deferral|non\s+blocking|advisory|review\s+blocker|blocker)\b/u;
+    if (hasAffirmativeBridge(
+      segment,
+      unknownApplicability,
+      routingOrGateRelief,
+      /\b(?:permit|allow|authorize|enable|route|defer|make|become|is|remove|clear|lift|bypass|waive)\w*\b/u,
+    )) {
+      return 'unknown applicability used to route or unblock';
+    }
+  }
+  return null;
+}
 
 function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Array<[string, string]> {
   const values: Array<[string, string]> = [
@@ -163,10 +303,11 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Array<[
 
 /**
  * REVIEW role authority is package-owned. Story-authored Task Context may
- * describe work and acceptance, but it cannot revive a retired verdict or
- * assert a contradictory Finding-triage rule. This check runs before envelope
- * digests are minted, so recomputing every content address cannot bless an
- * authority injection.
+ * describe work, tests, explicit rejection, and legacy migration, but it
+ * cannot assert contradictory Finding-triage authority. The bounded semantic
+ * check relates normalized concepts and assertion polarity, rather than
+ * denying an exact sentence. It runs before envelope digests are minted, so
+ * recomputing every content address cannot bless an authority injection.
  */
 function assertReviewerTaskContextAuthoritySafety(
   roleId: string,
@@ -174,14 +315,10 @@ function assertReviewerTaskContextAuthoritySafety(
 ): void {
   if (!isModularReviewerRoleId(roleId)) return;
   for (const [location, text] of reviewerTaskContextAuthorityText(taskContext)) {
-    if (RETIRED_REVIEW_APPLICABILITY_VERDICT.test(text)) {
+    const violation = reviewTriageAuthorityViolation(text);
+    if (violation) {
       throw new Error(
-        `REVIEW Task Context contains retired Finding-triage authority at ${location}`,
-      );
-    }
-    if (CONTRADICTORY_REVIEW_TRIAGE_AUTHORITY.some(pattern => pattern.test(text))) {
-      throw new Error(
-        `REVIEW Task Context contains contradictory Finding-triage authority at ${location}`,
+        `REVIEW Task Context contains unsafe Finding-triage authority at ${location}: ${violation}`,
       );
     }
   }
