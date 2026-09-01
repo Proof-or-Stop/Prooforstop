@@ -588,7 +588,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.receipt_contract: PASS signedFields=complete"
             }
           },
@@ -597,7 +597,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.exact_record_cas: PASS committed=true"
             }
           },
@@ -606,7 +606,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0"
             }
           },
@@ -615,7 +615,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0"
             }
           },
@@ -624,7 +624,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0"
             }
           }
@@ -635,7 +635,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.stale_cas: PASS semanticWrites=0"
             }
           },
@@ -644,7 +644,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0"
             }
           },
@@ -653,7 +653,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.atomic_bundle: PASS halfBundles=0"
             }
           },
@@ -662,7 +662,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0"
             }
           },
@@ -671,7 +671,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true"
             }
           }
@@ -682,7 +682,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.receipt_mutation_matrix: PASS acceptedMutations=0"
             }
           },
@@ -691,7 +691,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.revoke_apply_serialization: PASS nonLatestCommits=0"
             }
           },
@@ -700,7 +700,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true"
             }
           },
@@ -709,7 +709,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0"
             }
           }
