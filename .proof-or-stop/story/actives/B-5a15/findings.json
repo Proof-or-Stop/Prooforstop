@@ -18242,6 +18242,65 @@
       ],
       "signatureTag": "adversarial|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-334",
+      "desc": "packages/main/src/core/evidence-freshness.ts:505,535 [high] currentStoryFilesHash ordering regression: extracting currentStoryFileHashEntries changed the hash ordering from a locale-independent byte sort to a locale-sensitive localeCompare, making storyFilesHash both DIFFERENT from main and ENVIRONMENT-DEPENDENT. On main the entries were composed first (path NUL objectId) and then ordered by a bare .sort() (UTF-16 code-unit order); that trailing .sort() was authoritative, and the pre-existing localeCompare inside changedStoryFilesBetween (line 477) was inert because its order was overwritten. The refactor deletes that trailing .sort() and returns entries pre-sorted by left.path.localeCompare(right.path) at line 505, which currentStoryFilesHash now consumes verbatim at line 535. Two consequences, both reproduced. (1) ORDER/HASH CHANGE: for paths [src/a_b.ts, src/a-b.ts, src/A.ts, src/ab.ts] the old order is A.ts,a-b.ts,a_b.ts,ab.ts and the new order is a_b.ts,a-b.ts,A.ts,ab.ts, yielding sha 6fb89972a802063e... vs 55e75b39781df206...; localeCompare folds case and treats - and _ as punctuation, so any story touching paths differing only by case or by -/_ now hashes differently than main computed. (2) NON-DETERMINISM: localeCompare is collation-dependent - LC_ALL=sv_SE.UTF-8 sorts [z.ts,a-umlaut.ts,a.ts] as a.ts,z.ts,a-umlaut.ts while LC_ALL=en_US.UTF-8 sorts a.ts,a-umlaut.ts,z.ts, so two machines or a small-ICU build can compute DIFFERENT storyFilesHash for an identical tree. storyFilesHash is the binding material for review passes, causal receipts, delivery/init/scope checks and the DONE gate, so a locale-dependent value can spuriously invalidate every signed artifact or mask a real story-owned change. Fix: keep byte-stable ordering authoritative - either sort the composed path NUL objectId strings with a bare .sort() as before, or use a codepoint comparator instead of localeCompare - and pin a regression test over a path set containing case-only and -/_ variants.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T08:53:12.690Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-787",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        }
+      ],
+      "_hash": "07c0bbf05f6337759322f41b66537ddd3f553b1c7041faecb33753fdf82c7524",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
