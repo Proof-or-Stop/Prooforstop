@@ -1043,6 +1043,41 @@
       },
       "readDiagnostics": [],
       "_hash": "e197e665fd87f6df9f3a0f9d1a5a0be8e4decc5acb7feb38d62192823e999d35"
+    },
+    {
+      "id": "B-2220:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Round 11 main-merge Prompt Envelope re-attestation passed. Merge ef3007f163 changed neither story-owned decision document nor smoke; storyFilesHash remains 6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10. B-3434 is DONE with 5/5 checklist items. All seven pinned verification intents pass, including exact decision digest and build-bound compiled smoke. Repository-wide concept scans found no current B-3434 owner, active work order, or mandatory follow-up. Historical B-3434 closeout metadata is retained audit history and is explicitly superseded by the later canonical decision. Reopen remains conditional on new risk evidence plus a new human-approved story. No promised-but-undelivered part found.",
+      "createdAt": "2026-09-01T00:27:11.306Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-047",
+      "envelopeId": "6008e2f443b9cc664c070b14de810fe04d0c418c5396112d3bfa90e99cc40307",
+      "writerSessionId": "sess-bec764c5b836aa4f52551fd5eba0ecfe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b51309935b103a849ad0086eb3dc58a887b26a1b84be7be0d529584cc005d6c"
     }
   ]
 }
