@@ -20716,7 +20716,7 @@
       "desc": "doc-promise-undelivered: RI-083 concept-lane re-attestation at frozen material cutoff 77025ccb/5c16b399 confirms a genuinely new family beyond baseline replay-assurance B-45a0:F-358/B-45a0:F-359/B-45a0:F-361 and pair-misbinding B-45a0:F-360. docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30 makes three alternating current-HEAD full/dynamic pairs mandatory, but packages/main/src/tasks/story-aware-validation-historical-replay.ts:654-673 checks paired-performance only when --paired was supplied. Therefore an --execute-only report can have admissibility.admissible=true with pairedRequested=false and no pairedPerformance, and scripts/run-dynamic-validation-replay.mjs:33-41 will print historical replay assurance PASS. This is the existing B-45a0:F-364 family, not another duplicate family: make paired evidence an unconditional assurance prerequisite and reject execute-without-paired before PASS.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-26T16:32:06.626Z",
@@ -20764,7 +20764,11 @@
       ],
       "signatureTag": "historical-replay-paired-assurance-optional",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-012"
+      "clusterId": "CL-012",
+      "resolvedReason": "Paired evidence is now an unconditional assurance prerequisite: packages/main/src/tasks/story-aware-validation-historical-replay.ts:34 sets const paired = !repairStoryId && (execute || --paired), so every --execute run performs the paired campaign; an execute-only report can no longer be admissible without pairedPerformance because the admissibility computation (story-aware-validation-historical-replay.ts:858-861) fails when !paired || !pairedPerformance || pairedPerformance.verdictEquivalent !== true. The wrapper also hard-wires the flags: scripts/run-dynamic-validation-replay.mjs:70-72 passes --execute --paired --resume --repair-missing for every executable run. Current signed report.json binds pairedPerformance (verdictEquivalent=true, executedCount=116) with admissibility.admissible=true, and --verify-threshold passes at current HEAD.",
+      "resolvedAt": "2026-09-01T14:39:46.776Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-366",
