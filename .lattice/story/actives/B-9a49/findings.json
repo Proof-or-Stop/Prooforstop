@@ -795,7 +795,7 @@
       "desc": "Post-merge Dynamic Finding authority drift: review-finding-triage-prompt-change-proposal.md:79-94 (especially line 87) and packages/main/src/core/prompt-registry.ts:50 teach that disposition after applicability may be current repair, evidence-backed routing, or deferral, and omit the final assessment dispositionPlan contract. The evolved authority at dynamic-finding-system-execution-plan.md:1103-1109, 2068-2074, and 3546-3551 instead requires a discriminated binding: every final applicable assessment declares exactly one dispositionPlan (repair_current forbids acceptedRoute; defer_with_proof requires the exact accepted route tuple), non-applicable verdicts have dispositionPlan absent plus acceptedRoute, and unknown has neither. Only applicable + dispositionPlan=defer_with_proof + the exact route may feed the separate signed FindingDeferralDisposition. The current wording therefore folds non-applicable routing into disposition and leaves all five REVIEW lanes unaware of repair_current/defer_with_proof assessment binding. Test gap: prompt-registry-smoke.ts:569-592 only checks assessmentDispositionPlan exists in the authority plan; neither proposal nor delivered contract contains assessmentDispositionPlan or repair_current, yet `node packages/main/dist/tasks/prompt-registry-smoke.js` and `node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js` both PASS. Update the subordinate proposal and canonical REVIEW contract to project the exact applicable/non-applicable union while retaining the current compatibility boundary, and add projection/mutation tests that reject missing or mismatched dispositionPlan and routing-as-disposition.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T16:45:54.716Z",
@@ -809,7 +809,11 @@
         "packages/main/src/tasks/prompt-registry-smoke.ts"
       ],
       "signatureTag": "adversarial|md|post-merge-dynamic",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bcf5de33f367e3157efaeac65720a7bf5b3bc32f. The proposal and canonical REVIEW contract now require every final applicable assessment to bind exactly one dispositionPlan (repair_current or defer_with_proof), forbid dispositionPlan on non-applicable/unknown assessments, bind non-applicable outcomes to exact acceptedRoute, and permit separate signed deferral only from applicable + defer_with_proof + exact route. Focused/full registry, full-context, measurement, baseline, process-fact, and runtime-fact checks pass; 8 new inverse mutations reject regression.",
+      "resolvedAt": "2026-09-01T23:21:35.285Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-037",
