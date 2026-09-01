@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T09:18:09.282Z",
-      "endTime": "2026-09-01T09:19:50.675Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
       "excludes": [
         "Do not manufacture a failing race already prevented by current locking.",
@@ -443,8 +443,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
-      "startTime": "2026-09-01T09:19:58.741Z",
+      "status": "pending",
+      "startTime": null,
       "endTime": null,
       "userSees": "The terminal prints \"ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\", \"ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\", and \"ledger.crash_recovery: PASS halfVisible=0\".",
       "excludes": [
@@ -472,7 +472,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100"
             }
           },
@@ -481,7 +481,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true"
             }
           },
@@ -490,7 +490,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true"
             }
           }
@@ -501,7 +501,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.mixed_transactions: PASS lost=0 brokenRefs=0"
             }
           },
@@ -510,7 +510,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.legacy_binding: PASS singleRecord=true rewrite=false"
             }
           },
@@ -519,7 +519,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.capability_boundary: PASS writes=0"
             }
           }
@@ -530,7 +530,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.crash_recovery: PASS halfVisible=0"
             }
           },
@@ -539,7 +539,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.stale_fence: PASS staleWrites=0"
             }
           },
@@ -548,7 +548,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "ledger.lock_compatibility: PASS deadlocks=0"
             }
           }
