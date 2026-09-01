@@ -563,7 +563,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // The readFindings → push → writeFindings critical section uses the
       // unified main lock for B-META and a per-story lock for normal stories.
       const idempotencyKey = args.idempotencyKey?.trim() || `finding_add:${randomUUID()}`;
-      const ledgerCommit = withMetaFindingLock(ctx, args.storyId, (fence) => {
+      let ledgerCommit: { recordId: string; receiptId: string; replayed: boolean } | undefined;
+      const id = withMetaFindingLock(ctx, args.storyId, (fence) => {
         const data = store.readFindings(args.storyId);
         const nextNum = data.findings.length + 1;
         const ledgerBefore = store.readFindingLedger<Finding>(args.storyId);
@@ -632,14 +633,14 @@ export function createFindingHandlers(ctx: HandlerContext) {
         if (mirrorIndex < 0) data.findings.push(committedFinding);
         else data.findings[mirrorIndex] = committedFinding;
         store.writeFindings(args.storyId, data);
-        return {
-          id: committedFinding.id,
+        ledgerCommit = {
           recordId: record.recordId,
           receiptId: plan.receipt.receiptId,
           replayed: plan.action === 'replay',
         };
+        return fid;
       });
-      const id = ledgerCommit.id;
+      if (!ledgerCommit) throw new Error('finding_add: ledger transaction completed without commit metadata');
 
       // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
       // tag, auto-record it as status=proposed in the signature-registry (audit-only;
