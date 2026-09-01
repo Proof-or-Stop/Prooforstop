@@ -2266,23 +2266,23 @@
         },
         {
           "intentRef": "CHK-006:adversarial:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
           "result": "pass",
-          "note": "Tool execution proves the combined cross-process concurrency and crash matrix has no loss, duplicates, half visibility or deadlocks.",
+          "note": "Final-head integration execution interleaves cross-process ledger, replay, crash, process-event and B-META writes with no loss, duplicates, half-visible state or deadlocks.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "9a9b3e187b60f20e6a2462f644f504e8a1b320ac12219356d06b8ba294102a03",
             "outputTail": "ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.atomic_bundle: PASS halfBundles=0\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\ngreen.legacy_migration: PASS legacyRewrites=0\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.lock_compatibility: PASS deadlocks=0\nruntime.content_addressed_receipt: PASS blobs=complete signature=valid\nruntime.artifact_stability: PASS pre=true during=true post=true\nruntime.execution_not_semantics: PASS lifecycleDelta=0\nruntime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true\nruntime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true\nquery.protected_read_only: PASS signedRows=true pathsExposed=0\nquery.deterministic_scorecard: PASS\nquery.incomplete_tamper_refusal: PASS partialRows=0\nregistry.story3_fact_contract: PASS\nregistry.command_phase_policy: PASS bypasses=0\nregistry.persistence_non_authority: PASS lifecycleDelta=0\nregistry.non_authority_mutations: PASS acceptedMutations=0\nregistry.dependency_boundary: PASS forbiddenImportsAccepted=0\nquery.path_leakage: PASS exposedPaths=0\ndependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0\ngreen.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7\nruntime.freshness_matrix: PASS acceptedStale=0\nruntime.environment_privacy: PASS leakedValues=0\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\ngreen.rollback_kill_switch: PASS dataLoss=0\ngreen.combined_concurrency: PASS lost=0 duplicates=0 halfVisible=0 deadlocks=0\ngreen.fail_closed_boundary: PASS unsafeWrites=0\nbuild-lock.fifo_admission: PASS order=true bounded=true mutualExclusion=true failureRecovery=true targetIndependence=true queueCleanup=true properLockfile=true\ngreen.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true\ngreen.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true\ngreen.tamper_matrix: PASS lifecycleDelta=0\ngreen.dependency_scorecard_boundary: PASS\nFinding ledger integrity: PASS\nRuntime evidence integrity: PASS\ngreen.story3_matrix: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T12:08:45.634Z",
+            "executedAt": "2026-09-01T13:11:43.183Z",
             "timeoutMs": 270000
           },
-          "headHash": "b984e20617b0d7616a6542d71f4e9e067396be5d",
+          "headHash": "99f1a23fa90f84e67550787583fb177fbee5ae75",
           "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220",
           "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
-          "timestamp": "2026-09-01T12:10:47.608Z"
+          "timestamp": "2026-09-01T13:11:43.308Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
