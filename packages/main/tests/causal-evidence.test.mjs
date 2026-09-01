@@ -1249,8 +1249,17 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
       .map(id => id.replace('certification-', ''))
       .sort();
   };
+  // B-5a15 (second F-337, DEFERRED): `test` is asserted terminal here because that is what the
+  // CURRENT graph declares -- but it is NOT actually terminal. Seven source-domain files hold
+  // compile-time imports of ten test-domain modules (handlers/gap.ts:17 imports
+  // ../tasks/gap-analyze.js, and registry.ts:206 registers it into the shipped CLI), so a
+  // src/tasks/ edit leaves certification-source falsely fresh. The edge is not declared because
+  // adding it naively creates the cycle source -> test -> source; the real fix is splitting
+  // src/tasks/ library modules from *-smoke.ts executables, which is a dedicated story.
+  // This assertion therefore pins CURRENT BEHAVIOR, not desired behavior: when that story lands
+  // it MUST change. Recorded so the gap is tracked rather than silently frozen.
   assert.deepEqual(productionClosureFor('test'), ['test'],
-    'a test-only change must not invalidate any other production domain');
+    'current graph declares test terminal; see the deferred source<-test finding above');
   // B-5a15 F-336: docs are NOT inert for integration. scripts/ holds contract verifiers that
   // read docs as load-bearing assertion inputs -- verify-process-fact-contract.mjs asserts over
   // AGENTS.md and five docs/requirements/decisions/*.md files and is DONE-required via
