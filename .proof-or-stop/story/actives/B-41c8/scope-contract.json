@@ -38,10 +38,26 @@
       "phase": "DEV",
       "headHash": "2c8348f8373665fc9f14fd84b4df84a15e6e3a69",
       "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CHK-004 registered test:single-owner-extraction in proof-or-stop.config.json validate.commands, which changes the real-inventory commandSetDigest that the F-023 case in validation-tier-planner-smoke.ts pins (line 403). The pin must be updated to the new digest; no other change to that file.",
+      "timestamp": "2026-09-02T15:34:01.441Z",
+      "paths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a20d0e0e404772626754415ccbf37d62920e7654",
+      "materialHash": "3e2ecd125f79d3e7c689bba9654e82e4735ce1ca9d62cfb8e86f5e82e8974294"
     }
   ],
   "createdAt": "2026-09-02T13:36:08.585Z",
-  "updatedAt": "2026-09-02T15:15:44.451Z",
+  "updatedAt": "2026-09-02T15:34:01.441Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -56,6 +72,7 @@
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "packages/main/src/tasks/single-owner-extraction-smoke.ts": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
     "packages/main/src/core/story-workspace.ts": "packages/main/src/core/story-workspace.ts",
-    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts"
   }
 }

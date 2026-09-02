@@ -23,7 +23,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/validation-plan.ts:678 `const { store, root } = ctx;` — `store` is destructured but never read anywhere in createValidationPlanHandlers after the CHK-003 refactor moved workspace resolution into `resolveStoryWorkspace(ctx, ...)`. Confirmed by diffing `tsc --noUnusedLocals -p packages/main` between main and this branch: this TS6133 hit is new on this branch (3 other unused-declaration hits in the same run are pre-existing on main, this one is not). Dead variable left behind by the extraction; delete it from the destructure.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T15:01:29.856Z",
@@ -35,7 +35,8 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@a20d0e0"
     },
     {
       "id": "B-41c8:F-003",
@@ -60,7 +61,7 @@
       "desc": "CHK-003 userSees claims: run validation_plan against a DONE story and it reports the story as not resolvable from a linked worktree rather than reading a removed worktree. Verified empirically (real run: node packages/main/dist/tasks/single-owner-extraction-smoke.js, all 35 cases PASS) that this is true ONLY for the merged-and-actually-removed case. For the more consequential edge -- a DONE story whose worktree still physically exists (not yet cleaned up) -- validation-plan.ts:706 deliberately passes terminalPhaseGuard:false (comment at validation-plan.ts:702-705), and the shipped smoke test itself titles and asserts the opposite of the userSees claim: single-owner-extraction-smoke.ts:1128-1140 \"validation_plan: DONE-story reads are unchanged ... a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour\" / assert.ok(planUnitIds(withResidue).includes(WS_WORKTREE_COMMAND_ID), \"validation_plan keeps reading a residual DONE worktree\"). This is a deliberate, tested, documented decision (decision.json preMortem #3: the helper exposes the guard as an explicit option with the default matching each migrated callers current behaviour) -- not a regression -- but it reopens exactly the drift risk B-a745:F-014 raised (validation-plan resolveStoryWorkspace lacks the phase-terminal guard story-query.ts/session.ts apply, so behavior CAN diverge for a DONE story whose worktree still resolves). The userSees wording, read plainly, implies the guard now protects validation_plan generally against DONE-story linked-worktree reads; an operator relying on that claim to trust validation_plan output for a just-merged, not-yet-cleaned-up story would be wrong. Recommend narrowing the userSees wording to name the residual-worktree case explicitly, or actually closing F-014 by guarding validation_plan too.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T15:03:28.958Z",
@@ -74,14 +75,15 @@
       ],
       "signatureTag": "happy|ts|validation-plan-terminal-phase-guard-usersees",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@a20d0e0"
     },
     {
       "id": "B-41c8:F-005",
       "desc": "CHK-004 audit classifies proof-or-stop-handoff.ts (its only resolveGitCwd call site, handlers/proof-or-stop-handoff.ts:579 inside buildPrefetchBundle) as workspace-rooted (no story/checklist/config read at all), per single-owner-extraction-smoke.ts:1558 and the rule comment at 1253-1255. Traced the actual data flow: buildPrefetchBundle computes packGitCwd via resolveGitCwd at line 579 and uses it ONLY for buildSupersessionReport (line 585). But the SAME function, lines 556-561, builds activeStorySummary/doneStorySummary/etc by calling storyHandlers.story_get({storyId: pack.storyId, detail:true}) and summaryHandlers.summary_get(...) -- handler instances constructed from the SAME ctx as proof-or-stop-handoff.ts's own handler (createStoryQueryHandlers(ctx) at line 550), not from the resolved workspace. story_get itself (handlers/story-query.ts:456-466) calls store.readChecklist / store.readReview / store.readStory directly (ctx.root, not gitCwd; it does NOT call the CHK-003 readStoryProjection/resolveStoryWorkspace helper that story_list uses). So proof-or-stop-handoff.ts genuinely reads story/checklist data anchored to ctx.root, composited alongside a separately-resolved packGitCwd used only for one field of the same report -- exactly the split-brain risk (different parts of one output keyed to different roots) this audit exists to catalog, and the smoke's own documented safety bias (single-owner-extraction-smoke.ts:1232-1234: a false FLAG is the safe direction, a false PASS would hide a caller) is violated here: the file-level literal-call-expression scan cannot see reads that happen inside a DIFFERENT file reached through a composed handler call, so it produces exactly the false PASS the design says to avoid. The workspace-rooted (no read at all) label creates false confidence that proof-or-stop-handoff.ts needs no attention from the follow-up migration draft (migrate-resolvegitcwd-callers-to-workspace) this audit scopes, when its activeStorySummary/doneStorySummary can diverge from its own supersession/packGitCwd view for a wrapper-root layout or any invocation where ctx.root differs from the story's resolved workspace. Recommend either (a) documenting this as a known scope limit of the mechanical scanner (file-level, no call-graph tracing into composed handler modules) alongside the printed report, or (b) extending the scan to follow at least one hop into locally-constructed handler-module calls (storyHandlers.story_get etc.) so aggregator handlers like proof-or-stop-handoff.ts are not silently excluded from the follow-up migration scope.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T15:04:04.237Z",
@@ -95,7 +97,26 @@
       ],
       "signatureTag": "missing|ts|resolvegitcwd-audit-composed-handler-reads",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@a20d0e0"
+    },
+    {
+      "id": "B-41c8:F-006",
+      "desc": "validation-tier-planner-smoke case F-023 pins the real-inventory commandSetDigest (validation-tier-planner-smoke.ts:403, eba363ed...). CHK-004 commit b11dd0fb02 added test:single-owner-extraction to proof-or-stop.config.json validate.commands, so the real digest is now 791165cf... and the suite prints validation-tier-planner-smoke: FAIL (1 case failed) on this branch while main passes. Re-pin the digest to the value the current inventory produces and state in the commit body why it moved. Separately observed, not fixed here: the suite exits 0 despite printing FAIL, so a validate gate would not catch this; recorded for the test-and-guard credibility story.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-02T15:34:06.891Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "_hash": "c4d18e7603caf9d0dc77415da07b1975cd8eb2c130a3633352119d1b8a8a45b4",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "missing|ts|validation-tier-planner",
+      "signatureTagSource": "auto"
     }
   ]
 }
