@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:549-550 hardcodes the literal string proof-or-stop for the bin key lookup instead of reusing the existing CANONICAL_ROOT_PACKAGE_NAME constant (defined at line 117 and already used at lines 1153/1291 for the same command name). Low risk of drift if the bin/command name is ever renamed in one place but not the other.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T16:24:56.382Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/runtime-environment-checks.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 8fcf66f31e: the bin-key lookup in packages/main/src/core/runtime-environment-checks.ts now uses bin[CANONICAL_ROOT_PACKAGE_NAME] on both the guard and the read instead of the literal string; tsc lint green.",
+      "resolvedAt": "2026-09-02T16:42:06.894Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-002",
