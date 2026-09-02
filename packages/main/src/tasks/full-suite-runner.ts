@@ -148,6 +148,15 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // aborts the entire suite rather than just skipping them. Both only read the repo and
   // spawn no CLI, so repoRead is correct.
   repoRead('test:topology-signing-source-guard'), repoRead('test:signing-guard-mutation-proof'),
+  // B-9f2c: added to test:serial-reference by this story. RESOURCE_POLICY is a THIRD
+  // membership authority beyond root package.json's test:serial-reference and
+  // lattice.config.json's validate.commands -- entriesFromSerialReference fails closed
+  // on any serial-reference member with no policy entry, aborting the whole suite rather
+  // than skipping the member, so this entry is mandatory rather than optional. The task
+  // only reads the repo and spawns the CLI against temporary directories; it binds no
+  // port and holds no lock (it asserts the OPPOSITE -- that an unknown --story id is
+  // refused BEFORE any listener is created), so the plain repoRead policy is correct.
+  repoRead('test:graph-story-flag-smoke'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
   // The validation-failure checklist seed makes this smoke execute the real
   // configured gate path. Its standalone runtime is now ~392s on the
