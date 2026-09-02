@@ -273,7 +273,9 @@ export function buildLegacyAbsoluteCwdCommandSpecEnvelope(
   };
 }
 
-function commandFromString(label: string, value: string): DoneRequiredCommand | null {
+// B-41c8 CHK-002 RED: temporarily exported so the corpus fixture can compare this
+// private parser against parseLegacyValidationCommandString. Deleted in GREEN.
+export function commandFromString(label: string, value: string): DoneRequiredCommand | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
   if (SHELL_META_RE.test(trimmed)) {

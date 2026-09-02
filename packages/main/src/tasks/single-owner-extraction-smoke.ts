@@ -48,6 +48,8 @@ import {
   isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
+import { commandFromString as doneRequiredCommandFromString } from '../core/done-required-validation.js';
+import { parseLegacyValidationCommandString } from '../core/validation-command-identity.js';
 
 const MARKER = 'single-owner-extraction-smoke';
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -568,6 +570,104 @@ group('CHK-001 rename-aware diff reader parses NUL-delimited output and fails lo
         }
       }
       assert.deepEqual(offenders, [], `catch { return [] } around a reader: ${offenders.join('; ')}`);
+    },
+  },
+]);
+
+// ---------------------------------------------------------------------------
+// CHK-002 — one owner for the legacy command-string parse.
+//
+// core/done-required-validation.ts carried a private copy of the shell
+// metacharacter rule and the word splitter that core/validation-command-identity.ts
+// owns as `parseLegacyValidationCommandString`. Two self-consistent copies of
+// the same parse are a false-provenance risk between pin identity and
+// DONE-required execution, so the corpus below pins the EXPECTED tuple for every
+// tricky input and every call site must produce exactly that tuple.
+//
+// Comparison key is {shell, command, args} where `shell` is the DECLARED intent
+// (`shell === true`), which is how every consumer in both files reads it.
+// The argv branch of a call-site wrapper omits the `shell` key entirely (a
+// shape choice preserved for byte-identical command-spec digests); the
+// canonical parser spells it `shell: false`. That is a representation
+// difference, not a parse difference, and `declaredShellTuple` makes it
+// explicit instead of tolerating it silently.
+// ---------------------------------------------------------------------------
+
+type ParsedTuple = { shell: boolean; command: string; args: string[] };
+type CorpusEntry = { label: string; input: string; expected: ParsedTuple | null };
+
+/** The explicit comparison key: declared shell intent + argv, nothing else. */
+function declaredShellTuple(value: { shell?: boolean; command: string; args: string[] } | null): ParsedTuple | null {
+  if (value === null) return null;
+  return { shell: value.shell === true, command: value.command, args: [...value.args] };
+}
+
+const COMMAND_CORPUS: CorpusEntry[] = [
+  { label: 'plain two-word command', input: 'npm test', expected: { shell: false, command: 'npm', args: ['test'] } },
+  { label: 'bare executable', input: 'node', expected: { shell: false, command: 'node', args: [] } },
+  { label: 'leading and trailing whitespace', input: '  node packages/main/dist/cli.js validate  ', expected: { shell: false, command: 'node', args: ['packages/main/dist/cli.js', 'validate'] } },
+  { label: 'tab and repeated spaces between words', input: 'node\tdist/x.js   --flag', expected: { shell: false, command: 'node', args: ['dist/x.js', '--flag'] } },
+  { label: 'empty string', input: '', expected: null },
+  { label: 'whitespace only', input: '   \t ', expected: null },
+  { label: 'metacharacter &&', input: 'npm run build && npm test', expected: { shell: true, command: 'npm run build && npm test', args: [] } },
+  { label: 'metacharacter | (pipe)', input: 'echo hi | grep h', expected: { shell: true, command: 'echo hi | grep h', args: [] } },
+  { label: 'metacharacter $ (variable)', input: 'printf %s $HOME', expected: { shell: true, command: 'printf %s $HOME', args: [] } },
+  { label: 'metacharacter < (redirect)', input: 'cat <file.txt', expected: { shell: true, command: 'cat <file.txt', args: [] } },
+  { label: 'metacharacter backtick', input: 'echo `date`', expected: { shell: true, command: 'echo `date`', args: [] } },
+  { label: 'metacharacter ( ) subshell with leading/trailing whitespace', input: ' (cd x && make) ', expected: { shell: true, command: '(cd x && make)', args: [] } },
+  { label: 'metacharacter ; inside a double-quoted argument still selects shell', input: 'node -e "console.log(1); process.exit(0)"', expected: { shell: true, command: 'node -e "console.log(1); process.exit(0)"', args: [] } },
+  { label: 'double-quoted argument with an embedded space', input: 'git commit -m "two words"', expected: { shell: false, command: 'git', args: ['commit', '-m', 'two words'] } },
+  { label: 'single-quoted argument with embedded spaces', input: "git commit -m 'single quoted arg'", expected: { shell: false, command: 'git', args: ['commit', '-m', 'single quoted arg'] } },
+  { label: 'single-quoted argument containing double quotes and a space', input: 'sh -c \'echo "a b"\'', expected: { shell: false, command: 'sh', args: ['-c', 'echo "a b"'] } },
+  { label: 'escaped double quote outside quotes', input: 'echo it\\"s', expected: { shell: false, command: 'echo', args: ['it"s'] } },
+  { label: 'escaped double quote inside a double-quoted argument', input: 'echo "escaped \\" inside"', expected: { shell: false, command: 'echo', args: ['escaped " inside'] } },
+  { label: 'double-quoted executable with an embedded space', input: '"quoted command" arg', expected: { shell: false, command: 'quoted command', args: ['arg'] } },
+  { label: 'bare double-quoted executable', input: '"a b"', expected: { shell: false, command: 'a b', args: [] } },
+  { label: 'empty quoted argument is dropped (shared quirk, pinned so it cannot drift silently)', input: "echo ''", expected: { shell: false, command: 'echo', args: [] } },
+  { label: 'unterminated single quote keeps the rest as one argument', input: "echo 'unterminated", expected: { shell: false, command: 'echo', args: ['unterminated'] } },
+  { label: 'trailing backslash is consumed', input: 'echo trailing\\', expected: { shell: false, command: 'echo', args: ['trailing'] } },
+  { label: 'backslash-escaped space joins words', input: 'ls my\\ dir', expected: { shell: false, command: 'ls', args: ['my dir'] } },
+];
+
+function assertCorpusTuple(site: string, entry: CorpusEntry, actual: ParsedTuple | null): void {
+  assert.deepEqual(
+    actual,
+    entry.expected,
+    `${site} disagrees on ${entry.label} ${JSON.stringify(entry.input)}: got ${JSON.stringify(actual)}, expected ${JSON.stringify(entry.expected)}`,
+  );
+}
+
+const PRIVATE_PARSER_TOKENS = ['splitShellWords', 'SHELL_META_RE', 'commandFromString'];
+
+group('CHK-002 done-required command parse is owned by parseLegacyValidationCommandString', [
+  {
+    name: 'corpus: the canonical parser produces the pinned {shell, command, args} for every entry',
+    run: () => {
+      for (const entry of COMMAND_CORPUS) {
+        assertCorpusTuple('parseLegacyValidationCommandString', entry, declaredShellTuple(parseLegacyValidationCommandString(entry.input)));
+      }
+    },
+  },
+  {
+    name: 'corpus: the private done-required parser agrees with the canonical parser on every entry',
+    run: () => {
+      for (const entry of COMMAND_CORPUS) {
+        assertCorpusTuple('done-required-validation commandFromString', entry, declaredShellTuple(doneRequiredCommandFromString('corpus', entry.input)));
+      }
+    },
+  },
+  {
+    name: 'structural: done-required-validation.ts defines no private parser and imports the canonical one',
+    run: () => {
+      const source = readFileSync(join(MAIN_SRC, 'core', 'done-required-validation.ts'), 'utf-8');
+      const hits = PRIVATE_PARSER_TOKENS.filter(token => source.includes(token));
+      assert.deepEqual(hits, [], `private parser tokens still present in done-required-validation.ts: ${hits.join(', ')}`);
+      assert.match(
+        source,
+        /import\s*\{[^}]*\bparseLegacyValidationCommandString\b[^}]*\}\s*from\s*'\.\/validation-command-identity\.js'/,
+        'done-required-validation.ts must import parseLegacyValidationCommandString from ./validation-command-identity.js',
+      );
+      assert.ok(source.includes('parseLegacyValidationCommandString('), 'done-required-validation.ts must call parseLegacyValidationCommandString');
     },
   },
 ]);
