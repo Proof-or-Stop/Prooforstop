@@ -29,6 +29,21 @@
  *       the new identity can only ADD refusal conditions, never remove one.
  *   (9) RESERVED PREFIX + RUNTIME RE-VALIDATION — a declared id may not usurp the `prov-`
  *       namespace, and the refusal holds on schema-bypassing paths (Handler convention).
+ *
+ * CHK-002 cases proven here (section "Canonical legacy pin resolver"):
+ *  (10) EXACT ID — evidence carrying `commandId` binds by exact id and never falls
+ *       through to string matching; an unknown id is a STOP, not a silent retry.
+ *  (11) LEGACY EXACT — a free-form `command` string matching exactly one command binds
+ *       it, recording `pinResolution: 'legacy-exact'` plus the normalized-tuple digest.
+ *  (12) AMBIGUITY (load-bearing) — two or more matches STOP as
+ *       `pinned_command_ambiguous` listing EVERY candidate id, in either array order
+ *       and under any labelling. A first-match or label-tiebreak resolver fails here.
+ *  (13) COMPLETE TUPLE — resolved cwd, shell-versus-argv form and the effective
+ *       environment each make two commands distinct, so "exactly one" means something.
+ *  (14) ONE PARSER — the legacy string parse is byte-for-byte the rule
+ *       `configuredValidationCommands` already uses, not a second tokenizer.
+ *  (15) NO IN-PLACE MIGRATION — resolving never mutates the evidence it was handed.
+ *  (16) RUNTIME RE-VALIDATION — a schema-bypassing malformed pin is still rejected.
  */
 
 import assert from 'node:assert/strict';
@@ -39,8 +54,12 @@ import { join, resolve } from 'node:path';
 import {
   PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX,
   buildValidationCommandInventory,
+  buildValidationPinUniverse,
   narrowPortableValidationCommandTuple,
+  parseLegacyValidationCommandString,
   provisionalValidationCommandId,
+  resolveValidationCommandPin,
+  type ValidationPinResolutionResult,
 } from '../core/validation-command-identity.js';
 import {
   buildRoutineValidationIdentity,
@@ -88,16 +107,20 @@ function routineIdentityArgs(projectRoot: string, commands: ValidationCommand[],
 
 const temporaryRoots: string[] = [];
 
-function projectRootWithConfig(commandEntry: Record<string, unknown>): string {
+function projectRootWithCommands(entries: unknown[]): string {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-command-identity-'));
   temporaryRoots.push(root);
   mkdirSync(root, { recursive: true });
   writeFileSync(
     join(root, 'proof-or-stop.config.json'),
-    `${JSON.stringify({ validate: { commands: [commandEntry] } }, null, 2)}\n`,
+    `${JSON.stringify({ validate: { commands: entries } }, null, 2)}\n`,
     'utf-8',
   );
   return root;
+}
+
+function projectRootWithConfig(commandEntry: Record<string, unknown>): string {
+  return projectRootWithCommands([commandEntry]);
 }
 
 console.log(`${MARKER}: running CHK-001 stable command identity cases`);
@@ -372,6 +395,278 @@ testCase('the optional id leaves the routine identity digest byte-identical, whi
   assert.notEqual(withConfig.source.inputDigest, baseline.source.inputDigest);
   assert.notEqual(withConfig.digest, baseline.digest);
   assert.deepEqual(withConfig.commands, baseline.commands, 'only the source input digest may differ');
+});
+
+// ===========================================================================
+// CHK-002 — canonical legacy pin resolver.
+//
+// Spec: same document, section "Canonical legacy pin resolver". New evidence
+// pins `commandId`; historical evidence only carries a free-form `command`
+// string, so exactly ONE migration resolver exists and it is owned by the same
+// command normalizer routine validation uses.
+//
+// Resolution order (the spec's, in order):
+//   1. `commandId` present  -> require an EXACT id match in the current universe.
+//   2. otherwise            -> parse the legacy string with the EXISTING
+//      executable/argv rule (verifier's SHELL_META_RE then splitShellWords) and
+//      compare the COMPLETE normalized tuple: command, args, resolved cwd, shell
+//      and the effective environment digest.
+//   3. exactly one match    -> bind that id, record `pinResolution: 'legacy-exact'`
+//      plus the normalized-tuple digest.
+//   4. zero matches         -> STOP `pinned_command_missing`.
+//   5. two or more matches  -> STOP `pinned_command_ambiguous` listing EVERY
+//      candidate id. Labels and array order can never break the tie.
+//   6. the resolver never rewrites historical evidence in place.
+//
+// Note the deliberate asymmetry with CHK-001, which these cases hold apart: the
+// stable ID is the NARROW portable tuple, while PIN RESOLUTION compares the
+// COMPLETE tuple including the environment. An id must survive a host change; a
+// pin must not silently bind a command that would execute differently.
+// ===========================================================================
+
+console.log(`${MARKER}: running CHK-002 legacy pin resolver cases`);
+
+const PIN_ENVIRONMENT = { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv;
+
+function pinUniverse(commands: ValidationCommand[], platform: NodeJS.Platform = 'linux') {
+  return buildValidationPinUniverse({
+    projectRoot: ROOT,
+    commands,
+    processEnvironment: PIN_ENVIRONMENT,
+    platform,
+  });
+}
+
+function resolvePin(
+  commands: ValidationCommand[],
+  evidence: { commandId?: string; command?: string },
+): ValidationPinResolutionResult {
+  return resolveValidationCommandPin({ universe: pinUniverse(commands), evidence });
+}
+
+function idOfLabel(universe: ReturnType<typeof pinUniverse>, label: string): string {
+  return universe.entries.find((entry) => entry.label === label)!.id;
+}
+
+// ---------------------------------------------------------------------------
+// (10) Step 1: an exact commandId match binds that command.
+// ---------------------------------------------------------------------------
+testCase('an exact commandId match resolves and is recorded as a declared-id resolution', () => {
+  const commands = [
+    command({ label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' }),
+    command({ label: 'test', command: 'npm', args: ['test'], id: 'test-suite' }),
+  ];
+  const result = resolvePin(commands, { commandId: 'test-suite', command: 'npm run lint' });
+  assert.equal(result.status, 'resolved');
+  assert.equal(result.status === 'resolved' && result.commandId, 'test-suite');
+  assert.equal(result.status === 'resolved' && result.pinResolution, 'declared-id');
+  // The id is authoritative: the free-form string naming a DIFFERENT command is
+  // never consulted once an id is present.
+  assert.equal(
+    result.status === 'resolved' && result.normalizedTupleDigest,
+    pinUniverse(commands).entries.find((entry) => entry.id === 'test-suite')!.normalizedTupleDigest,
+  );
+});
+
+testCase('an unknown commandId stops as pinned_command_missing and produces no binding', () => {
+  const result = resolvePin(
+    [command({ label: 'test', command: 'npm', args: ['test'], id: 'test-suite' })],
+    // The legacy string WOULD match, but step 1 is authoritative: an explicit id
+    // that names nothing is a stop, never a silent fall-through to string matching.
+    { commandId: 'renamed-test-suite', command: 'npm test' },
+  );
+  assert.equal(result.status, 'stop');
+  assert.equal(result.status === 'stop' && result.reason, 'pinned_command_missing');
+  assert.deepEqual(result.status === 'stop' && result.candidateIds, []);
+  assert.match(result.status === 'stop' ? result.message : '', /renamed-test-suite/);
+  assert.ok(!Object.prototype.hasOwnProperty.call(result, 'commandId'), 'a stop must not bind a command');
+});
+
+// ---------------------------------------------------------------------------
+// (11) Step 2/3: a legacy string matching exactly one command resolves.
+// ---------------------------------------------------------------------------
+testCase('a legacy string matching exactly one command records legacy-exact and the normalized-tuple digest', () => {
+  const commands = [
+    command({ label: 'lint', command: 'npm', args: ['run', 'lint'] }),
+    command({ label: 'test', command: 'npm', args: ['test'] }),
+  ];
+  const universe = pinUniverse(commands);
+  const result = resolveValidationCommandPin({ universe, evidence: { command: '  npm   test  ' } });
+  assert.equal(result.status, 'resolved');
+  assert.equal(result.status === 'resolved' && result.commandId, idOfLabel(universe, 'test'));
+  assert.equal(result.status === 'resolved' && result.pinResolution, 'legacy-exact');
+  const digest = result.status === 'resolved' ? result.normalizedTupleDigest : '';
+  assert.match(digest, /^[0-9a-f]{64}$/, 'the normalized-tuple digest must be recorded');
+  assert.equal(digest, universe.entries.find((entry) => entry.label === 'test')!.normalizedTupleDigest);
+});
+
+testCase('a legacy string matching nothing stops as pinned_command_missing with no plan', () => {
+  const result = resolvePin(
+    [command({ label: 'test', command: 'npm', args: ['test'] })],
+    { command: 'npm run build' },
+  );
+  assert.equal(result.status, 'stop');
+  assert.equal(result.status === 'stop' && result.reason, 'pinned_command_missing');
+  assert.deepEqual(result.status === 'stop' && result.candidateIds, []);
+});
+
+testCase('evidence pinning nothing at all stops as pinned_command_missing', () => {
+  for (const evidence of [{}, { command: '   ' }]) {
+    const result = resolvePin([command({ label: 'test', command: 'npm', args: ['test'] })], evidence);
+    assert.equal(result.status, 'stop');
+    assert.equal(result.status === 'stop' && result.reason, 'pinned_command_missing');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (12) LOAD-BEARING: two matches stop, and neither a label nor array order may
+//      break the tie. A first-match or label-tiebreak implementation FAILS here.
+// ---------------------------------------------------------------------------
+testCase('two commands with identical normalized tuples stop as pinned_command_ambiguous listing every candidate', () => {
+  const first = command({ label: 'test (legacy label)', command: 'npm', args: ['test'], id: 'test-a' });
+  const second = command({ label: 'test (renamed)', command: 'npm', args: ['test'], id: 'test-b' });
+
+  const orders: Array<[string, ValidationCommand[]]> = [
+    ['forward', [first, second]],
+    ['reversed', [second, first]],
+  ];
+  for (const [order, commands] of orders) {
+    const result = resolvePin(commands, { command: 'npm test' });
+    assert.equal(result.status, 'stop', `${order}: an ambiguous pin must never resolve to a first match`);
+    assert.equal(result.status === 'stop' && result.reason, 'pinned_command_ambiguous', order);
+    assert.deepEqual(
+      result.status === 'stop' ? [...result.candidateIds].sort() : [],
+      ['test-a', 'test-b'],
+      `${order}: every candidate id must be listed`,
+    );
+    assert.ok(!Object.prototype.hasOwnProperty.call(result, 'commandId'), `${order}: a stop binds nothing`);
+    assert.match(result.status === 'stop' ? result.message : '', /test-a/, order);
+    assert.match(result.status === 'stop' ? result.message : '', /test-b/, order);
+  }
+
+  // A label difference alone must not break the tie: swapping which entry wears
+  // which label, or making both labels identical, changes nothing.
+  for (const commands of [
+    [{ ...first, label: 'test (renamed)' }, { ...second, label: 'test (legacy label)' }],
+    [{ ...first, label: 'same' }, { ...second, label: 'same' }],
+  ]) {
+    const result = resolvePin(commands, { command: 'npm test' });
+    assert.equal(result.status, 'stop', 'labels are never an input to pin resolution');
+    assert.equal(result.status === 'stop' && result.reason, 'pinned_command_ambiguous');
+    assert.deepEqual(result.status === 'stop' ? [...result.candidateIds].sort() : [], ['test-a', 'test-b']);
+  }
+
+  // The explicit-id path still works while the tuples collide: an id is exact.
+  const byId = resolvePin([first, second], { commandId: 'test-b', command: 'npm test' });
+  assert.equal(byId.status === 'resolved' && byId.commandId, 'test-b');
+});
+
+// ---------------------------------------------------------------------------
+// (13) The COMPLETE tuple: cwd, shell-versus-argv form and environment all make
+//      two commands distinct. Each case would be ambiguous under a narrower
+//      comparison, so "exactly one" is doing real work here.
+// ---------------------------------------------------------------------------
+testCase('commands differing only by resolved cwd are distinct', () => {
+  const root = command({ label: 'test (root)', command: 'npm', args: ['test'] });
+  const nested = command({ label: 'test (packages/main)', command: 'npm', args: ['test'], cwd: 'packages/main' });
+  const universe = pinUniverse([root, nested]);
+  assert.notEqual(
+    universe.entries[0].normalizedTupleDigest,
+    universe.entries[1].normalizedTupleDigest,
+    'resolved cwd must be inside the normalized tuple',
+  );
+  const result = resolveValidationCommandPin({ universe, evidence: { command: 'npm test' } });
+  assert.equal(result.status, 'resolved');
+  assert.equal(result.status === 'resolved' && result.commandId, idOfLabel(universe, 'test (root)'));
+});
+
+testCase('commands differing only by shell-versus-argv form are distinct', () => {
+  const argvForm = command({ label: 'test (argv)', command: 'npm', args: ['test'] });
+  const shellForm = command({ label: 'test (shell)', command: 'npm test', args: [], shell: true });
+  const universe = pinUniverse([argvForm, shellForm]);
+  assert.notEqual(universe.entries[0].normalizedTupleDigest, universe.entries[1].normalizedTupleDigest);
+
+  const plain = resolveValidationCommandPin({ universe, evidence: { command: 'npm test' } });
+  assert.equal(plain.status === 'resolved' && plain.commandId, idOfLabel(universe, 'test (argv)'));
+
+  // A metacharacter flips the legacy parse to the whole-string shell form, per
+  // the verifier rule this resolver reuses.
+  const shellUniverse = pinUniverse([
+    argvForm,
+    command({ label: 'test (chained)', command: 'npm test && echo done', args: [], shell: true }),
+  ]);
+  const chained = resolveValidationCommandPin({ universe: shellUniverse, evidence: { command: 'npm test && echo done' } });
+  assert.equal(chained.status === 'resolved' && chained.commandId, idOfLabel(shellUniverse, 'test (chained)'));
+});
+
+testCase('commands differing only by their environment overlay are distinct', () => {
+  const plain = command({ label: 'test', command: 'npm', args: ['test'] });
+  const overlaid = command({ label: 'test (CI)', command: 'npm', args: ['test'], env: { CI: '1' } });
+  const universe = pinUniverse([plain, overlaid]);
+  assert.notEqual(
+    universe.entries[0].normalizedTupleDigest,
+    universe.entries[1].normalizedTupleDigest,
+    'the effective environment digest must be inside the normalized tuple',
+  );
+  const result = resolveValidationCommandPin({ universe, evidence: { command: 'npm test' } });
+  assert.equal(result.status, 'resolved');
+  assert.equal(result.status === 'resolved' && result.commandId, idOfLabel(universe, 'test'));
+});
+
+// ---------------------------------------------------------------------------
+// (14) The legacy parse is the VERIFIER's parse, not a second one.
+// ---------------------------------------------------------------------------
+testCase('the legacy string parse is byte-for-byte the rule configuredValidationCommands uses', () => {
+  const cases = ['npm test', "node -e 'hello world'", 'npm test && echo done', 'npm run lint | tee log'];
+  for (const raw of cases) {
+    // A raw STRING entry is what exercises verifier's commandFromString.
+    const [configured] = configuredValidationCommands(projectRootWithCommands([raw]));
+    const parsed = parseLegacyValidationCommandString(raw);
+    assert.ok(parsed, `${raw} must parse`);
+    assert.equal(parsed!.command, configured.command, raw);
+    assert.deepEqual(parsed!.args, configured.args, raw);
+    assert.equal(parsed!.shell, configured.shell === true, raw);
+  }
+  assert.deepEqual(
+    parseLegacyValidationCommandString('npm test && echo done'),
+    { command: 'npm test && echo done', args: [], shell: true },
+    'a metacharacter makes the WHOLE string the command with no args',
+  );
+  assert.equal(parseLegacyValidationCommandString('   '), null);
+});
+
+// ---------------------------------------------------------------------------
+// (15) The resolver never rewrites historical evidence in place.
+// ---------------------------------------------------------------------------
+testCase('resolving a legacy pin never mutates the evidence it was handed', () => {
+  const commands = [command({ label: 'test', command: 'npm', args: ['test'], id: 'test-suite' })];
+  const evidence = Object.freeze({ intentRef: 'CHK-001:happy:0', command: 'npm test' });
+  const snapshot = JSON.stringify(evidence);
+  const result = resolvePin(commands, evidence);
+  assert.equal(result.status === 'resolved' && result.commandId, 'test-suite');
+  assert.equal(JSON.stringify(evidence), snapshot, 'historical evidence must not be migrated in place');
+  assert.equal((evidence as { commandId?: string }).commandId, undefined);
+});
+
+// ---------------------------------------------------------------------------
+// (16) Handler encoding convention: the schema constraint is the first line of
+//      defence only, so the resolver re-validates a bypassing caller's input.
+// ---------------------------------------------------------------------------
+testCase('a malformed commandId is rejected at the resolver entry, not silently treated as absent', () => {
+  const commands = [command({ label: 'test', command: 'npm', args: ['test'], id: 'test-suite' })];
+  for (const commandId of ['', '   ']) {
+    assert.throws(() => resolvePin(commands, { commandId, command: 'npm test' }), /commandId/);
+  }
+  assert.throws(
+    () => resolvePin(commands, { commandId: 7 as unknown as string, command: 'npm test' }),
+    /commandId/,
+    'a schema-bypassing non-string must still be rejected',
+  );
+  assert.throws(
+    () => resolvePin(commands, { command: 7 as unknown as string }),
+    /command/,
+    'a schema-bypassing non-string legacy command must still be rejected',
+  );
 });
 
 for (const root of temporaryRoots) {
