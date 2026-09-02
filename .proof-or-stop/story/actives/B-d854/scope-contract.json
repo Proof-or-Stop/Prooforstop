@@ -4,22 +4,26 @@
   "allowedModify": [
     "AGENTS.md"
   ],
-  "allowedCreate": [],
-  "allowedTest": [],
+  "allowedCreate": [
+    "docs/audits/AGENTS-current-version-audit.md",
+    "tests/AGENTS.verify.mjs"
+  ],
+  "allowedTest": [
+    "tests/AGENTS.verify.mjs"
+  ],
   "protectedFiles": [
     "proof-or-stop.config.json",
     "package.json",
     "packages/main/package.json"
   ],
   "explicitExcludes": [
-    "docs/**",
     "packages/**",
     "scripts/**",
     "bin/**",
     ".proof-or-stop-codex/**",
     ".claude/**"
   ],
-  "scopeChangeReason": "Add CHK-003:edge:1 to the existing AGENTS.md-only scope after independent verification-intent coverage was expanded to report local/global CLI drift separately.",
+  "scopeChangeReason": "REVIEW verified high findings F-001/F-003/F-007 require a durable 26-row audit ledger, and F-005/F-006/F-008/F-009/F-010/F-011 require a rerunnable document verifier; these two bounded artifacts directly satisfy the user-requested RED/GREEN proof without widening product code.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -44,7 +48,7 @@
     }
   ],
   "createdAt": "2026-09-01T23:05:12.822Z",
-  "updatedAt": "2026-09-02T00:20:10.844Z",
+  "updatedAt": "2026-09-02T00:31:54.295Z",
   "fileRules": [
     {
       "path": "AGENTS.md",
@@ -63,8 +67,37 @@
         "CHK-003:edge:1",
         "CHK-003:adversarial:0"
       ]
+    },
+    {
+      "path": "docs/audits/AGENTS-current-version-audit.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:edge:0",
+        "CHK-003:happy:0"
+      ]
+    },
+    {
+      "path": "tests/AGENTS.verify.mjs",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
+      ]
     }
   ],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -77,7 +110,11 @@
     "scripts/**": "scripts/**",
     "bin/**": "bin/**",
     ".proof-or-stop-codex/**": ".proof-or-stop-codex/**",
-    ".claude/**": ".claude/**"
+    ".claude/**": ".claude/**",
+    "packages/main/src/AGENTS-AUDIT.md": "AGENTS-AUDIT.md",
+    "packages/main/src/AGENTS.verify.mjs": "AGENTS.verify.mjs",
+    "docs/audits/AGENTS-current-version-audit.md": "docs/audits/AGENTS-current-version-audit.md",
+    "tests/AGENTS.verify.mjs": "tests/AGENTS.verify.mjs"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",

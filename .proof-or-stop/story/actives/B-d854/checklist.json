@@ -16,7 +16,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Build a claim-by-claim audit ledger for every root AGENTS.md statement that asserts current Proof-or-Stop behavior; each row names the exact AGENTS.md section, verdict, authoritative implementation, command registry, canonical role prompt or adopted decision source with a line reference, plus a reproducible repository-local CLI command and captured result wherever the claim is CLI-observable. The ledger contains no unsupported current-behavior conclusion. WHY: consistency must be demonstrated from live authority rather than asserted from memory.",
+            "desc": "Build a claim-by-claim audit ledger for every root AGENTS.md statement that asserts current Proof-or-Stop behavior; each row names the exact AGENTS.md section, verdict, authoritative implementation, command registry, canonical role prompt or adopted decision source with a line reference, plus a reproducible repository-local CLI command and captured result wherever the claim is CLI-observable. The ledger contains no unsupported current-behavior conclusion. Persist the ledger and its evidence expectations in docs/audits/AGENTS-current-version-audit.md so a reviewer can inspect the RED and GREEN proof independently. WHY: consistency must be demonstrated from live authority rather than asserted from memory.",
             "type": "docs",
             "priority": "must"
           }
@@ -27,19 +27,19 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const current=[\\\"reviewer_batch\\\",\\\"dispatch\\\",\\\"agent_prompt\\\",\\\"review_run_start\\\",\\\"review_pass_set\\\",\\\"finding_add\\\",\\\"verification_evidence_add\\\"];const retired=[\\\"testintent_record\\\",\\\"testintent_resume\\\"];if(!current.every(x=>s.includes(x))||retired.some(x=>s.includes(x))||!s.includes(\\\"compatibility-only\\\")||!s.includes(\\\"retired\\\"))process.exit(1);console.log(\\\"COMMAND_CLASSIFICATION_PASS\\\")\"",
-              "selector": "COMMAND_CLASSIFICATION_PASS"
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "CASE 42 PASS"
             }
           }
         ],
         "adversarial": [
           {
-            "desc": "Mechanically enumerate every active `proof-or-stop` command example in AGENTS.md and verify it against the repository-local CLI version reported by `node bin/proof-or-stop.js --version`: every referenced command resolves and its `--help` succeeds, read-only examples execute with concrete repository-valid arguments, and mutating examples are exercised only in an isolated disposable repository or validated through the same registered command schema without changing this story. Include a deliberately nonexistent sentinel command and prove that the checker rejects it. WHY: active examples must be operational and the audit must discriminate unsupported commands instead of returning a false green.",
+            "desc": "Mechanically enumerate every active `proof-or-stop` command example in AGENTS.md and verify it against the repository-local CLI version reported by `node bin/proof-or-stop.js --version`: every referenced command resolves and its `--help` succeeds, read-only examples execute with concrete repository-valid arguments, and mutating examples are exercised only in an isolated disposable repository or validated through the same registered command schema without changing this story. Include a deliberately malformed argument and prove that the checker rejects it. WHY: active examples must be operational and the audit must discriminate unsupported or malformed invocations instead of returning a false green.",
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node -e \"const fs=require(\\\"fs\\\"),cp=require(\\\"child_process\\\");const s=fs.readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\"),n=new Set();for(const m of s.matchAll(/proof-or-stop\\\\s+([a-z][a-z0-9_-]*)(?:\\\\s+([a-z][a-z0-9_-]*))?/g)){const a=m[1],b=m[2];n.add(a===\\\"codex\\\"&&(b===\\\"verify\\\"||b===\\\"doctor\\\")?a+\\\" \\\"+b:a)}for(const x of n){if(x===\\\"help\\\")continue;const p=cp.spawnSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",...x.split(\\\" \\\"),\\\"--help\\\"],{encoding:\\\"utf8\\\"});if(p.status!==0)process.exit(1)}const q=cp.spawnSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",\\\"definitely_not_a_real_command\\\",\\\"--help\\\"],{encoding:\\\"utf8\\\"});if(q.status===0)process.exit(1);console.log(\\\"ACTIVE_COMMAND_HELP_PASS checked=\\\"+n.size+\\\" sentinelExit=\\\"+q.status)\"",
-              "selector": "ACTIVE_COMMAND_HELP_PASS"
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "MUTATION malformed-argument REJECTED"
             }
           }
         ]
@@ -49,8 +49,13 @@
         "modify": [
           "AGENTS.md"
         ],
-        "create": [],
-        "test": []
+        "create": [
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "test": [
+          "tests/AGENTS.verify.mjs"
+        ]
       },
       "verificationEvidence": [
         {
