@@ -1,0 +1,66 @@
+{
+  "storyId": "B-e256",
+  "checkedAt": "2026-09-02T15:23:00.804Z",
+  "features": [
+    {
+      "feature": "Restore executable bit on package.json bin targets during dist promotion, covering both the main and utils build pipelines",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Commit red-global-cli-exec-bit.mjs as a registered red test under packages/main/tests/red",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "doctor/verify check that the global proof-or-stop executable realpath resolves to the canonical main checkout",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "doctor/verify check that the global proof-or-stop executable bin target has the executable mode bit set",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "doctor prints the exact repoint/reinstall remediation command when realpath or mode drift is detected",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e2f1c077982148cbac8fadff4e838769e4903d2407e70129798edf720f99db2e",
+  "openQuestions": []
+}
