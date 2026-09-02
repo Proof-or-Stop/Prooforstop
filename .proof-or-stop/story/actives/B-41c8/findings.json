@@ -73,6 +73,26 @@
       ],
       "signatureTag": "happy|ts|validation-plan-terminal-phase-guard-usersees",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-41c8:F-005",
+      "desc": "CHK-004 audit classifies proof-or-stop-handoff.ts (its only resolveGitCwd call site, handlers/proof-or-stop-handoff.ts:579 inside buildPrefetchBundle) as workspace-rooted (no story/checklist/config read at all), per single-owner-extraction-smoke.ts:1558 and the rule comment at 1253-1255. Traced the actual data flow: buildPrefetchBundle computes packGitCwd via resolveGitCwd at line 579 and uses it ONLY for buildSupersessionReport (line 585). But the SAME function, lines 556-561, builds activeStorySummary/doneStorySummary/etc by calling storyHandlers.story_get({storyId: pack.storyId, detail:true}) and summaryHandlers.summary_get(...) -- handler instances constructed from the SAME ctx as proof-or-stop-handoff.ts's own handler (createStoryQueryHandlers(ctx) at line 550), not from the resolved workspace. story_get itself (handlers/story-query.ts:456-466) calls store.readChecklist / store.readReview / store.readStory directly (ctx.root, not gitCwd; it does NOT call the CHK-003 readStoryProjection/resolveStoryWorkspace helper that story_list uses). So proof-or-stop-handoff.ts genuinely reads story/checklist data anchored to ctx.root, composited alongside a separately-resolved packGitCwd used only for one field of the same report -- exactly the split-brain risk (different parts of one output keyed to different roots) this audit exists to catalog, and the smoke's own documented safety bias (single-owner-extraction-smoke.ts:1232-1234: a false FLAG is the safe direction, a false PASS would hide a caller) is violated here: the file-level literal-call-expression scan cannot see reads that happen inside a DIFFERENT file reached through a composed handler call, so it produces exactly the false PASS the design says to avoid. The workspace-rooted (no read at all) label creates false confidence that proof-or-stop-handoff.ts needs no attention from the follow-up migration draft (migrate-resolvegitcwd-callers-to-workspace) this audit scopes, when its activeStorySummary/doneStorySummary can diverge from its own supersession/packGitCwd view for a wrapper-root layout or any invocation where ctx.root differs from the story's resolved workspace. Recommend either (a) documenting this as a known scope limit of the mechanical scanner (file-level, no call-graph tracing into composed handler modules) alongside the printed report, or (b) extending the scan to follow at least one hop into locally-constructed handler-module calls (storyHandlers.story_get etc.) so aggregator handlers like proof-or-stop-handoff.ts are not silently excluded from the follow-up migration scope.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T15:04:04.237Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-005",
+      "_hash": "590435532175450219d6ac57a36c49ffeb25e485ca85aa4fc5d0fcb122bf6690",
+      "files": [
+        "packages/main/src/handlers/proof-or-stop-handoff.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|resolvegitcwd-audit-composed-handler-reads",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
