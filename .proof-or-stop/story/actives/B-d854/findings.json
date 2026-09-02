@@ -509,7 +509,7 @@
       "desc": "tests/AGENTS.verify.mjs / CHK-002:happy:0 and CHK-003:edge:0/1 — verified high acceptance blocker: `verification_evidence_add` runs the final verifier to exit 0 but refuses the pinned Unicode/runtime selectors as `receipt_selector_absent` because those proof markers occur after the evidence runner's bounded captured-output window. Repro: re-add CHK-002:happy:0 with selector `UNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0`; observed exit 1 after the verifier runs. Move the required proof markers into the captured prefix or otherwise bound verifier output without weakening full exit validation, then re-earn all three mechanical receipts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-02T01:58:09.372Z",
@@ -519,7 +519,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "adversarial|mjs|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e98cbd3b moves unchanged runtime and Unicode checks before verbose ledger output. Owner bulk refresh now records CHK-002:happy:0 and CHK-003:edge:0/1 as mechanical:true with exit 0 and selectorMatched receipts, while full verifier reaches CASE 46 and FINAL GREEN.",
+      "resolvedAt": "2026-09-02T02:06:08.301Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
