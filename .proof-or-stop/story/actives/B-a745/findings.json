@@ -207,6 +207,23 @@
       "resolvedAt": "2026-09-02T03:55:56.370Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-010",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host from cross_host_review run B-a745-xhr-r1, verdict verdict-96c790e338428427, stdoutDigest 46f20904efc159f90226e9dcebba96bcf46a0dd018d966136d69c3c73a68e95b; the handler persists no finding text, so the content was recovered verbatim from the Codex session transcript rollout-2026-09-02T08-21-50-01a060fe-de59-77b2-bc93-85a1895054c1.jsonl.] Codex (MAJOR): 'Planner reads Git state from the invocation root instead of the story worktree. The handler passes ctx.root as gitCwd and metadataRoot. Because validation_plan is read-only, allowed in all phases, and has no worktree-CWD gate, it can be invoked from the main checkout or a wrapper-root layout while targeting a story in another worktree. In those supported cases it hashes and diffs the wrong checkout, silently omitting the story actual changes or reporting changed_files_unavailable, so its StoryRelevanceInput and selectionDigest do not describe the requested story.' Codex fix: 'Resolve the story Git directory with resolveGitCwd using the store, storyId, metadataRoot, projectRoot, and loaded config, then pass that resolved directory as gitCwd while retaining the appropriate metadata root. Add main-checkout-to-active-worktree and configured wrapper-root regression tests.' OWNER REPRODUCTION (verified, not inferred): validation-plan.ts:591-593 literally passes projectRoot: root, gitCwd: root, metadataRoot: root. Running the SAME dist against the SAME storyId from the worktree yields status=plan with 19 unclassifiedInputs, escalations [pinned_command_non_inventory, impact_index_unusable, command_exclusion_unproven, unclassified_material_input], selectionDigest 181a5fe176a2...; from the main checkout root it yields status=plan with 0 unclassifiedInputs, escalations [impact_index_unusable, command_exclusion_unproven], selectionDigest 9c95447120b9.... The planner emits a confident plan about the wrong tree while naming B-a745. resolveGitCwd exists in core/story-signed-workspace-resolution.ts and is already used by 8 sibling handlers (verifier, done-prepare, validate-channel, red-evidence, proofstory, recover-evidence, prewrite-guard, transition-effects); validation-plan.ts is the odd one out. Severity high: a wrong-checkout relevance input is exactly the blind spot that, in later rollout stories, would become an omitted command, and today it already makes the explain output false. Fix in scope.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T07:37:21.274Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "_hash": "2e44c74d22e78245e0daa70cd0ed6717a4c87a733a5718c1d48c1730ed659472",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto"
     }
   ]
 }
