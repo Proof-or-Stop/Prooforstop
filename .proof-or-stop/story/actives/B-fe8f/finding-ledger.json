@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "274824719690770bfb7b4f492bc01a3181b2743f16b9e57a323b0bc5b3ff7338",
+  "committedLedgerDigest": "1bf46bb9ce032c3740a6a2e388f9eb91a4609b7eaa029a5ab172ebd3be2ac0f8",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -998,6 +998,46 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-02T08:44:47.201Z"
+    },
+    {
+      "recordId": "lr_mtk7qp2t_tai_7504428d3f85469f91ca0a00c4cd1c2b",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:7c966ca0-3e16-4750-87e5-f583c7fcec18",
+      "payload": {
+        "id": "B-fe8f:F-020",
+        "desc": "quality-cleanup: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5266 (commit dd45caa2ea) adds an unconditional process.stderr.write dumping raw dynamicBindingBuildFiles Map entries (filtered for finding|runtime-evidence|artifact-store) plus repoUnique/repoDuplicates arrays, immediately before assertTypeProgramInstrumentation(). It is not gated behind a verbose/debug flag and is not part of the pinned success-selector contract on line 5276 (a separate stdout write) -- this reads as leftover ad-hoc calibration output the author used while deriving the new DYNAMIC_BINDING_BUILD_CEILING=811 value, still present after the ceiling bump landed. Every future run of this smoke, including full validate, will permanently emit this diagnostic noise to stderr. Note: an earlier finding_add attempt for this exact issue (2026-09-02T14:49:12.770Z) was auto-normalized into review-pass B-fe8f:RP-011 solely because that draft happened to contain the literal token PASS (a framework flow-fact-policy artifact, unrelated to this story); this call rephrases to file it correctly as an open finding.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-02T14:50:24.244Z",
+        "reviewRound": "2026-09-02T14:44:47.278Z",
+        "reviewRunId": "B-fe8f:RR-025",
+        "readManifest": {
+          "filesReadFully": [
+            "packages/main/src/core/finding-ledger.ts",
+            "packages/main/src/core/proof-or-stop-paths.ts",
+            "packages/main/src/handlers/transition-orchestrator.ts",
+            "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "proof-or-stop.config.json"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "_hash": "174000ed58f8e1e17ba74902aadb09cedec2a5ad81205ed80bc913dc11e2851c",
+        "files": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "signatureTag": "missing|ts|quality-cleanup-packages",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "4072c9d42d1ab818ac757b32d440cac1700d2812ae49db1b04177442768fbcd2",
+      "priorDigest": "274824719690770bfb7b4f492bc01a3181b2743f16b9e57a323b0bc5b3ff7338",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-02T14:50:24.245Z"
     }
   ],
   "receipts": [
@@ -2758,6 +2798,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "f803a85ed727e2e5a7f3da01953f83916c0d92f3e7a46c4c275b5957f0c316ee",
         "signature": "kzFikQTjU5iHVU+nMDqskz90GndhgjGg1gNtFz7vj4O84Haa32SjSENv0SlHBkpkYgIx0AY58+gUToYI9s8HAw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtk7qp2t_tai_989452ed14104784b7937776b5ef062d",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:7c966ca0-3e16-4750-87e5-f583c7fcec18",
+      "requestDigest": "66938b2280738a71623632d71bc7deb016fdbfbbd1a053551ecf1b55eae00ae1",
+      "recordIds": [
+        "lr_mtk7qp2t_tai_7504428d3f85469f91ca0a00c4cd1c2b"
+      ],
+      "priorLedgerDigest": "274824719690770bfb7b4f492bc01a3181b2743f16b9e57a323b0bc5b3ff7338",
+      "committedLedgerDigest": "1bf46bb9ce032c3740a6a2e388f9eb91a4609b7eaa029a5ab172ebd3be2ac0f8",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "writerFenceToken": "b41b3cc4-5d46-40df-b26a-a0ee76571198",
+      "committedAt": "2026-09-02T14:50:24.245Z",
+      "replayed": false,
+      "exactRequestDigest": "37a331c4db55500c228c141f4493e4b7f61d051fb29735cfb668039a8fd84d97",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtk7qp2t_tai_989452ed14104784b7937776b5ef062d",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:7c966ca0-3e16-4750-87e5-f583c7fcec18",
+        "exactRequestDigest": "37a331c4db55500c228c141f4493e4b7f61d051fb29735cfb668039a8fd84d97",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtk7qp2t_tai_7504428d3f85469f91ca0a00c4cd1c2b"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "274824719690770bfb7b4f492bc01a3181b2743f16b9e57a323b0bc5b3ff7338",
+        "committedLedgerDigest": "1bf46bb9ce032c3740a6a2e388f9eb91a4609b7eaa029a5ab172ebd3be2ac0f8",
+        "replayed": false,
+        "committedAt": "2026-09-02T14:50:24.245Z",
+        "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+        "writerLeaseId": "sess-bfe8f-claude-3baed1a7",
+        "writerFenceToken": "b41b3cc4-5d46-40df-b26a-a0ee76571198",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "6478517b818f800854bc7845aeb081b536a29f901c4d41307ca36ddc6269bb41",
+        "signature": "K9wWiQWbXOXumsBqTJnhkpEV3gzEBs/WteQvMRxpcxfIlwFCMehE3oXxwz8RSWqK01Csn8tYek/tQkbgoFXMAQ=="
       }
     }
   ]
