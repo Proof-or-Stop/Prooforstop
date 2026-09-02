@@ -39,7 +39,7 @@
  * CLI (CHK-005), and every result says so through `finalAuthority: false`.
  */
 
-import type { StoryRelevanceInput } from './validation-relevance-input.js';
+import { missingEvidenceHashDigests, type StoryRelevanceInput } from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
 
 export const VALIDATION_TIER_PLAN_SCHEMA = 'proofOrStop.validation-tier-plan.v1' as const;
@@ -167,6 +167,21 @@ export const VALIDATION_WIDENING_REASONS = {
     gloss:
       'The list of files this Story changed could not be read, so nothing is known about what it touched ' +
       'and everything has to run.',
+  },
+  hash_snapshot_unavailable: {
+    condition: 'Evidence hash snapshot (head, material or story-files digest) cannot be captured or is incomplete',
+    outcome: 'repository-full',
+    /**
+     * B-a745 F-022. The collector escalates this for a thrown reader AND for a
+     * returned snapshot that lacks any of the three digests (non-git directory,
+     * unborn repository, failed hash read). Before this row existed the
+     * escalation had no matrix entry, so the planner dropped it and a plan
+     * rendered as if it were bound.
+     */
+    gloss:
+      'The commit, material-tree and story-files digests that would tie this plan to the exact code it was made ' +
+      'for could not all be captured, so the plan carries no freshness binding and nothing can be narrowed on ' +
+      'its account.',
   },
   unclassified_material_input: {
     condition: 'Material path is unclassified',
@@ -462,6 +477,22 @@ function assertPlannerInput(input: StoryRelevanceInput): void {
   if (!Array.isArray(input.executionInventory.commandIds)) {
     throw new Error('resolveValidationTierPlan: input.executionInventory.commandIds must be an array');
   }
+  // B-a745 F-022: a snapshot labelled available must carry every binding. The
+  // collector classifies a partial one, but a schema-bypassing input (an
+  // internal caller, a fixture, an older serialized input) is re-checked here
+  // so no code path plans over a null head / material / story-files binding.
+  if (!input.hashes || typeof input.hashes !== 'object' || typeof input.hashes.status !== 'string') {
+    throw new Error('resolveValidationTierPlan: input.hashes must classify the evidence hash snapshot');
+  }
+  if (input.hashes.status === 'available') {
+    const missing = missingEvidenceHashDigests(input.hashes.head);
+    if (missing.length > 0) {
+      throw new Error(
+        `resolveValidationTierPlan: input.hashes is labelled available but carries no ${missing.join(', ')}; ` +
+        'a snapshot missing a digest binds nothing and must be classified hash_snapshot_unavailable, never planned over',
+      );
+    }
+  }
 }
 
 /**
@@ -629,6 +660,20 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
         `the changed-file set between ${input.changedFiles.baseRef} and ${input.changedFiles.headRef} could ` +
         `not be read (${input.changedFiles.reason}: ${input.changedFiles.summary}); this is not an empty diff, ` +
         'it is an absence of knowledge',
+      ),
+    );
+  }
+
+  if (input.hashes.status === 'hash_snapshot_unavailable') {
+    // B-a745 F-022: disclose the missing binding in the plan itself. The
+    // collector's BOUNDED summary names the missing digest(s); the raw error
+    // stays on the structured input for diagnosis only.
+    escalationReasons.push(
+      validationWideningReason(
+        'hash_snapshot_unavailable',
+        `the evidence hash snapshot could not be established (${input.hashes.summary}), so this plan is bound to ` +
+        'no head, material or story-files digest and cannot be re-checked for freshness; nothing may be narrowed ' +
+        'on its account',
       ),
     );
   }

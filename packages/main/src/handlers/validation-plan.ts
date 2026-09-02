@@ -41,6 +41,7 @@
 
 import type { HandlerContext } from './context.js';
 import {
+  EVIDENCE_HASH_DIGEST_NAMES,
   collectStoryRelevanceInput,
   type StoryRelevanceDurationEstimate,
   type StoryRelevanceInput,
@@ -240,6 +241,14 @@ export interface ValidationPlanReport {
   commandSetDigest: string;
   selectionDigest: string;
   /**
+   * B-a745 F-022. The freshness binding the plan was made under. `bound` carries
+   * all three digests; `unbound` means the collector could not establish them,
+   * and a `status: plan` report must then carry `hash_snapshot_unavailable` in
+   * `escalationReasons`. There is no third shape: a null digest never renders
+   * under the word "bound" (enforced by {@link assertValidationPlanStatusInvariant}).
+   */
+  freshnessBinding: ValidationPlanFreshnessBinding;
+  /**
    * Inventory warnings exactly as the CHK-001 identity builder emitted them —
    * notably the migration warning naming how many commands still rely on a
    * provisional id. Surfaced rather than swallowed: a warning nobody prints is
@@ -248,6 +257,34 @@ export interface ValidationPlanReport {
   inventoryWarnings: string[];
   /** No selection artifact is written by this read-only command. Ever. */
   artifact: { written: false; path: null; digest: null; note: string };
+}
+
+export type ValidationPlanFreshnessBinding =
+  | { status: 'bound'; headHash: string; materialHash: string; storyFilesHash: string }
+  | { status: 'unbound'; summary: string };
+
+function freshnessBindingFor(input: StoryRelevanceInput): ValidationPlanFreshnessBinding {
+  if (input.hashes.status !== 'available') {
+    return { status: 'unbound', summary: input.hashes.summary };
+  }
+  // The collector never labels a partial snapshot available and the planner
+  // re-validates that; this is the render-side copy of the same rule so the
+  // report cannot carry a null under "bound" even if both were bypassed.
+  const missing = EVIDENCE_HASH_DIGEST_NAMES.filter((name) => typeof input.hashes.status === 'string'
+    && input.hashes.status === 'available'
+    && (typeof input.hashes.head[name] !== 'string' || input.hashes.head[name]!.trim() === ''));
+  if (missing.length > 0) {
+    throw new Error(
+      `validation_plan: the relevance input labels its hash snapshot available but carries no ${missing.join(', ')}; ` +
+      'a plan may not render a binding it does not have',
+    );
+  }
+  return {
+    status: 'bound',
+    headHash: input.hashes.head.headHash!,
+    materialHash: input.hashes.head.materialHash!,
+    storyFilesHash: input.hashes.head.storyFilesHash!,
+  };
 }
 
 const WIDENING_OUTCOMES_THAT_INCLUDE = new Set(['repository-full', 'atomic-repository-full']);
@@ -369,6 +406,7 @@ export function buildValidationPlanReport(args: {
     },
     commandSetDigest: input.executionInventory.commandSetDigest,
     selectionDigest: input.selectionDigest,
+    freshnessBinding: freshnessBindingFor(input),
     inventoryWarnings: [...input.executionInventory.warnings],
     artifact: {
       written: false,
@@ -464,6 +502,35 @@ export function assertValidationPlanStatusInvariant(report: ValidationPlanReport
   if (report.status !== 'plan' && (report.counts.selected !== 0 || report.units.length !== 0)) {
     throw new Error(`validation_plan: a ${report.status} result selects nothing at all and lists no unit`);
   }
+  // B-a745 F-022: the binding is part of what "status: plan" asserts. A plan
+  // either binds freshness (all three digests present) or SAYS it could not
+  // (unbound, with hash_snapshot_unavailable disclosed). A null under "bound"
+  // and an undisclosed unbound plan are both refused before any render.
+  const binding = report.freshnessBinding as ValidationPlanFreshnessBinding | undefined;
+  if (!binding || typeof binding !== 'object' || typeof binding.status !== 'string') {
+    throw new Error(
+      'validation_plan: the report carries no freshnessBinding; a plan must either bind freshness or say it could not',
+    );
+  }
+  if (binding.status === 'bound') {
+    const record = binding as unknown as Record<string, unknown>;
+    const missing = EVIDENCE_HASH_DIGEST_NAMES.filter((name) => typeof record[name] !== 'string' || (record[name] as string).trim() === '');
+    if (missing.length > 0) {
+      throw new Error(
+        `validation_plan: freshnessBinding claims "bound" but ${missing.join(', ')} is null; a report may not render ` +
+        'a binding it does not have',
+      );
+    }
+  } else if (binding.status === 'unbound') {
+    if (report.status === 'plan' && !report.escalationReasons.some((reason) => reason.code === 'hash_snapshot_unavailable')) {
+      throw new Error(
+        'validation_plan: a "status: plan" report whose freshness binding is unbound must disclose ' +
+        'hash_snapshot_unavailable among its escalation reasons',
+      );
+    }
+  } else {
+    throw new Error(`validation_plan: unknown freshnessBinding status ${JSON.stringify((binding as { status: unknown }).status)}`);
+  }
   return statusLine;
 }
 
@@ -495,6 +562,14 @@ export function renderValidationPlanText(report: ValidationPlanReport, explain: 
     }
   }
   lines.push(`reductionApplied: ${report.reductionApplied}`);
+  // B-a745 F-022: the binding is disclosed on every branch. Not outcome-bearing
+  // (a plan and a stop over the same tree share it), so not a discriminator.
+  lines.push(
+    report.freshnessBinding.status === 'bound'
+      ? `freshnessBinding: bound (head ${report.freshnessBinding.headHash}, material ` +
+        `${report.freshnessBinding.materialHash}, storyFiles ${report.freshnessBinding.storyFilesHash})`
+      : `freshnessBinding: unbound (${report.freshnessBinding.summary})`,
+  );
   // Printed on EVERY branch on purpose, and therefore NOT a discriminator: see
   // VALIDATION_PLAN_STATUS_LINES. Pinning this line proves only that the command
   // ran, never that it produced a plan.

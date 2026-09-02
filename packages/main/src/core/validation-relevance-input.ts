@@ -159,14 +159,49 @@ export type ChangedFilesUnavailableReason =
   | 'reader-contract-violation'
   | 'unknown';
 
+/** The three bindings a snapshot must carry before a plan may call it available. */
+export const EVIDENCE_HASH_DIGEST_NAMES = ['headHash', 'materialHash', 'storyFilesHash'] as const;
+export type EvidenceHashDigestName = (typeof EVIDENCE_HASH_DIGEST_NAMES)[number];
+
+/**
+ * B-a745 F-022. Which of the three digests a snapshot does NOT carry. The
+ * canonical reader never throws for a git or hash failure: it OMITS the digest
+ * and returns the rest, so "the reader returned" is not "the snapshot is
+ * available". A non-git directory, an unborn repository (git init, zero commits)
+ * and a failed hash read all come back through this path. One rule, shared with
+ * the planner's entry re-validation and the CLI report invariant, so no consumer
+ * can call an incomplete snapshot bound.
+ */
+export function missingEvidenceHashDigests(snapshot: unknown): EvidenceHashDigestName[] {
+  const record = snapshot && typeof snapshot === 'object' ? (snapshot as Record<string, unknown>) : {};
+  return EVIDENCE_HASH_DIGEST_NAMES.filter((name) => {
+    const value = record[name];
+    return typeof value !== 'string' || value.trim() === '';
+  });
+}
+
 export type StoryRelevanceHashes =
-  | { status: 'available'; head: EvidenceHashSnapshot }
+  | {
+      status: 'available';
+      /** Carries ALL of {@link EVIDENCE_HASH_DIGEST_NAMES}; the collector never labels a partial snapshot available. */
+      head: EvidenceHashSnapshot;
+    }
   | {
       status: 'hash_snapshot_unavailable';
       /** One bounded, human-readable sentence. Never multi-line, never a stderr dump. */
       summary: string;
-      /** The underlying error, verbatim, for diagnosis only. Never rendered into prose. */
+      /**
+       * The underlying error, verbatim, for diagnosis only. Never rendered into
+       * prose. For an incomplete (non-throwing) snapshot this is a tool-owned
+       * sentence naming the missing digests, since there is no thrown error.
+       */
       error: string;
+      /**
+       * B-a745 F-022. The digests the returned snapshot lacked. Empty when the
+       * reader threw instead of returning, so the two failure shapes stay
+       * distinguishable on the structured result.
+       */
+      missingDigests: EvidenceHashDigestName[];
     };
 
 /**
@@ -714,10 +749,33 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
 
   let hashes: StoryRelevanceHashes;
   try {
-    hashes = {
-      status: 'available',
-      head: readers.hashSnapshot({ gitCwd, metadataRoot: args.metadataRoot ?? projectRoot, ref: headRef }),
-    };
+    const head = readers.hashSnapshot({ gitCwd, metadataRoot: args.metadataRoot ?? projectRoot, ref: headRef });
+    // B-a745 F-022: a RETURNED snapshot is not an AVAILABLE one. The canonical
+    // reader swallows git and hash failures and omits the digest instead of
+    // throwing, so the three bindings are checked here and a partial snapshot
+    // is classified exactly like a thrown one: bounded summary in the prose,
+    // the missing names on the structured result, and an escalation.
+    const missingDigests = missingEvidenceHashDigests(head);
+    if (missingDigests.length === 0) {
+      hashes = { status: 'available', head };
+    } else {
+      const summary = boundedFailureSummary(
+        `the snapshot at ${headRef} carries no ${missingDigests.join(', ')} digest`,
+        'the snapshot is missing a digest',
+      );
+      hashes = {
+        status: 'hash_snapshot_unavailable',
+        summary,
+        error: `incomplete evidence hash snapshot: missing ${missingDigests.join(', ')} (the reader returned without throwing)`,
+        missingDigests,
+      };
+      escalations.push({
+        code: 'hash_snapshot_unavailable',
+        detail:
+          `the evidence hash snapshot captured at ${headRef} is incomplete (${summary}), ` +
+          'so no freshness binding can be proven for this plan',
+      });
+    }
   } catch (error) {
     // B-a745 F-016: the same git-failure classifier as the changed-file reader,
     // because the snapshot fails for the same reasons; the raw error stays on
@@ -725,7 +783,7 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
     const raw = errorMessage(error);
     const code = error instanceof Error ? (error as NodeJS.ErrnoException).code : undefined;
     const { summary } = classifyChangedFilesFailure(raw, code);
-    hashes = { status: 'hash_snapshot_unavailable', summary, error: raw };
+    hashes = { status: 'hash_snapshot_unavailable', summary, error: raw, missingDigests: [] };
     escalations.push({
       code: 'hash_snapshot_unavailable',
       detail:

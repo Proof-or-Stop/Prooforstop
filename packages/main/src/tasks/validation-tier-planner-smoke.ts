@@ -3213,10 +3213,10 @@ testCase('F-022: the planner escalates an incomplete snapshot with a glossed has
     reasonCodes(result).includes('hash_snapshot_unavailable'),
     `the plan must disclose the missing binding as an escalation, got ${reasonCodes(result).join(', ')}`,
   );
-  const reason = result.escalationReasons.find((entry) => (entry.code as string) === 'hash_snapshot_unavailable')!;
+  const reason = result.escalationReasons.find((entry) => entry.code === 'hash_snapshot_unavailable')!;
   assert.equal(reason.detail.includes('\n'), false, 'the planner detail must be one line');
   assert.match(reason.detail, /headHash/);
-  assert.equal(reason.gloss, validationWideningReasonGloss('hash_snapshot_unavailable' as ValidationWideningReasonCode));
+  assert.equal(reason.gloss, validationWideningReasonGloss('hash_snapshot_unavailable'));
 });
 
 testCase('F-022: the planner refuses a schema-bypassing "available" snapshot that carries a null binding', () => {
@@ -3241,7 +3241,7 @@ testCase('F-022: the CLI report carries the freshness binding and discloses an u
   const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
   assert.match(text, /^freshnessBinding: unbound/m);
   assert.ok(text.includes('[hash_snapshot_unavailable]'), 'the escalation code must be printed');
-  assert.ok(text.includes(validationWideningReasonGloss('hash_snapshot_unavailable' as ValidationWideningReasonCode).slice(0, 60)), 'printed with its gloss');
+  assert.ok(text.includes(validationWideningReasonGloss('hash_snapshot_unavailable').slice(0, 60)), 'printed with its gloss');
   assert.match(text, /headHash, materialHash, storyFilesHash/, 'the detail must name every missing digest');
 });
 
