@@ -13376,6 +13376,40 @@
       },
       "readDiagnostics": [],
       "_hash": "69694c78518ccc68455c5054cfe902e50b3bfcb0e725ea8fc7a7dd19448a79b8"
+    },
+    {
+      "id": "B-5a15:RP-280",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane re-confirmation at head d5be091089 (round 2026-09-02T10:34:38.494Z). MATERIAL SCOPE VERIFIED INDEPENDENTLY by per-file blob hashes and git tree hashes rather than by trusting the incremental tool: the trees packages/, scripts/, docs/, bin/, .githooks/ are ALL hash-identical between my prior pass head 6bc88d7d and HEAD d5be091089, and every one of the 71 changed paths in that delta lives under .proof-or-stop/story/actives/B-5a15/ (story metadata: regenerated acceptance basis, re-earned causal receipts, pre-review-check, rollout report, scope-contract, review-runs/passes). ZERO product code changed since my prior PASS RP-277, so my prior product-code verdict carries forward on an independently verified basis. CONFIG CHANGE RE-CONFIRMED: lattice.config.json and proof-or-stop.config.json blobs are byte-identical at prior head, HEAD and working tree (e71e224f6ce2 / 1c0a27ebf3b7); the change remains the minimal removal of the resources block from validate.commands[112] (npm --prefix packages/graph run check), timeoutMs 290000 retained, applied symmetrically to both mirrors, both parse as valid JSON, 116 commands total. TWO GUARDS RE-RUN AT THIS HEAD: validate-resource-claims.test.mjs => PASS (34 assertions), including CONFIGURED-PLAN-CLASSIFIED (116 commands, 100 declared, 16 exclusive by fail-closed default) and AUDITED-BARRIERS-HELD (10 audited repo-shared writers remain undeclared); red-b49d4-registration-derivation.mjs => 0 RED / 26 GREEN of 26 rows, exit 0, with REAL_CONFIG_BYTE_UNMODIFIED confirming the control bit on a config COPY while the real config stayed byte-identical. FOUR PRIOR FIXES SPOT-CHECKED INTACT (not re-litigated), each present with its explanatory comment at the cited lines: F-339 handlers/checklist.ts:617-619 priorHoldsIdentity predicate; F-334 evidence-freshness.ts:483 and :513 byte-order sorts replacing localeCompare; F-336/F-337 handlers/certification-window.ts:119-126 CERTIFICATION_DOMAIN_DEPENDENCIES; F-338 core/certification-window.ts:809-817 currentMatches digest comparison. JUDGEMENT ON THE HEARTBEAT RESIDUAL (the item referred to me): I examined the mechanism in code rather than accepting the framing, and I judge it a FLAKINESS/THROUGHPUT problem, NOT a correctness problem, so I am NOT filing it as a finding. Evidence: the probe is packages/graph/scripts/verify-no-project-writes.mjs; its snapshot() second pass deliberately hashes gitignored paths (pruning only node_modules|dist|.git), so I measured that 8105 of 14828 hashed paths are exactly the .proof-or-stop/ and activity.jsonl surfaces the CLI heartbeat appends to, including all four hashed activity.jsonl files. A concurrent append therefore CAN flip the digest. But digest equality is the SOLE pass condition (line 115), so a spurious flip can only produce an UNEXPECTED_PROJECT_WRITE FAILURE and exit 1; it can never produce a false PASS, because an unrelated append cannot cancel a real write contribution out of a sha256 chain. The residual is thus fail-closed in the safe direction: it costs a spurious retry, never a masked write. Separately I confirmed the removal genuinely helps: resolveValidationCommandResourceClaims in core/validation-executor.ts gives an undeclared command a single EXCLUSIVE claim on the synthetic barrier key .lattice/runtime/validate-plan-barrier, so command 112 is now scheduled alone within the plan, removing the FOREIGN-mutation class as claimed; the keyed scheduler is in-process and so cannot bound another CLI process's heartbeat, which is precisely the acknowledged residual. I concur with my prior deferral. QUALITY CHECKLIST on the review surface: no dead code, no unnecessary as-any, no empty catch, no shell/fn.ts import violation introduced (no source file changed at all); doc-promise check on the two new decision docs found three referenced commands (aux_doc_list, session_brief, validate) and I verified all three exist via --help, so nothing is promised-but-undelivered. NOTED BUT DELIBERATELY NOT FILED (unclaimed scope, non-blocking, per the defect-triage rule): (a) verify-no-project-writes.mjs:122-123 names added files but on a content-only change prints the generic 'content of an existing tracked/untracked file changed' without naming WHICH path, even though before.paths/after.paths are in scope to name it - a modest diagnostic-quality improvement in packages/graph/scripts/, a tree this story does not touch and which is hash-identical to my prior pass; (b) the two config mirrors are not byte-identical overall, but I verified that divergence is PRE-EXISTING and identical at main and at HEAD (the deliberate brand-rename legacy-alias split: deprecated file keeps lattice-* role IDs, canonical keeps proof-or-stop-*), not introduced here. NO BLOCKERS. Strictly read-only: no file edits, no git write operations, no validate --story run, no takeover flags.",
+      "createdAt": "2026-09-02T10:44:41.015Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-845",
+      "envelopeId": "7cb94e3e3226ea0938147b2340e1b87bafde97a847d50059d69577d364cdb245",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f70e5bbe3c2e1c53d3626fdd203177549b0f7a757b2cd60d6569bc8d0a9f232f"
     }
   ]
 }
