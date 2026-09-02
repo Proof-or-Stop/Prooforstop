@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a745",
+  "mode": "feature",
+  "allowed": [
+    "A read-only validation_plan CLI with --storyId, --tier, --explain and --json that executes no validation command, writes no evidence, and changes no gate",
+    "Canonical legacy pin resolver with exact-id, legacy-exact normalized-tuple, pinned_command_missing and pinned_command_ambiguous outcomes",
+    "Fixing any critical or high defect discovered during this story, and any defect that blocks this story acceptance, REVIEW, TEST or DONE",
+    "Fixtures for every behavior above, written RED first, registered in the canonical root test:serial-reference membership plus its RESOURCE_POLICY mapping",
+    "Implement exactly Rollout Story 1 of docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+    "Language-neutral planner types, tier vocabulary, subset invariant, and the fail-closed widening matrix reason codes",
+    "Stable validation command identity: an optional declared id on ValidationCommand, a deterministic provisional id for legacy commands, duplicate-id rejection, and a normalized command-set digest",
+    "Story input collector producing a normalized StoryRelevanceInput from existing shared rename-aware and freshness readers, checklist files, evidence pins, risk signals, and routine source kind plus inventory"
+  ],
+  "excluded": [
+    "Any relevance pruning: this story never shrinks a validation set, it only reports effective repository-full or a classified stop",
+    "Changing routine validation reuse rules, DONE-required evidence, TEST or DONE gates, or the existing focus flag behavior",
+    "Fixing the two pre-existing framework defects found during draft review: the broken gap_log B-META provenance chain after the brand rename, and agent_prompt still registering retired role IDs from the previous brand prefix. Both are recorded with reproduction and evidence and deferred to their own stories",
+    "Merging or advancing story B-ccf4, which owns the plan document itself",
+    "Rollout Story 2 work: versioned impact index storage, static dependency adapter, current-HEAD projection, worktree overlay and double-read race detection, exclusion proofs, canonical-runner authority adapter and atomic or decomposed expansion",
+    "Rollout Story 3 work: runtime coverage enrichment",
+    "Rollout Story 4 work: tier execution on validate, signed selection and tier-execution receipt artifacts, workspace capacity lease integration, the focus versus tier mutual rejection, and the dynamicValidationTiers kill switch",
+    "Rollout Story 5 and 6 work: calibration metrics, ergonomics, and any authority change"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User message 2026-09-02: names docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md, asks to open a story and execute immediately, RED then GREEN, and to continue through DONE. The user did not name a rollout story number; scoping to that plan document own Rollout Story 1 (Stable identity and explain-only planner) is the main agent derivation, chosen because the plan explicitly defines Story 1 as the first bounded implementation increment with its own exit criteria and defers everything set-shrinking to Stories 2 through 4. The user additionally set a defect rule for the run: fix critical or high defects and anything blocking this story acceptance in scope; record medium or low non-blocking defects with reproduction, evidence, impact and proposed owner and defer them rather than expanding scope.",
+  "createdAt": "2026-09-02T00:54:05.856Z",
+  "updatedAt": "2026-09-02T00:54:05.856Z",
+  "_hash": "097683a002651d8a796be3ddbb7dabb34ec32b137e7b1614ebe1d2eefc1a9a22"
+}
