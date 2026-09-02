@@ -14044,6 +14044,28 @@
         "scanEscalationReason": null
       },
       "_hash": "4542d41ac8f2695ecf865ec8ebb0f30601086344215cf8916d8857352730fdeb"
+    },
+    {
+      "id": "B-5a15:RP-300",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Verification coverage audit for RI-068. Topology, all re-derived from checklist.json rather than accepted: 5 checklist items and 53 verificationIntent entries across happy/edge/adversarial; 53 distinct intentRefs with ZERO duplicates. intentRef mapping is EXACT 1:1 against verificationEvidence: 53 declared intents vs 53 evidence rows, set difference empty in BOTH directions (0 intents without evidence, 0 evidence orphans). Effective must = 51, confirmed against source rather than assumed: intentRef() at core/verification.ts:24 is 'return intent?.id || `${itemId}:${lane}:${index}`', i.e. the dotted form is a FALLBACK for intents that declare no explicit id, and exactly ONE intent carries an explicit id -- CHK-001:edge:oversized-output-probe. The priority tally is 22 explicit must + 2 explicit should + 29 unset, and core/verification.ts:214 resolves unset via \"collected.intent.priority || 'must'\", so 29 + 22 = 51 effective must with 2 should; isRequired() at :188 counts only 'must'. Receipts: 53 rows all bound to ONE storyFilesHash (119929430a0b6d05...), with 53 DISTINCT outputDigests and 53 DISTINCT executionKeys (no digest or key reuse, so no receipt is fanned out as a shared fuzzy PASS). Hygiene is clean: 0 waivers, 0 nonMechanicalReason, 0 rows with result 'fail'; all 53 rows have mechanical=true, receipt.exitCode===0 and receipt.selectorMatched===true. DECLARED-SELECTOR COUNT IN A FRESH SUITE RUN: 51 of 53 present -- this MATCHES the expected known state exactly. Fresh run of node --test packages/main/tests/causal-evidence.test.mjs gave TRUE exit 0 with tests 21 / pass 21 / fail 0 / skipped 0, emitting 54 'B-5a15|<intentRef>|PASS|<desc>' marker lines over 54 distinct refs, all 54 verdicts PASS. Reconciled exactly against the 53 declared evidence intentRefs: 51 declared refs present, and the 2 ABSENT are precisely CHK-004:happy:2 and CHK-004:happy:3, as expected. Cause verified in source, not inferred: causal-evidence.test.mjs:2495 defines isEvidenceRefreshBootstrap, whose allow-list explicitly admits actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED', so with pre_review_check_read currently reporting PR_ARTIFACT_TAMPERED the test takes that bounded bootstrap branch and returns before emitting those two markers; its own comment states the branch is neither a waiver nor covered evidence and that the test must return to the strict PASS branch after refresh. Since PR_ARTIFACT_TAMPERED here is only the F-365 commit having moved the hash the seal binds, and resealing is DEV-only work for the remediation pass consuming this epoch receipt, this is the KNOWN state and NOT a new coverage defect. Also noted for transparency, not filed: the run emits 3 marker refs that are not declared evidence rows (CHK-001:adversarial:session-like-environment, CHK-003:adversarial:4, CHK-003:adversarial:5) -- these are EXTRA emitted assertions beyond the declared set, which cannot inflate coverage because coverage is computed from declared intents, and they are not orphan evidence rows (the evidence-vs-intent orphan count is 0). My first probe of selector presence keyed off a receipt.selector field that does not exist in this schema and therefore reported 0/53; I treated that as a broken probe rather than a zero-hit result, inspected the real receipt shape, and re-measured against the emitted marker lines with a firing positive control (55 PASS occurrences in the same output). No blocker, no finding.",
+      "createdAt": "2026-09-02T17:02:59.243Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-893",
+      "envelopeId": "cf3f1351e0e56854c2b4625e8b1f4312b64728d38e250ac9ea45050362d908e0",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb077638af927f17ee690ec492cba849e320554b0477cda6bf713e2855bb3d00"
     }
   ]
 }
