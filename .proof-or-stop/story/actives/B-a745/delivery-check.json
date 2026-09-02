@@ -1,80 +1,92 @@
 {
   "storyId": "B-a745",
-  "checkedAt": "2026-09-02T04:33:54.605Z",
-  "headHash": "43bb3137e0e3e9aa9f9f2f3b25776f8b39daa3fb",
-  "materialHash": "ec47e1b7720d94da623e532a08112ecbaf8c884faffc61da3596616c8b3c185f",
-  "storyFilesHash": "37b4850b0369a8ddf37805ca49f1edf9c086f72687e67395c86415087a37ee38",
-  "reviewRound": "2026-09-02T02:55:06.517Z",
+  "checkedAt": "2026-09-02T11:01:05.869Z",
+  "headHash": "99aa4927391fde3f4ef9ca61791dbc1aa5f5a0e7",
+  "materialHash": "df3dc49244880182d6709c2017d7844138666fbad54f1831248b45057aa521d5",
+  "storyFilesHash": "3da38ce96624fc26ab219eaffb5010303cd934050c63c4742daf912c57160850",
+  "reviewRound": "2026-09-02T07:53:58.519Z",
   "agentId": "",
   "docsPromises": [
     {
-      "docPath": ".proof-or-stop/story/actives/B-a745/index.json#description",
-      "promise": "This Story implements ONLY Rollout Story 1 of story-relevance-dynamic-validation-tiers-execution-plan.md: stable command id + normalized command-set digest, canonical legacy pin resolver, Story input collector, fail-closed widening matrix planner types, and a read-only validation_plan CLI. It performs NO relevance pruning: every request reports effective tier repository-full or a classified stop; Stories 2-4 (impact graph, exclusion proofs, tier execution, shadow recall) are explicitly out of scope.",
-      "verifiedBy": "diff/grep + runtime",
-      "evidence": "validation-tier-planner.ts resolveValidationTierPlan return type is effectiveTier: typeof REPOSITORY_FULL_TIER (line 421) -- a TypeScript literal type, not a union, so no code path can compile a reduced tier. Fixture 'no input in the resolver space yields a reduced effective tier' sweeps the whole input space and passed live in my own run. Live validation_plan --storyId=B-a745 --tier=fast --explain returns effectiveTier: repository-full with escalation reasons impact_index_unusable / command_exclusion_unproven, matching the no-pruning claim exactly. No pruning/exclusion-proof/impact-graph logic found anywhere in the diff."
+      "docPath": "summary.json#usage / original-intent-snapshot.json#acceptanceClaim",
+      "promise": "node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast --explain prints requestedTier story-fast, effectiveTier repository-full, a runtime-derived selected-of-total command count, per-command inclusion reasons, unclassified inputs, each escalation reason code with a plain-language gloss, finalAuthority: no, and leaves the story store byte-identical before and after the call.",
+      "verifiedBy": "live re-execution",
+      "evidence": "Ran the exact command myself in .worktrees/B-a745. Output literally contains 'requestedTier: story-fast (requested as \"fast\")', 'effectiveTier: repository-full', 'selected: 121 of 121 validation unit(s)', 'finalAuthority: no', escalation reasons with glosses (pinned_command_non_inventory etc). Hashed .proof-or-stop/story/actives/B-a745 (md5 of all files) and `git status --porcelain` before and after the call: both identical (9c03fb6626d500c99d5287536b9077a1 / d41d8cd98f00b204e9800998ecf8427e, unchanged)."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-a745/checklist.json#CHK-001.userSees",
-      "promise": "Running node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast on this repository lists every configured command with an id= value, and each id for an entry that declares none is prefixed prov- to mark it provisional.",
-      "verifiedBy": "live execution",
-      "evidence": "I ran the exact command myself. Output lists all 121 units, e.g. prov-f65811d38258810b65f1b6a385bb7d6f8ecd16a1962331dd0aea06b629b25ceb [configured validate.commands[0]], and inventoryWarnings reports 121 of 121 validation commands still lack a declared id and are running on provisional ids (prefix prov-)."
-    },
-    {
-      "docPath": ".proof-or-stop/story/actives/B-a745/checklist.json#CHK-005.userSees",
-      "promise": "validation_plan prints requestedTier, effectiveTier, runtime-derived selected-of-total counts, and finalAuthority: no on every output.",
-      "verifiedBy": "live execution",
-      "evidence": "I ran validation_plan --storyId=B-a745 --tier=fast --explain myself: output includes requestedTier: story-fast (requested as fast), effectiveTier: repository-full, selected: 121 of 121 validation unit(s), and finalAuthority: no with an explanatory line. Each of 4 escalation reasons carries a plain-language gloss (e.g. pinned_command_non_inventory, impact_index_unusable) so the output is actionable to an operator who has not read the design doc: no impact index, no exclusion proof, 19 unclassified material files, all explained in plain English, not just jargon."
-    },
-    {
-      "docPath": "plan.md#CHK-006",
-      "promise": "The new validation-tier-planner-smoke suite is registered in BOTH the root test:serial-reference chain and full-suite-runner RESOURCE_POLICY, and ALSO in proof-or-stop.config.json validate.commands (added later as the F-005 fix) so its own evidence pins resolve.",
+      "docPath": "summary.json#limitations",
+      "promise": "This increment performs NO relevance pruning; effectiveTier is a TypeScript literal type, not a union, so no pruning code path can exist.",
       "verifiedBy": "diff/grep",
-      "evidence": "package.json diff adds npm run test:validation-tier-planner to test:serial-reference and a test:validation-tier-planner script entry. proof-or-stop.config.json diff adds a matching validate.commands entry for CHK-006 with the exact rationale text about pinned_command_missing. Confirmed live: validation_plan now selects 121 of 121 units (previously 0 of 0 before the F-005 fix, per finding B-a745:F-005)."
+      "evidence": "packages/main/src/core/validation-tier-planner.ts:436 declares `effectiveTier: typeof REPOSITORY_FULL_TIER;` (a literal type alias, not a union of tier names), and line 707 is the only assignment site, hard-coded to REPOSITORY_FULL_TIER. No other effectiveTier value can type-check."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-a745/checklist.json#CHK-002:edge:0 permanent waiver",
-      "promise": "The intent 'a legacy pin string that normalizes to no configured command stops with pinned_command_missing' was SUPERSEDED by the F-001 fix (deliberate reversal), not left untested; two committed fixtures cover the replacement behaviour instead.",
-      "verifiedBy": "independent re-derivation: findings.json plus live test run",
-      "evidence": "findings.json B-a745:F-001 (proof-or-stop-review-behavior, resolved) confirms the deliberate split, with resolvedReason matching the waiver's account exactly. Fixtures 'an unknown commandId stops as pinned_command_missing and produces no binding' and 'a legacy string matching nothing is a non-inventory evidence command, not a stop' plus 'a non-inventory legacy pin plans repository-full instead of stopping, and seeds no command' all exist in validation-tier-planner-smoke.ts and I ran the compiled suite myself: all three printed ok and the run ended validation-tier-planner-smoke: PASS. The waiver's claim holds: this is a genuinely superseded criterion with real replacement coverage, not an unverified promise dressed as one."
+      "docPath": "handlers/validation-plan.ts (F-022/F-024/F-025 resolution claims)",
+      "promise": "The --json report carries the same freshnessBinding/status invariant as the text render on every branch (a single choke-point invariant enforces both paths identically).",
+      "verifiedBy": "live re-execution",
+      "evidence": "Ran validation_plan --json myself: parsed output shows status=plan, freshnessBinding={status:bound, headHash, materialHash, storyFilesHash all populated}, commandSetDigest matching the text render exactly. Commit 286a9b0 ('B-a745 GREEN: enforce the validation_plan status invariant at one render choke point', Resolves: B-a745:F-024, B-a745:F-025) shows renderValidationPlanReport running assertValidationPlanStatusInvariant before the text/--json branch so both paths share one enforcement point."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-a745/checklist.json#CHK-005:happy:0 weak-selector finding F-002",
-      "promise": "CHK-005:happy:0's receipt is pinned to the immutable, non-discriminating selector finalAuthority: no (present on every branch), which produced false positive F-002; correction is a committed fixture proving the plan/stop status lines actually discriminate, not a re-pinned receipt.",
-      "verifiedBy": "independent re-derivation: findings.json plus live test run",
-      "evidence": "findings.json B-a745:F-002 (resolved, resolutionType partially_mitigated) states plainly that the receipt selector could not be fixed in place (verification pins are immutable) and that the discrimination is proven by a committed fixture instead. Fixture 'a plan render and a stop render differ on the documented status discriminator' (validation-tier-planner-smoke.ts:2246) explicitly asserts finalAuthority: no stays shared/non-discriminating on purpose while status: plan / status: stop never co-occur and no shared line has an outcome-bearing prefix. I ran it myself: printed ok, suite ended PASS. The finding is honestly recorded as a partial mitigation, not oversold as fully fixed."
+      "docPath": "F-017/F-023 resolvedReason (host- and location-portable ids)",
+      "promise": "Provisional command ids and commandSetDigest are host-portable (platform-independent) and location-portable (declared-cwd literal, not resolved absolute path).",
+      "verifiedBy": "live re-execution + diff/grep",
+      "evidence": "Live commandSetDigest on this macOS host: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, matching the figure independently pasted in commits 7e1f1c42c8, 899a13a6cd, 8613d6d6ec and in the F-017/F-022 resolvedReason text. narrowPortableValidationCommandTuple no longer takes a platform parameter (per F-017 fix); commandCwdRelative/resolveValidationCommandCwd split declared-vs-resolved cwd per F-023 fix. Fixtures at validation-tier-planner-smoke.ts assert identical ids/digest across linux/darwin/win32 and across projectRoot locations/symlink aliases."
+    },
+    {
+      "docPath": "CHK-002:edge:0 verificationEvidence (permanent supersession waiver)",
+      "promise": "An unresolvable legacy pin widens to repository-full (does not stop), and this reversal of the original CHK-002:edge:0 intent is covered by named committed fixtures, not left untested.",
+      "verifiedBy": "diff/grep",
+      "evidence": "The three fixture testCase() titles the waiver cites ('an unknown commandId stops as pinned_command_missing and produces no binding', 'a legacy string matching nothing is a non-inventory evidence command, not a stop', 'a non-inventory legacy pin plans repository-full instead of stopping, and seeds no command') all exist verbatim in validation-tier-planner-smoke.ts (lines 817, 864, 2207) and are registered in the CHK-006 cross-cutting DoneWhen-coverage list (lines 3743-3745), so the CHK-006 'every DoneWhen is covered by a fixture that actually ran' guard would itself fail if they were removed."
+    },
+    {
+      "docPath": "summary.json#pitfalls (6) / plan.md CHK-001",
+      "promise": "plan.md CHK-001's design note instructing the narrow portable tuple to reuse the routine identity's platform-effective shell rule is WRONG and, because plan_set is refused after DEV, could not be amended in place; the correction lives in finding F-017 and the summary.",
+      "verifiedBy": "diff/grep",
+      "evidence": "Read .proof-or-stop/story/actives/B-a745/plan.md lines 34-38 directly: it still reads '...shell is the same command.shell === true || platform === 'win32' rule buildRoutineValidationIdentity uses. Do NOT invent a second shell rule...' which is exactly the reversed rule F-017 fixed (portable tuple now uses declared-intent-only shell, per the code as verified above). Confirmed stale/uncorrected as claimed."
+    },
+    {
+      "docPath": "F-018/F-022 resolvedReason + summary.json#limitations (deferral mechanism)",
+      "promise": "Three genuine gaps found in cross-host review (worktree overlay seeds, five other non-throwing-hash-snapshot consumers, and the pin-resolution spec self-contradiction) are deferred to durable, in-repository story_draft artifacts rather than a session task chip or an unmerged claim.",
+      "verifiedBy": "story_draft_list + direct read",
+      "evidence": "`story_draft_list` from this worktree shows all three: reconcile-pin-resolution-rules-tiers-plan, planner-worktree-overlay-seeds, partial-hash-snapshot-treated-as-binding. Read each docs/story/drafts/<name>/index.json directly: descriptions accurately restate the deferred gap and (for the pin-resolution and worktree-overlay drafts) correctly caveat that the governing spec is 'owned by story B-ccf4, currently only on branch story/B-ccf4' rather than overclaiming it as live/actionable."
+    },
+    {
+      "docPath": "review_escalation_status (review-assurance-floor gate)",
+      "promise": "Implicit process promise: the story's review-assurance quorum gate (3 rounds x 2 independent hosts) is genuinely satisfied, not a degraded single-host fallback dressed up as full assurance.",
+      "verifiedBy": "CLI + raw evidence file read",
+      "evidence": "`review_escalation_status` reports assuranceLevel: full-3x2, admissibilityStatus: local-review-satisfied, fullQuorum: 3/3 rounds x 2 hosts, degradedFallback: not-satisfied. Read the 14 raw verdict files under .proof-or-stop/autopilot-verdicts/B-a745/: three PASS rounds (B-a745-q-r1/r2/r3) each carry two distinct hostId/provider pairs (claude-host-a/claude, agy-host-b/antigravity) at the CURRENT materialDigest (df3dc4924488...), so this is a real two-host quorum, not a fabricated or degraded one. HOWEVER: nothing in process-events.jsonl, review-runs.json, findings.json or summary.json states WHY Codex is absent from the passing quorum rounds (the only 'quota' hits anywhere in the story record are unrelated reviewer-prompt boilerplate about testing rate-limit business logic). Codex DID run four real independent cross-host review rounds (xhr-r1..r4) that produced seven genuine MAJOR findings (F-010/F-011/F-016/F-017/F-018/F-022/F-023), all fixed; three of those rounds verdicted fail and the fourth verdicted blocked against a since-superseded materialDigest, and it is simply never resubmitted at current material. The mechanical gate is honestly satisfied on its own terms; the specific 'Codex hit quota' narrative is NOT independently corroborated by the durable record."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Stable id + commandSetDigest: fixture cases for declared-id preservation, provisional-id determinism, duplicate-tuple rejection, index-independence, label-rename digest sensitivity, migration warning. Ran validation-tier-planner-smoke.js myself (dist build): all ok, suite ended PASS."
+      "transcript": "validation-tier-planner-smoke.js (re-run live) passes CHK-001 identity cases: declared id preserved verbatim, deterministic prov- id for undeclared, duplicate-tuple rejection naming both entries, index-independence, label-rename changing commandSetDigest while id survives, migration warning naming the live count of provisional ids, and an adversarial byte-identical-digest-when-no-id-declared case. All present in the pasted PASS transcript in checklist verificationEvidence and independently re-confirmed live (commandSetDigest eba363ed... reproduced on this host)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Legacy pin resolver: exact-id/legacy-exact/missing/ambiguous paths, cwd-only and shell-vs-argv distinctness, plus the F-001 non-inventory split (CHK-002:edge:0 covered via waiver plus replacement fixtures, verified above). Ran live, all ok."
+      "transcript": "Exact-commandId, legacy-exact-tuple, cwd/shell-distinctness and ambiguous-tie (label/order-proof) cases all pass. The one edge intent whose literal behaviour was deliberately reversed under review (CHK-002:edge:0) carries a permanent waiver naming three real, independently verified fixtures that cover both the surviving stop path and the replacement non-inventory-widen path (see docsPromises entry)."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Story input collector: rename/delete/story-metadata exclusion, changed_files_unavailable escalation on reader failure, duration-history collection with unknown-duration reporting, verification-intent as reason-context-only (no command-to-seed edge). Ran live, all ok."
+      "transcript": "8 verificationEvidence entries pass (4 happy/2 edge/2 adversarial) covering rename-aware changed-path collection, material exclusion reuse, and hash snapshot capture through the shared evidence-freshness reader; all mechanical, none waived."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Tier planner and fail-closed widening matrix: tier vocabulary and subset invariant, glossed reason-code enumeration, all 4 source kinds, exhaustive no-reduced-tier sweep, empty-universe stop. Ran live, all ok."
+      "transcript": "5/5 verificationEvidence pass; independently confirmed the fail-closed widening-matrix invariant by reading validation-tier-planner.ts (effectiveTier literal type, REPOSITORY_FULL_TIER-only assignment) rather than trusting the fixture alone."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "validation_plan CLI: --explain vs preview truncation, --json parity, missing-storyId/unknown-tier rejection by name at handler AND core, zero-write byte-identity fixture, no write/persist/execute/run flag accepted, command-policy readOnly/none/all classification, status-line discrimination fixture (F-002 replacement). Ran live myself against the real repo/story and separately in the suite: all ok."
+      "transcript": "5/5 verificationEvidence pass. Independently re-ran validation_plan --tier=fast (text and --json) live in this worktree: output matches every claimed field (requestedTier, effectiveTier, finalAuthority: no, freshnessBinding, commandSetDigest, selectionDigest) and left the story store byte-identical (md5-compared before/after)."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "Cross-cutting acceptance guards: RED-before-GREEN commit ordering for every item, zod-bypass rejection for every constrained field, bidirectional test:serial-reference/RESOURCE_POLICY/validate.commands registration, every DoneWhen of CHK-001..CHK-005 covered. I independently ran node packages/main/dist/tasks/validation-tier-planner-smoke.js myself (not trusting the stored receipt): exit 0, 83 ok lines, ended validation-tier-planner-smoke: PASS. Separately confirmed the story's real validate run in test-evidence.json shows allPass:true / PASS across a 120-command inventory (3 apparently-missing checkmark indices [110,117,118] traced to a differing per-command label format, not skipped commands)."
+      "transcript": "4/4 verificationEvidence pass. Independently confirmed the suite is registered in all six required registries (registry.ts, command-catalog.ts, command-policy.ts, config.ts DEFAULT_PHASE_TOOLS, activity-policy.ts READ_ONLY_COMMANDS, process-fact-levels.ts) and in three test inventories (package.json test:validation-tier-planner script, proof-or-stop.config.json validate.commands[120]) via direct grep, matching the pitfall-3 claim about what registering one new CLI command actually requires. test-evidence.json independently confirms a full `proof-or-stop validate` run: commandCount 121, status PASS, 0 required/optional failures, materialHash identical to the live freshnessBinding materialHash captured just now (headHash differs only because later bookkeeping commits landed after the run -- benign per this project's own headHash-only-drift classification)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All headline promises verified live, not from prose: validation_plan --explain is genuinely actionable, since glossed escalation reasons explain in plain language why fast still selected everything. Both flagged weak spots are legitimate: CHK-002:edge:0 is a real superseded-intent waiver with independently-confirmed replacement fixtures, and CHK-005:happy:0's immutable non-discriminating selector is honestly documented as partially mitigated (fixed by a fixture, not by fixing the actual receipt). The record does not read cleaner than it was: this story surfaced 9 findings across 2 rounds including F-002 (a mechanically-passing false-positive receipt on the story's own flagship claim) and two main-agent self-corrections (F-008 a wrong number copied from a subagent report without verification, F-009 a BRE-vs-ERE transcription slip) that are candidly preserved in findings.json rather than smoothed over."
+    "summary": "All 6 checklist items and every checked docs/behavioural promise are independently verified against live command output and source, not prose: commandSetDigest, freshnessBinding on both text/--json, the literal effectiveTier type, all six CLI registries, and the CHK-002:edge:0 waiver's three named fixtures all reproduce exactly as claimed. Adversarially: this record does NOT read cleaner than the story was -- it is unusually self-incriminating (F-008/F-009 is a reviewer correcting its own prior correction, F-019 through F-021 and F-024 through F-029 are a documented chain of the reviewers catching drift and overclaims in their OWN prior resolutions, and F-028/F-029 are honestly logged as accepted_risk rather than falsely marked fixed because rewriting commit history was correctly judged not worth invalidating every review-run binding on the branch). The one real gap I could not clear: nothing in process-events.jsonl, review-runs.json, findings.json or summary.json discloses WHY Codex is absent from the three PASSING review-escalation quorum rounds (which instead used claude+antigravity) -- the 'Codex hit its usage quota' explanation is not corroborated anywhere in the durable record, even though the underlying full-3x2 quorum gate itself is genuinely (not degradedly) satisfied by two distinct real hosts at current material, and Codex separately contributed 7 real fixed MAJOR findings across 4 independent cross-host rounds. plan.md CHK-001 also permanently carries a wrong design note that could not be amended post-DEV; this is disclosed (pitfall 6, F-017) rather than hidden, so I treat it as an accepted, honestly-flagged limitation rather than an unverified promise. Before DONE, the story owner should add one durable line (process-events.jsonl note or summary.json addendum) stating the actual reason Codex's rounds were not resubmitted as the passing quorum, since the current record leaves a real reader unable to distinguish 'quota outage' from 'quorum-shopping to a friendlier host' -- the gate is not gamed, but the omission is a legitimate honesty gap on a story that otherwise sets an unusually high bar for exactly this kind of disclosure."
   },
-  "_hash": "31b211ce68fe8e4729031ec16ab7e42aa9fdafdb4242b44c8d1ba5a77014b281"
+  "_hash": "d462014a4e30ddba708ceab06fd23a5d7e0b166ad383c6d9d2910455e7a0963d"
 }
