@@ -1,0 +1,37 @@
+{
+  "passes": [
+    {
+      "id": "B-9f2c:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality audit: subjective dimensions only (lint pre-verified green). No dead code, no new any-casts, no I/O isolation violations found in the hand-written diff.",
+      "createdAt": "2026-09-02T09:17:31.572Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-005",
+      "envelopeId": "69e53aa0feccda02dabe6212a14efa8a61099f860db48ca4bf8febe8b067cf26",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f5afb5592aca84349210b549b40e0e70e20f2c8d7a02d4ba14214b8efad046d"
+    }
+  ]
+}
