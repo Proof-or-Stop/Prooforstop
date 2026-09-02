@@ -1644,6 +1644,27 @@ const SCANNER_PROBE_CALL_LINES = [6, 8, 10];
 const SCANNER_PROBE_MENTION_LINES = [2, 3, 5, 6, 7];
 const SCANNER_PROBE_READ_LINE = 12;
 
+// F-005 probe: transitive ctx.root reads through handlers invoked with ctx.
+const DELEGATION_PROBE_LINES = [
+  "import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';", // L1
+  "import { createStoryQueryHandlers } from './story-query.js';", // L2
+  "import { currentCertificationIdentity } from './certification-window.js';", // L3
+  "import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';", // L4
+  'function localHelper(ctx: HandlerContext, storyId: string): string { return resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }); }', // L5 call; a local function is scanned in place, not flagged as a callee
+  'export function createProbeHandlers(ctx: HandlerContext) {', // L6
+  '  const storyHandlers = createStoryQueryHandlers(ctx);', // L7 factory bound on ctx (not itself a read)
+  '  const summary = storyHandlers.story_get({ storyId: "B-1", detail: true });', // L8 via-handler(storyHandlers.story_get)
+  '  const identity = currentCertificationIdentity(ctx, "B-1");', // L9 via-handler(currentCertificationIdentity)
+  '  const policy = resolveDoneRequiredPolicy(ctx.root);', // L10 config (resolveDoneRequiredPolicy loads config from its argument)
+  '  const local = localHelper(ctx, "B-1");', // L11 local callee: not flagged
+  '  const cb = (ctx) => ctx; const acb = async (ctx) => ctx;', // L12 arrow parameter lists: not calls
+  '  const ws = resolveStoryWorkspace(ctx, "B-1"); const wsHandlers = createStoryQueryHandlers({ store: ws.store, root: ws.gitCwd }); const wsSummary = wsHandlers.story_get({ storyId: "B-1" });', // L13 the helper itself and a ws-derived handler set: workspace-rooted
+  '  const inline = createStoryQueryHandlers(ctx).story_list({}); const wsPolicy = resolveDoneRequiredPolicy(ws.gitCwd);', // L14 unbound factory on ctx: via-handler(createStoryQueryHandlers); ws-derived config: workspace-rooted
+  '  return [summary, identity, policy, local, cb, acb, wsSummary, inline, wsPolicy];', // L15
+  '}', // L16
+  '',
+];
+
 function readRootPackageJson(): { scripts: Record<string, string> } {
   return JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8')) as { scripts: Record<string, string> };
 }
@@ -1732,6 +1753,45 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
         scan.remainingReads.map((read) => `${read.kind}:${read.via}`).sort(),
         ['config:configuredValidationCommands', 'config:loadConfig', 'story:ctx.store.readStory', 'story:new StoryStore'],
       );
+    },
+  },
+  {
+    name: 'edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)',
+    run: () => {
+      const report = auditResolverCallSites(HANDLERS_DIR);
+      const handoff = report.callers.find((caller) => caller.file === 'proof-or-stop-handoff.ts');
+      assert.ok(handoff, 'proof-or-stop-handoff.ts is a real caller');
+      assert.equal(handoff!.workspaceRooted, false, 'proof-or-stop-handoff.ts reads story/checklist data through story_get / summary_get on the same ctx; a false PASS must not hide it');
+      const handoffVias = handoff!.remainingReads.filter((read) => (read.kind as string) === 'handler').map((read) => read.via);
+      assert.ok(handoffVias.includes('storyHandlers.story_get()'), `story_get delegation must be listed: ${JSON.stringify(handoff!.remainingReads)}`);
+      assert.ok(handoffVias.includes('summaryHandlers.summary_get()'), `summary_get delegation must be listed: ${JSON.stringify(handoff!.remainingReads)}`);
+      assert.match(classificationOf(handoff!), /^reads ctx\.root: .*via-handler\(/, 'the printed classification names the delegation');
+      assert.ok(report.flagged.some((caller) => caller.file === 'proof-or-stop-handoff.ts'), 'proof-or-stop-handoff.ts is in the flagged list');
+
+      const doneRequired = report.callers.find((caller) => caller.file === 'done-required-validation.ts');
+      assert.ok(doneRequired, 'done-required-validation.ts is a real caller');
+      assert.equal(doneRequired!.workspaceRooted, false, 'done-required-validation.ts loads config from ctx.root and delegates to certification-window on ctx');
+      assert.ok(doneRequired!.remainingReads.some((read) => read.kind === 'config' && read.via === 'resolveDoneRequiredPolicy'), `resolveDoneRequiredPolicy(ctx.root) is a config read: ${JSON.stringify(doneRequired!.remainingReads)}`);
+      assert.ok(doneRequired!.remainingReads.some((read) => (read.kind as string) === 'handler' && read.via === 'currentCertificationIdentity(ctx)'), `currentCertificationIdentity(ctx) is a delegation: ${JSON.stringify(doneRequired!.remainingReads)}`);
+      assert.ok(report.flagged.some((caller) => caller.file === 'done-required-validation.ts'), 'done-required-validation.ts is in the flagged list');
+      assert.ok(!renderResolverAudit(report).some((line) => line.includes('workspace-rooted (no story/checklist/config read at all)') && (line.includes('proof-or-stop-handoff.ts') || line.includes('done-required-validation.ts'))), 'neither file may print the vacuous workspace-rooted label');
+    },
+  },
+  {
+    name: 'adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets',
+    run: () => {
+      const scan = scanResolverSource(DELEGATION_PROBE_LINES.join('\n'));
+      assert.deepEqual(scan.callLines, [5], 'the only resolver call is in the local helper');
+      assert.equal(scan.workspaceRooted, false);
+      const handlerReads = scan.remainingReads.filter((read) => (read.kind as string) === 'handler').map((read) => `${read.via}@L${read.line}`).sort();
+      assert.deepEqual(handlerReads, [
+        'createStoryQueryHandlers(ctx)@L14',
+        'currentCertificationIdentity(ctx)@L9',
+        'storyHandlers.story_get()@L8',
+      ].sort(), 'exactly the three delegations are flagged (not the local helper, the arrows, resolveStoryWorkspace or the ws-derived handler set)');
+      assert.deepEqual(scan.remainingReads.filter((read) => read.kind === 'config').map((read) => `${read.via}@L${read.line}`), ['resolveDoneRequiredPolicy@L10'], 'resolveDoneRequiredPolicy(ctx.root) is a config read; resolveDoneRequiredPolicy(ws.gitCwd) is not');
+      assert.equal(scan.workspaceReads, 2, 'the ws-derived handler set and the ws-derived policy load count as workspace-rooted reads');
+      assert.match(classificationOf(scan), /^reads ctx\.root: config, via-handler\(createStoryQueryHandlers, currentCertificationIdentity, storyHandlers\.story_get\)$/);
     },
   },
   {
