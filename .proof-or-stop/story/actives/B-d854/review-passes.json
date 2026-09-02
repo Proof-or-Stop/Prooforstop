@@ -470,6 +470,38 @@
       },
       "readDiagnostics": [],
       "_hash": "bb7fadfbd5d43ea4c3e49b032ce99d3dfaee1dcab36eaf511f40bc434b9fdda8"
+    },
+    {
+      "id": "B-d854:RP-016",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No current-scope blocker in commit 354ffbd. The only concept replacement is the example fixtureId: legacy-maintenance-fixture-id is self-identifying, remains inside the explicitly labeled Legacy fixture maintenance block, and is schema-valid but never executed because the verifier classifies test_fixture as a conceptual template. Repository authority marks test_fixture legacy/dangerousMutating; its help requires a string fixtureId. The old zero UUID had no same-line legacy token, while the replacement does; fresh process-fact verification and full AGENTS verifier pass (26/26 GREEN, 46/46 command ledger, final SHA e9f71ee). Both audit SHA references and the verifier constant exactly match the committed AGENTS.md digest. One unrelated identity-cutover failure was recorded separately as suspected nonblocking F-044 for follow-up.",
+      "createdAt": "2026-09-02T14:14:28.390Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-048",
+      "envelopeId": "d526a0a8284745085ea4346d5ea1470c3fdef4b4586af1ec020d0ab24952db67",
+      "writerSessionId": "sess-82ac37c743cc03b78f8f116a632e96a6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "495e2abe7134b5c60bc9dd1daeaddbd4583d3e09fa5f3172a2a8753be2fb051f"
     }
   ]
 }
