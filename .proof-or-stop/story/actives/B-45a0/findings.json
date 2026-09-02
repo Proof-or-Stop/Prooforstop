@@ -25483,6 +25483,39 @@
       "resolvedAt": "2026-09-02T04:49:44.545Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-476",
+      "desc": "Two must-priority verificationEvidence records carry mechanical=false with an explicit nonMechanicalReason (checklist.json CHK-011:happy:0 and CHK-014:happy:1): receipt invalidated by verification_evidence_refresh_stale, the material changed since execution and the pinned command was not re-run here, re-run verification_evidence_add to re-earn a mechanical receipt. Both records carry the current storyFilesHash=227118a026b1c967... label and result=pass but have NO receipt block (no exitCode/outputDigest/selectorMatched/executedAt), unlike the other 48/50 evidence records which are fully mechanical with receipts at headHash=211c34e7e6. This means only 48/50, not 50/50, must-intent receipts were genuinely re-earned by the post-F-475 refresh; the remaining 2 are self-declared-stale, uncorroborated pass stamps that must not count as coverage. Fix: run verification_evidence_add (or refresh) against the pinned commands: node scripts/run-dynamic-validation-replay.mjs --verify-threshold for CHK-011:happy:0; node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json for CHK-014:happy:1.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T05:03:56.409Z",
+      "reviewRound": "2026-09-02T04:21:59.530Z",
+      "reviewRunId": "B-45a0:RR-1200",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b3567a9730fc2188843a14944a45a7325728b5e81a3ad849243bd1f228ae9c90",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "missing|json|priority-verificationevidence-records",
+      "signatureTagSource": "auto"
     }
   ]
 }
