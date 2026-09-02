@@ -13453,6 +13453,51 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "8bb5ff232ceec220f3e7c5a6cbe472cafd1d3caac115668c3c375a52425736d3"
+    },
+    {
+      "id": "B-5a15:RP-282",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RE-ATTESTATION over the RI-061 cutoff (materialHash 0dd3167744 IDENTICAL to RI-060), so the material I passed at RP-276 is byte-identical. Verified that independently rather than accepting it: git diff a8542aa8c5..HEAD touches ONLY 4 story-metadata files under .proof-or-stop/story/actives/B-5a15/ (acceptance-basis.json, findings.json, process-metrics.json, scope-contract.json) and ZERO product files; CLAUDE.md does not appear in git diff main...HEAD at all, confirming revert 9f0c2ac3f8 restored it exactly (git diff 8cfef3f6b8 9f0c2ac3f8 shows the 16 added lines removed) and storyFilesHash is back to af9bbe5069. All three RI-061 cutoff hashes in review-inventory-epochs.json match the dispatch exactly (head 1df89edff5 / material 0dd3167744 / storyFiles af9bbe5069) and RR-848 is above initialRunSequenceBoundary 847. CONCEPT-RESIDUE VERDICT: no concept deleted or replaced, so no residue is possible. Diff-wide scan of removed exported symbols across packages/main/src + scripts yields exactly ONE hit, preReviewCaseRequiresSemanticBinding -- and that is a FALSE POSITIVE from a signature reformat, not a deletion: it is still exported at core/pre-review-live-proof.ts:139 with kind/recordId params added, and all 4 call sites (pre-review-live-proof.ts:231,:256 and pre-review-check.ts:27,:202) were updated to the 3-arg form. Per-file scan of removed top-level declarations found 10 candidates; 5 are in-place refactors still defined and used (hasSameFileIncomingCall:1559, sameFileCallableReachable:1538, normalizeEvidence checklist.ts:628, ReexecStamp checklist.ts:1362, and currentPreReviewInputForContext which was PROMOTED from local to exported at handlers/proofstory.ts:190 and is now consumed by proofstory-pre-review-check-smoke.ts:13). The other 5 (isCallableDeclaration, MAX_SAME_FILE_CALL_REACHABILITY_DEPTH, sameFileCallableBody, sameFileCallableCallNames, sameFileCallableCalls) grep to ZERO residual references across packages/*/src, packages/main/tests, scripts, docs, bin and root manifests excluding dist/node_modules. They are genuinely superseded, not silently dropped: the old name-string reachability walk with a depth cap was replaced by symbol-identity traversal via checker.getSymbolAtLocation with visited:Set<ts.Symbol> replacing MAX_..._DEPTH, so the capability is strictly stronger. OUT-OF-SCOPE CHANGE RE-EXAMINED (validate.commands[112], the second look requested): removing the resources key from both configs is the CORRECT expression of exclusivity, not an orphaning. validation-executor.ts:1656-1660 maps an empty claim list to a single EXCLUSIVE barrier with exclusiveByDefault:true, while a declared list gets the SHARED barrier plus its own claims; tests/validate-resource-claims.test.mjs:245-247 requires declared entries to be shared with length>1, which a single git-common-dir shared claim would satisfy structurally while MISSTATING the command as overlappable. git-common-dir is NOT orphaned: it remains in 100 occurrences in each config (the other ~99 declared commands) and across ~15 source files. I ran the gate rather than reasoning about it: validate-resource-claims.test.mjs is PASS (34 assertions) reporting '116 commands, 100 declared, 16 exclusive by fail-closed default', so cmd[112] joins an existing well-populated category of 16, and the test further proves no undeclared command may overlap any other. WAVE-4 CHAIN verified executable, not from prose: acceptance_topology_check = pass/basisStatus complete/structuralPass yes/zero diagnostics; pre_review_check_read = fail PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED, which I confirmed is genuinely allow-listed at causal-evidence.test.mjs:2503 and :2670 AND confirmed is a legitimate fail-closed tolerance rather than a suppression -- both branches assert, and no branch ever accepts ok/status=pass from a failing artifact, so I did not file it; acceptance_rollout_report_read = PASS receipt=current quorum=full-3x2 codes=none; acceptance_rollout_check = PASS promotionEligible=true mode=enforce codes=none. Quorum checked against the signed receipt rather than the summary line: acceptance-rollout-report.json hostVerdicts carry BOTH claude-cli and codex-cli per seed with rounds:3, i.e. genuine 3x2, not degraded 3x1. Mode invariance proven in code: acceptance-rollout.ts consumes mode at exactly 2 sites (:903 and :950), both computing only blocking = mode === 'enforce'; status/diagnostics/receipt/quorum derive independently, and proofstory-acceptance-topology-gate-smoke.ts:345 asserts status is mode-invariant. Rollback surface is the single config key proofStory.acceptanceRolloutGateMode (config.ts:87 observe|warn|enforce) with prior reports documented immutable at transition-orchestrator.ts:149. Causal-evidence suite re-run standalone: 21 pass / 0 fail. npm test:lattice-residue green on all 5 checks (koala, brand-prose, brand-exec, npm-bin, brand-decision). New CAUSAL_* vocabulary is internally consistent (18 constants, uniform prefix) and this diff introduces no casual/causal typo. CLOSING SELF-CHECK on doc-promise-undelivered: I re-derived the userSees token audit independently and found receiptPersistedBeforeCanonicalImport still has 0 code occurrences -- but this is ALREADY FILED AND DISPOSITIONED as F-348 (low, resolved, accepted_risk, deferred with written evidence), so per the do-not-refile list I did not re-file it; the underlying invariant remains mechanically proven at causal-evidence.test.mjs:773-793. NO NEW FINDING this round. I did not re-adjudicate the ~226 open findings from earlier rounds, did not act on retracted F-345/F-346, and left the known-accepted items (certification-window-smoke pre-existing failure, causal-evidence.ts:1096 localeCompare reachable-not-fireable, validate --concept ENOBUFS) alone. Strictly read-only: no edits, no git add/commit/stash/checkout/reset.",
+      "createdAt": "2026-09-02T12:03:53.376Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-848",
+      "envelopeId": "0765f93c6dd0f7555b45265e473d02dc9d87dff56479cfcfc0edf872626ddc20",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "98f6a8e56beb63c923261861037df5d4e5d4bb4884b875662a81783588d47b00"
     }
   ]
 }
