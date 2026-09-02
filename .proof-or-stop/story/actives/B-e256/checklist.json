@@ -73,7 +73,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/tests/red/red-global-cli-exec-bit.mjs run from the worktree exits 0 and prints GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The red test is registered in proof-or-stop.config.json with the same shape as the sibling packages/main/tests/red entries and appears in proof-or-stop validation_plan output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Running the script with RED_REPO_ROOT pointing at the unfixed main checkout still exits 1 with the RED summary, proving it discriminates the pipeline fix",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
