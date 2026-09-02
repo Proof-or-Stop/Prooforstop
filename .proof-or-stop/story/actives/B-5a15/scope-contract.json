@@ -504,10 +504,28 @@
       "phase": "REVIEW",
       "headHash": "3c0b62c1d300fcb6278cb2274e26380b1ea2089b",
       "materialHash": "da24ca06e80437243b4b6a94f765b39c9645b1ae33d62d42a1ccb70a21bdd77c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-approved out-of-scope fix for the validate-time defect recorded as B-5a15:F-349, which blocked this story's TEST gate. Both files received the identical one-line change: the resources key was REMOVED from validate.commands[112] (npm --prefix packages/graph run check). ROOT CAUSE, measured not argued: that command runs packages/graph/scripts/verify-no-project-writes.mjs, which compares a whole-repo byte digest before and after its scan and deliberately hashes gitignored paths including .proof-or-stop/** (see its comment at :43-49, an intentional anti-regression choice). It previously declared a single SHARED git-common-dir claim, so the scheduler ran it concurrently with sibling commands 113-115 while validate committed its own metadata mid-run (commit 5d6f77dafe rewrote test-evidence.json by 2199 lines). The probe therefore observed the repository changing underneath it and reported UNEXPECTED_PROJECT_WRITE - detecting the harness it runs inside, not a real write leak. Reproduced on two consecutive full validate runs; passes standalone. WHY REMOVING THE KEY IS THE CORRECT FORM: resolveValidationResourceClaims (packages/main/src/core/validation-executor.ts:1656-1660) maps an EMPTY claim list to a single EXCLUSIVE barrier with exclusiveByDefault=true, while validate-resource-claims.test.mjs:245-247 requires any DECLARED list to be a SHARED barrier plus at least one further claim. My first attempt set access=exclusive on the single declared claim; that violated the invariant and broke validate.commands[75] and [107], so it was reverted. Both guards now pass: validate-resource-claims PASS (34 assertions) and red-b49d4-registration-derivation 0 RED / 26 GREEN. RESULT: validate reports 0 failures across all 116 commands, where it previously reported 115/116. ACCEPTED TRADEOFF, explicitly approved by the user: the probe is now an exclusive barrier for every story in this repo, so validate loses some parallelism - a throughput cost, not a correctness one, since serialization only removes foreign mutations from the measured window while leaving the graph-app writes the probe asserts about fully inside it. The RI-060 quality lane independently reviewed this change and passed it (RP-277), and all three lanes verified the material delta contains only these two files.",
+      "timestamp": "2026-09-02T10:34:17.566Z",
+      "paths": [
+        "proof-or-stop.config.json",
+        "lattice.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json",
+        "lattice.config.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1e3e802d7ba572b6c7be9063a89af3ec2d6ed8d3",
+      "materialHash": "0dd3167744d36c12c17fab9bd7e66dfc3e2202d896ed9b871226fff7e8853c1b"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-09-01T13:21:12.978Z",
+  "updatedAt": "2026-09-02T10:34:17.566Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -595,6 +613,8 @@
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d73e8b513b4bfc422c7fcaf54764dd53f82fd5db4f2a2f743440ae19105f26bc.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d73e8b513b4bfc422c7fcaf54764dd53f82fd5db4f2a2f743440ae19105f26bc.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/e6580f88e9b30d5e819417b917d83c75fa1504e6ea6b9a61e78f03b049f496c7.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/e6580f88e9b30d5e819417b917d83c75fa1504e6ea6b9a61e78f03b049f496c7.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ece8c3cd0ad359c8c81a6322215994a920a8aeadaa4591d11724d51fd015d2e5.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ece8c3cd0ad359c8c81a6322215994a920a8aeadaa4591d11724d51fd015d2e5.json",
-    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts"
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "lattice.config.json": "lattice.config.json"
   }
 }
