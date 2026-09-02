@@ -134,6 +134,43 @@
         "scanEscalationReason": null
       },
       "_hash": "7033a11aa9a1724d0f6a8fb4e0fe1d27a4b2164c37fd129023b7088b225171ea"
+    },
+    {
+      "id": "B-41c8:RP-006",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4 concept sweep: F-012 verified fixed (git show ce41a44633; b11dd0fb02 grep now empty). Full-branch hash-citation sweep found two pre-existing (not story-introduced) orphaned commit-hash citations, filed low/advisory as F-014. grep sweep for deleted symbols (listActiveWorktrees, readStoryFromLinkedWorktree, collectLinkedStoryWorktrees, splitShellWords, SHELL_META_RE, commandFromString in done-required-validation.ts, StoryWorkspace.storyDir) found zero residue treating them as still existing. docs/CLI.md and docs/dev/test-coverage.md do not document individual smoke suites or verbose env vars as a general convention (sibling suites also undocumented), so no doc-promise-undelivered gap for test:single-owner-extraction / SINGLE_OWNER_AUDIT_VERBOSE -- not filed. Ran single-owner-extraction-smoke.js directly: 40/40 PASS. No new blocking finding.",
+      "createdAt": "2026-09-02T17:00:11.934Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "reviewRunId": "B-41c8:RR-016",
+      "envelopeId": "afabbd2eac73b7721345a772b34a376126fe93556579ba8ea6206b196ee635ce",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8008e0069a60c1d97138dd603709e81761eb514cb2d74b9a99b8cc0ea3ee1493"
     }
   ]
 }
