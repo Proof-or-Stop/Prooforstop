@@ -61,6 +61,8 @@ import {
 import type { RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import type { SignedValidationDurationArtifact } from '../core/validation-relevance-input.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
+import { loadConfig } from '../core/config.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 export const VALIDATION_PLAN_CLI_SCHEMA = 'proofOrStop.validation-plan-cli.v1' as const;
 
@@ -586,9 +588,27 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         ? [doneRequired as unknown as SignedValidationDurationArtifact]
         : [];
 
+      // B-a745 F-010: diff and hash the STORY's tree, never the tree this
+      // read-only command happens to be invoked from. validation_plan is allowed
+      // from any cwd (main checkout, wrapper root, the worktree itself), so the
+      // git working directory is resolved through the same choke-point the
+      // sibling handlers use (verifier / done-prepare / red-evidence): the story's
+      // bound or linked worktree, else the configured gitRoot, else the metadata
+      // root itself. The metadata root stays `root`: it is where the config and
+      // the story record live, and it is what classifies story-metadata paths.
+      // No cwd gate is added here on purpose; the command must simply look at
+      // the right tree.
+      const gitCwd = resolveGitCwd({
+        store,
+        storyId: request.storyId,
+        metadataRoot: root,
+        projectRoot: root,
+        config: loadConfig(root),
+      });
+
       const input = collectStoryRelevanceInput({
         projectRoot: root,
-        gitCwd: root,
+        gitCwd,
         metadataRoot: root,
         story: {
           storyId: request.storyId,
