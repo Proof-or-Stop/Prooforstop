@@ -676,8 +676,7 @@ function auditRowCells(text, id) {
   return line ? line.split('|').slice(1, -1).map((cell) => cell.trim()) : null;
 }
 
-function auditCitationPolicy(text) {
-  const authorityInventory = resolvedAuthorityInventory();
+function auditCitationPolicy(text, authorityInventory = resolvedAuthorityInventory()) {
   for (const row of AUDIT_ROWS) {
     const reject = (reason) => {
       if (text === auditText) console.error(`AUDIT_CITATION_POLICY ${row.id} ${reason}`);
@@ -726,67 +725,66 @@ function refreshDocumentHashes(text) {
     .replace(/(Final complete-prose digest: `)[a-f0-9]{64}(`)/, `$1${semanticDigest(currentText)}$2`);
 }
 
-function replaceRowAuthorityReference(text, rowId, targetRef, replacement) {
+function replaceRowAuthorityTuple(text, rowId, targetTuple, replacement) {
   const rowLine = text.split('\n').find((line) => line.startsWith(`| ${rowId} |`));
   assert.ok(rowLine, `${rowId} audit row must exist for citation mutation`);
   const cells = auditRowCells(text, rowId);
   assert.ok(cells, `${rowId} audit cells must parse for citation mutation`);
-  assert.ok(cells[4].includes(targetRef), `${rowId} authority cell must contain mutation target ${targetRef}`);
+  assert.ok(cells[4].includes(targetTuple), `${rowId} authority cell must contain mutation target ${targetTuple}`);
   const mutatedCells = [...cells];
-  mutatedCells[4] = mutatedCells[4].replace(targetRef, replacement);
+  mutatedCells[4] = mutatedCells[4].replace(targetTuple, replacement);
   return text.replace(rowLine, `| ${mutatedCells.join(' | ')} |`);
 }
 
 function auditCitationMutationChecks() {
-  assert.ok(auditCitationPolicy(auditText), 'every audit row must equal its complete exact authoritative path:line set and bind every material subclaim pattern');
-  const a01 = AUDIT_ROWS[0];
-  const a01Source = read(resolve(root, a01.sourcePath));
-  const a01Ref = `\`${a01.sourcePath}:${lineOf(a01Source, a01.sourcePattern)}\``;
-  const removed = refreshDocumentHashes(auditText.replace(a01Ref, ''));
-  assert.ok(!auditCitationPolicy(removed), 'removing a row authority citation must fail even after document hashes are refreshed');
-  console.log('AUDIT_CITATION_MUTATION removal REJECTED documentHashesRefreshed=1');
+  const authorityInventory = resolvedAuthorityInventory();
+  assert.ok(auditCitationPolicy(auditText, authorityInventory), 'every audit row must equal its complete exact authoritative path:line set and bind every material subclaim pattern');
+  assert.equal(authorityInventory.size, AUDIT_ROWS.length, 'every durable audit row must have an authority inventory');
+
+  let entryCount = 0;
+  let removalCount = 0;
+  let replacementCount = 0;
+  for (const row of AUDIT_ROWS) {
+    const targets = authorityInventory.get(row.id);
+    const expectedTargets = AUTHORITY_BY_ROW.get(row.id);
+    assert.ok(targets && expectedTargets, `${row.id} must have resolved and declared authority entries`);
+    assert.equal(targets.length, expectedTargets.length, `${row.id} mutation targets must equal its declared authority entry count`);
+    let rowTargetCount = 0;
+    for (const target of targets) {
+      const targetTuple = `\`${target.kind}:${target.label}\` -> \`${target.path}:${target.line}\``;
+      const removed = refreshDocumentHashes(replaceRowAuthorityTuple(auditText, row.id, targetTuple, ''));
+      assert.ok(!auditCitationPolicy(removed, authorityInventory), `${row.id} ${target.label} removal must fail after refreshed document hashes`);
+      removalCount += 1;
+
+      const irrelevantTuple = `\`${target.kind}:${target.label}\` -> \`package.json:1\``;
+      const replaced = refreshDocumentHashes(replaceRowAuthorityTuple(auditText, row.id, targetTuple, irrelevantTuple));
+      assert.ok(!auditCitationPolicy(replaced, authorityInventory), `${row.id} ${target.label} irrelevant replacement must fail after refreshed document hashes`);
+      replacementCount += 1;
+      rowTargetCount += 1;
+    }
+    assert.equal(rowTargetCount, expectedTargets.length, `${row.id} exhaustive mutation count must equal expected authority entries`);
+    entryCount += rowTargetCount;
+  }
+  assert.equal(entryCount, [...AUTHORITY_BY_ROW.values()].reduce((sum, entries) => sum + entries.length, 0), 'global mutation target count must equal the complete authority inventory');
+  assert.equal(removalCount, entryCount, 'every authority entry must have one removal mutation');
+  assert.equal(replacementCount, entryCount, 'every authority entry must have one irrelevant replacement mutation');
+  assert.equal(removalCount + replacementCount, entryCount * 2, 'authority mutation total must be exactly two per entry');
+  console.log(`AUDIT_CITATION_EXHAUSTIVE rows=${authorityInventory.size} entries=${entryCount} removal=${removalCount} replacement=${replacementCount} total=${removalCount + replacementCount} PASS documentHashesRefreshed=1`);
+
+  const labelTarget = authorityInventory.get('A19')?.find((entry) => entry.label === 'dispatch-registry-request-validation');
+  assert.ok(labelTarget, 'independent label mutation sentinel must exist');
+  const labelTuple = `\`${labelTarget.kind}:${labelTarget.label}\` -> \`${labelTarget.path}:${labelTarget.line}\``;
+  const changedLabelTuple = `\`${labelTarget.kind}:mutated-authority-label\` -> \`${labelTarget.path}:${labelTarget.line}\``;
+  const changedLabel = refreshDocumentHashes(replaceRowAuthorityTuple(auditText, 'A19', labelTuple, changedLabelTuple));
+  assert.ok(!auditCitationPolicy(changedLabel, authorityInventory), 'changing an authority label while preserving its kind and ref must fail after refreshed document hashes');
+  console.log('AUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1');
+
   const a20Cells = auditRowCells(auditText, 'A20');
   assert.ok(a20Cells, 'A20 audit row must exist');
   const vagueLine = `| ${a20Cells.join(' | ')} |`.replace(a20Cells[4], '`machine.ts` transition consumers');
   const vague = refreshDocumentHashes(auditText.replace(auditText.split('\n').find((line) => line.startsWith('| A20 |')), vagueLine));
-  assert.ok(!auditCitationPolicy(vague), 'vague row authority must fail even after document hashes are refreshed');
+  assert.ok(!auditCitationPolicy(vague, authorityInventory), 'vague row authority must fail even after document hashes are refreshed');
   console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
-  const focusedAuthorityMutations = [
-    ['A20', 'done-policy-summary-requirement', 'extra'],
-    ['A09', 'init-repair-explicit-acknowledgement-guard', 'extra'],
-  ];
-  for (const [rowId, label, marker] of focusedAuthorityMutations) {
-    const expected = AUTHORITY_BY_ROW.get(rowId);
-    assert.ok(expected && expected.length > 1, `${rowId} must have a multi-source authority contract`);
-    const target = expected.find((entry) => entry.label === label);
-    assert.ok(target, `${rowId} mutation target must exist: ${label}`);
-    const targetSource = read(resolve(root, target.path));
-    const targetRef = `\`${target.path}:${lineOf(targetSource, target.pattern)}\``;
-    const replaced = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, '`package.json:1`'));
-    assert.ok(!auditCitationPolicy(replaced), `${rowId} irrelevant extra-citation replacement must fail after document hashes are refreshed`);
-    console.log(`AUDIT_CITATION_MUTATION ${rowId} ${marker}-replacement REJECTED documentHashesRefreshed=1`);
-    const removedExtra = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, ''));
-    assert.ok(!auditCitationPolicy(removedExtra), `${rowId} extra-citation removal must fail after document hashes are refreshed`);
-    console.log(`AUDIT_CITATION_MUTATION ${rowId} ${marker}-removal REJECTED documentHashesRefreshed=1`);
-  }
-
-  for (const rowId of ['A19', 'A26']) {
-    const expected = AUTHORITY_BY_ROW.get(rowId);
-    assert.ok(expected && expected.length > 1, `${rowId} must have a multi-source authority contract`);
-    let targetCount = 0;
-    for (const target of expected) {
-      const targetSource = read(resolve(root, target.path));
-      const targetRef = `\`${target.path}:${lineOf(targetSource, target.pattern)}\``;
-      assert.ok(!targetRef.endsWith(':0`'), `${rowId} authority mutation target must resolve: ${target.label}`);
-      const replaced = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, '`package.json:1`'));
-      assert.ok(!auditCitationPolicy(replaced), `${rowId} ${target.label} irrelevant replacement must fail after refreshed hashes`);
-      const removedTarget = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, ''));
-      assert.ok(!auditCitationPolicy(removedTarget), `${rowId} ${target.label} removal must fail after refreshed hashes`);
-      targetCount += 1;
-    }
-    assert.equal(targetCount, expected.length, `${rowId} exhaustive mutation target count must equal authority entry count`);
-    console.log(`AUDIT_CITATION_EXHAUSTIVE ${rowId} targets=${targetCount}/${expected.length} mutations=${targetCount * 2} PASS documentHashesRefreshed=1`);
-  }
 }
 
 function auditDocumentChecks() {
