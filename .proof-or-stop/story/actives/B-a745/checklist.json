@@ -280,9 +280,9 @@
       "id": "CHK-005",
       "title": "Add the read-only validation_plan CLI with --explain and --json",
       "context": "Plan section 'Proposed CLI and UX'. Register `proof-or-stop validation_plan --storyId=B-xxxx --tier=fast|intermediate|full` with --explain and --json in the command catalog. Output must show requested and effective tier, selected versus full count derived at runtime, inclusion reasons grouped by command, unclassified inputs, escalation reason codes, estimated duration and basis, whether the run is final authority (fast/intermediate: no), and the artifact path/digest when one is written. The command writes no evidence, executes no validation command, and changes no gate. Note the plan's `--focus` / `--tier` mutual-rejection rule applies to the future `validate --tier` command in Rollout Story 4, not to `validation_plan`; do NOT implement that rejection here.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T02:09:23.581Z",
-      "endTime": null,
+      "endTime": "2026-09-02T02:29:06.858Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#proposed-cli-and-ux",
         "CLAUDE.md#handler-encoding-conventions"
@@ -333,6 +333,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "25d97b201d1d47c680130e5431a00a5d95766126a0f8fec04dff21283c6b2baa",
+        "storyFilesHash": "96ba9ca9bb04d6f5ef70d5d8867fe87918fb5f94b93d04893a3087979e64a968",
+        "headHash": "2a9dd1611680761a2cdd2d99a6a07fa465bb9418",
+        "attestedAt": "2026-09-02T02:29:07.040Z",
+        "materialHash": "b0838a4462edd23d2df6bb75d9bac18e09be4611456515f8b1022d33a062b596"
       }
     },
     {
