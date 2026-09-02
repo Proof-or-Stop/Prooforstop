@@ -6,7 +6,57 @@
       "context": "Plan sections 'Stable command identity' and Story 1 exit. ValidationCommand (packages/main/src/core/validation-types.ts) has label/command/args/cwd/env/optional/timeoutMs/resources but no id. Add an optional declared `id`, a deterministic provisional id derived from the normalized executable tuple for legacy commands, duplicate-id rejection, and a commandSetDigest over the normalized inventory. Identity must never be inferred from array index, and existing `focus` tags must be kept for compatibility but excluded from relevance computation.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#stable-command-identity",
+        "CLAUDE.md#handler-encoding-conventions"
+      ],
+      "userSees": "Running `node packages/main/dist/tasks/validation-tier-planner-smoke.js` prints a line per identity case and ends with `validation-tier-planner-smoke: PASS`. Running `proof-or-stop validation_plan --storyId=B-a745 --tier=fast` on this repository lists every configured command with an `id=` value, and each id for an entry that declares none is prefixed `prov-` to mark it provisional.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "create": [
+          "packages/main/src/core/validation-command-identity.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A configured command that declares an id keeps exactly that id; a command that declares none receives a deterministic provisional id derived from the narrow portable tuple of command, args, repo-relative resolved cwd and shell.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The same command set produces the same commandSetDigest across two independent computations, and changing any normalized field of any command changes that digest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Two configured commands whose narrow normalized tuples are identical are rejected as a duplicate id error naming both entries, rather than silently coexisting or being deduplicated.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Renaming a command's label, or moving it to a different array position, does not change its provisional id; identity is never derived from label or index.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Adding the optional id field to ValidationCommand leaves the existing routine validation identity digest byte-identical for a command set that declares no id, while actually declaring an id in the project config does change source.inputDigest, proving the new identity can only add refusal conditions and never remove one.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
