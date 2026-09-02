@@ -13335,6 +13335,47 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "a9c38567b0d0fc763ca885ee38142c42f61c6d8fd839b398eb8234c983ae4e06"
+    },
+    {
+      "id": "B-5a15:RP-279",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic PASS for RI-060 wave 1 (cutoff head 6bc88d7d89 / material 0dd3167744 / storyFilesHash af9bbe5069). Independently verified, not taken from prompt prose. (1) All 3 required lanes hold terminal PASS bound to epoch round 2026-09-02T06:51:00.539Z on eligible runs past initialRunSequenceBoundary=836: concept RP-276/RR-837, quality RP-277/RR-839, test-coverage RP-278/RR-840; missingLanes=0. (2) Raw findings for this wave independently recomputed from findings.json against the 4 eligible candidate runs (RR-837..840) = 0, and epoch baselineFindingIds=[], so an empty findingDispositions set is complete by construction, not by assertion. (3) Coverage completeness: the epoch cutoff pins 44 non-metadata material files vs main, but the reviewable DELTA since the consumed prior epoch RI-059 (finalized+consumed at cutoff 4d87764b62/storyFilesHash 0b5fe162) is mechanically exactly 2 files - git diff -M 4d87764b62 6bc88d7d89 excluding story metadata returns only lattice.config.json and proof-or-stop.config.json (70 story-metadata churn files excluded). Both changed files were read FULLY by all three lanes this round, so the region that actually moved is fully covered, and the unchanged remainder carries forward the consumed RI-059 review. No material region or risk went unreviewed. (4) Independent structural probe of the change itself: identical removal of the git-common-dir shared resources claim from validate.commands[112] (npm --prefix packages/graph run check) in both configs; 100 of 116 commands retain resources claims; validate.commands remains byte-identical across the two config files; dropping the claim makes the probe an exclusive barrier (stricter scheduling), not a loss of safety - consistent with the user-approved intent. Known freshness items (53 evidence rows stale-bound to 0b5fe162, causal-evidence 19/21, AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_STALE with no structural code, DEV-only pre_review_check) all share the single storyFilesHash-move cause and are remediation-DEV work that consumes this receipt; they are not completeness gaps in lane coverage.",
+      "createdAt": "2026-09-02T09:17:26.979Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "reviewRunId": "B-5a15:RR-842",
+      "envelopeId": "8338d09381c9bc692510e8483e4c1875a89ae69c7583a60c53c4e65f3f7242d8",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "69694c78518ccc68455c5054cfe902e50b3bfcb0e725ea8fc7a7dd19448a79b8"
     }
   ]
 }
