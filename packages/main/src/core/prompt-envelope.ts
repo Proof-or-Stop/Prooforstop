@@ -317,12 +317,18 @@ function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthori
 }
 
 function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
-  const normalized = normalizeTriageAuthorityText(text);
-  const statement = normalized.replace(/[.!?]+$/u, '').trim();
-  // A nominal Story change is safe only when the complete authority-bearing
-  // statement is one bounded invariant assertion. Punctuation cannot split a
-  // locally safe comparison from an additional affirmative authority outcome.
-  if (/[.!?;\n]/u.test(statement)) return false;
+  const statements = text
+    .split(/[.!?;。！？；\r\n]+/u)
+    .map(statement => normalizeTriageAuthorityText(statement))
+    .filter(Boolean);
+  if (statements.length === 0) return false;
+  const [statement, ...continuations] = statements;
+
+  // A continuation is admitted only as a complete evidence/reporting action.
+  // This positive grammar cannot mint or revisit applicability, severity,
+  // ownership, routing, disposition, or gate authority after the invariant.
+  const benignEvidenceContinuation = /^(?:then\s+)?(?:record|report|preserve|attach|capture|log)\s+(?:the\s+)?(?:comparison|invariant|verification|audit|check)\s+(?:result|results|evidence|receipt|receipts|output)(?:\s+(?:as|in|to)\s+(?:the\s+)?(?:(?:test|review|verification|audit)\s+)?(?:evidence|record|report|log))?$/u;
+  if (!continuations.every(continuation => benignEvidenceContinuation.test(continuation))) return false;
 
   const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
   const nominalChange = /\b(?:change|changes|update|updates)\b/u;
@@ -341,8 +347,8 @@ function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
       const lead = statement.slice(0, authorityRange.start);
       const bridge = statement.slice(authorityRange.end, changeRange.end);
       const outcome = statement.slice(changeRange.end);
-      const boundedLead = /^(?:compare|verify|audit|check)\b[^.;!?]{0,96}$/u.test(lead);
-      const boundedBridge = /^(?:\s+contract)?\s+(?:before\s+and\s+after|across)\b[^.;!?]{0,64}\b(?:change|changes|update|updates)$/u.test(bridge);
+      const boundedLead = /^(?:compare|verify|audit|check)\s+(?:the\s+)?$/u.test(lead);
+      const boundedBridge = /^(?:\s+contract)?\s+(?:before\s+and\s+after|across)\s+(?:(?:this|that|these|those|the|current|proposed)\s+)?(?:(?:metadata\s+only|prompt\s+only|implementation|code)\s+)?(?:change|changes|update|updates)$/u.test(bridge);
       if (boundedLead && boundedBridge && invariantOutcome.test(outcome)) return true;
     }
   }
