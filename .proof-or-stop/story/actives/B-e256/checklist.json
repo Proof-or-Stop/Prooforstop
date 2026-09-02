@@ -347,7 +347,11 @@
           {
             "desc": "A global executable whose realpath is inside a .worktrees/ checkout or whose bin target lacks the executable bit produces a warning row with the exact repoint or chmod command, never a silent pass",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/global-core-realpath.test.mjs",
+              "selector": "ok global-core-realpath"
+            }
           }
         ]
       },
@@ -400,6 +404,27 @@
           "materialHash": "91625c7cf5901734b87d9850f620235eeb237b52b3e16726e4fe49b237ff6171",
           "storyFilesHash": "86ec205033ef8edc195c5e4ca415a7fddd2349a2fdf0a9dbf9e11d9d72564fda",
           "timestamp": "2026-09-02T16:20:31.368Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "Case 4: non-executable bin target warns with chmod +x <abs path>; case 5: realpath inside a .worktrees/ checkout warns with the exact repoint (cd -- <canonical core root> && npm link); neither passes silently.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "13efb28c4f4f9c03f850ff572f7739cf7e5a4c19c995201c7ce4dc6fc9e123c0",
+            "outputTail": "ok global-core-realpath\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:20:34.029Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "11cb088f11f8c6ae6008d922b786986de02f9ee0",
+          "materialHash": "91625c7cf5901734b87d9850f620235eeb237b52b3e16726e4fe49b237ff6171",
+          "storyFilesHash": "86ec205033ef8edc195c5e4ca415a7fddd2349a2fdf0a9dbf9e11d9d72564fda",
+          "timestamp": "2026-09-02T16:20:34.228Z"
         }
       ]
     }
