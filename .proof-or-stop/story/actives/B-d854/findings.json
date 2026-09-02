@@ -249,7 +249,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:18-21 / tests/AGENTS.verify.mjs:111-116 — WHY high acceptance blocker: the claimed row-by-row RED proof can report RED even when the row-specific stale condition was never detected, because baseline mode uses `redPattern.test(baselineText) || !greenPattern.test(baselineText)`. Independent evaluation shows A06 redPattern=false and A17 redPattern=false while `node tests/AGENTS.verify.mjs --baseline` still prints both as RED. Therefore 26/26 RED does not prove each recorded original defect; make baseline rows require the exact row-specific RED predicate (and keep a separate expected absence assertion if useful), then preserve a failing baseline receipt for every row.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T01:07:56.003Z",
@@ -257,7 +257,11 @@
       "reviewRunId": "B-d854:RR-005",
       "_hash": "7fc5f5c062defb07fdd10b82a7a9cb110fa2f9bed551977db954ab02803b5813",
       "signatureTag": "adversarial|unknown|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e5a6bbfa replaces the baseline `redPattern || !greenPattern` oracle with one-to-one M01-M24/L01-L02 rows whose full row-specific predicate set must pass. Owner rerun shows every predicate true and baseline exit 1.",
+      "resolvedAt": "2026-09-02T01:35:02.815Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-013",
