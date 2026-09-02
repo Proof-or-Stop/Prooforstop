@@ -1012,6 +1012,21 @@
       "_hash": "1cca96988245d59ec0a95415a0c239c4b01a8661518892dbd7c7e4e28bb6d946",
       "signatureTag": "missing|unknown|acceptance-evidence-currentness",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-046",
+      "desc": "authority-delivery-boundary-mismatch: docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:8 and :33-44 plus the CLI-rendered CHK-001 acceptance context still promise a bounded amendment to dynamic-finding-system-execution-plan.md that makes target verdict names authoritative and retains the former combined verdict as a legacy input alias. The final branch has no diff against main for that authority document, the delivered reviewer contract correctly rejects the retired alias, scope_shrinkage_decision_get reports no configured decision, and scope acknowledgement #3 still describes an exact authority migration. This leaves the executable proposal and structured Story/scope record claiming an undelivered and now contradictory authority change, consistent with the current PR_AUTHORITY_INADMISSIBLE diagnostic. Return to DEV to align the proposal and structured scope/acceptance record with the intentionally preserved authority boundary; do not edit protected Dynamic Finding runtime files or fabricate an authority amendment. The separate active-role namespace defect at proposal lines 64-68 is already tracked independently as F-042 and is not duplicated here.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T01:50:32.939Z",
+      "reviewRound": "2026-09-02T01:42:52.484Z",
+      "reviewRunId": "B-9a49:RR-067",
+      "_hash": "72dbc342c4c70ee1dca6fedd16dae452bc74c652d5af6bdadf05665b6641bf03",
+      "signatureTag": "missing|unknown|authority-delivery-boundary",
+      "signatureTagSource": "auto"
     }
   ]
 }
