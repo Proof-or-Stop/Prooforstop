@@ -849,7 +849,7 @@
       "desc": "doc-code-drift: docs/audits/AGENTS-current-version-audit.md:73-84 claims the exact Agy invocation and prompt SHA-256 as durable provenance, but tests/AGENTS.verify.mjs:969-978 only checks selected prose tokens and :1008-1017 validates only ordinal 953 stdout bytes/hash/status. It never checks record.payload.item.command, cwd, executable path/version, or the prompt file/hash. Repro: the provenance token list omits 6e022d8eebd7235a521f3a764e13ccf107ad8bdd889f0dfac5177624e35c121a and every invocation flag; externalReviewArtifactChecks reads only record.payload.item.stdout. Therefore changing the audit to an invented prompt hash or altered invocation leaves --final GREEN. WHY high: the user explicitly required Agy CLI participation with evidence, so the claimed exact invocation/prompt provenance must be mechanically bound to the captured command record and prompt artifact/hash, or the prose must be narrowed to the stdout facts actually verified.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-02T08:52:18.337Z",
@@ -861,7 +861,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fc98ed3 binds the unique Agy ordinal 953 record to exact thread, turn, item, command array, cwd, extracted invocation and prompt path/content SHA, stdout bytes/SHA, parsed conversation id, status, and duration. Independent command, cwd, invocation, and prompt-hash mutations are all rejected. The audit explicitly labels the transcript and prompt as machine-local rather than portable repository evidence.",
+      "resolvedAt": "2026-09-02T09:23:39.935Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
