@@ -508,7 +508,7 @@
       "desc": "validation-plan.ts:757 the new F-022 freshnessBinding invariant (assertValidationPlanStatusInvariant, lines 502-533) is only invoked from renderValidationPlanText (line 547); the --json branch at line 757 returns JSON.stringify(report) directly and never calls the invariant. So a report that claims freshnessBinding.status=bound with a null digest, or status=plan while unbound without a disclosed hash_snapshot_unavailable escalation, would reach a --json caller (explicitly the machine/selector audience per the surrounding comments) unchecked. Currently unreachable in practice because freshnessBindingFor() (line 266) itself throws before such a report is ever built, but this leaves the defense-in-depth re-validation (Handler encoding convention: re-check at every consumption point) present on only one of the two output paths, and the same gap applies to every other invariant this function checks (status/count/escalation consistency), not just this new one.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T09:39:53.967Z",
@@ -519,14 +519,15 @@
         "packages/main/src/handlers/validation-plan.ts"
       ],
       "signatureTag": "missing|ts|validation-plan-freshnessbinding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-024@286a9b0"
     },
     {
       "id": "B-a745:F-025",
       "desc": "validation-plan.ts:757 `return request.json ? JSON.stringify(report) : renderValidationPlanText(report, request.explain);` -- the --json branch (CHK-005:happy:1, a documented acceptance surface) never calls assertValidationPlanStatusInvariant; only the text branch does. The freshnessBinding field doc comment at line ~248 explicitly overclaims universal coverage (\"There is no third shape: a null digest never renders under the word bound (enforced by assertValidationPlanStatusInvariant)\") but that enforcement is wired into renderValidationPlanText only. Empirically confirmed (node script constructing a buildValidationPlanReport call with an empty selectedUnitIds/universe and empty escalationReasons, simulating a schema-bypassing internal caller/fixture, the same threat model the code comments elsewhere explicitly anticipate: \"an internal caller, a fixture, an older serialized input\"): JSON.stringify(report) printed the internally-impossible status:plan report with zero error, while renderValidationPlanText on the identical report object correctly threw. NOT currently triggerable via the real single CLI call site: buildValidationPlanReport derives freshnessBinding and escalationReasons from ONE shared collectStoryRelevanceInput input, so the two cannot diverge today, and the most dangerous single case (a null digest rendered as bound) is independently guarded by freshnessBindingFor throwing at construction regardless of output format -- confirmed by a second node script. But the OTHER checks inside assertValidationPlanStatusInvariant (status/selection/tier consistency, and \"unbound must disclose hash_snapshot_unavailable\") have no independent construction-time guard anywhere; they exist only inside the function the JSON path skips. Machine consumers of --json are the more consequential audience for this gap (a script keying on status==\"plan\" would treat an internally-impossible report as a real plan, exactly what the function comment says must never reach a selector). Matches this repo own Handler encoding convention (CLAUDE.md#handler-encoding-conventions): a fail-closed check wired into one of several consumption points is not wired into all of them. Fix: call assertValidationPlanStatusInvariant (or extract its checks into a pure assertValidationPlanReport(report) that both branches call) unconditionally before either the JSON.stringify or the text render, or correct the doc comment to state the narrower true scope.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T09:41:36.960Z",
@@ -537,14 +538,15 @@
         "packages/main/src/handlers/validation-plan.ts"
       ],
       "signatureTag": "adversarial|ts|validation-plan-return",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-025@286a9b0"
     },
     {
       "id": "B-a745:F-026",
       "desc": "validation-command-identity.ts:226-228 buildValidationCommandInventory(args:{projectRoot,commands}) still declares a required projectRoot parameter, but F-023 (commit 8613d6d6ec) removed the only statement inside this function body that read it (the old `narrowPortableValidationCommandTuple({ projectRoot: args.projectRoot, command })` call became `narrowPortableValidationCommandTuple({ command })`). Confirmed by extracting the full function body: zero other reference to args.projectRoot inside it. Every caller (buildValidationPinUniverse, validation-plan.ts:744, and 7 call sites in validation-tier-planner-smoke.ts) still supplies a value that is silently dropped. The function's own JSDoc (added by the same F-023 commit) additionally misstates this as `projectRoot is provenance for the caller only; no identity input is derived from it` -- but the return type ValidationCommandInventory carries no projectRoot field anywhere, so it is not provenance either; it is simply unused. No behavioral bug (identity is correctly location-independent either way), but this is exactly the kind of concept-cleanup residue this review checks for: a dead parameter plus an inaccurate doc claim left over from an in-scope refactor.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T09:41:48.865Z",
@@ -555,7 +557,8 @@
         "packages/main/src/core/validation-command-identity.ts"
       ],
       "signatureTag": "missing|ts|validation-command-identity",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-026@7e1f1c4"
     },
     {
       "id": "B-a745:F-027",
