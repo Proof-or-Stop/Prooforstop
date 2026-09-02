@@ -771,7 +771,7 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
       // is never an identity input; it exists so an operator recognises the row.
       const unitLabels = new Map<string, string>();
       if (routine.commands.length > 0) {
-        for (const entry of buildValidationCommandInventory({ projectRoot, commands: routine.commands }).entries) {
+        for (const entry of buildValidationCommandInventory({ commands: routine.commands }).entries) {
           unitLabels.set(entry.id, entry.label);
         }
       }

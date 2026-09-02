@@ -219,12 +219,12 @@ function absoluteCwdWarning(entry: ValidationCommandIdentityEntry): string {
  * Host-portable by construction: no platform, environment or checkout-location
  * input reaches an identity on this entry point, so the inventory (ids,
  * commandSetDigest) is the same on every host that checks out the same config.
- * `projectRoot` is provenance for the caller only; no identity input is derived
- * from it (B-a745 F-023). The runtime context enters only in
- * {@link buildValidationPinUniverse}.
+ * It therefore takes no project root at all (B-a745 F-023 removed the last use;
+ * F-026 removed the parameter so a caller cannot believe the root is recorded
+ * anywhere: the returned inventory carries no provenance field). The runtime
+ * context enters only in {@link buildValidationPinUniverse}.
  */
 export function buildValidationCommandInventory(args: {
-  projectRoot: string;
   commands: ValidationCommand[];
 }): ValidationCommandInventory {
   const entries: ValidationCommandIdentityEntry[] = args.commands.map((command, index) => {
@@ -451,10 +451,7 @@ export function buildValidationPinUniverse(args: {
   const platform = args.platform ?? process.platform;
   // The inventory is platform-free on purpose (F-017); the platform reaches
   // only the complete runtime tuples below.
-  const inventory = buildValidationCommandInventory({
-    projectRoot: args.projectRoot,
-    commands: args.commands,
-  });
+  const inventory = buildValidationCommandInventory({ commands: args.commands });
   return {
     entries: inventory.entries.map((entry) => {
       const completeTuple = completeTupleFromCommand({

@@ -210,7 +210,7 @@ function command(overrides: Partial<ValidationCommand> & { label: string; comman
 
 /** Platform-free on purpose (F-017): the inventory has no host input to inject. */
 function inventory(commands: ValidationCommand[]) {
-  return buildValidationCommandInventory({ projectRoot: ROOT, commands });
+  return buildValidationCommandInventory({ commands });
 }
 
 function routineIdentityArgs(projectRoot: string, commands: ValidationCommand[], sourceInputs: unknown) {
@@ -292,9 +292,18 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
 
 const F023_ROOTS = ['/repo-a', '/some/much/deeper/checkout/repo-b'];
 
+/**
+ * F-026: the inventory builder takes no project root at all, so the only entry
+ * point through which a checkout location can still reach an id or the
+ * commandSetDigest is the pin universe. These cases probe THAT entry point.
+ */
+function inventoryUnderRoot(projectRoot: string, commands: ValidationCommand[]) {
+  return buildValidationPinUniverse({ projectRoot, commands, processEnvironment: { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv, platform: 'linux' });
+}
+
 testCase('F-023: the same relative declared cwd yields one provisional id and one commandSetDigest from two project roots', () => {
   const entry = command({ label: 'unit', command: 'npm', args: ['test'], cwd: 'packages/main' });
-  const results = F023_ROOTS.map((projectRoot) => buildValidationCommandInventory({ projectRoot, commands: [entry] }));
+  const results = F023_ROOTS.map((projectRoot) => inventoryUnderRoot(projectRoot, [entry]));
   assert.equal(new Set(results.map((result) => result.entries[0].id)).size, 1, 'the provisional id must not depend on the project root');
   assert.equal(new Set(results.map((result) => result.commandSetDigest)).size, 1, 'the commandSetDigest must not depend on the project root');
   assert.equal(results[0].entries[0].tuple.cwdRelative, 'packages/main');
@@ -315,7 +324,7 @@ testCase('F-023: the declared cwd literal is posix-normalized so cosmetic spelli
 testCase('F-023: an absolute declared cwd is hashed as its literal, is location-independent, and is named in an inventory warning', () => {
   const absoluteCwd = '/opt/build/packages/main';
   const entry = command({ label: 'unit', command: 'npm', args: ['test'], cwd: absoluteCwd });
-  const results = F023_ROOTS.map((projectRoot) => buildValidationCommandInventory({ projectRoot, commands: [entry] }));
+  const results = F023_ROOTS.map((projectRoot) => inventoryUnderRoot(projectRoot, [entry]));
   assert.equal(
     new Set(results.map((result) => result.entries[0].id)).size,
     1,
@@ -338,7 +347,7 @@ testCase('F-023: an absolute declared cwd is hashed as its literal, is location-
     assert.match(warning!, /portable/i);
   }
   // A declared id does not exempt the digest from being location-bound, so it still warns.
-  const declaredId = buildValidationCommandInventory({ projectRoot: ROOT, commands: [{ ...entry, id: 'unit-suite' }] });
+  const declaredId = buildValidationCommandInventory({ commands: [{ ...entry, id: 'unit-suite' }] });
   assert.ok(declaredId.warnings.some((text) => text.includes(absoluteCwd)), 'an absolute cwd warns even with a declared id');
   // A relative declaration never triggers it.
   const relativeOnly = inventory([command({ label: 'unit', command: 'npm', args: ['test'], cwd: 'packages/main', id: 'unit-suite' })]);
@@ -358,8 +367,8 @@ testCase('F-023: a symlinked alias of the project root yields the same provision
 
   for (const cwd of ['packages/main', join(real, 'packages', 'main')]) {
     const entry = command({ label: 'unit', command: 'npm', args: ['test'], cwd });
-    const viaReal = buildValidationCommandInventory({ projectRoot: real, commands: [entry] });
-    const viaAlias = buildValidationCommandInventory({ projectRoot: alias, commands: [entry] });
+    const viaReal = inventoryUnderRoot(real, [entry]);
+    const viaAlias = inventoryUnderRoot(alias, [entry]);
     assert.equal(viaAlias.entries[0].id, viaReal.entries[0].id, `declared cwd ${JSON.stringify(cwd)}: the id must not depend on which alias of the checkout was used`);
     assert.equal(viaAlias.commandSetDigest, viaReal.commandSetDigest, `declared cwd ${JSON.stringify(cwd)}: the commandSetDigest must not depend on the alias`);
   }
@@ -390,7 +399,7 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   const commands = configuredValidationCommands(repoRoot);
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
-  const real = buildValidationCommandInventory({ projectRoot: repoRoot, commands });
+  const real = buildValidationCommandInventory({ commands });
   assert.equal(real.commandSetDigest, 'eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661', 'the real commandSetDigest must not move for a repository that declares no cwd');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
