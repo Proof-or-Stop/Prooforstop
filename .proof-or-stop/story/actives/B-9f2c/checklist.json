@@ -614,7 +614,11 @@
           {
             "desc": "package.json exposes an npm script for the task and test:serial-reference invokes it",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const s=p.scripts[\\\"test:graph-story-flag-smoke\\\"];const parts=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim());const inSR=parts.includes(\\\"npm run test:graph-story-flag-smoke\\\");if(s!==\\\"node packages/main/dist/tasks/graph-story-flag-smoke.js\\\"||!inSR){console.error(\\\"FAIL script=\\\"+s+\\\" inSerialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\\\");\"",
+              "selector": "SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE"
+            }
           }
         ],
         "edge": [
@@ -661,6 +665,27 @@
           "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
           "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
           "timestamp": "2026-09-02T09:02:47.289Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "integration_test",
+          "file": "package.json",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const s=p.scripts[\\\"test:graph-story-flag-smoke\\\"];const parts=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim());const inSR=parts.includes(\\\"npm run test:graph-story-flag-smoke\\\");if(s!==\\\"node packages/main/dist/tasks/graph-story-flag-smoke.js\\\"||!inSR){console.error(\\\"FAIL script=\\\"+s+\\\" inSerialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\\\");\"",
+          "result": "pass",
+          "note": "Asserts scripts[test:graph-story-flag-smoke] has the exact expected body AND that test:serial-reference, split on &&, contains npm run test:graph-story-flag-smoke as a member. Splitting on && is what makes it real membership rather than a substring hit anywhere in the long line. Negative control: stripping both makes it exit 1 with FAIL script=undefined inSerialReference=false.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b80ee53734cb7942c0ba46fd60e70be9bd5e4a5c72cca9aa002469cf2bd8acfd",
+            "outputTail": "SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:02:57.261Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e63827495fc1072b64c5cb67c99ccfbf1bd8c446",
+          "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
+          "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
+          "timestamp": "2026-09-02T09:02:57.460Z"
         }
       ]
     }
