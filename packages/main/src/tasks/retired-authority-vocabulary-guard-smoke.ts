@@ -376,7 +376,18 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
   // B-45a0 F-421: repinned with executable checks that canonical checklist
   // refresh lineage retains review while checklist_update remains rejected.
-  // Repinned again for main's B-1e1f persistSyntheticAdmittedWindowForTest.
+  // B-5a15 main-merge repin basis (F-361 correction). The prior note credited main's
+  // persistSyntheticAdmittedWindowForTest, but that symbol ALREADY EXISTS on main
+  // (grep -c = 2), so it is not what moved this branch's pin. The four real divergences:
+  //  1. a NEW canonical writer 'topology_critic_receipt_set' (absent from main, grep -c = 0)
+  //     plus its 'topology-critic-receipt.json' closeout-evidence registry row;
+  //  2. a deriveCertificationDomainInputHashes fixture with causalInputHashes threading;
+  //  3. an acquireOwnerLease seed for the verifier owner lease;
+  //  4. main's own receipt-bound verification_evidence_refresh_stale checklist policy row.
+  // Approved compatibility surface is UNCHANGED: isExactLegacyLocalOnlyDeliveryClaims still
+  // appears exactly twice and createLegacyLocalOnlyDeliveryClaims exactly twice; no compat
+  // call, argument, or shape was added, removed, or rewritten. The AST algorithm strips
+  // comments, so this note is the ONLY durable record of what a human re-approved.
   ['packages/main/src/tasks/closeout-trust-smoke.ts', '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
