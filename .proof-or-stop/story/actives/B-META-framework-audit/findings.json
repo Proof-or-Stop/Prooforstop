@@ -718,6 +718,41 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "_hash": "90e07f8cc919e92790c731f4d5262b26585c8d5860a56f4268ad5c3da8d4cce8"
+    },
+    {
+      "id": "B-META-framework-audit:F-039",
+      "desc": "B-45a0 closeout deferral (delivery reviewer reproduction, 2026-09-02): story-aware-validation-production-smoke fails deterministically (0 of 7 expected shard receipts) via both compiled node and source bun, corroborating the still-open round-1 findings B-45a0:F-003/F-007/F-008 (DYN-5 production shard-receipt wiring gap). The smoke is auto-discovered only by test:all/test:legacy and is absent from validate.commands, the npm-test serial-reference list, and done-required-evidence receipts, so no lifecycle gate consumed it and no gate reported a false PASS. Deferred at round 57 rather than expanded into the closing story per the defect-triage discipline (fix requires production wiring code changes that would invalidate the freshly re-executed replay campaign and force another full review cycle). Follow-up: a dedicated story must wire the DYN-5 production shard-receipt path, make the smoke pass, and register it in a gating suite.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-02T10:07:34.463Z",
+      "reviewRound": "",
+      "gapFingerprint": "3561c41f68e3d3043cf860124666e7f388150835b62ee4793fe768c677b1e3b9",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/core/quorum-submit-shards.ts",
+        ".proof-or-stop/story/actives/B-45a0/findings.json#F-003"
+      ],
+      "_hash": "457272da356043939e9299c0d0eabf92038c845cc20d41e9919d4c76e55bd2af"
+    },
+    {
+      "id": "B-META-framework-audit:F-040",
+      "desc": "B-45a0 closeout deferral (delivery reviewer, 2026-09-02): docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md claims a 112-command catalog with policySource=explicit for all 112 entries, but the live catalog at the story-bound HEAD has 116 commands, 4 without a policy tuple. Doc-count drift in a story-authored characterization document; fixing it is a .md material change that would invalidate the freshly re-executed replay campaign (the doc is on the replay admission allowlist for the verify/execute split explanation, but any commit moves the campaign-bound HEAD classification for non-allowlisted co-changes and forces re-review), so it is deferred with this durable record. Follow-up: update the counts and document the 4 policy-tuple-less entries (or assign tuples) in the next story touching the validation catalog.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-02T10:07:52.435Z",
+      "reviewRound": "",
+      "gapFingerprint": "0c15a8dfa2a435305f68767d73d031bc35e841d90165d08ec1da10635f7aab6d",
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "packages/main/src/core/validation-catalog.ts"
+      ],
+      "_hash": "55c8aacb1d121a543b618d6641c6a90590611310daae65ec599c9d7dc249ee0f"
     }
   ]
 }
