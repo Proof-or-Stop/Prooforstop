@@ -1692,6 +1692,27 @@ function treeBytes(root: string): Record<string, string> {
   return result;
 }
 
+/**
+ * A StoryStore whose every mutating method THROWS. The byte snapshot alone is
+ * not enough: a store write that happens to rewrite identical bytes would slip
+ * past it. Together they close both halves — this proxy catches any store write,
+ * and the snapshot catches any other filesystem write.
+ */
+function refuseWritesStore(store: StoryStore): StoryStore {
+  return new Proxy(store, {
+    get(target, property, receiver) {
+      const name = typeof property === 'string' ? property : '';
+      if (/^(write|append|delete|remove|clear|save|persist)/.test(name)) {
+        return () => {
+          throw new Error(`validation_plan called the mutating store method ${name}; it is contractually read-only`);
+        };
+      }
+      const value = Reflect.get(target, property, receiver);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  }) as StoryStore;
+}
+
 function planCliTool() {
   const tool = MAIN_TOOLS.find((entry) => entry.name === 'validation_plan');
   assert.ok(tool, 'validation_plan must be registered in the CLI command catalog');
@@ -1736,6 +1757,45 @@ testCase('validation_plan --tier=fast prints every labelled field including fina
 
   // No reader may mistake this for a written selection artifact.
   assert.match(text, /^artifact: none /m);
+
+  // Inventory warnings are surfaced, not swallowed.
+  assert.match(text, /^inventoryWarnings \(\d+\):$/m);
+});
+
+testCase('the provisional-id migration warning reaches the operator instead of being swallowed', () => {
+  const { ctx } = planCliRoot({
+    commands: [
+      { label: 'unit', command: 'npm', args: ['test'] },
+      { label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' },
+    ],
+  });
+  const report = JSON.parse(planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', json: true })) as Record<string, any>;
+  assert.ok(report.inventoryWarnings.length > 0, 'a project still on provisional ids must warn');
+  assert.ok(
+    report.inventoryWarnings.some((warning: string) => warning.includes('1')),
+    'the warning must name the count of commands still lacking a declared id',
+  );
+  const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
+  for (const warning of report.inventoryWarnings) assert.ok(text.includes(warning), 'every warning is printed');
+});
+
+testCase('without --explain the unit list is previewed, and --explain lists every unit', () => {
+  const commands = Array.from({ length: 8 }, (_unused, index) => ({
+    label: `suite-${index}`,
+    command: 'npm',
+    args: ['run', `suite-${index}`],
+    id: `suite-${index}`,
+  }));
+  const { ctx } = planCliRoot({ commands });
+  const preview = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast' });
+  const full = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
+  // Both modes label every field; only the LIST length differs.
+  assert.match(preview, /^selected: 8 of 8 validation unit\(s\)$/m);
+  assert.match(preview, /^finalAuthority: no$/m);
+  assert.match(preview, /^ {2}\.\.\. 3 more unit\(s\); rerun with --explain to list every one$/m);
+  assert.equal(preview.includes('suite-7 [suite-7]'), false, 'the preview stops at the limit');
+  assert.equal(full.includes('suite-7 [suite-7]'), true, '--explain lists every unit');
+  assert.doesNotMatch(full, /rerun with --explain/);
 });
 
 testCase('the printed counts are derived at runtime, not written into the renderer', () => {
@@ -1908,9 +1968,11 @@ testCase('invoking validation_plan leaves every byte under the project root iden
   const beforeStory = JSON.stringify(store.readStory(PLAN_CLI_STORY_ID));
   const beforeChecklist = JSON.stringify(store.readChecklist(PLAN_CLI_STORY_ID));
 
+  // Two independent proofs: no store write at all, and no byte changed anywhere.
+  const guardedCtx = { ...ctx, store: refuseWritesStore(store) } as HandlerContext;
   for (const tier of ['fast', 'intermediate', 'full']) {
-    planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier, explain: true });
-    planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier, json: true });
+    planCli(guardedCtx)({ storyId: PLAN_CLI_STORY_ID, tier, explain: true });
+    planCli(guardedCtx)({ storyId: PLAN_CLI_STORY_ID, tier, json: true });
   }
 
   assert.deepEqual(treeBytes(root), before, 'validation_plan wrote to the project root; it is contractually read-only');

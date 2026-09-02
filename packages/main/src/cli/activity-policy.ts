@@ -197,6 +197,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'grill_get',
   'reviewer_list',
   'review_incremental_context',
+  'validation_plan',
   'workflow_explain',
   'help',
   'dispatch_policy_get',
