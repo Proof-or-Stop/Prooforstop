@@ -215,21 +215,33 @@
           {
             "desc": "done-required-validation.ts delegates its command-string parse to parseLegacyValidationCommandString and no private SHELL_META_RE, splitShellWords or commandFromString remains in it.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one"
+            }
           }
         ],
         "edge": [
           {
             "desc": "A committed corpus of tricky inputs (metacharacters, quoted arguments, embedded spaces, empty string) produces identical shell-versus-argv results through every call site.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "If the DONE-required path needs any divergence from the routine parse, it is an explicit named function with its own fixture; a fixture asserts no unnamed divergence exists by diffing outputs over the corpus.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry"
+            }
           }
         ]
       },
@@ -239,7 +251,72 @@
         "headHash": "ce0ea8a3df9cb95b8cdcf737723e8f12de408e2a",
         "attestedAt": "2026-09-02T14:07:08.339Z",
         "materialHash": "90d623c78680fb19f4155096eec26da7cbf3af64f9f6049577e3df4e47336bb4"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Structural case reads done-required-validation.ts and fails while SHELL_META_RE, splitShellWords or commandFromString exist or the canonical import is missing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c4f77191defe90eba5815820cf70de1f11fd217daa8829ed85f8a60364f18a0",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n16/16 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:07:50.091Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "13394b15a2d2247ac99b27b39aaadfa1e9221446",
+          "materialHash": "90d623c78680fb19f4155096eec26da7cbf3af64f9f6049577e3df4e47336bb4",
+          "storyFilesHash": "6859dc78fd4d73948a631394c12d16f345b46faff44d1dd626a7afc617508a92",
+          "timestamp": "2026-09-02T14:07:57.808Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "A committed 24-entry corpus (metacharacters, quoted args with spaces, escaped quotes, empty, whitespace, tabs, unterminated quote, trailing backslash) pins an expected tuple per entry.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c4f77191defe90eba5815820cf70de1f11fd217daa8829ed85f8a60364f18a0",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n16/16 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:07:53.978Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "13394b15a2d2247ac99b27b39aaadfa1e9221446",
+          "materialHash": "90d623c78680fb19f4155096eec26da7cbf3af64f9f6049577e3df4e47336bb4",
+          "storyFilesHash": "6859dc78fd4d73948a631394c12d16f345b46faff44d1dd626a7afc617508a92",
+          "timestamp": "2026-09-02T14:07:57.808Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Both production entry points are driven through a temp proof-or-stop.config.json; the one representational difference (argv branch omits the shell key) is a named wrapper pinned by the separate shape case.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c4f77191defe90eba5815820cf70de1f11fd217daa8829ed85f8a60364f18a0",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n16/16 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:07:57.682Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "13394b15a2d2247ac99b27b39aaadfa1e9221446",
+          "materialHash": "90d623c78680fb19f4155096eec26da7cbf3af64f9f6049577e3df4e47336bb4",
+          "storyFilesHash": "6859dc78fd4d73948a631394c12d16f345b46faff44d1dd626a7afc617508a92",
+          "timestamp": "2026-09-02T14:07:57.808Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
