@@ -330,14 +330,19 @@ function hasDynamicFindingAuthorityAmendmentAssertion(segment: string): boolean 
       const amendmentPrefix = segment.slice(Math.max(0, amendmentRange.start - 64), amendmentRange.start);
       const nominalChangeReference = /^(?:change|changes|update|updates)$/u.test(amendmentToken)
         && /\b(?:this|that|these|those|the|current|proposed|metadata\s+only|prompt\s+only|implementation|code)\s+$/u.test(amendmentPrefix);
-      const explicitInvariantCheck = /\b(?:compare|verify|assert|prove|confirm|ensure|audit|check|preserve)\b/u.test(segment)
-        && /\b(?:remain|remains|stay|stays|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)\b|\bno\s+(?:authority|runtime|schema|semantic|contract)?\s*changes?\b/u.test(segment);
+      const invariantComparisonLead = segment.slice(Math.max(0, authorityRange.start - 64), authorityRange.start);
+      const invariantComparisonBridge = segment.slice(authorityRange.end, amendmentRange.end);
+      const invariantComparisonOutcome = segment.slice(amendmentRange.end);
+      const nominalReferenceIsInvariantComparison = nominalChangeReference
+        && /\b(?:compare|verify|audit|check)\b[^.;]{0,48}$/u.test(invariantComparisonLead)
+        && /\b(?:before\s+and\s+after|across)\b[^.;]{0,64}\b(?:change|changes|update|updates)$/u.test(invariantComparisonBridge)
+        && /\b(?:remain|remains|stay|stays|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)\b|\bno\s+(?:authority|runtime|schema|semantic|contract)?\s*changes?\b/u.test(invariantComparisonOutcome);
       // A Story may name its own implementation change while proving that the
       // authoritative Dynamic Finding contract is invariant. This narrow
       // nominal-reference exception does not excuse an affirmative amendment
       // verb: "this change modifies/updates the runtime" is still rejected by
       // the separate modify/update match.
-      if (nominalChangeReference && explicitInvariantCheck) continue;
+      if (nominalReferenceIsInvariantComparison) continue;
       if (!relationIsNegated(segment, amendmentRange, authorityRange, authorityRange)) return true;
     }
   }
