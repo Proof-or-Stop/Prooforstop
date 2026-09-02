@@ -75,7 +75,7 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = '69dd94b2070c2c5cf10a3643d8563df06c7e2abc5d0e27ef61e180e514277662';
+const approvedReviewFindingTriageProposalSha256 = '73290169c7b859fe6b5ca85ac964d89a8234f57a5bbf90f118ebcab852560705';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
@@ -666,6 +666,8 @@ function assertReviewFindingTriageProposal(): void {
     'This proposal is its Agent-side projection',
     'This Story does not amend the Dynamic Finding plan or its runtime',
     'This proposal does not authorize changes to:',
+    'declarative Role Contract metadata that adds the `defect-triage-and-routing-check` required-check identifier',
+    'It does not include the active topology-critic lane, other active roles outside this modular REVIEW delivery set, compatibility aliases, or retired lanes',
     '`not_reproduced_under_current_witness`',
     '| `unknown` | Current evidence references, an unresolved `direct_scope` or `counter_evidence` basis, current source, scope, and runtime bindings, and the uncertainty that prevents a conclusive verdict; no `nonBlockingProof`, `acceptedRoute`, or `dispositionPlan`.',
     '`defer_with_proof` is a disposition after `applicable`',
@@ -687,6 +689,10 @@ function assertReviewFindingTriageProposal(): void {
     "`MandatoryRepairClassification(state='closure_proven')` clears it",
     'superseding proof does not clear the whole block',
     'The current compatibility CLI does not implement the future signed',
+    'Current command policy admits `finding_dismiss` only in REVIEW',
+    'The ownership gate protects a Story-scoped Finding through its Story owner session',
+    'the B-META shared-audit case instead uses the main shared-write policy',
+    'The handler requires a substantive reason meeting its minimum length and refuses critical Findings',
     '`finding_dismiss`, `gap_log`, and backlog notes are compatibility accounting',
     'mechanically changes a Finding from `open` to `dismissed` and therefore removes it from the current REVIEW blocking predicate',
     'Digest pins provide change review, but they are not the semantic oracle',

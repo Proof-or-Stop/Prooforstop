@@ -254,11 +254,13 @@ commands and artifacts exist, Agents must:
    assessment or deferral occurred.
 
 Prompt text alone does not mechanically enforce any of these facts. Current
-CLI handlers and lifecycle gates remain authoritative. The current
-`finding_dismiss` handler requires REVIEW phase, an owner-authorized mutation,
-and a substantive reason meeting its minimum length, and it refuses critical
-Findings. Those compatibility conditions do not prove applicability or make
-the future target-state deferral system available.
+CLI handlers and lifecycle gates remain authoritative. Current command policy
+admits `finding_dismiss` only in REVIEW. The ownership gate protects a
+Story-scoped Finding through its Story owner session; the B-META shared-audit
+case instead uses the main shared-write policy. The handler requires a
+substantive reason meeting its minimum length and refuses critical Findings.
+Those compatibility conditions do not prove applicability or make the future
+target-state deferral system available.
 
 Agents must not fabricate assessment fields, verdicts, disposition plans,
 owners, routes, accepted-route proofs, signatures, freshness bindings, expiry,
@@ -374,8 +376,9 @@ This proposal is fully executed only when:
 - all text added by this change is English;
 - the canonical REVIEW contract matches the current Dynamic Finding authority;
 - all five active modular REVIEW prompt-delivery roles receive the contract in
-  every supported assembly mode, while auxiliary and retired lanes receive
-  neither the contract nor its required-check identifier;
+  every supported assembly mode, while excluded active roles, compatibility
+  aliases, and retired lanes receive neither the contract nor its
+  required-check identifier;
 - Story Owner guidance is synchronized across Codex and Claude surfaces;
 - semantic RED/GREEN mutations prove inverse and obsolete behavior fails even
   after digest repinning;

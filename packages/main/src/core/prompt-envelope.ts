@@ -435,7 +435,9 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
       const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt)|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
       const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
       if (!dispositionCoreference || !findingTarget) continue;
-      if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
+      const negativeCoreferentAssignment = /^(?:then\s+)?(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt))\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation);
+      if (negativeCoreferentAssignment
+        || /^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
       return true;
     }
   }
@@ -476,7 +478,7 @@ function hasNothingButSeverityAuthority(text: string): boolean {
   const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
   const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
   return new RegExp(
-    `\\bnothing\\s+but\\s+${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
+    `\\bnothing\\s+(?:but|other\\s+than)\\s+(?:the\\s+)?${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
     'u',
   ).test(normalized);
 }
@@ -484,18 +486,14 @@ function hasNothingButSeverityAuthority(text: string): boolean {
 function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean {
   const severitySubject = '(?:severity(?:\\s+(?:rating|rank|level|score))?|criticality|priority|seriousness(?:\\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\\s+(?:rating|rank|level|score))';
   const authorityNoun = '(?:factor|criterion|basis|authority|determinant|driver|rule|test|input|consideration)';
-  const antecedent = new RegExp(
-    `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s*$`,
-    'u',
-  );
   const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
   const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
-  const continuation = new RegExp(
-    `^(?:therefore\\s+|then\\s+)?(?:it|this|that|the\\s+${authorityNoun})\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
+  const flattened = segments.join(' ').replace(/[:]+/gu, ' ');
+  const splitAuthority = new RegExp(
+    `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s+(?:(?:and|so|therefore|then)\\s+)?(?:(?:this|that|the)\\s+${authorityNoun}|it|this|that)\\s+(?:(?!(?:not|never|no|cannot|do|does|did)\\b)[\\p{L}\\p{N}_]+\\s+){0,2}${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
     'u',
   );
-  return segments.some((segment, index) => antecedent.test(segment)
-    && segments.slice(index + 1, index + 3).some(candidate => continuation.test(candidate)));
+  return splitAuthority.test(flattened);
 }
 
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
