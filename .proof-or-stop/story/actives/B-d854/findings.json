@@ -628,7 +628,7 @@
       "desc": "tests/AGENTS.verify.mjs:763-770 replays runtime/Unicode/semantic proof only at raw stdout positions 13950-14048, but packages/main/src/core/validation-executor.ts:200-202 retains only the first 12000 chars and packages/main/src/handlers/checklist.ts:469-472 persists the last 4000 chars of that truncated output. Repro (fresh full verifier): final exit=0 bytes=14125, 26 GREEN, 46 cases; each replay marker has inTrimmed=true only via its early copy but inReceiptTail=false. CLI checklist_get returns the handler object through direct JSON.stringify (cli-engine.ts:1537), so this is not display truncation. Four current mechanical receipts consequently have selectorMatched=true and a tool-owned digest but their underlying outputTail cannot show the pinned Unicode, semantic, or runtime selector. Because this Story promises inspectable evidence and explicitly requires the selector inside the bounded receipt, replay the already-proven markers before byte 12000 but after byte 8000 (or otherwise make the persisted excerpt include them), then refresh evidence. The receipt guard itself remains fail-closed; the defect is human-auditable acceptance evidence, not receipt fabrication.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T02:53:12.601Z",
@@ -639,7 +639,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "edge|mjs|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 4df805fc reorders proven marker replay into the executor-retained window. Owner simulation of validation-executor first-12000 capture and last-4000 receipt tail shows all six unique pinned selectors present at tail offsets 1285-2351; final still exits 0 only after all later checks. Evidence refresh 48d08c6 re-earned 10/10 against current material.",
+      "resolvedAt": "2026-09-02T03:07:19.885Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-030",
