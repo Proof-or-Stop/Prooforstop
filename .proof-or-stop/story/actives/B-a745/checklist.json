@@ -80,8 +80,8 @@
       "id": "CHK-002",
       "title": "Add the canonical legacy pin resolver with missing and ambiguous stops",
       "context": "Plan section 'Canonical legacy pin resolver'. Resolve a checklist verification-evidence pin to exactly one command id: exact commandId match first, else normalize the legacy free-form command string with the SAME executable/argv normalization the routine identity uses and compare the complete normalized tuple (command, args, resolved cwd, shell, relevant environment). Exactly one match records pinResolution=legacy-exact plus the normalized-tuple digest; zero matches stop with pinned_command_missing; more than one stops with pinned_command_ambiguous. Labels and array order must never break a tie, and historical evidence is never rewritten in place.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T01:37:35.991Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#canonical-legacy-pin-resolver"
