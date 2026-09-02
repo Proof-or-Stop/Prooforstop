@@ -204,6 +204,31 @@
         "scanEscalationReason": null
       },
       "_hash": "beb90bb9e4d9e1408c020149c8d6114273dc4471bc13aaa61f998ecaee52e52a"
+    },
+    {
+      "id": "B-41c8:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 5 scope-limited quality re-review of commit 418e5d8103 (F-015 fix): diff touches only DYNAMIC_BINDING_BUILD_CEILING (808->809) and a maintenance comment in retired-authority-vocabulary-guard-smoke.ts. Read the counting code (scanDynamicCodeGeneration ~3814-3833, collectDynamicExecutionBindings ~2060-2071, assertTypeProgramInstrumentation ~921-968): dynamicBindingBuilds increments only inside collectDynamicExecutionBindings, reached only when a file has a dynamic-execution AST candidate and is not prefilter-skipped. Empirically confirmed by running an instrumented copy of the built smoke (temp file inside gitignored dist/, deleted after use) dumping dynamicBindingBuildFiles: single-owner-extraction-smoke.ts -> 1 build (calls execFileSync); story-workspace.ts -> 0 builds (no candidate, prefilter-skipped). Matches the commits claim exactly and refutes the original F-015 attribution to story-workspace.ts. Rebuilt and ran the smoke: PASS builds=809 cacheHits=2 fullAnalysis=1292 astCandidates=506 reachability=34. SHIPPED_EXECUTABLE_SOURCE_DIRS matches what the comment says the ceiling scans. Comment is accurate and gives a future story enough to update the ceiling correctly; the hard-pinned-count guard design predates this commit, out of this rounds scope. Verified git log --format=%h -i --grep=claude --grep=codex main..HEAD prints 0. No new findings this round.",
+      "createdAt": "2026-09-02T17:52:42.017Z",
+      "reviewRound": "2026-09-02T17:48:38.951Z",
+      "reviewRunId": "B-41c8:RR-018",
+      "envelopeId": "d9a731394994d3f489ad544f063e8aef3270da27b773010a5848e7501ff6788c",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (diff + lines 55-80, 600-970, 3600-3840, 2020-2072, 4830-4845)"
+        ],
+        "filesTriagedByName": [
+          "git diff main...HEAD --stat",
+          "git log main..HEAD --oneline",
+          "git show 418e5d8103",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts (grep execFileSync)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "427bdf9b8610dea30255cca0d48061e92f0793a6f26159f0553f385d9a7e8a70"
     }
   ]
 }
