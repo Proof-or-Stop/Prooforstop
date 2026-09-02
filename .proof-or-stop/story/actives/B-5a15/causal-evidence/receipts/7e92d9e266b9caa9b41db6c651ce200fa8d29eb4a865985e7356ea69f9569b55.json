@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-5a15",
+  "executionKey": "ce:v1:87a746f08c45893402ca9269fc197d1243999b4269de33abcab7381d69c65a36",
+  "identityDigest": "87a746f08c45893402ca9269fc197d1243999b4269de33abcab7381d69c65a36",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-5a15",
+    "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15",
+    "command": {
+      "executable": "node",
+      "args": [
+        "--test",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "0dd3167744d36c12c17fab9bd7e66dfc3e2202d896ed9b871226fff7e8853c1b",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/cli.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/.proof-or-stop/story/actives/B-5a15/causal-evidence/receipts",
+          "probe": "access_w:/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/.proof-or-stop/story/actives/B-5a15/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:3c7eda9fd14e339258e4f7a0612134a5f75e8bc3e350919c82dbca408b49da0c",
+          "path": "/Users/qipan/work/repo/Prooforstop/.git/worktrees/B-5a15/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "15961d85b9452888d01cdb67aa94b00eef77e561",
+          "materialHash": "0dd3167744d36c12c17fab9bd7e66dfc3e2202d896ed9b871226fff7e8853c1b",
+          "storyFilesHash": "af9bbe506973de208e0e2490dca821e78b966f32b226fee71c2a27003fa92d85"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15",
+          "expected": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-5a15",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "af9bbe506973de208e0e2490dca821e78b966f32b226fee71c2a27003fa92d85",
+    "effectiveEnvironment": {
+      "AI_AGENT": "claude-code_2-1-258_agent",
+      "ALACRITTY_LOG": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/Alacritty-954.log",
+      "ALACRITTY_SOCKET": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/Alacritty-954.sock",
+      "ALACRITTY_WINDOW_ID": "38861881984",
+      "ARK_API_KEY": "<redacted>:sha256:361f9421ba3263350ff8247b928856273041afa53ae5dfb5af8c02fed6fc95bf",
+      "BUN_INSTALL": "/Users/qipan/.bun",
+      "CLAUDECODE": "1",
+      "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+      "CLAUDE_CODE_ENHANCED_TELEMETRY_BETA": "1",
+      "CLAUDE_CODE_ENTRYPOINT": "cli",
+      "CLAUDE_CODE_EXECPATH": "/Users/qipan/.local/share/claude/versions/2.1.258",
+      "CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH": "262144",
+      "CLAUDE_EFFORT": "high",
+      "CLAUDE_PLUGIN_DATA": "/Users/qipan/.claude/plugins/data/codex-openai-codex",
+      "COLORTERM": "truecolor",
+      "COMMAND_MODE": "unix2003",
+      "CONDA_DEFAULT_ENV": "base",
+      "CONDA_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/conda",
+      "CONDA_PREFIX": "/opt/homebrew/Caskroom/miniconda/base",
+      "CONDA_PROMPT_MODIFIER": "(base) ",
+      "CONDA_PYTHON_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/python",
+      "CONDA_SHLVL": "1",
+      "COREPACK_ENABLE_AUTO_PIN": "0",
+      "DISABLE_AUTOUPDATER": "1",
+      "GITHUB_NPM_TOKEN": "<redacted>:sha256:cc13bb8c75925bb5d5ef52b1dbdedb2331ef7965d95c880fd566b80f07368327",
+      "GIT_EDITOR": "true",
+      "GSETTINGS_SCHEMA_DIR": "/opt/homebrew/Caskroom/miniconda/base/share/glib-2.0/schemas",
+      "GSETTINGS_SCHEMA_DIR_CONDA_BACKUP": "",
+      "HOME": "/Users/qipan",
+      "LANG": "en_US.UTF-8",
+      "LATTICE_LAB_IMPORT_ERROR": "Cannot find package '@proof-or-stop/lab' imported from /Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/cli/lab-entrypoint.js",
+      "LC_ALL": "en_US.UTF-8",
+      "LC_CTYPE": "UTF-8",
+      "LESS": "-R",
+      "LIBRARY_PATH": "/opt/homebrew/opt/gcc/lib/gcc/16:/opt/homebrew/opt/libgccjit/lib/gcc/16:/opt/homebrew/opt/gcc/lib/gcc/16",
+      "LOGNAME": "qipan",
+      "LSCOLORS": "Gxfxcxdxbxegedabagacad",
+      "LSP_USE_PLISTS": "true",
+      "LS_COLORS": "di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43",
+      "LaunchInstanceID": "1DD8BAC2-2007-4348-A53A-39A4289D98E9",
+      "NVM_CD_FLAGS": "-q",
+      "NVM_DIR": "/Users/qipan/.nvm",
+      "NoDefaultCurrentDirectoryInExePath": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "less",
+      "PATH": "/Users/qipan/.grok/bin:/Users/qipan/.kimi-code/bin:/Users/qipan/flutter/bin:/Users/qipan/.local/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/bin/maxit-v11.400/bin:/Users/qipan/.local/bin:/Users/qipan/.opencode/bin:/Users/qipan/bin/depot_tools:/opt/homebrew/sbin:/Users/qipan/.bun/bin:/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/Users/qipan/Library/pnpm:/Users/qipan/.cabal/bin:/Users/qipan/.ghcup/bin:/opt/homebrew/opt/mysql-client/bin:/Users/qipan/bin/FlameGraph:/Users/qipan/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/bin:/usr/local/bin:/Users/qipan/.local/bin:/Users/qipan/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/VMware Fusion.app/Contents/Public:/Users/qipan/.cargo/bin:/Users/qipan/.orbstack/bin:/Users/qipan/.lmstudio/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/rust-analyzer-lsp/1.0.0/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/context7/unknown/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/code-simplifier/1.0.0/bin:/Users/qipan/.claude/plugins/cache/claude-code-plugins/frontend-design/1.0.0/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/claude-md-management/1.0.0/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/security-guidance/unknown/bin:/Users/qipan/.claude/plugins/cache/claude-plugins-official/remember/0.1.0/bin:/Users/qipan/.claude/plugins/cache/openai-codex/codex/1.0.6/bin",
+      "PNPM_HOME": "/Users/qipan/Library/pnpm",
+      "PROOF_OR_STOP_IDLE_TIMEOUT_MS": "1800000",
+      "PROOF_OR_STOP_LAB_IMPORT_ERROR": "Cannot find package '@proof-or-stop/lab' imported from /Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/cli/lab-entrypoint.js",
+      "PROOF_OR_STOP_MAX_TIMEOUT_MS": "3600000",
+      "PWD": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15",
+      "PYTHONPATH": ":/opt/homebrew/opt/glib/lib/",
+      "RCSBROOT": "/Users/qipan/bin/maxit-v11.400",
+      "SECURITYSESSIONID": "186bd",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e3055aeb3e4e4eda011b87f9d77ed559c4afbe35bba13514933892fabe19a2fd",
+      "TERM": "screen-256color",
+      "TERM_PROGRAM": "tmux",
+      "TERM_PROGRAM_VERSION": "3.7b",
+      "TMPDIR": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/",
+      "TMUX": "/private/tmp/tmux-501/default,1036,0",
+      "TMUX_PANE": "%1",
+      "TRACEPARENT": "00-1febaa2665cfa7b83543b631ebbd69cb-e8a83fad723cb564-01",
+      "USER": "qipan",
+      "WINDOWID": "38861881984",
+      "XML_CATALOG_FILES": "file:///opt/homebrew/Caskroom/miniconda/base/etc/xml/catalog file:///etc/xml/catalog",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH": "/Users/qipan/.oh-my-zsh",
+      "_CE_CONDA": "",
+      "_CE_M": "",
+      "__CFBundleIdentifier": "org.alacritty",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x19:0x34"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.272",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "b040ee1993ba2c6be18c1a66169de474eda20f1969bac106104665a104b9bce5",
+  "outputTail": "ceiptHash\nB-5a15|CHK-005:edge:2|PASS|a legacy evidence row or missing dependency identity is counted as strict/non-reusable and cannot improve cacheHitRate or falseFresh\nB-5a15|CHK-005:edge:3|PASS|a related node that fails to rerun makes affectedNodeRerun less than 100% and fails the correctness result instead of being hidden by a passing aggregate\nB-5a15|CHK-005:happy:2|PASS|mixed correctness metrics report unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0\nB-5a15|CHK-005:adversarial:1|PASS|metrics expose only U-03 execution and freshness fields without overlapping elapsed time or assurance-reduction fields\nB-5a15|CHK-005:adversarial:2|PASS|metrics PASS cannot bypass open findings missing coverage dirty tree or strict whole-tree causal drift\nB-5a15|CHK-005:adversarial:0|PASS|tampering with any metric field, execution ledger count, receipt reuse flag, or falseFresh value is detected from canonical inputs and cannot manufacture a passing metrics report\n[0.1s] running acceptance_topology_check...\n[2.1s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[6.0s] pre_review_check_read done\n⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (7260.586084ms)\n✔ CHK-001: oversized output probes stay within the receipt verification bound (113.999667ms)\n✔ B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or batch cache (429.021333ms)\n✔ B-5a15 F-011: raw secret environment values are absent from persisted receipt output (51.901459ms)\n✔ B-5a15 F-298/F-300/F-301: long non-secret selector values remain observable in receipt output (50.59575ms)\n✔ B-5a15 F-298/F-300/F-301: secret-named and token-like output remains redacted (50.09575ms)\n✔ B-5a15 F-047: secret environment mutations split execution receipts without leaking credentials (119.38525ms)\n✔ B-5a15 F-267/F-273/F-274: non-transport SESSION-like environment mutations split execution receipts (0.296209ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (237.173292ms)\n✔ B-5a15: an injected index-write failure recovers the orphaned receipt without relaunching (156.445375ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (825.872917ms)\n✔ B-5a15 F-314: production domain inputs invalidate only the declared transitive closure (201.076625ms)\n✔ B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains (1269.303917ms)\n✔ B-5a15: causal rerun receipts bind the current story and snapshot identity (217.433833ms)\n✔ B-5a15: a dependency decision remains verifiable across linked worktrees (129.850625ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (735.091ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (43.046208ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (5723.074667ms)\n✔ F-247: verifier-owned topology and pre-review checks are executable and current (9080.225375ms)\n[0.1s] running acceptance_topology_check...\n[2.2s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[6.3s] pre_review_check_read done\n[0.1s] running acceptance_rollout_report_read...\n[0.5s] acceptance_rollout_report_read done\n[0.1s] running acceptance_rollout_check...\n[0.6s] acceptance_rollout_check done\n✔ B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the causal preflight plan (2184.744125ms)\n✔ B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifier-owned acceptance reads and rollout mutations are executable (14851.0345ms)\nℹ tests 21\nℹ suites 0\nℹ pass 21\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 43962.706\n",
+  "outputProbe": "B-5a15|CHK-001:happy:0|PASS|58 intents fan out from 10 exact execution keys with commandExecutions=10 and independent selector verdicts\nB-5a15|CHK-001:happy:1|PASS|exact receipt replay reuses all 10 receipts with commandReruns=0 and preserves per-intent selector verdicts\nB-5a15|CHK-001:happy:2|PASS|single and batch evidence paths resolve an exact identity to one execution key and one receipt\nB-5a15|CHK-001:edge:0|PASS|cwd, environment, inputs, runtime version, and selector policy changes each produce distinct execution keys\nB-5a15|CHK-001:edge:1|PASS|same receipt yields a matching PASS and a selector-specific non-PASS verdict\nB-5a15|CHK-001:edge:2|PASS|near-duplicate identity groups execute independently while exact-key groups execute once\nB-5a15|CHK-001:adversarial:0|PASS|tampered CAS receipt is rejected and cannot produce PASS\nB-5a15|CHK-001:adversarial:1|PASS|execution-key or receipt collision fails closed without false PASS\nB-5a15|CHK-001:adversarial:2|PASS|changed provenance or selector metadata cannot replay a valid receipt as PASS\nB-5a15|CHK-001:edge:oversized-output-probe|PASS|bounded oversized output probe verifies and reuses\nB-5a15|CHK-001:adversarial:session-like-environment|PASS|only explicit transport keys are removed; behavior-affecting APP_SESSION and SESSION_MODE values remain bound to causal execution identity\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-5a15|CHK-002:happy:0|PASS|receipt-persist event precedes canonical-import event; import PASS references the unchanged CAS receipt hash and commandRerun=0\nB-5a15|CHK-002:edge:0|PASS|simulated Git/metadata failure then retry reports importRetry or receiptReuse, commandRerun=0, stable receiptHash, valid lease, and expected Git index\nB-5a15|CHK-002:happy:1|PASS|first import succeeds and identical import is an idempotent no-duplicate success with one receipt hash\nB-5a15|CHK-002:edge:1|PASS|staged-before-index failure is recovered idempotently with one canonical import, unchanged receiptHash, and commandRerun=0\nB-5a15|CHK-002:edge:2|PASS|expired lease or changed Git index fails the import transaction closed without receipt mutation or command rerun\nB-5a15|CHK-002:adversarial:0|PASS|tampered CAS receipt fails closed with no canonical import and no receipt overwrite\nB-5a15|CHK-002:adversarial:1|PASS|wrong execution key or provenance fails closed before import and cannot produce PASS\nB-5a15|CHK-002:adversarial:2|PASS|receipt-overwrite or same-address different-payload attempt fails closed and preserves the original receipt\nB-5a15|CHK-002:adversarial:3|PASS|partial canonical import fails closed or atomically completes without exposing partial PASS, receipt mutation, or command rerun\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-5a15|CHK-003:happy:1|PASS|related story-owned material change invalidates the affected transitive closure and ignores unsigned rerun assertions\nB-5a15|CHK-003:happy:0|PASS|unrelated merge preserves specialized evidence with specializedRerun=0, explicit advisory, and unchanged stored hashes\nB-5a15|CHK-003:adversarial:4|PASS|storyFilesHash-only drift refuses a fresh decision even when material and dependency inputs are unchanged\nB-5a15|CHK-003:adversarial:5|PASS|story and dependency graph identity mismatches refuse a signed causal decision\nB-5a15|CHK-003:happy:2|PASS|CertificationWindow accepts only the causal decision and admits no stale affected-node PASS\nB-5a15|CHK-003:edge:0|PASS|each of the six dependency domains has a distinct invalidation boundary and only the declared dependent closure is stale\nB-5a15|CHK-003:edge:1|PASS|missing or ambiguous domain/material identity falls back to strict invalidation with no false-fresh reuse\nB-5a15|CHK-003:edge:2|PASS|nearby changes in test/build-input, manifest/integration, and review/source remain domain-distinct\nB-5a15|CHK-003:adversarial:0|PASS|forged or omitted dependency hashes are rejected by shadow compare and cannot create a fresh gate PASS\nB-5a15|CHK-003:adversarial:1|PASS|content-addressed dependency and receipt provenance rewrite is rejected and original hashes remain stable\nB-5a15|CHK-003:adversarial:2|PASS|CertificationWindow bypass is rejected and a stale affected PASS cannot enter a gate\nB-5a15|CHK-003:adversarial:3|PASS|DONE-required whole-tree drift remains strict even when specialized evidence receives an unrelated-merge advisory\nB-5a15|CHK-004:happy:0|PASS|expensive-run preflight PASS: cli=pass worktree=pass gitIndex=pass writerLease=pass providerCapability=pass resources=pass evidenceTarget=pass; childLaunch=1\nB-5a15|CHK-004:happy:1|PASS|repeated valid preflight remains PASS-before-launch with one committed evidence result and no duplicate child launch\nB-5a15|CHK-004:edge:0|PASS|preflight REFUSED: cli_unavailable; commandExecutions=0\nB-5a15|CHK-004:edge:1|PASS|preflight REFUSED: worktree_mismatch; commandExecutions=0\nB-5a15|CHK-004:edge:2|PASS|preflight REFUSED: git_index_unavailable or git_index_mismatch; commandExecutions=0\nB-5a15|CHK-004:edge:3|PASS|preflight REFUSED: writer_unavailable; commandExecutions=0\nB-5a15|CHK-004:edge:4|PASS|preflight REFUSED: lease_invalid; commandExecutions=0\nB-5a15|CHK-004:edge:5|PASS|preflight REFUSED: provider_capability_missing; commandExecutions=0\nB-5a15|CHK-004:edge:6|PASS|preflight REFUSED: insufficient_resources; commandExecutions=0\nB-5a15|CHK-004:edge:7|PASS|preflight REFUSED: evidence_target_not_writable; commandExecutions=0\nB-5a15|CHK-004:adversarial:0|PASS|preflight RACE REFUSED: state_changed_before_launch; commandExecutions=0; evidenceWrites=0\nB-5a15|CHK-004:adversarial:1|PASS|missing, stale, forged, or identity-mismatched preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS\nB-5a15|CHK-005:edge:0|PASS|empty plan reports uniqueExecutionKeys=0 and commandExecutions=0 without dividing cacheHitRate by zero or claiming savings\nB-5a15|CHK-005:happy:0|PASS|completed 58-intent run reports intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate>=80% with commandExecutions equal to uniqueExecutionKeys\nB-5a15|CHK-005:edge:1|PASS|a run containing both reusable and newly executed receipts reports counts from the actual execution ledger rather than intent count or a caller-supplied number\nB-5a15|CHK-005:happy:1|PASS|receipt-first import retry reports commitFailureReruns=1, commandReruns=0, and preserves receiptHash\nB-5a15|CHK-005:edge:2|PASS|a legacy evidence row or missing dependency identity is counted as strict/non-reusable and cannot improve cacheHitRate or falseFresh\nB-5a15|CHK-005:edge:3|PASS|a related node that fails to rerun makes affectedNodeRerun less than 100% and fails the correctness result instead of being hidden by a passing aggregate\nB-5a15|CHK-005:happy:2|PASS|mixed correctness metrics report unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0\nB-5a15|CHK-005:adversarial:1|PASS|metrics expose only U-03 execution and freshness fields without overlapping elapsed time or assurance-reduction fields\nB-5a15|CHK-005:adversarial:2|PASS|metrics PASS cannot bypass open findings missing coverage dirty tree or strict whole-tree causal drift\nB-5a15|CHK-005:adversarial:0|PASS|tampering with any metric field, execution ledger count, receipt reuse flag, or falseFresh value is detected from canonical inputs and cannot manufacture a passing metrics report\n[0.1s] running acceptance_topology_check...\n[2.1s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[6.0s] pre_review_check_read done\n⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (7260.586084ms)\n✔ CHK-001: oversized output probes stay within the receipt verification bound (113.999667ms)\n✔ B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or batch cache (429.021333ms)\n✔ B-5a15 F-011: raw secret environment values are absent from persisted receipt output (51.901459ms)\n✔ B-5a15 F-298/F-300/F-301: long non-secret selector values remain observable in receipt output (50.59575ms)\n✔ B-5a15 F-298/F-300/F-301: secret-named and token-like output remains redacted (50.09575ms)\n✔ B-5a15 F-047: secret environment mutations split execution receipts without leaking credentials (119.38525ms)\n✔ B-5a15 F-267/F-273/F-274: non-transport SESSION-like environment mutations split execution receipts (0.296209ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (237.173292ms)\n✔ B-5a15: an injected index-write failure recovers the orphaned receipt without relaunching (156.445375ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (825.872917ms)\n✔ B-5a15 F-314: production domain inputs invalidate only the declared transitive closure (201.076625ms)\n✔ B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains (1269.303917ms)\n✔ B-5a15: causal rerun receipts bind the current story and snapshot identity (217.433833ms)\n✔ B-5a15: a dependency decision remains verifiable across linked worktrees (129.850625ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (735.091ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (43.046208ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (5723.074667ms)\n✔ F-247: verifier-owned topology and pre-review checks are executable and current (9080.225375ms)\n[0.1s] running acceptance_topology_check...\n[2.2s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[6.3s] pre_review_check_read done\n[0.1s] running acceptance_rollout_report_read...\n[0.5s] acceptance_rollout_report_read done\n[0.1s] running acceptance_rollout_check...\n[0.6s] acceptance_rollout_check done\n✔ B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the causal preflight plan (2184.744125ms)\n✔ B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifier-owned acceptance reads and rollout mutations are executable (14851.0345ms)\nℹ tests 21\nℹ suites 0\nℹ pass 21\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 43962.706\n",
+  "outputLength": 10572,
+  "executedAt": "2026-09-02T09:37:50.839Z",
+  "durationMs": 44183,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "dl4jUF6gj1VXYvBGXZmdS0RbNdUFEDoIrNEeZ/6U+MM=",
+  "signature": "rbePW8KazavcAcT9Z/Ih4s3dLt5C2UJkEmImquX5nXfz7X6rDzA4PZP8qhQtsEm6ch8kJLaqt7Hm24Kngc/JAg==",
+  "receiptHash": "7e92d9e266b9caa9b41db6c651ce200fa8d29eb4a865985e7356ea69f9569b55"
+}
