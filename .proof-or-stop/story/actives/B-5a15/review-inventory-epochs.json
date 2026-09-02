@@ -6597,9 +6597,9 @@
       "epochId": "B-5a15:RI-061",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-02T10:34:38.494Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-02T11:54:58.171Z",
-      "updatedAt": "2026-09-02T11:54:58.171Z",
+      "updatedAt": "2026-09-02T12:15:25.447Z",
       "cutoff": {
         "headHash": "1df89edff5ce7cb6ee74117fb0867b70c3890a6a",
         "materialHash": "0dd3167744d36c12c17fab9bd7e66dfc3e2202d896ed9b871226fff7e8853c1b",
@@ -6617,7 +6617,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "577ebdcf08e936f8da225fe40f1c44ae234c64b2c56b7c6d6e42ae0f94505e75"
+      "cancelledAt": "2026-09-02T12:15:25.447Z",
+      "cancelReason": "Cancelling OPEN epoch RI-061 before merging main, because the merge is a large material change (1426 commits behind, including B-45a0) that would invalidate this epoch's frozen cutoff 0dd3167744 and silently void all three lane verdicts. Cancelling explicitly so the invalidation is auditable rather than discovered later. Verdicts being discarded: concept PASS RP-282/RR-848, quality PASS RP-281/RR-849, and test-coverage FINDING B-5a15:F-351 (RR-850). F-351 itself remains OPEN and must still be repaired - it is a verified real defect (the causal-evidence suite reports 21/0 but passes BY SKIPPING the assertions the CHK-004:happy:2 and :3 receipts pin; 54 markers emit while both pinned selectors return 0 grep hits with a sound 2/2 positive control). Its repair ordering is corrected by B-5a15:F-352: the basis digest is not settleable in advance because acceptance_basis_generate auto-commits and the receipt binds headHash, so in DEV run acceptance_basis_generate and pre_review_check BACK-TO-BACK and only then re-earn the two receipts. Post-merge plan: merge main, resolve any conflicts, rebuild, then open a fresh epoch on the merged tree so the lanes review the actual delivery state rather than a pre-merge snapshot.",
+      "terminalRunSequenceBoundary": 852,
+      "_hash": "bda889a4b3d219ec9bdba4bde00034e716ed6d64431eb1cb6e4385fd5a855dd1"
     }
   ],
   "receipts": [
