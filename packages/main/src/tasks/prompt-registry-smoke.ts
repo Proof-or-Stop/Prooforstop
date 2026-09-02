@@ -75,7 +75,7 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = 'cc7675372372a8d11e59414794427fc20ffbb7fce1ed3475f4eca77e0fff6cf5';
+const approvedReviewFindingTriageProposalSha256 = 'f9ccb1af90ba42876d1a6c5dc48e41f8eb90a891d3c9286d28e81f8cc483bb71';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
@@ -693,6 +693,14 @@ function assertReviewFindingTriageProposal(): void {
   ]) {
     assert.ok(normalizedProposal.includes(phrase), `the proposal keeps authority boundary phrase: ${phrase}`);
   }
+  const lineageConsistencyProjection = proposal.match(
+    /\| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors\. \| ([^\n]+) \|/u,
+  )?.[1];
+  assert.equal(
+    lineageConsistencyProjection,
+    'Agents preserve the exact invalid set and release/convert/remain paths; restrict non-repair lineage release to strong `pre_existing_unaffected`, `out_of_scope`, `duplicate`, or `disproven` proof; preserve complete repair closure as the separate repair release path; explicitly exclude `not_reproduced_under_current_witness`; and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope.',
+    'the consistency table itself preserves both lineage-floor release paths and the downstream closure-only rule',
+  );
 }
 
 function assertDynamicFindingAuthorityProjection(): void {

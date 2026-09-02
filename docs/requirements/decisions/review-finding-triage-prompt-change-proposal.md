@@ -23,6 +23,13 @@ This document is executable because it defines the exact Agent behavior,
 delivery surfaces, semantic rejection cases, and verification work for the
 prompt change. It is not a runtime implementation plan.
 
+The complete B-9a49 branch also contains separately reviewed CHK-005 and
+CHK-006 acceptance-infrastructure and identity-migration repairs, including
+acceptance coverage-basis support. Those repairs have their own authority and
+acceptance evidence. This proposal neither specifies nor authorizes them;
+statements here about this proposal or prompt change describe only the REVIEW
+Finding-triage slice, not every file in the delivered branch.
+
 ## 2. Authority and boundary
 
 The Dynamic Finding System Execution Plan is the authoritative target-state
@@ -338,7 +345,7 @@ inverse contract after a digest is refreshed.
 | Deferral is a disposition after `applicable`. | Prompts never treat `defer_with_proof` as a verdict or `out_of_scope`. |
 | A final applicable assessment binds exactly one `dispositionPlan`; non-applicable and unknown verdicts follow the exact route/absence union. | Prompts preserve `repair_current` versus `defer_with_proof`, `acceptedRoute` cardinality, and the separate deferral/manifest field names. |
 | Only eligible verified applicable low/medium Findings may defer. | Prompts enumerate the eligibility floor and preserve mandatory repair conditions. |
-| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths, restrict lineage release to strong `pre_existing_unaffected`, `out_of_scope`, `duplicate`, or `disproven` proof, explicitly exclude `not_reproduced_under_current_witness`, and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
+| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths; restrict non-repair lineage release to strong `pre_existing_unaffected`, `out_of_scope`, `duplicate`, or `disproven` proof; preserve complete repair closure as the separate repair release path; explicitly exclude `not_reproduced_under_current_witness`; and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
 | Current plan is specification-only until future Stories implement it. | Prompts explicitly say the compatibility CLI cannot exercise the target-state mechanism. |
 | Gates consume signed structured facts. | Prompt prose and compatibility accounting are never presented as gate evidence. |
 

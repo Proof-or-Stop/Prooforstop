@@ -136,6 +136,7 @@ function assertContractRenderCoherence(
 
 type ReviewTriageAuthorityViolation =
   | 'retired applicability verdict used as authority'
+  | 'Dynamic Finding authority amendment asserted from Task Context'
   | 'disposition collapsed into applicability'
   | 'unauthorized disposition minting'
   | 'severity used as sole ownership or scope authority'
@@ -292,14 +293,14 @@ function isExplicitFailClosedQuotedFixture(text: string): boolean {
   if (!match) return false;
   const expectedOutcome = normalizeTriageAuthorityText(match[1]);
   if (/\b(?:does|did|must|should|will|would|can|could)\s+not\b[^.;]{0,40}\b(?:reject|refuse|block|fail)\w*\b/u.test(expectedOutcome)) return false;
-  return /\b(?:reject|refuse|block)\w*\b/u.test(expectedOutcome)
-    || /\bfail(?:s|ed|ing)?\s+closed\b/u.test(expectedOutcome);
+  return /^(?:expected\s+(?:result|outcome)\s*:\s*)?(?:(?:semantic\s+)?(?:validation|guard|contract)\s+)?(?:must\s+|should\s+|will\s+)?(?:reject|refuse|block)\w*\s+(?:it|this|the\s+(?:input|statement|fixture|claim|wording|mutation))(?:\s+and\s+(?:must\s+)?fail\w*\s+closed)?[.!?]*$/u.test(expectedOutcome)
+    || /^(?:expected\s+(?:result|outcome)\s*:\s*)?(?:(?:semantic\s+)?(?:validation|guard|contract)\s+)?fail(?:s|ed|ing)?\s+closed[.!?]*$/u.test(expectedOutcome);
 }
 
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
   if (source.kind !== 'verificationIntent') return false;
   const normalized = normalizeTriageAuthorityText(source.text);
-  if (!/^(?:inject|attempt\s+to|present|give|change|replace|mutate|alter|delete\s+or\s+alter|verify|prove|exercise|test)\b/u.test(normalized)) return false;
+  if (!/^(?:inject|attempt\s+to|present|give|change|replace|mutate|alter|delete\s+or\s+alter)\b/u.test(normalized)) return false;
   const outcomeStart = Math.max(
     normalized.lastIndexOf(' prove '),
     normalized.lastIndexOf(' verify '),
@@ -314,10 +315,20 @@ function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthori
   return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(outcome);
 }
 
-function retiredAliasIsSafeMigration(segment: string): boolean {
-  return /\b(?:legacy\s+input\s+alias|legacy\s+alias|input\s+alias)\b/u.test(segment)
-    && /\b(?:normalize|map|translate|migrate|canonicalize)\w*\b[^.;]{0,100}\bnot\s+reproduced\s+under\s+current\s+witness\b/u.test(segment)
-    && /\bbefore\s+(?:official\s+)?sign(?:ing|ature)?\b/u.test(segment);
+function hasDynamicFindingAuthorityAmendmentAssertion(segment: string): boolean {
+  const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
+  const amendment = /\b(?:amend|modify|rewrite|override|replace|extend|change|update|authorit(?:ize|ise))\w*\b|\b(?:make|publish)\b[^.;]{0,80}\bauthoritative\b/u;
+  for (const authorityRange of matchRanges(segment, authority)) {
+    for (const amendmentRange of matchRanges(segment, amendment)) {
+      const distance = Math.max(
+        0,
+        Math.max(authorityRange.start, amendmentRange.start) - Math.min(authorityRange.end, amendmentRange.end),
+      );
+      if (distance > 120) continue;
+      if (!relationIsNegated(segment, amendmentRange, authorityRange, authorityRange)) return true;
+    }
+  }
+  return false;
 }
 
 function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySource): ReviewTriageAuthorityViolation | null {
@@ -325,6 +336,9 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     || isExplicitFailClosedQuotedFixture(source.text)
     || isNegativeMutationVerificationIntent(source)) return null;
   for (const segment of triageAuthoritySegments(source.text)) {
+    if (hasDynamicFindingAuthorityAmendmentAssertion(segment)) {
+      return 'Dynamic Finding authority amendment asserted from Task Context';
+    }
     if (RETIRED_APPLICABILITY_ALIAS.test(segment)) {
       const verdictAuthority = /\b(?:(?:current|official)\s+(?:applicability\s+)?verdict|applicability\s+verdict)\b/u;
       const assertsCurrentVerdict = hasAffirmativeConceptRelation(
@@ -335,7 +349,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       );
       const explicitlyRejected = /^(?:never|reject|do\s+not|must\s+not|cannot|forbid|prohibit|disallow)\b/u.test(segment)
         || /\bnot\b[^.;]{0,48}\b(?:current|official|applicability)\s+(?:applicability\s+)?verdict\b/u.test(segment);
-      if (assertsCurrentVerdict || (!explicitlyRejected && !retiredAliasIsSafeMigration(segment))) {
+      if (assertsCurrentVerdict || !explicitlyRejected) {
         return 'retired applicability verdict used as authority';
       }
     }
@@ -430,11 +444,13 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Reviewe
 
 /**
  * REVIEW role authority is package-owned. Story-authored Task Context may
- * describe work, tests, explicit rejection, and legacy migration, but it
- * cannot assert contradictory Finding-triage authority. The bounded semantic
- * check relates normalized concepts and assertion polarity, rather than
- * denying an exact sentence. It runs before envelope digests are minted, so
- * recomputing every content address cannot bless an authority injection.
+ * describe work, tests, and explicit rejection, but it cannot publish a
+ * Dynamic Finding authority amendment or retain retired verdict vocabulary as
+ * migration authority. Historical Finding/evidence reads remain outside the
+ * active FullTaskContext authority surface. The bounded semantic check relates
+ * normalized concepts and assertion polarity, rather than denying an exact
+ * sentence. It runs before envelope digests are minted, so recomputing every
+ * content address cannot bless an authority injection.
  */
 function assertReviewerTaskContextAuthoritySafety(
   roleId: string,
