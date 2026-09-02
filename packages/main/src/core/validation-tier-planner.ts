@@ -229,9 +229,21 @@ export const VALIDATION_WIDENING_REASONS = {
   pinned_command_missing: {
     condition: 'Explicit command pin does not resolve',
     outcome: 'stop',
+    /**
+     * B-a745 F-004. The previous wording claimed the command "no longer exists
+     * in this project" and prescribed re-recording the evidence. That is a claim
+     * this code cannot make: the resolver only knows the id is absent from the
+     * VALIDATION COMMAND INVENTORY (`validate.commands`), which is a narrower
+     * registry than "things this project can run". A command can be a real,
+     * currently passing script and still not be a member. Telling an operator to
+     * re-record against "a current command" then sends them looking for a
+     * more-current command that does not exist. The remedy that actually applies
+     * is to restore or declare the id in the inventory.
+     */
     gloss:
-      'Recorded evidence points at a validation command that no longer exists in this project, so no plan is ' +
-      'produced until the evidence is re-recorded.',
+      'Evidence pins a command id that this project\u2019s validation command inventory does not declare, so the ' +
+      'command the evidence claims to prove cannot be identified and no plan is produced; restore or declare ' +
+      'that id in the inventory, or re-record the evidence against an id the inventory currently declares.',
   },
   pinned_command_non_inventory: {
     condition: 'Legacy free-form evidence command normalizes to no command in the validation inventory',

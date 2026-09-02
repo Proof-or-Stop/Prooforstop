@@ -518,8 +518,10 @@ export function resolveValidationCommandPin(args: {
       reason: 'pinned_command_missing',
       candidateIds: [],
       message:
-        `pinned_command_missing: evidence pins commandId "${trimmed}", which no command in the current ` +
-        'validation command set declares. Re-record the evidence against a current command, or restore the id.',
+        `pinned_command_missing: evidence pins commandId "${trimmed}", which no command in this project\u2019s ` +
+        'validation command inventory declares. That is a statement about the inventory, not about whether ' +
+        'anything by that name can run: restore or declare the id in the inventory, or re-record the evidence ' +
+        'against an id the inventory currently declares.',
     };
   }
 
