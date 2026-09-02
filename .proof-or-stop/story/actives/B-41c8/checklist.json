@@ -6,7 +6,55 @@
       "context": "core/evidence-freshness.ts changedFilesBetween / changedFilesBetweenRenameAware / changedFileStatusesBetweenRenameAware. RED fixtures: a rename of a path with a space, a non-ASCII path, and a path containing a quote character, each asserting BOTH sides survive; an unparseable row raises instead of being skipped. Keep the throw on an unresolvable ref and document it as the contract; audit callers for any catch-and-return-empty.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "Running `node packages/main/dist/tasks/single-owner-extraction-smoke.js` prints one line per reader case and ends `single-owner-extraction-smoke: PASS`. In a fixture repository where a file whose name contains a non-ASCII character is renamed, the reader reports both the old and the new path; a deliberately corrupted diff row makes the reader raise an error naming the row instead of returning a shorter list.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A rename of a path containing a space, a non-ASCII character, or a quote character yields both the old and the new path from changedFileStatusesBetweenRenameAware and changedFilesBetweenRenameAware.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "materialHash and storyFilesHash computed with the new reader are byte-identical to the old reader over a fixture repository containing no quoted paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A deleted path remains reported, and a copy reports both sides, under NUL-delimited parsing.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "An unresolvable ref still throws, and a fixture asserts that no caller in packages/main/src catches that throw and returns an empty array.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An unparseable diff row raises an error naming the row rather than being skipped; a fixture that injects a malformed row asserts the raise.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
