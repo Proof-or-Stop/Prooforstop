@@ -576,7 +576,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:92 and tests/AGENTS.verify.mjs:125-131 — acceptance-blocking incomplete authority-set contract. A19's GREEN resolution materially claims that the signed review_run_start / review_pass_set / finding_add flow is explicit, but AUTHORITY_BY_ROW A19 models only dispatch, agent_prompt, roster, batch, and quorum; it has no authority entry for the three signed-flow commands, whose current registrations are at packages/main/src/cli/command-catalog.ts:655, :669, and :2074. A26 similarly claims legacy names are aliases at audit line 99, while its modeled sources only prove body-free/thin prompt rendering; the alias authority is packages/main/src/core/agent-dispatch-registry.ts:36-38 and is not in the A26 set. Consequently auditCitationPolicy can report full exact-set GREEN while these material subclaims remain uncited, and the independent final run did exactly that: exit 0 with 26/26 GREEN and the A09/A20 mutation receipts. WHY high: the user explicitly requires evidence for all 24+2 corrections and the latest F-025 resolution promises complete authority sets, so a verifier-defined incomplete set is a direct acceptance false-green. Add one authority entry per omitted material subclaim, update the audit cells to the exact current lines, and add mutation checks that remove/replace those newly modeled A19/A26 references.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T02:36:59.048Z",
@@ -590,7 +590,11 @@
         "packages/main/src/core/agent-dispatch-registry.ts"
       ],
       "signatureTag": "missing|md|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 0534bdb2 adds exact A19 authorities for review_run_start, review_pass_set, pass reviewRunId binding, finding_add and finding reviewRunId binding, plus the exact A26 legacy alias registry authority. The verifier now rejects all 12 A19/A26 replace/remove mutations after refreshed hashes. Owner baseline is 26/26 RED exit 1 and final is 26/26 GREEN/CASE46 exit 0. Proven runtime, Unicode and semantic markers are replayed after all checks so they exist in both the first and last 4KB without weakening final exit.",
+      "resolvedAt": "2026-09-02T02:50:18.336Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
