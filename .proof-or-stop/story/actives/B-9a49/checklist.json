@@ -3,21 +3,20 @@
     {
       "id": "CHK-001",
       "title": "Deliver one canonical Finding triage contract to every active REVIEW lane",
-      "context": "Own all REVIEW-lane behavior and prohibitions in one canonical contract: current review_run_start/reviewRunId/finding_add/review_pass_set protocol; independent evidenceState, severity, applicability candidate, disposition, and gate-impact axes; fail-closed unknown applicability; evidence-backed routing with owner; no reviewer repair, finding_dismiss, story_create, gap_log, severity rewriting, or unilateral scope expansion; distinct disproven, duplicate, and not_reproduced_under_current_witness outcomes; and a future official signed defer_with_proof disposition limited to eligible verified applicable low/medium Findings while mandatory current-repair cases remain blocking. As a documentation-only authority migration, amend the Dynamic Finding execution plan to make those target-state names and semantics authoritative, retain its former combined verdict name only as an explicitly labeled legacy input alias for a future migration, and state that the current compatibility CLI implements neither the future alias normalization nor signed deferral disposition. Do not change runtime Finding schemas, handlers, predicates, process-fact registries, or lifecycle gates in this Story. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never general product-defect routing or backlog. Deliver the resulting contract identically to all five active REVIEW lanes through both envelope paths and nowhere else.",
+      "context": "Own all REVIEW-lane behavior and prohibitions in one canonical Agent contract: current review_run_start/reviewRunId/finding_add/review_pass_set protocol; independent evidenceState, severity, applicability candidate, disposition, and gate-impact axes; fail-closed unknown applicability; evidence-backed routing with owner; no reviewer repair, finding_dismiss, story_create, gap_log, severity rewriting, or unilateral scope expansion; distinct disproven, duplicate, and not_reproduced_under_current_witness outcomes; and future official signed defer_with_proof guidance limited to eligible verified applicable low/medium Findings while mandatory current-repair cases remain blocking. This proposal and Story are subordinate Agent-side projections of the Dynamic Finding execution plan; they do not amend that authority. Retired verdict vocabulary is historical evidence only and is never an active Task Context alias. Do not change runtime Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, or the Dynamic Finding authority document in this Story. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never general product-defect routing or backlog. Deliver the resulting contract identically to all five canonical proof-or-stop REVIEW lanes through both envelope paths and nowhere else.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:23:24.499Z",
-      "endTime": "2026-09-01T11:46:21.826Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-registry.ts",
-          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
           "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
         ],
         "create": [],
@@ -29,7 +28,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Assemble each of lattice-review-behavior, lattice-review-concept, lattice-review-docs, lattice-review-quality, and lattice-review-test-coverage in full-envelope mode and prove that every result contains exactly one byte-identical canonical Finding triage contract with the current review_run_start -> reviewRunId -> finding_add or review_pass_set protocol.",
+            "desc": "Assemble each of proof-or-stop-review-behavior, proof-or-stop-review-concept, proof-or-stop-review-docs, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage in full-envelope mode and prove that every result contains exactly one byte-identical canonical Finding triage contract with the current review_run_start -> reviewRunId -> finding_add or review_pass_set protocol.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -444,9 +443,9 @@
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "done",
+      "status": "pending",
       "startTime": null,
-      "endTime": "2026-09-01T11:46:22.630Z",
+      "endTime": null,
       "userSees": "Story Owner and implementer instructions distinguish current-Story repair from evidence-backed routing and prevent boundaryless scope expansion.",
       "files": {
         "modify": [
@@ -697,9 +696,9 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "done",
+      "status": "pending",
       "startTime": null,
-      "endTime": "2026-09-01T11:46:23.451Z",
+      "endTime": null,
       "userSees": "Contract verification shows REVIEW roles declare triage behavior while prompt prose and metadata remain non-evidentiary and do not alter lifecycle gates.",
       "files": {
         "modify": [
@@ -893,9 +892,9 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "done",
-      "startTime": "2026-09-01T11:23:25.255Z",
-      "endTime": "2026-09-01T11:46:24.331Z",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "userSees": "A failing pre-implementation contract test becomes green after the change, and digest/adapter verification confirms the published English Agent prompts are fresh and compatible.",
       "files": {
         "modify": [
@@ -1447,9 +1446,9 @@
           "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
         ]
       },
-      "status": "done",
+      "status": "pending",
       "startTime": null,
-      "endTime": "2026-09-01T11:46:25.194Z",
+      "endTime": null,
       "verificationIntent": {
         "happy": [
           {
@@ -1858,9 +1857,9 @@
           }
         ]
       },
-      "status": "done",
+      "status": "pending",
       "startTime": null,
-      "endTime": "2026-09-01T11:46:26.021Z",
+      "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "f4f7cc5f5a3cc20498d057a4609ae805ce7b53088b3441d38aa20c65f2491f7a",
         "storyFilesHash": "bddedfc12828de479b91463864cc30975d1ef8a6b4d92ce85820d67608c78477",
