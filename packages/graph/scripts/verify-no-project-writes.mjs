@@ -47,14 +47,27 @@ const snapshot = () => {
      two adds ignored paths while pruning the dependency and build trees that are not part
      of the repository's meaningful state.
 
-     KNOWN BOUNDARY: a write under a pruned path (node_modules, dist, .git) is not detected.
-     The review host confirmed this and judged it acceptable rather than an overclaim: those
-     paths are gitignored, so they are invisible to the DONE clean-tree gate this guard
-     exists to protect, and a write there cannot sabotage it. Stated so the boundary is
-     recorded rather than discovered. */
+     KNOWN BOUNDARY: a write under a pruned path (node_modules, dist, .git,
+     .proof-or-stop/runtime/validation-traces) is not detected. The review host confirmed
+     this and judged it acceptable rather than an overclaim: those paths are gitignored, so
+     they are invisible to the DONE clean-tree gate this guard exists to protect, and a
+     write there cannot sabotage it. Stated so the boundary is recorded rather than
+     discovered.
+
+     validation-traces is pruned for a second, sharper reason: it is not this repository's
+     meaningful state at all, it is the running validator's own sidecar. `proof-or-stop
+     validate` writes a trace per executed command, so when this guard runs as one of those
+     commands the surrounding run is concurrently appending to that directory. Hashing it
+     would attribute the validator's writes to the graph scan and fail a clean scan --
+     measured, not argued: a probe writing three files there during a scan produced
+     UNEXPECTED_PROJECT_WRITE naming exactly those files. The same exclusion is already
+     established in this repository at packages/main/src/handlers/story-aware-validation.ts,
+     which drops `.proof-or-stop/runtime/validation-traces/` from command residue because
+     the runtime artifact registry owns it. This prunes the identical path for the identical
+     reason rather than inventing a new exemption. */
   const run = (args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 })
     .split('\0').filter(Boolean);
-  const PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)/;
+  const PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)|^\.proof-or-stop\/runtime\/validation-traces\//;
   const listed = [...new Set([
     ...run(['ls-files', '-z', '--cached', '--others', '--exclude-standard']),
     ...run(['ls-files', '-z', '--others', '--ignored', '--exclude-standard']).filter(p => !PRUNED.test(p)),

@@ -870,24 +870,36 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
   }
 }
 
-await assertReviewPassConcurrentWrites();
-await assertChecklistConcurrentUpdates();
-await assertChecklistConcurrentVerificationIntentUpdates();
-await assertTypedDispatchUsesRoleSafePromptsAndBoundaries();
-console.log('typed dispatch role/cardinality/mutation smoke PASS');
-await assertDiscardRemovesUntrackedWorktreeAndBranch();
-await assertDiscardCanCleanAlreadyDiscardedResidue();
-await assertDiscardPrunesMissingWorktreeRegistry();
-await assertDiscardCleansInvalidGitPointerResidue();
-await assertDiscardForceFromInvalidWorktreeCwd();
-await assertDiscardFailureDoesNotMarkSuccess();
-await assertPurgeDropsSafeInitCommit();
-await assertPurgeTombstonesBuriedSafeInitCommit();
-await assertDoctorRepairCleansTerminalWorktrees();
-await assertInitDispatchPromptHasStatusFirstLivenessGuidance();
-await assertItemDispatchWritesChannelEvidence();
-assertStrayCleanupAllowsGeneratedReviewMetadata();
-assertDocsDriftAllowsBootstrapAndLegacyCommands();
-assertChannelAllowsExplicitMainAgentPlanOwnership();
+const dyn5Case = process.env.PROOF_OR_STOP_DYN5_CASE;
+if (dyn5Case) {
+  // DYN-5 invokes named, real scenario bodies from this smoke suite rather
+  // than a marker-only probe.  Each case creates its own fixture and asserts
+  // the same handler/discard behavior as the complete oracle.
+  if (dyn5Case === 'review-pass:scenario-1') await assertReviewPassConcurrentWrites();
+  else if (dyn5Case === 'review-pass:scenario-2') await assertDiscardRemovesUntrackedWorktreeAndBranch();
+  else if (dyn5Case === 'review-pass:scenario-3') await assertDiscardFailureDoesNotMarkSuccess();
+  else throw new Error(`unknown DYN-5 review-pass case: ${dyn5Case}`);
+  console.log(`PROOF_OR_STOP_DOMAIN_CASE:${dyn5Case}`);
+} else {
+  await assertReviewPassConcurrentWrites();
+  await assertChecklistConcurrentUpdates();
+  await assertChecklistConcurrentVerificationIntentUpdates();
+  await assertTypedDispatchUsesRoleSafePromptsAndBoundaries();
+  console.log('typed dispatch role/cardinality/mutation smoke PASS');
+  await assertDiscardRemovesUntrackedWorktreeAndBranch();
+  await assertDiscardCanCleanAlreadyDiscardedResidue();
+  await assertDiscardPrunesMissingWorktreeRegistry();
+  await assertDiscardCleansInvalidGitPointerResidue();
+  await assertDiscardForceFromInvalidWorktreeCwd();
+  await assertDiscardFailureDoesNotMarkSuccess();
+  await assertPurgeDropsSafeInitCommit();
+  await assertPurgeTombstonesBuriedSafeInitCommit();
+  await assertDoctorRepairCleansTerminalWorktrees();
+  await assertInitDispatchPromptHasStatusFirstLivenessGuidance();
+  await assertItemDispatchWritesChannelEvidence();
+  assertStrayCleanupAllowsGeneratedReviewMetadata();
+  assertDocsDriftAllowsBootstrapAndLegacyCommands();
+  assertChannelAllowsExplicitMainAgentPlanOwnership();
 
-console.log('✓ review pass and discard smoke passed');
+  console.log('✓ review pass and discard smoke passed');
+}

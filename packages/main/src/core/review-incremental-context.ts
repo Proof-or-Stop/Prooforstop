@@ -853,14 +853,27 @@ export function reviewIncrementalContext(
         ...args.changedFiles,
         ...args.impact.impactedFiles,
       ])].sort();
-      const overflowReasons = incrementalReviewBasisOverflowReasonCodes({
-        changedFiles: args.changedFiles,
-        impactedFiles: args.impact.impactedFiles,
-        authoritativeReferences,
-        findingDeltas,
-        unresolvedFindings,
-        findingDescriptionExceedsTextLimit: findingDescriptionExceedsBasisLimit,
-      });
+      // B-45a0 (6f0250c985) additionally escalates when the affected items carry
+      // more verificationIntent entries than the bounded basis can represent.
+      // main's shared helper does not cover that input, so it is folded in here
+      // rather than dropped by taking main's structure wholesale.
+      const affectedIntentCount = affectedItems
+        .flatMap(item => (['happy', 'edge', 'adversarial'] as const)
+          .flatMap(lane => item.verificationIntent?.[lane] ?? []))
+        .length;
+      const overflowReasons = [
+        ...incrementalReviewBasisOverflowReasonCodes({
+          changedFiles: args.changedFiles,
+          impactedFiles: args.impact.impactedFiles,
+          authoritativeReferences,
+          findingDeltas,
+          unresolvedFindings,
+          findingDescriptionExceedsTextLimit: findingDescriptionExceedsBasisLimit,
+        }),
+        ...(affectedIntentCount > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane
+          ? ['FULL_BOUNDED_REVIEW_BASIS_EXCEEDED']
+          : []),
+      ];
       if (overflowReasons.length > 0) {
         // Recompute the authoritative main...HEAD context while retaining the
         // trusted prior in audit-only fields. Never construct an invalid basis
@@ -917,7 +930,7 @@ export function reviewIncrementalContext(
       priorEnvelopeId: args.prior?.run.envelopeId ?? null,
       priorHeadHash: args.prior?.run.headHash ?? null,
       freshnessClassification: args.freshnessClassification,
-      eligibilityReasonCodes,
+      eligibilityReasonCodes: eligibilityReasonCodes,
       changedFilesDigest,
       impactedFilesDigest,
       impactDigest: args.impact.digest,
@@ -933,7 +946,7 @@ export function reviewIncrementalContext(
       contextMode,
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
       freshnessClassification: args.freshnessClassification,
-      eligibilityReasonCodes,
+      eligibilityReasonCodes: eligibilityReasonCodes,
       eligibilityDigest: domainSeparatedDigest('incremental-eligibility.v1', semantic),
       impact: args.impact,
       priorPassRef: args.prior?.pass.id ?? null,

@@ -357,7 +357,11 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
 
 const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
-  ['packages/main/src/core/closeout-trust.ts', 'eaa9538e6ae7ab2b6895e504d981b0e543c87c1b0a311ecbe2d9d595deeaddfc'],
+  // B-45a0 F-419: repinned after adding a receipt-bound checklist policy for
+  // the one canonical stale-evidence refresh writer. Compatibility symbols and
+  // their approved call shapes remain independently checked above. Repinned
+  // again when main's proof-or-stop rename merged into that same file.
+  ['packages/main/src/core/closeout-trust.ts', 'bd6f5790b3c33daebfbb04bd184bb210c0589b3acdfb9d7a1c02f7262985bf99'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
@@ -370,7 +374,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'fde4ff96b4477af470364e394642084c539b6a2e9efbbe637f72f3e0182dcff2'],
+  // B-45a0 F-421: repinned with executable checks that canonical checklist
+  // refresh lineage retains review while checklist_update remains rejected.
+  // Repinned again for main's B-1e1f persistSyntheticAdmittedWindowForTest.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '32bd2e64768f6a866822ceaf54dd6a8c8ca61dff00f4028e251d000f1d2771cf'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this

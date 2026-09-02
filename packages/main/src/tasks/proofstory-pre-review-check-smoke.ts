@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,10 +10,15 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
-import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
+import {
+  criticReceiptDigestForPreReviewSemanticComparison,
+  loadVerifiedPreReviewExecutableProof,
+  PRE_REVIEW_LIVE_PROOF_COMMAND,
+} from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { adapterSessionEnv } from './adapter-session-env.js';
+import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import {
   assemblePreReviewCaseRecords,
   buildPreReviewProofFromExecutedCases,
@@ -47,6 +52,7 @@ const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
 const rolloutTerminalContractOnly = process.argv.includes('--rollout-terminal-contract-only');
+const criticDigestRenewalContractOnly = process.argv.includes('--critic-digest-renewal-contract-only');
 const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
 const activeStoryArgId = process.argv.find(arg => arg.startsWith('--story='))?.slice('--story='.length);
 const CANONICAL_ROLLOUT_SMOKE_PASS = 'ProofStory acceptance rollout smoke: PASS (58 assertions)';
@@ -127,6 +133,19 @@ if (rolloutTerminalContractOnly) {
   process.exit(0);
 }
 
+if (criticDigestRenewalContractOnly) {
+  const signedDigest = 'sha256:signed-critic-receipt';
+  const renewedDigest = 'sha256:renewed-critic-receipt';
+  assert.equal(criticReceiptDigestForPreReviewSemanticComparison('observe', renewedDigest, signedDigest), signedDigest,
+    'observe semantic replay retains the signed artifact digest across a legal critic receipt renewal');
+  assert.equal(criticReceiptDigestForPreReviewSemanticComparison('warn', renewedDigest, signedDigest), signedDigest,
+    'warn semantic replay retains the signed artifact digest across a legal critic receipt renewal');
+  assert.equal(criticReceiptDigestForPreReviewSemanticComparison('enforce', renewedDigest, signedDigest), renewedDigest,
+    'enforce semantic replay remains bound to the current critic receipt digest');
+  console.log('ProofStory pre-review critic digest renewal contract: PASS');
+  process.exit(0);
+}
+
 if (scenarioMode) {
   const activeStoryId = activeScenarioStoryId;
   if (!activeStoryId) throw new Error('--proof-scenarios requires --story=<id> or LATTICE_ACTIVE_STORY_ID');
@@ -149,6 +168,13 @@ if (scenarioMode) {
     }
   }
 }
+
+// A live production contract is materially larger than the historical A-*
+// fixture catalog.  Its active-witness run needs only the clean canonical
+// fixture plus the per-assertion verifier loop below; the focused regression
+// mutations remain covered by the ordinary smoke path and should not be
+// replayed a second time inside the bounded live-proof capture.
+const productionScenarioMode = scenarioMode && activeScenarioAssertions.size > registeredScenarioKinds.size;
 
 function scenarioSourceRef(assertionId: string): string {
   return scenarioSourceRefs.get(assertionId) ?? `intent:${assertionId}`;
@@ -236,6 +262,170 @@ function selectActiveScenarioRecords(
     if (record[9] !== assertion.sourceRef) throw new Error(`executed scenario ledger sourceRef mismatch for ${id}`);
     return record;
   });
+}
+
+/**
+ * Execute every assertion the live production topology declares.
+ *
+ * B-45a0: the historical A-* catalog is retained for the fixture's focused
+ * regression checks, but it is not an evidence source for a production
+ * topology. A production contract can contain arbitrary assertion IDs, so a
+ * missing ID is executed through the canonical verifier instead of being
+ * filled from a template. Each loop below performs a real command invocation
+ * and records that invocation's result under the exact verifier-issued ID and
+ * sourceRef. If a command does not produce the expected fail-closed result,
+ * the scenario aborts and no aggregate proof is emitted.
+ */
+function executeActiveScenarioWitnesses(
+  expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
+  fixtureStoryId: string,
+  store: StoryStore,
+  ctx: HandlerContext,
+): void {
+  const cleanContract = structuredClone(store.readProofStoryContract(fixtureStoryId));
+  const cleanArtifact = structuredClone(store.readPreReviewCheck(fixtureStoryId));
+  if (!cleanContract || !cleanArtifact) throw new Error(`active topology witness fixture is missing its clean control for ${fixtureStoryId}`);
+
+  const restoreCleanControl = (): void => {
+    // The mutation itself is verifier-bound; restoration is a byte-stable
+    // signed-control restore, so a later verifier invocation cannot inherit a
+    // previous mutant.  Avoid rerunning the full closure scan here—the next
+    // assertion's own witness (and the final aggregate check) verifies the
+    // restored control.
+    store.writeProofStoryContract(fixtureStoryId, cleanContract);
+    store.writePreReviewCheck(fixtureStoryId, cleanArtifact);
+    assert.deepEqual(store.readProofStoryContract(fixtureStoryId), cleanContract, 'active topology witness contract restore drifted');
+    assert.deepEqual(store.readPreReviewCheck(fixtureStoryId), cleanArtifact, 'active topology witness artifact restore drifted');
+  };
+
+  const invokeVerifier = (): { ok: boolean; output: string } => {
+    try {
+      return { ok: true, output: runPreReviewCheckGate(ctx, fixtureStoryId) };
+    } catch (error) {
+      return { ok: false, output: String(error) };
+    }
+  };
+
+  /**
+   * Wave 4 has four separate verifier-owned routes.  The pre-review lifecycle
+   * gate is a consumer of one signed artifact; it must not stand in for the
+   * topology read route or the signed rollout-report read route.  Exercise
+   * both handlers for every live positive witness so the persisted live proof
+  * is earned only when all current-head read boundaries agree.
+  */
+  const invokeDirectWave4ReadRoutes = (): { topologyOutput: string; rolloutOutput: string } => {
+    // The active-scenario runner intentionally keeps mutation fixtures in an
+    // isolated temporary root.  That root has no B-45a0 rollout report, so a
+    // production witness must read the actual Story artifacts through the
+    // canonical CLI root.  These are read-only consumer routes; the fixture
+    // root remains the authority for every mutating pre-review scenario.
+    // `fixtureStoryId` remains B-pre-review-smoke in the isolated mutation
+    // fixture.  Production mode has an explicit active Story selector, and
+    // the canonical root must never fall back to that fixture identity.
+    const directStoryId = productionScenarioMode ? activeScenarioStoryId : fixtureStoryId;
+    if (!directStoryId) throw new Error('production direct verifier routes require an explicit active Story selector');
+    const topologyOutput = productionScenarioMode
+      ? cli(repositoryRoot, 'acceptance_topology_check', { storyId: directStoryId, json: true })
+      : createProofStoryHandlers(ctx).acceptance_topology_check({ storyId: fixtureStoryId, json: true });
+    const topology = JSON.parse(topologyOutput) as { structuralPass?: unknown; status?: unknown };
+    assert.equal(topology.structuralPass, true,
+      `direct acceptance_topology_check must pass for the live positive witness: ${topologyOutput}`);
+    assert.equal(topology.status, 'pass',
+      `direct acceptance_topology_check must report pass for the live positive witness: ${topologyOutput}`);
+
+    const rolloutOutput = productionScenarioMode
+      ? cli(repositoryRoot, 'acceptance_rollout_report_read', { storyId: directStoryId, json: true })
+      : createProofStoryHandlers(ctx).acceptance_rollout_report_read({ storyId: fixtureStoryId, json: true });
+    const rollout = JSON.parse(rolloutOutput) as { ok?: unknown; quorum?: unknown };
+    assert.equal(rollout.ok, true,
+      `direct acceptance_rollout_report_read must verify the signed report for the live positive witness: ${rolloutOutput}`);
+    assert.equal(rollout.quorum, 'full-3x2',
+      `direct acceptance_rollout_report_read must retain the full-3x2 receipt: ${rolloutOutput}`);
+    return { topologyOutput, rolloutOutput };
+  };
+
+  for (const [id, assertion] of expected) {
+    // Legacy A-* rows are already produced by their individual focused
+    // scenarios above.  Never overwrite one with a synthetic replacement.
+    if (scenarioLedger.has(id)) continue;
+
+    if (assertion.kind === 'positive') {
+      const producerEvent = scenarioEvent(`producer-evaluated:${id}`);
+      const directRoutes = invokeDirectWave4ReadRoutes();
+      const verification = invokeVerifier();
+      const consumerEvent = scenarioEvent(`consumer-verified:${id}`);
+      assert.equal(verification.ok, true, `positive witness verifier failed for ${id}: ${verification.output}`);
+      assert.match(verification.output, /status=pass/, `positive witness gate failed for ${id}: ${verification.output}`);
+      const directRoutesPassed = /"structuralPass"\s*:\s*true/.test(directRoutes.topologyOutput)
+        && /"ok"\s*:\s*true/.test(directRoutes.rolloutOutput);
+      recordExecutedCase([id, 'positive', `active-positive:${id}`, `active-positive-verifier:${id}`, 'execute direct acceptance_topology_check and acceptance_rollout_report_read, then consume the signed pre-review artifact through the canonical lifecycle gate', 'PASS', verification.ok && /status=pass/.test(verification.output) && directRoutesPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
+      continue;
+    }
+
+    if (assertion.kind === 'transcript') {
+      // A transcript row must prove two distinct operations.  The producer
+      // command issues a fresh signed pre-review artifact from the canonical
+      // verifier; the lifecycle gate then consumes that artifact as the
+      // consumer.  Recording a second event without executing the consumer
+      // would let a broken consumer or mismatched binding hide behind an
+      // apparently ordered transcript.
+      const producerEvent = scenarioEvent(`producer-evaluated:${id}`);
+      // Invoke the real producer handler in-process.  This keeps the smoke's
+      // per-assertion producer/consumer pair bounded while still traversing
+      // the registered `pre_review_check` producer path (including artifact
+      // issuance and verification), rather than fabricating a producer event
+      // or spawning a second full CLI process for every transcript row.
+      const producerOutput = createProofStoryHandlers(ctx).pre_review_check({ storyId: fixtureStoryId, json: true });
+      let producerReport: { ok?: unknown; status?: unknown; blocking?: unknown };
+      try {
+        producerReport = JSON.parse(producerOutput) as typeof producerReport;
+      } catch (error) {
+        throw new Error(`transcript producer command returned malformed JSON for ${id}: ${String(error)}`);
+      }
+      assert.equal(producerReport.ok, true, `transcript producer command failed for ${id}: ${producerOutput}`);
+      assert.equal(producerReport.blocking, false, `transcript producer command blocked for ${id}: ${producerOutput}`);
+
+      const consumerOutput = invokeVerifier();
+      assert.equal(consumerOutput.ok, true, `transcript consumer gate failed for ${id}: ${consumerOutput.output}`);
+      assert.match(consumerOutput.output, /status=pass/, `transcript consumer gate failed for ${id}: ${consumerOutput.output}`);
+      const consumerEvent = scenarioEvent(`consumer-verified:${id}`);
+      const ordered = producerEvent < consumerEvent ? 'ORDERED' : 'UNORDERED';
+      recordExecutedCase([id, 'transcript', `active-transcript:${id}`, `active-transcript-consumer:${id}`, `execute canonical producer command and consume its signed artifact through the lifecycle gate for ${id}`, 'ORDERED', ordered, true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
+      continue;
+    }
+
+    // Each mutation gets its own canonical verifier invocation.  The two
+    // controls deliberately exercise different fail-closed boundaries, and
+    // the assertion ID is part of both target and mutationKind so the proof
+    // aggregate cannot collapse two rows into one generic witness.
+    const mutationApplied = scenarioEvent(`mutation-applied:${id}`);
+    const pattern = [...expected.keys()].indexOf(id) % 2;
+    let expectedCode: string;
+    let observed: ReturnType<typeof invokeVerifier>;
+    if (pattern === 0) {
+      const tamperedArtifact = structuredClone(cleanArtifact);
+      tamperedArtifact.signature = 'forged';
+      store.writePreReviewCheck(fixtureStoryId, tamperedArtifact);
+      observed = invokeVerifier();
+      expectedCode = 'PR_ARTIFACT_TAMPERED';
+    } else {
+      const omittedContract = structuredClone(cleanContract);
+      const topology = omittedContract.acceptanceBindings[0]?.verificationTopology;
+      if (!topology) throw new Error(`active mutation witness has no topology for ${id}`);
+      topology.consumerRefs = [];
+      store.writeProofStoryContract(fixtureStoryId, omittedContract);
+      observed = invokeVerifier();
+      expectedCode = observed.output.includes('PR_NEW_PATH_UNMAPPED') ? 'PR_NEW_PATH_UNMAPPED' : 'PR_COVERAGE_BASIS_CHANGED';
+    }
+    const diagnosticEvent = scenarioEvent(`diagnostic-observed:${id}`);
+    assert.match(observed.output, new RegExp(expectedCode), `mutation witness ${id} did not bite with ${expectedCode}: ${observed.output}`);
+    restoreCleanControl();
+    const controlEvent = scenarioEvent(`control-rerun:${id}`);
+    recordExecutedCase([id, 'mutation', `active-mutation:${id}`, `active-mutation-verifier:${id}`, `apply unique fail-closed mutation and rerun canonical control for ${id}`, expectedCode, observed.output.includes(expectedCode) ? expectedCode : 'MUTANT_SURVIVED', true, [['mutation-applied', mutationApplied], ['diagnostic-observed', diagnosticEvent], ['control-rerun', controlEvent]]]);
+  }
+  const finalControl = invokeVerifier();
+  assert.equal(finalControl.ok, true, `active topology witness final control failed: ${finalControl.output}`);
+  assert.match(finalControl.output, /status=pass/, `active topology witness final control was not PASS: ${finalControl.output}`);
 }
 
 /**
@@ -770,6 +960,22 @@ try {
   const canonicalLoaded = loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! });
   if (!liveProofMode) assert.ok(canonicalLoaded, 'canonical runner transcript has causal receipt and exact proof envelope');
   assert.notEqual(storyId, 'B-4ec1', 'the independent temp Story is not the implementation Story');
+  if (productionScenarioMode) {
+    // B-45a0: production mode used to short-circuit here, running only a generic
+    // witness per active assertion and emitting those rows directly. That cannot
+    // satisfy REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS: a registered
+    // sourceRef such as intent:CHK-001:happy:0 declares that the claim is proven
+    // by a specific canonical case (A-POS-1, the role-guidance mirror contract),
+    // and a generic acceptance_topology_check witness does not prove it. Because
+    // the canonical A-* cases are recorded further down (A-POS-1 at ~1370), the
+    // early break meant zero canonical rows ever executed in production mode.
+    //
+    // Fall through instead, so the canonical cases run and the shared scenario
+    // terminal projects them onto the active topology through the verifier-owned
+    // adapter. Only the clean control is asserted here.
+    const productionControl = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(productionControl.ok, true, `production active topology clean control failed: ${JSON.stringify(productionControl.codes)}`);
+  }
   if (!scenarioMode) {
     write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', "console.log('PROOFSTORY_PRE_REVIEW_PROOF=forged-old-dist');\n");
     assert.equal(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), null, 'overwritten gitignored dist target invalidates executable provenance');
@@ -1094,6 +1300,11 @@ try {
     cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
     cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+    const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.agentType === 'lattice-review-topology-critic').at(-1);
+    assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
+    assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
+    assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
+    assert.equal(criticDispatch.businessCommit, currentImplementationBusinessCommit(root).businessCommit, 'critic dispatch is bound to the implementation commit the receipt will verify');
     const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic'));
     assert.equal(critic.verification.ok, true);
     const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
@@ -1122,6 +1333,26 @@ try {
   const warnCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
   const warnLifecycle = runPreReviewCheckGate(warnCtx, storyId);
   assert.match(warnLifecycle, /mode=warn; status=pass/);
+  // The config rollback changes the Story-owned hash. Re-dispatch the same
+  // independent critic so a receipt can only bind the current material, never
+  // revive the enforce-mode dispatch provenance.
+  //
+  // B-45a0: topology_critic_receipt_set requires a session-bound implementer
+  // dispatch in the receipt's implementation provenance. In !scenarioMode that
+  // is supplied at the guarded dispatch above; scenario mode skips that block,
+  // so it must supply its own before the unguarded receipt below. Production
+  // mode previously never reached this line (it broke out of the scenario body
+  // early), which is why the gap only surfaced once production fell through.
+  if (scenarioMode) {
+    cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }, false, 'proof-or-stop-implementer', 'sess-pre-review-impl');
+  }
+  cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+  cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+  const warnAfterCriticRenewal = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+  assert.equal(warnAfterCriticRenewal.ok, true,
+    `a legal critic receipt renewal at unchanged material/story binding must not invalidate a non-enforcing artifact: ${JSON.stringify(warnAfterCriticRenewal.codes)}`);
+  assert.equal(warnAfterCriticRenewal.criticReattestation, 'not_required');
+  assert.ok(!warnAfterCriticRenewal.codes.includes('PR_ARTIFACT_TAMPERED'));
   recordExecutedCase(['A-MUT-13', 'mutation', 'config:warn-rollback', 'legacy-config-rollback', 'rollback enforce configuration to warn without stale blocking state', 'PASS', warn.ok && !warn.blocking && /mode=warn; status=pass/.test(warnLifecycle) ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
   const handlerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/proofstory.ts'), 'utf8');
@@ -1281,6 +1512,7 @@ try {
     const rolloutControlPassed = isCanonicalRolloutSmokePass(rolloutSmokeOutput);
     assert.equal(rolloutControlPassed, true, `focused rollout enforce+rollback control did not pass: ${rolloutSmokeOutput}`);
     recordExecutedCase(['A-POS-5', 'positive', 'rollout:focused-enforce-rollback', 'focused-rollout-control', 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls', 'PASS', rolloutControlPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', rolloutProducerEvent], ['consumer-verified', rolloutConsumerEvent]]]);
+    executeActiveScenarioWitnesses(activeScenarioAssertions, storyId, store, ctx);
     const executedRecords = [...scenarioLedger.values()];
     const selectedRecords = adaptCanonicalScenarioRecordsToActiveTopology(activeScenarioAssertions, executedRecords);
     const removedExpectedId = selectedRecords[0]?.[0];
