@@ -37,10 +37,19 @@ and a 4000 bytes output tail containing that selector exactly once.
 
 The preserved tail proves the historical classification, but it does not retain
 the exact local and global version/path detail from that run. This audit therefore
-does not claim that the immutable receipt proves those unretained details. The
-verifier resolves both paths and versions afresh on every run and prints a live
-`currentClassification`; the historical marker is labeled `context=initial-audit`
-and separately records the independently computed current classification.
+does not claim that the immutable receipt proves those unretained details. Rerun
+`node tests/AGENTS.verify.mjs --runtime-policy` for current facts. Each run
+requires the repository-local Node entrypoint as the sole behavior authority,
+resolves the unrelated global entrypoint, reports its target mode and executable
+bit, attempts direct execution, and uses a bounded Node fallback on the resolved
+JavaScript artifact only when direct execution is unavailable. The live marker
+dynamically classifies version, realpath, and executability drift and labels the
+result `runScoped=true`; this report intentionally stores no static current
+classification. The historical marker remains labeled `context=initial-audit`
+and separately records the classification computed during the new run. Pure
+in-memory simulations also cover an executable same-version global artifact
+with retained realpath relation and a fully aligned entrypoint; no permission or
+global installation is mutated.
 
 ## Independent Claude CLI and Agy CLI provenance
 
@@ -252,9 +261,10 @@ conceptual examples, the unknown-command sentinel, and malformed
 For receipt auditability, the final verifier executes every substantive check
 before its compact proof replay. The receipt-window policy then spawns that full
 verifier, retains the same first 12,000 bytes as the validation executor, takes
-the last 4,000 bytes of that capture, and requires all 14 current selectors:
+the last 4,000 bytes of that capture, and requires all 18 current selectors:
 the six verification-intent selectors plus the command aggregate, citation
 aggregate, source/chain mutation aggregates, Claude and Agy artifact results,
-Agy provenance mutations, and cross-vendor provenance binding. Replay lines are
-returned by completed checks; the verifier does not print unconditional pass
-markers.
+Agy provenance mutations, cross-vendor provenance binding, global
+executability/direct-execution facts, the dynamic live classification, and the
+runtime-report mutation result. Replay lines are returned by completed checks;
+the verifier does not print unconditional pass markers.

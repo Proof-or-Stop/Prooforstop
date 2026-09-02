@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
@@ -922,10 +922,168 @@ function managedBlockChecks() {
   console.log(`MANAGED id=doc:AGENTS.md status=${item.status}`);
 }
 
-function classifyRuntime(localRealpath, localVersion, globalRealpath, globalVersion) {
-  return localRealpath === globalRealpath && localVersion === globalVersion
-    ? 'ALIGNED'
-    : localVersion === globalVersion ? 'REALPATH_DRIFT' : 'VERSION_AND_REALPATH_DRIFT';
+function directOutcome(run) {
+  if (run.error?.code) return run.error.code;
+  return run.status === null ? 'STATUS_NULL' : `EXIT_${run.status}`;
+}
+
+function executableMode(mode) {
+  return (mode & 0o111) !== 0;
+}
+
+function runtimeDrift(evidence) {
+  const components = [];
+  if (evidence.local.version !== evidence.global.version) components.push('VERSION');
+  if (evidence.local.realpath !== evidence.global.realpath) components.push('REALPATH');
+  if (!evidence.global.executable || evidence.global.directStatus !== 0) components.push('EXECUTABILITY');
+  return {
+    components,
+    classification: components.length === 0 ? 'ALIGNED' : `${components.join('_AND_')}_DRIFT`,
+  };
+}
+
+function inspectRuntimeEnvironment() {
+  const localRealpath = realpathSync(localCli);
+  const localNodeRun = spawnSync(process.execPath, [localRealpath, '--version'], { cwd: root, encoding: 'utf8', timeout: 10000 });
+  assert.equal(localNodeRun.status, 0, `repository-local authority is unavailable through Node: ${localNodeRun.stderr || localNodeRun.error?.message || 'unknown failure'}`);
+  const localVersion = localNodeRun.stdout.trim();
+  assert.ok(localVersion.length > 0, 'repository-local authority returned an empty version');
+
+  const globalRealpath = realpathSync(globalCli);
+  const globalMode = statSync(globalRealpath).mode & 0o777;
+  const globalDirectRun = spawnSync(globalCli, ['--version'], { cwd: root, encoding: 'utf8', timeout: 10000 });
+  const globalDirectOutcome = directOutcome(globalDirectRun);
+  let globalVersion;
+  let versionSource;
+  let fallbackStatus = null;
+  if (globalDirectRun.status === 0) {
+    globalVersion = globalDirectRun.stdout.trim();
+    versionSource = 'DIRECT';
+  } else {
+    const fallbackRun = spawnSync(process.execPath, [globalRealpath, '--version'], { cwd: root, encoding: 'utf8', timeout: 10000 });
+    fallbackStatus = fallbackRun.status;
+    assert.equal(fallbackRun.status, 0, `Node fallback cannot inspect resolved global CLI artifact: ${fallbackRun.stderr || fallbackRun.error?.message || 'unknown failure'}`);
+    globalVersion = fallbackRun.stdout.trim();
+    versionSource = 'NODE_FALLBACK';
+  }
+  assert.ok(globalVersion.length > 0, 'global CLI artifact inspection returned an empty version');
+
+  const evidence = {
+    local: {
+      authority: 'REPOSITORY_LOCAL',
+      invoked: localCli,
+      realpath: localRealpath,
+      execution: 'NODE',
+      nodeStatus: localNodeRun.status,
+      version: localVersion,
+    },
+    global: {
+      invoked: globalCli,
+      realpath: globalRealpath,
+      mode: globalMode,
+      executable: executableMode(globalMode),
+      directStatus: globalDirectRun.status,
+      directErrorCode: globalDirectRun.error?.code ?? null,
+      directOutcome: globalDirectOutcome,
+      versionSource,
+      fallbackStatus,
+      version: globalVersion,
+    },
+  };
+  evidence.classification = runtimeDrift(evidence).classification;
+  return evidence;
+}
+
+function validateRuntimeEvidence(evidence, { bindObservedPaths = true } = {}) {
+  assert.equal(evidence.local.authority, 'REPOSITORY_LOCAL', 'global CLI must not be substituted as the behavior authority');
+  assert.equal(evidence.local.invoked, localCli, 'repository-local behavior authority path drifted');
+  assert.equal(evidence.local.execution, 'NODE', 'repository-local authority must use its bounded Node entrypoint');
+  assert.equal(evidence.local.nodeStatus, 0, 'repository-local behavior authority is unavailable');
+  assert.ok(evidence.local.version.length > 0, 'repository-local authority version is missing');
+  assert.equal(evidence.global.invoked, globalCli, 'global invoked path drifted');
+  assert.equal(evidence.global.executable, executableMode(evidence.global.mode), 'global executable claim contradicts resolved artifact mode');
+  const expectedDirectOutcome = evidence.global.directErrorCode ?? (evidence.global.directStatus === null ? 'STATUS_NULL' : `EXIT_${evidence.global.directStatus}`);
+  assert.equal(evidence.global.directOutcome, expectedDirectOutcome, 'global direct outcome conceals the observed failure/status');
+  if (evidence.global.directStatus === 0) {
+    assert.equal(evidence.global.versionSource, 'DIRECT', 'successful global direct execution must own its version result');
+  } else {
+    assert.equal(evidence.global.versionSource, 'NODE_FALLBACK', 'unavailable global direct execution must use bounded Node fallback');
+    assert.equal(evidence.global.fallbackStatus, 0, 'global resolved-artifact Node fallback is unavailable');
+  }
+  if (bindObservedPaths) {
+    assert.equal(evidence.local.realpath, realpathSync(localCli), 'local authority realpath reporting drifted');
+    assert.equal(evidence.global.realpath, realpathSync(globalCli), 'global realpath reporting drifted');
+  }
+  assert.equal(evidence.classification, runtimeDrift(evidence).classification, 'reported runtime classification suppresses observed drift');
+}
+
+function renderRuntimeEvidence(evidence) {
+  const mode = evidence.global.mode.toString(8).padStart(4, '0');
+  const drift = runtimeDrift(evidence);
+  return {
+    localMarker: `RUNTIME_LOCAL authority=${evidence.local.authority} invoked=${evidence.local.invoked} realpath=${evidence.local.realpath} execution=${evidence.local.execution} nodeOutcome=EXIT_${evidence.local.nodeStatus} version=${evidence.local.version}`,
+    globalMarker: `RUNTIME_GLOBAL invoked=${evidence.global.invoked} realpath=${evidence.global.realpath} mode=${mode} executable=${evidence.global.executable} directOutcome=${evidence.global.directOutcome} versionSource=${evidence.global.versionSource} fallbackOutcome=${evidence.global.fallbackStatus === null ? 'NOT_USED' : `EXIT_${evidence.global.fallbackStatus}`} version=${evidence.global.version}`,
+    currentMarker: `RUNTIME_CURRENT classification=${evidence.classification} runScoped=true driftVersion=${drift.components.includes('VERSION')} driftRealpath=${drift.components.includes('REALPATH')} driftExecutability=${drift.components.includes('EXECUTABILITY')}`,
+  };
+}
+
+function runtimeReportPolicy(evidence, markers) {
+  const expected = renderRuntimeEvidence(evidence);
+  return expected.localMarker === markers.localMarker
+    && expected.globalMarker === markers.globalMarker
+    && expected.currentMarker === markers.currentMarker;
+}
+
+function runtimeEvidenceMutationChecks(evidence, markers) {
+  const pretendingExecutable = { ...markers, globalMarker: markers.globalMarker.replace(`executable=${evidence.global.executable}`, `executable=${!evidence.global.executable}`) };
+  assert.ok(!runtimeReportPolicy(evidence, pretendingExecutable), 'pretending the global artifact is executable must fail');
+  const hidingDirectOutcome = { ...markers, globalMarker: markers.globalMarker.replace(`directOutcome=${evidence.global.directOutcome}`, 'directOutcome=HIDDEN') };
+  assert.ok(!runtimeReportPolicy(evidence, hidingDirectOutcome), 'hiding the global direct EACCES/status outcome must fail');
+  const substitutingAuthority = { ...markers, localMarker: markers.localMarker.replace('authority=REPOSITORY_LOCAL', 'authority=GLOBAL') };
+  assert.ok(!runtimeReportPolicy(evidence, substitutingAuthority), 'substituting global CLI as local behavior authority must fail');
+  const suppressingDrift = { ...markers, currentMarker: 'RUNTIME_CURRENT classification=ALIGNED runScoped=true driftVersion=false driftRealpath=false driftExecutability=false' };
+  assert.ok(!runtimeReportPolicy(evidence, suppressingDrift), 'suppressing version/path/executability drift must fail');
+  const marker = 'RUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED';
+  console.log(marker);
+  return marker;
+}
+
+function executableAlignedRuntimeSimulation(evidence) {
+  const simulated = structuredClone(evidence);
+  simulated.global.realpath = simulated.local.realpath;
+  simulated.global.mode = 0o755;
+  simulated.global.executable = true;
+  simulated.global.directStatus = 0;
+  simulated.global.directErrorCode = null;
+  simulated.global.directOutcome = 'EXIT_0';
+  simulated.global.versionSource = 'DIRECT';
+  simulated.global.fallbackStatus = null;
+  simulated.global.version = simulated.local.version;
+  simulated.classification = 'ALIGNED';
+  validateRuntimeEvidence(simulated, { bindObservedPaths: false });
+  assert.ok(runtimeReportPolicy(simulated, renderRuntimeEvidence(simulated)), 'executable same-version aligned simulation must report faithfully');
+  const marker = 'RUNTIME_SIMULATION executable=true sameVersion=true sameRealpath=true classification=ALIGNED PASS';
+  console.log(marker);
+  return marker;
+}
+
+function executableSameVersionRuntimeSimulation(evidence) {
+  const simulated = structuredClone(evidence);
+  simulated.global.mode = 0o755;
+  simulated.global.executable = true;
+  simulated.global.directStatus = 0;
+  simulated.global.directErrorCode = null;
+  simulated.global.directOutcome = 'EXIT_0';
+  simulated.global.versionSource = 'DIRECT';
+  simulated.global.fallbackStatus = null;
+  simulated.global.version = simulated.local.version;
+  simulated.classification = runtimeDrift(simulated).classification;
+  validateRuntimeEvidence(simulated, { bindObservedPaths: false });
+  assert.ok(!runtimeDrift(simulated).components.includes('VERSION'), 'same-version simulation must remove version drift');
+  assert.ok(!runtimeDrift(simulated).components.includes('EXECUTABILITY'), 'executable simulation must remove executability drift');
+  const marker = `RUNTIME_SIMULATION executable=true sameVersion=true retainedRealpathRelation=${simulated.global.realpath === simulated.local.realpath ? 'SAME' : 'DIFFERENT'} classification=${simulated.classification} PASS`;
+  console.log(marker);
+  return marker;
 }
 
 function historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, currentClassification) {
@@ -935,7 +1093,7 @@ function historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, currentC
     && historicalMarker.includes(`intentRef=${HISTORICAL_RUNTIME_RECEIPT.intentRef}`)
     && historicalMarker.includes(`outputDigest=${HISTORICAL_RUNTIME_RECEIPT.outputDigest}`)
     && historicalMarker.endsWith(`currentClassification=${currentClassification}`)
-    && currentMarker === `RUNTIME currentClassification=${currentClassification}`;
+    && currentMarker.startsWith(`RUNTIME_CURRENT classification=${currentClassification} runScoped=true `);
 }
 
 function historicalRuntimeReceiptChecks(currentMarker, currentClassification) {
@@ -996,27 +1154,18 @@ function historicalRuntimeReceiptChecks(currentMarker, currentClassification) {
 }
 
 function runtimeChecks() {
-  const localInvoked = localCli;
-  const localRealpath = realpathSync(localCli);
-  const localVersionRun = spawnSync(process.execPath, [localCli, '--version'], { cwd: root, encoding: 'utf8' });
-  assert.equal(localVersionRun.status, 0);
-  const localVersion = localVersionRun.stdout.trim();
-  const globalInvoked = globalCli;
-  const globalRealpath = realpathSync(globalCli);
-  const globalVersionRun = spawnSync(globalCli, ['--version'], { cwd: root, encoding: 'utf8' });
-  assert.equal(globalVersionRun.status, 0);
-  const globalVersion = globalVersionRun.stdout.trim();
-  const classification = classifyRuntime(localRealpath, localVersion, globalRealpath, globalVersion);
-  console.log(`RUNTIME localInvoked=${localInvoked}`);
-  console.log(`RUNTIME localRealpath=${localRealpath}`);
-  console.log(`RUNTIME localVersion=${localVersion}`);
-  console.log(`RUNTIME globalInvoked=${globalInvoked}`);
-  console.log(`RUNTIME globalRealpath=${globalRealpath}`);
-  console.log(`RUNTIME globalVersion=${globalVersion}`);
-  const currentMarker = `RUNTIME currentClassification=${classification}`;
-  console.log(currentMarker);
-
-  return historicalRuntimeReceiptChecks(currentMarker, classification);
+  const evidence = inspectRuntimeEnvironment();
+  validateRuntimeEvidence(evidence);
+  const markers = renderRuntimeEvidence(evidence);
+  assert.ok(runtimeReportPolicy(evidence, markers), 'runtime report must disclose every observed authority/path/version/executability fact');
+  console.log(markers.localMarker);
+  console.log(markers.globalMarker);
+  console.log(markers.currentMarker);
+  const historicalMarker = historicalRuntimeReceiptChecks(markers.currentMarker, evidence.classification);
+  const mutationMarker = runtimeEvidenceMutationChecks(evidence, markers);
+  const sameVersionSimulationMarker = executableSameVersionRuntimeSimulation(evidence);
+  const simulationMarker = executableAlignedRuntimeSimulation(evidence);
+  return { evidence, ...markers, historicalMarker, mutationMarker, sameVersionSimulationMarker, simulationMarker };
 }
 
 function auditRowCells(text, id) {
@@ -1287,7 +1436,7 @@ function externalReviewArtifactChecks() {
   return markers;
 }
 
-const RECEIPT_WINDOW_SELECTORS = Object.freeze([
+const RECEIPT_WINDOW_STATIC_SELECTORS = Object.freeze([
   'COMMAND_LEDGER cases=46/46 PASS',
   'CASE 42 PASS',
   'MUTATION malformed-argument REJECTED',
@@ -1295,6 +1444,7 @@ const RECEIPT_WINDOW_SELECTORS = Object.freeze([
   'STRUCTURE baselineDigest=',
   'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED',
   'RUNTIME classification=VERSION_AND_REALPATH_DRIFT',
+  'RUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED',
   'EXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION',
   'AUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS',
   'SOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS',
@@ -1304,6 +1454,18 @@ const RECEIPT_WINDOW_SELECTORS = Object.freeze([
   'EXTERNAL_ARTIFACT agy availability=',
 ]);
 
+function receiptWindowSelectors() {
+  const liveRuntime = inspectRuntimeEnvironment();
+  validateRuntimeEvidence(liveRuntime);
+  const liveMarkers = renderRuntimeEvidence(liveRuntime);
+  return [
+    ...RECEIPT_WINDOW_STATIC_SELECTORS,
+    liveMarkers.globalMarker,
+    `directOutcome=${liveRuntime.global.directOutcome}`,
+    liveMarkers.currentMarker,
+  ];
+}
+
 function receiptWindowPolicyChecks() {
   const verifierPath = fileURLToPath(import.meta.url);
   const run = spawnSync(process.execPath, [verifierPath, '--final'], { cwd: root, encoding: null, timeout: 180000, maxBuffer: 8 * 1024 * 1024 });
@@ -1311,13 +1473,14 @@ function receiptWindowPolicyChecks() {
   const raw = run.stdout ?? Buffer.alloc(0);
   const captured = raw.subarray(0, Math.min(raw.length, 12000));
   const receiptTail = captured.subarray(Math.max(0, captured.length - 4000));
+  const selectors = receiptWindowSelectors();
   const offsets = [];
-  for (const selector of RECEIPT_WINDOW_SELECTORS) {
+  for (const selector of selectors) {
     const offset = receiptTail.indexOf(Buffer.from(selector));
     assert.ok(offset >= 0, `validation receipt tail is missing acceptance-critical selector: ${selector}`);
     offsets.push(`${selector.split(' ')[0]}@${offset}`);
   }
-  const marker = `RECEIPT_WINDOW raw=${raw.length} captured=${captured.length} tail=${receiptTail.length} selectors=${RECEIPT_WINDOW_SELECTORS.length}/${RECEIPT_WINDOW_SELECTORS.length} offsets=${offsets.join(',')} PASS`;
+  const marker = `RECEIPT_WINDOW raw=${raw.length} captured=${captured.length} tail=${receiptTail.length} selectors=${selectors.length}/${selectors.length} offsets=${offsets.join(',')} PASS`;
   console.log(marker);
   return { marker, rawBytes: raw.length, capturedBytes: captured.length, tailBytes: receiptTail.length, offsets };
 }
@@ -1379,9 +1542,9 @@ if (process.argv.includes('--source-authority-policy')) {
 }
 
 if (process.argv.includes('--runtime-policy')) {
-  const marker = runtimeChecks();
-  assert.ok(marker.includes('context=initial-audit'), 'historical runtime marker must retain its immutable receipt context');
-  console.log('RUNTIME_POLICY PASS live=COMPUTED historicalReceipt=GIT_OBJECT_VERIFIED');
+  const runtime = runtimeChecks();
+  assert.ok(runtime.historicalMarker.includes('context=initial-audit'), 'historical runtime marker must retain its immutable receipt context');
+  console.log(`RUNTIME_POLICY PASS live=COMPUTED classification=${runtime.evidence.classification} globalDirect=${runtime.evidence.global.directOutcome} versionSource=${runtime.evidence.global.versionSource} historicalReceipt=GIT_OBJECT_VERIFIED`);
   process.exit(0);
 }
 
@@ -1390,7 +1553,7 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   // Every replayed proof line below is returned by a completed check. The
   // command ledger remains fully executable but is quiet here so the complete
   // post-check replay fits the validation executor's bounded receipt window.
-  const runtimeMarker = runtimeChecks();
+  const runtime = runtimeChecks();
   const unicodeMarkers = unicodeChecks();
   const semanticMarkers = semanticChecks();
   const commandMarkers = runCommandLedger({ verbose: false });
@@ -1419,7 +1582,10 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
     unicodeReplay,
     structure.marker,
     semanticReplay,
-    runtimeMarker,
+    runtime.historicalMarker,
+    runtime.globalMarker,
+    runtime.currentMarker,
+    runtime.mutationMarker,
     auditDocument.provenanceMarker,
     citationSummary.aggregateMarker,
     sourceSummary.aggregateMarker,
