@@ -291,6 +291,30 @@
       "cancelledAt": "2026-09-02T09:02:19.136Z",
       "cancelReason": "CW-012 was begun before done_prepare merged main; its pre_cert_main_not_merged snapshot is stale — main is now an ancestor of HEAD, re-beginning the window",
       "_hash": "5dde088c95b8b67b1d45defc0747ee05de9acfce0668445a902ee01fac212095"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-45a0:CW-013",
+      "storyId": "B-45a0",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-02T09:02:20.904Z",
+      "updatedAt": "2026-09-02T09:02:20.904Z",
+      "frozen": {
+        "headHash": "e797755835df87c5c60f5185bce25c275ee65afc",
+        "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+        "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+        "expectedMainSha": "4ac5cda1c1562f5f3af18ae8271d0cf974b6f1c8",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-45a0:RI-120",
+        "receiptId": "B-45a0:RI-120:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-45a0:PRECERT-008",
+      "_hash": "5f497751a7e8c27dd4ad3fe432919be53b844d8e3f615dfac39f4f72c696be35"
     }
   ],
   "receipts": [
@@ -433,6 +457,26 @@
       "inventoryReceiptId": "B-45a0:RI-116:RCP-001",
       "createdAt": "2026-09-01T16:50:03.151Z",
       "_hash": "47290c1b60ecf35dc78e4b98ec9b38035d1e2146a68a883bf7da1c2c5aef3525"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-45a0:PRECERT-008",
+      "windowId": "B-45a0:CW-013",
+      "storyId": "B-45a0",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "e797755835df87c5c60f5185bce25c275ee65afc",
+        "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+        "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+        "expectedMainSha": "4ac5cda1c1562f5f3af18ae8271d0cf974b6f1c8",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-45a0:RI-120",
+      "inventoryReceiptId": "B-45a0:RI-120:RCP-001",
+      "createdAt": "2026-09-02T09:02:20.904Z",
+      "_hash": "ff6c68b50b9743c438f87ee74e7ca64b9ce415babfa34565075cc937c0abb749"
     }
   ]
 }
