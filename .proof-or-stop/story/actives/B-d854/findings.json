@@ -1029,6 +1029,26 @@
       ],
       "signatureTag": "missing|md|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-047",
+      "desc": "tests/AGENTS.verify.mjs:1312 — current final verifier exits 1 because A19 audit authority still cites packages/main/src/cli/command-catalog.ts:3080 while the current repository-derived authority is line 3097. Reproduce with node tests/AGENTS.verify.mjs --final; output shows AUDIT_CITATION_POLICY A19 actual ... command-catalog.ts:3080 expected ... command-catalog.ts:3097 followed by AssertionError. This directly invalidates the current-version evidence mutation contract and blocks the Story final GREEN acceptance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T16:05:22.253Z",
+      "reviewRound": "2026-09-02T16:01:30.349Z",
+      "reviewRunId": "B-d854:RR-051",
+      "_hash": "0447616a391db6d3f588bf0c55aeb501767983485c50a6a62f93b3e4b2ae1776",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
