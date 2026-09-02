@@ -4,7 +4,7 @@
     "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
     "storyId": "B-9a49",
     "phaseBasis": "plan",
-    "status": "complete",
+    "status": "partial",
     "generatedBy": {
       "verifier": "acceptance-coverage-basis-verifier",
       "command": "proof-or-stop acceptance_basis_generate",
@@ -333,7 +333,7 @@
           "source-file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:sha256:80beac59d5d2949a01e8f7e3cad47911ca16577cea545252fe460c95ac8374db",
           "source-file:packages/main/src/tasks/prompt-registry-smoke.ts:sha256:5c0f440b00eff0f5a7ba51838ca8aa8b1b37eb7b373379d3897f49424d0814fd",
           "source-file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:sha256:9dee34ca21f1d23934c18eb04ca10437e49e7b784b77611d75b757c812e478ee",
-          "source-file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:sha256:b7da877cb7c6cfb0f23f63b7289e54d79e84ef52f8ed5d3fd36039cfe59d8d9b",
+          "source-file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:sha256:cb702b5f6373d63d7201c30ea550e27e815bac57e45601801b13eeeff19ca340",
           "source-file:packages/main/templates/agents/proof-or-stop-implementer.md:sha256:c43ac4f3e76f5211d2d2de86f394de84d364f0241ad22ec7dc7620d45c5368aa",
           "source-file:packages/main/templates/agents/proof-or-stop-review-channel.md:sha256:96a972a44d4807c1813bcde88bca0a70eec9ee09b1ae9ea989f2f9eb7a25d5df",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
@@ -382,7 +382,7 @@
             "scope:file:scripts/verify-runtime-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:96c140fe27f94293a6e4388ded69852af0d0480c33928f125276f8db2226ca1e"
+        "resultDigest": "sha256:cfb86a79ec8ed601f570c619a3b6e9ae6334e2ad58a2c1e1d4537e5d7c25a7c4"
       }
     ],
     "scopeRefs": [
@@ -499,47 +499,55 @@
       "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
     ],
     "excludedPathRefs": [],
-    "blindSpots": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:process-fact:acceptance_basis_generate->existing:process-fact:acceptance_topology_check"
+    ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:da49cb5c97e15f0f7444a0663212033ff381c2c33ce31ddd2e4a08b9299852a9",
       "inventoryDirectoryCount": 22,
-      "sourceSnapshotDigest": "sha256:a69fd3f477b67020ee6f256f20e5962183281d1402c98cfc39806253935000a9",
+      "sourceSnapshotDigest": "sha256:3ca119e30df686181623848567a248965ac7a8c9d55d4b5ccc71ef5e5724e794",
       "sourceSnapshotCount": 847,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
-      "status": "complete",
-      "issues": [],
-      "sealDigest": "sha256:bf42b3d6d7e4c328712ac96126a078e7cc034744894ff07dc2b7a1e9a30efed4"
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:process-fact:acceptance_basis_generate->existing:process-fact:acceptance_topology_check"
+        }
+      ],
+      "sealDigest": "sha256:6a0810e8403b1b4624b4fe75b52a50e5b919626a6332d40b756b0780e736be63"
     },
     "binding": {
-      "headHash": "6442fc9746e0d941aab06de216324e0e77fda207",
-      "materialHash": "a62c69a9102a6ec961cf16e0ec88a7de16209b122918f99c1566d97ca847099f",
-      "storyFilesHash": "7680cd9ee306b751fbae961f9af7607fe1f725f650008e4c94812cd34e9de2db",
+      "headHash": "6c3f086ed8991e3f1c6d46ecf083700c4ea7a068",
+      "materialHash": "e404f98d70a789f94b62f50c753982e8504d51f9eac10e9b6606790deec54377",
+      "storyFilesHash": "096675c2148783d16f813257fcf29342013eec47a370d40ece658e72dda3acef",
       "scopeCheckDigest": "sha256:6287396e471565f8a5754e1362974257a772296e6fd44f2acfa8ab864afa80b1",
       "scopeContractDigest": "sha256:421773517d72e64ce7ef8e6495afc7f72f3a9b6e4552699cab7ad2f38f26d05d",
-      "closureFilesHash": "sha256:90acf55b71a625ffe9a9642fe22b96b71f3aa84eaa315e4192f702abcd43f93f"
+      "closureFilesHash": "sha256:0768992625493f807d2823b5ce6a5898b66a759512eaae62c1dbfaba527e2195"
     },
-    "receiptRef": "receipt:coverage-basis:B-9a49:plan:434b83fb447d3a1f",
-    "basisDigest": "sha256:6570314510499bc11f795c4086074477a3451bae68e022d9984f8f28d4264c49"
+    "receiptRef": "receipt:coverage-basis:B-9a49:plan:21580ec441aecb91",
+    "basisDigest": "sha256:24a09d7056247477f8a6498ae1213fb39673b890e014fe67918af4d46ede5536"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-9a49:plan:434b83fb447d3a1f",
+    "receiptRef": "receipt:coverage-basis:B-9a49:plan:21580ec441aecb91",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
     "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
     "storyId": "B-9a49",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:6570314510499bc11f795c4086074477a3451bae68e022d9984f8f28d4264c49",
+    "basisDigest": "sha256:24a09d7056247477f8a6498ae1213fb39673b890e014fe67918af4d46ede5536",
     "topologyDigest": "sha256:0aa9649124cc2e93b52f80fd4b9548d4ae25fe385e2f1bdf11869f419b2f4377",
     "scopeCheckDigest": "sha256:6287396e471565f8a5754e1362974257a772296e6fd44f2acfa8ab864afa80b1",
     "scopeContractDigest": "sha256:421773517d72e64ce7ef8e6495afc7f72f3a9b6e4552699cab7ad2f38f26d05d",
-    "headHash": "6442fc9746e0d941aab06de216324e0e77fda207",
-    "materialHash": "a62c69a9102a6ec961cf16e0ec88a7de16209b122918f99c1566d97ca847099f",
-    "storyFilesHash": "7680cd9ee306b751fbae961f9af7607fe1f725f650008e4c94812cd34e9de2db",
-    "closureFilesHash": "sha256:90acf55b71a625ffe9a9642fe22b96b71f3aa84eaa315e4192f702abcd43f93f",
-    "sealDigest": "sha256:bf42b3d6d7e4c328712ac96126a078e7cc034744894ff07dc2b7a1e9a30efed4",
+    "headHash": "6c3f086ed8991e3f1c6d46ecf083700c4ea7a068",
+    "materialHash": "e404f98d70a789f94b62f50c753982e8504d51f9eac10e9b6606790deec54377",
+    "storyFilesHash": "096675c2148783d16f813257fcf29342013eec47a370d40ece658e72dda3acef",
+    "closureFilesHash": "sha256:0768992625493f807d2823b5ce6a5898b66a759512eaae62c1dbfaba527e2195",
+    "sealDigest": "sha256:6a0810e8403b1b4624b4fe75b52a50e5b919626a6332d40b756b0780e736be63",
     "workspaceIdentityDigest": "sha256:3c272d3fc758dd2eee341466fe2227f41cb850aac474e0c66ae874e8ed690c41",
-    "signature": "PbqTHDAj8YHWJAF0KI3CsY/J6N4Kuy5GDmFokJe1pmzuAExb1yQ7dLM86I2I0uAwPMkTwLrXz2TBfOtdj6yxAw=="
+    "signature": "NsgiuqYZCxUlfutGk8PzD1nrxPf6lQAq6NxYQM4xxMeibqlk2qA3HnqH6XTqeVRivYbXVZZd/X1It0VSR/ilDQ=="
   }
 }
