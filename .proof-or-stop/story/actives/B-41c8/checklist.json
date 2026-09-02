@@ -160,7 +160,45 @@
       "context": "Match call expressions (resolveGitCwd({...})), not substrings -- a file-level grep on main returns thirty-one files including a comment-only mention in validate-channel.ts, which receives gitCwd threaded from review-preflight.ts as deps.gitCwd. For each real call site, classify whether the same handler reads the story index, checklist or validate.commands through ctx.store/ctx.root rather than the resolved workspace, and print the classified list. The fixture is registered in the canonical inventories and its output becomes the scope of the follow-up draft migrate-resolvegitcwd-callers-to-workspace; this story does NOT migrate the flagged callers beyond the four resolver implementations in the previous item. RED: the fixture must initially report a non-empty flagged list.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "userSees": "`npm run test:single-owner-extraction` ends `single-owner-extraction-smoke: PASS` and prints a block headed `resolveGitCwd call sites` listing every handler file with a real call and, for each, `workspace-rooted` or `reads ctx.root: <which of story|checklist|config>`; validate-channel.ts appears under `comment-only mentions`. The suite name is present in test:serial-reference, RESOURCE_POLICY and validate.commands.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The audit lists every handler with a real resolveGitCwd call expression and classifies each as workspace-rooted or ctx.root-reading, printing the classified list.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "validate-channel.ts is classified as a comment-only mention and review-preflight.ts as a real caller; a temporary fixture file with an aliased import is detected as a caller.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The suite is registered in test:serial-reference, RESOURCE_POLICY and validate.commands, verified by a fixture reading the real files, and the audit initially reports a non-empty flagged list (RED) that the story does not attempt to empty.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
