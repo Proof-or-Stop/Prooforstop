@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-e256:F-001",
+      "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:549-550 hardcodes the literal string proof-or-stop for the bin key lookup instead of reusing the existing CANONICAL_ROOT_PACKAGE_NAME constant (defined at line 117 and already used at lines 1153/1291 for the same command name). Low risk of drift if the bin/command name is ever renamed in one place but not the other.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T16:24:56.382Z",
+      "reviewRound": "2026-09-02T16:21:29.951Z",
+      "reviewRunId": "B-e256:RR-002",
+      "_hash": "cc4ad57964d81e49c669c26d413e3e51f5a4bac5c921b0d5329d44eeb24d2487",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
