@@ -1525,10 +1525,15 @@ const NON_CALLEE_KEYWORDS: ReadonlySet<string> = new Set(['if', 'for', 'while', 
 /** Receiving the context is the whole point of the CHK-003 helper; it is not a delegation. */
 const DELEGATION_EXEMPT_CALLEES: ReadonlySet<string> = new Set(['resolveStoryWorkspace']);
 
-/** Names the file uses for its HandlerContext: `ctx` plus every parameter typed HandlerContext (not `HandlerContext['store']` or `HandlerContext<...>`, which type a part of it -- F-011). */
+/**
+ * Names the file uses for its HandlerContext or the context's store: `ctx`, every parameter typed HandlerContext and
+ * every parameter typed HandlerContext['store'] (the store rooted at ctx.root, so a non-local callee receiving either
+ * may read ctx.root). `HandlerContext<...>` and sub-parts other than the store are not context names (F-011).
+ * Runs on text whose string literals are kept (comments still masked) so the `'store'` subscript is visible.
+ */
 function contextNames(code: string): Set<string> {
   const names = new Set<string>(['ctx']);
-  const re = /([\w$]+)\s*:\s*HandlerContext\b(?![\[<])/g;
+  const re = /([\w$]+)\s*:\s*HandlerContext(?:\[\s*(?:'store'|"store")\s*\])?(?![\w$<\[])/g;
   for (let match = re.exec(code); match; match = re.exec(code)) names.add(match[1]!);
   return names;
 }
@@ -1580,7 +1585,7 @@ function callIsChained(code: string, openIndex: number): boolean {
   return close >= 0 && /^\s*[?!]?\./.test(code.slice(close + 1, close + 4));
 }
 
-function rootReadsOf(code: string): { reads: RootRead[]; workspaceReads: number } {
+function rootReadsOf(code: string, typeAnnotationCode: string = code): { reads: RootRead[]; workspaceReads: number } {
   const wsVars = new Set<string>();
   const wsRe = /(?:^|[^\w$.])([\w$]+)\s*=\s*resolveStoryWorkspace\s*\(/g;
   for (let match = wsRe.exec(code); match; match = wsRe.exec(code)) wsVars.add(match[1]!);
@@ -1608,7 +1613,7 @@ function rootReadsOf(code: string): { reads: RootRead[]; workspaceReads: number 
   }
 
   // B-41c8 F-005: transitive reads through handlers invoked on the context.
-  const ctxNames = contextNames(code);
+  const ctxNames = contextNames(typeAnnotationCode);
   const localFns = localFunctionNames(code);
   const mentionsWorkspace = (expr: string): boolean =>
     [...wsVars].some((ws) => new RegExp(`(^|[^\\w$.])${escapeRegExp(ws)}\\s*[?!]?\\.`).test(expr));
@@ -1665,7 +1670,9 @@ function scanResolverSource(source: string): ResolverScan {
     const at = match.index + match[1]!.length;
     if (kinds[at] !== REGION_CODE) mentionLines.push(lineOf(source, at));
   }
-  const { reads: remainingReads, workspaceReads } = rootReadsOf(code);
+  // Type annotations such as HandlerContext['store'] live partly in a string region; keep strings for the context-name scan (F-011).
+  const typeAnnotationCode = maskNonCode(source, kinds.map((kind) => (kind === REGION_STRING ? REGION_CODE : kind)));
+  const { reads: remainingReads, workspaceReads } = rootReadsOf(code, typeAnnotationCode);
   return {
     hasToken: true,
     callLines: sortedUnique(callLines),
@@ -1717,7 +1724,7 @@ function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VER
   if (verbose) {
     lines.push('  rule: caller = a CALL EXPRESSION of the resolver binding imported from core/story-signed-workspace-resolution (aliases resolved; comments, strings, templates, regexes masked);');
     lines.push(`        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no \`new StoryStore(\`, every ${CONFIG_LOADERS.join('/')} argument starts with <ws>., and no handler is invoked on the context, where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config|via-handler(...)>`);
-    lines.push('        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context; local callees, arrow parameters and resolveStoryWorkspace itself are not delegations');
+    lines.push('        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context or the context\'s store (a HandlerContext[\'store\'] parameter); local callees, arrow parameters and resolveStoryWorkspace itself are not delegations');
   } else {
     // F-007: the default block must fit the verification executor's selector window with the rest of the smoke;
     // the full rule text and the per-read lines are printed under SINGLE_OWNER_AUDIT_VERBOSE=1.
@@ -1968,7 +1975,7 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
     },
   },
   {
-    name: 'guard (F-008): the vacuous label the F-005 guard looks for is the one classificationOf emits, and the guard fires when proof-or-stop-handoff.ts prints it',
+    name: 'guard (F-008): the guarded vacuous label is the classifier\'s own, and the guard fires when proof-or-stop-handoff.ts prints it',
     run: () => {
       const vacuous: ResolverScan = { hasToken: true, callLines: [3], nonCodeMentionLines: [], unboundCallLines: [], workspaceRooted: true, workspaceReads: 0, remainingReads: [] };
       assert.equal(classificationOf(vacuous), VACUOUS_WORKSPACE_LABEL, 'the guard must look for the label the classifier actually prints; a renamed label silently makes the guard vacuous (F-008)');
@@ -1996,7 +2003,7 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
     },
   },
   {
-    name: 'adversarial (F-011): a generic local function is a local callee, a HandlerContext[\'store\'] parameter is the context store (its non-local callees are delegations) while HandlerContext<...> is not, and no real caller is flagged via a function it declares itself',
+    name: 'adversarial (F-011): generic local callees are local; HandlerContext[\'store\'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function',
     run: () => {
       const probe = GENERIC_LOCAL_PROBE_LINES.join('\n');
       assert.deepEqual([...localFunctionNames(probe)].sort(), ['checkCwd', 'probe', 'withLock'], 'generic, async and exported function declarations are all local');
