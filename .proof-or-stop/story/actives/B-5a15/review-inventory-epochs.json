@@ -6663,9 +6663,9 @@
       "epochId": "B-5a15:RI-063",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-02T10:34:38.494Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-09-02T12:52:02.751Z",
-      "updatedAt": "2026-09-02T12:52:02.751Z",
+      "updatedAt": "2026-09-02T13:18:32.401Z",
       "cutoff": {
         "headHash": "ee62c64804e9ad14b9fbb7ac8d4e31555ab475d6",
         "materialHash": "c1570c000ba7c077501a923230c23efb557226bf9ded6058cfb5fece3dd98e7d",
@@ -6683,7 +6683,16 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "0265b8d58b7ff5d386155241adf7af09abfb12c6b3d340ff5a6894814069f1c8"
+      "invalidation": {
+        "detectedAt": "2026-09-02T13:18:32.401Z",
+        "oldMaterialHash": "c1570c000ba7c077501a923230c23efb557226bf9ded6058cfb5fece3dd98e7d",
+        "currentMaterialHash": "ec56dcb11b63bb191bb30ca888cf838b22327fa4a3746cbb04848b6c5f44378c",
+        "oldStoryFilesHash": "5ac10523917ebdc901cbe763cb1460633da3fc6bb092ebc6018cd360eb6d38d0",
+        "currentStoryFilesHash": "04dbf79ab72decfc240cb1232fe6e9e89a2fc3b8d08c02edbd3573e5d3125056",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION"
+      },
+      "terminalRunSequenceBoundary": 863,
+      "_hash": "dcef488916a194eedcf8f82c8a24835bc775f1acd4117c6a6e1323d9f742256e"
     }
   ],
   "receipts": [
