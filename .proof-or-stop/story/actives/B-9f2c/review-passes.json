@@ -341,6 +341,42 @@
         "scanEscalationReason": null
       },
       "_hash": "27096e7a0ac332fbd57d950379c49fe86f6354d9ef4f571ecf9a9a7d9db9b627"
+    },
+    {
+      "id": "B-9f2c:RP-012",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-signature after RP-009 (zero findings) was invalidated by 3 post-signature commits touching only story metadata + a doc fix (527de168c1). No packages/graph or packages/main/src file changed. Re-confirmed prior conclusions and sanity-checked F-002/F-003 dispositions per instructions; concur, no new findings.",
+      "createdAt": "2026-09-02T14:48:17.942Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-017",
+      "envelopeId": "3b3d8be772ac1fad06c46269f6eec8a8c19c253ab01f06af645b3901331135ad",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "165234332a6ef92c2c00c5d88353f29347bab97a7abadcaee4f330703aeb15a8"
     }
   ]
 }
