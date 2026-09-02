@@ -1360,6 +1360,21 @@
       "resolvedAt": "2026-09-02T12:34:16.296Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-061",
+      "desc": "packages/main/src/core/prompt-envelope.ts:322-343 — HIGH: isExplicitRejectedAuthorityStatement still treats comma- or em-dash-separated compound authority prose as one atomic rejected claim. Production-dist reproduction with assembleFullPromptEnvelope accepts both `Reject severity alone decides Story scope — reviewers bestow defer_with_proof on the Finding as an invalid authority statement.` and the comma/confer equivalent. This lets arbitrary unsafe severity/disposition authority bypass the REVIEW Task Context guard despite the new multi-statement restriction; atomicity must reject all clause-separating punctuation, not only period/semicolon/colon or named conjunctions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T12:37:59.015Z",
+      "reviewRound": "2026-09-02T12:33:46.521Z",
+      "reviewRunId": "B-9a49:RR-093",
+      "_hash": "baeee1510fce41f8aa6406f352d12d1f5aec12768611abd799354fa8a0e4e832",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
