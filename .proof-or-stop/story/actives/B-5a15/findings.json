@@ -19167,7 +19167,7 @@
       "desc": "concept-cleanup: the migration comment on the ported hash helper misstates both the new symbols module and the signature equivalence. packages/main/src/handlers/certification-window.ts:14-16 says main \"replaced currentStoryFileHashEntries with the exported resolveStoryChangedFiles (same signature + identical isMaterialExcludedPath filtering)\". Two inaccuracies, both on a certification-domain-hash path: (1) resolveStoryChangedFiles/resolveStoryMergeBase are exported from core/story-aware-validation.ts, NOT the material-path-policy.ts module the merge narrative names -- material-path-policy.ts exports only isStoryMetadataPath and isMaterialExcludedPath. (2) The signature is NOT the same: the new resolver takes a 4th explicitBaseHead param, returns StoryChangedFile{path,status,oldPath?,blobId?} rather than StoryFileHashEntry{path,objectId?}, THROWS instead of returning undefined when no merge base resolves, sorts by localeCompare rather than byte order, drops the old Map-based per-path dedupe, and no longer treats git C (copy) status rows as rename-like. I verified the behavior is nonetheless SAFE for all reachable inputs and am filing this as documentation-accuracy only, not a live hash defect: both hash consumers re-sort with a bare .sort() on pre-joined \"path\\\\0blobId\" strings (evidence-freshness.ts:379-381 and certification-window.ts:167 byDomain...sort()), which I confirmed empirically restores byte order and diverges from localeCompare; rename rows yield byte-identical hash material under both implementations; C rows are unreachable because every call site passes -M only with no -C and diff.renames is unset; and the caller wraps the throw in try/catch to preserve the return-undefined contract. Fix the comment to name story-aware-validation.ts and to state the divergences plus why each is safe, so a future reader does not assume drop-in equivalence and remove the compensating re-sort or the try/catch.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T12:42:41.231Z",
@@ -19220,7 +19220,11 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-migration",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED, and the reviewer was right that MY comment was the defect. I had written that main's resolveStoryChangedFiles has the 'same signature + identical isMaterialExcludedPath filtering' as the deleted currentStoryFileHashEntries. That claim is FALSE. The concept and quality lanes between them documented six real divergences, and I verified each: (a) it takes an extra 4th param (explicitBaseHead); (b) it returns blobId where ours returned objectId; (c) it THROWS with no merge base where ours returned undefined; (d) it sorts with localeCompare, which F-334 - this story's own fixed finding - forbids for hash material; (e) no per-path dedupe; (f) C-status rows are no longer treated as rename-like. It also lives in story-aware-validation.ts, not material-path-policy.ts as I implied. The behaviour is nonetheless SAFE, but only because of compensating code: the try/catch restores the original 'return undefined' contract, and deriveCertificationDomainInputHashes re-sorts the joined 'path\\0blobId' strings with a bare .sort() (byte order) before hashing, which discards the resolver's localeCompare ordering and keeps the material ordering-consistent with currentStoryFilesHash. The quality lane probed that re-sort empirically rather than assuming it. C-status rows are unreachable because the diff uses -M only. REPAIR: rewrote the comment to state the divergences explicitly and to mark the try/catch and the re-sort as LOAD-BEARING with 'do not remove'. That is the substantive point of the finding - the old comment invited a future reader to delete exactly the compensation that keeps certification domain hashes correct.",
+      "resolvedAt": "2026-09-02T12:50:45.421Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-357",
