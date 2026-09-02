@@ -20,6 +20,25 @@
       "resolvedAt": "2026-09-02T09:20:39.979Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-002",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:111-115 (section 'Test-surface placement') states 'Two test lists in this repository are separately maintained, and neither is a subset of the other: validate.commands in the project config, and test:serial-reference in the root package.json.' This is incomplete: packages/main/src/tasks/full-suite-runner.ts's RESOURCE_POLICY (lines 116-159) is a THIRD fail-closed membership authority -- entriesFromSerialReference (full-suite-runner.ts:216-227) throws 'canonical inventory mismatch unknownPolicy=[...]' and aborts the whole suite (called at line 590 of main(), before any test entry is scheduled) if a test:serial-reference member has no RESOURCE_POLICY entry. This story's own CHK-005 checklist context explicitly modeled its plan on this doc's 'TWO separate test-surface lists' framing and, as a direct consequence, registered the new graph-story-flag-smoke task in validate.commands and test:serial-reference but not in RESOURCE_POLICY -- causing npm test to abort in 858ms with exactly the unknownPolicy error the code comments describe, which blocked done_required_validate and forced a TEST->DEV->REVIEW bounce (fixed in commit f4e9acdd21). The code's own comments at full-suite-runner.ts:145-146 and :151-153 record that this identical trap was already hit twice before by other stories (B-49ed, B-cdf6), meaning the canonical decision doc has been silently incomplete across at least three incidents. A future implementer who reads only this doc (as CHK-005 did) will reproduce the same suite-aborting failure. Severity high: this is the specific reproducible-bug-inducing doc gap the review task explicitly asked to check for, and the doc is the canonical decision reference cited by this story's own checklist relatedDocs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T14:34:58.295Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-015",
+      "_hash": "88585a872f49d4bab3557484fbc58808ea86f9c58b89279d99c12ae4a94edf7c",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
