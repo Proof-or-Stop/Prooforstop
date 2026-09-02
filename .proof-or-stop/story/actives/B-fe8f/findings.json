@@ -510,7 +510,7 @@
       "desc": "packages/main/src/core/store.ts:108-114 and packages/main/src/core/finding-ledger.ts:270-322 — verified L4 lifecycle-authority blocker: StoryStore accepts a current-key signed FindingLedgerReceipt that omits exactRequestDigest as long as the unsigned persistence carrier has any 64-hex exactRequestDigest. Independent temp-project reproduction created a valid signed lifecycle resolution, removed exactRequestDigest from the nested signed receipt, re-signed the legacy-shaped receipt with the current registered key, and preserved the raw carrier field; verifyFindingLedgerReceipt returned true and readFindings projected the high Finding as resolved: {rawCarrierHasExactRequestDigest:true,signedCarrierHasExactRequestDigest:false,resignedReceiptVerifies:true,projectedStatus:\"resolved\"}. Thus the gate consumes a transition whose exact request digest is not signed, contradicting F-018 resolution and the exact signed/raw carrier boundary. Require exactRequestDigest on the signed lifecycle receipt and exact equality to the carrier (legacy receipt compatibility may remain query-only), plus a lifecycle projection mutation test proving signed-field omission stays open.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T21:37:24.201Z",
@@ -523,7 +523,11 @@
         "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 5de02303ac6d49982c741c5e0d99cda1f9de7801: StoryStore lifecycle authority now requires signed exactRequestDigest presence and exact equality with the raw carrier while generic legacy verification remains query-only. Independent current build, process/runtime fact contracts, and full Story3 smoke pass; finding.lifecycle_signed_exact_request_digest proves missingSigned=open and legacyQuery=accepted.",
+      "resolvedAt": "2026-09-02T21:49:51.160Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
