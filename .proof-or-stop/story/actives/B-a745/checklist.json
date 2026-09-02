@@ -287,7 +287,52 @@
       "context": "Plan 'Acceptance matrix' rows reachable in Story 1 plus its Story 1 exit line. Cover: provisional and declared identity, duplicate-id rejection, index-independence, digest change on inventory change, pin resolution with zero/duplicate/shell-vs-argv/cwd/env variants and a label rename whose id survives, collector seeds for rename and delete and unreadable diff, every fail-closed reason code reachable in this Story, all four source kinds, schema round-trip, and the read-only CLI. Each behavior lands RED first. Register the suite in the canonical membership authority (root test:serial-reference plus its RESOURCE_POLICY mapping) rather than a discovery manifest.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#acceptance-matrix",
+        "CLAUDE.md#handler-encoding-conventions"
+      ],
+      "userSees": "`npm run test:validation-tier-planner` runs the suite and ends `validation-tier-planner-smoke: PASS`. `npm run test:full-suite-runner-smoke` still passes, proving the new name is present in both the test:serial-reference membership list and the RESOURCE_POLICY mapping; removing it from either one makes that run fail closed with an unknownPolicy or missing-member error naming `test:validation-tier-planner`.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:validation-tier-planner exits zero and the suite covers every behavior named in CHK-001 through CHK-005.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The new suite name appears in the root test:serial-reference script and has a matching RESOURCE_POLICY entry, verified by the existing bidirectional full-suite membership check rather than by inspection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each behavior was committed RED first: the fixture exists and fails before its implementation commit, which is visible as a separate failing-fixture commit in git log for each of CHK-001 through CHK-005.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "For every new handler field carrying a zod min/max/enum constraint, a fixture constructs data that bypasses zod entirely by calling the internal function directly with an invalid value, and asserts the runtime check in the handler entry and in each consuming gate still rejects it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
