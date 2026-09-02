@@ -19,6 +19,25 @@
       ],
       "signatureTag": "happy|ts|validation-plan-validation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-002",
+      "desc": "validation-plan.ts renderValidationPlanText(): the mechanical acceptance receipt for CHK-005:happy:0 (the flagship claim, checklist_get storyId=B-a745) proves this bug was captured and marked pass anyway. That evidences receipt.outputTail is a real captured run of `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` and it literally contains `status: stop` / `pinned_command_missing` / `selected: 0 of 0` -- the exact opposite of the claim under test (\"prints requested and effective tier ... selected: <n> of <n> commands\") -- yet the record is `result: pass`, `selectorMatched: true`. Cause: the pinned selector for this evidence (verificationIntent CHK-005:happy:0.verification.selector) is the single string `finalAuthority: no`. renderValidationPlanText (validation-plan.ts lines 401-408) prints `finalAuthority: no` unconditionally in EVERY status branch (plan/stop/no-tier-pass), so this selector can never fail to match regardless of whether the command actually reached the plan path it is supposed to demonstrate. The mechanical evidence system (which the framework relies on precisely so a `pass` cannot be faked) gave a false positive for the story own headline acceptance criterion, on the story own real repository, using the story own real evidence pipeline -- masking finding F-001 from anyone trusting the receipt instead of reading its outputTail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T03:03:48.020Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-001",
+      "_hash": "da37c8b0c8364cf2c8488e6535d5e7a27132c7235d5bc299b97a32b199d97722",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts",
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "adversarial|ts|validation-plan-rendervalidationplantext",
+      "signatureTagSource": "auto"
     }
   ]
 }
