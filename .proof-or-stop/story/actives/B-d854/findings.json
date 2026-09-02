@@ -424,7 +424,7 @@
       "desc": "tests/AGENTS.verify.mjs:248-299,338-345 and 384-399 do not mechanically prove complete English content or preservation of ordinary prose once the mutable audit SHA is refreshed. Two detached-temp-worktree repros each updated only the audit Final SHA-256 and still made node tests/AGENTS.verify.mjs --final exit 0: (1) replace Keep data, logic, and rendering separated with ASCII Spanish Mantenga los datos, la logica y la representacion separados; Unicode reports nonAscii=0, and (2) delete the baseline-derived sentence Classify a new function before placing it; the structural inventory digest stays unchanged. These false greens violate CHK-002:happy:0 and CHK-002:edge:0 plus the report claim that no deletion is unrecorded.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T01:14:36.047Z",
@@ -437,7 +437,11 @@
         "docs/audits/AGENTS-current-version-audit.md"
       ],
       "signatureTag": "missing|mjs|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The verifier now binds the complete prose inventory and immutable reviewed AGENTS SHA, and rejects ASCII Spanish substitution plus ordinary-prose deletion even with simulated refreshed audit SHA; Unicode checks remain zero.",
+      "resolvedAt": "2026-09-02T01:35:11.926Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
