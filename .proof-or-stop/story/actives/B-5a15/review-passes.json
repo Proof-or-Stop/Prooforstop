@@ -13996,6 +13996,31 @@
       },
       "readDiagnostics": [],
       "_hash": "3d84fe35e1d50a6c4f0b7103437162d80de989888e77e5b3db54c869bc2e1cda"
+    },
+    {
+      "id": "B-5a15:RP-298",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue scan for RI-068 (frozen cutoff b8406c77a2, head abff9db275). Scope: the ONLY source change since RR-886 is the F-365 assertion removal in packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts; git diff --name-status -M 678ed33aa5..abff9db275 over packages/main/src, packages/main/tests, packages/graph, packages/utils, scripts, docs and *.md returns exactly that one M row (all other diff rows are .proof-or-stop story metadata). Residue: zero. The deleted aggregate assertion left no dead binding (sameNameShadow still bound at :774 and consumed by the retained endpoint assertion at :782, grep -c=3) and the removed message string 'cannot satisfy a same-file callable edge' has zero occurrences anywhere in packages/main/src or scripts; positive control assert.equal=98 in the same file confirms the greps fire. Coupled pin registries agree on THREE divergences (B-cdf6:F-057 lockstep): both copies run green at TRUE exit 0 (verify-process-fact-contract.mjs prints 'Process fact contract verified'; retired-authority-vocabulary-guard-smoke.js prints PASS builds=815 astCandidates=508), and each documented divergence was independently re-derived per path with grep -c HEAD vs main: (1) topology_critic_receipt_set 1 vs 0 plus its topology-critic-receipt.json registry row 1 vs 0, and numstat confirms that row is the ONLY main...HEAD change in core/closeout-trust.ts (1 insertion, 0 deletions); (2) deriveCertificationDomainInputHashes 2 vs 0 with causalInputHashes 1 vs 0; (3) acquireOwnerLease 2 vs 0. Both documented negative claims also hold: persistSyntheticAdmittedWindowForTest is 2 on BOTH branches (F-361 correction stands) and verification_evidence_refresh_stale is 4 on BOTH (F-363 correction stands). Per-file compat counts verified as written: core/closeout-trust.ts isExactLegacyLocalOnlyDeliveryClaims 2 and bare LegacyLocalOnlyDeliveryClaims 2 (a naive grep -c reports 4 only because the isExact name contains the bare token as a substring; disambiguated with grep -o | uniq -c), and closeout-trust-smoke.ts createLegacyLocalOnlyDeliveryClaims 2 with ZERO isExactLegacyLocalOnlyDeliveryClaims. Wave 4 concept boundary: the verifier-owned chain is evidenced by acceptance-rollout-report.json, a prior-wave artifact untouched by the F-365 commit -- verdict pass, genuine 2 hosts (codex-cli AND claude-cli, NOT a degraded 3x1: mislabeled3x1Count=0), 6 matched pairs, registeredSeedCount 3 = detectedSeedCount 3, falsePassCount 0, omissionDetectionRate 1, falseBlockRate 0, waiverDelta 0, inventoryShrankCount 0, diagnostics empty; gate artifacts carry mode=observe with readOnly=true, evidentiary=false, authority=diagnostic_only, status=pass, structuralPass=true, basisStatus=complete, blocking=false, so diagnostics/status stay invariant and observe-mode reports claim no gate authority. No blocker; this change performed no concept deletion or replacement. Known and expected, deliberately NOT filed: pre_review_check_read reports PR_ARTIFACT_TAMPERED purely because the F-365 commit moved the hash its seal binds, and resealing is DEV-only work for the remediation pass that consumes this epoch receipt.",
+      "createdAt": "2026-09-02T16:53:30.838Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-891",
+      "envelopeId": "472f1fbd890d0e9dec930e1c4a9203a604185239002eccc903f2b02f2046e08d",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fa33b06937090a5708ce7b2b0481725a2c17e8e504a4c6e91815ef19743c39a3"
     }
   ]
 }
