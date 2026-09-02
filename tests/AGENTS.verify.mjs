@@ -954,16 +954,22 @@ function inspectRuntimeEnvironment() {
   const globalDirectRun = spawnSync(globalCli, ['--version'], { cwd: root, encoding: 'utf8', timeout: 10000 });
   const globalDirectOutcome = directOutcome(globalDirectRun);
   let globalVersion;
+  let directVersion = null;
   let versionSource;
   let fallbackStatus = null;
+  let fallbackOutcome = 'NOT_USED';
+  let fallbackVersion = null;
   if (globalDirectRun.status === 0) {
-    globalVersion = globalDirectRun.stdout.trim();
+    directVersion = globalDirectRun.stdout.trim();
+    globalVersion = directVersion;
     versionSource = 'DIRECT';
   } else {
     const fallbackRun = spawnSync(process.execPath, [globalRealpath, '--version'], { cwd: root, encoding: 'utf8', timeout: 10000 });
     fallbackStatus = fallbackRun.status;
+    fallbackOutcome = directOutcome(fallbackRun);
     assert.equal(fallbackRun.status, 0, `Node fallback cannot inspect resolved global CLI artifact: ${fallbackRun.stderr || fallbackRun.error?.message || 'unknown failure'}`);
-    globalVersion = fallbackRun.stdout.trim();
+    fallbackVersion = fallbackRun.stdout.trim();
+    globalVersion = fallbackVersion;
     versionSource = 'NODE_FALLBACK';
   }
   assert.ok(globalVersion.length > 0, 'global CLI artifact inspection returned an empty version');
@@ -985,8 +991,11 @@ function inspectRuntimeEnvironment() {
       directStatus: globalDirectRun.status,
       directErrorCode: globalDirectRun.error?.code ?? null,
       directOutcome: globalDirectOutcome,
+      directVersion,
       versionSource,
       fallbackStatus,
+      fallbackOutcome,
+      fallbackVersion,
       version: globalVersion,
     },
   };
@@ -1005,10 +1014,21 @@ function validateRuntimeEvidence(evidence, { bindObservedPaths = true } = {}) {
   const expectedDirectOutcome = evidence.global.directErrorCode ?? (evidence.global.directStatus === null ? 'STATUS_NULL' : `EXIT_${evidence.global.directStatus}`);
   assert.equal(evidence.global.directOutcome, expectedDirectOutcome, 'global direct outcome conceals the observed failure/status');
   if (evidence.global.directStatus === 0) {
+    assert.equal(evidence.global.directOutcome, 'EXIT_0', 'successful global direct execution must report EXIT_0');
+    assert.equal(evidence.global.directErrorCode, null, 'successful global direct execution cannot also report an error');
     assert.equal(evidence.global.versionSource, 'DIRECT', 'successful global direct execution must own its version result');
+    assert.ok(evidence.global.directVersion?.length > 0, 'successful global direct execution must retain its version result');
+    assert.equal(evidence.global.version, evidence.global.directVersion, 'selected global version must be the direct result');
+    assert.equal(evidence.global.fallbackStatus, null, 'successful global direct execution must not also run the Node fallback');
+    assert.equal(evidence.global.fallbackOutcome, 'NOT_USED', 'successful global direct execution must report fallback NOT_USED');
+    assert.equal(evidence.global.fallbackVersion, null, 'successful global direct execution must not retain a fallback version');
   } else {
+    assert.equal(evidence.global.directVersion, null, 'unavailable global direct execution must not retain a direct version');
     assert.equal(evidence.global.versionSource, 'NODE_FALLBACK', 'unavailable global direct execution must use bounded Node fallback');
     assert.equal(evidence.global.fallbackStatus, 0, 'global resolved-artifact Node fallback is unavailable');
+    assert.equal(evidence.global.fallbackOutcome, 'EXIT_0', 'successful global Node fallback must report EXIT_0');
+    assert.ok(evidence.global.fallbackVersion?.length > 0, 'successful global Node fallback must retain its version result');
+    assert.equal(evidence.global.version, evidence.global.fallbackVersion, 'selected global version must be the sole fallback result');
   }
   if (bindObservedPaths) {
     assert.equal(evidence.local.realpath, realpathSync(localCli), 'local authority realpath reporting drifted');
@@ -1022,7 +1042,7 @@ function renderRuntimeEvidence(evidence) {
   const drift = runtimeDrift(evidence);
   return {
     localMarker: `RUNTIME_LOCAL authority=${evidence.local.authority} invoked=${evidence.local.invoked} realpath=${evidence.local.realpath} execution=${evidence.local.execution} nodeOutcome=EXIT_${evidence.local.nodeStatus} version=${evidence.local.version}`,
-    globalMarker: `RUNTIME_GLOBAL invoked=${evidence.global.invoked} realpath=${evidence.global.realpath} mode=${mode} executable=${evidence.global.executable} directOutcome=${evidence.global.directOutcome} versionSource=${evidence.global.versionSource} fallbackOutcome=${evidence.global.fallbackStatus === null ? 'NOT_USED' : `EXIT_${evidence.global.fallbackStatus}`} version=${evidence.global.version}`,
+    globalMarker: `RUNTIME_GLOBAL invoked=${evidence.global.invoked} realpath=${evidence.global.realpath} mode=${mode} executable=${evidence.global.executable} directOutcome=${evidence.global.directOutcome} directVersionPresent=${evidence.global.directVersion !== null} versionSource=${evidence.global.versionSource} fallbackOutcome=${evidence.global.fallbackOutcome} fallbackVersionPresent=${evidence.global.fallbackVersion !== null} version=${evidence.global.version}`,
     currentMarker: `RUNTIME_CURRENT classification=${evidence.classification} runScoped=true driftVersion=${drift.components.includes('VERSION')} driftRealpath=${drift.components.includes('REALPATH')} driftExecutability=${drift.components.includes('EXECUTABILITY')}`,
   };
 }
@@ -1043,7 +1063,51 @@ function runtimeEvidenceMutationChecks(evidence, markers) {
   assert.ok(!runtimeReportPolicy(evidence, substitutingAuthority), 'substituting global CLI as local behavior authority must fail');
   const suppressingDrift = { ...markers, currentMarker: 'RUNTIME_CURRENT classification=ALIGNED runScoped=true driftVersion=false driftRealpath=false driftExecutability=false' };
   assert.ok(!runtimeReportPolicy(evidence, suppressingDrift), 'suppressing version/path/executability drift must fail');
-  const marker = 'RUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED';
+
+  const validDirect = structuredClone(evidence);
+  validDirect.global.mode = 0o755;
+  validDirect.global.executable = true;
+  validDirect.global.directStatus = 0;
+  validDirect.global.directErrorCode = null;
+  validDirect.global.directOutcome = 'EXIT_0';
+  validDirect.global.directVersion = validDirect.local.version;
+  validDirect.global.versionSource = 'DIRECT';
+  validDirect.global.fallbackStatus = null;
+  validDirect.global.fallbackOutcome = 'NOT_USED';
+  validDirect.global.fallbackVersion = null;
+  validDirect.global.version = validDirect.global.directVersion;
+  validDirect.classification = runtimeDrift(validDirect).classification;
+  validateRuntimeEvidence(validDirect, { bindObservedPaths: false });
+  const doubleSuccess = structuredClone(validDirect);
+  doubleSuccess.global.fallbackStatus = 0;
+  doubleSuccess.global.fallbackOutcome = 'EXIT_0';
+  doubleSuccess.global.fallbackVersion = doubleSuccess.global.version;
+  assert.throws(
+    () => validateRuntimeEvidence(doubleSuccess, { bindObservedPaths: false }),
+    /must not also run the Node fallback|fallback NOT_USED|must not retain a fallback version/,
+    'direct and fallback double-success must be rejected',
+  );
+
+  const validFallback = structuredClone(evidence);
+  validFallback.global.directStatus = null;
+  validFallback.global.directErrorCode = 'EACCES';
+  validFallback.global.directOutcome = 'EACCES';
+  validFallback.global.directVersion = null;
+  validFallback.global.versionSource = 'NODE_FALLBACK';
+  validFallback.global.fallbackStatus = 0;
+  validFallback.global.fallbackOutcome = 'EXIT_0';
+  validFallback.global.fallbackVersion = validFallback.global.version;
+  validFallback.classification = runtimeDrift(validFallback).classification;
+  validateRuntimeEvidence(validFallback, { bindObservedPaths: false });
+  const invalidFallback = structuredClone(validFallback);
+  invalidFallback.global.fallbackOutcome = 'NOT_USED';
+  assert.throws(
+    () => validateRuntimeEvidence(invalidFallback, { bindObservedPaths: false }),
+    /successful global Node fallback must report EXIT_0/,
+    'inconsistent fallback success state must be rejected',
+  );
+
+  const marker = 'RUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED';
   console.log(marker);
   return marker;
 }
@@ -1056,8 +1120,11 @@ function executableAlignedRuntimeSimulation(evidence) {
   simulated.global.directStatus = 0;
   simulated.global.directErrorCode = null;
   simulated.global.directOutcome = 'EXIT_0';
+  simulated.global.directVersion = simulated.local.version;
   simulated.global.versionSource = 'DIRECT';
   simulated.global.fallbackStatus = null;
+  simulated.global.fallbackOutcome = 'NOT_USED';
+  simulated.global.fallbackVersion = null;
   simulated.global.version = simulated.local.version;
   simulated.classification = 'ALIGNED';
   validateRuntimeEvidence(simulated, { bindObservedPaths: false });
@@ -1074,8 +1141,11 @@ function executableSameVersionRuntimeSimulation(evidence) {
   simulated.global.directStatus = 0;
   simulated.global.directErrorCode = null;
   simulated.global.directOutcome = 'EXIT_0';
+  simulated.global.directVersion = simulated.local.version;
   simulated.global.versionSource = 'DIRECT';
   simulated.global.fallbackStatus = null;
+  simulated.global.fallbackOutcome = 'NOT_USED';
+  simulated.global.fallbackVersion = null;
   simulated.global.version = simulated.local.version;
   simulated.classification = runtimeDrift(simulated).classification;
   validateRuntimeEvidence(simulated, { bindObservedPaths: false });
@@ -1444,7 +1514,7 @@ const RECEIPT_WINDOW_STATIC_SELECTORS = Object.freeze([
   'STRUCTURE baselineDigest=',
   'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED',
   'RUNTIME classification=VERSION_AND_REALPATH_DRIFT',
-  'RUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED',
+  'RUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED',
   'EXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION',
   'AUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS',
   'SOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS',
