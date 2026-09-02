@@ -154,6 +154,16 @@
             "desc": "The collector reads changed paths through the existing evidence-freshness rename-aware reader rather than shelling out to its own git invocation.",
             "type": "logic",
             "priority": "must"
+          },
+          {
+            "desc": "The collector gathers command duration history from prior signed validation artifacts and reports commands with no recorded history as unknown-duration rather than as zero.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The collector carries verification intent through as human-readable reason context available to the explain output.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "edge": [
@@ -171,6 +181,11 @@
         "adversarial": [
           {
             "desc": "When the changed-file read fails, the collector reports changed_files_unavailable and an escalation rather than returning an empty seed set that would read as no changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Duration history is estimate-only and verification intent is reason-context-only: a fixture mutates duration history and asserts the selected set is unchanged, and a fixture asserts verification intent alone produces no command-to-seed edge.",
             "type": "logic",
             "priority": "must"
           }
