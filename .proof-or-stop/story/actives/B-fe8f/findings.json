@@ -481,6 +481,25 @@
       "resolvedReason": "Fixed by commit 7827dae774 (test: correct B-fe8f binding budget rationale), which removes the unconditional process.stderr.write calibration dump from retired-authority-vocabulary-guard-smoke.ts and replaces the ceiling comment with the corrected rationale (five Story-owned sources, two spare slots absorbed, 808 -> 811). Verified: grep for repoDuplicates in the current source returns no match, and the guard still prints only its stdout PASS selector line.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-021",
+      "desc": "packages/main/src/core/store.ts:574-581 — verified high integrity blocker: the ledger-authority join replaces only the first findings.json row returned by findIndex, so a duplicate unsigned mirror row with the same Finding id survives. Independent temp-project reproduction after a signed lifecycle resolution returned {count:2,statuses:[\"resolved\",\"open\"],recordIds:[\"<ledger-record>\",null]}; the stray unsigned open/high row can still be consumed by REVIEW gate filtering and falsely re-block a canonically resolved Finding. Ledger authority must collapse/remove every mirror row sharing a ledger-backed display id while preserving only distinct mirror-only legacy ids, and regression evidence must cover duplicate same-id rows both before and after a signed terminal transition.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T20:04:32.556Z",
+      "reviewRound": "2026-09-02T20:00:12.918Z",
+      "reviewRunId": "B-fe8f:RR-035",
+      "_hash": "52758ee200294723d6ed4cd3b3a0e9eef9836914edb768ebb7800273a05522f8",
+      "files": [
+        "packages/main/src/core/store.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
