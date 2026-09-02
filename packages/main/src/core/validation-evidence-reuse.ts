@@ -100,6 +100,39 @@ function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv,
   return null;
 }
 
+/**
+ * The one shell rule. `node:child_process` uses an implicit command shell on
+ * Windows even when {@link ValidationCommand.shell} is false, so identity binds
+ * the ACTUAL execution principal.
+ *
+ * B-a745 CHK-001 extracted this from {@link buildRoutineValidationIdentity} so
+ * the stable command identity and the legacy pin resolver reuse it instead of
+ * declaring a second rule that could drift. Extraction only: the behaviour of
+ * `buildRoutineValidationIdentity` is unchanged.
+ */
+export function validationCommandUsesShell(
+  command: Pick<ValidationCommand, 'shell'>,
+  platform: NodeJS.Platform,
+): boolean {
+  return command.shell === true || platform === 'win32';
+}
+
+/**
+ * The one cwd resolution rule: an absolute `cwd` is taken as-is, a relative one
+ * resolves against the project root, and an absent one IS the project root.
+ *
+ * B-a745 CHK-001 extracted this from {@link buildRoutineValidationIdentity} for
+ * the same reason as {@link validationCommandUsesShell}. Extraction only.
+ */
+export function resolveValidationCommandCwd(
+  projectRoot: string,
+  command: Pick<ValidationCommand, 'cwd'>,
+): string {
+  return command.cwd
+    ? (isAbsolute(command.cwd) ? command.cwd : resolve(projectRoot, command.cwd))
+    : projectRoot;
+}
+
 export function buildRoutineValidationIdentity(args: {
   projectRoot: string;
   sourceKind: RoutineValidationSourceKind;
@@ -116,15 +149,13 @@ export function buildRoutineValidationIdentity(args: {
   const processEnvironment = args.processEnvironment ?? process.env;
   const platform = args.platform ?? process.platform;
   const commands = args.commands.map((command) => {
-    const cwd = command.cwd
-      ? (isAbsolute(command.cwd) ? command.cwd : resolve(args.projectRoot, command.cwd))
-      : args.projectRoot;
+    const cwd = resolveValidationCommandCwd(args.projectRoot, command);
     const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
     // node:child_process uses an implicit command shell on Windows even when
     // ValidationCommand.shell is false. Bind identity to that actual execution
     // principal (ComSpec/cmd.exe), not to a command that spawn never executes
     // directly.
-    const usesShell = command.shell === true || platform === 'win32';
+    const usesShell = validationCommandUsesShell(command, platform);
     const shellExecutableCommand = usesShell
       ? platform === 'win32'
         ? String(effectiveEnvironment.ComSpec ?? effectiveEnvironment.COMSPEC ?? 'cmd.exe')

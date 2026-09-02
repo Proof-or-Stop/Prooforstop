@@ -223,7 +223,16 @@ testCase('two declared ids that collide are rejected as duplicates naming both e
     command({ label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'same' }),
     command({ label: 'test', command: 'npm', args: ['test'], id: 'same' }),
   ];
-  assert.throws(() => inventory(commands), /same[\s\S]*lint[\s\S]*test|lint[\s\S]*test/);
+  assert.throws(
+    () => inventory(commands),
+    (error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      assert.match(message, /"same"/, 'the colliding id must be named');
+      assert.match(message, /"lint" \(validate\.commands\[0\]\)/, 'first entry must be named');
+      assert.match(message, /"test" \(validate\.commands\[1\]\)/, 'second entry must be named');
+      return true;
+    },
+  );
 });
 
 testCase('a declared id colliding with another command provisional id is rejected', () => {
