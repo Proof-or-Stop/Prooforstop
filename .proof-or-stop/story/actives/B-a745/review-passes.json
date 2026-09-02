@@ -245,6 +245,32 @@
         "scanEscalationReason": null
       },
       "_hash": "30d5c036e0f62cfbf2d7f40d47bea5fff2e4b9474b4eb4b1ff5a319aed4abe18"
+    },
+    {
+      "id": "B-a745:RP-010",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 quality re-review, scoped to F-017/F-016 fixes plus a dist-freshness recheck (my own round-3 F-015 finding). RR-016 went stale mid-review because F-020 (comment-only) landed concurrently; re-diffed 9d02815..HEAD, only touch is a comment-only reword in validation-command-identity.ts, no re-analysis needed, restarted as RR-018. (1) Dist freshness: sha256 of every file in packages/main/dist against a fresh npm --prefix packages/main run build is byte-identical -- resolved (was my round-3 F-015). (2) F-017 (8345c873d6/3790b0f193): narrowPortableValidationCommandTuple and buildValidationCommandInventory take no platform arg and derive shell from command.shell === true only (declared intent); the COMPLETE runtime tuple used for pin resolution (completeTupleFromCommand -> normalizeRoutineValidationCommand -> validationCommandUsesShell) is unchanged and still platform-effective via buildValidationPinUniverse. No unused validationCommandUsesShell import, no leftover platform param on the portable-tuple call sites. Fixtures cover both directions: portable id/digest identical across linux/darwin/win32, AND the runtime tuple explicitly asserted to still differ on win32 (not flattened). (3) F-016 (207d6f1adc/28188ef373, 48048697fa/03df6da9fb): one shared primitive pair (boundSummary + firstMeaningfulLine) backs both boundedFailureSummary (duration-history, malformed-pin) and classifyChangedFilesFailure (changed-files, hash-snapshot) -- not near-copies. Raw error retained on the structured object at 3 of 4 sites (changedFiles.error, hashes.error, durationHistory.readError); the 4th (malformed evidence pin) has no raw field but its only throw sites (readPinField) are short hand-written single-sentence Error objects, not stack traces, so nothing unbounded is being lost -- disclosed by the commit itself. (4) Mutation-check on a copy, both reverted and confirmed by rebuild+sha256 diff and git status clean: (a) reintroduced the platform-effective shell rule into the portable tuple -- bit exactly the 5 F-017 fixtures with the same win32-vs-darwin digest divergence the RED commit recorded; (b) reintroduced changedFiles.error (raw) in place of changedFiles.summary in the planner render -- bit the changed_files_unavailable fixture with the full git usage dump reappearing in the rendered detail. No findings this round.",
+      "createdAt": "2026-09-02T08:49:07.022Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-018",
+      "envelopeId": "b0382175418980482fa9226f5bc01026cc483a4880d4c3f92102b8c035523f64",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9ea1bb1feae9aa9fd624ef2ebebaa200a39275fee18c2debecc7f5c67340e17a"
     }
   ]
 }
