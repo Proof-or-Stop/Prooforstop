@@ -249,6 +249,24 @@
       "resolvedAt": "2026-09-02T07:54:30.646Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-012",
+      "desc": "validation-tier-planner-smoke.ts:2855-2882 the CHK-006 RED-before-GREEN acceptance guard derives its item list only from console.log(...running CHK-\\d{3}...) section headers and only matches commit subjects RED(CHK-\\d{3}): / GREEN(CHK-\\d{3}):. It never inspects the finding-fix commit family RED(F-0xx): / GREEN(F-0xx): / RED(B-a745:F-0xx): / GREEN(B-a745:F-0xx):. I manually checked out each of the six F-010 RED/GREEN commit pairs (c7c449e6f2/e1f222abc6, d4d930c9d1/326169897a, e0baff1a65/de019c2284) into isolated git worktrees, built dist there, and confirmed each RED genuinely fails on its own parent state and each paired GREEN turns it green -- so this specific story is honest. But the mechanism the suite itself calls its acceptance proof for RED-before-GREEN silently skips this whole commit family, so a future finding-fix commit pair that squashes RED into GREEN, or omits RED entirely, would pass this guard vacuously. Reviewer resolution prose for F-010/F-006/F-007 asserts RED-before-GREEN discipline as fact (e.g. F-010: each residual got its own failing fixture before its fix) as if it were mechanically checked, but nothing currently enforces that for this commit class.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T08:04:20.369Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-013",
+      "_hash": "0c9aeb42a220d6167be9d372816fb677f1c947dc9d8076e341dcd595981cb1f3",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|validation-tier-planner",
+      "signatureTagSource": "auto"
     }
   ]
 }
