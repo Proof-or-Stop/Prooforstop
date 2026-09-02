@@ -53,6 +53,26 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-41c8:F-004",
+      "desc": "CHK-003 userSees claims: run validation_plan against a DONE story and it reports the story as not resolvable from a linked worktree rather than reading a removed worktree. Verified empirically (real run: node packages/main/dist/tasks/single-owner-extraction-smoke.js, all 35 cases PASS) that this is true ONLY for the merged-and-actually-removed case. For the more consequential edge -- a DONE story whose worktree still physically exists (not yet cleaned up) -- validation-plan.ts:706 deliberately passes terminalPhaseGuard:false (comment at validation-plan.ts:702-705), and the shipped smoke test itself titles and asserts the opposite of the userSees claim: single-owner-extraction-smoke.ts:1128-1140 \"validation_plan: DONE-story reads are unchanged ... a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour\" / assert.ok(planUnitIds(withResidue).includes(WS_WORKTREE_COMMAND_ID), \"validation_plan keeps reading a residual DONE worktree\"). This is a deliberate, tested, documented decision (decision.json preMortem #3: the helper exposes the guard as an explicit option with the default matching each migrated callers current behaviour) -- not a regression -- but it reopens exactly the drift risk B-a745:F-014 raised (validation-plan resolveStoryWorkspace lacks the phase-terminal guard story-query.ts/session.ts apply, so behavior CAN diverge for a DONE story whose worktree still resolves). The userSees wording, read plainly, implies the guard now protects validation_plan generally against DONE-story linked-worktree reads; an operator relying on that claim to trust validation_plan output for a just-merged, not-yet-cleaned-up story would be wrong. Recommend narrowing the userSees wording to name the residual-worktree case explicitly, or actually closing F-014 by guarding validation_plan too.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T15:03:28.958Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-005",
+      "_hash": "fe7c73731d278ff12217df2df78dfffa91cd921840778a2a7f294f1ad47b2bc4",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts",
+        "packages/main/src/core/story-workspace.ts",
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "happy|ts|validation-plan-terminal-phase-guard-usersees",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
