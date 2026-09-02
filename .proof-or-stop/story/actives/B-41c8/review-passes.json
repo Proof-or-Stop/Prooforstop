@@ -78,6 +78,34 @@
         "scanEscalationReason": null
       },
       "_hash": "ad9ecfc4431b201ead2d2da29a68a221c181fa176791bd1317fbf2813014f951"
+    },
+    {
+      "id": "B-41c8:RP-004",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round-3 targeted re-check of the F-011/CL-002 restoration (ada9de0ccf/220075ce20) requested by dispatch. Ran npm run test:single-owner-extraction: 40/40 PASS, all three pinned CHK-004 lines print verbatim (audit block header, completeness check, validate-channel.ts comment-only edge case). Read source for the two named callees: nextStoryId (context.ts:175) calls store.listStoryIds() -- a genuine read of story index content through the store, so its via-handler(nextStoryId) label at story-create.ts:558 is honest. applyDoneMergeEffects (done-effects.ts:1022-1347) only calls store.writeStory(...) (a write) and store.storyDirRel() (a cached config-derived field set at StoryStore construction, not a live read call) -- it never calls readStory/readChecklist/loadConfig itself, so its via-handler(applyDoneMergeEffects) label at transition-orchestrator.ts:1587 does NOT correspond to a proven read. This is the inverse case the dispatch asked about, but it is not a defect: the classifier documents itself (single-owner-extraction-smoke.ts:1292-1305, function doc at :1528-1532 uses may read ctx.root) as a deliberately conservative, unverified-delegation proxy -- a false FLAG is the safe direction -- because the file-level scanner cannot see into an out-of-file callee. transition-orchestrator.ts also carries direct story/checklist/config reads independent of this one entry, so no caller is left with an unverified via-handler as its ONLY ctx.root exposure except proof-or-stop-handoff.ts, which is the pre-existing documented false-PASS case already covered by test F-008/guard (its own via-handler callees are real command handlers, not write-only helpers). withChecklistLock and runCloseoutPhase (generic locals) do not appear anywhere in the audit output (grepped both verbose and default runs), matching localFunctionNames exclusion. assertCwdInWorktree (context.ts:71) genuinely calls store.readStory(storyId), so its via-handler label everywhere it appears is honest. Re-verified F-004/CHK-003 DONE-story behaviour: ran node <this-worktree>/packages/main/dist/cli.js validation_plan --storyId=B-01df --tier=fast --json from the main checkout (/Users/jek/Documents/GitHub/Prooforstop) -- succeeded, returned storyPhase=DONE and a full plan with no resolution error, confirming a DONE story still resolves cleanly (terminal-phase guard reads from the invocation root, not a stale linked worktree). Head moved from 18f1ed6975 to a5fbbba during this run due to a concurrent finding_add metadata commit (story bookkeeping, not source-code change); the reviewed source files (done-effects.ts, context.ts, store.ts, single-owner-extraction-smoke.ts) are unaffected. No blocking finding filed this round.",
+      "createdAt": "2026-09-02T16:39:16.626Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-015",
+      "envelopeId": "204079761a713d332fbb4c3bd6cc79981ed4ce4b2f87f547ad60d9a8e74e4bbf",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d9b70c4c6827e7342493e09f642bb131b5ab8fee4d0e8d6ac92e2ae1d756f10"
     }
   ]
 }
