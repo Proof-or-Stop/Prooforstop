@@ -13198,6 +13198,38 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "17038b1e2dc8f494c5ee1899a5ca3cd2f2eca8fc22bb1c0e93ddfb87cc53059e"
+    },
+    {
+      "id": "B-5a15:RP-275",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review PASS. Verified independently against checklist.json at storyFilesHash 0b5fe162a33d (identical to the RR-836 binding): 5 items / 53 verificationIntent entries / 53 verificationEvidence rows, intentRef 1:1 with zero gaps and zero orphans (CHK-001:edge:oversized-output-probe is an id-keyed intent, not an orphan). All 53 rows mechanical=true with receipt.exitCode=0 and receipt.selectorMatched=true; exactly 1 distinct storyFilesHash and 1 distinct materialHash across all 53 rows (headHash varies per row, which is the expected consequence of evidence auto-commit moving HEAD). Zero waivers, zero nonMechanicalReason, zero result=fail, zero generic notes; 51/51 must-priority intents covered. Coverage honesty checked at depth: all 53 intents pin the same suite but carry 53 DISTINCT selectors with zero sharing, and all 53 selector strings were found verbatim in a real local run of that suite, so no intent inherits another intent's aggregate green. Negative control verified structurally: emitIntentMarker (causal-evidence.test.mjs:74) is invoked only AFTER the assertions in each test body, so a failing assertion throws before the marker prints and the selector cannot match, making selectorMatched load-bearing rather than decorative. Suite re-run locally: 21 pass / 0 fail. pre_review_check_read: PASS with zero codes (plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible). CHK-002 lane counts unchanged at happy=2 edge=3 adversarial=4; its planned-path consumer is now handler#verification_evidence_batch_add, confirmed factually accurate because that handler is registered at checklist.ts:2444 and lexically encloses the commitCanonicalCausalEvidence call at :2570, and the prior source_file declaration was indeed unmatchable because acceptance-discovery-adapters.ts:1758 requires exported===1 while the :1606 const is a non-exported local. No blocker.",
+      "createdAt": "2026-09-02T07:01:40.814Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "reviewRunId": "B-5a15:RR-836",
+      "envelopeId": "360155ad9aa32758c2f9bbd8136a43ba234279607a75ed6a0776ae215eab38b1",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "No escalation required: this lane audits verificationIntent-to-verificationEvidence coverage, which is fully determined by checklist.json plus the pinned suite output. Read the pinned verifier in full to confirm per-intent selector emission ordering, and read the endpoint-matching adapter and review-run binding code in full to independently confirm the CHK-002 planned-path correction and the dispatch-binding root cause. Remaining candidates were triaged by name because they carry no coverage obligation for this lane.",
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "e0f050316e5f3cb61fbd60075af4fa394a2f6d38bc88ba69d0e5fe56fa64c7e7"
     }
   ]
 }
