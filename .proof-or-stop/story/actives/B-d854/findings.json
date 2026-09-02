@@ -442,6 +442,25 @@
       "resolvedAt": "2026-09-02T01:35:11.926Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d854:F-021",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:87,92-93,96,99 and tests/AGENTS.verify.mjs:457-483 — WHY high acceptance blocker: CHK-001:happy:0 requires every claim-by-claim ledger row to name an authoritative implementation/registry/prompt/decision source with a line reference. Rows A14, A20, and A23 provide only `machine.ts`/`done-prepare.ts` prose with no line reference; A19 and A26 append vague `reviewer/quorum handlers` or `current registry` without identifying the source locations for the claimed behavior. The final verifier nevertheless prints GREEN because auditDocumentChecks only verifies the Axx-to-Mxx/Lxx prefixes, hashes, counts, and provenance tokens; it never validates a per-row authority path and line reference. Thus the durable evidence is not independently traceable and the green receipt overstates the must-intent. Fix each affected row with exact authoritative file:line citations for all material behavior claimed, and make the verifier reject missing or non-line-addressed row sources.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T01:39:45.894Z",
+      "reviewRound": "2026-09-02T01:34:45.825Z",
+      "reviewRunId": "B-d854:RR-010",
+      "_hash": "d79aa7e7896a80660d9ab4421c745052fd0096d8ffce6d66f5135efc80843c1c",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "missing|md|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
