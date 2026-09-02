@@ -14309,6 +14309,35 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "7d99ddde7cf9b9d62e33527c8b76626bfd077437196e60bc46dce5deada24ece"
+    },
+    {
+      "id": "B-5a15:RP-308",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independently confirmed all three adversarial checks: (1) 53 verificationEvidence rows across CHK-001..CHK-005 (10+9+10+14+10), all mechanical:true, all result=pass; buildVerificationCoverage (verification.ts:214) defaults unset priority to must, giving required=51 (22 explicit must + 29 unset-defaulted) vs 2 should, covered=53, missingRequired=0 matches claim exactly. (2) All 53 rows share ONE executionKey/outputDigest/executedAt (single shared-command execution fanned out to 53 independently-pinned selectors, by design). Re-ran node --test packages/main/tests/causal-evidence.test.mjs live (fresh, not from stored receipts): exit 0, 21/21 pass, and all 53 pinned selector strings from checklist.json verificationIntent[*].verification.selector appear verbatim exactly once each in the live output, including the two markers (CHK-004:happy:2/3) gated behind the F-351-style bootstrap allow-list conditional at test line 2514 in this run the strict-PASS branch fired, not the bootstrap fallback, and the stored receipts own outputTail (captured at earning time) already contained both markers too. Receipt is a genuine signed CAS object (filename==receiptHash, has signerPublicKey+signature). Commits between bound headHash e8086a27 and current HEAD 013a7ef5 are metadata-only (git diff --stat shows zero source/test changes), so headHash drift is provenance-only per CLAUDE.md doctrine. (3) Kind preservation: cross-referenced all 53 rows kind field against source verificationIntent.type, zero mismatches; CHK-001:edge:oversized-output-probe stayed logic_test; overall split is exactly 46 integration_test + 7 logic_test = 53. The 58-intent/intentCount=58 references inside CHK-001s own intent descriptions/selectors are a synthetic in-test fixture (Array.from length:58 at test.mjs:211) replaying the original B-137a incident pattern to prove the DAG dedup mechanism itself unrelated to and not in conflict with the storys own 53-item checklist verificationIntent count. No blocking test-coverage defect found in this lane.",
+      "createdAt": "2026-09-02T22:02:59.848Z",
+      "reviewRound": "2026-09-02T21:18:15.582Z",
+      "reviewRunId": "B-5a15:RR-901",
+      "envelopeId": "e39ae7d3220b1deb700f218584b84ec2831bc4debd4d9219a6c618ea3a3e7f3d",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1268eb5b3bab3a95bc07855d4b352db084a62693cf3c7a9bd2ba33851916e32e.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "de9d4144d250f7c31d64b37091deb342ccad45cc809d3eb324aceffacb0fdc15"
     }
   ]
 }
