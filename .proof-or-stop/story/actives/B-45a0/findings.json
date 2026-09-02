@@ -25438,7 +25438,7 @@
       "desc": "All 44 must-priority verificationEvidence receipts across CHK-001..CHK-011 (executable logic_test/integration_test/docs_check kinds) are stale per checkEvidenceFreshnessForGit: their storyFilesHash=ea0dc5db... does not match current HEAD storyFilesHash=227118a0... at d2c171f6. Root cause: commit d2c171f6 (record B-45a0 dev-memory capture + finish decision metadata, 2026-09-02T04:23:08+08:00) appended one entry to .proof-or-stop/dev-memory/experience.jsonl AFTER the DEV->REVIEW phase_transition at 2026-09-02T04:21:59.782Z (whose materialHash 61ae4c33... matches the evidence exactly, confirming receipts were fresh at transition time). experience.jsonl is not covered by isStoryMetadataPath (only .proof-or-stop/story/ prefixes are excluded), so this dev-memory-only append moved storyFilesHash and re-staled every must-intent receipt with zero actual source/test/doc content change (confirmed: the 99 non-.proof-or-stop story-owned files are byte-identical between the evidence baseline commit 05c2b850 and current HEAD d2c171f6). Recommendation: re-run verification_evidence_refresh_stale (owner-only) to re-earn fresh receipts at current HEAD before REVIEW->TEST.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T04:29:56.776Z",
@@ -25474,7 +25474,11 @@
         ".proof-or-stop/story/actives/B-45a0/checklist.json"
       ],
       "signatureTag": "missing|jsonl|priority-verificationevidence-receipts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 50 verification evidence receipts were re-earned at the current binding via verification_evidence_refresh_stale (50/50 refreshed, auto-commit touching only .proof-or-stop/story/actives/** story-metadata paths, so the receipts stay fresh afterward). Root cause acknowledged in the resolution for the record: the dev-memory capture appended .proof-or-stop/dev-memory/experience.jsonl, which is not excluded by isStoryMetadataPath (packages/main/src/core/material-path-policy.ts only excludes .proof-or-stop/story/ prefixes), so a lesson append moved storyFilesHash with zero content change. That path-classification question is framework-wide, is not claimed by any B-45a0 checklist item, and touching material-path-policy.ts would itself invalidate the freshly re-executed paired campaign — it is deferred as a dedicated follow-up (candidate story: classify .proof-or-stop/dev-memory/** appends as non-material or story-metadata), consistent with the defect-triage discipline.",
+      "resolvedAt": "2026-09-02T04:49:44.545Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
