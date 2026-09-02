@@ -13914,6 +13914,31 @@
         "scanEscalationReason": null
       },
       "_hash": "b82acca2abbb2b49573e859378709c38716d17027b4c535bc58997dcb1e7e374"
+    },
+    {
+      "id": "B-5a15:RP-295",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane re-attestation for RI-067. The frozen cutoff 9009f784e0 is byte-identical to RI-066 (quality PASS RP-291/RR-879): git diff --name-status -M 829ed82a6b..678ed33aa5 restricted to packages/main/src, packages/main/tests, packages/graph, packages/utils, scripts, docs and *.md is EMPTY, so no source material changed since the prior pass and the DEV repairs were story-metadata writes only. Re-measured every quality signal on this HEAD rather than trusting the claim. Type safety: npx tsc --noEmit -p exits 0 with zero diagnostic output for all three packages (packages/main, packages/graph, packages/utils). Resource-claim discipline: node --test packages/main/tests/validate-resource-claims.test.mjs reports validate-resource-claims: PASS (34 assertions), 1 pass / 0 fail, including B7DFF-CHK005-AUDITED-BARRIERS-HELD (10 audited repo-shared writers remain undeclared) and B7DFF-CHK005-COLLISION-PROBE-BITES. Registration derivation: node packages/main/tests/red/red-b49d4-registration-derivation.mjs exits 0 with 0 RED / 26 GREEN of 26 rows, and its own BLOCK E rows independently confirm REAL_CONFIG_BYTE_UNMODIFIED and REPO_TREE_NEVER_WRITTEN_TO (listing digest 56f5cb89a19f1913 unchanged before/after), so the harness left no side effects on this frozen epoch. I/O isolation of the causal preflight gate: packages/main/src/handlers/verifier.ts declares identityCommand exactly ONCE, at :2139 as a ValidationCommand, and the causal preflight gate site at :2324 (createValidationCausalPreflightGate(ctx, args.story, [identityCommand], projectRoot)) consumes that same lexically-enclosing binding, with the other five uses at :2149, :2173, :2209, :2242 and :2263 all referring to the same const. There is no shadowing declaration and no second identityCommand, so the gate cannot be fed a divergent command object. No dead code, type-safety or I/O-isolation blocker found.",
+      "createdAt": "2026-09-02T15:49:08.730Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-887",
+      "envelopeId": "824572cade9be3fe218dfe9007b0a121cfc211f308c3cf1e444ddf80f96bddfa",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3f3cf8d285e02a414e80c95efe4da52287dbd60bcf48b332e321b827dad6bd9"
     }
   ]
 }
