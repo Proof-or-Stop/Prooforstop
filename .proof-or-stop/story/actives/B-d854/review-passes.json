@@ -193,6 +193,45 @@
         "scanEscalationReason": null
       },
       "_hash": "c1260b9da2fd9ce2c255e5c3eb0e86a7e87054d7b9b7f000983f01366beebdf4"
+    },
+    {
+      "id": "B-d854:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final coverage review passed: all 10 must intents have current material/storyFiles-bound evidence (8 mechanical, 2 docs, no gaps or waivers); each of the 8 actual canonical receipt tails is 4000 bytes, untruncated, and contains all 18/18 acceptance selectors. Independently verified receipt-window policy exit 0, baseline 26/26 RED exit 1, final 26/26 GREEN exit 0, current direct global runtime 0.3.271/EXIT_0 with VERSION_AND_REALPATH_DRIFT, 43 authority chains, 69 source mutations, 137 chain swaps, and bound Claude/Agy artifacts.",
+      "createdAt": "2026-09-02T12:56:46.601Z",
+      "reviewRound": "2026-09-02T12:52:01.904Z",
+      "reviewRunId": "B-d854:RR-040",
+      "envelopeId": "a1e7ee89227abe26fa66e77eba349633b095f436584619c53e7f7eee4610e5d4",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "d549b6219d8cbac0558c0d02600c7d041bb87f6b0e46c34f1409f45d80b9d570"
     }
   ]
 }
