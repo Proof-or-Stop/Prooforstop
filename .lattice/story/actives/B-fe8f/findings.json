@@ -342,7 +342,7 @@
       "desc": "F-011 remains semantically open: packages/main/src/core/evidence/artifact-store.ts:158-170 and 169-175 revalidate the runtime blob directory by pathname and then separately call openSync/renameSync/readFileSync by pathname; every validation descriptor is closed inside statIdentity, so no directory descriptor or lock spans validation through publication. A directory-to-symlink swap in the interval after assertRuntimeBlobDirectoryIdentity returns and before openSync or renameSync can therefore redirect creation/publication outside the project; the post-rename check can only report after the external write and cannot undo it. The regression at packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1449-1455 swaps inside beforePublish, before the final identity assertion, so it does not exercise this remaining check-to-use window. Preserve a directory capability/descriptor across open+publish (or provide an equivalent serialized primitive with no path re-resolution), and add a deterministic interleaving after validation/before pathname use proving outsideWrites=0.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T23:33:42.056Z",
@@ -352,7 +352,11 @@
       "signatureTag": "adversarial|unknown|remains-semantically-open",
       "signatureTagSource": "auto",
       "recordId": "lr_mtjazt49_1vzf_df4e903956d04edf8a96b45049704bfb",
-      "ledgerCommitReceiptId": "lrc_mtjazt49_1vzf_90a5aee4bdad4ec6b8b9eb7ef8361887"
+      "ledgerCommitReceiptId": "lrc_mtjazt49_1vzf_90a5aee4bdad4ec6b8b9eb7ef8361887",
+      "resolvedAt": "2026-09-02T00:55:10.430Z",
+      "resolvedReason": "Commit 6278c7a2277692b2c4a8e0fbc0a347be6a8c9d5e closes the late final-path race by holding the directory capability through relative open/rename/read and post-check; current runtime.blob_store_late_symlink_swap passes with afterFinalCheck=true and outsideWrites=0.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-016",
