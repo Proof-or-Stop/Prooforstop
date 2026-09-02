@@ -348,6 +348,24 @@
       ],
       "signatureTag": "edge|ts|registered-story-owner",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-017",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2; --json output preserved at the owner scratchpad codex-xhr-r2-raw-output.txt.] Codex (MAJOR): 'Provisional command IDs change across operating systems. The supposedly host-portable tuple hashes validationCommandUsesShell(), which returns true on Windows even when shell is not declared, but false for the same command on Linux/macOS. Consequently the same repository configuration produces different prov-* IDs and commandSetDigest values across hosts, breaking stable pin identity and causing cross-host evidence pins to stop resolving.' OWNER VERIFICATION, read from source not inferred: narrowPortableValidationCommandTuple (validation-command-identity.ts:94-106) takes a platform parameter and sets shell = validationCommandUsesShell(command, platform), whose body (validation-evidence-reuse.ts:114-118) is command.shell === true || platform === 'win32'; provisionalValidationCommandId then hashes that shell field. A tuple that consumes the host platform is not portable by construction. This contradicts the recorded decision A-narrow-portable-id, whose rationale is that the id is stable across machines so a project can adopt it as a declared id and a future selection artifact can be verified on another host; it is therefore a defect in the story's core identity property, not a corner case, and the root cause is the owner's own plan.md CHK-001 design note, which instructed the implementer to reuse the routine identity's platform-effective shell rule for the narrow tuple. The correct split, which the spec's stable-identity section already implies, is: the PORTABLE tuple uses declared shell intent only (command.shell === true), while the COMPLETE runtime tuple used for pin resolution keeps the platform-effective rule. Fix in scope. Required fixtures: identical provisional id and commandSetDigest for the same undeclared-shell command with platform=linux, darwin and win32; and the complete runtime tuple still differing on win32.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:24:32.709Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "d8f34abd18ddbcd86667923523c9e6882b29ef891ecf109ab02822e1dd3a4338",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts",
+        ".proof-or-stop/story/actives/B-a745/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto"
     }
   ]
 }
