@@ -94,6 +94,21 @@
       ],
       "signatureTag": "adversarial|md|agents-adversarial-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-006",
+      "desc": "AGENTS.md:220-225,307-313,439-440,494-529 — acceptance-blocking false-green in the active-command verification: these blocks contain concrete phase-changing, mutating, and read-only examples, but the recorded CHK-001:adversarial:0 / CHK-003:adversarial:0 checker extracts only the first command token (special-casing codex) and runs `<command> --help`. It never validates the displayed argv or placeholder structure, never executes read-only examples with repository-valid arguments, and never schema-validates mutating examples in an isolated repository, despite both must-intents requiring exactly those checks. A command can therefore have valid help while every documented invocation is malformed and the receipt still reports PASS. Replace the prefix-only smoke with a case ledger that binds each active example to its exact argv and either executes it read-only, validates it through the registered schema in isolation, or explicitly classifies it as conceptual; keep the invalid sentinel. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T00:25:36.449Z",
+      "reviewRound": "2026-09-02T00:20:22.610Z",
+      "reviewRunId": "B-d854:RR-002",
+      "_hash": "8c982e19bb0367385e17ef8058dc429292f9690cae25b1e77a09933d3eddd04f",
+      "signatureTag": "adversarial|unknown|agents-acceptance-blocking",
+      "signatureTagSource": "auto"
     }
   ]
 }
