@@ -796,6 +796,26 @@
       "resolvedAt": "2026-09-02T08:42:23.799Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d854:F-036",
+      "desc": "authority-role-contract-incomplete: docs/audits/AGENTS-current-version-audit.md:91 says composite behavioral claims require complete producer-to-consumer or guard/branch authority chains, but tests/AGENTS.verify.mjs:265-271 applies REQUIRED_AUTHORITY_ROLES to only A05/A10/A12/A13/A14. A21 remains role=default support for both entries, and its label done-prepare-classified-blocker-consumption points to packages/main/src/handlers/done-prepare.ts:1837, which only produces initialDirtyClassification. The actual consumption/block is at lines 1838-1839 and is uncited. Independent inverse repro: replacing the initialBlockingEntries length guard with if-false in memory leaves both A21 cited patterns matching (A21_INVERSE_MUTATION blocking-consumer-disabled citedAuthoritiesStillMatch=2/2), while node tests/AGENTS.verify.mjs --authority-policy, --source-authority-policy, and --final all pass. Thus a material current-behavior claim still false-greens with a role-incomplete authority set, violating CHK-001 and the audit role contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:47:46.843Z",
+      "reviewRound": "2026-09-02T08:41:59.853Z",
+      "reviewRunId": "B-d854:RR-027",
+      "_hash": "f4be542228b8ba08b66218ff265ab28d45257a2b7f2d826880ea0e167f0fc2fa",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|md|authority-role-contract",
+      "signatureTagSource": "auto"
     }
   ]
 }
