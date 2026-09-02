@@ -13752,6 +13752,69 @@
         "scanEscalationReason": null
       },
       "_hash": "2556d3f6d60868c3cc9a01a10517b49b38fe915431d77f5398dbc619a1fcad5f"
+    },
+    {
+      "id": "B-5a15:RP-291",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane PASS for epoch RI-066 (round 2026-09-02T10:34:38.494Z, head 829ed82). Scope: the 41 non-story files in git diff main...HEAD, reviewed against this lane's four check items. Regions read in full: retired-authority-vocabulary-guard-smoke.ts:342-460 (pinned-fingerprint registry + F-361/F-363/F-364 note), verify-process-fact-contract.mjs:2005-2045 (the coupled digest copy), command-schemas.ts:96-124 (verificationEvidenceSchema .strip()), checklist.ts:785-1224 and :2359-2600 (enforceAndStampEvidence boundary + exitOk/selectorMatched fork), certification-window.ts:98,174-178, verifier.ts:2139,2324, command-catalog.ts:504-535,2737-2835, and the complete main...HEAD diff of core/closeout-trust.ts. FINDINGS: none new. (1) Dead code: all 75 newly exported symbols have more than one occurrence across src/tests/scripts, zero declaration-only; zero commented-out code blocks added. (2) Type safety: zero added ts-ignore/ts-expect-error/eslint-disable, zero added empty catch; the single added `as unknown as HandlerContext` at tasks/proofstory-pre-review-check-smoke.ts:1020 matches the pre-existing sibling cast at :1178 in the same file and is established smoke-fixture convention, not a production escape. (3) I/O shell isolation: no shells/ files in the diff, so the shell-must-not-import-fn rule is not applicable this round. (4) Proof-metadata dual surface: caller-supplied receipt/mechanical/selector/nonMechanicalReason keys are stripped at command-schemas.ts:124 via an explicit .strip() documented as a safety feature against receipt injection, and a real tool-owned receipt survives a checklist_update re-persist only via carryForwardOnDiskProvenance rather than from the incoming row; result is derived from real exit plus selector match inside the single enforceAndStampEvidence boundary with the double-layer runtime re-check, so no server-authored proof key is authored or validated on only one surface. Re-confirmations, each run with output redirected and exit code echoed rather than piped: scripts/verify-process-fact-contract.mjs exit 0; retired-authority-vocabulary-guard-smoke.js exit 0 with builds=815 cacheHits=2 fullAnalysis=1309 astCandidates=508 reachability=34; validate-resource-claims.test.mjs PASS with 34 assertions; red-b49d4-registration-derivation.mjs 0 RED / 26 GREEN of 26 rows; tsc --noEmit exit 0 for packages/main, packages/graph and packages/utils. F-364 repair verified by two-branch measurement rather than by reading one branch: topology_critic_receipt_set is grep -c 0 on main and 1 on HEAD, and the sole inserted line in core/closeout-trust.ts is exactly its topology-critic-receipt.json closeout-evidence registry row, so the folded item-1 attribution is literally true; deriveCertificationDomainInputHashes is 0 on main and 2 on HEAD; acquireOwnerLease is 0 on main and 2 on HEAD; and the deleted item 4 was genuinely false because verification_evidence_refresh_stale is 1 on BOTH branches and does not appear in that file's diff at all. Registry lockstep confirmed: the guard copy now states THREE divergences listing items 1-3, the coupled verifier copy lists the same three and independently records that refresh_stale is not a divergence, and all three shared digests occur exactly once in each of the two files. Per-file compatibility counts hold as stated: core/closeout-trust.ts isExactLegacyLocalOnlyDeliveryClaims 2, tasks/closeout-trust-smoke.ts createLegacyLocalOnlyDeliveryClaims 2 and isExactLegacyLocalOnlyDeliveryClaims 0, all identical across main and HEAD. Standing clearances unmoved: the load-bearing bare .sort() at certification-window.ts:176; the exitOk/selectorMatched fork at checklist.ts:1158 and :1224; the explicit certification-domain mapping at certification-window.ts:98 and :175; exactly ONE identityCommand declaration, at handlers/verifier.ts:2139, still enclosing the causal preflight gate site at :2324 (the dispatch labelled this core/verifier.ts while the actual path is handlers/verifier.ts, a path-label discrepancy only, with both line numbers exact); and grep selectorMatched over core/validation-executor.ts returns zero hits, so main's tracing cannot alter a derivation it holds no reference to. Wave 4 quality boundary intact: acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read and acceptance_rollout_check all remain read-only verifier/gate-owned with mode-invariant diagnostics and enforce-only blocking. No blockers this round: no new dead code, no type-safety escape, no I/O isolation breach, and no single-surface proof key. Only F-351 and F-355 remain open and both are DEV-only pre-review staleness rather than source defects.",
+      "createdAt": "2026-09-02T14:03:20.754Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-879",
+      "envelopeId": "8477837e14961168588b4d909342e5b3ee7c71c3160471953b21fb4f85faeb7e",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8896f493be35b66fab6cd898793e0f61f722f07cde78338e6b72fd2a3c4edf0d"
     }
   ]
 }
