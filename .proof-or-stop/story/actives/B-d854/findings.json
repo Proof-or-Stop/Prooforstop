@@ -958,7 +958,7 @@
       "desc": "Runtime fallback contract still accepts a contradictory success-plus-fallback state. docs/audits/AGENTS-current-version-audit.md:42-46 promises that the resolved-artifact Node fallback is used only when direct global execution is unavailable. In tests/AGENTS.verify.mjs:1007-1012, the directStatus===0 branch validates versionSource=DIRECT but never requires fallbackStatus===null; renderRuntimeEvidence at :1025 faithfully renders fallbackOutcome=EXIT_0 if that contradictory field is present, and runtimeReportPolicy accepts its own rendering. Verified no-file-write repro: load the verifier in memory, call inspectRuntimeEnvironment, set global directStatus=0, directErrorCode=null, directOutcome=EXIT_0, versionSource=DIRECT, fallbackStatus=0, recompute classification, then call validateRuntimeEvidence(...,{bindObservedPaths:false}) and runtimeReportPolicy(...). Observed exit=0 and `SUCCESS_PLUS_FALLBACK FALSE_GREEN`. Existing runtimeEvidenceMutationChecks (:1037-1047) do not mutate fallbackStatus, while both executable simulations manually set it null rather than testing rejection. Add mutually exclusive invariants: direct success must require errorCode=null and fallbackStatus=null; any fallback must require directStatus!==0 plus fallbackStatus=0, and add both success-plus-fallback and inconsistent status/error mutations. The live EXIT_0 report and 18/18 receipt window currently pass, but do not prove this promised fallback-only boundary.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T12:56:43.211Z",
@@ -970,7 +970,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "adversarial|md|runtime-fallback-contract",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 6ac3238 enforces mutually exclusive DIRECT and NODE_FALLBACK evidence states and a sole selected version source. It rejects direct-and-fallback double success and inconsistent fallback state. Owner verified runtime policy, baseline 26/26 RED, receipt-window 18/18, and refreshed all 10 evidence records.",
+      "resolvedAt": "2026-09-02T13:09:07.921Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
