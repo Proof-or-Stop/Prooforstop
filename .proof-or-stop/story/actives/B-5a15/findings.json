@@ -18883,6 +18883,42 @@
       "resolvedAt": "2026-09-02T07:44:10.323Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-350",
+      "desc": "CHK-004:happy:2 and CHK-004:happy:3 hold receipts whose pinned selectors no longer emit at HEAD d5be091089, because the HEAD commit re-mutated scope-contract.json AFTER the acceptance basis and pre-review artifact were sealed. ROOT CAUSE, measured not argued: the basis receipt (acceptance-basis.json.receipt) and pre-review-check.json both pin scopeContractDigest=sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae, while the CURRENT scope-contract digest is 53315a0fe287544117fb44c7930ca15a8c245719f241234fdf9be69ebd9a568c (independently reported by this review run RR-847 own Task Context field scopeContractDigest and its banner scope 53315a0/97e868c). git show d5be091089 -- scope-contract.json shows HEAD appended a scope_contract_acknowledge entry (actor main-agent, timestamp 2026-09-02T10:34:17.566Z, assuranceLabel acknowledged-expansion, paths proof-or-stop.config.json + lattice.config.json) for the F-349 validate-concurrency fix, plus two new originalPathInputs keys and a new updatedAt. That write landed AFTER the basis was sealed (receipt headHash 55a3e73940dff63e95b6db44b305c9aeb28fa957) and AFTER the last evidence row was earned (latest evidence timestamp 2026-09-02T10:27:10.824Z vs ack 10:34:17.566Z). CONSEQUENCE, reproduced twice: acceptance_topology_check now reports Status: fail, structuralPass: no, basisStatus complete, row result inconclusive_basis_unverified, diagnostic AT_SCOPE_BINDING_MISSING <story> acceptance-basis.json.receipt scope-contract digest mismatch; pre_review_check_read now reports FAIL code=PR_ARTIFACT_TAMPERED (its stored codes are still [] and its storyFilesHash still matches, so this is a signature-domain digest mismatch, not an edited artifact). A fresh independent run of the pinned command node --test packages/main/tests/causal-evidence.test.mjs is now 19 pass / 2 fail (not 21/0): causal-evidence.test.mjs:2469 F-247 fails with actual=false expected=true on that same topology payload, and :2643 fails with unexpected topology fail-closed codes: AT_SCOPE_BINDING_MISSING. grep -c of both pinned selector strings against that fresh run returns 0 and 0, so the two receipts are no longer reproducible. WHY THIS IS MY LANE AND BLOCKING: those two intents descs explicitly require status=pass/basisStatus=complete/structuralPass=true and ok=true/status=pass/authority=admissible, so the coverage they claim is contradicted by the current tree even though both rows still show mechanical:true, result:pass, exitCode 0, selectorMatched true. NOT the same as the already-resolved earlier occurrence (that one was 50 rows remediated by commit 4061d19a1c); this is a fresh recurrence at a new HEAD with a different trigger. SCOPE NOTE: no product source changed since the seal (git diff 55a3e739..HEAD shows only .proof-or-stop/ paths) and storyFilesHash is uniformly af9bbe506973de208e0e2490dca821e78b966f32b226fee71c2a27003fa92d85 across all 53 rows, the basis receipt and the pre-review artifact, so this is a narrow scope-contract binding break, not story-owned material drift. REMEDIATION: regenerate the verifier-owned basis and reissue pre_review_check at the current scope-contract digest, then re-earn only CHK-004:happy:2 and :3 via verification_run; do not hand-edit StoryStore files. NOTE the ordering hazard that caused this: recording a scope acknowledgement after sealing acceptance artifacts re-stales them, so the ack must precede the seal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T10:44:09.155Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-847",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc76bc9ae33a989aa376e908a5ed8ba01ebce36c61c86f9f7dbf1fe8a72e035f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|json|happy-happy-hold",
+      "signatureTagSource": "auto"
     }
   ]
 }
