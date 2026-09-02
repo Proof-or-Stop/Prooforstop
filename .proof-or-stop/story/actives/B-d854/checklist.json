@@ -43,7 +43,21 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "AGENTS.md",
+          "result": "pass",
+          "note": "Claim-by-claim audit completed against packages/main/src/core/lifecycle-registry.ts, packages/main/src/core/machine.ts, packages/main/src/core/review-run.ts, packages/main/src/cli/command-catalog.ts, packages/main/src/init-assets.ts, docs/requirements/decisions/story-lifecycle.md, repository-local CLI help, Claude CLI audit session 3a540dc1-9ecd-45af-bafb-78845401177b, and Agy CLI audit session f48bd; the 26-row RED/GREEN matrix passed with no unsupported row.",
+          "mechanical": false,
+          "headHash": "bac74a3714cd202279da5d1b2aaa57289cf4921a",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:15:03.249Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
