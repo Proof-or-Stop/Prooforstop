@@ -14179,6 +14179,43 @@
         "scanEscalationReason": null
       },
       "_hash": "8cb6d3c7cfd21b89a5066b0991103310b084f264e1fbd8160a3c26f3367095a7"
+    },
+    {
+      "id": "B-5a15:RP-305",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness-critic terminal read evidence for epoch B-5a15:RI-069 wave 1. RAW FINDING SET RECOMPUTED FROM SOURCE, not accepted from the dispatch prose: I read isEligibleBaselineFinding and evaluateReviewInventoryWave at packages/main/src/core/review-inventory-epoch.ts:327-396 and reimplemented their predicates over findings.json + review-runs.json. findings.json holds 365 findings of which 226 are status=open. Grouping every open finding by the reviewRound of the run its reviewRunId binds to yields 27 distinct EARLIER rounds (2 findings whose run is not resolvable at all, and the remainder spread from 2026-08-20T14:36:09.282Z through 2026-08-25T16:51:43.246Z, the largest cohorts being 89 at 2026-08-22T06:10:03.014Z and 31 at 2026-08-21T20:31:33.599Z). The epoch reviewRound is 2026-09-02T18:29:32.646Z, so the predicate run.reviewRound === epoch.reviewRound excludes ALL 226: open findings bound to the current epoch round = 0. RAW FINDING SET = ZERO, and signed baselineFindingIds = [] is therefore correct; epoch.waves.length is 0 so the first-wave baseline carry-in loop has nothing to carry, and listing any of the 226 would be rejected at line 411. I did not re-adjudicate those earlier-round findings. COMPLETENESS JUDGED SUBSTANTIVELY, since validateReviewInventoryCriticReceipt does not compare readManifest against material: the epoch's three requiredLanes (concept, quality, test-coverage) each recorded a current-round terminal on this cutoff — RP-302/RR-895, RP-303/RR-896, RP-304/RR-897 — and their readManifests name 7 distinct files read in full against a 37-file material surface (git diff main...HEAD over packages/main/src, tests, graph, utils, scripts). That ratio is adequate rather than a rubber stamp because each lane is scoped to a PROPERTY whose proof is executional, not textual, and I re-executed the decisive evidence myself instead of trusting the notes: the pinned suite 'node --test packages/main/tests/causal-evidence.test.mjs' exits 0 at 21 pass / 0 fail AND emits all 53 declared selectors (56 distinct markers emitted, 53 declared, 0 missing, 3 extras). Critically, the two markers CHK-004:happy:2 and :3 are emitted ONLY inside the guarded branch at causal-evidence.test.mjs:2514 ('if (!topologyRefreshBootstrap && !isEvidenceRefreshBootstrap)'), so their presence is positive proof the allow-listed bootstrap escape at line 2495 was NOT taken — which is exactly the F-351 defect, and it is genuinely closed rather than re-asserted from the 21/0 aggregate. WAVE 4 SURFACES INDEPENDENTLY VERIFIED under my own critic session rather than read from prose: pre_review_check_read returns status=pass, ok=true, codes=[], executableEvidence=current, mutations=biting, transcript=related, authority=admissible; acceptance_topology_check returns status=pass with diagnostics=[]; acceptance_rollout_check returns status=pass, ok=true, receipt=current, quorum=full-3x2 — a genuine 3 rounds x 2 hosts quorum, not a degraded 3x1. I also confirmed the 53 evidence rows are all mechanical:true with exitCode 0 and selectorMatched true on the single storyFilesHash ae77de8125 that equals this epoch's cutoff, with 53 distinct outputDigests and executionKeys and zero waivers, zero nonMechanicalReason and zero result:'fail'. One scoping observation recorded for transparency, not as a defect: packages/main/tests/causal-evidence.test.mjs is NOT registered in proof-or-stop.config.json validate.commands (116 commands) and is not governed by the red-b49d4 registration-derivation guard, whose population is scoped to packages/main/tests/red/*.mjs; its authority in this story comes instead from being the pinned command on all 53 receipts, which is a legitimate and separately verified mechanism. Judgement: COMPLETE. Strictly read-only; no source file was edited and no git write was performed by this critic.",
+      "createdAt": "2026-09-02T18:50:52.497Z",
+      "reviewRound": "2026-09-02T18:29:32.646Z",
+      "reviewRunId": "B-5a15:RR-898",
+      "envelopeId": "e5155888f48d2f489bb6e6d3f65f4755909d7412cc707a2b5014093a73f49823",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d5881f84f44248decec0793e8e970835c25291019850a255a457079e68a50268"
     }
   ]
 }
