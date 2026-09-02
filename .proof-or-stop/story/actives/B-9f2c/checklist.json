@@ -207,7 +207,11 @@
           {
             "desc": "the local d3 hard-failure branch in scripts/build-web.mjs survives the port and dossier.js is concatenated after app.js, not before",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e 'const fs=require(\"fs\");const s=fs.readFileSync(\"packages/graph/scripts/build-web.mjs\",\"utf8\").split(\"\\n\");const idx=n=>s.findIndex(l=>l.includes(\"read(\\u0027\"+n+\"\\u0027)\"));const app=idx(\"app.js\"),pb=idx(\"playback.js\"),d=idx(\"dossier.js\");const ok=d>-1&&app>-1&&pb>-1&&d>app&&d>pb;console.log(ok?\"DOSSIER_CONCATENATED_AFTER_APP_JS_OK\":\"DOSSIER_LOAD_ORDER_FAIL\");process.exit(ok?0:1);'",
+              "selector": "DOSSIER_CONCATENATED_AFTER_APP_JS_OK"
+            }
           }
         ]
       },
@@ -282,6 +286,27 @@
           "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:39:23.309Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/graph/scripts/build-web.mjs",
+          "command": "node -e 'const fs=require(\"fs\");const s=fs.readFileSync(\"packages/graph/scripts/build-web.mjs\",\"utf8\").split(\"\\n\");const idx=n=>s.findIndex(l=>l.includes(\"read(\\u0027\"+n+\"\\u0027)\"));const app=idx(\"app.js\"),pb=idx(\"playback.js\"),d=idx(\"dossier.js\");const ok=d>-1&&app>-1&&pb>-1&&d>app&&d>pb;console.log(ok?\"DOSSIER_CONCATENATED_AFTER_APP_JS_OK\":\"DOSSIER_LOAD_ORDER_FAIL\");process.exit(ok?0:1);'",
+          "result": "pass",
+          "note": "Evidences the load-order half of this intent: dossier.js is concatenated strictly after both app.js and playback.js, which is load-bearing because dossier.js reads app.js top-level helpers off window. The d3 hard-failure clause of the authored intent is VOID on this branch: that change exists only as an uncommitted edit in the main checkout and is not on story/B-9f2c (grep -c 'd3 is missing' returns 0 here, and build-web.mjs is byte-identical to upstream), so there is no such branch to preserve and no evidence is fabricated for it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e858ce0b6627b7591c8d7bda50b9d3e1cf54c7ef0211cccb8b955b41878a9371",
+            "outputTail": "DOSSIER_CONCATENATED_AFTER_APP_JS_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:39:24.272Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1e304b4235d32a9b2da3f1cfe4839139bb31bfa0",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:39:24.433Z"
         }
       ]
     },
