@@ -6926,9 +6926,9 @@
       "epochId": "B-5a15:RI-068",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-02T15:40:29.128Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-02T16:45:40.028Z",
-      "updatedAt": "2026-09-02T16:45:40.028Z",
+      "updatedAt": "2026-09-02T17:07:12.438Z",
       "cutoff": {
         "headHash": "abff9db275df62a073163e895cd44a9a103a4dca",
         "materialHash": "b8406c77a29961c7b8f09ea7d4be95ce3501b537130fe03f742c4d72d0de7d20",
@@ -6944,9 +6944,57 @@
       ],
       "initialRunSequenceBoundary": 889,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-02T16:45:40.028Z",
+          "completedAt": "2026-09-02T17:07:12.438Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a15:RR-891",
+              "terminal": "pass",
+              "hostIdentity": "5a8e74b2a673e42952ebb456a076b1d47bc7102ee25f832eaa6deb7cfb1337f6",
+              "promptIdentity": "472f1fbd890d0e9dec930e1c4a9203a604185239002eccc903f2b02f2046e08d",
+              "evidenceIds": [
+                "B-5a15:RP-298"
+              ],
+              "coverageDigest": "ef090b882e0935b3d9d32f95ec7005d1efd6dbd735a46352fefafd6dca5c05ec"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a15:RR-892",
+              "terminal": "pass",
+              "hostIdentity": "274203d3884751c6abf028e2027f4de39579b6ead9a18aa39b298193f33528ef",
+              "promptIdentity": "cef86f8e91b928dde2948ca0d4d0d8062c62a219d1f227de33cd510d9de15dde",
+              "evidenceIds": [
+                "B-5a15:RP-299"
+              ],
+              "coverageDigest": "e2a9f7c2401e448a6c4e98d493c895a0fc32119f88e3915b6e6c550e28bb050b"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-893",
+              "terminal": "pass",
+              "hostIdentity": "7c9d385f859ed29e4b986e845c31a5c2934b615368603a478ee44ecd0cf9c550",
+              "promptIdentity": "cf3f1351e0e56854c2b4625e8b1f4312b64728d38e250ac9ea45050362d908e0",
+              "evidenceIds": [
+                "B-5a15:RP-300"
+              ],
+              "coverageDigest": "677267944fbe22fc9286f0e04165f9a4d9ce06061a9cb4d9fd2e5b52ac3716de"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "81fcbc8fc5bf051c261eb581aa67b0f3aefad6a23df0076cd193bf43fa7d2abc",
+          "saturated": true,
+          "nextRunSequenceBoundary": 894
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "b890ac5549e1776252bb306cbbe0f57025024d10e9aebde775714ceec54dc718"
+      "receiptId": "B-5a15:RI-068:RCP-001",
+      "_hash": "9f710643a781a23bf61793e00f7475aa295a59f7e1fb7ff20b055a32900332d4"
     }
   ],
   "receipts": [
@@ -8137,6 +8185,32 @@
       "invalidatedAt": "2026-09-02T16:45:27.299Z",
       "invalidationReason": "Cancelling FINALIZED-but-unconsumable RI-067 receipt. Its cutoff 9009f784e0 no longer matches current material because the F-365 fix was committed after finalization, so story_advance DEV refuses with REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff. F-365 was a genuine story-owned defect that had to be fixed in place per triage rule 1 - my own over-broad assertion in proofstory-acceptance-basis-smoke.ts asserted status==='partial' on an aggregate the fixture itself contradicts (it writes consumers/c2.ts as a real cross-file consumer before the shadow scenario), and because that assertion threw first, the actual adversarial check at the next line was never reached. Fixed, resolved, and verified with a positive control proving the kept assertion is load-bearing. Discarded verdicts: concept RP-294/RR-886, quality RP-295/RR-887, test-coverage RP-296/RR-888, critic CRIT-01/RR-889 - all four were genuine PASSes on cutoff 9009f784e0 with a COMPLETE coverage judgement. Current state is fully settled: working tree clean, zero open findings from this review cycle, tsc clean, proofstory-acceptance-basis-smoke exit 0, verify-process-fact-contract and retired-authority-vocabulary-guard-smoke both TRUE exit 0, all 53 receipts mechanical with valid receipts on a single storyFilesHash, and validate coverage total 53 / required 51 / covered 53 / missing 0. The one remaining DEV-only repair is resealing pre_review_check, which reports PR_ARTIFACT_TAMPERED purely because the F-365 commit moved the hash its seal was bound to. Next: fresh epoch on the settled tree, three lanes plus critic, finalize, consume into DEV, reseal pre-review, re-earn receipts, then TEST.",
       "_hash": "b3c60b99506ce9e11f796651a8e775811bd0fbcc4fbbb1bac2d6b285786e0506"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RI-068:RCP-001",
+      "epochId": "B-5a15:RI-068",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "cutoff": {
+        "headHash": "abff9db275df62a073163e895cd44a9a103a4dca",
+        "materialHash": "b8406c77a29961c7b8f09ea7d4be95ce3501b537130fe03f742c4d72d0de7d20",
+        "storyFilesHash": "ae77de8125f28d825c5fb2a370b4e79cb9b20a151ec2b15029dc0d6e7cab7a28"
+      },
+      "scopeDigest": "dd16f17ec8490f8b8498a81d8e7f395c732b9ef6ad5e69855bbd328c3f8b1173",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "8104b127331308aae4da57742d060abd4e2f340d636c7875bc08d58fc5611dac",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-02T17:07:12.438Z",
+      "_hash": "ce821548f5c2cecb3477d29e6d24daec6a591303d531ccb6e126b6df7ccaba3c"
     }
   ],
   "criticReceipts": [
