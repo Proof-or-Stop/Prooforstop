@@ -288,6 +288,25 @@
       "_hash": "d76ec93c568511a53d80cfc704c4e76ef1ffbe93eb33492ed0de7cf722ab4481",
       "signatureTag": "missing|unknown|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-015",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:17-21 and tests/AGENTS.verify.mjs:74-97 — doc-proof-false-red: WHY high acceptance blocker: independent replay proves baseline A06 and A17 print RED and exit 1 even though their row-specific redPattern values are both false. runAuditRows uses redPattern OR absence-of-green, so absence of final wording can manufacture RED without detecting the recorded original defect. The durable 26/26 RED claim is therefore not row-specific proof. Require each row's exact baseline defect predicate to match, or explicitly model an expected-absence predicate as a separate tested condition, before calling that row RED.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T01:11:50.170Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-008",
+      "_hash": "5beb6c460f115377c5d2b66f79005b867354b2aeaa72a0116a47a3f787b967b5",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "adversarial|md|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
