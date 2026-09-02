@@ -194,10 +194,14 @@ phase-allowlist-drift complaint per phase in `ALL_PHASES`. Recompute the total f
 paragraph stated a hand-counted number and it was wrong. Run them all and fix what they
 report; do not assume a fixed count is complete.
 
-Note the six tasks run through **two separately-maintained mechanisms**, the same split the
-"Test-surface placement" section above describes: most are entries in `validate.commands`,
-while `test:process-fact-contract` is reached only through the root `test:serial-reference`
-list. Neither list is derived from the other, so a task can be in one, both, or neither.
+Note the six tasks run through the **three separately-maintained membership authorities**
+the "Test-surface placement" section above describes: most are entries in
+`validate.commands`, while `test:process-fact-contract` is reached through the root
+`test:serial-reference` list *and* carries the `RESOURCE_POLICY` entry that membership
+requires (`repoRead('test:process-fact-contract')` in `full-suite-runner.ts`). No list is
+derived from another, so a task can be in one, some, or none of them — and a
+`test:serial-reference` member missing its `RESOURCE_POLICY` entry aborts the whole root
+suite rather than being skipped.
 
 ## Terminology
 
