@@ -56,6 +56,43 @@
         "scanEscalationReason": null
       },
       "_hash": "cbd802b09a405b2e24ef4eaa0a9b03935e7fa4c83a0354e26901cf7b7488aa8e"
+    },
+    {
+      "id": "B-d854:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review passed on current material: all 10 must intents have fresh evidence (8 tool-executed receipts and 2 docs checks), all six unique pinned selectors are present in the persisted bounded output tails under the real 12k capture/4k tail semantics, baseline is exactly 26 unique RED rows with exit 1, final is 26 unique GREEN rows plus 46 unique command cases with exit 0, A19 exhaustively rejects 36 authority mutations across 18 sources, A26 rejects 8 across 4 sources, and semantic/structure/completeness/command plus Claude/Agy provenance checks all bite. No blocker remains.",
+      "createdAt": "2026-09-02T03:10:34.676Z",
+      "reviewRound": "2026-09-02T03:07:05.807Z",
+      "reviewRunId": "B-d854:RR-020",
+      "envelopeId": "ad84432919eabc183ad0a93cc76915f686a3ee29142cb4b513ced602fc447741",
+      "writerSessionId": "sess-0ff8c137b3ad0756419dad8e1e46dd9f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/init-assets.ts",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3313c59c1cd6effb32b0b75fceac5ca38eeb836c33be824770656295de101d5c"
     }
   ]
 }
