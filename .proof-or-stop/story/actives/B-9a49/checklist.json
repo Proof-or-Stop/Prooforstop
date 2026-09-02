@@ -444,9 +444,9 @@
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T03:02:30.985Z",
-      "endTime": null,
+      "endTime": "2026-09-02T03:02:31.785Z",
       "userSees": "Story Owner and implementer instructions distinguish current-Story repair from evidence-backed routing and prevent boundaryless scope expansion.",
       "files": {
         "modify": [
@@ -2173,6 +2173,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin final closure of the already committed Owner and implementer guidance after mechanical evidence replacement."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:31.785Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All ten Owner and implementer guidance intents now have passing tool-executed receipts; implementation is committed."
     }
   ]
 }
