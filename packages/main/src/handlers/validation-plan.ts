@@ -332,7 +332,8 @@ export function buildValidationPlanReport(args: {
   const knownUnits = selectedUnits.filter((unit) => unit.duration.status === 'known');
   const knownTotalMs = knownUnits.reduce((total, unit) => total + (unit.duration.estimateMs ?? 0), 0);
   const historyBasis = input.durationHistory.status === 'unavailable'
-    ? `duration history could not be read (${input.durationHistory.readError ?? 'unknown error'}), so every ` +
+    // B-a745 F-016: the bounded readSummary, never the raw readError.
+    ? `duration history could not be read (${input.durationHistory.readSummary ?? 'unknown error'}), so every ` +
       'estimate is unknown; duration is estimate-only and never changes what runs'
     : `${knownUnits.length} of ${selectedUnits.length} selected unit(s) have prior signed validation receipts ` +
       `(${input.durationHistory.sampleCount} sample(s) read); the remaining ` +

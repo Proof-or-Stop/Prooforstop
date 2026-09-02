@@ -161,7 +161,13 @@ export type ChangedFilesUnavailableReason =
 
 export type StoryRelevanceHashes =
   | { status: 'available'; head: EvidenceHashSnapshot }
-  | { status: 'hash_snapshot_unavailable'; error: string };
+  | {
+      status: 'hash_snapshot_unavailable';
+      /** One bounded, human-readable sentence. Never multi-line, never a stderr dump. */
+      summary: string;
+      /** The underlying error, verbatim, for diagnosis only. Never rendered into prose. */
+      error: string;
+    };
 
 /**
  * Input-collection escalation codes ONLY. The fail-closed widening matrix and its
@@ -228,7 +234,10 @@ export interface StoryRelevanceDurationEstimate {
 export interface StoryRelevanceDurationHistory {
   status: 'collected' | 'unavailable';
   sampleCount: number;
+  /** The underlying read error, verbatim, for diagnosis only. Never rendered into prose. */
   readError?: string;
+  /** One bounded sentence derived from `readError`; the ONLY form that reaches an operator. */
+  readSummary?: string;
   estimates: StoryRelevanceDurationEstimate[];
   unmatchedSamples: string[];
 }
@@ -455,6 +464,16 @@ function boundSummary(text: string): string {
 }
 
 /**
+ * B-a745 F-016: the ONE way a raw failure reaches operator prose anywhere in this
+ * collector. First meaningful line, flattened, bounded. The raw value is kept on
+ * the structured result by the caller; this never replaces it, it only stands in
+ * for it in a detail / basis / summary string.
+ */
+function boundedFailureSummary(raw: string, fallback: string): string {
+  return boundSummary(firstMeaningfulLine(raw)) || fallback;
+}
+
+/**
  * Turn an arbitrary reader failure into a BOUNDED one-line classification.
  *
  * Outside a git repository git prints its entire `git diff` usage block on stderr, which
@@ -586,6 +605,7 @@ function collectDurationHistory(
 ): StoryRelevanceDurationHistory {
   let artifacts: ReadonlyArray<SignedValidationDurationArtifact> = args.durationHistory?.artifacts ?? [];
   let readError: string | undefined;
+  let readSummary: string | undefined;
   if (args.durationHistory?.read) {
     try {
       artifacts = args.durationHistory.read() ?? [];
@@ -593,6 +613,7 @@ function collectDurationHistory(
       // Estimate-only input: a read failure degrades to unknown durations. It is
       // deliberately NOT an escalation, because an estimate must never widen.
       readError = errorMessage(error);
+      readSummary = boundedFailureSummary(readError, 'the duration history reader failed');
       artifacts = [];
     }
   }
@@ -641,6 +662,7 @@ function collectDurationHistory(
     status: readError === undefined ? 'collected' : 'unavailable',
     sampleCount,
     ...(readError === undefined ? {} : { readError }),
+    ...(readSummary === undefined ? {} : { readSummary }),
     estimates,
     unmatchedSamples: [...new Set(unmatchedSamples)].sort(),
   };
@@ -697,11 +719,17 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
       head: readers.hashSnapshot({ gitCwd, metadataRoot: args.metadataRoot ?? projectRoot, ref: headRef }),
     };
   } catch (error) {
-    hashes = { status: 'hash_snapshot_unavailable', error: errorMessage(error) };
+    // B-a745 F-016: the same git-failure classifier as the changed-file reader,
+    // because the snapshot fails for the same reasons; the raw error stays on
+    // the structured result and the prose carries the bounded summary only.
+    const raw = errorMessage(error);
+    const code = error instanceof Error ? (error as NodeJS.ErrnoException).code : undefined;
+    const { summary } = classifyChangedFilesFailure(raw, code);
+    hashes = { status: 'hash_snapshot_unavailable', summary, error: raw };
     escalations.push({
       code: 'hash_snapshot_unavailable',
       detail:
-        `the evidence hash snapshot could not be captured at ${headRef} (${errorMessage(error)}), ` +
+        `the evidence hash snapshot could not be captured at ${headRef} (${summary}), ` +
         'so no freshness binding can be proven for this plan',
     });
   }
@@ -766,7 +794,9 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
       } catch (error) {
         unclassifiedInputs.push({
           kind: 'evidence-pin',
-          detail: `${item.id} ${intentRef}: malformed pin rejected (${errorMessage(error)})`,
+          // Tool-owned message today, but bounded like every other failure prose (F-016).
+          detail: `${item.id} ${intentRef}: malformed pin rejected ` +
+            `(${boundedFailureSummary(errorMessage(error), 'the pin could not be read')})`,
         });
         continue;
       }
