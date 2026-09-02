@@ -16,7 +16,11 @@
           {
             "desc": "dossier.js exists in packages/graph/src/shells/web and self-registers window.openStoryDossier",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/src/shells/web/dossier.js','utf8'); if(!s.includes('window.openStoryDossier')) throw new Error('missing window.openStoryDossier'); console.log('CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER');\"",
+              "selector": "CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER"
+            }
           },
           {
             "desc": "app.body.html carries the dossierSlot span and app.js carries the openDossierFor routing helper",
@@ -49,7 +53,30 @@
           "packages/graph/src/shells/web/dossier.js"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/dossier.js",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/src/shells/web/dossier.js','utf8'); if(!s.includes('window.openStoryDossier')) throw new Error('missing window.openStoryDossier'); console.log('CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER');\"",
+          "result": "pass",
+          "note": "The ported dossier.js exists at the packages/graph web shell path and self-registers window.openStoryDossier, the entry point app.js calls to open the dossier over the graph. The command throws if the registration is absent, so the pass cannot be vacuous.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e3f1231556d7fb5cde8d1cfd6728d3a59338393481d3ae31ade9af40b65182ab",
+            "outputTail": "CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:34:06.527Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d2962078709ba4ba2532c8718e7bd3067f67e948",
+          "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-02T08:34:06.707Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
