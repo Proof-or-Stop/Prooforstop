@@ -134,10 +134,46 @@
         "clean_install",
         "repo_local_bootstrap"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Main merged the B-022e identity cutover after this Story branched: the retired .lattice story tree for B-fe8f was moved to canonical .proof-or-stop storage by the one-shot identity_state_migrate command (the eight deletions are that move, not content edits), and lattice-brand.ts (already in allowedModify for the CLI version bump) was renamed by main to proof-or-stop-brand.ts, so the same version-constant edit now lands on the renamed file.",
+      "timestamp": "2026-09-02T08:08:20.579Z",
+      "paths": [
+        ".lattice/story/actives/B-fe8f/background.md",
+        ".lattice/story/actives/B-fe8f/checklist.json",
+        ".lattice/story/actives/B-fe8f/execution-boundary.json",
+        ".lattice/story/actives/B-fe8f/index.json",
+        ".lattice/story/actives/B-fe8f/init-check.json",
+        ".lattice/story/actives/B-fe8f/process-events.jsonl",
+        ".lattice/story/actives/B-fe8f/scope-boundary.json",
+        ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
+        "packages/main/src/core/proof-or-stop-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-fe8f/background.md",
+        ".lattice/story/actives/B-fe8f/checklist.json",
+        ".lattice/story/actives/B-fe8f/execution-boundary.json",
+        ".lattice/story/actives/B-fe8f/index.json",
+        ".lattice/story/actives/B-fe8f/init-check.json",
+        ".lattice/story/actives/B-fe8f/process-events.jsonl",
+        ".lattice/story/actives/B-fe8f/scope-boundary.json",
+        ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
+        "packages/main/src/core/proof-or-stop-brand.ts"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "fc45b029668507b92866aab7559c564fb5b90172",
+      "materialHash": "c9974a8bf0d4127a00eb534d13a229dcac7ed302c541ac66b9a65eeb43885d73",
+      "anchors": [
+        "identity_cutover_merge",
+        "identity_state_migrate"
+      ]
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-01T16:53:23.133Z",
+  "updatedAt": "2026-09-02T08:08:20.579Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -181,6 +217,15 @@
     "packages/utils/package-lock.json": "packages/utils/package-lock.json",
     "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
     "scripts/verify-global-lab-entrypoint.mjs": "scripts/verify-global-lab-entrypoint.mjs",
-    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js"
+    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
+    ".lattice/story/actives/B-fe8f/background.md": ".lattice/story/actives/B-fe8f/background.md",
+    ".lattice/story/actives/B-fe8f/checklist.json": ".lattice/story/actives/B-fe8f/checklist.json",
+    ".lattice/story/actives/B-fe8f/execution-boundary.json": ".lattice/story/actives/B-fe8f/execution-boundary.json",
+    ".lattice/story/actives/B-fe8f/index.json": ".lattice/story/actives/B-fe8f/index.json",
+    ".lattice/story/actives/B-fe8f/init-check.json": ".lattice/story/actives/B-fe8f/init-check.json",
+    ".lattice/story/actives/B-fe8f/process-events.jsonl": ".lattice/story/actives/B-fe8f/process-events.jsonl",
+    ".lattice/story/actives/B-fe8f/scope-boundary.json": ".lattice/story/actives/B-fe8f/scope-boundary.json",
+    ".lattice/story/actives/B-fe8f/scope-freeze-check.json": ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
+    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts"
   }
 }
