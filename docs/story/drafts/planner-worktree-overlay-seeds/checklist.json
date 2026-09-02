@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Consume materialDirtyFiles from the hash snapshot as worktree-overlay seeds with provenance and bind them into the selection digest",
+      "context": "validation-relevance-input.ts already receives the snapshot; add the seeds and digest input, and escalate an unreadable git status via workspace_snapshot_changed instead of treating it as clean.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add fixtures for tracked-dirty, untracked and status-unavailable cases asserting reported inputs and digest both change",
+      "context": "Model on the F-010 cross-cwd fixtures in validation-tier-planner-smoke.ts; the double-read race detection from the spec's overlay section belongs here too.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
