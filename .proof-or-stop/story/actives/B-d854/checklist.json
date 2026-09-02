@@ -307,14 +307,14 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
-          "file": "AGENTS.md",
+          "file": "docs/audits/AGENTS-current-version-audit.md",
           "result": "pass",
-          "note": "Evidence basis at HEAD 8716867e73a9f6baaa3d17141dee47c32b2e925b: repository-local CLI Proof-or-Stop 0.3.270; implementation commits 219a567073 and bac74a3714; lifecycle authority docs/requirements/decisions/story-lifecycle.md:45-60,145-156,205-207,241,311-328; gate registry packages/main/src/core/lifecycle-registry.ts:140-146; PASS binding packages/main/src/core/review-run.ts:1444-1462; command schema packages/main/src/cli/command-catalog.ts:281-298,476-517,1098,1327,2362-2381,2421-2422; managed template packages/main/src/init-assets.ts:111-125. Reproducible results: 26-row baseline RED/final GREEN PASS; Unicode whole-file PASS; 20 active commands HELP_OK with invalid sentinel rejected; doc:AGENTS.md managed status OK.",
+          "note": "The committed report preserves the independent Claude and Agy audit evidence, reconciles supported findings, and links every accepted issue to reproducible RED and GREEN proof.",
           "mechanical": false,
-          "headHash": "8716867e73a9f6baaa3d17141dee47c32b2e925b",
-          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
-          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
-          "timestamp": "2026-09-02T00:17:45.395Z"
+          "headHash": "f5e241afc4a181fc7e996b7853b3fb686279b2d3",
+          "materialHash": "812e4dd88bcad69329603206aa303a80f6e19fdf4e5281a85ebc409db8382733",
+          "storyFilesHash": "970eedb0ac9e91d8751d038230dbac44a9820abb9074a440873e46cde1d45f4d",
+          "timestamp": "2026-09-02T00:58:26.942Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
