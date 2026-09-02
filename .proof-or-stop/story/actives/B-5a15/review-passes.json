@@ -13230,6 +13230,37 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "e0f050316e5f3cb61fbd60075af4fa394a2f6d38bc88ba69d0e5fe56fa64c7e7"
+    },
+    {
+      "id": "B-5a15:RP-276",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue lane PASS for epoch B-5a15:RI-060 (frozen cutoff 0dd3167744, HEAD 6bc88d7d89). Independently verified material scope rather than trusting the dispatch brief: git diff --name-status -M against my prior bound head 4d87764b62 over packages/main/src, packages/main/tests, packages/graph, scripts, docs, *.md, bin and .claude returns EMPTY; the only non-story-metadata change in the whole tree is proof-or-stop.config.json + lattice.config.json, whose diffs are byte-identical one-key removals of validate.commands[112].resources (npm --prefix packages/graph run check). review_incremental_context independently reported the same changedFiles set. No concept deletion or replacement occurred this round, so per role rule 5 this is a review_pass_set and not a padded finding. Verified the crux claim mechanically instead of accepting it: validation-executor.ts resolveValidationCommandResourceClaims maps an EMPTY claim list to a single EXCLUSIVE barrier with exclusiveByDefault=true, while validate-resource-claims.test.mjs requires any DECLARED list to be a SHARED barrier plus resources.length>1 - so access:exclusive on a single declared claim could not express exclusivity and removing the key is the only correct form. Both affected guards are green at this HEAD: validate-resource-claims PASS (34 assertions; configured plan 116 commands, 100 declared, 16 exclusive by fail-closed default) and red-b49d4-registration-derivation 0 RED / 26 GREEN of 26. Confirmed the graph probe now carries no resources key in BOTH config files and that validate is deep-equal across them. Residue sweep: git-common-dir remains legitimately used by the other 100 declared commands, so no orphaned class; the sole config divergence is promptEnvelope (canonical proof-or-stop-* role IDs vs deprecated lattice-* aliases), which I verified was ALREADY divergent at prior head 4d87764b62 and is the documented read-both brand-compat model, not residue. Wave 4 concept boundary checked against verifier-owned artifacts, not prose: acceptance_rollout_report_read verdict=pass, diagnostics=[], and all 12 host-verdict pair groups are genuine 3 rounds x 2 hosts (claude-cli + codex-cli) with every decision=pass, zero degraded 3x1 (mislabeled3x1Count=0, falsePassCount=0, falseBlockRate=0, omissionDetectionRate=1); pre_review_check_read carries a signed status=pass with codes=[]. acceptance_topology_check reports only AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_STALE with no structural code, and its basis binds storyFilesHash 0b5fe162a3 - the pre-config-commit value - so both diagnostics share the single already-dispositioned freshness cause (storyFilesHash 0b5fe162 -> af9bbe50) rather than any topology gap. No rollback occurred in this material scope, so the acceptanceRolloutGateMode-only invariant had no change to assess. Did not re-adjudicate the ~226 prior-round open findings, the dispositioned F-325..F-349 set, the 19/21 causal-evidence state, or the 53 stale-bound evidence rows. Read-only throughout: git status over all material paths is empty, so the epoch cutoff remains frozen and the other two lanes are undisturbed.",
+      "createdAt": "2026-09-02T09:06:45.096Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "reviewRunId": "B-5a15:RR-837",
+      "envelopeId": "0bbf47ce714f1c1219b9b1f9204ae3c628ff864df5b0124d8d3cc74435b2a12f",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/proofstory.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2b1341161cb2c1277290e97ab769476d8b0306e766706da18fcd6412837afba2"
     }
   ]
 }
