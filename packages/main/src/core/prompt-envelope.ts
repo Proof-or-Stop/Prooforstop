@@ -360,26 +360,42 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
   wholeSourceIsInvariantAssertion: boolean,
 ): boolean {
   const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
-  const amendment = /\b(?:amend|modify|rewrite|override|replace|extend|change|update|authorit(?:ize|ise))\w*\b|\b(?:make|publish)\b[^.;]{0,80}\bauthoritative\b/u;
   for (const authorityRange of matchRanges(segment, authority)) {
-    for (const amendmentRange of matchRanges(segment, amendment)) {
-      const distance = Math.max(
-        0,
-        Math.max(authorityRange.start, amendmentRange.start) - Math.min(authorityRange.end, amendmentRange.end),
-      );
-      if (distance > 120) continue;
-      const amendmentToken = segment.slice(amendmentRange.start, amendmentRange.end);
-      const amendmentPrefix = segment.slice(Math.max(0, amendmentRange.start - 64), amendmentRange.start);
-      const nominalChangeReference = /^(?:change|changes|update|updates)$/u.test(amendmentToken)
-        && /\b(?:this|that|these|those|the|current|proposed|metadata\s+only|prompt\s+only|implementation|code)\s+$/u.test(amendmentPrefix);
-      // A Story may name its own implementation change while proving that the
-      // authoritative Dynamic Finding contract is invariant only when the
-      // complete source is a bounded invariant assertion. Local invariant
-      // wording cannot launder authority before it, after it, or in a later
-      // punctuation-separated segment.
-      if (nominalChangeReference && wholeSourceIsInvariantAssertion) continue;
-      if (!relationIsNegated(segment, amendmentRange, authorityRange, authorityRange)) return true;
-    }
+    // Authority-bearing Task Context is fail-closed. A finite list of amendment
+    // verbs is not a safe boundary: synonyms and reversed word order otherwise
+    // become accidental authority. Admit only three complete positive grammars:
+    // a structurally bounded whole-source invariant, an explicit prohibition,
+    // or an explicit Agent-side subordination relation.
+    if (wholeSourceIsInvariantAssertion) continue;
+
+    const beforeAuthority = segment.slice(0, authorityRange.start).trim();
+    const afterAuthority = segment.slice(authorityRange.end).trim();
+
+    const directInvariant = /^(?:the)?$/u.test(beforeAuthority)
+      && /^(?:contract\s+)?(?:remains?|stays?|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)(?:\s+by\s+(?:the\s+)?(?:metadata|prompt|implementation|code)(?:\s+only)?\s+(?:registration|change|update))?$/u.test(afterAuthority);
+    if (directInvariant) continue;
+
+    const subordinateBefore = /^(?:this\s+proposal\s+and\s+story|this\s+(?:proposal|story)|the\s+(?:prompt|guidance))\s+(?:is|are|remains?|must\s+remain)\s+subordinate(?:\s+agent\s+side)?(?:\s+projections?)?\s+(?:of|to)(?:\s+the)?$/u.test(beforeAuthority)
+      || /^(?:use\s+red\s+then\s+green\s+)?add\s+(?:adversarial\s+)?tests\s+covering\s+.+\s+and\s+the\s+subordinate(?:\s+agent\s+side)?\s+projections?\s+of(?:\s+the)?$/u.test(beforeAuthority);
+    const subordinateAfter = /^(?:document)?(?:\s+and\s+they\s+do\s+not\s+amend\s+that\s+authority)?$/u.test(afterAuthority);
+    if (subordinateBefore && subordinateAfter) continue;
+
+    const lastConjunction = beforeAuthority.lastIndexOf(' and ');
+    const prohibitionLead = (lastConjunction >= 0
+      ? beforeAuthority.slice(lastConjunction + ' and '.length)
+      : beforeAuthority).trim();
+    const precedingLead = lastConjunction >= 0
+      ? beforeAuthority.slice(0, lastConjunction).trim()
+      : '';
+    const prohibitedAuthorityAction = '(?:amend|change|modify|rewrite|override|replace|extend|update)';
+    const imperativeProhibition = new RegExp(`^do\\s+not\\s+${prohibitedAuthorityAction}(?:\\s+(?!(?:and|but|while|although|however|yet|then|therefore|so)\\b)[a-z0-9]+){0,28}$`, 'u').test(prohibitionLead);
+    const subjectProhibition = new RegExp(`^(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${prohibitedAuthorityAction}(?:\\s+(?!(?:and|but|while|although|however|yet|then|therefore|so)\\b)[a-z0-9]+){0,28}$`, 'u').test(prohibitionLead);
+    const boundedNegativePrefix = precedingLead.length === 0
+      || /^(?:it\s+is\s+never|retired\s+verdict\s+vocabulary\s+is\s+never)\s+(?:retained|used|accepted)\s+as\s+an\s+active\s+alias$/u.test(precedingLead);
+    const boundedProhibitionObject = /^(?:document(?:\s+in\s+this\s+story)?|or\s+(?:its\s+runtime|lifecycle\s+gate\s+predicates))?$/u.test(afterAuthority);
+    if ((imperativeProhibition || subjectProhibition) && boundedNegativePrefix && boundedProhibitionObject) continue;
+
+    return true;
   }
   return false;
 }
