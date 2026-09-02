@@ -133,6 +133,44 @@
         "scanEscalationReason": null
       },
       "_hash": "3c6024ff853a3918283d407cd17eb602b9e36feb2862a8d62672caf1eaf7df8b"
+    },
+    {
+      "id": "B-9f2c:RP-005",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue check for B-9f2c re-signature (head 1eeaa21b6e). Full diff main...HEAD reviewed, purely additive: no deleted/renamed concept, symbol, route, or config key with dangling references. See readManifest for files inspected.",
+      "createdAt": "2026-09-02T13:13:56.112Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-008",
+      "envelopeId": "6735f4b14def62ee115020a93be42909fa2cbf3834d0c5603e9b8a7f996aacda",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/src/shells/web/app.css",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f3726f870990f047e05c758e4292bb11286a7769c56080f30e04b5475794ed7"
     }
   ]
 }
