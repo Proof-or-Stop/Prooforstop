@@ -211,6 +211,21 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-002",
       "resolvedBy": "CL-002@220075c"
+    },
+    {
+      "id": "B-41c8:F-012",
+      "desc": "concept-cleanup: packages/main/src/tasks/validation-tier-planner-smoke.ts:404 comment cites '(commit b11dd0fb02)' as the CHK-004 audit commit, but branch history for B-41c8 was rewritten after this comment was written, so b11dd0fb02 is no longer an ancestor of HEAD (git merge-base --is-ancestor b11dd0fb02 HEAD exits 1); the equivalent commit on the current branch line is f214cd6f83 (identical message). The cited hash is a dangling object subject to eventual gc, and the comment is a permanent maintained source doc, so a future reader running git show b11dd0fb02 gets a false confirmation now and a bad-object error later.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T16:36:20.471Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-011",
+      "_hash": "ce66cb8ce02f599fb6fe513fe552e4b0860097a83bc140d8869992d5313532db",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
