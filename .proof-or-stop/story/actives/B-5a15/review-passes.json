@@ -13939,6 +13939,31 @@
         "scanEscalationReason": null
       },
       "_hash": "f3f3cf8d285e02a414e80c95efe4da52287dbd60bcf48b332e321b827dad6bd9"
+    },
+    {
+      "id": "B-5a15:RP-296",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage lane re-attestation for RI-067, all figures re-measured on this HEAD from .proof-or-stop/story/actives/B-5a15/checklist.json rather than trusted. Cutoff 9009f784e0 is byte-identical to RI-066 (test-coverage PASS RP-290/RR-878): the source-restricted diff 829ed82a6b..678ed33aa5 is EMPTY. Structure: 5 checklist items, 53 verificationIntent entries, 53 verificationEvidence rows, intentRef 1:1 with 53 distinct evidence intentRefs, 0 duplicate intentRefs, 0 orphan evidence refs and 0 intents lacking evidence. intentRef() at core/verification.ts:24 is 'intent?.id || itemId:lane:index', i.e. the positional form is a FALLBACK: exactly ONE intent carries an explicit id (CHK-001:edge:oversized-output-probe) and the remaining 52 are positional. Effective must = 51: the raw priority histogram is must 22, should 2, undefined 29, and undefined defaults to must, so 53 - 2 should = 51 effective must. Receipt quality on a SINGLE storyFilesHash 119929430a: all 53 rows mechanical:true, all 53 receipt.exitCode===0, all 53 receipt.selectorMatched===true, 53 distinct receipt.outputDigests and 53 distinct receipt.executionKeys, with ZERO kind:waiver, ZERO nonMechanicalReason and ZERO result:'fail'. DECISIVE CHECK, measured not assumed: a fresh run of the pinned verifier 'node --test packages/main/tests/causal-evidence.test.mjs' exits 0 with 21 pass / 0 fail, and its output emits 56 marker lines of the form B-5a15|<intentRef>|PASS|<desc> covering 56 distinct intentRefs with ZERO FAIL markers. Matching those against the 53 declared rows yields 53 of 53 declared selectors PRESENT and ZERO MISSING. Critically, CHK-004:happy:2 (acceptance_topology_check reports current complete structural PASS) and CHK-004:happy:3 (pre_review_check_read reports current admissible executable PASS) are each emitted exactly ONCE, so the allow-listed bootstrap branch at causal-evidence.test.mjs:2495 that F-351 proved could reach 21/0 while SKIPPING marker emission is genuinely closed on this HEAD; the acceptance criterion is met on selector count, not merely on the suite verdict. The 3 markers without a declared row (CHK-001:adversarial:session-like-environment, CHK-003:adversarial:4, CHK-003:adversarial:5) make the emitted set a strict SUPERSET of the declared set, which is over-emission rather than a coverage gap and is not a blocker. No coverage blocker.",
+      "createdAt": "2026-09-02T15:53:06.920Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-888",
+      "envelopeId": "dc054b65ba7b8c3cc70b7051cbe25f39c97396a70926dda98d61821e4562b636",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "169fb014cbe8d38c9d6dd9e3f0eb6361891c301c74752760e2dbf9cbd24f75cb"
     }
   ]
 }
