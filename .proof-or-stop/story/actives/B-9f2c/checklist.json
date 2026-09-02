@@ -50,7 +50,35 @@
       "userSees": "npm --prefix packages/graph run build succeeds, and grep -c openStoryDossier packages/graph/assets/app.html prints a non-zero count",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/graph run build succeeds and the built assets/app.html contains openStoryDossier",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "io/http.ts serves app.html for a /story/<id> path",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a nested path such as /story/a/b does not match the dossier route and is not served the shell",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the local d3 hard-failure branch in scripts/build-web.mjs survives the port and dossier.js is concatenated after app.js, not before",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
