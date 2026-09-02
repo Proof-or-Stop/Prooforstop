@@ -226,6 +226,24 @@
       "_hash": "ce66cb8ce02f599fb6fe513fe552e4b0860097a83bc140d8869992d5313532db",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-41c8:F-013",
+      "desc": "quality-mutation: packages/main/src/tasks/single-owner-extraction-smoke.ts:1536 contextNames() regex `HandlerContext(?:\\[\\s*(?:'store'|\"store\")\\s*\\])?(?![\\w$<\\[])` has a `\"store\"` (double-quote) alternative that is exercised by zero tests: GENERIC_LOCAL_PROBE_LINES (L1808-1818) only writes `HandlerContext['store']` with single quotes, and a full grep of packages/main/src/handlers for `HandlerContext[\"store\"]` returns zero hits (23 real call sites all use single quotes). Confirmed by mutation on a temp copy of the built dist smoke: narrowing the alternation to `(?:'store')` only (dropping the double-quote branch, keeping the already-tested single-quote handling) still produces 40/40 PASS with no case failing, including the F-011 adversarial case. This is dead/unverified complexity added in the F-011 GREEN commit (220075ce20) without a RED case proving it necessary, in a story whose own stated discipline is RED-first (background.md: \"RED first\"). Recommend either adding a RED probe line using double-quoted `HandlerContext[\"store\"]` to GENERIC_LOCAL_PROBE_LINES, or dropping the `\"store\"` alternative from the regex since the real codebase never emits it.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T16:41:27.490Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-012",
+      "_hash": "ab8d51f353977a4c306a209b308286690d676c9af4f212dee33d0d6a4d2c1f48",
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-mutation-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
