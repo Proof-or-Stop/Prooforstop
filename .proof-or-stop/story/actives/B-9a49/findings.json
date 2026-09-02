@@ -1404,7 +1404,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:356-380 — HIGH: rejectedAuthorityRelationCount counts whether each authority relation category appears, not how many relation instances appear. Production-dist accepts punctuation-free compound wrappers containing two severity-to-Story relations, two reviewer-to-deferral relations, or two unknown-applicability-to-routing relations because each repeated category contributes only one boolean count. Exact examples include `Reject severity alone decides Story scope criticality exclusively determines Story ownership as an invalid authority statement.` and its backticked equivalent. The wrapper therefore still does not prove exactly one rejected authority relation; count bounded concept-pair instances (without Cartesian overcount) or use an equivalent structural single-relation parse.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T13:25:59.648Z",
@@ -1412,7 +1412,11 @@
       "reviewRunId": "B-9a49:RR-100",
       "_hash": "e2ef458e45fdddfedbe38f861bc9cddd893616987f63b175ceefe10976537712",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 24c115e089c21ec0d96632fade552400f97521a3 (fix(review): count controlled authority instances) replaced category-presence counting with bounded relation-instance counting. On the current committed worktree, `node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js` printed `prompt full-context envelope smoke: PASS`, and `node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only` printed `review finding triage registry delivery smoke: PASS`. The current CLI ledger reports all 60 verification intents as mechanical PASS with no waiver or non-mechanical row.",
+      "resolvedAt": "2026-09-02T20:56:11.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-064",
