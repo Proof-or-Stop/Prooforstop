@@ -14,6 +14,16 @@
  *     identity binds (effective environment, resolved executable, shell
  *     executable) are deliberately NOT in the id. They stay available through
  *     `buildRoutineValidationIdentity` as separate pin-resolution evidence.
+ *   - `cwdRelative` in the portable tuple is the DECLARED cwd literal,
+ *     posix-normalized, absent meaning `.`. B-a745 F-023: the first cut resolved
+ *     the declaration against the project root and relativized it back, which
+ *     round-trips for a relative declaration but makes an ABSOLUTE declaration's
+ *     id and commandSetDigest depend on where the checkout lives (depth, drive,
+ *     symlink alias) — the same class of defect as F-017. The portable tuple now
+ *     takes no project-root input at all; the COMPLETE runtime tuple below keeps
+ *     the resolved absolute cwd because that is what executes. An absolute
+ *     declaration is location-bound by the author's choice and is named in an
+ *     inventory warning rather than silently relativized.
  *   - `shell` in the portable tuple is the DECLARED intent (`command.shell ===
  *     true`) and nothing else. B-a745 F-017: the first cut hashed the
  *     platform-effective rule (`shell || platform === 'win32'`) here, so the
@@ -43,11 +53,10 @@
  */
 
 import { createHash } from 'node:crypto';
-import { relative } from 'node:path';
+import { posix } from 'node:path';
 
 import {
   normalizeRoutineValidationCommand,
-  resolveValidationCommandCwd,
   validationIdentityDigest,
 } from './validation-evidence-reuse.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
@@ -64,7 +73,14 @@ export const PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX = 'prov-';
 export interface NarrowPortableValidationCommandTuple {
   command: string;
   args: string[];
-  /** Repo-root-relative logical cwd, posix-separated. `.` means the project root. */
+  /**
+   * The DECLARED cwd literal, posix-normalized; `.` means the project root
+   * (absent or `.`). NEVER resolved against, or relativized to, a project root:
+   * a relative declaration is portable by construction, and an absolute one is
+   * hashed exactly as written and flagged by an inventory warning (B-a745
+   * F-023). The digest key keeps the name `cwdRelative` so the identity
+   * serialization is byte-stable for every existing relative declaration.
+   */
   cwdRelative: string;
   /**
    * DECLARED shell intent only (`command.shell === true`). NOT the
@@ -95,26 +111,40 @@ export interface ValidationCommandInventory {
   warnings: string[];
 }
 
-/** Repo-root-relative, posix-separated logical cwd. Empty relative path means the root. */
-function commandCwdRelative(projectRoot: string, command: Pick<ValidationCommand, 'cwd'>): string {
-  const absolute = resolveValidationCommandCwd(projectRoot, command);
-  const relativePath = relative(projectRoot, absolute).split(/[\\/]+/).join('/');
-  return relativePath === '' ? '.' : relativePath;
+/**
+ * The DECLARED cwd, posix-normalized: backslashes become `/`, `.` segments and
+ * repeated or trailing separators collapse, and an absent or empty declaration
+ * is `.`. Takes no project root on purpose (B-a745 F-023): resolving here is
+ * what made an absolute declaration's "portable" identity depend on the
+ * checkout location. An absolute literal stays absolute and is reported by
+ * {@link buildValidationCommandInventory} as non-portable by construction.
+ */
+export function declaredValidationCommandCwd(command: Pick<ValidationCommand, 'cwd'>): string {
+  const raw = typeof command.cwd === 'string' ? command.cwd.trim() : '';
+  if (raw === '') return '.';
+  let normalized = posix.normalize(raw.replace(/\\/g, '/'));
+  if (normalized.length > 1) normalized = normalized.replace(/\/+$/, '');
+  return normalized === '' ? '.' : normalized;
+}
+
+/** A declared cwd that names a location rather than a place inside the checkout (posix or drive-letter absolute). */
+export function isAbsoluteDeclaredValidationCommandCwd(declaredCwd: string): boolean {
+  return posix.isAbsolute(declaredCwd) || /^[A-Za-z]:\//.test(declaredCwd);
 }
 
 /**
- * Deliberately takes NO platform (and no environment): a portable tuple that
- * could read the host is not portable. Compare `completeTupleFromCommand`,
- * which takes both because it describes what actually executes.
+ * Deliberately takes NO platform, NO environment and NO project root: a
+ * portable tuple that could read the host or the checkout location is not
+ * portable. Compare `completeTupleFromCommand`, which takes all of them because
+ * it describes what actually executes.
  */
 export function narrowPortableValidationCommandTuple(args: {
-  projectRoot: string;
   command: ValidationCommand;
 }): NarrowPortableValidationCommandTuple {
   return {
     command: args.command.command,
     args: [...args.command.args],
-    cwdRelative: commandCwdRelative(args.projectRoot, args.command),
+    cwdRelative: declaredValidationCommandCwd(args.command),
     shell: args.command.shell === true,
   };
 }
@@ -164,15 +194,33 @@ function migrationWarning(provisionalCount: number, total: number): string {
   return (
     `${provisionalCount} of ${total} validation commands still lack a declared id and are running on ` +
     `provisional ids (prefix "${PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX}") derived from command, args, ` +
-    'repo-relative cwd and declared shell. Declare a stable id on each so its planner identity survives an edit ' +
+    'declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit ' +
     'to any of those fields.'
   );
 }
 
 /**
- * Host-portable by construction: no platform or environment input exists on this
- * entry point, so the inventory (ids, commandSetDigest) is the same on every host
- * that checks out the same config. The runtime context enters only in
+ * B-a745 F-023. An absolute declared cwd is location-bound by construction: the
+ * portable identity hashes the literal, so it moves with the checkout. Said out
+ * loud per command instead of being silently relativized. Applies whether or
+ * not the command declares an id, because the commandSetDigest covers the
+ * literal either way.
+ */
+function absoluteCwdWarning(entry: ValidationCommandIdentityEntry): string {
+  return (
+    `${describeEntry(entry.index, entry.label)} declares the absolute cwd "${entry.tuple.cwdRelative}", which ` +
+    'cannot be portable by construction: its identity hashes that literal, so the ' +
+    `${entry.provisional ? 'provisional id and the ' : ''}commandSetDigest change whenever the checkout moves or ` +
+    'is reached through another path. Declare a repo-relative cwd instead.'
+  );
+}
+
+/**
+ * Host-portable by construction: no platform, environment or checkout-location
+ * input reaches an identity on this entry point, so the inventory (ids,
+ * commandSetDigest) is the same on every host that checks out the same config.
+ * `projectRoot` is provenance for the caller only; no identity input is derived
+ * from it (B-a745 F-023). The runtime context enters only in
  * {@link buildValidationPinUniverse}.
  */
 export function buildValidationCommandInventory(args: {
@@ -180,7 +228,7 @@ export function buildValidationCommandInventory(args: {
   commands: ValidationCommand[];
 }): ValidationCommandInventory {
   const entries: ValidationCommandIdentityEntry[] = args.commands.map((command, index) => {
-    const tuple = narrowPortableValidationCommandTuple({ projectRoot: args.projectRoot, command });
+    const tuple = narrowPortableValidationCommandTuple({ command });
     const declared = command.id === undefined
       ? null
       : assertDeclaredValidationCommandId(command.id, describeEntry(index, command.label));
@@ -236,7 +284,10 @@ export function buildValidationCommandInventory(args: {
       .digest('hex'),
     provisionalCount,
     declaredCount: entries.length - provisionalCount,
-    warnings: provisionalCount > 0 ? [migrationWarning(provisionalCount, entries.length)] : [],
+    warnings: [
+      ...(provisionalCount > 0 ? [migrationWarning(provisionalCount, entries.length)] : []),
+      ...entries.filter((entry) => isAbsoluteDeclaredValidationCommandCwd(entry.tuple.cwdRelative)).map(absoluteCwdWarning),
+    ],
   };
 }
 

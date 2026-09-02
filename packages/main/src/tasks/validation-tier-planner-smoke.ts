@@ -265,7 +265,7 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
   assert.ok(id.startsWith(PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX), `expected prov- prefix, got ${id}`);
   assert.equal(result.entries[0].provisional, true);
 
-  const tuple = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: entry });
+  const tuple = narrowPortableValidationCommandTuple({ command: entry });
   assert.deepEqual(tuple, { command: 'npm', args: ['run', 'lint'], cwdRelative: '.', shell: false });
   assert.equal(id, provisionalValidationCommandId(tuple));
   // Deterministic across independent computations.
@@ -304,11 +304,11 @@ testCase('F-023: the declared cwd literal is posix-normalized so cosmetic spelli
   const ids = spellings.map((cwd) => inventory([command({ label: 'unit', command: 'npm', args: ['test'], cwd })]).entries[0].id);
   assert.equal(new Set(ids).size, 1, `cosmetic spellings of the same declared cwd must share one id, got ${ids.join(', ')}`);
   for (const cwd of spellings) {
-    assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm', cwd }) }).cwdRelative, 'packages/main');
+    assert.equal(narrowPortableValidationCommandTuple({ command: command({ label: 'x', command: 'npm', cwd }) }).cwdRelative, 'packages/main');
   }
-  assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm' }) }).cwdRelative, '.');
-  assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm', cwd: '.' }) }).cwdRelative, '.');
-  assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm', cwd: './' }) }).cwdRelative, '.');
+  assert.equal(narrowPortableValidationCommandTuple({ command: command({ label: 'x', command: 'npm' }) }).cwdRelative, '.');
+  assert.equal(narrowPortableValidationCommandTuple({ command: command({ label: 'x', command: 'npm', cwd: '.' }) }).cwdRelative, '.');
+  assert.equal(narrowPortableValidationCommandTuple({ command: command({ label: 'x', command: 'npm', cwd: './' }) }).cwdRelative, '.');
 });
 
 testCase('F-023: an absolute declared cwd is hashed as its literal, is location-independent, and is named in an inventory warning', () => {
@@ -430,7 +430,7 @@ testCase('the portable tuple shell is the declared intent, the complete runtime 
         `portable tuple shell must be the DECLARED intent on ${platform} shell=${String(shell)}`,
       );
       assert.equal(
-        narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: entry }).shell,
+        narrowPortableValidationCommandTuple({ command: entry }).shell,
         entry.shell === true,
         `narrowPortableValidationCommandTuple must not consult the host on shell=${String(shell)}`,
       );
