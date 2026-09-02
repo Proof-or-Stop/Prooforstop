@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-09-02T10:16:36.833Z",
+  "cutoffAt": "2026-09-02T10:18:43.487Z",
   "planBasisDigest": "sha256:740085881c8095cd95df647d5c56383a0a2a8bd2ebc6fd3d6bc4c9d7e7269c45",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1095,6 +1095,13 @@
       "evidenceDigest": "sha256:0ae96ba8796a6344a9e9f902eec753b2db9efa24b299f7cc02135be96bfdee34"
     },
     {
+      "intentRef": "CHK-005:adversarial:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 9,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:1fb287a467a7e54573468c48b67b326cdaa4d705f61c7ad0a412198bd0cd574b"
+    },
+    {
       "intentRef": "CHK-005:edge:0",
       "itemId": "CHK-005",
       "evidenceIndex": 3,
@@ -1316,11 +1323,10 @@
   },
   "criticReceiptDigest": "sha256:91922982a1f6a77df4804d9893eed19ee8948f87bae2eeecc33e46b5da4445ea",
   "codes": [
-    "PR_POSITIVE_EVIDENCE_MISSING",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-02T10:16:36.833Z",
+  "issuedAt": "2026-09-02T10:18:43.487Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "ofA9QEPNrTfnh6/OR06tyXqg7EbSzeN8ZEjv2qLl2YPSOG/2XF2gm2sqykuayrp4evJuZigqBZAU6fBE0osrCA=="
+  "signature": "dYURwypCxQjI9Av39xdHLMEsITBHquO+GCSC1sfmfxvLu8NL9ggICQ5zghpnTcXYVMXF9ev+mrB20oVvLEubCA=="
 }
