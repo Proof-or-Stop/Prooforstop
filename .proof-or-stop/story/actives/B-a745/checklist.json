@@ -280,8 +280,8 @@
       "id": "CHK-005",
       "title": "Add the read-only validation_plan CLI with --explain and --json",
       "context": "Plan section 'Proposed CLI and UX'. Register `proof-or-stop validation_plan --storyId=B-xxxx --tier=fast|intermediate|full` with --explain and --json in the command catalog. Output must show requested and effective tier, selected versus full count derived at runtime, inclusion reasons grouped by command, unclassified inputs, escalation reason codes, estimated duration and basis, whether the run is final authority (fast/intermediate: no), and the artifact path/digest when one is written. The command writes no evidence, executes no validation command, and changes no gate. Note the plan's `--focus` / `--tier` mutual-rejection rule applies to the future `validate --tier` command in Rollout Story 4, not to `validation_plan`; do NOT implement that rejection here.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T02:09:23.581Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#proposed-cli-and-ux",
