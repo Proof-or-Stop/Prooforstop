@@ -534,7 +534,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:1370-1371 — high integrity blocker: verifyRuntimeReceiptCarrier accepts a current-key signed append_runtime_receipt carrier that omits exactRequestDigest whenever the unsigned persistence carrier still contains any digest. An isolated full-receipt reproduction returned {runtimeCurrent:true,carrierAccepted:true,wouldReturnVerified:true,rawCarrierHasExactRequestDigest:true,signedCarrierHasExactRequestDigest:false}; finding_runtime_evidence_verify calls this predicate at lines 1558-1564 before returning verified, so the L3 gate-eligible runtime consumer admits a carrier whose exact request binding is not signed. Require the signed exactRequestDigest to be present and equal to the raw carrier (retain legacy compatibility only in finding_ledger_query), and add the missing current-key re-sign/omission regression beside runtime.carrier_trust_chain.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T23:20:16.068Z",
@@ -542,7 +542,11 @@
       "reviewRunId": "B-fe8f:RR-039",
       "_hash": "9a3fc34cd8c8c098d4b65ce121301fd8907c4e0e4fc1ef84a2660371d04a2da1",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 51014128b597b281c41cb78753389d45dd7351e0: verifyRuntimeReceiptCarrier now requires signed exactRequestDigest presence and exact equality with the outer carrier; finding_ledger_query retains legacy read-only compatibility. Independent build, process/runtime fact contracts, and full Story3 smoke pass; runtime.carrier_signed_exact_request_digest proves verify=refused and legacyQuery=accepted.",
+      "resolvedAt": "2026-09-02T23:32:09.246Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
