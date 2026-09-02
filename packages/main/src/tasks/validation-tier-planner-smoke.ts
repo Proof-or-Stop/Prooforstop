@@ -393,6 +393,16 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
   assert.notEqual(relativeUnit.id, absoluteUnit.id, 'the portable side hashes the declared literal, so the two declarations differ');
 });
 
+// PIN MAINTENANCE: the digest below is the commandSetDigest of the REAL
+// proof-or-stop.config.json validate.commands inventory, so it moves whenever
+// validate.commands changes (an entry added, removed, relabelled or
+// re-argued). That is expected; re-pin it to the value the current inventory
+// produces through this same code path (configuredValidationCommands ->
+// buildValidationCommandInventory) and say in the commit what moved it. The
+// case still guards what it was written for: no declared cwd and no
+// absolute-cwd warning. History: B-a745 pinned eba363ed...; B-41c8 CHK-004
+// (commit b11dd0fb02) added the single-owner-extraction-smoke entry, moving
+// it to 791165cf... (B-41c8 F-006).
 testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
@@ -400,7 +410,7 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
-  assert.equal(real.commandSetDigest, 'eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661', 'the real commandSetDigest must not move for a repository that declares no cwd');
+  assert.equal(real.commandSetDigest, '791165cf73a6d25cc434fa6aaa857cbbfdede669b18cbde3095b15c7f8fd4e43', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });
