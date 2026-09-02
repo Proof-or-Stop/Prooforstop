@@ -911,6 +911,24 @@
       "resolvedAt": "2026-09-02T12:31:34.593Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d854:F-041",
+      "desc": "tests/AGENTS.verify.mjs:998-1008,1307-1321 — F-039 receipt coverage is repaired (canonical checklist_get shows all 8 mechanical receipt.outputTail values contain all 14/14 RECEIPT_WINDOW_SELECTORS), but the current final proof is no longer reproducible because `/opt/homebrew/bin/proof-or-stop --version` now fails EACCES: its resolved target `/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js` is mode 0644. `node /opt/homebrew/bin/proof-or-stop --version` reports 0.3.271, whereas the refreshed receipts were produced with digest 13e4bbd while the global command was executable/version 0.3.270. Consequently both `node tests/AGENTS.verify.mjs --final` and `--receipt-window-policy` currently exit 1 at runtimeChecks line 1007, so current runtime drift/final/receipt-window evidence cannot be truthfully passed. Restore a callable global entrypoint (or make runtimeChecks explicitly capture/report a non-executable global runtime without crashing, consistent with the environment-drift contract), then rerun final, receipt-window 14/14, and refresh the affected mechanical evidence against the observed 0.3.271 VERSION_AND_REALPATH_DRIFT state.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T12:35:18.786Z",
+      "reviewRound": "2026-09-02T12:31:17.695Z",
+      "reviewRunId": "B-d854:RR-037",
+      "_hash": "8f7d812a29e99f433a0bf702fd8227dfd1fadc8334c92c428b562ec20d01638a",
+      "files": [
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "edge|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
