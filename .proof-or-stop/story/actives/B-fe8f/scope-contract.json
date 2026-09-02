@@ -192,10 +192,26 @@
         "validate_registration",
         "binding_build_ceiling"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This command-generated append-only Finding ledger is the canonical durable artifact required by B-fe8f Story 3A acceptance and its receipt, replay, and CAS verification.",
+      "timestamp": "2026-09-02T19:53:08.181Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "42d53b36010fd9d1d3f57b885c76c6abf8f47a3a",
+      "materialHash": "cd7b333358dde5573fbe3e1a729e8025c33d69ab7ee4f1c6fe5c629c450b371f"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-02T12:54:45.292Z",
+  "updatedAt": "2026-09-02T19:53:08.181Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -250,6 +266,7 @@
     ".lattice/story/actives/B-fe8f/scope-freeze-check.json": ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
     "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
     "proof-or-stop.config.json": "proof-or-stop.config.json",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json": ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json"
   }
 }
