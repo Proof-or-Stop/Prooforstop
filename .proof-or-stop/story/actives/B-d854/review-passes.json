@@ -319,6 +319,35 @@
       },
       "readDiagnostics": [],
       "_hash": "78b3eb8739d65dc6b6227ac06293567c4fda9a04b06ee86908bbe92aa01b5a90"
+    },
+    {
+      "id": "B-d854:RP-011",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Narrow final quality review independently rejected the exact F-043 direct-plus-fallback double-success state and an inconsistent fallback outcome, accepted the live DIRECT path and a valid simulated NODE_FALLBACK path, reconfirmed F-040 cross-chain swap rejection, and reran baseline, full final, runtime policy, authority/semantic-chain policies, and the dynamic 18-selector receipt window with no blocker.",
+      "createdAt": "2026-09-02T13:14:09.395Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-042",
+      "envelopeId": "22e4300c9fe1d694ba0fff97518ef75882cd4a27a8d8809c8141d1d5b8521a6d",
+      "writerSessionId": "sess-aac71437ca642ff7cb06835b2c74cc4d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3a88f2a266f6c27f46ba5e9b40c9a04cb5e2cef34598a02dd6e4f5054d2553e6"
     }
   ]
 }
