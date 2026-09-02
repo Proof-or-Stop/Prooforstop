@@ -428,6 +428,48 @@
         "scanEscalationReason": "Target commit has zero changed declarations; pure document fallback was bounded to changed paragraphs, related document references, and the authoritative test_fixture schema, policy, handler, and final verifier."
       },
       "_hash": "4b2eb872d65462e077fea76c6e5c2f6d2666ae760734955b65c9b28b835e2fb7"
+    },
+    {
+      "id": "B-d854:RP-015",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 14 coverage review passed: 10 of 10 must intents have fresh evidence; all 8 mechanical receipts are exit 0, selectorMatched, 4000-byte tails with 18 of 18 current selectors; the five formerly failing contract tests now exit 0; baseline is 26 of 26 RED and final is 26 of 26 GREEN, including Unicode and Claude/Agy provenance checks.",
+      "createdAt": "2026-09-02T14:10:51.629Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-046",
+      "envelopeId": "ea59bee01168ed4e94436e9992972f159e69f33c54561b3cc3ca3539e9fcd949",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "bb7fadfbd5d43ea4c3e49b032ce99d3dfaee1dcab36eaf511f40bc434b9fdda8"
     }
   ]
 }
