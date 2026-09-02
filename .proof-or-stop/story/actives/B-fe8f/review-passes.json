@@ -432,6 +432,25 @@
         "scanEscalationReason": null
       },
       "_hash": "ec53ae3b0e7a1d2147f69d7c1da7cd88ea5c2a26836266c01b2b8ee5d7db8b95"
+    },
+    {
+      "id": "B-fe8f:RP-017",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 9 quality re-review, opened solely because the prior round-8 review run (RR-025, pass RP-014) predated evidence refresh #4's rewrite of checklist.json and a convergence-breaker freeze that a human operator had to clear -- not because of any new material change. Verified this independently rather than taking the coordinator claim on faith: git diff dd45caa2ea..HEAD --stat -- packages scripts bin proof-or-stop.config.json package.json shows exactly one file touched since the commit I reviewed at round 8, and git log confirms that is the single commit 7827dae774 (test: correct B-fe8f binding budget rationale); everything else in the range is story-metadata auto-commits. Read that commit's full diff: it removes the unconditional debug process.stderr.write from retired-authority-vocabulary-guard-smoke.ts (exactly the leftover calibration dump I flagged as F-020 at round 8) and replaces the DYNAMIC_BINDING_BUILD_CEILING comment with corrected rationale text (five Story-owned sources each add one graph build, two pre-existing spare slots absorb part of the increase, net +3 to the same measured total of 811 -- the ceiling value itself and the assertion logic are unchanged). Independently grepped the current source: no remaining match for repoDuplicates or process.stderr.write in that file, and the only console/stdio write left is the pinned stdout success-selector line at 5276 -- confirms F-020's resolvedReason text is accurate, not just plausible-sounding. Confirmed F-020's status is resolved/resolutionType=fixed citing this exact commit via finding_list. Confirmed via evidence_inspect --storyId=B-fe8f (read-only; does not execute the pinned commands, only re-hashes recorded checklist.verificationEvidence and test-evidence.json against current HEAD/materialHash) that all 71 per-intent checklist.verificationEvidence records report result=pass with freshness.status=fresh at the current headHash/materialHash, plus the separate aggregate test-evidence.json record is also freshness.status=fresh -- no stale or non-mechanical evidence remains. Per the coordinator's explicit constraint this round, I did not run finding-ledger-runtime-smoke, the full validate, or touch packages/main/dist in place (no rebuild was needed: no source changed since the round-8 byte-verified dist build). No blocking finding remains open; F-020 was the only open item from prior rounds and it is now genuinely resolved by 7827dae774.",
+      "createdAt": "2026-09-02T20:02:48.641Z",
+      "reviewRound": "2026-09-02T20:00:12.918Z",
+      "reviewRunId": "B-fe8f:RR-033",
+      "envelopeId": "e30dbffdbbbbb58b2da54eb79e0e14e0aba2ee22e5731ab10c309daa203862df",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "af6c534f368859b22f1a745b026bdd5db6664c433af6f4a409615602cc9d90c2"
     }
   ]
 }
