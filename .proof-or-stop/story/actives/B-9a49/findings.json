@@ -1469,7 +1469,7 @@
       "desc": "AGENTS.md:75-85 — HIGH concept-cleanup: the main-merge correction restored the structured Story Owner triage contract at lines 70-73 but left the superseded generic severity-first bullets immediately below it. Those residues say every critical/high defect is fixed in the current Story, medium/low issues may be deferred to finding/gap/backlog, and a later severity increase alone re-escalates the issue. This contradicts the new guidance that severity does not decide applicability or scope, current compatibility accounting is not deferral proof, and routing requires structured applicability/gate evidence plus an owner. CLAUDE.md:782-785 contains only the structured contract, so the promised byte-identical Story Owner guidance is also false. Remove or explicitly retire the legacy bullets and verify the complete bounded section, not only presence of the new four clauses.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T21:00:24.399Z",
@@ -1481,7 +1481,11 @@
         "CLAUDE.md"
       ],
       "signatureTag": "agent-guidance-severity-scope-legacy-residue",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by removing the contradictory legacy severity-first guidance and restoring the shared owner guidance contract. Byte-identity and prompt-contract checks pass at material commit 860e2408a1, while the Dynamic Finding authority document and runtime paths remain unchanged.",
+      "resolvedAt": "2026-09-02T23:08:05.685Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-067",
