@@ -52,10 +52,13 @@ DONE-required evidence.
 6. Test or otherwise verify the result before announcing completion.
 7. Do not add flattering openings or closings.
 8. User instructions override this repository guide.
-9. Never directly read or write Story or fixture JSON. Story state lives under
+9. Never directly write or mutate Story or fixture JSON. Story state lives under
    `.proof-or-stop/story/actives`, and all Story, checklist, bug, finding,
    evidence, and fixture mutations must go through the CLI. Direct JSON edits
-   bypass signatures, hashes, locks, receipts, and lifecycle validation.
+   bypass signatures, hashes, locks, receipts, and lifecycle validation. Prefer
+   CLI reads for ordinary state inspection. Read-only access to the bounded Story
+   inputs explicitly named by a canonical reviewer prompt is permitted when that
+   reviewer contract requires it; this exception grants no mutation authority.
 10. Engineering completion is not product completion. A Story is complete only
     when the requested user-visible result is delivered and the applicable
     technical and lifecycle evidence is current.
@@ -360,10 +363,11 @@ A current reviewer flow is:
 5. A later material change, scope change, round change, or invalid read binding
    requires another reviewer run and fresh pass.
 
-Coverage review is a reviewer lane, not a standalone verification command. The
-main agent, verification-intent agent, and reviewers are peers with independent
-authority. The human is the final arbiter when a substantive disagreement cannot
-converge after the configured review-loop limit.
+Coverage review is a reviewer lane, not a standalone verification command. Its
+current canonical role is `proof-or-stop-review-test-coverage`. The main agent,
+verification-intent agent, and reviewers are peers with independent authority.
+The human is the final arbiter when a substantive disagreement cannot converge
+after the configured review-loop limit.
 
 Where the configured policy requires cross-host assurance, first run
 `review_escalation_status`. Submit a voluntary local 3x2 host-verdict quorum with
@@ -529,6 +533,66 @@ proof-or-stop codex doctor
 proof-or-stop doctor
 ```
 
+### Preserved current command examples
+
+The following examples preserve the still-current commands from the previous
+guide. `tests/AGENTS.verify.mjs` binds every complete invocation to a case ledger:
+safe read-only examples run with `B-d854` and the current repository root,
+mutating examples are validated against the built `MAIN_TOOLS` Zod schema without
+being executed against this Story, and explicitly marked conceptual placeholders
+are syntax-checked but not executed.
+
+```bash
+# Safe read-only repository examples
+proof-or-stop aux_detail --files='["core/machine.ts"]'
+proof-or-stop aux_scan --format=json
+proof-or-stop aux_sync --direction=status
+proof-or-stop aux_trace --format=json
+proof-or-stop decision_get --storyId=B-xxxx
+proof-or-stop understanding_get --storyId=B-xxxx
+
+# Conceptual legacy-case placeholder: replace example-case with a real case name
+proof-or-stop aux_diagnose --caseName=example-case
+
+# Schema-validated PLAN mutations; do not execute them against an existing Story
+proof-or-stop understanding_set '{"storyId":"B-xxxx","task":"Describe the requested change","outcome":"State the observable result","facts":["Repository-local behavior is authoritative"],"constraints":["Stay within the approved scope"],"unknowns":[],"touchpoints":["AGENTS.md"]}'
+proof-or-stop decision_set '{"storyId":"B-xxxx","principles":["Preserve user value","Prefer mechanical evidence","Keep scope bounded"],"drivers":["Current runtime behavior"],"options":[{"name":"A","pros":["Focused"],"cons":["Requires precise evidence"]},{"name":"B","pros":["Broader coverage"],"cons":["Expands scope"]}],"chosen":"A","rationale":"Option A satisfies the requested outcome without unrelated expansion."}'
+
+# Schema-validated Story/backlog mutations; examples are never run by the verifier
+proof-or-stop story_create '{"name":"example-story","title":"Example Story","description":"Deliver a concrete observable repository result.","type":"feature","priority":"medium","background":"## Trigger Event\nOn 2026-09-02, B-example identified a concrete need requiring a reviewed Story.\n\n## Key Insights\nThe result has observable behavior, explicit scope, and verification needs that should be frozen before implementation.\n\n## Solution Tradeoffs\nKeep the Story focused on requested behavior and defer unrelated medium or low issues through the bounded policy.\n\n## Conversational Texture\nThe user expects evidence, concise status, and a product-visible result, so acceptance must preserve those expectations.","checklist":[{"title":"Deliver the observable result","context":"Bind implementation to the stated need"}]}'
+proof-or-stop gap_log '{"category":"missing","severity":"medium","evidence":"Documented nonblocking framework gap with a reproducible source trace.","sourceRefs":["packages/main/src/core/machine.ts:1"]}'
+
+# Legacy fixture maintenance; preview writes and replace conceptual identifiers
+proof-or-stop fixture_batch_add '{"fixturePath":"example","cases":[{"name":"example case","run_type":"cli","file":"core/machine","execute":"return true","expect":true}],"storyId":"B-xxxx","dryRun":true}'
+proof-or-stop test_story --storyId=B-xxxx
+proof-or-stop test_fixture --fixtureId=00000000-0000-4000-8000-000000000000
+```
+
+`aux_detail` inspects signatures and imports for files relative to `scanRoot`.
+`aux_scan` checks source task annotations. `aux_sync` maintains annotation-derived
+metadata, and `status` is its read-only direction. `aux_trace` reports business
+paths, impact edges, and coverage gaps. `aux_diagnose` compares legacy-case trace
+and git evidence when a real case name is supplied. The `*_get` commands are
+read-only snapshots; their paired setters persist structured PLAN facts through
+the CLI. `gap_log` creates attributable deferred audit work. The fixture/test
+commands remain compatibility-only maintenance entrypoints, not the default
+verification path for a new Story.
+
+### Audit and verification
+
+The durable claim-by-claim audit is
+`docs/audits/AGENTS-current-version-audit.md`. Re-run the baseline RED and final
+GREEN checks with:
+
+```bash
+node tests/AGENTS.verify.mjs --baseline
+node tests/AGENTS.verify.mjs --final
+```
+
+The verifier also checks complete command examples, structure and technical
+tokens, normative lifecycle semantics with negative mutations, runtime
+path/version drift, Unicode purity, and the managed template block.
+
 ## Legacy fixture compatibility
 
 Fixture commands and fixture-only validation are not the default flow for a new
@@ -538,10 +602,12 @@ legacy runner. New Stories specify `verificationIntent`, earn tool-owned
 
 A legacy fixture case may include `name`, `run_type`, `file`, `execute`,
 `expect` or mutually exclusive `throws`, an optional `intentRef`, and generated
-chain identifiers. The runner exposes `$handlers`, `$root`, `$ctx`, and `$file`.
-Chained cases share `$ctx` and execute in topology order. Assertions must test the
-specific behavior, never a convenient unconditional result or broad success
-pattern.
+chain identifiers `_id`, `prevCaseId`, and `nextCaseId`. The source `file` is
+relative to `scanRoot` and omits the extension. The runner exposes `$handlers`,
+`$root`, `$ctx`, and `$file`. Chained cases share `$ctx`, execute in topology
+order, and clean up at the chain tail. Use `await import($file)` in the ESM
+environment. Assertions must test specific behavior, never a convenient
+unconditional result or broad success pattern.
 
 The workspace-destructive full legacy runner is `test_auto`. Preview it with
 `--dryRun`; every real run requires explicit `--confirm`. Commit valuable work
