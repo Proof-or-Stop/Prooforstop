@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-09-02 story B-a745's behavior reviewer filed B-a745:F-002: the mechanical receipt for the story's headline acceptance claim matched its selector on a failing run because the selector text is printed unconditionally. The owner's attempt to re-pin a discriminating selector was refused by the evidence-pin seatbelt as immutable, and the finding was resolved as partially mitigated with a committed fixture standing in for the receipt.
+
+## Key Insights
+Immutability conflates two different re-pins: one that loosens a check to get a greener result (must stay forbidden) and one that tightens it (currently also forbidden, which leaves a known-false receipt in place for the life of the story). A narrowing re-pin is safe exactly when it can be shown, from evidence the tool itself recorded, that the new selector matches a strict subset of what the old one matched; a caller-supplied transcript is never admissible because it could be fabricated, and repeated narrowing must be bounded because a chain of narrowings could otherwise home in on one hand-picked run. Persisting the selector text on the receipt is a prerequisite for anyone to audit whether a selector was discriminating at all.
+
+## Solution Tradeoffs
+Option one, narrowing-only re-pin with both pins retained, a reason, and the ids of the recorded receipts it narrowed against, verified only against tool-recorded output; option two, a reason-bearing supersede without a narrowing proof, rejected because a reason is not evidence and would reopen evidence-shopping through the back door; option three, relaxing immutability outright, rejected for the same reason. Option one is the only accepted route: where no recorded failing render exists the re-pin is refused, and the loosening direction stays refused everywhere. A decision record with pre-mortems is required because this touches a security-adjacent invariant.
+
+## Conversational Texture
+The user grouped deferred defects by root cause; the INIT reviewer of the sibling draft test-and-guard-credibility (four fixes that make currently-vacuous checks fail when they should) recommended splitting the evidence re-pin out of that draft because it is a design change to a control rather than a test-hygiene fix, and the user's rule requires such changes to carry their own decision and pre-mortems.
