@@ -412,6 +412,31 @@
         "scanEscalationReason": null
       },
       "_hash": "bde13c2fbe832ea6e4d90470e7e17dce28716d253ec84146ab194f1f5b890e61"
+    },
+    {
+      "id": "B-9f2c:RP-014",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-verified F-004 fix (commit 9a05f7677e) against the frozen tree at d349c71aa0: rewritten paragraph, cross-reference target section, code claims at full-suite-runner.ts, independent fan-out sweep of the file and live docs corpus, and standing CHK-004 doc claims. No further stale occurrence found; no blockers.",
+      "createdAt": "2026-09-02T14:58:58.308Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-022",
+      "envelopeId": "d9f219d3fa7cc328db8d1cd1b19aa7a0ca7961d4bf6b8ea9b75815c4a8ca11fa",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md"
+        ],
+        "scanEscalationReason": "Re-verification pass for a resolved finding: read the target decision doc in full plus the affected README section, grep-swept the file and the live docs corpus (docs/**/*.md, CLAUDE.md, README.md, AGENTS.md) for the stale phrasing, and cross-checked cited code claims directly in packages/main/src/tasks/full-suite-runner.ts."
+      },
+      "_hash": "76495336d5aca5bea76563b9517fcad109039ec0fea9f369d60ab5b9970b6d4d"
     }
   ]
 }
