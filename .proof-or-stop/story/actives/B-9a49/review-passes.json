@@ -843,6 +843,26 @@
       },
       "readDiagnostics": [],
       "_hash": "7951ae980d977c6380c6f371764fe98cffd1abb9ce66984d928804eb67668bab"
+    },
+    {
+      "id": "B-9a49:RP-019",
+      "agent": "proof-or-stop-review-quality",
+      "note": "PASS: independently reviewed commit 1b8fdfe672 and the complete production source/test files. Built dist admits the exact live CHK-002/CHK-003 invariants and bounded ASCII/Unicode evidence-reporting continuations, while rejecting pure-lead, frozen-bridge, pre/post-invariant, parenthetical, relative, concessive, conditional, multi-sentence, applicability, severity, gate, and ownership reopening mutations. Build, full-context, 17-role registry, measurement, baseline, process/runtime contracts, current pre-review, full-3x2 rollout, 60/60 mechanical evidence with zero waivers, and protected Dynamic Finding diff all pass.",
+      "createdAt": "2026-09-02T08:16:00.527Z",
+      "reviewRound": "2026-09-02T08:10:02.997Z",
+      "reviewRunId": "B-9a49:RR-084",
+      "envelopeId": "2c418dd46eca5fd891639a9c696638b8f5c9c0f20e1f8b4a6e0e579fe80c0ab8",
+      "writerSessionId": "sess-119825db54d39d357aa616393646e93a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "32d96b0250e69a17dbe73f40ef9cb21eb6866032a501e79e5d4cb2358eacf335"
     }
   ]
 }
