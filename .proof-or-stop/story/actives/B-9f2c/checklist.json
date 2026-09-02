@@ -38,6 +38,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/app.body.html"
+        ],
+        "create": [
+          "packages/graph/src/shells/web/dossier.js"
+        ],
+        "test": []
       }
     },
     {
