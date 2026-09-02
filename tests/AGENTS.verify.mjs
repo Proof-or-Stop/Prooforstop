@@ -41,16 +41,16 @@ const AUDIT_ROWS = [
   ['A02', 'M02', [present('obsolete Story path is the prohibited target', /\u7981\u6b62\u76f4\u63a5\u8bfb\u5199 `docs\/story\//u)], /`\.proof-or-stop\/story\/actives`/, 'proof-or-stop.config.json', /"storyDir": "\.proof-or-stop\/story\/actives"/],
   ['A03', 'M03', [present('dangling user-value acceptance section reference', /\u7528\u6237\u4ef7\u503c\u9a8c\u6536/u)], /Engineering completion is not product completion/, 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/],
   ['A04', 'M04', [present('global CLI described as core-only', /\u53ea\u6709\u6838\u5fc3\u547d\u4ee4/u)], /other registered\n   `aux_\*` commands are available/, 'packages/main/src/cli/command-catalog.ts', /name: 'aux_doc_list'/],
-  ['A05', 'M05', [present('incomplete story_create example exists', /proof-or-stop story_create '\{"name":"xxx"/), absent('that example has no background field', /proof-or-stop story_create '\{"name":"xxx"[^\n]*"background"/)], /four Markdown sections named `Trigger Event`/, 'packages/main/src/handlers/story-create.ts', /four-section validation/],
-  ['A06', 'M06', [present('story_create payload contains CJK checklist authoring', /"title":"\u505a\u4ec0\u4e48","context":"\u6839\u56e0\/\u53c2\u8003\u65b9\u6848"/u)], /Write these sections in\nEnglish in this repository/, 'packages/main/src/handlers/story-create.ts', /refuse CJK in any author-provided field/],
-  ['A07', 'M07', [present('checklist creation is said to stop in PLAN', /\u6709 checklist \u65f6\u505c\u5728 PLAN/u)], /Creation conservatively stops in INIT/, 'packages/main/src/handlers/story-create.ts', /phase: 'INIT'/],
-  ['A08', 'M08', [present('PLAN-to-DEV is said to create worktree', /PLAN\u2192DEV \u65f6\u81ea\u52a8\u521b\u5efa/u)], /INIT to INIT_CHECK creates the Story branch and worktree/, 'packages/main/src/core/lifecycle-registry.ts', /createStoryWorktree|worktree/],
+  ['A05', 'M05', [present('incomplete story_create example exists', /proof-or-stop story_create '\{"name":"xxx"/), absent('that example has no background field', /proof-or-stop story_create '\{"name":"xxx"[^\n]*"background"/)], /four Markdown sections named `Trigger Event`/, 'packages/main/src/handlers/story-create.ts', /const bgResult = validateBackground/],
+  ['A06', 'M06', [present('story_create payload contains CJK checklist authoring', /"title":"\u505a\u4ec0\u4e48","context":"\u6839\u56e0\/\u53c2\u8003\u65b9\u6848"/u)], /Write these sections in\nEnglish in this repository/, 'packages/main/src/handlers/story-create.ts', /assertEnglishAuthoringText\('story_create'/],
+  ['A07', 'M07', [present('checklist creation is said to stop in PLAN', /\u6709 checklist \u65f6\u505c\u5728 PLAN/u)], /Creation conservatively stops in INIT/, 'packages/main/src/handlers/story-create.ts', /const phase: StoryPhase = hasChecklist \? 'INIT' : 'IDEA'/],
+  ['A08', 'M08', [present('PLAN-to-DEV is said to create worktree', /PLAN\u2192DEV \u65f6\u81ea\u52a8\u521b\u5efa/u)], /INIT to INIT_CHECK creates the Story branch and worktree/, 'packages/main/src/core/lifecycle-registry.ts', /effects: \['story-worktree-create'\]/],
   ['A09', 'M09', [present('INIT_CHECK is described as CLI automatic work', /\| \*\*INIT_CHECK\*\* \| CLI \u81ea\u52a8/u)], /`proof-or-stop-review-story-init` and `product-reviewer`/, 'packages/main/src/core/init-check-gate.ts', /REQUIRED_INIT_CHECK_AGENTS/],
-  ['A10', 'M10', [present('owner lease stack is called unimplemented', /owner lease[^\n]*\u5c1a\u672a\u5b9e\u73b0/u)], /Story owner leases, takeover UX, and `session_brief` owner rendering are\nimplemented/, 'packages/main/src/cli-engine.ts', /forceTakeover/],
+  ['A10', 'M10', [present('owner lease stack is called unimplemented', /owner lease[^\n]*\u5c1a\u672a\u5b9e\u73b0/u)], /Story owner leases, takeover UX, and `session_brief` owner rendering are\nimplemented/, 'packages/main/src/core/story-owner-lease.ts', /export function acquireOrRefreshOwnerLease/],
   ['A11', 'M11', [present('retired test-intent mutation command appears', /(testintent_record|testintent_resume)/)], /retired conversational test-intent mutation commands are unavailable/, 'packages/main/src/cli/command-catalog.ts', /name: 'testintent_handoff'/],
   ['A12', 'M12', [present('story_review acceptance uses issueCount zero', /issueCount=0/)], /`blockerCount` is zero/, 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/],
   ['A13', 'M13', [present('story_review is unconditionally mandatory', /checklist \u5199\u5b8c\u540e\u5fc5\u987b\u8dd1 `story_review`/u)], /quick-channel Story may\nmake adversarial review optional only/, 'packages/main/src/core/machine.ts', /quickPath\.enabled/],
-  ['A14', 'M14', [present('old PLAN review checklist is the stated gate', /story_review \u68c0\u67e5\uff1a\u7f3a\u5931\/\u5f31 `verificationIntent`/u), absent('scope-check gate artifact is omitted', /scope-check\.json/)], /signed `scope-check\.json` evidence/, 'packages/main/src/core/lifecycle-registry.ts', /scope-check\.json/, [
+  ['A14', 'M14', [present('old PLAN review checklist is the stated gate', /story_review \u68c0\u67e5\uff1a\u7f3a\u5931\/\u5f31 `verificationIntent`/u), absent('scope-check gate artifact is omitted', /scope-check\.json/)], /signed `scope-check\.json` evidence/, 'packages/main/src/handlers/scope-check.ts', /const _hash = signScopeCheck/, [
     present('unresolved scope questions must be resolved', /Every `openQuestions` entry[\s\S]*must have a substantive\nwritten resolution before `story_review` can pass/),
     present('registered scope question resolution path is named', /registered `scope_question_resolve` command/),
     present('scope contract initialization path is named', /scope_contract_init_from_plan/),
@@ -60,8 +60,8 @@ const AUDIT_ROWS = [
   ]],
   ['A15', 'M15', [present('main agent fields are limited to title context relatedDocs', /\u4e3b agent \u53ea\u5199 title \+ context \+ relatedDocs/u)], /Current fields include `title`, `context`, `relatedDocs`, `userSees`, `excludes`/, 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/],
   ['A16', 'M16', [present('scope expansion forbids saying out of scope', /\u4e0d\u8981\u8bf4"\u4e0d\u5728 scope \u5185"/u), present('infrastructure defects are ordered into current Story', /\u8fd9\u4e9b\u90fd\u5e94\u8be5\u4e00\u8d77\u4fee/u)], /Defect triage and bounded scope/, 'AGENTS.md', /Defect triage and bounded scope/],
-  ['A17', 'M17', [present('PASS binding is required to use latest lane run', /reviewRunId[^\n]*\u5f53\u524d lane \u6700\u65b0/u)], /PASS from the current review round may remain valid/, 'packages/main/src/core/review-run.ts', /RELAXED FOR PASSES only/],
-  ['A18', 'M18', [present('caller-authored verificationEvidence uses checklist_update', /checklist_update[^\n]*verificationEvidence/)], /issues a tool-owned receipt/, 'packages/main/src/handlers/checklist.ts', /verification_evidence_add/],
+  ['A17', 'M17', [present('PASS binding is required to use latest lane run', /reviewRunId[^\n]*\u5f53\u524d lane \u6700\u65b0/u)], /PASS from the current review round may remain valid/, 'packages/main/src/core/review-run.ts', /if \(currentRun && currentRun\.reviewRunId !== run\.reviewRunId && evidence\.kind !== 'pass'\)/],
+  ['A18', 'M18', [present('caller-authored verificationEvidence uses checklist_update', /checklist_update[^\n]*verificationEvidence/)], /issues a tool-owned receipt/, 'packages/main/src/handlers/checklist.ts', /const run = await deps\.runCommand/],
   ['A19', 'M19', [present('legacy subagent Bash model is stated', /subagent \u53ef\u8c03\u7528 Proof-or-Stop CLI \u547d\u4ee4\uff08\u901a\u8fc7 Bash tool\uff09/u), absent('dispatch entrypoint is omitted', /`dispatch`/), absent('agent_prompt entrypoint is omitted', /`agent_prompt`/), absent('reviewer_batch entrypoint is omitted', /`reviewer_batch`/), absent('quorum_submit entrypoint is omitted', /`quorum_submit`/)], /`dispatch` validates a registered role/, 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName/, [
     present('canonical prompt path is named', /`agent_prompt`\nprints the canonical package-registry prompt/),
     present('opt-in roster command is named', /`reviewer_list --json` reports the current Story's opt-in roster/),
@@ -73,94 +73,150 @@ const AUDIT_ROWS = [
     present('quorum submission prerequisite is named', /`quorum_submit` only after every required current reviewer pass exists/),
   ]],
   ['A20', 'M20', [present('old lifecycle table claims routine validate as TEST account', /\| \*\*TEST\*\* \| CLI \/ \u4e3b agent \| \u8dd1 routine `proof-or-stop validate`/u), absent('acceptance topology command is omitted', /acceptance_topology_check/), absent('delivery check command is omitted', /delivery_check_set/)], /all required verification intent, bugs, review evidence, ProofStory\nartifacts, acceptance topology, delivery\/summary checks, and freshness gates/, 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/],
-  ['A21', 'M21', [present('porcelain output is treated as one blocking class', /\u6709\u672a commit \u7684\u6539\u52a8\u65f6\u5148\u63d0\u4ea4\u518d\u63a8\u8fdb/u), present('the same guide defers metadata-only handling to a future placeholder', /metadata-only dirty handling[^\n]*B-9dfb once merged/i)], /Git cleanliness and drift classification/, 'packages/main/src/handlers/done-prepare.ts', /metadata-only|metadata only/],
-  ['A22', 'M22', [present('manual CLI patch bump is required after merge', /\u5fc5\u987b\u628a CLI patch \u7248\u672c\u9012\u589e 1/u)], /DONE effect automatically\npatch-bumps/, 'packages/main/src/core/version-bump.ts', /bumpVersionOnDoneMerge/],
+  ['A21', 'M21', [present('porcelain output is treated as one blocking class', /\u6709\u672a commit \u7684\u6539\u52a8\u65f6\u5148\u63d0\u4ea4\u518d\u63a8\u8fdb/u), present('the same guide defers metadata-only handling to a future placeholder', /metadata-only dirty handling[^\n]*B-9dfb once merged/i)], /Git cleanliness and drift classification/, 'packages/main/src/handlers/done-prepare.ts', /return classifyGitStatusRows/],
+  ['A22', 'M22', [present('manual CLI patch bump is required after merge', /\u5fc5\u987b\u628a CLI patch \u7248\u672c\u9012\u589e 1/u)], /DONE effect automatically\npatch-bumps/, 'packages/main/src/handlers/done-effects.ts', /mergeLines\.push\(bumpVersionOnDoneMerge/],
   ['A23', 'M23', [present('future B-9dfb placeholder remains', /B-9dfb once merged/)], /Do not manually bypass `cleanTree`/, 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/],
   ['A24', 'M24', [present('decision options rule only allows two or one', /`options`: \u2265 2 \u4e2a\uff1b\u53ea\u6709 1 \u4e2a\u65f6/u), absent('empty-options exit is omitted', /options: \[\]/)], /`options: \[\]` single-solution exit/, 'packages/main/src/handlers/decision.ts', /args\.options\.length === 0/],
-  ['A25', 'L01', [present('bare destructive test_auto example is runnable', /^proof-or-stop test_auto\s+# legacy/m), absent('bare test_auto has no confirm', /^proof-or-stop test_auto --confirm/m)], /every real run requires explicit `--confirm`/, 'packages/main/src/cli/command-catalog.ts', /real run needs confirm/],
-  ['A26', 'L02', [present('legacy materialized prompt directory is primary', /\.proof-or-stop-codex\/agents\//), present('legacy reviewer role appears in prompt example', /name: test-case-reviewer/), present('legacy prompt model field appears', /model: sonnet/)], /`agent_prompt`\nprints the canonical package-registry prompt/, 'packages/main/src/handlers/agent-prompt.ts', /body-free/],
+  ['A25', 'L01', [present('bare destructive test_auto example is runnable', /^proof-or-stop test_auto\s+# legacy/m), absent('bare test_auto has no confirm', /^proof-or-stop test_auto --confirm/m)], /every real run requires explicit `--confirm`/, 'packages/main/src/handlers/test-auto.ts', /if \(args\.confirm !== true\)/],
+  ['A26', 'L02', [present('legacy materialized prompt directory is primary', /\.proof-or-stop-codex\/agents\//), present('legacy reviewer role appears in prompt example', /name: test-case-reviewer/), present('legacy prompt model field appears', /model: sonnet/)], /`agent_prompt`\nprints the canonical package-registry prompt/, 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/],
 ].map(([id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks = []]) => ({ id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks }));
 
-const authority = (label, path, pattern) => ({ label, path, pattern });
+const authority = (kind, label, path, pattern) => ({ kind, label, path, pattern });
 
 // Complete authority contract for every durable row. Each entry owns one
 // material subclaim and resolves to the exact current line where its pattern
 // starts. The audit cell must equal this set: no missing, vague, stale, or
 // unreviewed extra citations are accepted.
 const AUTHORITY_BY_ROW = new Map([
-  ['A01', [authority('managed template', 'packages/main/src/init-assets.ts', /AGENTS_MD_GLOBAL_THIN_TEMPLATE/)]],
-  ['A02', [authority('Story directory', 'proof-or-stop.config.json', /"storyDir": "\.proof-or-stop\/story\/actives"/)]],
-  ['A03', [authority('user-visible result field', 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/)]],
-  ['A04', [authority('registered aux_doc_list command', 'packages/main/src/cli/command-catalog.ts', /name: 'aux_doc_list'/)]],
-  ['A05', [authority('four-section background validation', 'packages/main/src/handlers/story-create.ts', /four-section validation/)]],
-  ['A06', [authority('CJK authoring rejection', 'packages/main/src/handlers/story-create.ts', /refuse CJK in any author-provided field/)]],
-  ['A07', [authority('initial phase', 'packages/main/src/handlers/story-create.ts', /phase: 'INIT'/)]],
-  ['A08', [authority('worktree transition', 'packages/main/src/core/lifecycle-registry.ts', /createStoryWorktree|worktree/)]],
-  ['A09', [
-    authority('required INIT reviewers', 'packages/main/src/core/init-check-gate.ts', /REQUIRED_INIT_CHECK_AGENTS/),
-    authority('six-artifact read-only preflight', 'packages/main/src/cli/command-catalog.ts', /name: 'init_preflight'/),
-    authority('fallback requires reviewer-unavailable reason', 'packages/main/src/cli/command-catalog.ts', /fallbackReason: z\.string\(\)\.min\(30/),
-    authority('fallback requires acknowledgement', 'packages/main/src/cli/command-catalog.ts', /acknowledge: z\.boolean\(\)\.describe\('Must explicitly pass true/),
+  ['A01', [authority('template', 'managed-global-thin-template', 'packages/main/src/init-assets.ts', /AGENTS_MD_GLOBAL_THIN_TEMPLATE/)]],
+  ['A02', [authority('config', 'canonical-story-directory', 'proof-or-stop.config.json', /"storyDir": "\.proof-or-stop\/story\/actives"/)]],
+  ['A03', [authority('interface', 'checklist-user-visible-result-field', 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/)]],
+  ['A04', [
+    authority('interface', 'core-aux-doc-list-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'aux_doc_list'/),
+    authority('interface', 'utils-aux-diagnose-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_diagnose'/),
+    authority('interface', 'utils-aux-trace-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_trace'/),
+    authority('interface', 'utils-aux-scan-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_scan'/),
+    authority('interface', 'utils-aux-detail-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_detail'/),
+    authority('interface', 'utils-aux-sync-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_sync'/),
+    authority('interface', 'utils-aux-coverage-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_coverage'/),
+    authority('interface', 'utils-aux-locate-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_locate'/),
   ]],
-  ['A10', [authority('owner takeover', 'packages/main/src/cli-engine.ts', /forceTakeover/)]],
-  ['A11', [authority('current intent handoff', 'packages/main/src/cli/command-catalog.ts', /name: 'testintent_handoff'/)]],
-  ['A12', [authority('blocking PLAN issues', 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/)]],
-  ['A13', [authority('quick review policy', 'packages/main/src/core/machine.ts', /quickPath\.enabled/)]],
+  ['A05', [
+    authority('runtime', 'story-create-background-required-guard', 'packages/main/src/handlers/story-create.ts', /if \(typeof args\.background !== 'string' \|\| args\.background\.length === 0\)/),
+    authority('runtime', 'story-create-background-validator-call', 'packages/main/src/handlers/story-create.ts', /const bgResult = validateBackground/),
+    authority('policy', 'background-canonical-section-set', 'packages/main/src/core/background-validator.ts', /export const REQUIRED_SECTIONS = \[/),
+    authority('runtime', 'background-total-length-guard', 'packages/main/src/core/background-validator.ts', /if \(totalLen < 300\)/),
+    authority('runtime', 'background-section-length-guard', 'packages/main/src/core/background-validator.ts', /if \(trimmed\.length < 50\)/),
+    authority('runtime', 'background-trigger-identifier-guard', 'packages/main/src/core/background-validator.ts', /const matched = TRIGGER_ID_PATTERNS\.some/),
+  ]],
+  ['A06', [
+    authority('runtime', 'story-create-draft-english-authoring-guard', 'packages/main/src/handlers/story-create.ts', /assertEnglishAuthoringText\('story_create', storyCreateAuthoringFields\(\{/),
+    authority('runtime', 'story-create-normal-english-authoring-guard', 'packages/main/src/handlers/story-create.ts', /assertEnglishAuthoringText\('story_create', storyCreateAuthoringFields\(args\)\)/),
+  ]],
+  ['A07', [authority('runtime', 'story-create-normal-initial-phase', 'packages/main/src/handlers/story-create.ts', /const phase: StoryPhase = hasChecklist \? 'INIT' : 'IDEA'/)]],
+  ['A08', [
+    authority('policy', 'init-check-worktree-create-effect', 'packages/main/src/core/lifecycle-registry.ts', /effects: \['story-worktree-create'\]/),
+    authority('policy', 'plan-entry-cwd-worktree-gate', 'packages/main/src/core/lifecycle-registry.ts', /gates: \['cwd-worktree'\]/),
+  ]],
+  ['A09', [
+    authority('policy', 'init-check-required-reviewer-pair', 'packages/main/src/core/init-check-gate.ts', /export const REQUIRED_INIT_CHECK_AGENTS/),
+    authority('policy', 'init-check-six-transition-gates', 'packages/main/src/core/lifecycle-registry.ts', /gates: \['init-check', 'scope-boundary', 'execution-boundary', 'scope-freeze-check', 'scope-extension-proposals', 'scope-discard-digest'\]/),
+    authority('interface', 'init-preflight-command-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'init_preflight'/),
+    authority('runtime', 'init-preflight-read-only-boundary-call', 'packages/main/src/handlers/init-preflight.ts', /assertBoundary\(args\)/),
+    authority('runtime', 'init-repair-explicit-acknowledgement-guard', 'packages/main/src/handlers/init-check.ts', /if \(args\.acknowledge !== true\)/),
+    authority('runtime', 'init-repair-substantive-reason-guard', 'packages/main/src/handlers/init-check.ts', /if \(reason\.length < INIT_CHECK_FALLBACK_REASON_MIN\)/),
+  ]],
+  ['A10', [
+    authority('runtime', 'owner-lease-cli-enforcement-choke-point', 'packages/main/src/cli-engine.ts', /enforceStoryOwnerLeaseGate\(cmd, parsed/),
+    authority('runtime', 'owner-lease-acquire-or-refresh-flow', 'packages/main/src/core/story-owner-lease.ts', /export function acquireOrRefreshOwnerLease/),
+    authority('runtime', 'active-lease-force-takeover-guard', 'packages/main/src/core/story-owner-lease.ts', /if \(options\.kind === 'takeover' && !wasStale\)/),
+    authority('runtime', 'takeover-owner-lease-write', 'packages/main/src/core/story-owner-lease.ts', /writeLease\(storyDir, transferred\)/),
+    authority('runtime', 'session-brief-ownership-renderer', 'packages/main/src/handlers/session.ts', /export function renderOwnershipBlock/),
+  ]],
+  ['A11', [authority('interface', 'current-intent-handoff-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'testintent_handoff'/)]],
+  ['A12', [authority('runtime', 'plan-review-blocker-count', 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/)]],
+  ['A13', [authority('runtime', 'quick-path-eligibility-guard', 'packages/main/src/core/machine.ts', /if \(!policy\.quickPath\.enabled\) return false/)]],
   ['A14', [
-    authority('signed scope artifact', 'packages/main/src/core/lifecycle-registry.ts', /scope-check\.json/),
-    authority('open-question gate', 'packages/main/src/handlers/story-review.ts', /Open Questions gate/),
-    authority('PLAN-to-DEV contract advisory', 'packages/main/src/handlers/phase-gates.ts', /PLAN.DEV scope contract advisory/),
-    authority('scope-contract gate fact', 'packages/main/src/core/process-fact-levels.ts', /name: 'scope_contract_set'/),
+    authority('runtime', 'scope-check-signature-mint', 'packages/main/src/handlers/scope-check.ts', /const _hash = signScopeCheck/),
+    authority('runtime', 'scope-check-persistence', 'packages/main/src/handlers/scope-check.ts', /store\.writeScopeCheck/),
+    authority('interface', 'scope-question-resolution-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'scope_question_resolve'/),
+    authority('runtime', 'scope-open-question-resolution-gate', 'packages/main/src/handlers/story-review.ts', /const unresolved = scopeData\.openQuestions\.filter/),
+    authority('runtime', 'plan-to-dev-scope-contract-advisory', 'packages/main/src/handlers/phase-gates.ts', /export function runPlanToDevScopeAdvice/),
+    authority('runtime', 'review-scope-contract-missing-block', 'packages/main/src/handlers/phase-gates.ts', /throw new Error\(\n\s+`Cannot enter \$\{phase\}: scope-contract\.json missing/),
   ]],
   ['A15', [
-    authority('title context and relatedDocs', 'packages/main/src/cli/command-catalog.ts', /checklist: z\.array\(z\.object\(\{\n\s+title:[\s\S]*?relatedDocs:/),
-    authority('userSees', 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/),
-    authority('excludes', 'packages/main/src/cli/command-catalog.ts', /excludes: z\.array\(z\.string\(\)\)/),
-    authority('affected files', 'packages/main/src/cli/command-catalog.ts', /files: z\.object\(\{/),
-    authority('verification intent', 'packages/main/src/cli/command-catalog.ts', /verificationIntent: verificationIntentSchema/),
+    authority('interface', 'checklist-title-context-related-docs-fields', 'packages/main/src/cli/command-catalog.ts', /checklist: z\.array\(z\.object\(\{\n\s+title:[\s\S]*?relatedDocs:/),
+    authority('interface', 'checklist-user-sees-field', 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/),
+    authority('interface', 'checklist-excludes-field', 'packages/main/src/cli/command-catalog.ts', /excludes: z\.array\(z\.string\(\)\)/),
+    authority('interface', 'checklist-affected-files-field', 'packages/main/src/cli/command-catalog.ts', /files: z\.object\(\{/),
+    authority('interface', 'checklist-verification-intent-field', 'packages/main/src/cli/command-catalog.ts', /verificationIntent: verificationIntentSchema/),
   ]],
-  ['A16', [authority('bounded defect triage', 'AGENTS.md', /Defect triage and bounded scope/)]],
-  ['A17', [authority('non-latest valid pass', 'packages/main/src/core/review-run.ts', /RELAXED FOR PASSES only/)]],
-  ['A18', [authority('tool-owned verification receipt', 'packages/main/src/handlers/checklist.ts', /verification_evidence_add/)]],
+  ['A16', [authority('policy', 'bounded-defect-triage-policy', 'AGENTS.md', /Defect triage and bounded scope/)]],
+  ['A17', [authority('runtime', 'nonlatest-pass-latest-finding-branch', 'packages/main/src/core/review-run.ts', /if \(currentRun && currentRun\.reviewRunId !== run\.reviewRunId && evidence\.kind !== 'pass'\)/)]],
+  ['A18', [
+    authority('runtime', 'pinned-verification-command-execution', 'packages/main/src/handlers/checklist.ts', /const run = await deps\.runCommand/),
+    authority('runtime', 'tool-owned-verification-receipt-mint', 'packages/main/src/handlers/checklist.ts', /const receipt: VerificationExecutionReceipt =/),
+  ]],
   ['A19', [
-    authority('dispatch role registry', 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName/),
-    authority('dispatch command and target cardinality', 'packages/main/src/cli/command-catalog.ts', /name: 'dispatch', description: 'Dispatch a registered subagent prompt using registry-defined story-only or exactly-one target cardinality'/),
-    authority('dispatch runtime registry authority', 'packages/main/src/handlers/story-dispatch.ts', /The registry is the sole authority for phase, cardinality, prompt class/),
-    authority('dispatch runtime request validation', 'packages/main/src/handlers/story-dispatch.ts', /const resolved = validateAgentDispatchRequest/),
-    authority('canonical agent prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
-    authority('computed reviewer roster', 'packages/main/src/handlers/reviewer-list.ts', /Output the opt-in reviewer roster/),
-    authority('reviewer batch shared opt-in path', 'packages/main/src/handlers/reviewer-batch.ts', /active\/required review lanes/),
-    authority('reviewer batch read-only producer', 'packages/main/src/handlers/reviewer-batch.ts', /Lifecycle Readiness P7: reviewer_batch \u2014 a READ-ONLY reviewer-launcher PLAN/),
-    authority('reviewer batch strict no-side-effect boundary', 'packages/main/src/handlers/reviewer-batch.ts', /CRITICAL BOUNDARY: reviewer_batch is a strictly read-only PLAN producer/),
-    authority('signed reviewer run', 'packages/main/src/cli/command-catalog.ts', /name: 'review_run_start'/),
-    authority('reviewer pass command', 'packages/main/src/cli/command-catalog.ts', /name: 'review_pass_set'/),
-    authority('reviewer pass run binding', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.describe\('Current reviewer run ID/),
-    authority('reviewer pass current-run runtime enforcement', 'packages/main/src/handlers/finding.ts', /const reviewRun = assertCurrentReviewRunForEvidence/),
-    authority('reviewer finding command', 'packages/main/src/cli/command-catalog.ts', /name: 'finding_add'/),
-    authority('reviewer finding run binding', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.optional\(\)\.describe\('Current proof-or-stop-review/),
-    authority('reviewer finding lane runtime enforcement', 'packages/main/src/handlers/finding.ts', /const isReviewerAgent = isRegisteredReviewAgent/),
-    authority('reviewer finding current-run runtime enforcement', 'packages/main/src/handlers/finding.ts', /if \(reviewerLane\) \{\n\s+assertCurrentReviewRunForEvidence/),
-    authority('quorum pass prerequisite', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/),
+    authority('policy', 'dispatch-implementer-role-registry', 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName: 'proof-or-stop-implementer'/),
+    authority('policy', 'dispatch-implementer-target-cardinality', 'packages/main/src/core/agent-dispatch-registry.ts', /targetCardinality: 'exactly-one'/),
+    authority('interface', 'dispatch-command-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'dispatch'/),
+    authority('runtime', 'dispatch-registry-request-validation', 'packages/main/src/handlers/story-dispatch.ts', /const resolved = validateAgentDispatchRequest/),
+    authority('runtime', 'canonical-agent-prompt-render', 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/),
+    authority('runtime', 'reviewer-list-policy-roster-computation', 'packages/main/src/handlers/reviewer-list.ts', /const reviewers = computeActiveReviewers/),
+    authority('runtime', 'reviewer-batch-shared-roster-computation', 'packages/main/src/handlers/reviewer-batch.ts', /const activeReviewers = computeActiveReviewers/),
+    authority('runtime', 'reviewer-batch-side-effect-flag-guard', 'packages/main/src/handlers/reviewer-batch.ts', /function assertBoundary\(args: ReviewerBatchArgs\)/),
+    authority('runtime', 'reviewer-batch-boundary-invocation', 'packages/main/src/handlers/reviewer-batch.ts', /assertBoundary\(args\)/),
+    authority('runtime', 'reviewer-batch-host-instruction-builder', 'packages/main/src/handlers/reviewer-batch.ts', /function laneLaunchInstruction/),
+    authority('runtime', 'reviewer-batch-host-instruction-use', 'packages/main/src/handlers/reviewer-batch.ts', /launchInstruction: needsRun/),
+    authority('interface', 'review-run-start-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'review_run_start'/),
+    authority('interface', 'review-pass-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'review_pass_set'/),
+    authority('interface', 'review-pass-run-id-schema', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.describe\('Current reviewer run ID/),
+    authority('runtime', 'review-pass-current-run-enforcement', 'packages/main/src/handlers/finding.ts', /const reviewRun = assertCurrentReviewRunForEvidence/),
+    authority('interface', 'reviewer-finding-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'finding_add'/),
+    authority('interface', 'reviewer-finding-run-id-schema', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.optional\(\)\.describe\('Current proof-or-stop-review/),
+    authority('runtime', 'reviewer-finding-lane-detection', 'packages/main/src/handlers/finding.ts', /const isReviewerAgent = isRegisteredReviewAgent/),
+    authority('runtime', 'reviewer-finding-current-run-enforcement', 'packages/main/src/handlers/finding.ts', /if \(reviewerLane\) \{\n\s+assertCurrentReviewRunForEvidence/),
+    authority('interface', 'quorum-submit-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/),
+    authority('runtime', 'quorum-required-reviewer-pass-validation', 'packages/main/src/handlers/quorum-submit.ts', /function assertCurrentReviewerPasses/),
+    authority('runtime', 'quorum-reviewer-pass-validation-call', 'packages/main/src/handlers/quorum-submit.ts', /const reviewerPasses = assertCurrentReviewerPasses/),
   ]],
   ['A20', [
-    authority('verification intent evidence', 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/),
-    authority('bug completion', 'packages/main/src/core/machine.ts', /const openBugs = bugs\.bugs\.filter/),
-    authority('review verdict', 'packages/main/src/core/machine.ts', /const verdict = evaluateReviewVerdict/),
-    authority('ProofStory review gate', 'packages/main/src/handlers/phase-gates.ts', /const proofStoryMode = configuredProofStoryMode/),
-    authority('acceptance topology gate', 'packages/main/src/handlers/transition-orchestrator.ts', /const topology = evaluateAcceptanceTopologyForContext/),
-    authority('delivery freshness gate', 'packages/main/src/core/machine.ts', /delivery-check\.json signature and material freshness verification/),
-    authority('policy-aware summary gate', 'packages/main/src/core/done-oracle.ts', /summary\.json \(policy-aware/),
+    authority('runtime', 'review-entry-verification-evidence-gate', 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/),
+    authority('runtime', 'done-open-bug-gate', 'packages/main/src/core/machine.ts', /const openBugs = bugs\.bugs\.filter/),
+    authority('runtime', 'test-entry-review-verdict-gate', 'packages/main/src/core/machine.ts', /const verdict = evaluateReviewVerdict/),
+    authority('runtime', 'proofstory-review-completeness-evaluation', 'packages/main/src/handlers/phase-gates.ts', /const proofStoryReport = evaluateReviewCompleteness/),
+    authority('runtime', 'plan-acceptance-topology-evaluation', 'packages/main/src/handlers/transition-orchestrator.ts', /const topology = evaluateAcceptanceTopologyForContext/),
+    authority('runtime', 'done-delivery-freshness-evaluation', 'packages/main/src/core/machine.ts', /const deliveryCheckFreshness = evaluateDeliveryCheckFreshness/),
+    authority('runtime', 'done-policy-summary-requirement', 'packages/main/src/core/done-oracle.ts', /const summaryReq = policy\.done\.requireSummary/),
   ]],
-  ['A21', [authority('metadata drift classification', 'packages/main/src/handlers/done-prepare.ts', /metadata-only|metadata only/)]],
-  ['A22', [authority('automatic version bump', 'packages/main/src/core/version-bump.ts', /bumpVersionOnDoneMerge/)]],
-  ['A23', [authority('clean-tree closeout', 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/)]],
-  ['A24', [authority('empty-options decision', 'packages/main/src/handlers/decision.ts', /args\.options\.length === 0/)]],
-  ['A25', [authority('test_auto confirmation', 'packages/main/src/cli/command-catalog.ts', /real run needs confirm/)]],
+  ['A21', [
+    authority('runtime', 'dirty-row-canonical-classification-call', 'packages/main/src/handlers/done-prepare.ts', /return classifyGitStatusRows/),
+    authority('runtime', 'done-prepare-classified-blocker-consumption', 'packages/main/src/handlers/done-prepare.ts', /const initialDirtyClassification = classifyDirtyRows/),
+  ]],
+  ['A22', [
+    authority('runtime', 'done-watched-input-change-decision', 'packages/main/src/handlers/done-effects.ts', /const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths/),
+    authority('runtime', 'done-version-bump-effect-call', 'packages/main/src/handlers/done-effects.ts', /mergeLines\.push\(bumpVersionOnDoneMerge/),
+    authority('runtime', 'version-bump-no-watched-input-skip', 'packages/main/src/core/version-bump.ts', /if \(!opts\.shouldBump\) return VERSION_BUMP_SKIPPED_LINE/),
+    authority('runtime', 'version-bump-git-commit', 'packages/main/src/core/version-bump.ts', /opts\.runGit\(\n\s+\['-c', 'commit\.gpgsign=false'/),
+  ]],
+  ['A23', [authority('runtime', 'done-clean-tree-closeout-call', 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/)]],
+  ['A24', [
+    authority('runtime', 'decision-empty-options-branch', 'packages/main/src/handlers/decision.ts', /if \(args\.options\.length === 0\)/),
+    authority('runtime', 'decision-empty-options-rationale-guard', 'packages/main/src/handlers/decision.ts', /if \(rationale\.trim\(\)\.length < 50 \|\| !hasExclusionRationale/),
+    authority('runtime', 'decision-single-option-branch', 'packages/main/src/handlers/decision.ts', /else if \(args\.options\.length < 2\)/),
+    authority('runtime', 'decision-single-option-cons-guard', 'packages/main/src/handlers/decision.ts', /if \(!opt\.cons \|\| opt\.cons\.length === 0\)/),
+  ]],
+  ['A25', [
+    authority('runtime', 'test-auto-dry-run-preview-branch', 'packages/main/src/handlers/test-auto.ts', /if \(args\.dryRun\)/),
+    authority('runtime', 'test-auto-confirmation-guard', 'packages/main/src/handlers/test-auto.ts', /if \(args\.confirm !== true\)/),
+  ]],
   ['A26', [
-    authority('body-free prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
-    authority('thin prompt registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/),
-    authority('host orchestration instruction', 'packages/main/src/handlers/reviewer-batch.ts', /The orchestrator launch INSTRUCTION for each lane/),
-    authority('legacy role aliases', 'packages/main/src/core/agent-dispatch-registry.ts', /aliases: \['test-intent', 'test-case-reviewer'\]/),
+    authority('runtime', 'modern-agent-prompt-host-render', 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/),
+    authority('template', 'thin-adapter-package-prompt-registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/),
+    authority('runtime', 'modern-host-launch-instruction-builder', 'packages/main/src/handlers/reviewer-batch.ts', /function laneLaunchInstruction/),
+    authority('runtime', 'modern-host-launch-instruction-use', 'packages/main/src/handlers/reviewer-batch.ts', /launchInstruction: needsRun/),
+    authority('policy', 'legacy-verification-role-alias-map', 'packages/main/src/core/agent-dispatch-registry.ts', /aliases: \['test-intent', 'test-case-reviewer'\]/),
   ]],
 ]);
 
@@ -177,6 +233,41 @@ function lineOf(text, pattern) {
   const match = text.match(pattern);
   if (!match || match.index === undefined) return 0;
   return text.slice(0, match.index).split('\n').length;
+}
+
+const AUTHORITY_KINDS = new Set(['config', 'interface', 'policy', 'runtime', 'template']);
+
+function resolvedAuthority(entry) {
+  assert.ok(AUTHORITY_KINDS.has(entry.kind), `unknown authority kind ${entry.kind} for ${entry.label}`);
+  assert.match(entry.label, /^[a-z0-9]+(?:-[a-z0-9]+)+$/, `authority label must be descriptive kebab-case: ${entry.label}`);
+  const absolute = resolve(root, entry.path);
+  assert.ok(existsSync(absolute), `authority source path missing: ${entry.path}`);
+  const source = read(absolute);
+  const line = lineOf(source, entry.pattern);
+  assert.ok(line > 0 && line <= source.split('\n').length, `authority source pattern missing: ${entry.label}`);
+  const matchedLine = source.split('\n')[line - 1].trim();
+  if (entry.kind === 'runtime') {
+    assert.ok(!/^(?:\/\/|\/\*|\*|\*\/|<!--|#)/.test(matchedLine), `runtime authority is comment-only: ${entry.label} at ${entry.path}:${line}`);
+  }
+  return { kind: entry.kind, label: entry.label, path: entry.path, line };
+}
+
+function resolvedAuthorityInventory() {
+  const labels = [];
+  const inventory = new Map();
+  for (const row of AUDIT_ROWS) {
+    const expected = AUTHORITY_BY_ROW.get(row.id);
+    assert.ok(expected && expected.length > 0, `${row.id} authority contract is missing`);
+    const resolved = expected.map(resolvedAuthority);
+    inventory.set(row.id, resolved);
+    labels.push(...resolved.map((entry) => entry.label));
+  }
+  assert.equal(new Set(labels).size, labels.length, 'authority subclaim labels must be globally unique');
+  return inventory;
+}
+
+function renderAuthorityCell(entries) {
+  return entries.map((entry) => `\`${entry.kind}:${entry.label}\` -> \`${entry.path}:${entry.line}\``).join('; ');
 }
 
 function runAuditRows() {
@@ -586,6 +677,7 @@ function auditRowCells(text, id) {
 }
 
 function auditCitationPolicy(text) {
+  const authorityInventory = resolvedAuthorityInventory();
   for (const row of AUDIT_ROWS) {
     const reject = (reason) => {
       if (text === auditText) console.error(`AUDIT_CITATION_POLICY ${row.id} ${reason}`);
@@ -594,19 +686,10 @@ function auditCitationPolicy(text) {
     const cells = auditRowCells(text, row.id);
     if (!cells || cells.length !== 7 || cells[1] !== row.sourceIssue) return reject('row-shape-or-source-issue');
     const authorityCell = cells[4];
-    const refs = [...authorityCell.matchAll(/`([^`]+):(\d+)`/g)]
-      .map((match) => ({ path: match[1], line: Number(match[2]) }));
-    const expectedAuthorities = AUTHORITY_BY_ROW.get(row.id);
-    if (!expectedAuthorities || expectedAuthorities.length === 0) return reject('authority-contract-missing');
-    const expectedRefs = [];
-    for (const expected of expectedAuthorities) {
-      const absolute = resolve(root, expected.path);
-      if (!existsSync(absolute)) return reject(`expected-path-missing=${expected.path}`);
-      const source = read(absolute);
-      const exactLine = lineOf(source, expected.pattern);
-      if (exactLine === 0 || exactLine > source.split('\n').length) return reject(`expected-pattern-missing=${expected.label}`);
-      expectedRefs.push({ path: expected.path, line: exactLine });
-    }
+    const tuples = [...authorityCell.matchAll(/`([a-z]+):([a-z0-9-]+)` -> `([^`]+):(\d+)`/g)]
+      .map((match) => ({ kind: match[1], label: match[2], path: match[3], line: Number(match[4]) }));
+    const expectedRefs = authorityInventory.get(row.id);
+    if (!expectedRefs || expectedRefs.length === 0) return reject('authority-contract-missing');
     // Preserve the original row's primary source binding as a cross-check on
     // the complete subclaim model rather than silently replacing it.
     const primarySource = row.sourcePath === 'AGENTS.md' ? currentText : read(resolve(root, row.sourcePath));
@@ -615,23 +698,22 @@ function auditCitationPolicy(text) {
       return reject(`primary=${row.sourcePath}:${primaryLine}-not-modeled`);
     }
     // Validate every parsed reference independently before set comparison.
-    for (const ref of refs) {
+    for (const ref of tuples) {
       if (ref.path.startsWith('/') || ref.path.split('/').includes('..')) return reject(`unsafe-path=${ref.path}`);
       const absolute = resolve(root, ref.path);
       if (!existsSync(absolute)) return reject(`actual-path-missing=${ref.path}`);
       const lineCount = read(absolute).split('\n').length;
       if (!Number.isInteger(ref.line) || ref.line < 1 || ref.line > lineCount) return reject(`actual-line-out-of-range=${ref.path}:${ref.line}`);
     }
-    const keys = refs.map((ref) => `${ref.path}:${ref.line}`);
-    const expectedKeys = expectedRefs.map((ref) => `${ref.path}:${ref.line}`);
-    if (new Set(keys).size !== keys.length) return reject('duplicate-reference');
-    if (keys.length !== expectedKeys.length || keys.some((key) => !expectedKeys.includes(key))) {
+    const keys = tuples.map((ref) => `${ref.kind}:${ref.label}->${ref.path}:${ref.line}`);
+    const expectedKeys = expectedRefs.map((ref) => `${ref.kind}:${ref.label}->${ref.path}:${ref.line}`);
+    if (new Set(keys).size !== keys.length) return reject('duplicate-authority-tuple');
+    if (keys.length !== expectedKeys.length || keys.some((key, index) => key !== expectedKeys[index])) {
       return reject(`actual=${JSON.stringify(keys)} expected=${JSON.stringify(expectedKeys)}`);
     }
     const residue = authorityCell
-      .replace(/`[^`]+:\d+`/g, '')
-      .replace(/\band\b/g, '')
-      .replace(/[\s,;]+/g, '');
+      .replace(/`[a-z]+:[a-z0-9-]+` -> `[^`]+:\d+`/g, '')
+      .replace(/[\s;]+/g, '');
     if (residue.length > 0) return reject(`vague-residue=${JSON.stringify(residue)}`);
   }
   return true;
@@ -670,8 +752,8 @@ function auditCitationMutationChecks() {
   assert.ok(!auditCitationPolicy(vague), 'vague row authority must fail even after document hashes are refreshed');
   console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
   const focusedAuthorityMutations = [
-    ['A20', 'policy-aware summary gate', 'extra'],
-    ['A09', 'fallback requires acknowledgement', 'extra'],
+    ['A20', 'done-policy-summary-requirement', 'extra'],
+    ['A09', 'init-repair-explicit-acknowledgement-guard', 'extra'],
   ];
   for (const [rowId, label, marker] of focusedAuthorityMutations) {
     const expected = AUTHORITY_BY_ROW.get(rowId);
@@ -774,6 +856,29 @@ function externalReviewArtifactChecks() {
   } else {
     console.log('EXTERNAL_ARTIFACT agy availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
   }
+}
+
+if (process.argv.includes('--authority-inventory')) {
+  const inventory = resolvedAuthorityInventory();
+  let total = 0;
+  let runtime = 0;
+  for (const row of AUDIT_ROWS) {
+    const entries = inventory.get(row.id);
+    total += entries.length;
+    runtime += entries.filter((entry) => entry.kind === 'runtime').length;
+    console.log(`AUTHORITY ${row.id} ${renderAuthorityCell(entries)}`);
+  }
+  console.log(`AUTHORITY_INVENTORY rows=${inventory.size} entries=${total} runtime=${runtime}`);
+  process.exit(0);
+}
+
+if (process.argv.includes('--authority-policy')) {
+  assert.ok(auditCitationPolicy(auditText), 'audit authority cells must match the complete ordered claim partition');
+  const inventory = resolvedAuthorityInventory();
+  const total = [...inventory.values()].reduce((sum, entries) => sum + entries.length, 0);
+  const runtime = [...inventory.values()].flat().filter((entry) => entry.kind === 'runtime').length;
+  console.log(`AUTHORITY_POLICY PASS rows=${inventory.size} entries=${total} runtime=${runtime}`);
+  process.exit(0);
 }
 
 let exitCode = runAuditRows();
