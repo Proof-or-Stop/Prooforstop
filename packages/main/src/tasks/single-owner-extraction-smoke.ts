@@ -1706,11 +1706,21 @@ function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VER
   const lines: string[] = [];
   lines.push('resolveGitCwd call sites');
   lines.push(`  scope: packages/main/src/handlers/*.ts -- ${report.scannedFiles} files scanned, ${report.callers.length} real callers, ${report.commentOnly.length} comment-only mentions, ${report.unboundCallMentions.length} unbound code mentions`);
-  lines.push('  rule: caller = a CALL EXPRESSION of the resolver binding imported from core/story-signed-workspace-resolution (aliases resolved; comments, strings, templates, regexes masked);');
-  lines.push(`        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no \`new StoryStore(\`, every ${CONFIG_LOADERS.join('/')} argument starts with <ws>., and no handler is invoked on the context, where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config|via-handler(...)>`);
-  lines.push('        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context; local callees, arrow parameters and resolveStoryWorkspace itself are not delegations');
+  if (verbose) {
+    lines.push('  rule: caller = a CALL EXPRESSION of the resolver binding imported from core/story-signed-workspace-resolution (aliases resolved; comments, strings, templates, regexes masked);');
+    lines.push(`        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no \`new StoryStore(\`, every ${CONFIG_LOADERS.join('/')} argument starts with <ws>., and no handler is invoked on the context, where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config|via-handler(...)>`);
+    lines.push('        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context; local callees, arrow parameters and resolveStoryWorkspace itself are not delegations');
+  } else {
+    // F-007: the default block must fit the verification executor's selector window with the rest of the smoke;
+    // the full rule text, the call lines and the per-read lines are printed under SINGLE_OWNER_AUDIT_VERBOSE=1.
+    lines.push(`  rule: caller = a CALL EXPRESSION of the imported resolver binding; workspace-rooted = every story/checklist/config read and every handler call goes through a resolveStoryWorkspace() result; otherwise reads ctx.root: <story|checklist|config|via-handler(<callee>, ...)>; full rule, call lines and per-read lines: SINGLE_OWNER_AUDIT_VERBOSE=1`);
+  }
   lines.push(`  callers (${report.callers.length}):`);
   for (const caller of report.callers) {
+    if (!verbose) {
+      lines.push(`    ${caller.file.padEnd(width)}  ${classificationOf(caller)}`);
+      continue;
+    }
     const calls = caller.callLines.map((line) => `L${line}`).join(',');
     const detail = caller.remainingReads.length ? `  -- ${describeReads(caller.remainingReads)}` : '';
     lines.push(`    ${caller.file.padEnd(width)}  calls ${calls.padEnd(18)}  ${classificationOf(caller)}${detail}`);
@@ -1801,7 +1811,7 @@ function readRootPackageJson(): { scripts: Record<string, string> } {
 
 /** Chars the audit case actually printed (whichever mode), so the bound case can swap in the default rendering. */
 let printedAuditChars = 0;
-const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) stdout of the whole smoke is under 10000 chars so the CHK-004 selectors sit inside the verification executor 12000-char window; per-read detail prints only in verbose mode';
+const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 10000 chars';
 
 function renderedChars(lines: string[]): number {
   return lines.reduce((total, line) => total + line.length + 1, 0);
@@ -1825,6 +1835,15 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
         assert.ok(source.includes('story-signed-workspace-resolution'), `${caller.file}: a real call needs an import binding for the resolver; a file without one is a mention, not a caller`);
         assert.ok(caller.workspaceRooted || caller.remainingReads.length > 0, `${caller.file}: a flagged caller must name at least one remaining ctx.root read`);
         assert.ok(!caller.workspaceRooted || caller.remainingReads.length === 0, `${caller.file}: a workspace-rooted caller has no remaining ctx.root read`);
+      }
+      // The call lines live in the report (asserted above) and in the verbose rendering; the default block is one
+      // `<file>  <classification>` line per caller so the block stays inside the executor's selector window (F-007).
+      const compact = renderResolverAudit(report, false);
+      const verboseLines = renderResolverAudit(report, true);
+      for (const caller of report.callers) {
+        assert.equal(compact.filter((line) => line.startsWith(`    ${caller.file} `)).length, 1, `${caller.file}: exactly one default line`);
+        assert.ok(compact.some((line) => line.startsWith(`    ${caller.file} `) && line.trimEnd().endsWith(classificationOf(caller))), `${caller.file}: the default line ends with its classification`);
+        assert.ok(verboseLines.some((line) => line.startsWith(`    ${caller.file} `) && line.includes(`calls ${caller.callLines.map((n) => `L${n}`).join(',')}`)), `${caller.file}: the verbose line carries its call lines`);
       }
     },
   },
@@ -1981,7 +2000,7 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       const verboseChars = renderedChars(renderResolverAudit(report, true));
       const tail = `[PASS] ${DEFAULT_STDOUT_BOUND_CASE_NAME}\n${total}/${total} cases passed\n${MARKER}: PASS\n`;
       const base = capturedStdoutChars - printedAuditChars + compactChars + tail.length;
-      const summaryLine = (projected: number): string => `default stdout projection: ${projected} chars (bound ${DEFAULT_STDOUT_BOUND_CHARS}; audit block compact ${compactChars} chars, verbose ${verboseChars} chars)`;
+      const summaryLine = (projected: number): string => `default stdout projection: ${projected} chars (bound ${DEFAULT_STDOUT_BOUND_CHARS}; audit block ${compactChars} chars)`;
       // The summary line below is part of the output; its length depends only on the digit count of the projection.
       let projected = base + summaryLine(base).length + 1;
       projected = base + summaryLine(projected).length + 1;
