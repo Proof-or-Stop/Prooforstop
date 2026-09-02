@@ -326,6 +326,7 @@ proof-or-stop graph --port=9000      # 显式端口
 proof-or-stop graph --no-open        # 不开浏览器
 proof-or-stop graph --json           # 只打印状态 JSON 并退出（不起服务）
 proof-or-stop graph --root=<dir>     # 指定仓库（默认从 cwd 向上找）
+proof-or-stop graph --story=B-xxxx   # 直接打开该 story 的 dossier 详情页
 ```
 
 | Flag | 含义 |
@@ -334,9 +335,16 @@ proof-or-stop graph --root=<dir>     # 指定仓库（默认从 cwd 向上找）
 | `--port=<n>` | HTTP 端口（默认 8731） |
 | `--no-open` | 不启动浏览器 |
 | `--json` | 打印状态 JSON 后退出，不起服务 |
+| `--story=<id>` | 直接打开该 story 的 dossier 详情页（`/story/<id>`），而不是图谱首页。未知 id 在服务器 listen 之前就被拒绝，并列出相近候选（与 `--root` 的既有先例一致） |
 
 页面提供 d3 图谱视图、FTS5 全文搜索、单 story detail drawer、mermaid 相位流程图，以及
 timeline playback（含 MP4/GIF 导出，需 Chrome/Edge）。
+
+**Story dossier（详情页）**：drawer 头部的 `open dossier` 按钮、或命令行 `--story=<id>`，打开
+单个 story 的全窗口详情页——finding map、七相 lifecycle loop、依赖 web、checklist/outcome、
+findings feed、dispatch swarm、pulse 图和 wire log。它有自己的 URL `/story/<id>`（与 `/` 同一个
+server、同一份 app.html），可直接按路径打开、分享、用浏览器前进后退驱动。全部面板由客户端从
+既有的 `/api/story` 明细派生，不新增服务端接口。
 
 **worktree 优先级是关键**：从 PLAN 起 story 的实时产物在它自己的 linked worktree 里，主
 checkout 只留 INIT_CHECK 快照。只读主 checkout 会把所有在飞 story 都报成 INIT_CHECK。
