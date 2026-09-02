@@ -110,9 +110,24 @@ a simulated discovery-file write each made the corresponding check fail.
 
 ## Test-surface placement
 
-Two test lists in this repository are separately maintained, and **neither is a subset of
-the other**: `validate.commands` in the project config, and `test:serial-reference` in the
-root `package.json`.
+**Three** membership authorities in this repository are separately maintained, and **none is
+a subset of another**:
+
+1. `validate.commands` in the project config.
+2. `test:serial-reference` in the root `package.json` (plus the `test:<name>` script it names).
+3. `RESOURCE_POLICY` in `packages/main/src/tasks/full-suite-runner.ts`.
+
+The third is the easiest to miss and the most punishing to omit. `entriesFromSerialReference`
+**fails closed**: a `test:serial-reference` member with no `RESOURCE_POLICY` entry aborts the
+**entire root test suite** with `canonical inventory mismatch unknownPolicy=[…]`, rather than
+merely skipping that member. So forgetting it does not under-test one task — it takes down
+`npm test` for the whole repository.
+
+This has now bitten three stories: B-cdf6 and B-49ed (recorded in the comments beside their
+own entries in that file), and B-9f2c, whose CHK-005 modelled its plan on the earlier
+**two**-list wording of this very section and consequently registered its new smoke task in
+lists 1 and 2 only. `npm test` then exited 1 in 858ms and blocked `done_required_validate`.
+Registering a new test task means editing all three lists, not two.
 
 This matters here because of a trap worth naming. `validate.commands` runs
 `npm --prefix packages/main run build`, **not** the root `npm run build`. Adding
