@@ -471,7 +471,7 @@
       "desc": "AGENTS.md:297-303 and tests/AGENTS.verify.mjs:53 — WHY high acceptance blocker: M14 is still only partially GREEN. The original defect explicitly included unresolved scope-check openQuestions and the ProofStory/scope-contract prerequisites, but the final PLAN guidance names signed scope-check evidence and generic scope/memory readiness without telling the operator that every scope-check open question must be resolved through scope_question_resolve before story_review can pass, and it does not identify the scope-contract prerequisite. Current packages/main/src/handlers/story-review.ts:661-682 creates a blocking scope_open_question_unresolved issue, while the A14 GREEN predicate checks only the phrase signed scope-check.json evidence and a lifecycle-registry scope-check token. Therefore A14 can report GREEN without the omitted current gate semantics being delivered. Add the missing open-question resolution and scope-contract guidance and make A14 mechanically require those distinct corrections.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T01:40:00.424Z",
@@ -479,7 +479,11 @@
       "reviewRunId": "B-d854:RR-009",
       "_hash": "6a7939e5316b905c11ec8b3c1865aa70e2042b540a4fe3e5ae6e4ae71728a9c0",
       "signatureTag": "missing|unknown|agents-tests-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "AGENTS now states the signed scope-check, supported scope_question_resolve flow for unresolved openQuestions, scope_contract_init_from_plan/set/check prerequisites, and the advisory-versus-hard gate boundary. M14 omission and inversion mutations are rejected.",
+      "resolvedAt": "2026-09-02T02:06:06.197Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-023",
