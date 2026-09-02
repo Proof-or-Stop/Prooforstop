@@ -142,7 +142,35 @@
       "userSees": "grep -n -- --story CLAUDE.md packages/graph/README.md prints matches in both files",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "both CLAUDE.md and packages/graph/README.md document the --story flag",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "the README endpoint table lists the /story/<id> route",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the README still describes the command as proof-or-stop graph and keeps its How the CLI reaches this package section after the upstream port",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the README does not tell readers to run a proof-or-stop-graph binary, which this repository does not ship",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
