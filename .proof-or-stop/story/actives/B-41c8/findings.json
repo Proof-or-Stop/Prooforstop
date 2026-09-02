@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: CHK-003 deleted session.ts listActiveWorktrees(), but packages/main/src/tasks/gitroot-cwd-contract-smoke.ts:166-168 still names it in the allowlist comment (\"listActiveWorktrees / branch probe: an inline-arg bare-root git probe used to enumerate worktrees / infer the active story before a storyId is in scope\") as the rationale for exempting the whole handlers/session.ts file. The function no longer exists in session.ts; the exemption is still valid only because of the unrelated branch-probe execSync calls that remain (lines 104/161/165), so the comment now misattributes its own justification to a deleted symbol and will mislead a future reader into searching for listActiveWorktrees in session.ts.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T14:57:32.395Z",
@@ -16,7 +16,8 @@
         "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-deleted",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-02T15:54:08.236Z"
     },
     {
       "id": "B-41c8:F-002",
