@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c86f",
+  "allowedCommands": [
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node packages/main/tests/red/red-dev-memory-material.mjs",
+    "npm --prefix packages/main run build",
+    "proof-or-stop validate",
+    "proof-or-stop validate --lint"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/red/",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Implementer works in the story worktree only; no remote writes.",
+  "createdAt": "2026-09-02T15:04:56.512Z",
+  "updatedAt": "2026-09-02T15:04:56.512Z",
+  "_hash": "a00203dfa1f917daf9fe61558385c97e8609a3327786d089dfca9c1b1eba1b99"
+}
