@@ -8,7 +8,8 @@
     "Four implementations resolve a story's store/git tree/config for wherever its work lives: handlers/story-query.ts readStoryProjection, handlers/session.ts listActiveWorktrees and readStoryFromLinkedWorktree, core/local-assurance-story-projection.ts collectLinkedStoryWorktrees, and handlers/validation-plan.ts resolveStoryWorkspace (added by B-a745 F-010). story-query.ts and session.ts gate linked-worktree reads on phase !== 'DONE' && phase !== 'DISCARDED'; validation-plan.ts does not.",
     "resolveGitCwd in core/story-signed-workspace-resolution.ts is the shared gitCwd chokepoint and is the only one of the four that honours story.worktree.path plus a configured gitRoot, which is why it alone handles a wrapper-root layout.",
     "A file-level grep for resolveGitCwd( over packages/main/src/handlers on main matches thirty-one files, and at least one (validate-channel.ts line 417) is a comment-only mention; validate-channel.ts receives gitCwd threaded from handlers/review-preflight.ts as deps.gitCwd. A file-level grep therefore over-counts and a hand-written list under-counts; only a call-expression scan is reliable.",
-    "B-a745 finding F-010 proved that fixing gitCwd alone is insufficient: run from the main checkout its planner still read main's stale checklist and validate.commands until the store and config were also resolved from the workspace (18 versus 19, then 51 versus 19 unclassified inputs before the full fix)."
+    "B-a745 finding F-010 proved that fixing gitCwd alone is insufficient: run from the main checkout its planner still read main's stale checklist and validate.commands until the store and config were also resolved from the workspace (18 versus 19, then 51 versus 19 unclassified inputs before the full fix).",
+    "validation-command-identity.ts (parseLegacyValidationCommandString) and story-signed-workspace-resolution.ts (resolveGitCwd) are consumed unchanged by this story; they are dependencies, not touchpoints."
   ],
   "constraints": [
     "Every behaviour change lands RED first: a failing fixture precedes its implementation commit, and the RED-before-GREEN guard in the suite must cover the commits.",
@@ -25,8 +26,6 @@
   "touchpoints": [
     "packages/main/src/core/evidence-freshness.ts",
     "packages/main/src/core/done-required-validation.ts",
-    "packages/main/src/core/validation-command-identity.ts",
-    "packages/main/src/core/story-signed-workspace-resolution.ts",
     "packages/main/src/core/story-workspace.ts",
     "packages/main/src/core/local-assurance-story-projection.ts",
     "packages/main/src/handlers/story-query.ts",
@@ -37,5 +36,5 @@
     "package.json",
     "proof-or-stop.config.json"
   ],
-  "timestamp": "2026-09-02T13:36:34.933Z"
+  "timestamp": "2026-09-02T13:44:06.628Z"
 }
