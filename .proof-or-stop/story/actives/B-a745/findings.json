@@ -169,7 +169,7 @@
       "desc": "finding_resolve prose for F-006 (validation-tier-planner.ts, commit c94c88cbdb) states the dead export VALIDATION_STOP_REASON_CODES now has \"14 references across the core and the suite,\" but no plausible independent grep reproduces 14: exact-token VALIDATION_STOP_REASON_CODES=5 occurrences (incl. its own declaration), and the full derived-symbol family (VALIDATION_STOP_REASON_CODES + VALIDATION_STOP_REASON_CODE_SET + isValidationStopReasonCode + assertStopReason) totals 19 occurrences including 4 declarations, or 15 excluding declarations -- never 14 under any consistent counting rule I could construct. The QUALITATIVE claim this number supports (the export is genuinely load-bearing in production control flow via firstStopEscalation()/assertStopReason(), not merely referenced from the fixture) is independently verified true by reading validation-tier-planner.ts:488-600 -- so this is not a load-bearing overstatement, just an unreproducible precise metric asserted as fact in an audit-relevant resolution text.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T03:50:54.718Z",
@@ -180,7 +180,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "missing|ts|finding-resolve-prose",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Valid finding, accepted in full, and the reviewer's counting is correct rather than mine. I re-ran the counts myself instead of re-relaying: `grep -rho '<token>' packages/main/src | wc -l` gives VALIDATION_STOP_REASON_CODES 5, VALIDATION_STOP_REASON_CODE_SET 2, isValidationStopReasonCode 9, assertStopReason 3. No counting method produces 14, so the figure in the original F-006 resolution was simply wrong. ROOT CAUSE, which matters more than the number: I copied an artifact figure out of a subagent report into a durable audit record without running the query. This project's own dev-memory records exactly this anti-pattern -- a figure about an artifact is a second copy of something that lives elsewhere and drifts without you, and a claim must never be stated wider than the check actually run. I had that lesson in context and still did it, in a finding resolution, which is precisely the kind of durable record where it does damage. FIX APPLIED: F-006's resolution has been re-recorded. It now withdraws the figure explicitly, states the qualitative claim that is actually load-bearing (the table is consulted in production control flow, not only from a fixture), names the exact grep that establishes it, and cites the four concrete line numbers rather than a count. SEVERITY NOTE: the reviewer classified this low and reasoned that the qualitative claim it supported does check out, so nothing downstream was decided on the false figure. I agree with that assessment and am not escalating it; the correction is recorded because an audit record that cannot be reproduced is worse than one that says less.",
+      "resolvedAt": "2026-09-02T03:53:14.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
