@@ -572,20 +572,28 @@ export function renderValidationPlanText(report: ValidationPlanReport, explain: 
 }
 
 /**
- * B-a745 F-010: the StoryStore to READ the story's own metadata from. When the
- * resolved git directory is a different checkout than the invocation root and it
- * carries the story's metadata, that copy is authoritative for an active story;
- * otherwise (same tree, or the tree has no readable copy) the invocation root's
- * store is used. Read-only: the returned store is only ever read.
+ * B-a745 F-010: the project the story's plan is ABOUT. When the resolved git
+ * directory is a different checkout than the invocation root and it carries the
+ * story's metadata (a linked story worktree on the plain layout), that checkout
+ * is the story's project root: its config, command inventory, story record and
+ * checklist are the ones the story branch evolved, and main's committed copies
+ * are the stale INIT snapshot. Otherwise (same tree, or a tree with no readable
+ * copy, such as a wrapper-root layout that keeps metadata outside git) the
+ * invocation root and its store are used. Read-only: the store is only read.
  */
-function resolveStoryWorkspaceStore(store: StoryStore, root: string, gitCwd: string, storyId: string): StoryStore {
-  if (resolve(gitCwd) === resolve(root)) return store;
+function resolveStoryWorkspace(
+  store: StoryStore,
+  root: string,
+  gitCwd: string,
+  storyId: string,
+): { store: StoryStore; projectRoot: string } {
+  if (resolve(gitCwd) === resolve(root)) return { store, projectRoot: root };
   try {
     const workspaceStore = new StoryStore(gitCwd);
     workspaceStore.readStory(storyId);
-    return workspaceStore;
+    return { store: workspaceStore, projectRoot: gitCwd };
   } catch {
-    return store;
+    return { store, projectRoot: root };
   }
 }
 
@@ -616,27 +624,30 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         projectRoot: root,
         config: loadConfig(root),
       });
-      // The story record and checklist evolve on the story branch (evidence pins,
-      // checklist progress), so when the story's tree is a different checkout
-      // that carries its own copy of the metadata, read THAT copy: main's
-      // committed copy is the stale INIT snapshot. Same projection story_get and
-      // session_brief already apply to active linked-worktree stories. A tree
-      // without the metadata (a wrapper-root layout keeps it outside git) falls
-      // back to the invocation root's store; nothing is written either way.
-      const storyStore = resolveStoryWorkspaceStore(store, root, gitCwd, request.storyId);
+      // The story record, checklist and command inventory evolve on the story
+      // branch (evidence pins, checklist progress, newly registered commands),
+      // so when the story's tree is a different checkout that carries its own
+      // copy of the metadata, plan over THAT checkout: main's committed copies
+      // are the stale INIT snapshot. Same projection story_get and session_brief
+      // already apply to active linked-worktree stories. A tree without the
+      // metadata (a wrapper-root layout keeps it outside git) falls back to the
+      // invocation root; nothing is written either way.
+      const workspace = resolveStoryWorkspace(store, root, gitCwd, request.storyId);
+      const storyStore = workspace.store;
+      const projectRoot = workspace.projectRoot;
 
       const story = storyStore.readStory(request.storyId);
       const checklist = storyStore.readChecklist(request.storyId);
-      const routine = resolveRoutineValidationSourceForPlan(root);
+      const routine = resolveRoutineValidationSourceForPlan(projectRoot);
       const doneRequired = storyStore.readDoneRequiredEvidence(request.storyId);
       const artifacts: SignedValidationDurationArtifact[] = doneRequired
         ? [doneRequired as unknown as SignedValidationDurationArtifact]
         : [];
 
       const input = collectStoryRelevanceInput({
-        projectRoot: root,
+        projectRoot,
         gitCwd,
-        metadataRoot: root,
+        metadataRoot: projectRoot,
         story: {
           storyId: request.storyId,
           phase: story.phase,
@@ -654,7 +665,7 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
       // is never an identity input; it exists so an operator recognises the row.
       const unitLabels = new Map<string, string>();
       if (routine.commands.length > 0) {
-        for (const entry of buildValidationCommandInventory({ projectRoot: root, commands: routine.commands }).entries) {
+        for (const entry of buildValidationCommandInventory({ projectRoot, commands: routine.commands }).entries) {
           unitLabels.set(entry.id, entry.label);
         }
       }
