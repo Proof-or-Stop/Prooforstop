@@ -18862,6 +18862,23 @@
       "resolvedAt": "2026-09-02T07:00:58.626Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-349",
+      "desc": "DEFERRED with evidence (unclaimed scope, transient race, not caused by this story): validate command 113/116 (npm --prefix packages/graph run check) failed with UNEXPECTED_PROJECT_WRITE - 'content of an existing tracked/untracked file changed during the scan'. ROOT CAUSE, measured not guessed: validate writes and COMMITS its own metadata mid-run - commit 5d6f77dafe 'record B-5a15 validate metadata' rewrote .proof-or-stop/story/actives/B-5a15/test-evidence.json by 2199 lines plus process-events.jsonl and closeout-write-receipts.jsonl. The graph verify-no-project-writes probe runs AS command 113 inside that same validate invocation, and validate schedules commands concurrently (stderr shows command 113 starting at 134.9s and command 114 at 141.7s while 113 was still running, with 113 ending after both). So the probe hashes the repository, validate's own evidence write lands inside that window, and the probe correctly reports that the inspected repo changed - it is detecting the harness it runs inside, not a defect in the graph command. EVIDENCE IT IS TRANSIENT AND NOT A REAL WRITE LEAK: run standalone on a quiet tree, node packages/graph/scripts/verify-no-project-writes.mjs reports 'repository byte-identical across a full scan (14772 paths hashed)' and NO_PROJECT_WRITES_OK; the full npm --prefix packages/graph run check exits 0 with bench PASS. git status is clean with 0 entries afterwards, so nothing was actually left behind. WHY NOT THIS STORY'S DEFECT: packages/graph is absent from B-5a15's signed scope contract (zero graph paths in allowedModify/allowedCreate/allowedTest) and git diff --name-only main...HEAD -- packages/graph returns 0 files, so this story changed nothing there. 115 of 116 validate commands passed. NOTE the misleading surface that cost two diagnostic rounds here: validate exits 0 even when it fails - the first run exited 0 with a 0-byte JSON and had actually been refused with causal_preflight_refused state_changed_before_launch, and this run exited 0 with allPass:false status:fail. Never read validate's exit code as the verdict; parse allPass from --json. FOLLOW-UP MUST: in a dedicated framework story, either exclude story-metadata paths from the graph probe's hash set, or serialize the probe so it cannot overlap validate's own evidence commit.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T07:29:46.243Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "_hash": "14220b358a9b4d5ff42db6905533a44a81c8a669a1d1b7b31b20419beaf1f6b1",
+      "files": [
+        "packages/graph/scripts/verify-no-project-writes.mjs"
+      ],
+      "signatureTag": "missing|mjs|deferred-evidence-unclaimed",
+      "signatureTagSource": "auto"
     }
   ]
 }
