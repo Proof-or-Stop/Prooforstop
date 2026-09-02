@@ -75,6 +75,24 @@
       ],
       "signatureTag": "edge|ts|validation-tier-planner",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-005",
+      "desc": "Incomplete registration of the new smoke suite: validation-tier-planner-smoke is registered in the root test:serial-reference chain and in RESOURCE_POLICY, but NOT in proof-or-stop.config.json validate.commands. Consequence, and this is acceptance-blocking: every verification-evidence pin recorded by this Story names `node packages/main/dist/tasks/validation-tier-planner-smoke.js`, which is therefore absent from the planner's command universe, so resolveValidationCommandPin returns pinned_command_missing and the planner stops. `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` now prints `status: stop`, `selected: 0 of 0 validation unit(s)` and `[pinned_command_missing]` instead of the plan named in this Story's acceptance claim ACC-001-explain-output (requestedTier story-fast, effectiveTier repository-full, a runtime-derived selected-of-total count, finalAuthority: no). The planner is NOT at fault: the spec's fail-closed matrix mandates `Explicit command pin does not resolve -> Stop; no PASS artifact -> pinned_command_missing`, and the tool correctly detected a real defect in the Story that built it. Convention evidence that validate.commands is the right home: 65 of the 120 existing validate.commands entries are exactly the shape `node packages/main/dist/tasks/<name>-smoke.js`, so this suite is the odd one out rather than a special case. FIX: add the suite to validate.commands following the neighbouring entry shape including a resources claim. Do NOT fix by re-pinning the evidence at some other command, which would break the correspondence between each intent and the case that actually proves it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T03:04:07.535Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "_hash": "b6ab06ff3066b215fdbc3a88fd93a6f70ddd18b3925d8d9f2fc368dd118eb3e6",
+      "files": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|json|incomplete-registration-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
