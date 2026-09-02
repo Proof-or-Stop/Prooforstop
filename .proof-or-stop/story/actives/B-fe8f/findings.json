@@ -420,6 +420,27 @@
       "resolvedReason": "Fixed in commit 5fbda23bf8 (fix(finding-ledger): bind replay and mirror authority): exactRequestDigest is now part of the signed FindingLedgerReceipt bundle (FINDING_LEDGER_RECEIPT_EXACT_REQUEST_KEYS) and replay admission recomputes the canonical digest of the incoming request and requires it to equal the signed value, so a persisted receipt whose exactRequestDigest was edited to the digest of a different payload no longer relabels that payload as an accepted replay. Verified by finding-ledger-runtime-smoke case ledger.idempotency_digest_relabel_refused: PASS replayV2=refused persistedVersion=1 signedBinding=true semanticRelabels=4 carrierRelabels=5 legacyReplay=refused.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-019",
+      "desc": "quality-cleanup: packages/main/src/core/finding-runtime-evidence.ts:10 exports FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT and packages/main/src/handlers/finding-runtime-evidence.ts:24 exports FINDING_RUNTIME_EVIDENCE_COMMANDS, but neither constant is imported or referenced anywhere else in the repo (grep across packages/main src/tests/scripts finds zero consumers) — dead code, not used to enforce or document any live contract check.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:20:41.612Z",
+      "reviewRound": "2026-09-02T08:08:26.916Z",
+      "reviewRunId": "B-fe8f:RR-017",
+      "_hash": "ea86da76e175950c6f00ce2339216645fd659915ff7413a158e7a0a664b685f9",
+      "files": [
+        "packages/main/src/core/finding-runtime-evidence.ts",
+        "packages/main/src/handlers/finding-runtime-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtjttix9_l9j_595cfd05035d4985a56b88b0eeaccfd8",
+      "ledgerCommitReceiptId": "lrc_mtjttix9_l9j_c2d0dfc7bb1645e484a70519f720ce52"
     }
   ]
 }
