@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8d60",
+  "checkedAt": "2026-09-02T13:23:53.920Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "797124b2fae59cf639dd483914e184bb48748512d00a9700b994aff59048c87c",
+  "executionBoundaryHash": "a2f544bd5c435600e5f0fb477d759ee61f456caddc2c27e88b1591a67f154f42",
+  "freshnessHash": "a90ab58cba340a2a1559b189fa9cbc0e492e31ed7629686c8cfaf35ef572b408",
+  "effectiveExcludedKeywords": [
+    "Any change to the frozen GAP_LOG_PROVENANCE_SCHEMA literal or other identity-cutover frozen classes",
+    "Authority",
+    "customerKeyRef",
+    "Deleting the legacy ledger and restarting from genesis as the primary path",
+    "Global CLI symlink pointing at a story worktree; tracked by draft global-cli-worktree-drift",
+    "Layer4",
+    "Re-signing or rewriting the 32 legacy receipts under a new key",
+    "repair UX",
+    "Sibling keyed ledgers (acceptance-basis, acceptance-rollout, pre-review-check, finding-ledger) key-loss handling; tracked separately"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to the frozen GAP_LOG_PROVENANCE_SCHEMA literal or other identity-cutover frozen classes",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the frozen GAP_LOG_PROVENANCE_SCHEMA literal or other identity-cutover frozen classes",
+      "excluded": true
+    },
+    {
+      "keyword": "Deleting the legacy ledger and restarting from genesis as the primary path",
+      "source": "scopeBoundary.excluded",
+      "text": "Deleting the legacy ledger and restarting from genesis as the primary path",
+      "excluded": true
+    },
+    {
+      "keyword": "Global CLI symlink pointing at a story worktree; tracked by draft global-cli-worktree-drift",
+      "source": "scopeBoundary.excluded",
+      "text": "Global CLI symlink pointing at a story worktree; tracked by draft global-cli-worktree-drift",
+      "excluded": true
+    },
+    {
+      "keyword": "Re-signing or rewriting the 32 legacy receipts under a new key",
+      "source": "scopeBoundary.excluded",
+      "text": "Re-signing or rewriting the 32 legacy receipts under a new key",
+      "excluded": true
+    },
+    {
+      "keyword": "Sibling keyed ledgers (acceptance-basis, acceptance-rollout, pre-review-check, finding-ledger) key-loss handling; tracked separately",
+      "source": "scopeBoundary.excluded",
+      "text": "Sibling keyed ledgers (acceptance-basis, acceptance-rollout, pre-review-check, finding-ledger) key-loss handling; tracked separately",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "bf4b5c35403d44765d09f0e1d4530b78693ceb3ef5a75482dca7210227759958"
+}

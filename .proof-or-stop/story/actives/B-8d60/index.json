@@ -4,7 +4,7 @@
   "title": "Restore gap_log by re-anchoring the B-META provenance chain across the identity cutover and re-clone",
   "description": "gap_log has been unusable on main since B-cc10 flipped GAP_LOG_ARTIFACT_PATH to .proof-or-stop/ (commit 8c0bd7b87c, 2026-08-17): every call fails with 'existing provenance chain is not extendable (invalid_binding_shape)'. Two independent breaks must be handled by one explicit migration design: (1) all 32 legacy receipts carry '.lattice/' artifactPath/ledgerPath literals inside the signed payload and the verifier resolves receipt 1's genesis anchor at the new path, so the chain fails before any HMAC check; (2) the HMAC key lived in .git/ and was lost when the repository was re-cloned on 2026-08-30, so the legacy HMACs can never be re-verified. The artifact content itself is intact (current findings.json digest equals receipt 32 postArtifactDigest). B-49df did not fix this; its runtime probe only recorded the failure.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "gap_log",
@@ -36,6 +36,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-54813154d0a8c9c54a45a9318f058f02",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T13:23:57.823Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-54813154d0a8c9c54a45a9318f058f02",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-8d60",
+    "branch": "story/B-8d60",
+    "createdAt": "2026-09-02T13:23:54.552Z"
+  }
 }
