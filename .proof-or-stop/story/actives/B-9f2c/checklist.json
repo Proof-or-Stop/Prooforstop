@@ -196,7 +196,11 @@
           {
             "desc": "a nested path such as /story/a/b does not match the dossier route and is not served the shell",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);const re=eval(m[0]);const cases=[[\"/story/B-9f2c\",true],[\"/story/a/b\",false],[\"/story/a/b/c\",false],[\"/story/\",false]];let ok=true;for(const [p,want] of cases){if(re.test(p)!==want)ok=false;}console.log(ok?\"NESTED_STORY_PATH_REJECTED_OK\":\"NESTED_STORY_PATH_REJECTED_FAIL\");process.exit(ok?0:1);'",
+              "selector": "NESTED_STORY_PATH_REJECTED_OK"
+            }
           }
         ],
         "adversarial": [
@@ -257,6 +261,27 @@
           "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:39:22.183Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/graph/src/io/http.ts",
+          "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);const re=eval(m[0]);const cases=[[\"/story/B-9f2c\",true],[\"/story/a/b\",false],[\"/story/a/b/c\",false],[\"/story/\",false]];let ok=true;for(const [p,want] of cases){if(re.test(p)!==want)ok=false;}console.log(ok?\"NESTED_STORY_PATH_REJECTED_OK\":\"NESTED_STORY_PATH_REJECTED_FAIL\");process.exit(ok?0:1);'",
+          "result": "pass",
+          "note": "Uses the same regex extracted from http.ts and asserts the nested paths /story/a/b and /story/a/b/c plus the bare /story/ do NOT match, because the pattern segment is [^/]+; only single-segment story ids are served the shell.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ec77a08d79b51763e946568f88b22c3fcd10ea93e638b0541e3028cdc7f3f29c",
+            "outputTail": "NESTED_STORY_PATH_REJECTED_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:39:23.147Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "7ba7425e3194dada662efe73f0f3a7be84b2cc87",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:39:23.309Z"
         }
       ]
     },
