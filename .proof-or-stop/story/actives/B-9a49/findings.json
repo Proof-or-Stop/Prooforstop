@@ -943,6 +943,26 @@
       "resolvedAt": "2026-09-02T00:24:15.994Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-042",
+      "desc": "The executable Agent-side proposal still identifies the five active modular REVIEW roles as retired lattice-review-* IDs at lines 64-68. After the approved canonical identity migration, prompt-registry.ts lines 25-31 and prompt-role-contract-registry.ts lines 269-353 expose the active lanes only as proof-or-stop-review-behavior, proof-or-stop-review-concept, proof-or-stop-review-docs, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage. Read-only reproduction: `rg -n 'lattice-(review|implementer)|proof-or-stop-(review|implementer)' docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md packages/main/src/core/prompt-registry.ts packages/main/src/core/prompt-role-contract-registry.ts` shows the document/runtime contradiction, while `node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only` and the full registry smoke pass for the canonical runtime. Because this document is the user-requested open-source execution proposal and expressly claims to enumerate current affected Agent surfaces, the retired IDs are a direct acceptance/documentation blocker. Replace only those five names with the canonical proof-or-stop-review-* IDs; do not change Dynamic Finding runtime semantics or the bounded migration waivers.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T01:47:45.814Z",
+      "reviewRound": "2026-09-02T01:42:52.484Z",
+      "reviewRunId": "B-9a49:RR-066",
+      "_hash": "1684fea37122169485c3c472ea03d712bfaa7e86c28929ac941cc74a31d1ca95",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|executable-agent-side",
+      "signatureTagSource": "auto"
     }
   ]
 }
