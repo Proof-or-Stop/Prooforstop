@@ -393,16 +393,34 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
   assert.notEqual(relativeUnit.id, absoluteUnit.id, 'the portable side hashes the declared literal, so the two declarations differ');
 });
 
-testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
+testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is cwd-neutral (equals an explicit "." declaration) and carries no absolute-cwd warning', () => {
+  // B-83aa CHK-004: this case used to pin the real commandSetDigest to a literal sha, which moved
+  // whenever any story registered a validate.commands entry. The property under test is cwd
+  // neutrality, so it is asserted structurally against the same inventory instead of a literal.
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
   const commands = configuredValidationCommands(repoRoot);
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
-  assert.equal(real.commandSetDigest, 'eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661', 'the real commandSetDigest must not move for a repository that declares no cwd');
+  // Absent cwd posix-normalizes to "." (see the spellings case above), so declaring "." explicitly on
+  // every entry must reach the same digest: the real inventory is not bound to any checkout location.
+  const explicitDot = buildValidationCommandInventory({ commands: commands.map((entry) => ({ ...entry, cwd: '.' })) });
+  assert.equal(real.commandSetDigest, explicitDot.commandSetDigest, 'the real commandSetDigest must equal the digest of the same commands with an explicit "." cwd');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
+  assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
+  // Non-vacuity: ONE absolute cwd on the same command set moves the digest and is named in a warning.
+  const absoluteCwd = resolve(repoRoot);
+  const oneAbsolute = buildValidationCommandInventory({
+    commands: commands.map((entry, index) => (index === 0 ? { ...entry, cwd: absoluteCwd } : entry)),
+  });
+  assert.notEqual(oneAbsolute.commandSetDigest, real.commandSetDigest, 'an absolute cwd on one command must change the commandSetDigest');
+  assert.ok(
+    oneAbsolute.warnings.some((text) => /absolute/i.test(text) && text.includes(absoluteCwd)),
+    `the inventory must warn about the absolute declared cwd, got warnings: ${JSON.stringify(oneAbsolute.warnings)}`,
+  );
+  assert.equal(oneAbsolute.entries[0].tuple.cwdRelative, absoluteCwd);
 });
 
 // ---------------------------------------------------------------------------

@@ -692,7 +692,8 @@ const typeProgramInstrumentation = {
   dynamicFullAnalysisByFile: new Map<string, number>(),
 };
 
-const DYNAMIC_BINDING_BUILD_CEILING = 808;
+// B-83aa added packages/main/src/tasks/evidence-hash-snapshot-classifier-smoke.ts (808 -> 809); this constant is the maintenance point when a source file is added.
+const DYNAMIC_BINDING_BUILD_CEILING = 809;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
