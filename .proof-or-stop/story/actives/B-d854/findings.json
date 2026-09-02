@@ -5,7 +5,7 @@
       "desc": "AGENTS.md / B-d854 checklist evidence — acceptance-blocking missing proof: CHK-001:happy:0 and CHK-003:happy:0 claim a 26-row RED-to-GREEN audit, but rg -n \"26-row|AGENTS_RED_GREEN|RED_GREEN\" .proof-or-stop/story/actives/B-d854 AGENTS.md finds only summary prose in checklist.json; there is no row-by-row ledger, command, captured RED output, captured GREEN output, or signed receipt mapping each of the 26 asserted corrections to an authoritative source. The existing mechanical checks cover Unicode, a small token inventory, and 20 command names, not the claimed 26 behavioral rows. Because the user explicitly requested evidence that the previously identified issues were RED then GREEN, this unsupported aggregate claim blocks acceptance. Add a reproducible 26-row artifact/evidence record and bind its exact command/output to current AGENTS.md before re-review. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T00:23:39.338Z",
@@ -16,7 +16,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|agents-d854-checklist",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The committed 26-row audit ledger in docs/audits/AGENTS-current-version-audit.md and commit 46197017 provide durable RED commands, authority references, and GREEN receipts; node tests/AGENTS.verify.mjs --final exits 0.",
+      "resolvedAt": "2026-09-02T01:05:04.329Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-002",
