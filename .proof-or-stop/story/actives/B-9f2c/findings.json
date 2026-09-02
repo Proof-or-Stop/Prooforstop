@@ -72,7 +72,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:196-200 still says 'the six tasks run through TWO separately-maintained mechanisms, the same split the \"Test-surface placement\" section above describes' -- but the F-002 fix (commit 527de168c1) rewrote that section to describe THREE membership authorities (validate.commands, test:serial-reference, RESOURCE_POLICY), not two. This paragraph was not updated in the same fix, so the doc now cross-references its own earlier section with a framing that section no longer has, and the claim is also inaccurate on its own terms: test:process-fact-contract (one of the six tasks this paragraph is about) IS registered in RESOURCE_POLICY (packages/main/src/tasks/full-suite-runner.ts:180), so it participates in all three authorities, not 'only through test:serial-reference' as implied by the two-mechanism framing. This is exactly the kind of stale cross-reference the CLAUDE.md global preference on fanning out corrections warns about: fixing one occurrence of a wrong fact while leaving a second occurrence in the same file. Severity medium: this is process-fact documentation drift within a decisions doc that CHK-005's relatedDocs cites as the trap-prevention source, so a future story reading only this later paragraph could re-inherit the same two-authority misunderstanding that already caused three prior incidents (B-cdf6, B-49ed, B-9f2c CHK-005).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-02T14:53:40.640Z",
@@ -83,7 +83,11 @@
         "docs/requirements/decisions/graph-command-migration.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 9a05f7677e. The reviewer was right on both counts, and both were verified against code before the edit. First, the stale cross-reference: the paragraph said the six process-fact tasks run through 'two separately-maintained mechanisms, the same split the Test-surface placement section above describes', but the F-002 fix had already rewritten that section to describe THREE authorities, so the sentence pointed at a description that no longer existed. Second, the independent factual error: it claimed test:process-fact-contract is 'reached only through the root test:serial-reference list', yet that task carries repoRead('test:process-fact-contract') at full-suite-runner.ts:180, so it participates in all three authorities. The paragraph now says three separately-maintained membership authorities, names the RESOURCE_POLICY entry explicitly, and adds the consequence that a test:serial-reference member missing its RESOURCE_POLICY entry aborts the whole root suite rather than being skipped. This finding is a direct hit on the global working preference about fanning corrections out: my F-002 fix corrected one occurrence and missed a second occurrence IN THE SAME FILE, which is exactly the failure mode that preference exists to prevent. Corrected the process this time rather than just the text: after the edit I swept the whole file (grep for 'two separately|two test lists|two mechanisms|two membership' returns nothing) and then the entire live docs corpus including CLAUDE.md, README.md and AGENTS.md; the only two remaining hits are unrelated (docs/evidence-integrity-program-spec.md is about evidence-integrity mechanisms, and milestone-status-done-gate-reconciliation.md's 'both surfaces' refers to two callers of a shared predicate). Frozen story artifacts under docs/story/actives were deliberately excluded as historical record rather than living docs.",
+      "resolvedAt": "2026-09-02T14:55:10.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
