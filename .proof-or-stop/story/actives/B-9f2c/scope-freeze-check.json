@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9f2c",
+  "checkedAt": "2026-09-02T08:15:02.120Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "d92e631ceaec129709def0ba203835e5ce03be43c1789c19003a142a5eed70b8",
+  "executionBoundaryHash": "3f683a8148a55b5d262415d9689622cb8acfb1d1b33ad937800480a98c34cf5b",
+  "freshnessHash": "bd7a5edc7a39caa084f3c4d5651316bab04b5c6051cdb48458c0cf23c6a17490",
+  "effectiveExcludedKeywords": [
+    "Adding a separate long-running graph_story command: the user chose the --story flag instead",
+    "Changing any graph behavior that predates the 10b5921 migration baseline",
+    "Changing packages/main/src/handlers/graph.ts behavior beyond the --story flag, including the existing on-demand client build",
+    "Committing or reverting the unrelated pre-existing dirty files in the working tree",
+    "Migrating upstream commits at or before 10b5921, which are already present in this repository",
+    "Modifying story lifecycle, gate, review or DONE semantics",
+    "Redesigning or restyling the dossier page: it is ported as authored upstream, not re-authored here"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding a separate long-running graph_story command: the user chose the --story flag instead",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding a separate long-running graph_story command: the user chose the --story flag instead",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing any graph behavior that predates the 10b5921 migration baseline",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing any graph behavior that predates the 10b5921 migration baseline",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing packages/main/src/handlers/graph.ts behavior beyond the --story flag, including the existing on-demand client build",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing packages/main/src/handlers/graph.ts behavior beyond the --story flag, including the existing on-demand client build",
+      "excluded": true
+    },
+    {
+      "keyword": "Committing or reverting the unrelated pre-existing dirty files in the working tree",
+      "source": "scopeBoundary.excluded",
+      "text": "Committing or reverting the unrelated pre-existing dirty files in the working tree",
+      "excluded": true
+    },
+    {
+      "keyword": "Migrating upstream commits at or before 10b5921, which are already present in this repository",
+      "source": "scopeBoundary.excluded",
+      "text": "Migrating upstream commits at or before 10b5921, which are already present in this repository",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying story lifecycle, gate, review or DONE semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying story lifecycle, gate, review or DONE semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Redesigning or restyling the dossier page: it is ported as authored upstream, not re-authored here",
+      "source": "scopeBoundary.excluded",
+      "text": "Redesigning or restyling the dossier page: it is ported as authored upstream, not re-authored here",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "332f489506baa38cb6183b1ae22f1503be83b4217766dd262c561abb2b1dce06"
+}
