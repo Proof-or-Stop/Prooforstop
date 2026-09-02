@@ -111,6 +111,35 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-007",
+      "desc": "validate --concept flagged deletedSymbols: splitShellWords with 10 residual references. Independently verified: all 10 are non-blocking. verifier.ts commandFromString now delegates to core/validation-command-identity.ts:parseLegacyValidationCommandString (git diff confirms no shadow re-definition remains in verifier.ts; grep confirms zero matches for splitShellWords in verifier.ts). 8 of the 10 residuals (validation-tier-planner-smoke.ts:519 and validate-command-timeout-smoke.ts:29,273,293,483,497,521,531) are prose inside comments or test-case description strings, not calls. The remaining 2 (done-required-validation.ts:113,282) are that file own pre-existing, file-private splitShellWords definition/call, unrelated to the deleted verifier.ts symbol -- confirmed via git log that this function already existed on main before this story branched, done-required-validation.ts has zero imports referencing verifier.ts or validation-command-identity.ts for this symbol, and the file is scope-protected (not modified by this story). This is a false-positive concept-check residual, not a genuine dangling reference.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "All 10 grep residuals for the deleted verifier.ts-local splitShellWords are non-blocking: 8 are comment/test-description prose, and the remaining 2 are done-required-validation.ts own pre-existing private function of the same name (present on main before this story, no import/reference to the deleted symbol, file is scope-protected and untouched by this story). verifier.ts itself has zero references to splitShellWords and now delegates commandFromString to core/validation-command-identity.ts:parseLegacyValidationCommandString.",
+        "sourceRefs": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/validation-command-identity.ts:299 parseLegacyValidationCommandString",
+          "packages/main/src/core/done-required-validation.ts:113"
+        ],
+        "reproCommand": "grep -n splitShellWords packages/main/src/handlers/verifier.ts (zero hits); git log --oneline --all -- packages/main/src/core/done-required-validation.ts (function predates this story on main)"
+      },
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:06:04.802Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-002",
+      "_hash": "05cba68860438ed1035403e4dac4fc30f5ced6ef3ed096156a6a789918a3e503",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-command-identity.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|validate-concept-flagged",
+      "signatureTagSource": "auto"
     }
   ]
 }
