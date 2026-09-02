@@ -22,9 +22,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-41c8:F-001: the file allowlist comment at lines 166-168 justifies the session.ts exemption by naming listActiveWorktrees, which CHK-003 deleted. Comment-only edit to name the surviving execSync branch probes and resolveStoryWorkspace; the exemption itself is unchanged.",
+      "timestamp": "2026-09-02T15:15:44.451Z",
+      "paths": [
+        "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c8348f8373665fc9f14fd84b4df84a15e6e3a69",
+      "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2"
+    }
+  ],
   "createdAt": "2026-09-02T13:36:08.585Z",
-  "updatedAt": "2026-09-02T13:36:08.585Z",
+  "updatedAt": "2026-09-02T15:15:44.451Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -38,6 +55,7 @@
     "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "packages/main/src/tasks/single-owner-extraction-smoke.ts": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
-    "packages/main/src/core/story-workspace.ts": "packages/main/src/core/story-workspace.ts"
+    "packages/main/src/core/story-workspace.ts": "packages/main/src/core/story-workspace.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
   }
 }

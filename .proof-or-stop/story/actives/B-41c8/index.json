@@ -4,7 +4,7 @@
   "title": "Extract one owner each for the rename-aware diff reader, the legacy shell parser, and story workspace resolution",
   "description": "Three shared facts in packages/main are implemented in more than one place, and story B-a745 (Rollout Story 1 of the dynamic validation tiers plan, DONE 2026-09-02) documented each duplication with a reproduction. (1) core/evidence-freshness.ts changedFileStatusesBetweenRenameAware parses `git diff --name-status -M` by splitting on tabs and skipping any row with fewer than two columns; git C-quotes paths containing non-ASCII, quotes, backslashes or tabs, so a quoted-path rename can silently lose one side while the reader reports success. Consumers, including B-a745's validation Story input collector, state the contract 'both sides of a rename remain seeds'. The same three functions call execFileSync without try/catch, so a bad ref throws to callers that may swallow it into an empty array. (2) core/done-required-validation.ts (around lines 40, 113, 276) still holds a private copy of the SHELL_META_RE / splitShellWords / commandFromString parse; B-a745 extracted the canonical parse into parseLegacyValidationCommandString in core/validation-command-identity.ts and made handlers/verifier.ts delegate, leaving done-required-validation.ts as the only remaining duplicate, so a pinned command could resolve one way for identity and execute another way for DONE-required evidence. (3) Four independent implementations of 'resolve the story's StoryStore, git tree and config for wherever its work lives' exist: handlers/story-query.ts readStoryProjection, handlers/session.ts listActiveWorktrees and readStoryFromLinkedWorktree, core/local-assurance-story-projection.ts collectLinkedStoryWorktrees, and handlers/validation-plan.ts resolveStoryWorkspace added by B-a745 finding F-010; the last lacks the phase-terminal guard (the `phase !== 'DONE' && phase !== 'DISCARDED'` check before reading a linked worktree) that the first two apply. Separately, many handlers call resolveGitCwd for git operations but still read the story index, checklist and validate.commands from ctx.root; B-a745 showed that fixing gitCwd alone is insufficient. A file-level grep for the name on main matches thirty-one handler files, at least one of them (validate-channel.ts) only in a comment, so the set of real callers -- and which of them exhibit the defect -- must be measured by an audit fixture that matches call expressions, not asserted by hand. This story delivers that audit; the migration wave it scopes is the separate draft migrate-resolvegitcwd-callers-to-workspace. This story gives each fact exactly one owner, migrates every consumer, and adds a regression fixture per consumer, RED first.",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "evidence-freshness",
@@ -95,6 +95,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-09-02T14:49:30.195Z",
+      "branch": "story/B-41c8",
+      "user": "Harmonynet",
+      "sessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:15:36.984Z",
       "branch": "story/B-41c8",
       "user": "Harmonynet",
       "sessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
