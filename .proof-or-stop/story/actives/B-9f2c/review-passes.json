@@ -32,6 +32,41 @@
         "scanEscalationReason": null
       },
       "_hash": "5f5afb5592aca84349210b549b40e0e70e20f2c8d7a02d4ba14214b8efad046d"
+    },
+    {
+      "id": "B-9f2c:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept/deletion completeness check on the full diff. No dangling references found for any deleted/renamed concept; details in readManifest and prior finding_add search.",
+      "createdAt": "2026-09-02T09:17:56.058Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-001",
+      "envelopeId": "70836f822790ec059084e342f397bfbd388efac7f332ed178a7503a810002ee5",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/graph/src/shells/web/app.css"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b17832302fd8df744df37d8b598181ff2be3e898f51c8a6aab2ae9bef140fa1d"
     }
   ]
 }
