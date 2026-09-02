@@ -463,7 +463,15 @@ export const VALIDATION_PLAN_OUTCOME_BEARING_LINE_PREFIXES = [
 /**
  * Runtime re-validation at the render boundary, per the Handler encoding
  * convention. It binds the status WORD to the facts that make it true, so a
- * report carrying refusal-shaped facts cannot render `status: plan`:
+ * report carrying refusal-shaped facts cannot render `status: plan`.
+ *
+ * Enforced at exactly ONE place: {@link renderValidationPlanReport}, the choke
+ * point every consumption of a report passes through (the CLI handler's text
+ * and `--json` branches, and {@link renderValidationPlanText}, which is a thin
+ * alias of the text branch). It is deliberately not called from the text body
+ * or the handler as well: a second call site is a second place to forget
+ * (B-a745 F-006 class), and the F-024/F-025 defect was precisely a branch that
+ * did not pass through the guard.
  *
  *   status === 'plan'  <=>  an effective tier, an execution mode, tier
  *                           selections and a non-empty selection all exist.
@@ -542,21 +550,31 @@ function formatMs(ms: number): string {
 const UNIT_PREVIEW_LIMIT = 5;
 
 /**
- * The one render entry point the CLI handler uses for BOTH shapes of output.
- * (RED scaffold for B-a745 F-024/F-025: the JSON branch still mirrors the
- * handler's previous bare `JSON.stringify(report)`.)
+ * The ONE render entry point for a validation plan report, whichever shape is
+ * asked for. The status invariant runs here, before the text/JSON branch, so a
+ * report whose status word contradicts its own facts never reaches an operator,
+ * a selector, or a `--json` consumer (B-a745 F-024/F-025: the JSON branch used
+ * to bypass the guard). Nothing else may call the invariant; add a new output
+ * shape as a branch below, not as a new caller.
  */
 export function renderValidationPlanReport(
   report: ValidationPlanReport,
   options: { json: boolean; explain: boolean },
 ): string {
-  return options.json ? JSON.stringify(report) : renderValidationPlanText(report, options.explain);
+  const statusLine = assertValidationPlanStatusInvariant(report);
+  return options.json ? JSON.stringify(report) : renderValidationPlanTextLines(report, options.explain, statusLine);
 }
 
+/** Text shape only; routes through {@link renderValidationPlanReport} so the invariant is not duplicated. */
 export function renderValidationPlanText(report: ValidationPlanReport, explain: boolean): string {
-  // Refuse before printing: a report whose status word contradicts its own facts
-  // must never reach an operator or a selector.
-  const statusLine = assertValidationPlanStatusInvariant(report);
+  return renderValidationPlanReport(report, { json: false, explain });
+}
+
+/**
+ * Text body. Takes the already-checked status line rather than re-deriving it,
+ * so it cannot be reached with an unchecked report through any exported path.
+ */
+function renderValidationPlanTextLines(report: ValidationPlanReport, explain: boolean, statusLine: string): string {
   const lines: string[] = [];
   lines.push(`validation_plan: ${report.storyId}`);
   lines.push(`storyPhase: ${report.storyPhase}`);

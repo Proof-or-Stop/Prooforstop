@@ -2870,6 +2870,17 @@ testCase('F-024/F-025: the --json render path refuses an inconsistent report exa
     );
     assert.equal(jsonError.message, textError.message, `${label}: both paths must throw the SAME message`);
   }
+
+  // ONE choke point, not one per output shape (F-006 class): the handler source
+  // invokes the invariant exactly once, inside renderValidationPlanReport.
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'this guard reads the real handler source; a missing repository is a failure, not a skip');
+  const handlerSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/validation-plan.ts'), 'utf-8');
+  const callSites = handlerSource
+    .split('\n')
+    .filter((line) => line.includes('assertValidationPlanStatusInvariant(') && !line.includes('export function assertValidationPlanStatusInvariant('));
+  assert.equal(callSites.length, 1, `the invariant must be invoked from exactly one place, found:\n${callSites.join('\n')}`);
+  assert.match(callSites[0], /const statusLine = assertValidationPlanStatusInvariant\(report\);/);
 });
 
 // ---------------------------------------------------------------------------
