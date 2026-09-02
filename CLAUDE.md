@@ -705,6 +705,28 @@ proof-or-stop scope_question_resolve '{
 - **PLAN→DEV gate**：`story_review` 把未 resolved 的 OQ 作为 blocker（`type: scope_open_question_unresolved`），必须全部 resolve 才能进 DEV
 - 老 scope-check.json 无 `openQuestions` 字段时视为空集，不触发 gate
 
+### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
+
+**先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
+
+`pre_review_check` 会把当时的 plan `basisDigest` 快照进 `priorPlanBasisDigest`，
+而 `basisDigest` 覆盖 `binding`（headHash/materialHash/storyFilesHash）与 `receiptRef`。
+所以事后再跑一次 `acceptance_basis_generate`——哪怕 acceptance 语义完全没变——也会移动那个 digest，
+把刚拿到的 PASS 打成 `PR_COVERAGE_BASIS_CHANGED`（通常伴随 `PR_ARTIFACT_TAMPERED`），
+而 `storyFilesHash` 根本没动。
+
+这是**操作顺序陷阱，不是代码缺陷**：fail-closed 符合 Section 9 Rule 3「never a silent pass」（Rule 9 讲的是 coverage-basis freshness，不是这条）。
+但补救只能靠重跑 `pre_review_check`，而它是 `allowedPhases: ['DEV']`——
+在 REVIEW 撞上这个的 story 无法自愈，必须回 DEV。
+
+代码里已有 `acceptanceCoverageBasisSemanticDigest`（剥掉 `basisDigest`/`binding`/`receiptRef`）
+专门识别这种 hash-only rebinding，`verifyAcceptanceBasisReceipt` 也在用；
+但要接进 `PR_COVERAGE_BASIS_CHANGED` 的比较需要持久化一个 semantic digest，
+因为 `priorPlanBasisDigest` 只存原始 hash。
+
+真相源：`docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md`
+Section 9 Rule 10。
+
 ### TEST→DONE 硬门槛（delivery-check）
 
 TEST 阶段自动 spawn `proof-or-stop-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
@@ -882,7 +904,7 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 
 | 约束 | 规则 |
 |---|---|
-| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000`（2h）——即 `lattice.config.json` 给 DONE-required 根套件的同一预算；**边界含等号**（恰好等于上限允许） |
+| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 21_600_000`（6h）——覆盖完整的历史回放与成对动态验证保证活动；**边界含等号**（恰好等于上限允许） |
 | 超上限 | **拒绝**（`[command_timeout_above_cap]`），**不静默 clamp** |
 | 理由 | `commandTimeoutReason` 必填且 trim 后 ≥ 30 字符（同 `nonMechanicalReason` 口径），否则 `[command_timeout_reason_too_short]`；只给理由不给预算 → `[command_timeout_reason_without_override]` |
 | gate 可见 | 武装的预算记在 **tool-owned receipt** 上：`receipt.timeoutMs` 恒记录，raise 时另加 `receipt.timeoutOverride{timeoutMs, defaultTimeoutMs, reason}`。receipt 块被所有 caller-facing schema `.strip()`，故**无法被 caller 注入**到实际按默认预算挣到的 receipt 上；handler 输出也追加 `timeoutOverride=<n>ms` |
@@ -1052,6 +1074,71 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 单 story REVIEW 只看单个 story 的 diff，看不到「两个各自局部正确的 story 叠加成全局漏洞」的跨 story 交互。**当多个流程框架类 story（触及 dirty/状态 classifier、gate policy、命令入口门禁、auto-commit、DONE merge 语义任一）并行合并到 main 时**，合并后应对 main 的合并态做一次只读 combination review，逐项过分类优先级顺序 / gate policy 表 / 命令入口门禁 / auto-commit-dirty 交互 / DONE merge 语义。普通业务 story 不触发。这是 advisory 流程纪律，不是 CLI gate。规则来自 B-8db9 incident（B-cf60 + B-4b22 各自单 story review 通过、合并 main 后叠加成 CRITICAL gate 绕过）。
 
 > 这里是短摘要。**canonical 详细版（含完整枚举检查清单与 incident 溯源）在 `docs/requirements/decisions/story-lifecycle.md` 的「合并态组合审查」节** —— 以那份为准，本段只作快速提示。
+
+## Defect triage discipline
+
+Fix major or acceptance-blocking defects on the spot. Record non-major, non-blocking
+defects with evidence and defer them. Never widen scope to chase all-green.
+
+### Step 1 — classify before acting
+
+For every new defect found during development, first decide: is this a major risk to
+the current story, or does it block its acceptance? Do not start fixing before this
+question is answered. The reviewer's job is to find; the main agent's job is to triage.
+
+### Step 2 — fix in the current story
+
+Mandatory when the defect is any of:
+
+- critical / high severity
+- security, data integrity, or destructive-compatibility impact
+- blocks the current story's acceptance, REVIEW, TEST, or DONE
+- makes already-registered evidence false (a selector that cannot match the real
+  verdict, a receipt claiming `pass` for a command that failed) — this is the subtlest
+  case and the easiest to wave past
+
+Action: fix, add the regression test, `finding_resolve` with mechanical evidence — the
+command run and its actual output, not a description of it.
+
+### Step 3 — record and defer
+
+Applies when the defect is medium / low **and** all of:
+
+- not a direct regression of the current acceptance scope
+- does not affect the user's core outcome
+- does not distort a lifecycle gate
+
+Action: preserve reproduction steps, evidence, blast radius, and a recommended fix.
+Record it in a finding / gap / backlog entry and name the follow-up story that owns it.
+Do not widen the current story's scope. Convenience is not a reason to fix out-of-scope
+work.
+
+### Step 4 — deferral must be traceable, and is reversible
+
+A deferral decided verbally does not count. It needs a durable, followable record:
+`finding_add`, `gap_log`, or a follow-up `story_create` with the evidence linked, plus a
+line in this story's resolution or summary saying it was recorded and deferred.
+
+If later evidence shows the severity was underestimated, or the defect turns out to
+block acceptance after all, pull it back into the current story immediately. Step 3 is a
+classification, not a commitment.
+
+### Why rule 3 has teeth
+
+Green is not the goal; trustworthy evidence is. Never make a check pass by relaxing its
+decision rule, widening an allowlist, or bending acceptance inputs to fit your own change.
+
+B-45a0 case: adding files to `REPLAY_ADMISSION_NONEXECUTING_PATHS` looked like a cheap
+way to make the replay admission pass. Measuring the actual diff showed the drift was in
+`story-aware-validation.ts` — where `discoverValidationInventory` and
+`compileValidationCatalog` are defined — i.e. producer-side drift, precisely what that
+allowlist refuses by design. The honest fix was re-running the campaign for a fresh report.
+
+Every out-of-scope fix is also another material change: it can invalidate an open review
+inventory epoch, re-stale acceptance surfaces, and force another review round.
+
+One-line test: **if this defect goes unfixed, is this story's acceptance conclusion
+false?** Yes → step 2. No → step 3.
 
 ## Debugging Contract
 

@@ -674,6 +674,20 @@ Behavior:
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
+  { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    lane: z.enum([
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+      'lattice-review-behavior',
+      'lattice-review-docs',
+      'lattice-review-channel',
+      'lattice-review-topology-critic',
+    ]).optional().describe('Optional reviewer lane filter.'),
+    latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
+    json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
+  }},
   { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
@@ -2079,6 +2093,7 @@ Behavior:
   { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
+    dynamicMode: z.enum(['off', 'observe', 'shadow', 'enforce-low-risk']).optional().describe('Story-aware validation mode. Defaults to off; observe/shadow retain the complete-plan oracle.'),
     story: z.string().optional().describe('Run only transitions affected by the story changes (used by TEST gate).'),
     storyId: z.string().optional().describe('B-a30e: alias for --story; error when both are provided with different values.'),
     json: z.boolean().optional().describe('Structured JSON output (ExternalVerifierResult).'),
@@ -2762,7 +2777,7 @@ Behavior:
     json: z.boolean().optional(),
     verdict: z.never().optional(), receipt: z.never().optional(), evidence: z.never().optional(), write: z.never().optional(),
   }},
-  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt', schema: {
+  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt. ORDERING (B-45a0): run this BEFORE pre_review_check, never after. pre_review_check snapshots the plan basisDigest, and that digest covers binding/receiptRef, so regenerating the basis afterwards moves it and decays a genuine PASS to PR_COVERAGE_BASIS_CHANGED + PR_ARTIFACT_TAMPERED with no material drift. Recovery needs pre_review_check, which is DEV-only.', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),
     status: z.never().optional().describe('Forbidden: basis status is verifier-derived.'),
@@ -2796,7 +2811,7 @@ Behavior:
     sourceInventoryRefs: z.never().optional(), plannedPathRecords: z.never().optional(), receipt: z.never().optional(), binding: z.never().optional(),
     evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(),
   }},
-  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result', schema: {
+  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result. ORDERING (B-45a0): any acceptance_basis_generate run AFTER this invalidates the artifact it just signed (PR_COVERAGE_BASIS_CHANGED + PR_ARTIFACT_TAMPERED), because the snapshotted plan basisDigest covers binding/receiptRef. Regenerate the basis first, then issue this last.', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),
     status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),

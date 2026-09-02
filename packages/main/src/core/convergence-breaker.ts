@@ -843,6 +843,11 @@ export function enforceConvergenceBreakerGate(opts: {
   store: BreakerStore;
   env: Record<string, string | undefined>;
 }): void {
+  // `story_resume` is the human-only recovery path for a frozen breaker. It may
+  // legitimately carry --takeover/--forceTakeover to acquire a fresh terminal
+  // session's owner lease, so it must reach its handler for the TTY, --ack, and
+  // reason checks. Every other takeover command remains gated below.
+  if (opts.command === 'story_resume') return;
   const isAdvance = opts.command === 'story_advance';
   // Only story_advance and takeover-carrying commands are gated by the breaker.
   if (!isAdvance && !opts.isTakeoverCommand) return;
