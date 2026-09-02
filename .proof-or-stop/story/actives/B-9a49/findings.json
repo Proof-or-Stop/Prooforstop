@@ -949,7 +949,7 @@
       "desc": "The executable Agent-side proposal still identifies the five active modular REVIEW roles as retired lattice-review-* IDs at lines 64-68. After the approved canonical identity migration, prompt-registry.ts lines 25-31 and prompt-role-contract-registry.ts lines 269-353 expose the active lanes only as proof-or-stop-review-behavior, proof-or-stop-review-concept, proof-or-stop-review-docs, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage. Read-only reproduction: `rg -n 'lattice-(review|implementer)|proof-or-stop-(review|implementer)' docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md packages/main/src/core/prompt-registry.ts packages/main/src/core/prompt-role-contract-registry.ts` shows the document/runtime contradiction, while `node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only` and the full registry smoke pass for the canonical runtime. Because this document is the user-requested open-source execution proposal and expressly claims to enumerate current affected Agent surfaces, the retired IDs are a direct acceptance/documentation blocker. Replace only those five names with the canonical proof-or-stop-review-* IDs; do not change Dynamic Finding runtime semantics or the bounded migration waivers.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T01:47:45.814Z",
@@ -962,7 +962,11 @@
         "packages/main/src/core/prompt-role-contract-registry.ts"
       ],
       "signatureTag": "doc-code-drift|md|executable-agent-side",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the controlled replan and current proposal/prompt assets: the proposal now names the canonical active roles proof-or-stop-review-concept, quality, test-coverage, docs, and delivery; the focused semantic assertion passes and signed concept run RR-072 admitted the full current context.",
+      "resolvedAt": "2026-09-02T03:44:29.060Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-043",
