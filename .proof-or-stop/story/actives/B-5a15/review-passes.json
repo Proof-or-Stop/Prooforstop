@@ -13529,6 +13529,53 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "0e9dcda7499eec5a5375cfab2f29be3d1c7a012e390d3ae17c8187c13f3c6efe"
+    },
+    {
+      "id": "B-5a15:RP-284",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue lane, round RR-860 (epoch RI-063, head ee62c64804). Verified all four of my prior-round findings are genuinely repaired, and independently re-derived the F-357 residue measurement rather than trusting the reported figure. (1) F-353 FIXED: the coupled second registry in scripts/verify-process-fact-contract.mjs:2017,2022 now carries the post-merge fingerprints 03d1d617.../3152baa8..., byte-identical to the guard-owned table at retired-authority-vocabulary-guard-smoke.ts:364,380; git show of the prior commit confirms it previously held the stale bd6f5790.../32bd2e64..., so the incompleteness was real and is now closed, and dist is in sync. Both guards re-run WITHOUT a pipe: verify-process-fact-contract.mjs TRUE exit 0, retired-authority-vocabulary-guard-smoke.js TRUE exit 0 (fullAnalysis=1309 astCandidates=508, so the fingerprint validation actually executed rather than short-circuiting). (2) F-354 FIXED: executeActiveScenarioTopology now has ZERO occurrences across packages/*/src, packages/main/tests and scripts; pre-review-live-proof.ts:135 names executeActiveScenarioWitnesses, which genuinely exists (proofstory-pre-review-check-smoke.ts:286) and does per-assertion execution, so the security rationale it supports is still accurate and not merely renamed. (3) F-356 ACCURATE AND SUFFICIENT: I checked each of the six claimed divergences against ground truth (pre-merge helper at d41afa3a02:core/evidence-freshness.ts:496-517 vs main resolveStoryChangedFiles at core/story-aware-validation.ts:164-198). All six are real: throws vs return-undefined, blobId vs objectId, localeCompare vs byte order, extra 4th param explicitBaseHead, dropped per-path Map dedupe. The two LOAD-BEARING markers are correct -- the try/catch at certification-window.ts:164-165 restores the original undefined contract, and the bare .sort() at :176 on path\\0blobId strings is byte-identical in construction to currentStoryFilesHash:379-382, so it genuinely neutralizes the localeCompare ordering that F-334 forbids. Minor imprecision not worth a finding: the comment says the new function throws on no-merge-base, when it in fact throws on two paths (:172 and :195); the try/catch covers both, so no reader is misled about what to keep. (4) F-357 RE-DERIVED INDEPENDENTLY, MEASUREMENT CONFIRMED: against the true merge-base 09ff92e51d I measured 0 deleted files of ANY type (not just source) and exactly 1 removed exported symbol, preReviewCaseRequiresSemanticBinding -- reproducing the reported figure. Confirmed false positive: it is a signature WIDENING (one-arg to three-arg), still exported at pre-review-live-proof.ts:139 with 6 live references and all 3 call sites updated. I then extended past the export-line heuristic that the automated gate relies on, because that is where residue the gate cannot see would hide: 10 removed NON-exported declarations, each individually residue-checked -- currentPreReviewInputForContext, hasSameFileIncomingCall, normalizeEvidence, ReexecStamp, sameFileCallableReachable and runValidateFile are all live redefinitions with real same-file call sites, and isCallableDeclaration, MAX_SAME_FILE_CALL_REACHABILITY_DEPTH, sameFileCallableBody/CallNames/Calls are gone with zero leftovers. Merge-deleted helpers changedStoryFilesBetween and mergeBaseWithMain: zero residue. currentStoryFileHashEntries: exactly 1 occurrence, the F-356 migration comment that deliberately names the deleted symbol as historical fact, which is audit trail rather than a live dangling pointer. Removed schema-id strings: causal-evidence-authority has zero references in source, tests, scripts or dist (the surviving CAUSAL_AUTHORITY_KEY_FILE is a distinct live on-disk path constant). Also confirmed the two quality-lane fixes: CAUSAL_AUTHORITY_SCHEMA is absent from all source AND dist while its consumed sibling correctly survives, and identityCommand is now a single declaration in handlers/verifier.ts matching main count of 1. CONCLUSION: no new concept residue this round; this merge introduced none that the automated gate missed. Known-stale acceptance artifacts, the ~19/2 causal suite, and still-open F-351/F-355/F-359 were excluded from scope per dispatch.",
+      "createdAt": "2026-09-02T13:02:37.582Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-860",
+      "envelopeId": "74e78d33aeb18866b92b609561170f780b5229f37dda055f8c519eeea352b441",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "bde64d4cb12b663ce50447dd7738b7d8316a58a00a87545563f135b845c25b0f"
     }
   ]
 }
