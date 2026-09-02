@@ -587,7 +587,11 @@
           {
             "desc": "the README does not tell readers to run a proof-or-stop-graph binary, which this repository does not ship",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const bad=s.split('\\n').filter(l=>/(^|[\\x60$\\s])proof-or-stop-graph(\\s|\\x60|$)/.test(l));console.log(bad.length===0?'DOCS_NO_STALE_BINARY':'FAIL '+JSON.stringify(bad.slice(0,1)));process.exit(bad.length===0?0:1)\"",
+              "selector": "DOCS_NO_STALE_BINARY"
+            }
           }
         ]
       },
@@ -662,6 +666,27 @@
           "materialHash": "4809fbe4c985a1e819039da620e67fc0ebac011dccf9f1667bff6ef7a872d019",
           "storyFilesHash": "99495d7143b937b087032ec3be79d5a088e963650870ff223ca2d1362712d11a",
           "timestamp": "2026-09-02T09:05:37.464Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/graph/README.md",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const bad=s.split('\\n').filter(l=>/(^|[\\x60$\\s])proof-or-stop-graph(\\s|\\x60|$)/.test(l));console.log(bad.length===0?'DOCS_NO_STALE_BINARY':'FAIL '+JSON.stringify(bad.slice(0,1)));process.exit(bad.length===0?0:1)\"",
+          "result": "pass",
+          "note": "Detects any line presenting proof-or-stop-graph as a RUNNABLE command, while deliberately allowing the legitimate cache-path mention (~/.cache/proof-or-stop-graph/). Negative control run: appending a line reading Run `proof-or-stop-graph` to start makes this probe exit 1, so it is discriminating rather than tautological.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e3c9a2b48c31598e7e72a85469c8ffbdeb309f3f0e45967c97207048b1930d76",
+            "outputTail": "DOCS_NO_STALE_BINARY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:05:38.524Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "571f9a489b1ce2b4b35974682130928f91352f1d",
+          "materialHash": "4809fbe4c985a1e819039da620e67fc0ebac011dccf9f1667bff6ef7a872d019",
+          "storyFilesHash": "99495d7143b937b087032ec3be79d5a088e963650870ff223ca2d1362712d11a",
+          "timestamp": "2026-09-02T09:05:38.710Z"
         }
       ]
     },
