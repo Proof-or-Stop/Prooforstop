@@ -185,7 +185,11 @@
           {
             "desc": "io/http.ts serves app.html for a /story/<id> path",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);if(!m){console.log(\"STORY_ROUTE_REGEX_NOT_EXTRACTED\");process.exit(1);}const re=eval(m[0]);const body=src.slice(src.indexOf(line));const servesAppHtml=/app\\.html/.test(body.slice(0,300));const ok=re.test(\"/story/B-9f2c\")&&servesAppHtml;console.log(ok?\"STORY_ROUTE_SERVES_APP_HTML_OK\":\"STORY_ROUTE_SERVES_APP_HTML_FAIL\");process.exit(ok?0:1);'",
+              "selector": "STORY_ROUTE_SERVES_APP_HTML_OK"
+            }
           }
         ],
         "edge": [
@@ -232,6 +236,27 @@
           "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:39:21.033Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/graph/src/io/http.ts",
+          "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);if(!m){console.log(\"STORY_ROUTE_REGEX_NOT_EXTRACTED\");process.exit(1);}const re=eval(m[0]);const body=src.slice(src.indexOf(line));const servesAppHtml=/app\\.html/.test(body.slice(0,300));const ok=re.test(\"/story/B-9f2c\")&&servesAppHtml;console.log(ok?\"STORY_ROUTE_SERVES_APP_HTML_OK\":\"STORY_ROUTE_SERVES_APP_HTML_FAIL\");process.exit(ok?0:1);'",
+          "result": "pass",
+          "note": "Extracts the live route regex out of packages/graph/src/io/http.ts (not a hardcoded copy) and asserts /story/B-9f2c matches it and that the same branch serves app.html, so deleting or narrowing the route makes this probe fail.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "229c72f2e53bc1b869bf7649cc2ac9f1d5999b2771818c05c4dc5f6a73ca827e",
+            "outputTail": "STORY_ROUTE_SERVES_APP_HTML_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:39:22.022Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "804cbb5e2fe21d47c1e479827884459f19964b5b",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:39:22.183Z"
         }
       ]
     },
