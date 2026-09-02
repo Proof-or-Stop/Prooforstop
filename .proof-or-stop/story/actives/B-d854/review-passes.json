@@ -1,0 +1,33 @@
+{
+  "passes": [
+    {
+      "id": "B-d854:RP-001",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No blocking concept finding. F-021 through F-024 are resolved: the audit has the exact M01-M24 plus L01-L02 mapping with row-specific RED predicates and exact path:line authorities; baseline exits 1 with 26/26 RED and final exits 0 with 26/26 GREEN; AGENTS.md and audit/verifier Unicode scans show zero Han, replacement, and non-ASCII residue; Claude and Agy provenance is durably bound by session/conversation identifiers, artifact hashes, ordinal/byte receipts, and local implementation remains authoritative. The bounded-scope defect rule explicitly replaces unbounded fix-everything language. M14 correctly covers substantive scope-question resolution plus advisory PLAN and blocking REVIEW scope-contract semantics; M19 correctly covers policy-computed reviewer roster, opt-in lanes, batch dispatch, signed pass/finding, and quorum prerequisites. Citation-removal and vague-citation mutations are rejected. F-026 records only non-blocking historical evidence-note count drift; exitCode=0 and CASE 46/FINAL GREEN output still prove the full 46-case ledger.",
+      "createdAt": "2026-09-02T02:11:17.507Z",
+      "reviewRound": "2026-09-02T02:05:53.737Z",
+      "reviewRunId": "B-d854:RR-011",
+      "envelopeId": "7addd8d3bb68b9564ef19b10f3ed0c1ff0c6ac291a35302baafb71f9ec870dcb",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8c11fdcd69ba50a3ed5f1f2e49466a7afe4622cccca26998255d19c488ab2ad"
+    }
+  ]
+}
