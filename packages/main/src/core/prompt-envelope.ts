@@ -326,6 +326,18 @@ function hasDynamicFindingAuthorityAmendmentAssertion(segment: string): boolean 
         Math.max(authorityRange.start, amendmentRange.start) - Math.min(authorityRange.end, amendmentRange.end),
       );
       if (distance > 120) continue;
+      const amendmentToken = segment.slice(amendmentRange.start, amendmentRange.end);
+      const amendmentPrefix = segment.slice(Math.max(0, amendmentRange.start - 64), amendmentRange.start);
+      const nominalChangeReference = /^(?:change|changes|update|updates)$/u.test(amendmentToken)
+        && /\b(?:this|that|these|those|the|current|proposed|metadata\s+only|prompt\s+only|implementation|code)\s+$/u.test(amendmentPrefix);
+      const explicitInvariantCheck = /\b(?:compare|verify|assert|prove|confirm|ensure|audit|check|preserve)\b/u.test(segment)
+        && /\b(?:remain|remains|stay|stays|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)\b|\bno\s+(?:authority|runtime|schema|semantic|contract)?\s*changes?\b/u.test(segment);
+      // A Story may name its own implementation change while proving that the
+      // authoritative Dynamic Finding contract is invariant. This narrow
+      // nominal-reference exception does not excuse an affirmative amendment
+      // verb: "this change modifies/updates the runtime" is still rejected by
+      // the separate modify/update match.
+      if (nominalChangeReference && explicitInvariantCheck) continue;
       if (!relationIsNegated(segment, amendmentRange, authorityRange, authorityRange)) return true;
     }
   }
