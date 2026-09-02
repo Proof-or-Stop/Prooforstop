@@ -620,6 +620,30 @@
         "scanEscalationReason": "Full-text grep sweep across CLAUDE.md/README.md/AGENTS.md/docs/** for stale test-list framing (fallback 1: docs-only review scope, no code symbol diff to anchor on)."
       },
       "_hash": "31ea5143dc9ef81376aea7c250bf282515a1341b1b622b16f4094b2a9a692df7"
+    },
+    {
+      "id": "B-9f2c:RP-021",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-confirmation pass at frozen tree 11f9440be5 (fresh REVIEW round required by mandatory pre-DONE dev_memory_finish_decision re-staling reviewer envelopes + acceptance rollout report; story bounced TEST->DEV->REVIEW as pure bookkeeping, no source change). Verified via git diff --stat b94e53243b 11f9440be5 -- packages/ that ZERO files under packages/ changed since RP-017's bound head b94e53243b; the full diff between the two heads touches only .proof-or-stop/ metadata and dev-memory artifacts (17 files: checklist.json, index.json, review-runs.json, prompt-envelopes.json, acceptance-rollout-report.json, certification-window.json, done-required-evidence.json, test-evidence.json, scope-contract.json, dev-memory files, process-events/metrics). Re-confirmed all standing code-quality conclusions from RP-017 by direct re-read of source at the frozen head: packages/main/src/handlers/graph.ts has GraphArgs.story as optional (line ~65-77), assertGraphStoryExists (line 341-367) is called at line 459 -- BEFORE both the --json early return (line 461) and startServer (line 498) -- validating an unknown-typed story arg at handler entry per the exported-and-typed-unknown pattern documented in its own comment (mirrors the --root precedent); graphStorySuggestions (line 309-326) is a pure, deterministic function (prefix-band-first, then edit-distance, ties broken alphabetically); the opened URL is built with encodeURIComponent (line 517-523), not raw interpolation. packages/main/src/cli/command-catalog.ts line 2156 confirms story: z.string().optional() with no .default(). packages/main/src/tasks/full-suite-runner.ts line 159 confirms repoRead('test:graph-story-flag-smoke') is registered. Ran npx tsc --noEmit -p packages/main directly: exit 0, zero diagnostics. Reviewed all four resolved story findings (F-001 accepted_risk, F-002 fixed, F-003 accepted_risk, F-004 fixed) via finding_list; all four dispositions carry strong, independently-reproduced evidence (repro steps, negative controls, cited line numbers) and none warrants reopening -- this pass is a mechanical re-confirmation given zero packages/ diff since the prior sign-off, not a from-scratch re-audit. No new finding raised.",
+      "createdAt": "2026-09-02T17:30:31.735Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-029",
+      "envelopeId": "b405ca12d2fc8a5c769a6129e52d664f2c4c8ed10f5409936370e2388b68c95c",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "de3c67fdc7525ee05d8c8ad0d86d2c7fedc5459e997f3c520f2ac80ea736a7c0"
     }
   ]
 }
