@@ -402,6 +402,33 @@
         "scanEscalationReason": null
       },
       "_hash": "c198c225a35f11e2561cb48ede0003cb83aba8d38aa265a1f22a7cd770836b5f"
+    },
+    {
+      "id": "B-a745:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 5 targeted audit of F-022/F-023 commits + 33 refreshed receipts. Verified RED genuineness via temp git worktrees at each RED parent (9 fails for F-022 RED, 3 for F-023 RED, matching commit-message claims) and GREEN passes both. Read validation-tier-planner-smoke.ts F-022 (3234-3437) and F-023 (276-396) blocks: all requested fixture variants present, unborn-repo case confirmed live (instrumented+reverted rebuild) to assert both hash_snapshot_unavailable escalation AND freshnessBinding: unbound, negative bound+null-digest-refused case present at 3372-3379. F-023 RED diff shows exactly one old defect-encoding case removed and superseded by 6 richer cases, no silent coverage loss. Checklist verificationIntent/Evidence: 34/34 must intents covered (33 pass + 1 waiver, 0 missing). No selector-adjacency break from the new freshnessBinding render line (only nearby selector is a substring match, not positional). Story fixture suite also passed inside a full validate run (command 121/121 code=0). No blocking coverage gap found by this lane. Aware of open F-024..F-027 from quality/behavior/concept lanes (json-path invariant + dead-parameter/doc-drift) but those are code-quality/concept concerns, not verificationIntent/Evidence coverage gaps, so not duplicated here.",
+      "createdAt": "2026-09-02T09:46:42.272Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-026",
+      "envelopeId": "97debb606895cfbd4bc1d2f18289d6d50735673017df3c893782e0c77501dcd0",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8e7eaca73f67fb6e6b361df8aa1332de4df04085b4f319aa80acbd31161f747c"
     }
   ]
 }
