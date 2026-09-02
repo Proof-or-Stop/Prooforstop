@@ -148,6 +148,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ]
       }
     },
     {
