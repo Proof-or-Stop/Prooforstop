@@ -256,6 +256,30 @@
         "scanEscalationReason": null
       },
       "_hash": "b72157bd78e5707032f143706327f10e2ba252a03f265a81fbdf33883227bd33"
+    },
+    {
+      "id": "B-d854:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept blocker. Verified commit 6ac3238 makes the global direct and Node-fallback version sources mutually exclusive. A direct EXIT_0 must retain a direct version and prove fallback status null, fallback outcome NOT_USED, and no fallback version; a failed direct path must retain no direct version and select the successful fallback result. The verifier rejects direct-plus-fallback double success and an inconsistent fallback state. The live runtime report remains dynamic and report-only, the local repository CLI remains the sole behavior authority, the unchanged audit wording still accurately says fallback is used only when direct execution is unavailable, the 18-of-18 receipt window passes, and the complete final verifier remains 26-of-26 GREEN.",
+      "createdAt": "2026-09-02T13:12:03.691Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-041",
+      "envelopeId": "58a5c062f7d101f58142b27af34130dedc602fdf47503c026dc63daabaa63709",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3184190b74eecec1595e023627593092901b1caea7877ec94b3fc2094226720"
     }
   ]
 }
