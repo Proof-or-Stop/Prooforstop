@@ -43,7 +43,11 @@
           {
             "desc": "the port does not delete or rewrite pre-existing app.js behavior: the playback entry point still registers on window",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const a=require('fs').readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!a.includes('playbackMermaidReset')) throw new Error('playback entry point was deleted by the port'); if(!/function openDossierFor/.test(a)) throw new Error('dossier port not present, so this check is vacuous'); console.log('CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER');\"",
+              "selector": "CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER"
+            }
           }
         ]
       },
@@ -100,6 +104,27 @@
           "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-09-02T08:34:15.284Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/app.js",
+          "command": "node -e \"const a=require('fs').readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!a.includes('playbackMermaidReset')) throw new Error('playback entry point was deleted by the port'); if(!/function openDossierFor/.test(a)) throw new Error('dossier port not present, so this check is vacuous'); console.log('CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER');\"",
+          "result": "pass",
+          "note": "The pre-existing playback entry point still registers in app.js after the dossier port. The second leg asserts the dossier port actually landed, so this cannot pass vacuously on an unported file.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1700083a8f2cdb6572448bb6c1d4311e7f5ca667d61538d11b99dbdfee22c572",
+            "outputTail": "CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:34:16.780Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ea9efc8ee5cf570cf4868a24f0a2541475630a90",
+          "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-02T08:34:16.955Z"
         }
       ]
     },
