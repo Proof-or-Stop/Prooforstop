@@ -232,6 +232,30 @@
       },
       "readDiagnostics": [],
       "_hash": "d549b6219d8cbac0558c0d02600c7d041bb87f6b0e46c34f1409f45d80b9d570"
+    },
+    {
+      "id": "B-d854:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept blocker. Verified d52a500 keeps the repository-local Node CLI as the sole mandatory behavior authority, while the global entrypoint is dynamically inspected and report-only. The prior real EACCES path is represented as directOutcome EACCES with NODE_FALLBACK and EXECUTABILITY drift; the current executable path passes directly and reports only live version and realpath drift. Neither state changes the 26-of-26 AGENTS consistency conclusion. Runtime concealment and authority-substitution mutations are rejected, executable same-version and aligned simulations pass, the immutable historical classification remains commit/blob/digest-bound and rejects historical-as-current relabeling, the 18-of-18 receipt window passes, and the complete final verifier exits zero.",
+      "createdAt": "2026-09-02T12:57:47.123Z",
+      "reviewRound": "2026-09-02T12:52:01.904Z",
+      "reviewRunId": "B-d854:RR-038",
+      "envelopeId": "0c1cd7048458095625d1c1d2b7f558ec7c80bbd401573d77c2fd91f5e799a328",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b72157bd78e5707032f143706327f10e2ba252a03f265a81fbdf33883227bd33"
     }
   ]
 }
