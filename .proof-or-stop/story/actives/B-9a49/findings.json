@@ -1027,6 +1027,25 @@
       "_hash": "72dbc342c4c70ee1dca6fedd16dae452bc74c652d5af6bdadf05665b6641bf03",
       "signatureTag": "missing|unknown|authority-delivery-boundary",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-047",
+      "desc": "The current replacement suite does not semantically reject retired reviewer IDs in the executable public proposal, so the seven CHK-003 identity-migration waivers mask a required current-Story repair instead of only waiving immutable PLAN commands. F-042 independently proves docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md lines 64-68 still publish lattice-review-* as the five active modular REVIEW roles. In prompt-registry-smoke.ts, assertReviewFindingTriageProposal currently checks only a mutable approved whole-file digest, English text, and selected authority phrases; it has no assertion that the active-role list is exactly proof-or-stop-review-{behavior,concept,docs,quality,test-coverage}, nor that lattice-review-* is excluded from active guidance. Therefore all current smokes can pass after regenerating the digest while the proposal remains semantically wrong. Remediation: repair the proposal identities and add a discriminating RED/GREEN semantic assertion for the exact canonical five-role list plus rejection of retired lattice-review-* as active guidance. Preserve historical-context allowlists separately; do not weaken or replace the assertion with another digest pin.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T01:50:37.470Z",
+      "reviewRound": "2026-09-02T01:42:52.484Z",
+      "reviewRunId": "B-9a49:RR-068",
+      "_hash": "5197ba6af29d81bd6e1bb99a3b5432b766363a51428a052fcadcd9a7716ab0bb",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|md|current-replacement-suite",
+      "signatureTagSource": "auto"
     }
   ]
 }
