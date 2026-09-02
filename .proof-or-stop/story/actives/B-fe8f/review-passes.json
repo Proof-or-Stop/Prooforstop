@@ -147,6 +147,30 @@
         "scanEscalationReason": null
       },
       "_hash": "9832ab219d6a7f878d3fb751c330c461ff250b819861f6bc2f44b871354429eb"
+    },
+    {
+      "id": "B-fe8f:RP-005",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-review of F-019 fix (commit 5b89a79b44) per incremental context (changedFiles: handlers/finding-ledger.ts, tasks/finding-ledger-runtime-smoke.ts). Audited the diff: appendRuntimeReceipt/runtimeReplay/verifyRuntimeReceiptCarrier now read FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation instead of the four hardcoded 'append_runtime_receipt' literals; finding-ledger-runtime-smoke.ts now imports and asserts on FINDING_RUNTIME_EVIDENCE_COMMANDS and the adapter contract in runFindingProjectionRegression (facade handler keys == command list == registry membership, run/verify command names in the list) and in the runtime replay case (persisted receipt.operation equals contract.appendOperation, and every artifact carries a string field keyed by contract.artifactRealpathBinding, which is the real, already-validated realpathPolicyDigest field). Re-grepped both exported constants across packages/main/src: FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT is now consumed by production code (handlers/finding-ledger.ts) plus the smoke; FINDING_RUNTIME_EVIDENCE_COMMANDS is consumed by handlers/finding-runtime-evidence.ts (Object.freeze definition/self-use) and the smoke assertions — neither export is dead any more. Independently rebuilt packages/main from src a second time and diffed dist/tasks/finding-ledger-runtime-smoke.js and dist/handlers/finding-ledger.js byte-for-byte against the pre-rebuild dist: zero diff. Ran node packages/main/dist/tasks/finding-ledger-runtime-smoke.js directly on the rebuilt HEAD and confirmed registry.runtime_facade_boundary: PASS exactCommands=2 canonicalRegistry=true adapterContract=true, runtime.append_runtime_receipt_replay: PASS ... adapterContract=true, and the full green.story3_matrix: PASS / Finding ledger integrity: PASS / Runtime evidence integrity: PASS. F-019's resolvedReason text matches what was independently verified. No blocking finding remains open this round; F-019 is now genuinely resolved (fixed), not just relabeled.",
+      "createdAt": "2026-09-02T08:49:15.731Z",
+      "reviewRound": "2026-09-02T08:08:26.916Z",
+      "reviewRunId": "B-fe8f:RR-019",
+      "envelopeId": "7bc44b4098a04017bc8b654498c44f058394c45bb3420c7b61d0cc336f592503",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8291d54d932cab1f6fb56c32bd6bea376d33f5522d80ea05401934f2b8b8a17"
     }
   ]
 }
