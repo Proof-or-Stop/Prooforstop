@@ -573,6 +573,35 @@
       },
       "readDiagnostics": [],
       "_hash": "68bb4df4f024fc7b00b1140a6764e462111871e00f56d894e64888bac51015e1"
+    },
+    {
+      "id": "B-d854:RP-019",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 16 docs review GREEN. The mandated broad declaration regex extracted 300 names from the integrated diff, almost entirely verifier local constants and helpers rather than public API exports. Review therefore bounded comparison to 6 material documentation sections: AGENTS working rules, lifecycle and CLI guidance, the audit artifact binding, the A19 authority ledger, and the Claude and Agy provenance section, together with the corresponding verifier and current authority definitions. F-046 is fixed: A19 now cites quorum-submit-registration at packages/main/src/cli/command-catalog.ts:3097 and that exact current definition is present. Fresh final verification exited 0 with all 26 audit rows GREEN, 117 exact citation entries and 234 citation mutations passing, 14 modeled rows with 43 chains and 69 endpoint mutations passing, and 137 semantic chain swaps rejected. English completeness is clean for AGENTS.md, the audit report, and the verifier: han=0, ufffd=0, nonAscii=0. The AGENTS SHA e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 matches the report and verifier constant. Claude provenance is LOCAL with transcript hash and session verified; Agy provenance is LOCAL with ordinal, bytes, hash, command, cwd, prompt, and session verified, and all command/cwd/invocation/promptHash mutations rejected. All 10 verification intents have exactly one passing evidence record bound to current materialHash c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89 and storyFilesHash 99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61. Git diff syntax checking passes. No documentation blocker or promised but undelivered behavior remains.",
+      "createdAt": "2026-09-02T16:32:07.501Z",
+      "reviewRound": "2026-09-02T16:28:06.672Z",
+      "reviewRunId": "B-d854:RR-053",
+      "envelopeId": "3690a14c9d74076965b7b5ea1fe826220965af0a8e127eee2eba5e85abaa7668",
+      "writerSessionId": "sess-344f8d2efea524142dd9d1f57515ecf5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "scanEscalationReason": "The integrated diff declaration regex reports many verifier private helpers, so review was bounded to Story owned documentation, current exact authority bindings, provenance checks, and the complete final verifier."
+      },
+      "_hash": "acaa9ff49c917810b5f2c0f14b84abd2c6f2254047c1cd8f05c366fdc801e221"
     }
   ]
 }
