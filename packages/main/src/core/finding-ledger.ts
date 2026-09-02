@@ -29,6 +29,7 @@ import {
   verifyCanonical,
 } from "./authority-signing.js";
 import type { FindingLedgerOperation, FindingLedgerReceipt } from "./types.js";
+import { PROOF_OR_STOP_DIR } from "./proof-or-stop-paths.js";
 
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
@@ -55,17 +56,29 @@ export interface FindingLedgerReceiptTrust extends Omit<FindingLedgerSigner, "pr
   algorithm: "ed25519";
 }
 
-function gitCommonDir(workspaceRoot: string): string {
-  const raw = execFileSync("git", ["rev-parse", "--git-common-dir"], {
-    cwd: workspaceRoot,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  }).trim();
-  return path.isAbsolute(raw) ? raw : path.resolve(workspaceRoot, raw);
+function gitCommonDir(workspaceRoot: string): string | undefined {
+  try {
+    const raw = execFileSync("git", ["rev-parse", "--git-common-dir"], {
+      cwd: workspaceRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    }).trim();
+    return path.isAbsolute(raw) ? raw : path.resolve(workspaceRoot, raw);
+  } catch {
+    return undefined;
+  }
 }
 
+/**
+ * The current signing key lives in the git common dir so every linked worktree
+ * of one repository shares it. A workspace that is not a git repository (smoke
+ * fixtures, scratch projects) has no worktrees to share with, so its key is
+ * kept in the workspace's own Proof-or-Stop state dir instead of failing.
+ */
 function findingLedgerKeyPath(workspaceRoot: string): string {
-  return path.join(gitCommonDir(workspaceRoot), FINDING_LEDGER_KEY_FILE);
+  const commonDir = gitCommonDir(workspaceRoot);
+  if (commonDir) return path.join(commonDir, FINDING_LEDGER_KEY_FILE);
+  return path.join(workspaceRoot, PROOF_OR_STOP_DIR, "keys", FINDING_LEDGER_KEY_FILE);
 }
 
 function trustFromPrivateKey(privateKey: string): FindingLedgerReceiptTrust {
