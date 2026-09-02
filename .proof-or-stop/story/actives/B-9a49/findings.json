@@ -1156,6 +1156,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-052",
+      "desc": "B-9a49:F-042 resolvedReason audit-evidence mismatch (high): the official CLI record says the corrected five active roles are proof-or-stop-review-concept, quality, test-coverage, docs, and delivery, but the executable proposal and canonical registry correctly define behavior, concept, docs, quality, and test-coverage. proof-or-stop-review-delivery is a different non-modular-review role and cannot substitute for proof-or-stop-review-behavior. The implementation fix is present, but the append-only resolution evidence for the prior high finding states the wrong acceptance set, so F-042 closure is not truthfully evidenced. Add a traceable correction/superseding resolution record that explicitly names the exact canonical five without rewriting the historical Finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T04:02:59.646Z",
+      "reviewRound": "2026-09-02T04:00:58.964Z",
+      "reviewRunId": "B-9a49:RR-075",
+      "_hash": "6bc2008d2feb183a9175e42a7a4dea91ebf6d68b978a39a189fa1e367f364f21",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "signatureTag": "missing|md|9a49-resolvedreason-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
