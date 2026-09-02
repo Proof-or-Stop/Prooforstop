@@ -476,6 +476,21 @@
       "_hash": "6a7939e5316b905c11ec8b3c1865aa70e2042b540a4fe3e5ae6e4ae71728a9c0",
       "signatureTag": "missing|unknown|agents-tests-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-023",
+      "desc": "AGENTS.md:340-374, docs/audits/AGENTS-current-version-audit.md:92, and tests/AGENTS.verify.mjs:58 — WHY high acceptance blocker: M19 still omits the current reviewer roster/lane opt-in surface from the final guide. The repository registers reviewer_list as the read-only opt-in roster command (command-catalog.ts:2508-2510; reviewer-list.ts:2-18), but AGENTS.md never names reviewer_list or explains that active lanes are policy-computed. The audit row nevertheless claims roster/batch and lane opt-in are corrected, while its GREEN predicate checks only the dispatch sentence and agent-dispatch-registry canonicalName; it would remain GREEN if agent_prompt, reviewer_batch, quorum and roster guidance disappeared. Add reviewer_list/opt-in roster guidance and enforce separate GREEN predicates for dispatch, canonical prompt, roster/batch, lane opt-in, and quorum rather than using dispatch as a proxy for the whole M19 cluster.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T01:40:13.748Z",
+      "reviewRound": "2026-09-02T01:34:45.825Z",
+      "reviewRunId": "B-d854:RR-009",
+      "_hash": "f6a50392a710e4afe9b907b7d00bd07dd683775270058bbfb1854021c71ddd3b",
+      "signatureTag": "missing|unknown|agents-docs-audits",
+      "signatureTagSource": "auto"
     }
   ]
 }
