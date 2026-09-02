@@ -25489,7 +25489,7 @@
       "desc": "Two must-priority verificationEvidence records carry mechanical=false with an explicit nonMechanicalReason (checklist.json CHK-011:happy:0 and CHK-014:happy:1): receipt invalidated by verification_evidence_refresh_stale, the material changed since execution and the pinned command was not re-run here, re-run verification_evidence_add to re-earn a mechanical receipt. Both records carry the current storyFilesHash=227118a026b1c967... label and result=pass but have NO receipt block (no exitCode/outputDigest/selectorMatched/executedAt), unlike the other 48/50 evidence records which are fully mechanical with receipts at headHash=211c34e7e6. This means only 48/50, not 50/50, must-intent receipts were genuinely re-earned by the post-F-475 refresh; the remaining 2 are self-declared-stale, uncorroborated pass stamps that must not count as coverage. Fix: run verification_evidence_add (or refresh) against the pinned commands: node scripts/run-dynamic-validation-replay.mjs --verify-threshold for CHK-011:happy:0; node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json for CHK-014:happy:1.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T05:03:56.409Z",
@@ -25515,7 +25515,11 @@
         ".proof-or-stop/story/actives/B-45a0/checklist.json"
       ],
       "signatureTag": "missing|json|priority-verificationevidence-records",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Both receipts re-earned mechanically in the remediation DEV bounce via verification_run: CHK-011:happy:0 (pinned node scripts/run-dynamic-validation-replay.mjs --verify-threshold, exit 0, selector matched, against the replay campaign re-executed at clean HEAD d29683e616 with admission PASS) and CHK-014:happy:1 (pinned acceptance_topology_check --json, exit 0, selector matched, against the regenerated complete basis). Both now carry full tool-owned receipt blocks; 50/50 evidence records are mechanical.",
+      "resolvedAt": "2026-09-02T07:13:18.515Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-477",
