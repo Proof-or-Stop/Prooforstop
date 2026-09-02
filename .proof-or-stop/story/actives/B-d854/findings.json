@@ -35,6 +35,28 @@
       ],
       "signatureTag": "adversarial|md|agents-conflicts-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-003",
+      "desc": "AGENTS.md:18-23 / Story verification evidence — acceptance requires a claim-by-claim audit ledger and the user specifically asked whether every previously identified issue has RED then GREEN proof. The only persisted docs_check note says “the 26-row RED/GREEN matrix passed” and lists a few broad source ranges, but no 26 rows, per-row baseline failure, final pass condition, authoritative citation, command, exit code, or captured output are present. A reviewer cannot reproduce or inspect the claimed matrix, so the proof request is not delivered even though the final wording appears to address the 24 major and 2 low-priority groups. Fix by recording and presenting the actual 26-row RED→GREEN ledger, with each row independently tied to the baseline line, final line, authority and runnable evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T00:25:05.845Z",
+      "reviewRound": "2026-09-02T00:20:22.610Z",
+      "reviewRunId": "B-d854:RR-003",
+      "_hash": "99c72cb69e37186cef30b628a9738cb544a3b1da40f9271f6bcd606b1e02e5c7",
+      "files": [
+        "AGENTS.md",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "missing|md|agents-story-verification",
+      "signatureTagSource": "auto"
     }
   ]
 }
