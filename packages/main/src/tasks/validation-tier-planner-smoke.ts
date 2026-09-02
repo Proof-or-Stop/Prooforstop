@@ -2514,6 +2514,52 @@ testCase('the REAL package.json chain and the REAL RESOURCE_POLICY both register
   );
 });
 
+// ---------------------------------------------------------------------------
+// (43) REAL VALIDATE.COMMANDS REGISTRATION (B-a745 F-005, load-bearing) —
+//      registration has a THIRD authority beyond the serial-reference chain and
+//      RESOURCE_POLICY: `proof-or-stop.config.json` `validate.commands`, which is
+//      the planner's command universe. This Story's own verification evidence
+//      pins `node packages/main/dist/tasks/validation-tier-planner-smoke.js`, so
+//      a suite absent from that universe makes every one of its pins resolve to
+//      `pinned_command_missing` and `validation_plan` stop with `0 of 0` — which
+//      is exactly what happened while cases (42) and full-suite-runner-smoke both
+//      reported PASS. Neither of those two reads validate.commands at all.
+//
+//      So this case reads the REAL configured command set through the production
+//      reader and drives the REAL pin resolver, rather than inspecting JSON text.
+//      Deleting the config entry must fail HERE.
+// ---------------------------------------------------------------------------
+testCase('the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves', () => {
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
+
+  // The exact string every verification-evidence pin recorded by this Story names.
+  const pinnedCommand = 'node packages/main/dist/tasks/validation-tier-planner-smoke.js';
+  const parsedPin = parseLegacyValidationCommandString(pinnedCommand);
+  assert.ok(parsedPin, 'the recorded pin must parse under the one canonical legacy string rule');
+
+  // Authority 3: the real configured command set, read through the production reader.
+  const commands = configuredValidationCommands(repoRoot);
+  const matches = commands.filter((entry) => entry.command === parsedPin!.command
+    && entry.args.length === parsedPin!.args.length
+    && entry.args.every((arg, index) => arg === parsedPin!.args[index]));
+  assert.equal(
+    matches.length,
+    1,
+    'proof-or-stop.config.json validate.commands is the planner command universe and a SEPARATE mandatory '
+    + `registration; this suite must appear there exactly once, found ${matches.length}`,
+  );
+
+  // End to end through the real resolver: the recorded pin must actually bind.
+  const universe = buildValidationPinUniverse({ projectRoot: repoRoot, commands });
+  const resolution = resolveValidationCommandPin({ universe, evidence: { command: pinnedCommand } });
+  assert.equal(
+    resolution.status,
+    'resolved',
+    `the recorded pin must resolve against the real universe, got ${JSON.stringify(resolution)}`,
+  );
+});
+
 testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed', () => {
   const declaredItems = new Set(DONEWHEN_COVERAGE.map((entry) => entry.item));
   assert.deepEqual([...declaredItems].sort(), ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-004', 'CHK-005']);
