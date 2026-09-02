@@ -377,6 +377,41 @@
         "scanEscalationReason": null
       },
       "_hash": "165234332a6ef92c2c00c5d88353f29347bab97a7abadcaee4f330703aeb15a8"
+    },
+    {
+      "id": "B-9f2c:RP-013",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-earned at head d349c71a: only doc change (F-004) since prior RR pass, no packages/ files changed, tsc clean, standing conclusions reconfirmed.",
+      "createdAt": "2026-09-02T14:58:24.033Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-021",
+      "envelopeId": "c3c4edab4e6f569a0a8bcdd2ce91cdcbc1ccf67642ba912c3c154b6a19af45da",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bde13c2fbe832ea6e4d90470e7e17dce28716d253ec84146ab194f1f5b890e61"
     }
   ]
 }
