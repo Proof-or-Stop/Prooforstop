@@ -1,0 +1,30 @@
+{
+  "passes": [
+    {
+      "id": "B-41c8:RP-001",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Audited all 15 verificationIntent/verificationEvidence pairs across CHK-001..004. Confirmed the shared pinned command (single-owner-extraction-smoke.ts, whole-suite exit-code aggregation) means every evidence receipt requires exitCode===0 across ALL 35 smoke cases, not just the pinned selector case, so selectors that look narrower than their intent are not vacuous: any regression anywhere in the suite flips exit to 1 and derivedResult to fail (checklist.ts:770-834). Verified CHK-003:edge:1 for-each-caller claim has real per-caller assert cases (validation_plan, story_list, session_brief, local-assurance). Spot-checked RED-before-GREEN by re-running CHK-001 RED commit a86438a3f9 in a temp worktree: confirmed 2/12 pass, 10/12 fail exactly as the commit message claims; GREEN bb1814bec3 fixed it. CHK-004 npm-wrapped selector confirmed matched via real receipt (different outputDigest than direct node invocation, proving real re-execution, not reuse).",
+      "createdAt": "2026-09-02T15:01:51.296Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-006",
+      "envelopeId": "abf684a9a517703ff00932d3161fde80cd6480b93608a6c6a10a4395084e9c69",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/core/validation-command-identity.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "211c1c428c3df1ce598758ec5cb265ef770f96260665ffe14191c4a023c549e1"
+    }
+  ]
+}
