@@ -675,7 +675,7 @@ function renderValidationPlanTextLines(report: ValidationPlanReport, explain: bo
 }
 
 export function createValidationPlanHandlers(ctx: HandlerContext) {
-  const { store, root } = ctx;
+  const { root } = ctx;
   return {
     validation_plan(rawArgs: {
       storyId: string;
