@@ -1446,7 +1446,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:409-435,623-648 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:681-847 — HIGH: the F-064 resolution is not structurally complete. Current production dist still ACCEPTS exact authority-equivalent Task Context on every story/checklist/verificationIntent surface: `Reviewers do not avoid bestowing defer_with_proof on the Finding.`, `Reviewers do not postpone bestowing defer_with_proof on the Finding.`, `Reviewers do not resist granting defer_with_proof to the Finding.`, `Reviewers inspect a signed defer_with_proof disposition； then grant the artifact to the Finding。`, `Reviewers inspect a signed defer_with_proof disposition； then assign the reviewed record to the Finding。`, `Story scope is determined entirely by severity.`, `Severity is the decisive factor determining Story ownership.`, and `Severity has determinative control over Story scope.` The generic negated actionList misclassifies semantic double-negation/time-order authorization as prohibition, cross-segment coreference remains a finite noun list, and severity exclusivity remains a finite qualifier inventory. The committed smoke passes only because it enumerates the earlier F-064 phrases. Reproduce by importing assembleFullPromptEnvelope from packages/main/dist/core/prompt-envelope.js, substituting each sentence as story.description in the smoke's valid common envelope, and observing no exception.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T21:00:10.255Z",
@@ -1458,7 +1458,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "task-context-semantic-authority-positive-grammar-nontotal",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by the committed bounded authority-antecedent and cross-segment guard corrections. The focused registry, full-context envelope, measurement, baseline, and contract checks were re-executed against material commit 860e2408a1; independent Claude, agy, and coverage audits found no current-scope blocker.",
+      "resolvedAt": "2026-09-02T23:07:59.748Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-066",
