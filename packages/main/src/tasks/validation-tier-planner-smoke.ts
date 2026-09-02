@@ -2610,6 +2610,7 @@ testCase('the CLI tier aliases map onto the canonical vocabulary and add no four
 const GIT_FIXTURE_IDENTITY = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke'];
 const WORKTREE_FIXTURE_STORY_ID = 'B-a745';
 const WORKTREE_FIXTURE_CHANGED_FILE = 'src/core/planner-touched.ts';
+const WORKTREE_FIXTURE_STORY_COMMAND_ID = 'planner-suite';
 
 function fixtureGit(cwd: string, args: string[]): string {
   return execFileSync('git', [...GIT_FIXTURE_IDENTITY, ...args], {
@@ -2650,9 +2651,7 @@ function buildStoryWorktreeFixture(layout: 'plain' | 'wrapper-root'): {
   const gitRoot = layout === 'wrapper-root' ? join(metadataRoot, 'repo') : metadataRoot;
   mkdirSync(gitRoot, { recursive: true });
 
-  writeFixtureFile(
-    metadataRoot,
-    'proof-or-stop.config.json',
+  const configJson = (extraCommands: unknown[]): string =>
     `${JSON.stringify({
       storyDir: '.proof-or-stop/story/actives',
       ...(layout === 'wrapper-root' ? { gitRoot: 'repo' } : {}),
@@ -2660,10 +2659,11 @@ function buildStoryWorktreeFixture(layout: 'plain' | 'wrapper-root'): {
         commands: [
           { label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' },
           { label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' },
+          ...extraCommands,
         ],
       },
-    }, null, 2)}\n`,
-  );
+    }, null, 2)}\n`;
+  writeFixtureFile(metadataRoot, 'proof-or-stop.config.json', configJson([]));
   writeFixtureFile(gitRoot, '.gitignore', '.worktrees/\n');
   writeFixtureFile(gitRoot, 'README.md', '# validation_plan worktree fixture\n');
   writeFixtureFile(gitRoot, WORKTREE_FIXTURE_CHANGED_FILE, 'export const touched = 0;\n');
@@ -2699,10 +2699,16 @@ function buildStoryWorktreeFixture(layout: 'plain' | 'wrapper-root'): {
   // The story's OWN change, committed on the story branch only: main never sees it.
   writeFixtureFile(worktreePath, WORKTREE_FIXTURE_CHANGED_FILE, 'export const touched = 1;\n');
   if (layout === 'plain') {
-    // The story's metadata evolves on the story branch too (checklist progress,
-    // evidence pins): main's committed copy is the stale INIT snapshot. This is
+    // The story's metadata AND its command inventory evolve on the story branch
+    // too: the story registers a new validate.commands entry and pins evidence
+    // to it, while main's committed copies are the stale INIT snapshot. This is
     // exactly the residual the owner reproduction showed once git state matched:
-    // an evidence pin recorded in the worktree that main's checklist never had.
+    // pins recorded in the worktree that main's checklist and inventory never had.
+    writeFixtureFile(
+      worktreePath,
+      'proof-or-stop.config.json',
+      configJson([{ label: 'planner', command: 'npm', args: ['run', 'planner'], id: WORKTREE_FIXTURE_STORY_COMMAND_ID }]),
+    );
     resetConfigCache();
     new StoryStore(worktreePath).writeChecklist(WORKTREE_FIXTURE_STORY_ID, {
       items: [
@@ -2710,7 +2716,7 @@ function buildStoryWorktreeFixture(layout: 'plain' | 'wrapper-root'): {
           id: 'CHK-001',
           files: { modify: [WORKTREE_FIXTURE_CHANGED_FILE], create: [], test: [] },
           verificationEvidence: [
-            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run not-in-inventory', result: 'pass', note: 'worktree-only pin' },
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run planner', result: 'pass', note: 'worktree-only pin' },
           ],
         }),
       ],
@@ -2753,8 +2759,13 @@ testCase('F-010: validation_plan invoked from the main checkout plans the SAME t
     `the worktree view must see the story's own change (got ${JSON.stringify(unclassifiedValues(fromWorktree))})`,
   );
   assert.ok(
+    (fromWorktree.units as Array<{ id: string }>).some((unit) => unit.id === WORKTREE_FIXTURE_STORY_COMMAND_ID),
+    'the worktree view must select from the inventory the story branch registered',
+  );
+  assert.equal(
     escalationCodes(fromWorktree).includes('pinned_command_non_inventory'),
-    'the worktree view must see the evidence pin that only the story-branch checklist records',
+    false,
+    'the worktree-only evidence pin must resolve against the story branch inventory',
   );
   assert.equal(fromWorktree.status, 'plan');
 
