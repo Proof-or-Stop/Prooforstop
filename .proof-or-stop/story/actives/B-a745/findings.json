@@ -331,6 +331,23 @@
       "signatureTagSource": "auto",
       "dismissReason": "Accepted and closed. packages/main/dist is a gitignored build artifact; at this lane's start it predated the F-010/F-011 commits because several actors rebuilt it at different times during the shared-worktree review. The lane confirmed this was NOT evidence fabrication: the recorded CHK-006 receipts (headHash de019c2284) contain the real fresh F-010 fixture output, so dist was correctly rebuilt at capture time and drifted afterward. The lane rebuilt it from current src before every further check. Owner action: dist will be rebuilt again immediately before the standalone validate run and before DONE-required validation, since both execute dist, and DONE-required rebuilds as part of its own pipeline. No source or story change; low severity; nothing downstream consumed the stale build.",
       "dismissedAt": "2026-09-02T08:06:41.190Z"
+    },
+    {
+      "id": "B-a745:F-016",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2 (--json output preserved at the owner's scratchpad codex-xhr-r2-raw-output.txt).] Codex (MAJOR as filed): 'Planner re-exposes unbounded raw git errors. The collector deliberately creates a bounded single-line reason and summary while retaining raw stderr only for diagnosis, but the planner interpolates changedFiles.error directly into an operator-facing escalation. A git failure can therefore emit a multiline, potentially very large payload, corrupt the line-oriented status output, and defeat the bounded-output protection already implemented upstream.' OWNER VERIFICATION: validation-tier-planner.ts:627 reads `not be read (${input.changedFiles.error}); this is not an empty diff...` while validation-relevance-input.ts exposes bounded `reason` (line ~140) and `summary` (line ~142) precisely so operator prose never carries raw stderr; the CHK-006 Part 2 fix bounded the COLLECTOR detail and its fixture asserts the collector, so the planner path was never covered. This is a regression of the acceptance-surface interpretability guarantee this story ships (the explain output), hence fixed in scope despite medium severity. Fix: render changedFiles.reason/summary or reuse the collector's bounded escalation detail, never .error, and add an end-to-end planner/render fixture using a long multiline git usage error.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:23:49.836Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "0bd0c65269001d543f499d87c211274603c00922a206c54bc2966f0e7419838d",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "edge|ts|registered-story-owner",
+      "signatureTagSource": "auto"
     }
   ]
 }
