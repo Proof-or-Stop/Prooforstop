@@ -173,7 +173,54 @@
       "context": "Plan sections 'Terminology and invariants', 'Selection algorithm' steps 1, 2 and 5, and 'Fail-closed widening matrix'. Define the tier names story-fast / story-intermediate / repository-full, the subset invariant, the reason-code enum from the matrix, and the resolver that maps a StoryRelevanceInput plus a requested tier to an effective tier with escalation reasons. In this Story the resolver ALWAYS returns effective repository-full or a classified stop; it performs no pruning and an empty selection is never a PASS. Source kinds fallback / validate-file stay atomic and no-validator preserves the existing skip/warn.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#fail-closed-widening-matrix",
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#terminology-and-invariants"
+      ],
+      "userSees": "The smoke run prints one line per planner case and ends `validation-tier-planner-smoke: PASS`. Every `validation_plan` invocation prints `requestedTier:` and `effectiveTier:` on separate lines, and in this Story `effectiveTier` is always `repository-full` or the run stops; it is never `story-fast` or `story-intermediate`. Each escalation reason prints as `<reason_code> - <one sentence in plain language>`.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/validation-tier-planner.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a normal configured-source story the resolver returns effectiveTier=repository-full with the full command universe selected and at least one escalation reason explaining why no reduction happened.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Every reason code the resolver can emit has a non-empty human-readable gloss, asserted by enumerating the reason-code enum rather than a hand-copied list.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The fallback and validate-file source kinds report source_kind_atomic and execute nothing reduced, and the no-validator source kind preserves the existing skip/warn without producing any tier pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "An unclassified material input produces unclassified_material_input in escalationReasons and appears in unclassifiedInputs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The resolver never returns story-fast or story-intermediate as an effective tier in this Story, and an empty selection is never reported as a pass: a fixture that forces an empty universe asserts a classified stop rather than a passing empty plan.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
