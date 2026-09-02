@@ -106,7 +106,53 @@
       "context": "story-query.ts readStoryProjection, session.ts listActiveWorktrees and readStoryFromLinkedWorktree, local-assurance-story-projection.ts collectLinkedStoryWorktrees, validation-plan.ts resolveStoryWorkspace. The helper returns gitCwd via resolveGitCwd, a workspace-rooted StoryStore and workspace-loaded config, and applies the phase-terminal guard (`phase !== 'DONE' && phase !== 'DISCARDED'`). RED fixture per migrated site: invoke from a different cwd and assert identical output, modelled on B-a745's F-010 main-checkout and wrapper-root cases; plus a DONE-story case asserting the guard refuses a merged-and-removed worktree.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "The smoke prints one line per resolver case and ends `single-owner-extraction-smoke: PASS`. `node packages/main/dist/cli.js validation_plan --storyId=<active story> --tier=fast --json` run from the story worktree and from the main checkout prints the same selectionDigest, and run against a DONE story it reports the story as not resolvable from a linked worktree rather than reading a removed worktree.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-workspace.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "One helper in core/story-workspace.ts returns gitCwd via resolveGitCwd, a workspace-rooted StoryStore and workspace-loaded config, and the four named implementations call it instead of their own logic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The phase-terminal guard is an explicit option whose default matches each migrated caller's prior behaviour, and a fixture per migrated caller asserts DONE-story reads behave exactly as before.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For each migrated caller, invoking from the story worktree and from the main checkout yields identical output, and a configured wrapper-root layout resolves the story worktree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The helper derives the state directory from core/brand-paths.ts; a fixture greps the helper for the retired literal state-dir spelling and asserts zero hits.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
