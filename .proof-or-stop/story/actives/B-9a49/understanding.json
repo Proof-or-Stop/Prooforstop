@@ -1,33 +1,32 @@
 {
-  "task": "Project the approved REVIEW Finding triage policy into active Agent prompts and align the authoritative Dynamic Finding target-state documentation without implementing runtime mechanics.",
-  "outcome": "When the user inspects generated prompts and the open-source decision documents, all five active REVIEW Agents show the same English triage rules in both supported envelope modes, the Dynamic Finding plan defines the same target-state vocabulary and compatibility boundary, non-REVIEW Agents do not receive reviewer instructions, and tests reject contradictory Task Context before the Story can pass review.",
+  "task": "Project the approved REVIEW Finding triage policy into all active REVIEW Agent prompts without amending Dynamic Finding authority or runtime mechanics.",
+  "outcome": "The generated prompt for each of the five canonical REVIEW Agents displays the same English Finding triage contract, including “severity and applicability are separate axes,” evidence-backed routing, fail-closed unknown applicability, and bounded current-Story repair; non-REVIEW prompts do not display that contract.",
   "facts": [
-    "The Dynamic Finding System execution plan is authoritative for target schemas, applicability, gate impact, freshness, and supersession.",
-    "Its current draft still uses the former combined non-reproduction verdict and lacks the proposed future signed deferral disposition, while the approved Agent proposal uses the more precise current-witness verdict.",
-    "The five active REVIEW lanes are behavior, concept, docs, quality, and test-coverage.",
-    "Reviewer prompt bodies are assembled centrally by prompt-registry.ts in full-envelope and legacy-full-context modes.",
-    "Role-contract requiredCheckIds are declarative metadata and are not execution proof.",
-    "Current compatibility finding_dismiss behavior is not a substitute for applicability assessment or signed deferral.",
-    "The focused RED/GREEN path includes prompt-registry-smoke and prompt-full-context-envelope-smoke from dist; the latter must mutate Story/checklist/verificationIntent Task Context.",
-    "The prompt baseline verifier supports --write for generated baseline artifacts, while exact approval manifest hashes remain explicit reviewed pin changes."
+    "The Dynamic Finding System execution plan is authoritative and remains unchanged by this Story.",
+    "The proposal is a subordinate Agent-side projection, not a runtime or authority amendment.",
+    "Five canonical active REVIEW lanes consume centrally assembled prompts in full-envelope and legacy-full-context modes.",
+    "Retired verdict vocabulary may appear only in historical evidence or negative test inputs, never as an active Task Context alias.",
+    "Role-contract requiredCheckIds are declarative metadata and are not execution or gate evidence.",
+    "Current finding_dismiss compatibility behavior changes current blocking status but proves neither applicability, repair, resolution, nor deferral.",
+    "CHK-005 and CHK-006 are separately reviewed acceptance/identity infrastructure repairs needed for truthful Story evidence."
   ],
   "constraints": [
-    "All new prompt and tracked documentation prose must be English for open-source use.",
-    "Reviewer severity, evidence state, applicability candidate, disposition, and gate impact must remain separate axes.",
-    "Unknown applicability for a Finding that would otherwise block must fail closed.",
-    "No reviewer repair, dismissal, follow-up Story creation, silent severity rewrite, or unilateral scope widening.",
-    "The Dynamic Finding plan amendment is target-state documentation only; no runtime schema, handler, predicate, process-fact registry, freshness, supersession, or lifecycle gate changes are authorized.",
-    "The former verdict name may appear only as an explicitly labeled future legacy input alias in the authority document, not as live reviewer authority.",
-    "Use RED before implementation and prove GREEN afterward.",
-    "Run verify_codex because adapter prompt assets and assembly semantics change."
+    "All new proposal and Agent-facing prose must be English.",
+    "Severity, evidenceState, applicability, disposition, and gate impact remain separate axes.",
+    "Unknown applicability fails closed when the Finding would otherwise block.",
+    "Reviewers do not repair, dismiss, create follow-up Stories, use gap_log for product routing, rewrite severity, or widen scope.",
+    "Do not modify Dynamic Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, or its authority document.",
+    "Use RED then GREEN and verify the final committed source through the local CLI."
   ],
   "unknowns": [],
   "touchpoints": [
-    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
     "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts",
-    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/templates/agents/proof-or-stop-implementer.md",
+    ".claude/agents/proof-or-stop-implementer.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
     "packages/main/src/tasks/prompt-registry-smoke.ts",
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
@@ -35,5 +34,5 @@
     "AGENTS.md",
     "CLAUDE.md"
   ],
-  "timestamp": "2026-09-01T11:10:13.442Z"
+  "timestamp": "2026-09-02T02:48:44.480Z"
 }
