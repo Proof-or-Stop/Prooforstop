@@ -374,7 +374,11 @@
           {
             "desc": "an unknown --story id is refused before the server starts listening, so no port is bound",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
           },
           {
             "desc": "the validation cannot be bypassed by calling the handler directly with an argument object that never passed through the Zod schema",
@@ -479,6 +483,27 @@
           "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:54:38.645Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) rejects an unknown id and then asserts the stub library recorded startServerCalls==0 and openedUrls==[] , i.e. nothing ever listened. Assertion uses rejectsPromptly because a regressed handler SERVES the bad id and never settles. Negative control run: removing the pre-listen check made the task exit 1 with 'did not settle within 10000ms - an unknown --story must be REFUSED, not served: the pre-listen validation is gone'.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3dcc425a388854f929d936090a73ec7ade8f7ee5489f85ab001c8393acfe186",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-NIacRp (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-NIacRp (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-NIacRp (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:54:56.098Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "368bb1ebbd1ae4d1621f1d53a2c53f825bd4f6ae",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:54:56.262Z"
         }
       ]
     },
