@@ -63,6 +63,26 @@
  *  (23) ADVERSARIAL (intent) — verification intent is reason context only and produces
  *       no command-to-seed edge; every edge that exists comes from a resolved pin.
  *  (24) RUNTIME RE-VALIDATION — the collector re-checks its own inputs.
+ *
+ * CHK-004 cases proven here (sections "Terminology and invariants", "Selection
+ * algorithm" steps 1/2/5, and "Fail-closed widening matrix"):
+ *  (25) TIER VOCABULARY — exactly story-fast / story-intermediate / repository-full,
+ *       with the subset invariant ENCODED: a selection that breaks it is rejected.
+ *  (26) GLOSS COMPLETENESS (load-bearing) — every reason code carries a one-sentence
+ *       plain-language gloss, asserted by ENUMERATING the table rather than by a
+ *       hand-copied list of codes, which would rot the moment a code is added.
+ *  (27) NORMAL CONFIGURED STORY — repository-full over the COMPLETE universe, with at
+ *       least one glossed reason explaining why nothing was reduced.
+ *  (28) ALL FOUR SOURCE KINDS — configured is the command-set path; fallback and
+ *       validate-file are one atomic unit reporting source_kind_atomic; no-validator
+ *       preserves the existing skip/warn and produces NO tier pass.
+ *  (29) UNCLASSIFIED MATERIAL INPUT — appears BOTH as an escalation reason and in
+ *       unclassifiedInputs; an upstream unresolvable pin is a classified stop.
+ *  (30) EXHAUSTIVE BRANCH COVERAGE (load-bearing) — sweeping the resolver's whole
+ *       input space, no result ever carries a reduced effective tier.
+ *  (31) EMPTY UNIVERSE — a classified stop, never a passing empty plan. Written so an
+ *       implementation returning {allPass: true, selected: []} FAILS.
+ *  (32) RUNTIME RE-VALIDATION — the planner core re-checks tier and input.
  */
 
 import assert from 'node:assert/strict';
@@ -101,7 +121,24 @@ import {
   validationIdentityDigest,
 } from '../core/validation-evidence-reuse.js';
 import { configuredValidationCommands, sourceInputSnapshot } from '../handlers/verifier.js';
-import type { ValidationCommand } from '../core/validation-types.js';
+import {
+  REPOSITORY_FULL_TIER,
+  VALIDATION_TIERS,
+  VALIDATION_WIDENING_OUTCOMES,
+  VALIDATION_WIDENING_REASONS,
+  VALIDATION_WIDENING_REASON_CODES,
+  assertValidationTier,
+  assertValidationTierSelectionSubsetInvariant,
+  resolveValidationTierPlan,
+  validationTierIsSubsetOf,
+  validationTierRank,
+  validationWideningReason,
+  validationWideningReasonGloss,
+  type ValidationTier,
+  type ValidationTierPlanResult,
+  type ValidationWideningReasonCode,
+} from '../core/validation-tier-planner.js';
+import type { RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
@@ -1163,6 +1200,371 @@ testCase('the collector re-validates a schema-bypassing caller input', () => {
     /sourceKind/,
     'an unknown routine source kind must be rejected at the collector entry',
   );
+});
+
+
+// ---------------------------------------------------------------------------
+// CHK-004 — language-neutral planner types and the fail-closed widening matrix
+// (`core/validation-tier-planner.ts`). Spec sections "Terminology and
+// invariants", "Selection algorithm" steps 1/2/5, and "Fail-closed widening
+// matrix".
+//
+// The defining constraint of this Story: the resolver returns
+// `effectiveTier: 'repository-full'` or a CLASSIFIED STOP. There is no code path
+// that returns a reduced tier, no pruning, no impact index, no exclusion proof,
+// and an empty selection is never a pass.
+// ---------------------------------------------------------------------------
+
+console.log(`\n${MARKER}: running CHK-004 tier planner and widening matrix cases`);
+
+const SOURCE_KINDS: RoutineValidationSourceKind[] = ['configured', 'fallback', 'validate-file', 'no-validator'];
+
+function planInput(overrides: Partial<StoryRelevanceInputArgs> = {}): StoryRelevanceInput {
+  return collect(overrides);
+}
+
+function planFor(
+  requestedTier: ValidationTier,
+  overrides: Partial<StoryRelevanceInputArgs> = {},
+): ValidationTierPlanResult {
+  return resolveValidationTierPlan({ input: planInput(overrides), requestedTier });
+}
+
+function reasonCodes(result: ValidationTierPlanResult): string[] {
+  return result.escalationReasons.map((reason) => reason.code);
+}
+
+// ---------------------------------------------------------------------------
+// (25) TIER VOCABULARY AND THE SUBSET INVARIANT.
+//      The vocabulary is exactly the spec's three names, and the invariant
+//      story-fast ⊆ story-intermediate ⊆ repository-full is ENCODED, not
+//      described in a comment: a selection that violates it is rejected.
+// ---------------------------------------------------------------------------
+testCase('the tier vocabulary is exactly the three spec names, ordered by containment', () => {
+  assert.deepEqual([...VALIDATION_TIERS], ['story-fast', 'story-intermediate', 'repository-full']);
+  assert.equal(REPOSITORY_FULL_TIER, 'repository-full');
+  assert.ok(validationTierRank('story-fast') < validationTierRank('story-intermediate'));
+  assert.ok(validationTierRank('story-intermediate') < validationTierRank('repository-full'));
+  assert.equal(validationTierIsSubsetOf('story-fast', 'repository-full'), true);
+  assert.equal(validationTierIsSubsetOf('repository-full', 'story-fast'), false);
+});
+
+testCase('a tier selection that breaks the subset invariant is rejected', () => {
+  assertValidationTierSelectionSubsetInvariant({
+    'story-fast': ['a'],
+    'story-intermediate': ['a', 'b'],
+    'repository-full': ['a', 'b', 'c'],
+  });
+  assert.throws(
+    () =>
+      assertValidationTierSelectionSubsetInvariant({
+        'story-fast': ['a', 'z'],
+        'story-intermediate': ['a'],
+        'repository-full': ['a'],
+      }),
+    /story-fast/,
+    'a fast unit absent from the intermediate set must be rejected',
+  );
+  assert.throws(
+    () =>
+      assertValidationTierSelectionSubsetInvariant({
+        'story-fast': ['a'],
+        'story-intermediate': ['a', 'q'],
+        'repository-full': ['a'],
+      }),
+    /story-intermediate/,
+    'an intermediate unit absent from the repository-full set must be rejected',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// (26) GLOSS COMPLETENESS BY ENUMERATION (load-bearing).
+//      Asserted by walking the reason-code table itself, never a hand-copied
+//      list of codes: a list would rot the moment someone adds a code, which is
+//      exactly the silent omission this case exists to prevent. A bare code like
+//      `impact_index_unusable` is unusable to an operator who has not read the
+//      spec, so a code without a plain-language gloss must not be able to exist.
+// ---------------------------------------------------------------------------
+testCase('every reason code carries a non-empty plain-language gloss, asserted by enumeration', () => {
+  const codes = Object.keys(VALIDATION_WIDENING_REASONS) as ValidationWideningReasonCode[];
+  assert.ok(codes.length > 0, 'the widening matrix must not be empty');
+  assert.deepEqual([...VALIDATION_WIDENING_REASON_CODES].sort(), [...codes].sort());
+  for (const code of codes) {
+    const definition = VALIDATION_WIDENING_REASONS[code];
+    assert.equal(typeof definition.gloss, 'string', `${code}: gloss must be a string`);
+    assert.ok(definition.gloss.trim().length >= 20, `${code}: gloss must be a real sentence, got ${JSON.stringify(definition.gloss)}`);
+    assert.ok(definition.condition.trim().length > 0, `${code}: the matrix condition must be recorded`);
+    assert.ok(VALIDATION_WIDENING_OUTCOMES.includes(definition.outcome), `${code}: unknown outcome ${definition.outcome}`);
+    assert.equal(validationWideningReasonGloss(code), definition.gloss);
+    const reason = validationWideningReason(code, 'fixture detail');
+    assert.equal(reason.code, code);
+    assert.equal(reason.gloss, definition.gloss);
+    assert.equal(reason.outcome, definition.outcome);
+    assert.equal(reason.detail, 'fixture detail');
+  }
+});
+
+testCase('an unknown reason code has no gloss and is refused rather than glossed as empty', () => {
+  assert.throws(
+    () => validationWideningReasonGloss('not_a_matrix_row' as ValidationWideningReasonCode),
+    /not_a_matrix_row/,
+    'a code outside the table must be refused, never silently glossed as empty',
+  );
+});
+
+// This is a LOWER BOUND on the table, transcribed from the spec's matrix. It is
+// deliberately separate from the gloss check above: this list may legitimately
+// lag the table when a later Story adds a row, whereas the gloss check must
+// never be allowed to lag, which is why it enumerates instead.
+testCase('the table covers every row of the spec fail-closed widening matrix', () => {
+  const specMatrixCodes = [
+    'changed_files_unavailable',
+    'unclassified_material_input',
+    'impact_index_unusable',
+    'impact_projection_incomplete',
+    'workspace_snapshot_changed',
+    'selection_policy_changed',
+    'validation_framework_sensitive_change',
+    'build_graph_change',
+    'runtime_edge_unresolved',
+    'pinned_command_missing',
+    'pinned_command_ambiguous',
+    'command_exclusion_unproven',
+    'source_kind_atomic',
+    'no_validator',
+    'empty_selection_unclassified',
+    'docs_only_policy',
+    'duration_target_exceeded',
+  ];
+  for (const code of specMatrixCodes) {
+    assert.ok(code in VALIDATION_WIDENING_REASONS, `spec matrix row ${code} is missing from the table`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (27) THE NORMAL CONFIGURED STORY.
+//      Repository-full, the COMPLETE universe selected, and at least one
+//      escalation reason saying why nothing was reduced.
+// ---------------------------------------------------------------------------
+testCase('a normal configured story plans repository-full over the complete universe', () => {
+  const result = planFor('story-fast', {
+    readers: { changedFileStatuses: statusReader({ 'src/core/foo.ts': 'M' }), hashSnapshot: fixtureHashSnapshot },
+  });
+  assert.equal(result.status, 'plan');
+  if (result.status !== 'plan') return;
+  assert.equal(result.requestedTier, 'story-fast', 'the requested tier is retained in the artifact');
+  assert.equal(result.effectiveTier, 'repository-full');
+  assert.equal(result.reductionApplied, false);
+  assert.equal(result.finalAuthority, false);
+  assert.equal(result.executionMode, 'command-set');
+  assert.deepEqual(result.selectedUnitIds, ['unit-suite', 'lint-suite']);
+  assert.deepEqual(result.universe.map((unit) => unit.id), ['unit-suite', 'lint-suite']);
+  assert.ok(result.escalationReasons.length > 0, 'at least one reason must explain why nothing was reduced');
+  for (const reason of result.escalationReasons) {
+    assert.ok(reason.gloss.trim().length > 0, `${reason.code} reached an operator without a gloss`);
+    assert.ok(reason.detail.trim().length > 0, `${reason.code} reached an operator without a detail`);
+  }
+  // Step 2: a repository-full escalation sets BOTH fast and intermediate to U.
+  assert.deepEqual(result.tierSelections['story-fast'], result.selectedUnitIds);
+  assert.deepEqual(result.tierSelections['story-intermediate'], result.selectedUnitIds);
+  assert.deepEqual(result.tierSelections['repository-full'], result.selectedUnitIds);
+});
+
+testCase('no pruning exists: a story that changed nothing still selects the complete universe', () => {
+  const result = planFor('story-intermediate');
+  assert.equal(result.status, 'plan');
+  if (result.status !== 'plan') return;
+  assert.deepEqual(result.selectedUnitIds, ['unit-suite', 'lint-suite']);
+  assert.ok(
+    reasonCodes(result).includes('command_exclusion_unproven'),
+    'without a positive exclusion proof no command may be dropped',
+  );
+  assert.ok(
+    reasonCodes(result).includes('impact_index_unusable'),
+    'there is no impact index in this increment, and the plan must say so',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// (28) ALL FOUR SOURCE KINDS.
+// ---------------------------------------------------------------------------
+testCase('configured is the command-set path', () => {
+  const result = planFor('repository-full', { routine: { sourceKind: 'configured', commands: RELEVANCE_COMMANDS } });
+  assert.equal(result.status, 'plan');
+  if (result.status !== 'plan') return;
+  assert.equal(result.executionMode, 'command-set');
+  assert.ok(!reasonCodes(result).includes('source_kind_atomic'));
+});
+
+for (const atomicKind of ['fallback', 'validate-file'] as const) {
+  testCase(`${atomicKind} reports source_kind_atomic and executes its atomic repository-full path`, () => {
+    const result = planFor('story-fast', { routine: { sourceKind: atomicKind, commands: RELEVANCE_COMMANDS } });
+    assert.equal(result.status, 'plan');
+    if (result.status !== 'plan') return;
+    assert.equal(result.effectiveTier, 'repository-full');
+    assert.equal(result.executionMode, 'atomic');
+    assert.equal(result.selectedUnitIds.length, 1, 'an opaque source kind is ONE atomic unit');
+    assert.equal(result.universe[0].kind, 'atomic');
+    assert.ok(reasonCodes(result).includes('source_kind_atomic'));
+  });
+}
+
+testCase('no-validator preserves the existing skip/warn and produces NO tier pass', () => {
+  const result = planFor('story-fast', { routine: { sourceKind: 'no-validator', commands: [] } });
+  assert.equal(result.status, 'no-tier-pass');
+  if (result.status === 'plan') return;
+  assert.equal(result.reason.code, 'no_validator');
+  assert.equal((result as { effectiveTier?: unknown }).effectiveTier, undefined, 'a skip must not carry an effective tier');
+  assert.equal((result as { selectedUnitIds?: unknown }).selectedUnitIds, undefined);
+  assert.equal(result.finalAuthority, false);
+});
+
+// ---------------------------------------------------------------------------
+// (29) AN UNCLASSIFIED MATERIAL INPUT.
+//      It must appear BOTH as an escalation reason and in `unclassifiedInputs`:
+//      a reason with nothing behind it cannot be acted on, and an entry that
+//      never escalates is a silent narrowing.
+// ---------------------------------------------------------------------------
+testCase('an unclassified material input escalates AND is listed', () => {
+  const result = planFor('story-fast', {
+    readers: {
+      changedFileStatuses: statusReader({ 'src/core/unmapped-thing.ts': 'M' }),
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  });
+  assert.equal(result.status, 'plan');
+  if (result.status !== 'plan') return;
+  assert.ok(reasonCodes(result).includes('unclassified_material_input'));
+  const listed = result.unclassifiedInputs.filter((entry) => entry.value === 'src/core/unmapped-thing.ts');
+  assert.equal(listed.length, 1, 'the unclassified path itself must be listed, not just counted');
+  assert.equal(listed[0].kind, 'material-path');
+});
+
+testCase('an unresolvable pin collected upstream becomes a classified stop, never a plan', () => {
+  const result = planFor('story-fast', {
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run gone', result: 'pass', note: 'fixture evidence' },
+          ],
+        }),
+      ],
+    },
+  });
+  assert.equal(result.status, 'stop');
+  if (result.status !== 'stop') return;
+  assert.equal(result.reason.code, 'pinned_command_missing');
+  assert.equal((result as { effectiveTier?: unknown }).effectiveTier, undefined);
+});
+
+// ---------------------------------------------------------------------------
+// (30) EXHAUSTIVE BRANCH COVERAGE (load-bearing).
+//      `story-fast` and `story-intermediate` are never returned as an EFFECTIVE
+//      tier. This is proven by sweeping the resolver's whole input space, not by
+//      a comment promising it.
+// ---------------------------------------------------------------------------
+testCase('no input in the resolver space yields a reduced effective tier', () => {
+  const observedStatuses = new Set<string>();
+  const observedReasons = new Set<string>();
+  let combinations = 0;
+  const unresolvablePin = [
+    checklistItem({
+      id: 'CHK-001',
+      verificationEvidence: [
+        { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run gone', result: 'pass', note: 'fixture evidence' },
+      ],
+    }),
+  ];
+
+  for (const requestedTier of VALIDATION_TIERS) {
+    for (const sourceKind of SOURCE_KINDS) {
+      for (const changedFilesReadable of [true, false]) {
+        for (const withPin of [true, false]) {
+          for (const emptyUniverse of [true, false]) {
+            combinations += 1;
+            const result = planFor(requestedTier, {
+              routine: {
+                sourceKind,
+                commands: sourceKind === 'no-validator' || emptyUniverse ? [] : RELEVANCE_COMMANDS,
+              },
+              checklist: { items: withPin ? unresolvablePin : [] },
+              readers: {
+                changedFileStatuses: changedFilesReadable
+                  ? statusReader({ 'src/core/foo.ts': 'M' })
+                  : throwingStatusReader,
+                hashSnapshot: fixtureHashSnapshot,
+              },
+            });
+            observedStatuses.add(result.status);
+            for (const code of reasonCodes(result)) observedReasons.add(code);
+            const effective = (result as { effectiveTier?: unknown }).effectiveTier;
+            assert.ok(
+              effective === undefined || effective === 'repository-full',
+              `effectiveTier ${String(effective)} escaped for ${requestedTier}/${sourceKind}`,
+            );
+            assert.notEqual(effective, 'story-fast');
+            assert.notEqual(effective, 'story-intermediate');
+            if (result.status === 'plan') {
+              assert.equal(result.reductionApplied, false);
+              assert.ok(result.selectedUnitIds.length > 0, 'a plan may never carry an empty selection');
+              assert.deepEqual(result.selectedUnitIds, result.universe.map((unit) => unit.id));
+            }
+            assert.equal((result as { allPass?: unknown }).allPass, undefined, 'the planner never asserts a pass');
+          }
+        }
+      }
+    }
+  }
+
+  assert.equal(combinations, 96, 'the sweep must cover the full cartesian product');
+  assert.deepEqual([...observedStatuses].sort(), ['no-tier-pass', 'plan', 'stop']);
+  for (const expected of ['impact_index_unusable', 'command_exclusion_unproven', 'changed_files_unavailable', 'source_kind_atomic']) {
+    assert.ok(observedReasons.has(expected), `the sweep never exercised ${expected}`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (31) AN EMPTY UNIVERSE IS A CLASSIFIED STOP, NEVER A PASSING EMPTY PLAN.
+//      Written so an implementation returning `{allPass: true, selected: []}`
+//      fails: the status must be a stop, the reason must be named, and no
+//      pass-shaped field may exist.
+// ---------------------------------------------------------------------------
+testCase('an empty universe stops as empty_selection_unclassified rather than passing empty', () => {
+  const result = planFor('repository-full', { routine: { sourceKind: 'configured', commands: [] } });
+  assert.equal(result.status, 'stop', 'an empty universe must STOP, not produce an empty plan');
+  assert.notEqual(result.status, 'plan');
+  if (result.status !== 'stop') return;
+  assert.equal(result.reason.code, 'empty_selection_unclassified');
+  assert.ok(result.reason.gloss.trim().length > 0);
+  assert.equal((result as { allPass?: unknown }).allPass, undefined, 'no pass-shaped field may exist on a stop');
+  assert.equal((result as { selectedUnitIds?: unknown }).selectedUnitIds, undefined, 'a stop selects nothing at all');
+  assert.equal((result as { effectiveTier?: unknown }).effectiveTier, undefined);
+});
+
+// ---------------------------------------------------------------------------
+// (32) HANDLER ENCODING CONVENTION — the planner core re-validates its inputs,
+//      because a schema constraint upstream is only the first line of defence.
+// ---------------------------------------------------------------------------
+testCase('the planner core rejects a schema-bypassing tier and a malformed input', () => {
+  assert.throws(
+    () => resolveValidationTierPlan({ input: planInput(), requestedTier: 'story-quick' as ValidationTier }),
+    /story-quick/,
+    'an unknown tier must be rejected by name at the core entry',
+  );
+  assert.throws(
+    () => resolveValidationTierPlan({ input: planInput(), requestedTier: '' as ValidationTier }),
+    /tier/,
+    'an empty tier must be rejected at the core entry',
+  );
+  assert.throws(
+    () => resolveValidationTierPlan({ input: undefined as unknown as StoryRelevanceInput, requestedTier: 'story-fast' }),
+    /input/,
+    'a missing StoryRelevanceInput must be rejected at the core entry',
+  );
+  assert.equal(assertValidationTier('story-fast', 'fixture'), 'story-fast');
+  assert.throws(() => assertValidationTier(7, 'fixture'), /fixture/);
 });
 
 for (const root of temporaryRoots) {
