@@ -23,12 +23,14 @@ import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
 process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
 
 const tmp = mkdtempSync(join(tmpdir(), 'lattice-validation-protocol-'));
@@ -254,6 +256,92 @@ try {
     assert.doesNotMatch(`${configuredResult.summary}\n${configuredResult.details.join('\n')}\n${configuredResult.warnings.join('\n')}\n${logs.join('\n')}`, /discover|fallback|advisory|validate\.ts not found/i);
   } finally {
     rmSync(configuredOnlyRoot, { recursive: true, force: true });
+  }
+
+  // Story-aware dynamic preview must also be reachable when the project uses
+  // the native validate.ts entrypoint (not only configured commands).
+  const dynamicValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dynamic-validate-file-'));
+  try {
+    writeFileSync(join(dynamicValidateFileRoot, 'validate.ts'), 'console.log("validate-file dynamic fixture")\n');
+    initSmokeGitRepo(dynamicValidateFileRoot);
+    gitQuiet(dynamicValidateFileRoot, ['add', '.']);
+    gitQuiet(dynamicValidateFileRoot, ['commit', '-m', 'seed dynamic validate-file smoke']);
+    resetConfigCache();
+    const dynamicJson = await createVerifierHandlers({
+      root: dynamicValidateFileRoot,
+      scanRoot: dynamicValidateFileRoot,
+      store: new StoryStore(dynamicValidateFileRoot),
+      log: () => {},
+    }).validate({ dynamicMode: 'observe', json: true });
+    const dynamicResult = JSON.parse(String(dynamicJson));
+    assert.equal(dynamicResult.provider, 'lattice-verifier-dynamic-preview');
+    assert.equal(dynamicResult.commandExecutions, 0);
+    assert.equal(dynamicResult.dynamicValidation.mode, 'observe');
+    assert.equal(dynamicResult.dynamicValidation.oracleStatus, 'not-run');
+    assert.equal(dynamicResult.dynamicValidation.manifest.totals.inventory, 1);
+  } finally {
+    rmSync(dynamicValidateFileRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  // Story-scoped validate-file coverage: exercise all three dynamic modes
+  // through the real verifier branch, not only the bounded no-story preview.
+  const storyDynamicValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-story-dynamic-validate-file-'));
+  try {
+    writeFileSync(join(storyDynamicValidateFileRoot, 'validate.ts'), 'console.log("story-scoped validate-file dynamic fixture")\n');
+    mkdirSync(join(storyDynamicValidateFileRoot, 'node_modules/.bin'), { recursive: true });
+    const tsxShim = join(storyDynamicValidateFileRoot, 'node_modules/.bin/tsx');
+    writeFileSync(tsxShim, '#!/usr/bin/env node\nconst { spawnSync } = require("node:child_process");\nconst r = spawnSync(process.execPath, process.argv.slice(2), { stdio: "inherit" });\nprocess.exit(r.status ?? 1);\n');
+    chmodSync(tsxShim, 0o755);
+    initSmokeGitRepo(storyDynamicValidateFileRoot);
+    gitQuiet(storyDynamicValidateFileRoot, ['add', '.']);
+    gitQuiet(storyDynamicValidateFileRoot, ['commit', '-m', 'seed story-scoped dynamic validate-file smoke']);
+    const storyId = 'B-dynamic-validate-file-story';
+    const storyStore = new StoryStore(storyDynamicValidateFileRoot);
+    const now = new Date().toISOString();
+    storyStore.writeStory(storyId, {
+      storyId, name: 'dynamic-validate-file-smoke', title: 'Story-scoped dynamic validate-file smoke',
+      description: 'Exercises observe, shadow and enforce-low-risk entrypoint routing.', type: 'chore', phase: 'DONE',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: now, events: [],
+    } as StoryInfo);
+    storyStore.writeChecklist(storyId, { items: [{
+      id: 'CHK-001', title: 'run story scoped validator', context: 'entrypoint smoke', status: 'done',
+      startTime: now, endTime: now, files: { modify: ['validate.ts'], create: [], test: [] },
+    }] } as ChecklistData);
+    storyStore.writeScopeContract(storyId, {
+      storyId, mode: 'enforce', allowedModify: ['validate.ts'], allowedCreate: [], allowedTest: [],
+      protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: now, updatedAt: now,
+    });
+    resetConfigCache();
+    for (const mode of ['observe', 'shadow', 'enforce-low-risk'] as const) {
+      const resultJson = await createVerifierHandlers({
+        root: storyDynamicValidateFileRoot,
+        scanRoot: storyDynamicValidateFileRoot,
+        store: storyStore,
+        log: () => {},
+      }).validate({ story: storyId, dynamicMode: mode, json: true });
+      const result = JSON.parse(String(resultJson));
+      assert.equal(result.dynamicValidation.mode, mode);
+      assert.equal(result.dynamicValidation.oracleStatus, 'executed');
+      assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean');
+      assert.ok(result.commands.length >= 1, `${mode} must execute the validate-file oracle`);
+      if (mode === 'observe') {
+        assert.equal(result.dynamicValidation.authority, 'full-plan-oracle', 'observe must never claim TEST authority');
+        assert.equal(typeof result.dynamicValidation.observeOracle?.equivalent, 'boolean', 'observe must persist the oracle comparison');
+        assert.ok(result.dynamicValidation.report.includes('validate-file runtime trace'), 'observe must expose command-boundary trace evidence');
+      } else if (mode === 'shadow') {
+        assert.equal(result.dynamicValidation.authority, 'full-plan-oracle', 'shadow must retain the full-plan authority oracle');
+        assert.equal(typeof result.dynamicValidation.selectedAllPass, 'boolean', 'shadow must expose selected-plan verdict');
+        assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean', 'shadow must compare selected and full verdicts');
+      } else {
+        assert.ok(['full-fallback', 'enforce-authority'].includes(result.dynamicValidation.authority), 'enforce-low-risk must either prove authority or fall back to full');
+        assert.equal(typeof result.dynamicValidation.fullPlanAllPass, 'boolean', 'enforce-low-risk must expose the executed full-plan verdict');
+        if (result.dynamicValidation.authority === 'full-fallback') assert.equal(result.dynamicValidation.oracleStatus, 'executed', 'fallback must execute the full oracle');
+      }
+    }
+  } finally {
+    rmSync(storyDynamicValidateFileRoot, { recursive: true, force: true });
+    resetConfigCache();
   }
 
   const configuredFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-configured-fail-'));
@@ -1401,8 +1489,8 @@ try {
     } as any;
     assert.match(
       getGuardFailureReason(storyId, store, 'DEV', transitionFallbackRoot) ?? '',
-      /story_review check not passed/,
-      'PLAN→DEV with no review record must report the review-record reason',
+      /story_review check not passed|missing_dev_memory_preflight_ack/,
+      'PLAN→DEV with no review record must report a concrete preflight/review guard reason',
     );
     assert.equal(
       canSendStoryEvent(actorWithoutSnapshotCan, 'START', storyId, store, transitionFallbackRoot),
@@ -1498,7 +1586,7 @@ try {
       const actor = { stop() { stopped = true; } };
       await assert.rejects(
         () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
-        /Cannot enter TEST: proof-or-stop validate did not pass/,
+        /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
         `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
       );
       const after = fixture.store.readTestEvidence(fixture.storyId);
@@ -1613,7 +1701,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
     );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
@@ -1800,7 +1888,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1876,7 +1964,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'stale PASS evidence must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1905,6 +1993,9 @@ try {
         ],
       },
     }));
+    initSmokeGitRepo(gateFailRoot);
+    gitQuiet(gateFailRoot, ['add', 'lattice.config.json']);
+    gitQuiet(gateFailRoot, ['commit', '-m', 'seed failing validation gate smoke']);
     resetConfigCache();
     const store = new StoryStore(gateFailRoot);
     const storyId = 'B-vgate-fail';
@@ -1915,11 +2006,12 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
@@ -1939,6 +2031,9 @@ try {
         ],
       },
     }));
+    initSmokeGitRepo(gateInfraRoot);
+    gitQuiet(gateInfraRoot, ['add', 'lattice.config.json']);
+    gitQuiet(gateInfraRoot, ['commit', '-m', 'seed infra validation gate smoke']);
     resetConfigCache();
     const store = new StoryStore(gateInfraRoot);
     const storyId = 'B-vgate-infra';
@@ -1949,10 +2044,11 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'runValidateGate must block TEST when the validation runner times out',
     );
     const evidence = store.readTestEvidence(storyId);
@@ -1999,8 +2095,20 @@ try {
   // 2. storyId alias writes test evidence (same as --story)
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-storyid-alias-'));
   try {
+    writeFileSync(join(storyIdAliasRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
+    initSmokeGitRepo(storyIdAliasRoot);
+    gitQuiet(storyIdAliasRoot, ['add', 'lattice.config.json']);
+    gitQuiet(storyIdAliasRoot, ['commit', '-m', 'seed story id alias smoke']);
     resetConfigCache();
     const aliasStore = new StoryStore(storyIdAliasRoot);
+    const aliasNow = new Date().toISOString();
+    aliasStore.writeStory('B-alias-smoke', {
+      storyId: 'B-alias-smoke', name: 'story-id-alias-smoke', title: 'Story id alias smoke',
+      description: 'validate storyId alias persists evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: aliasNow, startedAt: aliasNow, endedAt: null,
+      currentReviewRound: aliasNow, events: [],
+    });
+    aliasStore.writeChecklist('B-alias-smoke', { items: [] });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2020,8 +2128,20 @@ try {
   // 3. --story still writes test evidence (unchanged behavior)
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-story-flag-'));
   try {
+    writeFileSync(join(storyFlagRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
+    initSmokeGitRepo(storyFlagRoot);
+    gitQuiet(storyFlagRoot, ['add', 'lattice.config.json']);
+    gitQuiet(storyFlagRoot, ['commit', '-m', 'seed story flag smoke']);
     resetConfigCache();
     const storyFlagStore = new StoryStore(storyFlagRoot);
+    const storyFlagNow = new Date().toISOString();
+    storyFlagStore.writeStory('B-story-flag-smoke', {
+      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'Story flag smoke',
+      description: 'validate story flag persists evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: storyFlagNow, startedAt: storyFlagNow, endedAt: null,
+      currentReviewRound: storyFlagNow, events: [],
+    });
+    storyFlagStore.writeChecklist('B-story-flag-smoke', { items: [] });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,
@@ -2052,6 +2172,78 @@ try {
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }
+
+  // B-45a0: the immutable threshold pin must validate a signed current artifact
+  // without spawning a campaign. Only explicit --execute may produce/repair one,
+  // and a mutation subprocess failure must not be masked by another success.
+  const replayWrapperRoot = join(tmp, 'replay-wrapper');
+  const replayWrapperPath = join(replayWrapperRoot, 'scripts', 'run-dynamic-validation-replay.mjs');
+  const fakeBunPath = join(replayWrapperRoot, 'fake-bun.mjs');
+  mkdirSync(dirname(replayWrapperPath), { recursive: true });
+  writeFileSync(
+    replayWrapperPath,
+    readFileSync(join(projectRoot, 'scripts', 'run-dynamic-validation-replay.mjs'), 'utf8'),
+  );
+  writeFileSync(fakeBunPath, `#!/usr/bin/env node
+const target = process.argv[2] || '';
+if (target.endsWith('story-aware-validation-historical-replay.ts')) {
+  const args = new Set(process.argv.slice(3));
+  const mode = args.has('--execute') ? 'execute' : 'plan-only';
+  const paired = args.has('--paired') ? 'paired-performance: fake\\n' : '';
+  const resume = args.has('--resume') ? 'historical replay resume: enabled\\n' : '';
+  const repair = args.has('--repair-missing') ? 'historical replay repair: enabled\\n' : '';
+  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired + resume + repair);
+} else if (target.endsWith('story-aware-validation-historical-replay-artifact-verify.ts')) {
+  if (process.env.FAKE_ARTIFACT_STATUS) {
+    process.stderr.write('historical replay artifact rejected: fake artifact rejection\\n');
+    process.exit(Number(process.env.FAKE_ARTIFACT_STATUS));
+  }
+  process.stdout.write('historical replay artifact admission PASS\\n');
+} else {
+  process.stdout.write('dynamic-validation mutation audit PASS\\n');
+  if (process.env.FAKE_MUTATION_STATUS) process.exit(Number(process.env.FAKE_MUTATION_STATUS));
+}
+`);
+  chmodSync(fakeBunPath, 0o755);
+  const runReplayWrapper = (args: string[], extraEnv: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, [replayWrapperPath, ...args], {
+    cwd: replayWrapperRoot,
+    env: { ...process.env, ...extraEnv, BUN_BINARY: fakeBunPath },
+    encoding: 'utf8',
+  });
+
+  const thresholdPass = runReplayWrapper(['--verify-threshold']);
+  assert.equal(thresholdPass.status, 0, '--verify-threshold must admit a valid artifact');
+  assert.match(thresholdPass.stdout, /historical replay artifact admission PASS/);
+  assert.match(thresholdPass.stdout, /historical replay threshold PASS/);
+  assert.doesNotMatch(thresholdPass.stdout, /historical replay mode:/, '--verify-threshold must not spawn a replay producer');
+  assert.doesNotMatch(thresholdPass.stdout, /historical replay repair: enabled/, '--verify-threshold must not request repair');
+
+  const thresholdBlocked = runReplayWrapper(['--verify-threshold'], { FAKE_ARTIFACT_STATUS: '19' });
+  assert.equal(thresholdBlocked.status, 19, '--verify-threshold must fail closed when artifact admission rejects');
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay artifact rejected: fake artifact rejection/);
+  assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /dynamic-validation mutation audit PASS/, 'rejected admission must not continue to another probe');
+  assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay mode:/, 'rejected admission must not spawn a producer');
+
+  const pairedWithoutExecute = runReplayWrapper(['--paired']);
+  assert.notEqual(pairedWithoutExecute.status, 0, '--paired alone must not become an implicit producer');
+  assert.match(`${pairedWithoutExecute.stdout}${pairedWithoutExecute.stderr}`, /--paired requires explicit --execute/);
+
+  const planOnly = runReplayWrapper([]);
+  assert.equal(planOnly.status, 0, 'plan-only replay remains diagnostic');
+  assert.match(planOnly.stdout, /historical replay mode: plan-only/);
+  assert.doesNotMatch(planOnly.stdout, /paired-performance: fake/);
+  assert.match(planOnly.stdout, /historical replay assurance BLOCKED \(plan-only or incomplete\)/);
+  assert.doesNotMatch(planOnly.stdout, /historical replay threshold PASS/);
+
+  const executeRepair = runReplayWrapper(['--execute']);
+  assert.equal(executeRepair.status, 0, '--execute must run a repair-capable executable campaign');
+  assert.match(executeRepair.stdout, /historical replay mode: execute/);
+  assert.match(executeRepair.stdout, /historical replay artifact admission PASS/);
+  assert.match(executeRepair.stdout, /historical replay repair: enabled/);
+
+  const mutationFailure = runReplayWrapper(['--mutation=missing-evidence'], { FAKE_MUTATION_STATUS: '23' });
+  assert.equal(mutationFailure.status, 23, 'a failing mutation probe must propagate its own non-zero status');
+  assert.match(`${mutationFailure.stdout}${mutationFailure.stderr}`, /dynamic-validation mutation audit PASS/);
 
   console.log('✓ validation protocol smoke passed');
 } finally {

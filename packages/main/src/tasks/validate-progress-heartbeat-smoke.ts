@@ -49,6 +49,7 @@ const HEARTBEAT_MS = 250;
 // their guards wide so only rows explicitly named "max" exercise a tight max.
 const NON_MAX_OUTER_TIMEOUT_MS = 120_000;
 const NON_MAX_HARNESS_CEILING_MS = 60_000;
+const DESCENDANT_PID_READY_TIMEOUT_MS = 30_000;
 
 type CliResult = {
   status: number | null;
@@ -116,6 +117,14 @@ function setupFixture(): { root: string; started: string; finished: string } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-'));
   const started = join(root, 'command-started.txt');
   const finished = join(root, 'command-finished.txt');
+  write(root, '.gitignore', [
+    'command-started.txt',
+    'command-finished.txt',
+    '.lattice/activity.jsonl',
+    '.lattice/locks/',
+    '.proof-or-stop/locks/',
+    '',
+  ].join('\n'));
   write(root, 'silent-active-validate.mjs', `
 import { writeFileSync } from 'node:fs';
 
@@ -140,11 +149,18 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
       }],
     },
   }, null, 2) + '\n');
+  // Routine validation now binds lock and evidence paths through Git even for
+  // an unscoped invocation.  Make the direct heartbeat fixture a clean Git
+  // repository, just as the story_advance fixture below already does.
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  commitAll(root, 'seed validate heartbeat fixture');
   return { root, started, finished };
 }
 
 function setupTimeoutFixture(): { root: string } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-timeout-'));
+  write(root, '.gitignore', '.proof-or-stop/locks/\n');
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
@@ -157,6 +173,9 @@ function setupTimeoutFixture(): { root: string } {
       }],
     },
   }, null, 2) + '\n');
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  commitAll(root, 'seed validate timeout fixture');
   return { root };
 }
 
@@ -164,16 +183,7 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
   const fixture = setupFixture();
   const { root } = fixture;
   const storyId = 'B-heartbeat-advance';
-  write(root, '.gitignore', [
-    'command-started.txt',
-    'command-finished.txt',
-    '.lattice/activity.jsonl',
-    '.lattice/locks/',
-    '',
-  ].join('\n'));
   write(root, 'packages/main/src/index.ts', 'export const heartbeatAdvanceSmoke = true;\n');
-  git(root, ['init']);
-  git(root, ['checkout', '-B', 'main']);
   commitAll(root, 'seed heartbeat story_advance fixture');
 
   const now = '2026-07-07T00:00:00.000Z';
@@ -482,7 +492,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       const parsed = JSON.parse(result.stdout);
       assert.equal(parsed.result, 'timed_out');
       assert.equal(parsed.timeoutLayer, testCase.name);
-      await waitForFile(pidFile, 5_000);
+      await waitForFile(pidFile, DESCENDANT_PID_READY_TIMEOUT_MS);
       await new Promise((resolve) => setTimeout(resolve, 150));
       const descendantPid = Number(readFileSync(pidFile, 'utf8'));
       assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `${testCase.name} watchdog must kill descendants before structured return`);

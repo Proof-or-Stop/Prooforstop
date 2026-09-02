@@ -49,6 +49,16 @@
     ]
   },
   "validate": {
+    "dynamic": {
+      "mode": "observe",
+      "policyDefaults": {
+        "assurance": "story-selectable",
+        "riskTier": "local",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "cpuWeight": 1
+      }
+    },
     "commands": [
       {
         "command": "npm",
@@ -61,7 +71,12 @@
         "timeoutMs": 290000,
         "focus": [
           "fast"
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -74,9 +89,24 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
-      "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "local",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
+      },
       {
         "command": "node",
         "args": [
@@ -91,7 +121,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -104,28 +139,55 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/command-catalog-smoke.js"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
+        "label": "review-pass-discard-smoke",
         "command": "node",
         "args": [
           "packages/main/dist/tasks/review-pass-discard-smoke.js"
         ],
-        "timeoutMs": 300000,
+        "timeoutMs": 1200000,
+        "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "env": {
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+        },
+        "declaredEnvironmentKeys": [
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
+          "LATTICE_VALIDATION_SHARD_ADAPTER"
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "gate",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "cpuWeight": 3,
+        "expectedP50Ms": 265000,
         "resources": [
           {
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -139,7 +201,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -153,7 +220,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -167,7 +239,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -183,7 +260,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -199,7 +281,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -215,7 +302,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -224,7 +316,12 @@
         ],
         "focus": [
           "fast"
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "local",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -240,7 +337,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -256,7 +358,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -272,7 +379,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -281,7 +393,12 @@
         ],
         "focus": [
           "fast"
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "local",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -297,7 +414,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -310,7 +432,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -323,7 +450,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -336,7 +468,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -349,7 +486,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -362,7 +504,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -375,7 +522,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -388,7 +540,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -401,7 +558,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -414,7 +576,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -427,7 +594,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -440,7 +612,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -453,7 +630,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -466,7 +648,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -479,7 +666,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -492,7 +684,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -505,20 +702,23 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
         ],
-        "resources": [
-          {
-            "class": "git-common-dir",
-            "key": ".",
-            "access": "shared"
-          }
-        ]
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -531,7 +731,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -544,7 +749,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -557,14 +767,36 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
+        "label": "quorum-submit-smoke",
         "command": "node",
         "args": [
           "packages/main/dist/tasks/quorum-submit-smoke.js"
         ],
-        "timeoutMs": 1200000
+        "timeoutMs": 1200000,
+        "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "env": {
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+        },
+        "declaredEnvironmentKeys": [
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
+          "LATTICE_VALIDATION_SHARD_ADAPTER"
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "gate",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "cpuWeight": 4,
+        "expectedP50Ms": 643000,
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -577,7 +809,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -590,7 +827,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -603,7 +845,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -616,7 +863,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -629,7 +881,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -642,7 +899,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -655,7 +917,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -668,7 +935,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -681,7 +953,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -694,7 +971,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -707,7 +989,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -723,7 +1010,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -737,7 +1029,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -751,7 +1048,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -765,7 +1067,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -779,7 +1086,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -793,7 +1105,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -807,7 +1124,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -821,7 +1143,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -835,7 +1162,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -849,7 +1181,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -863,7 +1200,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -877,7 +1219,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -891,7 +1238,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -905,7 +1257,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -919,7 +1276,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -933,7 +1295,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -947,7 +1314,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -961,7 +1333,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -975,7 +1352,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -989,7 +1371,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1003,7 +1390,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1017,7 +1409,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1031,7 +1428,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1045,42 +1447,72 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
         ],
-        "timeoutMs": 300000
+        "timeoutMs": 300000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-1734-lock-liveness.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-1734-content-binding.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-1734-reader-race.mjs"
         ],
-        "timeoutMs": 300000
+        "timeoutMs": 300000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1094,7 +1526,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1108,14 +1545,24 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1129,7 +1576,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1143,7 +1595,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1157,7 +1614,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1171,7 +1633,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1185,7 +1652,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1199,7 +1671,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1213,7 +1690,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1227,7 +1709,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1241,7 +1728,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1255,7 +1747,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1269,7 +1766,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1283,7 +1785,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1297,7 +1804,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1311,7 +1823,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1325,7 +1842,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1338,7 +1860,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1351,7 +1878,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1359,7 +1891,12 @@
           "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "--issuer-mutations"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1373,7 +1910,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1387,7 +1929,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1401,7 +1948,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1415,7 +1967,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1432,7 +1989,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1446,7 +2008,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1460,7 +2027,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1474,7 +2046,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
@@ -1488,7 +2065,12 @@
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "label": "B-45a5 standing regression guard (was CHK-001's RED artifact): three clauses, all mandatory. (1) Both REVIEW-path gates must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision. (2) Both must keep biting on everything that is NOT withdrawn, including an item that merely shares an authored verificationIntent id alias with a withdrawn one. (3) Both must keep REFUSING every UNBACKED withdrawal: a status flipped by hand with no decisionRef, a dangling decisionRef, a decisionRef naming a real decision that does not list the item, or a decision overwritten to decision=rejected / userConfirmed=false. Clause 3 is the safety-critical one: without it the withdrawal mechanism is forgeable by hand-editing a JSON status field. Exits 1 if any clause regresses, 2 if a control/premise breaks. CHK-003 removed the pre-fix optional flag, so this is now mandatory",
@@ -1496,14 +2078,24 @@
         "args": [
           "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "npm",

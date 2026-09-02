@@ -15,7 +15,6 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { liveSmokeCaptureBudget } from '../core/done-required-timeout-budget.js';
 import { reclaimStaleValidationExecutionLock } from '../core/validation-execution-lock.js';
 import { evaluateLiveSmokeTranscriptValue } from '../core/live-smoke-transcript-evidence.js';
-import { PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 
 /**
  * P5 (B-9b5e) — `live_smoke_transcript`: the explicit live-smoke transcript
@@ -45,11 +44,11 @@ import { PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 
 const READINESS_TARGET = 'DONE' as const;
 const CAPTURE_BUFFER_MAX = 16 * 1024 * 1024;
-const STDOUT_MAX = 4000;
-// The registered pre-review proof carries a compressed case ledger plus one
-// binding-proof projection. Keep that complete machine line admissible without
-// widening the ordinary live-smoke transcript bound.
-const PRE_REVIEW_STDOUT_MAX = 8000;
+// Pre-review executable proof is emitted as one JSON line and can legitimately
+// exceed the old 4k display cap once the compressed case-record payload grows.
+// Keep a bounded capture while preserving complete structured proof lines for
+// the verifier-owned parser.
+const STDOUT_MAX = 64 * 1024;
 const STDERR_MAX = 2000;
 const TRANSCRIPT_ARTIFACT = 'evidence/live-smoke-transcript.json';
 
@@ -263,7 +262,7 @@ async function runCapture(
       const actual: CapturedActual = {
         command,
         exitCode: timedOut ? null : closeCode,
-        stdout: truncate(stdout, command === PRE_REVIEW_LIVE_PROOF_COMMAND ? PRE_REVIEW_STDOUT_MAX : STDOUT_MAX),
+        stdout: truncate(stdout, STDOUT_MAX),
         capturedAtIso: new Date().toISOString(),
       };
       if (combinedStderr.length > 0) actual.stderr = truncate(combinedStderr, STDERR_MAX);
