@@ -720,6 +720,29 @@
       "resolvedAt": "2026-09-02T08:08:26.767Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d854:F-033",
+      "desc": "tests/AGENTS.verify.mjs:249-260,113-120,148-155 and docs/audits/AGENTS-current-version-audit.md:96,105 — WHY high acceptance false-green: runtime authority enforcement only rejects source lines whose trimmed text begins like a comment; it does not prove that a runtime-labeled line is the effective rejecting guard or a consumed call site. Concrete A05 counterexample: runtime:background-trigger-identifier-guard resolves to background-validator.ts:157, which only computes const matched. The actual rejecting guard is :158-164. Deleting or inverting if (!matched) leaves the declared pattern, all 98 tuples, all 196 citation mutations, authority-policy, and final GREEN intact. Concrete A14 counterexample: runtime:plan-to-dev-scope-contract-advisory resolves only to the function declaration at phase-gates.ts:546; the lifecycle call is transition-orchestrator.ts:1152 and is not modeled, so removing the call also leaves final GREEN. A10 has the same definition-without-use weakness for session rendering: session.ts:534 is modeled but its effective use at :1162 is not. Therefore the F-031/F-032 resolution prose overclaims global executable enforcement. Bind guard predicates and lifecycle/render call sites for runtime behavior claims, and add adversarial source-semantic mutations that remove or invert the real guard/call rather than only mutating audit tuples.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:14:53.145Z",
+      "reviewRound": "2026-09-02T08:08:06.830Z",
+      "reviewRunId": "B-d854:RR-023",
+      "_hash": "7171aacdc220256405f09638d2d4e9337d09e16b69e461b72e8cc5ceed191107",
+      "files": [
+        "tests/AGENTS.verify.mjs",
+        "docs/audits/AGENTS-current-version-audit.md",
+        "packages/main/src/core/background-validator.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/session.ts"
+      ],
+      "signatureTag": "missing|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
