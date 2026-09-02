@@ -158,13 +158,20 @@
           "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
           "result": "pass",
-          "note": "Tool-executed focused GREEN smoke covers CHK-001:happy:0 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
-          "headHash": "b85eecfbaf1166df7dc64c7c0c6f7f7d5f7fdc07",
-          "materialHash": "ad1f46d72ad2c23cc6fb0045ae085389e2277e86f375de2731e70c4a2239a22b",
-          "storyFilesHash": "781abdc14b139fd33b06dda024e7fb1971a3ff5a9850831f7ca41afc0bc5710b",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-09-02T20:23:08.930Z"
+          "note": "Focused tool-executed GREEN smoke re-earned after the main-merge AGENTS guidance correction.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T20:31:40.272Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "9d40ef8eaa810b6f011a8e4a7e3138070d97a519",
+          "materialHash": "cf5cb9728d4d45496fae85fbe171b9f608dc756c949d2edeee95ec5395aceeee",
+          "storyFilesHash": "dcd4b75b4edf9fb72c70887458e3f5a6067225a32e0ac77f17ac3ece94690f02",
+          "timestamp": "2026-09-02T20:31:40.540Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
