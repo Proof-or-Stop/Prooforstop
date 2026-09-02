@@ -277,6 +277,19 @@
           "materialHash": "79368687e3103d54831c07dd74789855e3f1c7e60e5951dba9c32beb357812c8",
           "storyFilesHash": "311108a4b33efff6e8057a039e666b7acfd057ed20a2e41289f96710c21d6a64",
           "timestamp": "2026-09-02T16:16:08.798Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "result": "pass",
+          "note": "Implementer transcript (2026-09-02): RED_REPO_ROOT=/Users/jek/Documents/GitHub/Prooforstop node packages/main/tests/red/red-global-cli-exec-bit.mjs -> exit 1, RED red-global-cli-exec-bit: 5 desired properties not met (pre-fix defect present), including hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: false and pipeline restores bin executable bit: false.",
+          "mechanical": false,
+          "nonMechanicalReason": "The discriminating run needs RED_REPO_ROOT pointing at the unfixed main checkout; env-var driven commands cannot be pinned as executable+argv and main changes after merge, so the pre-merge transcript is recorded verbatim.",
+          "headHash": "dc8db5d6850f63a9858a7ae5c5d9c8331f9417e5",
+          "materialHash": "79368687e3103d54831c07dd74789855e3f1c7e60e5951dba9c32beb357812c8",
+          "storyFilesHash": "311108a4b33efff6e8057a039e666b7acfd057ed20a2e41289f96710c21d6a64",
+          "timestamp": "2026-09-02T16:16:10.754Z"
         }
       ]
     },
