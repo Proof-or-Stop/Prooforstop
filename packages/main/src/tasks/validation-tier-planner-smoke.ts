@@ -1544,6 +1544,67 @@ testCase('every reason code carries a non-empty plain-language gloss, asserted b
   }
 });
 
+// ---------------------------------------------------------------------------
+// (26b) B-a745 F-004 — A GLOSS MUST DESCRIBE THE SITUATION IT ACTUALLY FIRES IN.
+//       `pinned_command_missing` used to read "points at a validation command
+//       that no longer exists in this project ... until the evidence is
+//       re-recorded". In the circumstance this Story reproduced, the command DID
+//       exist and DID run: it was simply absent from `validate.commands`, the
+//       separate registry the pin resolver consults. Following that advice sends
+//       an operator to re-record evidence against a command that is not stale,
+//       which is not a fix and cannot become one. A gloss that is confidently
+//       worded and factually wrong is worse than a bare code.
+// ---------------------------------------------------------------------------
+testCase('the pin-related glosses name the registry boundary and a remedy that exists', () => {
+  const FALSE_CLAIMS = [/no longer exists/i, /has been removed from this project/i, /is stale/i];
+  for (const code of VALIDATION_WIDENING_REASON_CODES) {
+    const gloss = validationWideningReasonGloss(code);
+    for (const claim of FALSE_CLAIMS) {
+      assert.ok(
+        !claim.test(gloss),
+        `${code} gloss asserts a disappearance it cannot know about: ${JSON.stringify(gloss)}`,
+      );
+    }
+  }
+
+  for (const code of ['pinned_command_missing', 'pinned_command_non_inventory'] as ValidationWideningReasonCode[]) {
+    const gloss = validationWideningReasonGloss(code);
+    assert.ok(
+      /validation command inventory|registered validation commands/i.test(gloss),
+      `${code} gloss must name the registry the resolver actually consults: ${JSON.stringify(gloss)}`,
+    );
+    assert.ok(
+      /declare|register|restore/i.test(gloss),
+      `${code} gloss must name a remedy that exists for a command absent from that registry, not merely ` +
+      `"re-record the evidence": ${JSON.stringify(gloss)}`,
+    );
+  }
+
+  // The two codes must not read as paraphrases of each other: they fire on
+  // different claims and prescribe different actions.
+  assert.notEqual(
+    validationWideningReasonGloss('pinned_command_missing'),
+    validationWideningReasonGloss('pinned_command_non_inventory'),
+  );
+  assert.equal(VALIDATION_WIDENING_REASONS.pinned_command_missing.outcome, 'stop');
+  assert.equal(VALIDATION_WIDENING_REASONS.pinned_command_non_inventory.outcome, 'repository-full');
+
+  // The resolver MESSAGE an operator actually reads must agree with the gloss.
+  const missing = resolvePin(
+    [command({ label: 'test', command: 'npm', args: ['test'], id: 'test-suite' })],
+    { commandId: 'test-suite-renamed' },
+  );
+  assert.equal(missing.status, 'stop');
+  assert.ok(
+    missing.status === 'stop' && !/no longer exists/i.test(missing.message),
+    'the stop message may not claim the command disappeared either',
+  );
+  assert.ok(
+    missing.status === 'stop' && /declare|restore/i.test(missing.message),
+    'the stop message must offer the remedy that matches the real situation',
+  );
+});
+
 testCase('an unknown reason code has no gloss and is refused rather than glossed as empty', () => {
   assert.throws(
     () => validationWideningReasonGloss('not_a_matrix_row' as ValidationWideningReasonCode),
@@ -2706,6 +2767,7 @@ const DONEWHEN_COVERAGE: Array<{ item: string; doneWhen: string; cases: string[]
     'no-validator preserves the existing skip/warn and produces NO tier pass',
   ] },
   { item: 'CHK-004', doneWhen: 'every reason code has a non-empty gloss, asserted by enumeration', cases: [
+    'the pin-related glosses name the registry boundary and a remedy that exists',
     'every reason code carries a non-empty plain-language gloss, asserted by enumeration',
   ] },
   { item: 'CHK-004', doneWhen: 'no input produces a reduced effective tier', cases: [
