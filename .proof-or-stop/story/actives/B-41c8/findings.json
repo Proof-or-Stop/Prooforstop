@@ -117,6 +117,23 @@
       ],
       "signatureTag": "missing|ts|validation-tier-planner",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-41c8:F-007",
+      "desc": "The verification executor (core/validation-executor.ts trimOutput, MAX_OUTPUT_CHARS=12000, applied at line 1313 before the selector check) keeps only the first 12000 chars of a pinned command output. After F-005 the audit block printed by single-owner-extraction-smoke grew to 9034 chars (total output 14759), so the CHK-004 selector lines now start at offset 12681 and verification_evidence_add refuses them with [receipt_selector_absent] even though the smoke passes 37/37. Fix inside this story: print a compact audit block by default (one line per real caller: file, classification, which of story|checklist|config|via-handler remains; plus the comment-only list and the flagged count) and print the per-read line detail only when SINGLE_OWNER_AUDIT_VERBOSE=1 is set; keep total default output under 10000 chars and add a case asserting that bound. The executor truncate-before-match behaviour itself is recorded separately as draft evidence-executor-selector-truncation.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-02T15:43:05.594Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "_hash": "bd093ff2898bb1d9130ee3de046f3f7d7965f8d84374fc6f144bf1b23d6e8c76",
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|verification-executor-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
