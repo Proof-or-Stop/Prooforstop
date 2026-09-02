@@ -172,7 +172,12 @@ export type StoryRelevanceInputEscalationCode =
   | 'changed_files_unavailable'
   | 'hash_snapshot_unavailable'
   | 'pinned_command_missing'
-  | 'pinned_command_ambiguous';
+  | 'pinned_command_ambiguous'
+  /**
+   * B-a745 F-001. A legacy free-form evidence command that names nothing in the
+   * inventory. Classified and widening, never a stop and never a seed.
+   */
+  | 'pinned_command_non_inventory';
 
 export interface StoryRelevanceInputEscalation {
   code: StoryRelevanceInputEscalationCode;
@@ -777,7 +782,9 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
         commandSeedEdges.push({ commandId: resolved.commandId, origin: 'evidence-pin', itemId: item.id, intentRef });
         continue;
       }
-      // A pin that cannot be resolved is a classified fact, never a dropped one.
+      // A pin that binds to nothing is a classified fact, never a dropped one.
+      // Its CODE carries the distinction the planner acts on: a broken inventory
+      // identity stops, a non-inventory evidence command widens.
       escalations.push({ code: resolved.reason, detail: `${item.id} ${intentRef}: ${resolved.message}` });
       unclassifiedInputs.push({ kind: 'evidence-pin', detail: `${item.id} ${intentRef}: ${resolved.message}` });
     }

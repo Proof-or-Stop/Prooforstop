@@ -233,6 +233,14 @@ export const VALIDATION_WIDENING_REASONS = {
       'Recorded evidence points at a validation command that no longer exists in this project, so no plan is ' +
       'produced until the evidence is re-recorded.',
   },
+  pinned_command_non_inventory: {
+    condition: 'Legacy free-form evidence command normalizes to no command in the validation inventory',
+    outcome: 'repository-full',
+    gloss:
+      'Evidence names a command that is not one of this project\u2019s registered validation commands \u2014 it may ' +
+      'still be a real, runnable script, just not a member of the inventory the planner selects from \u2014 so it ' +
+      'proves nothing about any command and cannot make the set smaller, and the full repository set runs.',
+  },
   pinned_command_ambiguous: {
     condition: 'Legacy pin resolves to multiple command IDs',
     outcome: 'stop',
@@ -528,6 +536,18 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
       'plan would select nothing at all; an empty selection is never interpreted as a pass',
     );
     return { ...common, status: 'stop', reason, escalationReasons: [...escalationReasons, reason] };
+  }
+
+  // 5a. Non-inventory evidence commands. A pin is ADDITIVE, so a pin that names
+  //     nothing adds nothing: it cannot subtract a command, and it is reported
+  //     rather than made fatal. It widens, which is why not stopping on it omits
+  //     nothing. It is deliberately NOT turned into a command seed edge upstream:
+  //     an unbound pin may never become a basis for including — or excluding —
+  //     any unit.
+  for (const escalation of input.escalations) {
+    if (escalation.code === 'pinned_command_non_inventory') {
+      escalationReasons.push(validationWideningReason('pinned_command_non_inventory', escalation.detail));
+    }
   }
 
   // 5. Why nothing was reduced. These two always hold in this increment, and

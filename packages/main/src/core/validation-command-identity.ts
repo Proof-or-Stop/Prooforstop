@@ -408,6 +408,7 @@ export function buildValidationPinUniverse(args: {
 
 export type ValidationPinResolutionKind = 'declared-id' | 'legacy-exact';
 export type ValidationPinStopReason = 'pinned_command_missing' | 'pinned_command_ambiguous';
+export type ValidationPinNonInventoryReason = 'pinned_command_non_inventory';
 
 export interface ResolvedValidationPin {
   status: 'resolved';
@@ -425,7 +426,42 @@ export interface StoppedValidationPin {
   message: string;
 }
 
-export type ValidationPinResolutionResult = ResolvedValidationPin | StoppedValidationPin;
+/**
+ * B-a745 F-001 — a legacy free-form `command` string that normalizes to no
+ * command in the inventory. It is NOT a stop, and the distinction is what the
+ * evidence CLAIMED, not how badly it failed:
+ *
+ *   - `commandId` names an identity in the INVENTORY'S OWN namespace. If that
+ *     identity is absent, the assertion the evidence made is broken, and the
+ *     fail-closed matrix row "Explicit command pin does not resolve" applies:
+ *     stop, no plan.
+ *   - A free-form string never made that assertion. Most recorded evidence in a
+ *     real repository pins a test binary, an npm script or a one-off command
+ *     that is legitimately not a member of the validation inventory. Making
+ *     that fatal stops essentially every Story while proving nothing.
+ *
+ * Treating it as non-inventory is not a relaxation of the fail-closed rule:
+ * pins are ADDITIVE (spec, "Story input contract": "Checklist pins can add
+ * commands; they cannot subtract commands selected by impact analysis or risk
+ * rules"), so a seed that names nothing adds nothing, and the classification's
+ * outcome is `repository-full` — the widest possible set. NOTHING is ever
+ * omitted on its account, which is the only sense of fail-closed that protects
+ * coverage. A stop, by contrast, produces no plan at all and verifies nothing.
+ *
+ * Deliberately NOT extended to `pinned_command_ambiguous`: an ambiguous legacy
+ * string WOULD bind, to the wrong command, and a wrong additive edge is a real
+ * hazard rather than an absent one. That stays a stop.
+ */
+export interface NonInventoryValidationPin {
+  status: 'non-inventory';
+  reason: ValidationPinNonInventoryReason;
+  message: string;
+}
+
+export type ValidationPinResolutionResult =
+  | ResolvedValidationPin
+  | StoppedValidationPin
+  | NonInventoryValidationPin;
 
 /** The evidence fields a pin is read from. Never mutated. */
 export interface ValidationPinEvidence {
@@ -523,13 +559,14 @@ export function resolveValidationCommandPin(args: {
   }
   if (matches.length === 0) {
     return {
-      status: 'stop',
-      reason: 'pinned_command_missing',
-      candidateIds: [],
+      status: 'non-inventory',
+      reason: 'pinned_command_non_inventory',
       message:
-        `pinned_command_missing: no command in the current validation command set normalizes to the same ` +
-        `executable tuple as the legacy pin ${JSON.stringify(legacyCommand)}. Re-record the evidence against ` +
-        'a current command.',
+        `pinned_command_non_inventory: the evidence command ${JSON.stringify(legacyCommand)} is not one of ` +
+        'this project\u2019s registered validation commands. It may well be a real, runnable script; it is ' +
+        'simply not a member of the validation inventory the planner selects from, so it binds to nothing, ' +
+        'narrows nothing, and the full repository set runs. Register it in the validation command inventory ' +
+        'if it should take part in selection; otherwise no action is needed.',
     };
   }
   const candidateIds = matches.map((entry) => entry.id);
