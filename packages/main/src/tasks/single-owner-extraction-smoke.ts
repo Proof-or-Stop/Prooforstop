@@ -1126,18 +1126,30 @@ group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', 
     },
   },
   {
-    name: 'validation_plan: DONE-story reads are unchanged (merged-and-removed reads the invocation root; a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour)',
+    name: 'validation_plan: a DONE story is never planned from a linked worktree (merged-and-removed AND residual worktree both plan from the invocation root; rootReason=terminal-phase; the call site passes terminalPhaseGuard: true)',
     run: () => {
       const removed = buildWorkspaceFixture('plain');
       markDoneAndRemoveWorktree(removed);
       const afterRemoval = planFromRoot(removed.metadataRoot);
-      assert.equal(afterRemoval.storyPhase ?? afterRemoval.phase ?? 'DONE', 'DONE');
+      assert.equal(afterRemoval.storyPhase, 'DONE');
       assert.ok(!planUnitIds(afterRemoval).includes(WS_WORKTREE_COMMAND_ID), 'a removed worktree cannot be read: the plan must use the invocation root inventory');
 
+      // B-41c8 F-004 (closes B-a745 F-014): a DONE story whose worktree still
+      // physically exists is residue, not authority. validation_plan must plan
+      // it from the invocation root exactly like the removed case, not from
+      // the leftover worktree.
       const residue = buildWorkspaceFixture('plain');
       markDoneKeepResidue(residue);
+      const guarded = resolveStoryWorkspace(ctxAt(residue.metadataRoot), WS_STORY_ID);
+      assert.equal(guarded.rootReason, 'terminal-phase', 'the helper reports why the residual worktree is refused');
       const withResidue = planFromRoot(residue.metadataRoot);
-      assert.ok(planUnitIds(withResidue).includes(WS_WORKTREE_COMMAND_ID), 'validation_plan keeps reading a residual DONE worktree (terminalPhaseGuard=false, its pre-CHK-003 behaviour)');
+      assert.equal(withResidue.storyPhase, 'DONE');
+      assert.ok(!planUnitIds(withResidue).includes(WS_WORKTREE_COMMAND_ID), 'validation_plan must NOT read a residual DONE worktree (terminalPhaseGuard must be on for this handler)');
+      assert.deepEqual(planUnitIds(withResidue), planUnitIds(afterRemoval), 'the residual-worktree plan selects the same invocation-root inventory as the removed-worktree plan');
+
+      const source = readFileSync(join(MAIN_SRC, 'handlers', 'validation-plan.ts'), 'utf-8');
+      assert.ok(source.includes('terminalPhaseGuard: true'), 'validation-plan.ts must pass terminalPhaseGuard: true to resolveStoryWorkspace');
+      assert.ok(!source.includes('terminalPhaseGuard: false'), 'validation-plan.ts must not opt out of the phase-terminal guard');
     },
   },
   {
