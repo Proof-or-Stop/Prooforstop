@@ -392,6 +392,25 @@
         "scanEscalationReason": null
       },
       "_hash": "cde4e03ab43a0bab4a67cb3b3e6c8c6fdfd184c2727fadf71a0b8fd0bc08cbf7"
+    },
+    {
+      "id": "B-fe8f:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review round 9. No new material since round-8's RP-012 (which already covered commit 7827dae774). Re-verified: (1) `git diff dd45caa2ea..HEAD --stat -- packages scripts bin proof-or-stop.config.json package.json` shows exactly one file changed, retired-authority-vocabulary-guard-smoke.ts (3 insertions, 4 deletions), which is 7827dae774's already-reviewed diff -- no material outside that. (2) `git log --oneline 7827dae774..HEAD` shows only 'proof-or-stop: record B-fe8f ...' story-metadata commits (REVIEW metadata, convergence resume, finding-ledger scope acknowledgement, validate metadata, verification_evidence_batch_add/refresh_stale metadata, finding_resolve metadata, review_pass_set metadata x3, finding_add metadata) -- no production-path commits. (3) Scanned all of those metadata commits' messages for retired identity tokens -- zero hits. (4) Re-scanned the full current `git diff main...HEAD` added lines for lattice/LATTICE_/.lattice tokens outside .proof-or-stop/story/actives/B-fe8f/* historical audit artifacts -- zero hits (436 total hits, all confined to story metadata paths recording pre-migration history, same finding as prior rounds). Round 9 exists only because round-8's review runs started before evidence-refresh #4 rewrote checklist.json and a convergence-breaker freeze needed a human-cleared restart; the underlying code content reviewed in round 8 (RP-012) is unchanged. No blocking or advisory findings. Did not run the full smoke, full validate, or touch packages/main/dist this round, per instruction.",
+      "createdAt": "2026-09-02T20:01:38.708Z",
+      "reviewRound": "2026-09-02T20:00:12.918Z",
+      "reviewRunId": "B-fe8f:RR-028",
+      "envelopeId": "e8b498826f4ad8458c95187f35e1cd217846105ccae88c4af695dcc630b2e6a1",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8d425392ec0a911f4da496faad42c7cc21b009de4efeb80cc2d6f562cd388f7b"
     }
   ]
 }
