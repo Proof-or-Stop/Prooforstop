@@ -493,6 +493,33 @@
         "scanEscalationReason": null
       },
       "_hash": "5aa1c17e2e2d95ba071aa30db1d32b1f71de5f0e8d673c488c735556742f2537"
+    },
+    {
+      "id": "B-9f2c:RP-017",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-confirmation pass at frozen tree b94e53243b (fresh REVIEW round required by invalidated certification window / consumed review-inventory receipt; no source change since RP-013 per review_incremental_context and direct git diff). Re-verified standing code-quality conclusions, ran npx tsc --noEmit -p packages/main (exit 0), ran the graph-story-flag-smoke task directly (PASS), and reviewed all four resolved story findings (F-001..F-004) against evidence; agree with all four dispositions, none warrants reopening.",
+      "createdAt": "2026-09-02T16:35:46.211Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-025",
+      "envelopeId": "5fd006d98be9978ddd4a162bae2616ad192749c558529c6701376c72c9c36c52",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "468a1167684cb820c6ef44131c61dadb67ff06bf34fdbc85258566fadf60c966"
     }
   ]
 }
