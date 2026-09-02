@@ -797,8 +797,8 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T03:02:32.638Z",
       "endTime": null,
       "userSees": "Contract verification shows REVIEW roles declare triage behavior while prompt prose and metadata remain non-evidentiary and do not alter lifecycle gates.",
       "files": {
@@ -2182,6 +2182,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "All ten Owner and implementer guidance intents now have passing tool-executed receipts; implementation is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:32.638Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final closure of declarative role metadata and Agent/System boundary verification."
     }
   ]
 }
