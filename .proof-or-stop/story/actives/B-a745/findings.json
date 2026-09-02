@@ -444,7 +444,7 @@
       "desc": "B-a745:F-019 resolvedReason PROCESS SIGNAL paragraph overclaims a single shared mechanism across the four cited instances. F-008 (count never queried at all) and F-009 (the query WAS run correctly with escaped alternation; only the PASTED command text was mistranscribed, dropping backslashes) are not \"without executing the check\" -- one never ran a check, the other ran the right check and documented the wrong one. F-013 (a session-UI task chip cited as if it were a discoverable in-repo artifact) is not a context-execution gap either: running story_draft_list in the story worktree would not have caught it, because the referent was never repo-persisted in the first place -- that is a category error about what counts as a checkable artifact, and F-013s own resolution already adopted a DIFFERENT corrective rule for it (\"name an in-repo artifact that exists at write time, never a session chip\"). Only F-019 itself is a genuine worktree-vs-main-checkout context mismatch. The \"run in the story worktree, paste the output\" rule this paragraph proposes as THE unifying fix for all four would not prevent a recurrence of F-013s failure mode. Low severity: prose-only, non-mechanical, no code/gate impact, does not misstate anything about code behavior -- it just narrates the four prior prose corrections under a mechanism narrower than what they actually share.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T08:56:47.918Z",
@@ -455,7 +455,11 @@
         ".proof-or-stop/story/actives/B-a745/findings.json"
       ],
       "signatureTag": "missing|json|a745-resolvedreason-process",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted. The F-019 'process signal' paragraph over-unified four different mechanisms under one rule, and the reviewer's decomposition is more accurate than mine, so it is adopted here verbatim in substance: F-008 -- a check that was never run (a count copied from a subagent report); F-009 -- a check that WAS run correctly but was mistranscribed into the record (escaped vs unescaped alternation); F-013 -- a category error, citing a referent that was never repository-persisted (a session chip) as if it were a filing; F-019 -- a genuine context mismatch, the check run in the main checkout and asserted for the story worktree. One rule ('run in the story worktree, paste the output') covers F-008 and F-019, partly covers F-009 (pasting rather than retyping), and would NOT have prevented F-013, whose fix is a different rule: a durable record may only cite artifacts that exist in the repository at write time. Both rules stand separately from here; no further unifying claim is made. No code or fixture changed for this finding; it corrects an account, not a behaviour.",
+      "resolvedAt": "2026-09-02T08:58:04.421Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
