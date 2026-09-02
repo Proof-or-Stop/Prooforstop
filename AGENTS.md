@@ -296,12 +296,33 @@ document requires a change remains a reasoned decision.
 
 An independent scope-plan reviewer must save signed `scope-check.json` evidence
 through `scope_check_save`. The implementation agent must not self-sign it.
-Run `story_review` after understanding, decision, checklist, ProofStory, scope,
-and memory-preflight requirements are ready. PLAN passes when
+Every `openQuestions` entry in that signed scope check must have a substantive
+written resolution before `story_review` can pass. The current handler-directed
+path is the registered `scope_question_resolve` command; the main agent owns the
+conclusion and should cite the controlling decision or checklist source rather
+than asking the scope reviewer to self-approve it.
+
+For a new-scope Story whose checklist declares files, initialize the versioned
+scope contract from the plan with `scope_contract_init_from_plan`, or create it
+explicitly with `scope_contract_set`, then inspect it with
+`scope_contract_check`. A missing contract is an advisory, not a blocker, on the
+PLAN-to-DEV transition because it may still be created during DEV. It becomes a
+hard missing-scope-contract blocker when that new-scope Story enters REVIEW; the
+legacy no-file-declaration path remains backward compatible.
+
+Run `story_review` after understanding, decision, checklist, ProofStory, signed
+scope-check resolution, scope-contract preparation, and memory-preflight
+requirements are ready. PLAN passes when
 `blockerCount` is zero. Advisory issues are intentionally possible, so total
 issue count is not a zero-only acceptance criterion. A quick-channel Story may
 make adversarial review optional only when the CLI says it is eligible; normal
 scope, intent, ownership, memory, and policy gates still apply.
+
+```bash
+proof-or-stop scope_question_resolve '{"storyId":"B-xxxx","oqId":"OQ-1","resolution":"The approved scope follows the cited decision and excludes unrelated changes.","sourcePointers":["docs/requirements/example.md"]}'
+proof-or-stop scope_contract_init_from_plan --storyId=B-xxxx
+proof-or-stop scope_contract_check --storyId=B-xxxx --json
+```
 
 ### DEV and checklist discipline
 
@@ -337,9 +358,17 @@ conclusions or mutations.
 
 ### REVIEW and independent agents
 
+`reviewer_list --json` reports the current Story's opt-in roster. That roster is
+computed in real time from shared workflow policy plus Story risk signals,
+checklist/decision facts, and documentation touchpoints: concept, quality, and
+test-coverage are baseline lanes; behavior and docs are enabled only when their
+current triggers apply. Do not hard-code one universal roster or infer lane
+eligibility from a role-name prefix.
+
 `reviewer_batch` is a read-only launch plan. It reports which lanes need work and
-prints host-orchestrator `Agent(...)` instructions; it never launches a reviewer,
-runs commands, writes evidence, or advances a phase. Do not pass its refused
+uses the same policy-computed opt-in path as `reviewer_list`. It prints
+host-orchestrator `Agent(...)` instructions; it never launches a reviewer, runs
+commands, writes evidence, or advances a phase. Do not pass its refused
 side-effect flags.
 
 `dispatch` validates a registered role and its story/item/finding/cluster target
@@ -376,6 +405,10 @@ standing quorum can survive unrelated main drift when `storyFilesHash` is
 unchanged and will reject a duplicate submission. Prompt-envelope freshness is
 a separate binding and may still require lane re-attestation. Never fabricate a
 second host identity or treat dispatch output as a host receipt.
+
+```bash
+proof-or-stop reviewer_list --storyId=B-xxxx --json
+```
 
 `Finding.evidenceState` is `suspected`, `verified`, or `disproven`.
 

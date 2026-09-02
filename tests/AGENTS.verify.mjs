@@ -50,20 +50,36 @@ const AUDIT_ROWS = [
   ['A11', 'M11', [present('retired test-intent mutation command appears', /(testintent_record|testintent_resume)/)], /retired conversational test-intent mutation commands are unavailable/, 'packages/main/src/cli/command-catalog.ts', /name: 'testintent_handoff'/],
   ['A12', 'M12', [present('story_review acceptance uses issueCount zero', /issueCount=0/)], /`blockerCount` is zero/, 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/],
   ['A13', 'M13', [present('story_review is unconditionally mandatory', /checklist \u5199\u5b8c\u540e\u5fc5\u987b\u8dd1 `story_review`/u)], /quick-channel Story may\nmake adversarial review optional only/, 'packages/main/src/core/machine.ts', /quickPath\.enabled/],
-  ['A14', 'M14', [present('old PLAN review checklist is the stated gate', /story_review \u68c0\u67e5\uff1a\u7f3a\u5931\/\u5f31 `verificationIntent`/u), absent('scope-check gate artifact is omitted', /scope-check\.json/)], /signed `scope-check\.json` evidence/, 'packages/main/src/core/lifecycle-registry.ts', /scope-check\.json/],
+  ['A14', 'M14', [present('old PLAN review checklist is the stated gate', /story_review \u68c0\u67e5\uff1a\u7f3a\u5931\/\u5f31 `verificationIntent`/u), absent('scope-check gate artifact is omitted', /scope-check\.json/)], /signed `scope-check\.json` evidence/, 'packages/main/src/core/lifecycle-registry.ts', /scope-check\.json/, [
+    present('unresolved scope questions must be resolved', /Every `openQuestions` entry[\s\S]*must have a substantive\nwritten resolution before `story_review` can pass/),
+    present('registered scope question resolution path is named', /registered `scope_question_resolve` command/),
+    present('scope contract initialization path is named', /scope_contract_init_from_plan/),
+    present('scope contract check path is named', /scope_contract_check/),
+    present('PLAN-to-DEV missing contract is accurately advisory', /missing contract is an advisory, not a blocker, on the\nPLAN-to-DEV transition/),
+    present('new-scope REVIEW missing contract is accurately blocking', /hard missing-scope-contract blocker when that new-scope Story enters REVIEW/),
+  ]],
   ['A15', 'M15', [present('main agent fields are limited to title context relatedDocs', /\u4e3b agent \u53ea\u5199 title \+ context \+ relatedDocs/u)], /Current fields include `title`, `context`, `relatedDocs`, `userSees`, `excludes`/, 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/],
   ['A16', 'M16', [present('scope expansion forbids saying out of scope', /\u4e0d\u8981\u8bf4"\u4e0d\u5728 scope \u5185"/u), present('infrastructure defects are ordered into current Story', /\u8fd9\u4e9b\u90fd\u5e94\u8be5\u4e00\u8d77\u4fee/u)], /Defect triage and bounded scope/, 'AGENTS.md', /Defect triage and bounded scope/],
   ['A17', 'M17', [present('PASS binding is required to use latest lane run', /reviewRunId[^\n]*\u5f53\u524d lane \u6700\u65b0/u)], /PASS from the current review round may remain valid/, 'packages/main/src/core/review-run.ts', /RELAXED FOR PASSES only/],
   ['A18', 'M18', [present('caller-authored verificationEvidence uses checklist_update', /checklist_update[^\n]*verificationEvidence/)], /issues a tool-owned receipt/, 'packages/main/src/handlers/checklist.ts', /verification_evidence_add/],
-  ['A19', 'M19', [present('legacy subagent Bash model is stated', /subagent \u53ef\u8c03\u7528 Proof-or-Stop CLI \u547d\u4ee4\uff08\u901a\u8fc7 Bash tool\uff09/u), absent('dispatch entrypoint is omitted', /`dispatch`/), absent('agent_prompt entrypoint is omitted', /`agent_prompt`/), absent('reviewer_batch entrypoint is omitted', /`reviewer_batch`/), absent('quorum_submit entrypoint is omitted', /`quorum_submit`/)], /`dispatch` validates a registered role/, 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName/],
-  ['A20', 'M20', [present('old lifecycle table claims routine validate as TEST account', /\| \*\*TEST\*\* \| CLI \/ \u4e3b agent \| \u8dd1 routine `proof-or-stop validate`/u), absent('acceptance topology command is omitted', /acceptance_topology_check/), absent('delivery check command is omitted', /delivery_check_set/)], /all required verification intent, bugs, review evidence, ProofStory\nartifacts, acceptance topology, delivery\/summary checks, and freshness gates/, 'packages/main/src/core/machine.ts', /acceptance|delivery/],
+  ['A19', 'M19', [present('legacy subagent Bash model is stated', /subagent \u53ef\u8c03\u7528 Proof-or-Stop CLI \u547d\u4ee4\uff08\u901a\u8fc7 Bash tool\uff09/u), absent('dispatch entrypoint is omitted', /`dispatch`/), absent('agent_prompt entrypoint is omitted', /`agent_prompt`/), absent('reviewer_batch entrypoint is omitted', /`reviewer_batch`/), absent('quorum_submit entrypoint is omitted', /`quorum_submit`/)], /`dispatch` validates a registered role/, 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName/, [
+    present('canonical prompt path is named', /`agent_prompt`\nprints the canonical package-registry prompt/),
+    present('opt-in roster command is named', /`reviewer_list --json` reports the current Story's opt-in roster/),
+    present('roster is policy computed', /computed in real time from shared workflow policy plus Story risk signals/),
+    present('read-only batch uses same roster', /uses the same policy-computed opt-in path as `reviewer_list`/),
+    present('signed run start is required', /calls `review_run_start`/),
+    present('pass command is required', /through `review_pass_set`/),
+    present('finding command is required', /through `finding_add`/),
+    present('quorum submission prerequisite is named', /`quorum_submit` only after every required current reviewer pass exists/),
+  ]],
+  ['A20', 'M20', [present('old lifecycle table claims routine validate as TEST account', /\| \*\*TEST\*\* \| CLI \/ \u4e3b agent \| \u8dd1 routine `proof-or-stop validate`/u), absent('acceptance topology command is omitted', /acceptance_topology_check/), absent('delivery check command is omitted', /delivery_check_set/)], /all required verification intent, bugs, review evidence, ProofStory\nartifacts, acceptance topology, delivery\/summary checks, and freshness gates/, 'packages/main/src/core/machine.ts', /if \(!evaluateDevMemoryPreflightGate/],
   ['A21', 'M21', [present('porcelain output is treated as one blocking class', /\u6709\u672a commit \u7684\u6539\u52a8\u65f6\u5148\u63d0\u4ea4\u518d\u63a8\u8fdb/u), present('the same guide defers metadata-only handling to a future placeholder', /metadata-only dirty handling[^\n]*B-9dfb once merged/i)], /Git cleanliness and drift classification/, 'packages/main/src/handlers/done-prepare.ts', /metadata-only|metadata only/],
   ['A22', 'M22', [present('manual CLI patch bump is required after merge', /\u5fc5\u987b\u628a CLI patch \u7248\u672c\u9012\u589e 1/u)], /DONE effect automatically\npatch-bumps/, 'packages/main/src/core/version-bump.ts', /bumpVersionOnDoneMerge/],
-  ['A23', 'M23', [present('future B-9dfb placeholder remains', /B-9dfb once merged/)], /Do not manually bypass `cleanTree`/, 'packages/main/src/handlers/done-prepare.ts', /cleanTree/],
+  ['A23', 'M23', [present('future B-9dfb placeholder remains', /B-9dfb once merged/)], /Do not manually bypass `cleanTree`/, 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/],
   ['A24', 'M24', [present('decision options rule only allows two or one', /`options`: \u2265 2 \u4e2a\uff1b\u53ea\u6709 1 \u4e2a\u65f6/u), absent('empty-options exit is omitted', /options: \[\]/)], /`options: \[\]` single-solution exit/, 'packages/main/src/handlers/decision.ts', /args\.options\.length === 0/],
   ['A25', 'L01', [present('bare destructive test_auto example is runnable', /^proof-or-stop test_auto\s+# legacy/m), absent('bare test_auto has no confirm', /^proof-or-stop test_auto --confirm/m)], /every real run requires explicit `--confirm`/, 'packages/main/src/cli/command-catalog.ts', /real run needs confirm/],
   ['A26', 'L02', [present('legacy materialized prompt directory is primary', /\.proof-or-stop-codex\/agents\//), present('legacy reviewer role appears in prompt example', /name: test-case-reviewer/), present('legacy prompt model field appears', /model: sonnet/)], /`agent_prompt`\nprints the canonical package-registry prompt/, 'packages/main/src/handlers/agent-prompt.ts', /body-free/],
-].map(([id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern]) => ({ id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern }));
+].map(([id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks = []]) => ({ id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks }));
 
 const FINAL_FORBIDDEN = new Map([
   ['A02', /docs\/story\//],
@@ -99,8 +115,13 @@ function runAuditRows() {
     } else {
       const source = row.sourcePath === 'AGENTS.md' ? currentText : read(resolve(root, row.sourcePath));
       const forbidden = FINAL_FORBIDDEN.get(row.id);
-      const green = row.greenPattern.test(currentText) && row.sourcePattern.test(source) && !(forbidden?.test(currentText) ?? false);
+      const distinctGreen = row.greenChecks.map((check) => ({ label: check.label, pass: check.test(currentText) }));
+      const green = row.greenPattern.test(currentText)
+        && row.sourcePattern.test(source)
+        && distinctGreen.every((result) => result.pass)
+        && !(forbidden?.test(currentText) ?? false);
       console.log(`ROW ${row.id} ${green ? 'GREEN' : 'FAIL'} sourceIssue=${row.sourceIssue} finalLine=${lineOf(currentText, row.greenPattern)} source=${row.sourcePath}:${lineOf(source, row.sourcePattern)}`);
+      if (!green && distinctGreen.some((result) => !result.pass)) console.log(`ROW_GREEN_CHECKS ${row.id} ${JSON.stringify(distinctGreen)}`);
       if (!green) failures += 1;
     }
   }
@@ -170,6 +191,7 @@ const MUTATING = new Set([
   'story_advance', 'checklist_update', 'done_prepare', 'story_review',
   'verification_evidence_add', 'validate', 'done_required_validate',
   'understanding_set', 'decision_set', 'story_create', 'gap_log',
+  'scope_question_resolve', 'scope_contract_init_from_plan',
   'fixture_batch_add', 'test_story', 'test_fixture', 'release_approve_push',
   'verify_codex', 'check_apply',
 ]);
@@ -219,7 +241,7 @@ function assertCommandAvailable(command, injectedRunner = null) {
 
 function runCommandLedger() {
   const invocations = extractInvocations(currentText);
-  assert.ok(invocations.length >= 42, `expected at least 42 exact active invocations, got ${invocations.length}`);
+  assert.equal(invocations.length, 46, `expected exactly 46 reviewed active invocations, got ${invocations.length}`);
   const ledger = [];
   for (const text of invocations) {
     const parsed = parseInvocation(text);
@@ -311,9 +333,9 @@ function inventory(text) {
 }
 
 const EXPECTED_BASELINE_INVENTORY_DIGEST = 'be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d';
-const EXPECTED_FINAL_INVENTORY_DIGEST = 'ae2a5830f98a3073fbea26eae23a1ca8e1518ebb0e9b1fdef6a44a1a95a839e7';
-const EXPECTED_PROSE_DIGEST = '8cc430cfe5e2750bc37dfcd8b9206f8a5c42a31fe712d8f027836858403cdfaf';
-const EXPECTED_AGENTS_SHA = 'fa8df6daa294a3610f26ade2576e5312478cd9503fe1975d3000157854f0dc15';
+const EXPECTED_FINAL_INVENTORY_DIGEST = '3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908';
+const EXPECTED_PROSE_DIGEST = '636f02ccb9eea88f5d6ef456e7679001d204a2ef83629aaf9b28eccd0209ab68';
+const EXPECTED_AGENTS_SHA = '8cb5db2aa56e94de108fc255d3a2b7f3ddc353b608c6d3aee1bf6f273ffd6a42';
 
 function inventoryDigest(text) {
   return sha256(JSON.stringify(inventory(text)));
@@ -454,6 +476,53 @@ function runtimeChecks() {
   console.log(`RUNTIME classification=${classification}`);
 }
 
+function auditRowCells(text, id) {
+  const line = text.split('\n').find((candidate) => candidate.startsWith(`| ${id} |`));
+  return line ? line.split('|').slice(1, -1).map((cell) => cell.trim()) : null;
+}
+
+function auditCitationPolicy(text) {
+  for (const row of AUDIT_ROWS) {
+    const cells = auditRowCells(text, row.id);
+    if (!cells || cells.length !== 7 || cells[1] !== row.sourceIssue) return false;
+    const authorityCell = cells[4];
+    const refs = [...authorityCell.matchAll(/`([^`]+):(\d+(?:-\d+)?)`/g)];
+    if (refs.length === 0) return false;
+    const source = row.sourcePath === 'AGENTS.md' ? currentText : read(resolve(root, row.sourcePath));
+    const exactLine = lineOf(source, row.sourcePattern);
+    if (exactLine === 0 || !refs.some((match) => match[1] === row.sourcePath && match[2] === String(exactLine))) return false;
+    const residue = authorityCell
+      .replace(/`[^`]+:\d+(?:-\d+)?`/g, '')
+      .replace(/\band\b/g, '')
+      .replace(/[\s,;]+/g, '');
+    if (residue.length > 0) return false;
+  }
+  return true;
+}
+
+function refreshDocumentHashes(text) {
+  return text
+    .replace(/(Baseline SHA-256: `)[a-f0-9]{64}(`)/, `$1${sha256(baselineText)}$2`)
+    .replace(/(Final SHA-256: `)[a-f0-9]{64}(`)/, `$1${sha256(currentText)}$2`)
+    .replace(/(Final complete-prose digest: `)[a-f0-9]{64}(`)/, `$1${semanticDigest(currentText)}$2`);
+}
+
+function auditCitationMutationChecks() {
+  assert.ok(auditCitationPolicy(auditText), 'every audit row must contain only exact authoritative path:line citations and bind its declared source pattern line');
+  const a01 = AUDIT_ROWS[0];
+  const a01Source = read(resolve(root, a01.sourcePath));
+  const a01Ref = `\`${a01.sourcePath}:${lineOf(a01Source, a01.sourcePattern)}\``;
+  const removed = refreshDocumentHashes(auditText.replace(a01Ref, ''));
+  assert.ok(!auditCitationPolicy(removed), 'removing a row authority citation must fail even after document hashes are refreshed');
+  console.log('AUDIT_CITATION_MUTATION removal REJECTED documentHashesRefreshed=1');
+  const a20Cells = auditRowCells(auditText, 'A20');
+  assert.ok(a20Cells, 'A20 audit row must exist');
+  const vagueLine = `| ${a20Cells.join(' | ')} |`.replace(a20Cells[4], '`machine.ts` transition consumers');
+  const vague = refreshDocumentHashes(auditText.replace(auditText.split('\n').find((line) => line.startsWith('| A20 |')), vagueLine));
+  assert.ok(!auditCitationPolicy(vague), 'vague row authority must fail even after document hashes are refreshed');
+  console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
+}
+
 function auditDocumentChecks() {
   const rows = [...auditText.matchAll(/^\| A\d{2} \|/gm)];
   assert.equal(rows.length, 26, 'audit document must contain exactly 26 claim rows');
@@ -485,6 +554,22 @@ function auditDocumentChecks() {
   console.log(`AUDIT_DOCUMENT rows=26 baselineSha=${sha256(baselineText)} finalSha=${sha256(currentText)}`);
 }
 
+function rowSemanticMutationChecks() {
+  const mutations = [
+    ['M14', 'scope-question-omission', currentText.replace('registered `scope_question_resolve` command', 'a resolution command')],
+    ['M14', 'scope-contract-advisory-inversion', currentText.replace('missing contract is an advisory, not a blocker, on the', 'missing contract is a blocker, not an advisory, on the')],
+    ['M19', 'reviewer-list-omission', currentText.replace('`reviewer_list --json` reports', '`reviewer_roster --json` reports')],
+    ['M19', 'policy-roster-omission', currentText.replace('computed in real time from shared workflow policy plus Story risk signals', 'read from a fixed hard-coded list')],
+    ['M19', 'quorum-prerequisite-omission', currentText.replace('`quorum_submit` only after every required current reviewer pass exists', '`quorum_submit` whenever desired')],
+  ];
+  for (const [sourceIssue, name, mutated] of mutations) {
+    const row = AUDIT_ROWS.find((candidate) => candidate.sourceIssue === sourceIssue);
+    assert.ok(row, `${sourceIssue} row must exist`);
+    assert.ok(row.greenChecks.some((check) => !check.test(mutated)), `${sourceIssue} ${name} mutation must fail an independent GREEN predicate`);
+    console.log(`ROW_SEMANTIC_MUTATION ${sourceIssue} ${name} REJECTED`);
+  }
+}
+
 function externalReviewArtifactChecks() {
   if (existsSync(claudeTranscript)) {
     const transcript = read(claudeTranscript);
@@ -510,10 +595,12 @@ function externalReviewArtifactChecks() {
 let exitCode = runAuditRows();
 if (mode === 'final' && !selectedRow && exitCode === 0) {
   auditDocumentChecks();
+  auditCitationMutationChecks();
   externalReviewArtifactChecks();
   runCommandLedger();
   structuralChecks();
   semanticChecks();
+  rowSemanticMutationChecks();
   completenessChecks();
   runtimeChecks();
   unicodeChecks();
