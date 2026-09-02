@@ -1137,6 +1137,25 @@
       "resolvedAt": "2026-09-02T04:01:13.917Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-051",
+      "desc": "packages/main/src/core/prompt-envelope.ts:330-349 residual invariant-tail authority laundering (high): the F-050 structural exception proves that a local compare/verify/audit/check + before-and-after/across + invariant outcome exists, but it does not require the remaining segment to be invariant-only. Current production-dist probes reject the original F-050 sentence yet still sign `Compare the Dynamic Finding runtime before and after this change remains unchanged while this Story adds a new applicability verdict.`, `... the Story declares a new applicability verdict authoritative.`, `... the prompt recognizes an additional official applicability verdict.`, and `... with a new applicability verdict now official.` The current smoke adds only unsafe sentences where the affirmative clause replaces the locally bound invariant form, so this valid-prefix-plus-affirmative-tail composition is untested. This remains a pre-digest Dynamic Finding authority bypass and makes F-050 closure broader than the implementation. Require the nominal exception to validate the complete authority-bearing relation/tail, then add mutation cases that append semantically affirmative clauses without relying on a finite amendment-verb list.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T04:02:49.838Z",
+      "reviewRound": "2026-09-02T04:00:58.964Z",
+      "reviewRunId": "B-9a49:RR-075",
+      "_hash": "b6b88d55dea07b9fabf7878b85a4d87f0539609fe1adc2a42e90ad9a65646b8e",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
