@@ -64,7 +64,54 @@
       "context": "Plan section 'Canonical legacy pin resolver'. Resolve a checklist verification-evidence pin to exactly one command id: exact commandId match first, else normalize the legacy free-form command string with the SAME executable/argv normalization the routine identity uses and compare the complete normalized tuple (command, args, resolved cwd, shell, relevant environment). Exactly one match records pinResolution=legacy-exact plus the normalized-tuple digest; zero matches stop with pinned_command_missing; more than one stops with pinned_command_ambiguous. Labels and array order must never break a tie, and historical evidence is never rewritten in place.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#canonical-legacy-pin-resolver"
+      ],
+      "userSees": "The smoke run prints one line per pin case and ends `validation-tier-planner-smoke: PASS`. On a story whose verification evidence pins a command string that no longer matches any configured command, `proof-or-stop validation_plan --storyId=B-xxxx --tier=fast` stops and prints `pinned_command_missing`, naming the unresolved pin; when the string matches more than one command it stops and prints `pinned_command_ambiguous`, naming every candidate id.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-identity.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Evidence carrying an explicit commandId that exists in the current universe resolves to that command and records pinResolution=exact.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy evidence carrying only a free-form command string that normalizes to exactly one configured command resolves to it and records pinResolution=legacy-exact plus the normalized-tuple digest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A legacy pin string that normalizes to no configured command stops with pinned_command_missing and produces no plan.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Commands differing only by resolved cwd, or only by shell versus argv form, are treated as distinct by the resolver and do not collide.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A legacy pin string that normalizes to two or more configured commands stops with pinned_command_ambiguous, and neither a differing label nor array order is allowed to break the tie; the resolver must not return a first match.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
