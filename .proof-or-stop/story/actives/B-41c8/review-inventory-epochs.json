@@ -16,6 +16,22 @@
       },
       "receiptId": "B-41c8:RIE-001:RCP-001",
       "_hash": "9d9e1a28de93bc983a8d1d2dd981a3d737ae1ad9bf0dd63a8f920d958bb0031a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-41c8:RIE-002",
+      "storyId": "B-41c8",
+      "reviewRound": "2026-09-02T17:48:38.951Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-02T20:48:17.076Z",
+      "updatedAt": "2026-09-02T20:48:17.076Z",
+      "cutoff": {
+        "headHash": "17ffaa6903f9e29c2f6294b410609f0c9db0c364",
+        "materialHash": "2e323e70f9cea1797bd78de30e57a8eddfa220a2b10d7a198f6ad5a4a6e2b606",
+        "storyFilesHash": "c83312385958ff498641f61cdc88e6b38b162b85ba3ead708dab09a6e1b259b9"
+      },
+      "receiptId": "B-41c8:RIE-002:RCP-001",
+      "_hash": "71ebbc2aa9e5c372b0fc56e6ef428f48ec5aa625d8b0c49ee68f623496420a73"
     }
   ],
   "receipts": [
@@ -35,6 +51,23 @@
       "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
       "issuedAt": "2026-09-02T20:47:58.074Z",
       "_hash": "ab07a28bf2f08a3e94c020b69c32812477b315a2d5a7c9b8b0e1aba15b9826f8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-41c8:RIE-002:RCP-001",
+      "epochId": "B-41c8:RIE-002",
+      "storyId": "B-41c8",
+      "reviewRound": "2026-09-02T17:48:38.951Z",
+      "cutoff": {
+        "headHash": "17ffaa6903f9e29c2f6294b410609f0c9db0c364",
+        "materialHash": "2e323e70f9cea1797bd78de30e57a8eddfa220a2b10d7a198f6ad5a4a6e2b606",
+        "storyFilesHash": "c83312385958ff498641f61cdc88e6b38b162b85ba3ead708dab09a6e1b259b9"
+      },
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "issuedAt": "2026-09-02T20:48:17.076Z",
+      "_hash": "6914b4c6682b67fb32c2961b20c4da514ee9f72cf088127c0af0f19302f0fb76"
     }
   ],
   "criticReceipts": []
