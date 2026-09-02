@@ -402,14 +402,15 @@
         },
         {
           "intentRef": "CHK-001:happy:2",
-          "kind": "logic_test",
+          "kind": "docs_check",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
-          "note": "Tool-executed immutable RED characterization proves the pre-fix production snapshot and assertion remained unchanged; closes F-014 with a mechanical receipt.",
+          "result": "pass",
+          "note": "Execute the immutable RED production-unchanged verifier through the canonical pinned verification runner to close F-014 with a tool-owned receipt.",
           "mechanical": false,
-          "headHash": "001a7cac30388f8c8ee73754a37fe78979e68f21",
+          "headHash": "f7ee1fe2fc302c6e2c1d54e081bc7d50341568f4",
           "materialHash": "2dc62922f8deaab0a0b92cab3b049247169fe9c0cd5f41acdd278ddf2e841ea1",
           "storyFilesHash": "282a5b9f1414cfa1ff670af06ba8c216bea74a4a0755f5df6de610b42d1d0903",
-          "timestamp": "2026-09-02T00:47:54.796Z"
+          "timestamp": "2026-09-02T00:48:25.446Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
