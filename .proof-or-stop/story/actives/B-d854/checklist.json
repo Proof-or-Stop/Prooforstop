@@ -258,7 +258,11 @@
           {
             "desc": "Record and separately report the repository-local worktree CLI and the globally resolved `proof-or-stop` runtime: capture each reported version plus the invoked path and canonical resolved realpath. Treat `node bin/proof-or-stop.js` from the B-d854 worktree as the authority for auditing current repository behavior and active examples; report any global version or path drift as a distinct environment finding without substituting the global runtime for local authority, concealing the drift, or treating unrelated global drift as proof that the worktree documentation is inconsistent. WHY: repository truth and host installation state are separate facts and the evidence must make that boundary reproducible.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\"),cp=require(\\\"child_process\\\"),p=\\\"/opt/homebrew/bin/proof-or-stop\\\";const local=cp.execFileSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",\\\"--version\\\"],{encoding:\\\"utf8\\\"}).trim(),global=cp.execFileSync(p,[\\\"--version\\\"],{encoding:\\\"utf8\\\"}).trim(),real=fs.realpathSync(p);if(!local.includes(\\\"0.3.270\\\")||!global.startsWith(\\\"Proof-or-Stop \\\"))process.exit(1);console.log(\\\"RUNTIME_BOUNDARY_PASS local=node bin/proof-or-stop.js \\\"+local+\\\" global=\\\"+p+\\\" \\\"+global+\\\" realpath=\\\"+real+\\\" drift=\\\"+(local!==global))\"",
+              "selector": "RUNTIME_BOUNDARY_PASS"
+            }
           }
         ],
         "adversarial": [
@@ -309,6 +313,26 @@
           "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
           "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
           "timestamp": "2026-09-02T00:17:54.127Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node -e \"const fs=require(\\\"fs\\\"),cp=require(\\\"child_process\\\"),p=\\\"/opt/homebrew/bin/proof-or-stop\\\";const local=cp.execFileSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",\\\"--version\\\"],{encoding:\\\"utf8\\\"}).trim(),global=cp.execFileSync(p,[\\\"--version\\\"],{encoding:\\\"utf8\\\"}).trim(),real=fs.realpathSync(p);if(!local.includes(\\\"0.3.270\\\")||!global.startsWith(\\\"Proof-or-Stop \\\"))process.exit(1);console.log(\\\"RUNTIME_BOUNDARY_PASS local=node bin/proof-or-stop.js \\\"+local+\\\" global=\\\"+p+\\\" \\\"+global+\\\" realpath=\\\"+real+\\\" drift=\\\"+(local!==global))\"",
+          "result": "pass",
+          "note": "Tool-owned execution records both runtimes without conflating them: B-d854 repository-local node bin/proof-or-stop.js is the documentation authority; the global executable resolves into B-fe8f and is tracked separately in the global-cli-worktree-drift backlog draft.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "004b4e169de743f29fb5a01b31d181a1fa628b074f8555b1422ab6298c8cee8b",
+            "outputTail": "RUNTIME_BOUNDARY_PASS local=node bin/proof-or-stop.js Proof-or-Stop 0.3.270 global=/opt/homebrew/bin/proof-or-stop Proof-or-Stop 0.3.271 realpath=/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/packages/main/dist/cli.js drift=true\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T00:18:07.531Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ec6f6e74a452db871716c18e444de23e929a00d",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:18:07.741Z"
         }
       ]
     }
