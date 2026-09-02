@@ -185,6 +185,24 @@
       "resolvedAt": "2026-09-02T03:53:14.281Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-009",
+      "desc": "F-006 corrected resolution (resolvedAt 03:53:13) names \"the exact check that verified it\" as: grep -rn 'isValidationStopReasonCode|assertStopReason|VALIDATION_STOP_REASON_CODE' packages/main/src | grep -v /tasks/ -- but run verbatim (plain grep, no -E/-P) this is BRE mode where | is a LITERAL character, not alternation. It matches zero lines and returns nothing (verified: exit code 1, no output) -- it does not \"return production, non-fixture control-flow references\" as claimed. The command only does what is claimed with grep -E (or -e/-e/-e). This repeats, in miniature, the exact failure mode the correction was meant to eliminate: a specific reproducibility claim (\"run the grep above at the moment the number is needed\") that does not reproduce when actually run. Distinguish from the substance: the four cited line numbers (validation-tier-planner.ts:498, :511, :561, :586) ARE correct and I independently confirmed each one individually -- so the underlying qualitative claim (isValidationStopReasonCode/assertStopReason are called in real production control flow) is true. Only the illustrative combined command is broken.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:54:31.279Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-006",
+      "_hash": "becce91692b847549a53a95157a00d9161a76c4412c4eb9c5fd8bf656481d927",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "missing|ts|corrected-resolution-resolvedat",
+      "signatureTagSource": "auto"
     }
   ]
 }
