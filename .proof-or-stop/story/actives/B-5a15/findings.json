@@ -18991,6 +18991,66 @@
       ],
       "signatureTag": "missing|ts|mechanism-note-supporting",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-353",
+      "desc": "concept-cleanup: AST pin repin incomplete across the coupled SECOND pin registry. The main-merge repinned PINNED_EXECUTABLE_SOURCE_FINGERPRINTS in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (closeout-trust.ts -> 03d1d617..., closeout-trust-smoke.ts -> 3152baa8...) but did NOT update the coupled mirror copies in scripts/verify-process-fact-contract.mjs:2017 (bd6f5790...) and :2022 (32bd2e64...). Result: node scripts/verify-process-fact-contract.mjs exits 1 with \"retired vocabulary guard must enforce narrow compatibility usage: 32bd2e64.../bd6f5790...\". Verified TRUE EXIT=1 by redirecting output to a file and reading the exit code directly; the dispatch summary claim that this script exits 0 is incorrect and reads 0 only when the code is taken from a piped tail. This reproduces the exact defect the comment at scripts/verify-process-fact-contract.mjs:2029-2033 documents as B-cdf6:F-057 -- \"this is the SECOND copy of that fingerprint ... they must always move together\". Concept impact: one of two authoritative pin registries is left stale, so the merged closeout-trust surface is pinned inconsistently and a process-fact gate is red. Fix: move both mirror digests in lockstep, on the re-approval basis independently confirmed this review (isExactLegacyLocalOnlyDeliveryClaims exactly 2x in core/closeout-trust.ts; createLegacyLocalOnlyDeliveryClaims exactly 2x in tasks/closeout-trust-smoke.ts).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T12:41:36.468Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-854",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0dfe4a2f1b984d08e89223cff0ae8168e839559cd35447445e8732fd8c49766d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c6583a18bff7e6ef12b099480c8a767240a9ad3a317e0d699fec4a4869afe271",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs,packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-repin",
+      "signatureTagSource": "auto"
     }
   ]
 }
