@@ -218,8 +218,8 @@
       "id": "CHK-004",
       "title": "Add language-neutral planner types and the fail-closed widening matrix",
       "context": "Plan sections 'Terminology and invariants', 'Selection algorithm' steps 1, 2 and 5, and 'Fail-closed widening matrix'. Define the tier names story-fast / story-intermediate / repository-full, the subset invariant, the reason-code enum from the matrix, and the resolver that maps a StoryRelevanceInput plus a requested tier to an effective tier with escalation reasons. In this Story the resolver ALWAYS returns effective repository-full or a classified stop; it performs no pruning and an empty selection is never a PASS. Source kinds fallback / validate-file stay atomic and no-validator preserves the existing skip/warn.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T01:59:26.220Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#fail-closed-widening-matrix",
