@@ -19061,7 +19061,7 @@
       "desc": "concept-cleanup: renamed-symbol residue in a security-rationale comment. packages/main/src/core/pre-review-live-proof.ts:135 still names executeActiveScenarioTopology (\"see executeActiveScenarioTopology, which forges a per-assertion signature and runs the real verifier for each one\"). The main-merge renamed that executor to executeActiveScenarioWitnesses and moved record projection into adaptCanonicalScenarioRecordsToActiveTopology; repo-wide grep over packages/*/src confirms this comment is the ONLY remaining occurrence of the old name -- the symbol no longer exists anywhere in product source. Per the concept lane rule, comment references count as residue because they mislead future developers. This one is higher-value than a typical stale comment because it sits in the paragraph that argues why F-339s borrowing hole stays closed: it directs a future reader to the function that supplies the per-assertion-execution guarantee, so a dangling name weakens the audit trail for a security invariant precisely where B-5a15:F-351 is still OPEN in the same subsystem. Fix: rename the reference to executeActiveScenarioWitnesses.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T12:42:06.777Z",
@@ -19114,7 +19114,11 @@
         "packages/main/src/core/pre-review-live-proof.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-renamed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED. core/pre-review-live-proof.ts:135 named executeActiveScenarioTopology in the comment that documents the no-borrowing guarantee F-339 closed, but main's merge renamed that function to executeActiveScenarioWitnesses. I confirmed the reviewer's measurement independently: before the fix that identifier had exactly one live source occurrence repo-wide, and it was this comment - every actual call site had been ported. Updated the comment to name executeActiveScenarioWitnesses. tsc clean afterwards. The reviewer's reasoning for filing a mere comment is sound and worth preserving: a comment naming a function that no longer exists misdirects the next reader of the precise security invariant it is there to explain, which is worse than no comment.",
+      "resolvedAt": "2026-09-02T12:50:44.035Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-355",
