@@ -411,6 +411,27 @@
         "scanEscalationReason": null
       },
       "_hash": "8d425392ec0a911f4da496faad42c7cc21b009de4efeb80cc2d6f562cd388f7b"
+    },
+    {
+      "id": "B-fe8f:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round-9 re-review; round 8 (RP-013) was invalidated because it started before evidence-refresh #4 rewrote checklist.json and a convergence-breaker freeze intervened, per coordinator. Verified read-only, no writes beyond review_run_start/review_pass_set (one review_run_start retry after a prompt-envelope-binding mismatch on the first RR-030 attempt; RR-034 is the current bound run). No new material since dd45caa2ea (my round-8 review): `git diff dd45caa2ea..HEAD --stat -- packages scripts bin proof-or-stop.config.json package.json` shows only retired-authority-vocabulary-guard-smoke.ts (3 insertions/4 deletions), and the full diff on that file confirms it is a comment-rationale rewrite (DYNAMIC_BINDING_BUILD_CEILING value unchanged at 811, just re-explained) plus removal of a temporary debug stderr.write line -- no behavioral change, not story-owned test-coverage-relevant. Verified via checklist_get (read-only) that all 71 verificationEvidence records across CHK-001..CHK-006 have mechanical=true and result=pass. materialHash and storyFilesHash are each uniform across all 71 (materialHash=cd7b333358dde5573fbe3e1a729e8025c33d69ab7ee4f1c6fe5c629c450b371f, storyFilesHash=8be777fd75cc1af58cf445440a1b820b3e63123f8b6f990918ee8ccc9dae8f75, matching this review runs bound scope hash), but headHash has two values: d5f0aa117edf258c7b1b1760e5382527a74afeea (67 records) and 8d6c98b03bce30c55cc8aae08f5bee17ebf19659 (the 4 batch_add-re-earned records: CHK-002:adversarial:2, CHK-003:happy:0, CHK-003:happy:1, CHK-003:happy:2). Confirmed via git that d5f0aa1 is an ancestor of 8d6c98b with exactly two intervening commits (record B-fe8f validate metadata; record B-fe8f verification_evidence_refresh_stale metadata), both story-metadata-only writes under .proof-or-stop/story/actives/B-fe8f -- classic headHash-only drift per repository convention, not a coverage gap. Confirmed all 4 batch_add-re-earned records carry receipt.timeoutOverride={timeoutMs:900000, defaultTimeoutMs:270000, reason:<CPU-contention-during-refresh, >=30 chars>} and receipt.selectorMatched=true, result=pass, mechanical=true, as asked. Ran only the pinned RED command directly (fast/targeted, per instruction): `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` -- exit 0, all 12 PASS lines. Did not run the full finding-ledger-runtime-smoke.js, did not run proof-or-stop validate, did not touch packages/main/dist. No blocking finding; carries forward the round-6/7/8 coverage analysis (F-013/F-017/F-018/F-019 remedies, assertVersionSync worktree-aware branch, installedCli selector fix, non-git ledger-key fallback coverage) which remains valid since no story-owned material changed.",
+      "createdAt": "2026-09-02T20:02:46.473Z",
+      "reviewRound": "2026-09-02T20:00:12.918Z",
+      "reviewRunId": "B-fe8f:RR-034",
+      "envelopeId": "61d537a77ec20a1fcdaaf69e3386c8e62a7dd3b8cba1ccb8e96378d7a8ac1ce8",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec53ae3b0e7a1d2147f69d7c1da7cd88ea5c2a26836266c01b2b8ee5d7db8b95"
     }
   ]
 }
