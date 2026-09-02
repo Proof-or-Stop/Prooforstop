@@ -1274,7 +1274,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:319-323 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:748-772 legitimate punctuation regression (high): the F-054 whole-source fix rejects every period, semicolon, or newline in an otherwise safe Dynamic Finding invariant source before examining whether the adjacent segment carries authority. Production-dist negative-control probes added the safe text `Compare the Dynamic Finding runtime before and after this change and verify it remains unchanged. Record the comparison result as test evidence.` and its semicolon equivalent to safeTaskContextAuthorityStatements; both failed with `REVIEW Task Context contains unsafe Finding-triage authority ... Dynamic Finding authority amendment asserted from Task Context`. This is disjoint from F-053/F-054 affirmative-tail bypasses: benign evidence-recording continuation now blocks review_run_start and valid REVIEW Task Context. Add period, semicolon, and newline safe composition controls beside the unsafe cross-segment cases, and make composition inspect adjacent segments rather than treating punctuation itself as proof of amendment; preserve rejection of F-053/F-054 and exact CHK-002/CHK-003 acceptance. severity=high",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T07:42:08.280Z",
@@ -1286,7 +1286,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1b8fdfe672fbf1d7970573bdf6be6f82f2651f33 with composition-aware ASCII/Unicode statement splitting. A safe invariant may be followed only by complete bounded evidence/reporting actions; legitimate record/report/preserve/capture/log continuations pass across period, semicolon, newline, 。 and ；, while continuations reopening applicability, severity, owner, gate, authority, schema or official-verdict vocabulary reject. RED reproduced false blocks for period/semicolon/newline; GREEN RR-085 and committed regression matrix pass. Full checks, 60/60 current evidence, pre-review and full-3x2 rollout pass; protected Dynamic Finding paths are unchanged.",
+      "resolvedAt": "2026-09-02T08:13:58.699Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
