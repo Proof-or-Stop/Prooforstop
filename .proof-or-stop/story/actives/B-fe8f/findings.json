@@ -504,6 +504,26 @@
       "resolvedAt": "2026-09-02T20:20:45.777Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-022",
+      "desc": "packages/main/src/core/store.ts:108-114 and packages/main/src/core/finding-ledger.ts:270-322 — verified L4 lifecycle-authority blocker: StoryStore accepts a current-key signed FindingLedgerReceipt that omits exactRequestDigest as long as the unsigned persistence carrier has any 64-hex exactRequestDigest. Independent temp-project reproduction created a valid signed lifecycle resolution, removed exactRequestDigest from the nested signed receipt, re-signed the legacy-shaped receipt with the current registered key, and preserved the raw carrier field; verifyFindingLedgerReceipt returned true and readFindings projected the high Finding as resolved: {rawCarrierHasExactRequestDigest:true,signedCarrierHasExactRequestDigest:false,resignedReceiptVerifies:true,projectedStatus:\"resolved\"}. Thus the gate consumes a transition whose exact request digest is not signed, contradicting F-018 resolution and the exact signed/raw carrier boundary. Require exactRequestDigest on the signed lifecycle receipt and exact equality to the carrier (legacy receipt compatibility may remain query-only), plus a lifecycle projection mutation test proving signed-field omission stays open.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T21:37:24.201Z",
+      "reviewRound": "2026-09-02T20:20:25.737Z",
+      "reviewRunId": "B-fe8f:RR-037",
+      "_hash": "8376e37cd7350faeb860426044f8e7542707b11f5f4dea3de2f346f59fcffe0d",
+      "files": [
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/finding-ledger.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
