@@ -1,9 +1,9 @@
 {
   "storyId": "B-45a0",
   "action": "override_budget",
-  "reason": "Operator-directed closeout continues (user goal: complete B-45a0). Round 54 closed with all four lanes PASS, a signed topology-critic pass receipt, and a finalized epoch; the DONE-required certification then exposed one real latent defect (F-473: the runtime tracer wrapper dropped util.promisify.custom, crashing the rollout cohort under traced execution). The defect is fixed with a regression smoke and a negative control (commit 8532bbdc36), the finding auto-resolved via the commit trailer, all 50 stale evidence receipts were refreshed, and pre_review_check signs PASS at the current head. One further ordinary round is needed solely to re-earn lane verdicts over this single surgical fix.",
-  "reviewRound": "2026-09-01T15:41:35.801Z",
+  "reason": "Operator-directed closeout continues (user goal: complete B-45a0). Round 55 closed cleanly: RI-118 finalized across two waves (all four lanes re-attested, critic completeness CRIT-01/CRIT-02 with the F-476/F-478 family dispositioned), the receipt was consumed into the remediation DEV bounce, and every degraded surface was repaired there in canonical order: replay campaign re-executed at clean HEAD d29683e616 (admission PASS, assurance PASS), CHK-011:happy:0 and CHK-014:happy:1 re-earned as mechanical receipts (exit 0, selector matched), acceptance basis complete + structural topology pass, rollout report full-3x2, live proof recaptured, pre_review_check signs PASS with zero codes. One further ordinary round is required solely to re-earn lane verdicts and a fresh topology-critic pass receipt over this unchanged material.",
+  "reviewRound": "2026-09-02T04:21:59.530Z",
   "approvedBy": "qipan",
-  "recordedAt": "2026-09-01T17:55:42.176Z",
-  "_hash": "d89119a52651f205241c2f0259a2b853c66435af7e1872e2676d8af31af35166"
+  "recordedAt": "2026-09-02T07:12:06.933Z",
+  "_hash": "b1a867c1ef19a72a982886963b01bde23289f52ca068bf8a8841265409785f2b"
 }
