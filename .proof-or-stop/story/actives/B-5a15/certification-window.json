@@ -282,9 +282,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-5a15:CW-014",
       "storyId": "B-5a15",
-      "state": "BLOCKED",
+      "state": "CANCELLED",
       "createdAt": "2026-08-31T19:56:00.083Z",
-      "updatedAt": "2026-08-31T19:56:00.083Z",
+      "updatedAt": "2026-09-02T20:08:58.538Z",
       "blockerCode": "pre_cert_main_not_merged",
       "blockerDetail": "Local main is not an ancestor of HEAD.",
       "inventory": {
@@ -293,7 +293,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "_hash": "9ab11b5896767ca052af8bd9daf83d1fc00c002447d68900176ff1a5ea2b7732"
+      "cancelledAt": "2026-09-02T20:08:58.538Z",
+      "cancelReason": "CW-014 is BLOCKED on a stale recorded blocker (pre_cert_main_not_merged) that git contradicts: merge-base --is-ancestor main HEAD is true and HEAD..main is 0 commits. Cancelling so certification_window_begin re-evaluates admission facts against the current tree, which now also has the core-package-rename ENOBUFS fix and a clean 58/58 root suite.",
+      "_hash": "f1fc879bd556c5320f96483178c7357a4c5f6520fe03bef864cf8808d8dda2a6"
     }
   ],
   "receipts": [
