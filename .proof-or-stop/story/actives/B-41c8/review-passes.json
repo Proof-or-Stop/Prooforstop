@@ -325,6 +325,40 @@
         "scanEscalationReason": null
       },
       "_hash": "1e8bd9f485048b545271268f32b12ff712b97523672ac4da578507d2ed934679"
+    },
+    {
+      "id": "B-41c8:RP-012",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 6 re-review after RP-003 (round 3): all 15 verificationIntent entries (CHK-001 x5, CHK-002 x3, CHK-003 x4, CHK-004 x3) have mechanical must-priority evidence with receipt present, selectorMatched=true, exitCode=0, result=pass; zero missing. Audited the 3 fixes since RP-003: F-013 RED 3ebf244ca1 spot-checked in a detached worktree, confirmed FAIL 39/40 on the F-011 double-quoted-store case exactly as claimed, GREEN 2d12aa7c2d restores the byte-identical original regex; F-015 418e5d8103 is a comment+constant ceiling bump (808->809) without its own RED commit, but the pre-existing failing state was independently reproduced in a detached worktree at the parent commit (rc!=0, dynamic binding graph builds must remain bounded at 808, got 809), matching the repro pasted verbatim in the commit body, so a separate RED was not needed; F-012 ce41a44633 is comment-only (no assertion or pinned digest touched). git diff --name-only main...HEAD lists only story-owned files: proof-or-stop metadata under .proof-or-stop/story/actives/B-41c8/ and .proof-or-stop/dev-memory/, package.json, proof-or-stop.config.json, and source/smoke files from CHK-001..004 plus their review fixes. finding_list: 14/15 findings resolved, F-014 dismissed (advisory, non-blocking); no open finding. No blocker found.",
+      "createdAt": "2026-09-02T23:53:27.460Z",
+      "reviewRound": "2026-09-02T23:45:41.118Z",
+      "reviewRunId": "B-41c8:RR-023",
+      "envelopeId": "3f1e7cafa71086e1090f89829fd1f8f0e146bd870c9b0f5b5a291f534e832707",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/plan.md",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f6cb23c701a72279a32b0d92ad21448277e4aa0cd992997840effadafa992ec"
     }
   ]
 }
