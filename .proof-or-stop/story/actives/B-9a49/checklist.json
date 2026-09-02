@@ -10,9 +10,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T02:57:03.906Z",
-      "endTime": null,
+      "endTime": "2026-09-02T03:02:30.112Z",
       "userSees": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
       "files": {
         "modify": [
@@ -2155,6 +2155,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin final evidence refresh and acceptance closure against the already committed implementation."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:30.112Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Final focused registry evidence is mechanical and current; the canonical contract implementation was already committed and independently scope-reviewed."
     }
   ]
 }
