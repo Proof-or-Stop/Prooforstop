@@ -3,6 +3,7 @@
   "mode": "enforce",
   "allowedModify": [
     "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-envelope.ts",
     "AGENTS.md",
     "CLAUDE.md",
     "packages/main/templates/agents/proof-or-stop-implementer.md",
@@ -11,6 +12,7 @@
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
     "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
     "package.json",
     "package-lock.json",
     "packages/main/package.json",
@@ -34,18 +36,20 @@
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "protectedFiles": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
     "packages/main/src/core/advisory.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts"
   ],
   "explicitExcludes": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
     "packages/main/src/handlers",
     "packages/main/src/core/advisory.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/acceptance-topology.ts"
   ],
-  "scopeChangeReason": "Canonical path migration after merging the approved Proof-or-Stop identity cutover: replace retired lattice implementer, review-channel, and brand paths with their exact proof-or-stop counterparts while preserving the same Agent-side scope, protected Dynamic Finding runtime exclusions, and test boundary.",
+  "scopeChangeReason": "Controlled PLAN rebaseline: make the English proposal and REVIEW prompt-envelope guard first-class Agent-side implementation paths; preserve the separately reviewed acceptance-basis repair; explicitly protect and exclude the Dynamic Finding authority document and all runtime schema, handler, predicate, process-fact, and topology surfaces. This supersedes the authority-migration interpretation recorded in scope-ack:3 without deleting history.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -141,7 +145,7 @@
     }
   ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-02T02:07:48.229Z",
+  "updatedAt": "2026-09-02T02:54:36.476Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
