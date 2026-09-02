@@ -14154,6 +14154,31 @@
         "scanEscalationReason": null
       },
       "_hash": "3882552431e8301d2caaabd08867aa5ec631daab985f777e8eb30681ab72ea03"
+    },
+    {
+      "id": "B-5a15:RP-304",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Verification coverage COMPLETE; no blocker. THE DECISIVE MEASUREMENT, recomputed independently rather than taken from the 21/0 aggregate: DECLARED SELECTORS PRESENT = 53/53, MISSING NONE. Method: I extracted the intentRef of all 53 evidence rows from checklist.json, ran the pinned command 'node --test packages/main/tests/causal-evidence.test.mjs' fresh (SUITE_EXIT=0, tests 21 / pass 21 / fail 0), parsed every 'B-5a15|<ref>|PASS|<desc>' marker line from that run (56 distinct refs emitted), and intersected the two sets: all 53 declared refs are present, 0 missing, with 3 emitted-but-not-declared extras (CHK-001:adversarial:session-like-environment, CHK-003:adversarial:4, CHK-003:adversarial:5). I did NOT rely on 21/0, which F-351 proved is not evidence. F-351 TRAP EXPLICITLY CHECKED AND CLOSED: causal-evidence.test.mjs lines 2514-2522 emit the CHK-004:happy:2 and :3 markers ONLY inside 'if (!topologyRefreshBootstrap && !isEvidenceRefreshBootstrap)', i.e. exclusively on the strict PASS branch, so the presence of both markers in this fresh run (output lines 61-62: 'B-5a15|CHK-004:happy:2|PASS|acceptance_topology_check reports current complete structural PASS' and 'B-5a15|CHK-004:happy:3|PASS|pre_review_check_read reports current admissible executable PASS') is positive proof the allow-listed bootstrap escape at line 2495 was NOT taken. Independently corroborated: pre_review_check_read returns status=pass, ok=true, codes=[], executableEvidence=current, mutations=biting, transcript=related, authority=admissible. STRUCTURE: 5 checklist items (all done) / 53 intents (10+9+10+14+10), intentRef mapping 1:1 with ZERO duplicates, ZERO orphans (no evidence ref that is not an intent) and ZERO uncovered intents. 51 effective 'must' CONFIRMED: raw priorities are 22 explicit must + 29 undefined + 2 should, and both verification.ts:214 ('collected.intent.priority || must') and pre-review-check.ts:120 ('intent.priority ?? must') default an absent priority to must, so 53-2=51. intentRef() at core/verification.ts:24 is confirmed to be 'intent?.id || `${itemId}:${lane}:${index}`', a FALLBACK, and exactly ONE intent carries an explicit id: CHK-001:edge:oversized-output-probe. RECEIPTS: 53 rows, all mechanical:true, all receipt.exitCode===0, all receipt.selectorMatched===true, on a SINGLE storyFilesHash ae77de8125f28d825c5fb2a370b4e79cb9b20a151ec2b15029dc0d6e7cab7a28 which equals the RI-069 cutoff storyFilesHash; 53 DISTINCT outputDigests and 53 DISTINCT executionKeys (no reuse or collision); ZERO waivers, ZERO nonMechanicalReason, ZERO result:'fail'. REFRESH SAFETY VERIFIED, not assumed: the only two 'should' intents in the whole story are precisely CHK-004:happy:2 and CHK-004:happy:3, so the verification_evidence_refresh_stale that broke their circular deadlock could not have contaminated the must set that pre-review-check.ts:120 filters. Both now carry REAL receipts (kind=integration_test, mechanical:true, result=pass, nonMechanicalReason=null, exitCode=0, selectorMatched=true, timeoutMs=270000) rather than being left non-mechanical. Strictly read-only: no file edits and no git writes in this lane.",
+      "createdAt": "2026-09-02T18:47:18.097Z",
+      "reviewRound": "2026-09-02T18:29:32.646Z",
+      "reviewRunId": "B-5a15:RR-897",
+      "envelopeId": "034f39d8472a891663221fee5d3b6af77e691c952074cee1e3f6e41c79703ede",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8cb6d3c7cfd21b89a5066b0991103310b084f264e1fbd8160a3c26f3367095a7"
     }
   ]
 }
