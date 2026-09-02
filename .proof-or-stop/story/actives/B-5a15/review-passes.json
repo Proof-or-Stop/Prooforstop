@@ -13168,6 +13168,36 @@
       },
       "readDiagnostics": [],
       "_hash": "1e96a09cd0004cfc250156eb9c9799cd8fd29386cd3f6af1ae74cf3268fd3bdc"
+    },
+    {
+      "id": "B-5a15:RP-274",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 2+ quality lane PASS on RR-835 (head 6f5a1caf93). Source material independently verified UNCHANGED since prior PASS RP-270 (prior head 4d87764b625dc9319909d9c8ab7ddf93a61b28a1): git diff --name-only prior..HEAD yields ZERO paths outside .proof-or-stop/story/actives/B-5a15/, and per-file git blob hashes over 22 in-scope core/handler/task/test files are identical at prior head, HEAD, and working tree; all ~150 intervening commits are story-metadata only. Suite measured green myself: node --test packages/main/tests/causal-evidence.test.mjs => tests 21 / pass 21 / fail 0 (was 19/2; F-247 and the F-249-series now pass). Spot-checked the four prior fixes still in place: F-339 provenance fork at handlers/checklist.ts:617-619 (mechanical===false picks sameAuditedAttestationIdentity, else sameEvidenceSemantics); F-334 byte ordering at evidence-freshness.ts:483 and :513 with no localeCompare in either hash-material path; F-336/F-337 causal edges in CERTIFICATION_DOMAIN_DEPENDENCIES at handlers/certification-window.ts:119-126 (test and integration carry their real inputs); F-338 explicit digest field mapping at core/certification-window.ts:809-817 (dependencyGraphDigest/currentInputHashesDigest named explicitly). Quality-lane checks on this diff: tsc --noEmit -p packages/main exits 0; zero empty catch blocks and zero console.log added under src/core or src/handlers; the only as-unknown-as casts are in src/tasks smoke harnesses, not product code; no shell-imports-fn violations. Investigated evidence-freshness.ts:435 localeCompare and confirmed it is NOT a defect: changedFileStatusesBetweenRenameAware returns a map whose every consumer (impact-classification-policy.ts:100 and :110, review-incremental-context.ts:366/405/970/1032) reads it only by keyed lookup input.changedFileStatus?.[path], never iterating in order and never hashing the map, so key order cannot affect any digest - same accepted class as causal-evidence.ts:1096. Also measured the export surface of the new core/causal-evidence.ts (65 exports, 354 imported names across 15 referencing files): the exports with no current external importer are 17 interface/type declarations that name the parameter and return shapes of exported functions, 11 CAUSAL_*_SCHEMA persisted-artifact schema constants, and 7 helpers with 2-4 live in-module uses - a wider-than-needed export keyword on a new subsystem module, non-blocking and unclaimed by any checklist item, so recorded here rather than filed per the defect-triage record-and-defer rule. No new blocking finding. Already-dispositioned items (F-325/F-333/F-334/F-336/F-337/F-338/F-339/F-342/F-347 fixed; F-326/F-327/F-328/F-330/F-332/F-335/F-340/F-341/F-343 deferred; F-345/F-346 retracted) and the known certification-window-smoke.ts pre-existing failure were not re-litigated.",
+      "createdAt": "2026-09-02T06:58:59.406Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "reviewRunId": "B-5a15:RR-835",
+      "envelopeId": "db2927d72fc5879dddd84758be4048c9075fd59eeb0d46e0303c00c967261005",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "17038b1e2dc8f494c5ee1899a5ca3cd2f2eca8fc22bb1c0e93ddfb87cc53059e"
     }
   ]
 }
