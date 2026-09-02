@@ -153,6 +153,21 @@
       "_hash": "29db973ee790e4baa03841f8c6867c176f508884a64dc55ceecf8d103927869e",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-41c8:F-009",
+      "desc": "quality-maintainability: packages/main/src/tasks/single-owner-extraction-smoke.ts F-007 bound case (~L1994-2007) leaves only 86 chars of headroom under DEFAULT_STDOUT_BOUND_CHARS=10000 with the current default audit block (measured: default stdout projection 9914/10000 chars, audit block 3916 chars). The bound is a live-computed canary (verified correct via mutation test: injecting one stray detail line into the compact renderer correctly fails the case with a clear message), so this is not a silent-failure risk -- but the margin is thin enough that a routine future change (e.g. a new handlers/*.ts file gaining a real resolveGitCwd call, adding one more `<file>  <classification>` line to the audit block) will likely trip this canary on an unrelated story, surfacing as a confusing FAIL in single-owner-extraction-smoke rather than an obviously-related change. Recommend either widening DEFAULT_STDOUT_BOUND_CHARS toward the real 12000-char executor limit (still leaves slack) or adding a one-line comment at the bound constant pointing future editors to the fix options (raise the bound / shrink the compact line) so the failure is self-explanatory without re-deriving F-007 context.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T16:01:54.533Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-007",
+      "_hash": "e9e161cd5f128e7d7d59b58ba645a5c28514a7a12b8544c00f0db57c7133ee72",
+      "signatureTag": "missing|unknown|quality-maintainability-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
