@@ -256,6 +256,31 @@
         "scanEscalationReason": null
       },
       "_hash": "7af4b99f52f2d451063e951c6816f744a09ee55001f9b0992b96ba1f731c38c9"
+    },
+    {
+      "id": "B-9f2c:RP-009",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 2 quality re-review of the single change since last pass: full-suite-runner.ts RESOURCE_POLICY gained one repoRead('test:graph-story-flag-smoke') entry (git show f4e9acdd21). Verified empirically, not by trusting the comment: read graph-story-flag-smoke.ts end to end -- every writeFileSync/mkdirSync target lives under mkdtempSync(tmpdir(),'graph-story-flag-') temp dirs, no fixed path is ever written; the only fixed path referenced (packages/main/dist/cli.js) is read-only via execFileSync. Cross-checked graph.ts:456-471: assertGraphStoryExists() runs strictly before both the --json early-return (464) and lib.startServer (498), so the comment's 'refused before any listener is created' claim holds for every code path. Confirmed the task's real-CLI section (runCli calls at lines 396/417/430/442) only ever exercises --help, --json, and an unknown --story id -- never a known id in the real serving path, so no real port is ever bound by npm test; the known-id/serving assertions run only against a self-written stub startServer (no real net.listen). repoRead is therefore the correct, non-overclaiming policy. (b) Entry placement/comment style matches the immediately preceding B-cdf6/B-49ed repoRead entries (same 'third membership authority, fails closed' rationale shape). (c) Ran npm test: it progressed past 35+s with no 'canonical inventory mismatch unknownPolicy=[test:graph-story-flag-smoke]' (which previously aborted at 858ms), confirming inventory validation now passes; killed the run afterward per instructions, tree left clean. (d) git diff HEAD~4 HEAD is empty for both packages/main/src/handlers/graph.ts and packages/main/src/cli/command-catalog.ts -- both last touched at 945de7bb98 (CHK-003), unchanged since the earlier clean review round. No findings.",
+      "createdAt": "2026-09-02T14:29:56.065Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-012",
+      "envelopeId": "d31c576814fc60a0c17e1f51377a45137c2b26fd9dcb7d4d8fc2829a3734be41",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfe71253f440df554669a128b539074b19306e6d4b90a631ad928d7b0d19faa2"
     }
   ]
 }
