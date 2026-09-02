@@ -119,7 +119,53 @@
       "context": "Plan section 'Story input contract'. Collect Story identity/phase, base/HEAD/material/story-files hashes, rename-aware changed paths via changedFilesBetweenRenameAware or changedFileStatusesBetweenRenameAware (packages/main/src/core/evidence-freshness.ts), checklist files.modify/create/test and evidence command pins (see packages/main/src/handlers/delivery-context-pack.ts for existing collection semantics), risk signals, and the routine source kind plus execution inventory. Deleted files and both sides of a rename stay seeds; Story metadata and registered runtime artifacts are not material seeds; a failure to read the changed-file set must escalate rather than read as 'no changes'.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#story-input-contract"
+      ],
+      "userSees": "The smoke run prints one line per collector case and ends `validation-tier-planner-smoke: PASS`. `proof-or-stop validation_plan --storyId=B-a745 --tier=fast --explain` prints a `Story inputs` block listing the rename-aware changed material paths, the checklist-declared modify/create/test files, the resolved evidence pins, the risk signals, and the routine source kind, and prints an `unclassifiedInputs` list that is empty when every seed was classified.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/validation-relevance-input.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a story with committed changes the collector returns rename-aware changed material paths, checklist files.modify/create/test, resolved evidence pins, risk signals, and the routine source kind, each seed carrying its provenance.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The collector reads changed paths through the existing evidence-freshness rename-aware reader rather than shelling out to its own git invocation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A deleted file remains a seed, and a renamed file contributes both its old and its new path as seeds.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Story metadata paths and registered runtime artifacts are excluded from material seeds by the same canonical classifier used for material freshness, not by a local path list.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When the changed-file read fails, the collector reports changed_files_unavailable and an escalation rather than returning an empty seed set that would read as no changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
