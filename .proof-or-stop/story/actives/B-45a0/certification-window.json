@@ -277,9 +277,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-45a0:CW-012",
       "storyId": "B-45a0",
-      "state": "BLOCKED",
+      "state": "CANCELLED",
       "createdAt": "2026-09-02T08:47:01.492Z",
-      "updatedAt": "2026-09-02T08:47:01.492Z",
+      "updatedAt": "2026-09-02T09:02:19.136Z",
       "blockerCode": "pre_cert_main_not_merged",
       "blockerDetail": "Local main is not an ancestor of HEAD.",
       "inventory": {
@@ -288,7 +288,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "_hash": "2930ea60d0f8b1adac8b1058ceada98dc6fc430d2c7d94c30d54e28b948b9cad"
+      "cancelledAt": "2026-09-02T09:02:19.136Z",
+      "cancelReason": "CW-012 was begun before done_prepare merged main; its pre_cert_main_not_merged snapshot is stale — main is now an ancestor of HEAD, re-beginning the window",
+      "_hash": "5dde088c95b8b67b1d45defc0747ee05de9acfce0668445a902ee01fac212095"
     }
   ],
   "receipts": [
