@@ -605,7 +605,11 @@
           {
             "desc": "the new smoke task is registered in lattice.config.json validate.commands using the node packages/main/dist/tasks/<name>-smoke.js form",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const t=\\\"packages/main/dist/tasks/graph-story-flag-smoke.js\\\";const hit=c.validate.commands.filter(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(t));if(hit.length!==1){console.error(\\\"FAIL validate.commands matches=\\\"+hit.length);process.exit(1);}console.log(\\\"SELECTOR_VALIDATE_COMMANDS_REGISTERED\\\");\"",
+              "selector": "SELECTOR_VALIDATE_COMMANDS_REGISTERED"
+            }
           },
           {
             "desc": "package.json exposes an npm script for the task and test:serial-reference invokes it",
@@ -635,7 +639,30 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const t=\\\"packages/main/dist/tasks/graph-story-flag-smoke.js\\\";const hit=c.validate.commands.filter(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(t));if(hit.length!==1){console.error(\\\"FAIL validate.commands matches=\\\"+hit.length);process.exit(1);}console.log(\\\"SELECTOR_VALIDATE_COMMANDS_REGISTERED\\\");\"",
+          "result": "pass",
+          "note": "Parses lattice.config.json and asserts exactly one validate.commands entry is command=node with args containing packages/main/dist/tasks/graph-story-flag-smoke.js. Structural, not a grep: a mention in a comment or a differently-shaped entry would not satisfy it. Negative control: removing the entry makes it exit 1 with FAIL validate.commands matches=0.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "52abbb94bdd8358c1f5cdfc2ec433b9ce1d53914a5c8e8d5aad5c64d6d52d5f7",
+            "outputTail": "SELECTOR_VALIDATE_COMMANDS_REGISTERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:02:47.025Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e3828c21b5c234334b95d526b8d81d351105ecdd",
+          "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
+          "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
+          "timestamp": "2026-09-02T09:02:47.289Z"
+        }
+      ]
     }
   ],
   "auditLog": [
