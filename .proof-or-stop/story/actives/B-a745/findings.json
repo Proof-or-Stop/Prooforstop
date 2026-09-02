@@ -73,7 +73,7 @@
       "desc": "validation-tier-planner.ts:229-235 VALIDATION_WIDENING_REASONS.pinned_command_missing gloss (\"Recorded evidence points at a validation command that no longer exists in this project, so no plan is produced until the evidence is re-recorded\") is not actually actionable in the exact circumstance this story demonstrates it in (see F-001): the command DOES exist and DOES run in the project (it is a real, DONE-required root test:serial-reference member script) -- it is simply absent from the separate validate.commands registry the pin resolver consults. Following the glosss literal advice (re-record the evidence against a current command) sends an operator toward the wrong fix: there is no different, more-current command to re-pin to -- the real remedy is reconciling the two disjoint command registries (validate.commands vs test:serial-reference/RESOURCE_POLICY), which the gloss does not mention and the operator has no way to discover from the CLI output alone. The reviewer brief asked specifically whether these glosses are genuinely actionable or jargon restated in longer words; for this reason code, in its own dogfood story, the answer is neither -- it is confidently-worded but factually misleading actionability.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T03:04:01.541Z",
@@ -84,7 +84,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "edge|ts|validation-tier-planner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commits ba8c46c915 RED / 41143352ef GREEN). The pinned_command_missing gloss previously advised re-recording the evidence against a current command, which is wrong in the situation this Story actually demonstrated: the command was not stale, it was absent from a different registry than the one the resolver consults. The gloss now names the real situation and the real remedy, and the new pinned_command_non_inventory code introduced by F-001 was written so as not to repeat the mistake. This matters more than its medium severity suggests, because the glosses are the operator-facing surface this Story's entire user value rests on -- a product reviewer required them precisely so an operator who has not read the spec can act on the output.",
+      "resolvedAt": "2026-09-02T03:32:06.406Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a745:F-005",
