@@ -205,7 +205,7 @@
       "desc": "CHK-002:adversarial:0 lacks valid comprehensive semantic-drift evidence. Its manual_transcript has no result or tool receipt, and its detector checks only three literal phrases. Independent mutation proof changed the lifecycle rule from `Document implementation changes are allowed only here` to `allowed in every phase`; the detector still accepts it. The intent requires review of every normative/lifecycle-sensitive sentence and representative polarity/modality/current-versus-legacy mutations, so a three-string detector plus an unsupported review note is insufficient. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T00:29:47.430Z",
@@ -216,7 +216,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "adversarial|md|adversarial-lacks-valid",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The verifier binds 97 normative sentences and rejects four semantic mutations covering remote-push polarity, advisory-to-mandatory, current/legacy erasure and DEV-only scope expansion; the final receipt exits 0.",
+      "resolvedAt": "2026-09-02T01:05:15.896Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-011",
