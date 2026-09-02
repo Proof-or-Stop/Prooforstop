@@ -207,8 +207,9 @@ function command(overrides: Partial<ValidationCommand> & { label: string; comman
   return { args: [], ...overrides };
 }
 
-function inventory(commands: ValidationCommand[], platform: NodeJS.Platform = 'linux') {
-  return buildValidationCommandInventory({ projectRoot: ROOT, commands, platform });
+/** Platform-free on purpose (F-017): the inventory has no host input to inject. */
+function inventory(commands: ValidationCommand[]) {
+  return buildValidationCommandInventory({ projectRoot: ROOT, commands });
 }
 
 function routineIdentityArgs(projectRoot: string, commands: ValidationCommand[], sourceInputs: unknown) {
@@ -264,7 +265,7 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
   assert.ok(id.startsWith(PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX), `expected prov- prefix, got ${id}`);
   assert.equal(result.entries[0].provisional, true);
 
-  const tuple = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: entry, platform: 'linux' });
+  const tuple = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: entry });
   assert.deepEqual(tuple, { command: 'npm', args: ['run', 'lint'], cwdRelative: '.', shell: false });
   assert.equal(id, provisionalValidationCommandId(tuple));
   // Deterministic across independent computations.
@@ -274,8 +275,8 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
 testCase('the narrow tuple carries a repo-relative cwd, so an absolute and a relative cwd agree', () => {
   const relativeCwd = command({ label: 'a', command: 'npm', args: ['test'], cwd: 'packages/main' });
   const absoluteCwd = command({ label: 'b', command: 'npm', args: ['test'], cwd: resolve(ROOT, 'packages/main') });
-  const left = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: relativeCwd, platform: 'linux' });
-  const right = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: absoluteCwd, platform: 'linux' });
+  const left = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: relativeCwd });
+  const right = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: absoluteCwd });
   assert.equal(left.cwdRelative, 'packages/main');
   assert.deepEqual(left, right);
   assert.equal(provisionalValidationCommandId(left), provisionalValidationCommandId(right));

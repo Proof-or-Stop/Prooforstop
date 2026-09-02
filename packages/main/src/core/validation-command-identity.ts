@@ -14,6 +14,14 @@
  *     identity binds (effective environment, resolved executable, shell
  *     executable) are deliberately NOT in the id. They stay available through
  *     `buildRoutineValidationIdentity` as separate pin-resolution evidence.
+ *   - `shell` in the portable tuple is the DECLARED intent (`command.shell ===
+ *     true`) and nothing else. B-a745 F-017: the first cut hashed the
+ *     platform-effective rule (`shell || platform === 'win32'`) here, so the
+ *     same config produced a different `prov-` id and commandSetDigest on
+ *     Windows, which is exactly what "portable" forbids. The effective rule
+ *     still governs the COMPLETE runtime tuple below, because that is what
+ *     executes; a portable tuple takes no platform input at all, so it cannot
+ *     regress into consulting the host.
  *   - `commandSetDigest` covers the ORDERED list of
  *     {id, label, command, args, cwdRelative, shell, timeoutMs, optional, focus}.
  *     `label` and `focus` are both inside it on purpose: the spec requires a
@@ -40,7 +48,6 @@ import { relative } from 'node:path';
 import {
   normalizeRoutineValidationCommand,
   resolveValidationCommandCwd,
-  validationCommandUsesShell,
   validationIdentityDigest,
 } from './validation-evidence-reuse.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
@@ -52,13 +59,17 @@ export const PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX = 'prov-';
 /**
  * The host-portable subset of a command's execution identity. Everything in it
  * is either declared in project config or derived from the project root, so two
- * checkouts of the same commit produce the same tuple.
+ * checkouts of the same commit produce the same tuple on any host.
  */
 export interface NarrowPortableValidationCommandTuple {
   command: string;
   args: string[];
   /** Repo-root-relative logical cwd, posix-separated. `.` means the project root. */
   cwdRelative: string;
+  /**
+   * DECLARED shell intent only (`command.shell === true`). NOT the
+   * platform-effective value: that belongs to {@link CompleteValidationCommandTuple}.
+   */
   shell: boolean;
 }
 
@@ -91,17 +102,20 @@ function commandCwdRelative(projectRoot: string, command: Pick<ValidationCommand
   return relativePath === '' ? '.' : relativePath;
 }
 
+/**
+ * Deliberately takes NO platform (and no environment): a portable tuple that
+ * could read the host is not portable. Compare `completeTupleFromCommand`,
+ * which takes both because it describes what actually executes.
+ */
 export function narrowPortableValidationCommandTuple(args: {
   projectRoot: string;
   command: ValidationCommand;
-  platform?: NodeJS.Platform;
 }): NarrowPortableValidationCommandTuple {
-  const platform = args.platform ?? process.platform;
   return {
     command: args.command.command,
     args: [...args.command.args],
     cwdRelative: commandCwdRelative(args.projectRoot, args.command),
-    shell: validationCommandUsesShell(args.command, platform),
+    shell: args.command.shell === true,
   };
 }
 
@@ -150,19 +164,23 @@ function migrationWarning(provisionalCount: number, total: number): string {
   return (
     `${provisionalCount} of ${total} validation commands still lack a declared id and are running on ` +
     `provisional ids (prefix "${PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX}") derived from command, args, ` +
-    'repo-relative cwd and shell. Declare a stable id on each so its planner identity survives an edit ' +
+    'repo-relative cwd and declared shell. Declare a stable id on each so its planner identity survives an edit ' +
     'to any of those fields.'
   );
 }
 
+/**
+ * Host-portable by construction: no platform or environment input exists on this
+ * entry point, so the inventory (ids, commandSetDigest) is the same on every host
+ * that checks out the same config. The runtime context enters only in
+ * {@link buildValidationPinUniverse}.
+ */
 export function buildValidationCommandInventory(args: {
   projectRoot: string;
   commands: ValidationCommand[];
-  platform?: NodeJS.Platform;
 }): ValidationCommandInventory {
-  const platform = args.platform ?? process.platform;
   const entries: ValidationCommandIdentityEntry[] = args.commands.map((command, index) => {
-    const tuple = narrowPortableValidationCommandTuple({ projectRoot: args.projectRoot, command, platform });
+    const tuple = narrowPortableValidationCommandTuple({ projectRoot: args.projectRoot, command });
     const declared = command.id === undefined
       ? null
       : assertDeclaredValidationCommandId(command.id, describeEntry(index, command.label));
@@ -188,7 +206,7 @@ export function buildValidationCommandInventory(args: {
         `duplicate validation command id "${entry.id}": ` +
         `${describeEntry(previous.index, previous.label)} and ${describeEntry(entry.index, entry.label)}` +
         (derived
-          ? ' normalize to the same {command, args, cwd, shell} tuple. Make them differ, remove one, ' +
+          ? ' normalize to the same portable {command, args, cwd, declared shell} tuple. Make them differ, remove one, ' +
             'or declare a distinct id on each.'
           : ' declare the same id. Declared ids must be unique.'),
       );
@@ -231,10 +249,11 @@ export function buildValidationCommandInventory(args: {
 // the same command normalizer routine validation uses.
 //
 // Note the deliberate asymmetry with the stable id above, and do not collapse it:
-//   - the stable ID is the NARROW portable tuple, so it survives a host change;
+//   - the stable ID is the NARROW portable tuple (declared shell only), so it
+//     survives a host change;
 //   - PIN RESOLUTION compares the COMPLETE normalized tuple (command, args,
-//     resolved cwd, shell, effective environment), so a pin never silently binds
-//     a command that would execute differently.
+//     resolved cwd, platform-EFFECTIVE shell, effective environment), so a pin
+//     never silently binds a command that would execute differently.
 // ---------------------------------------------------------------------------
 
 /**
@@ -379,10 +398,11 @@ export function buildValidationPinUniverse(args: {
   platform?: NodeJS.Platform;
 }): ValidationPinUniverse {
   const platform = args.platform ?? process.platform;
+  // The inventory is platform-free on purpose (F-017); the platform reaches
+  // only the complete runtime tuples below.
   const inventory = buildValidationCommandInventory({
     projectRoot: args.projectRoot,
     commands: args.commands,
-    platform,
   });
   return {
     entries: inventory.entries.map((entry) => {
