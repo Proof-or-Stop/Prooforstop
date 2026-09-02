@@ -438,6 +438,24 @@
       "resolvedAt": "2026-09-02T08:48:14.221Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-021",
+      "desc": "B-a745:F-019 resolvedReason PROCESS SIGNAL paragraph overclaims a single shared mechanism across the four cited instances. F-008 (count never queried at all) and F-009 (the query WAS run correctly with escaped alternation; only the PASTED command text was mistranscribed, dropping backslashes) are not \"without executing the check\" -- one never ran a check, the other ran the right check and documented the wrong one. F-013 (a session-UI task chip cited as if it were a discoverable in-repo artifact) is not a context-execution gap either: running story_draft_list in the story worktree would not have caught it, because the referent was never repo-persisted in the first place -- that is a category error about what counts as a checkable artifact, and F-013s own resolution already adopted a DIFFERENT corrective rule for it (\"name an in-repo artifact that exists at write time, never a session chip\"). Only F-019 itself is a genuine worktree-vs-main-checkout context mismatch. The \"run in the story worktree, paste the output\" rule this paragraph proposes as THE unifying fix for all four would not prevent a recurrence of F-013s failure mode. Low severity: prose-only, non-mechanical, no code/gate impact, does not misstate anything about code behavior -- it just narrates the four prior prose corrections under a mechanism narrower than what they actually share.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:56:47.918Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-022",
+      "_hash": "998367dfcc91588f0bcd929a33ab5ccd7c3915aaf012917924b7a238796b0946",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json"
+      ],
+      "signatureTag": "missing|json|a745-resolvedreason-process",
+      "signatureTagSource": "auto"
     }
   ]
 }
