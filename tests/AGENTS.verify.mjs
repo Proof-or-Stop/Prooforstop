@@ -127,6 +127,11 @@ const AUTHORITY_BY_ROW = new Map([
     authority('canonical agent prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
     authority('computed reviewer roster', 'packages/main/src/handlers/reviewer-list.ts', /Output the opt-in reviewer roster/),
     authority('read-only reviewer batch', 'packages/main/src/handlers/reviewer-batch.ts', /active\/required review lanes/),
+    authority('signed reviewer run', 'packages/main/src/cli/command-catalog.ts', /name: 'review_run_start'/),
+    authority('reviewer pass command', 'packages/main/src/cli/command-catalog.ts', /name: 'review_pass_set'/),
+    authority('reviewer pass run binding', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.describe\('Current reviewer run ID/),
+    authority('reviewer finding command', 'packages/main/src/cli/command-catalog.ts', /name: 'finding_add'/),
+    authority('reviewer finding run binding', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.optional\(\)\.describe\('Current proof-or-stop-review/),
     authority('quorum pass prerequisite', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/),
   ]],
   ['A20', [
@@ -146,6 +151,7 @@ const AUTHORITY_BY_ROW = new Map([
   ['A26', [
     authority('body-free prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
     authority('thin prompt registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/),
+    authority('legacy role aliases', 'packages/main/src/core/agent-dispatch-registry.ts', /aliases: \['test-intent', 'test-case-reviewer'\]/),
   ]],
 ]);
 
@@ -473,12 +479,16 @@ function semanticChecks() {
     ['dev-only-to-every-phase', currentText.replace('allowed only here', 'allowed in every phase')],
     ['review-evidence-auto-invention', currentText.replace('does not automatically invent', 'automatically invents')],
   ];
+  const mutationMarkers = [];
   for (const [name, mutated] of mutations) {
     assert.ok(!semanticPolicy(mutated) || semanticDigest(mutated) !== EXPECTED_PROSE_DIGEST, `${name} mutation must be rejected`);
-    console.log(`SEMANTIC_MUTATION ${name} REJECTED`);
+    const marker = `SEMANTIC_MUTATION ${name} REJECTED`;
+    mutationMarkers.push(marker);
+    console.log(marker);
   }
   console.log(`SEMANTIC proseUnits=${proseUnits(currentText).length} digest=${digest}`);
   assert.ok(auditText.includes(digest), 'audit must bind normative sentence digest');
+  return mutationMarkers;
 }
 
 function completenessPolicy(text) {
@@ -504,14 +514,18 @@ function completenessChecks() {
 }
 
 function unicodeChecks() {
+  const markers = [];
   for (const path of [agentsPath, auditPath, fileURLToPath(import.meta.url)]) {
     const text = read(path);
     const nonAscii = [...text].filter((char) => char.codePointAt(0) > 127);
     assert.equal(/\p{Script=Han}/u.test(text), false, `${path} contains Han script`);
     assert.equal(text.includes('\ufffd'), false, `${path} contains U+FFFD`);
     assert.equal(nonAscii.length, 0, `${path} contains non-ASCII code points`);
-    console.log(`UNICODE path=${path.slice(root.length + 1)} han=0 ufffd=0 nonAscii=0`);
+    const marker = `UNICODE path=${path.slice(root.length + 1)} han=0 ufffd=0 nonAscii=0`;
+    markers.push(marker);
+    console.log(marker);
   }
+  return markers;
 }
 
 function managedBlockChecks() {
@@ -546,7 +560,9 @@ function runtimeChecks() {
   console.log(`RUNTIME globalInvoked=${globalInvoked}`);
   console.log(`RUNTIME globalRealpath=${globalRealpath}`);
   console.log(`RUNTIME globalVersion=${globalVersion}`);
-  console.log(`RUNTIME classification=${classification}`);
+  const classificationMarker = `RUNTIME classification=${classification}`;
+  console.log(classificationMarker);
+  return classificationMarker;
 }
 
 function auditRowCells(text, id) {
@@ -627,18 +643,29 @@ function auditCitationMutationChecks() {
   const vague = refreshDocumentHashes(auditText.replace(auditText.split('\n').find((line) => line.startsWith('| A20 |')), vagueLine));
   assert.ok(!auditCitationPolicy(vague), 'vague row authority must fail even after document hashes are refreshed');
   console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
-  for (const rowId of ['A20', 'A09']) {
+  const authorityMutations = [
+    ['A20', 'policy-aware summary gate', 'extra'],
+    ['A09', 'fallback requires acknowledgement', 'extra'],
+    ['A19', 'signed reviewer run', 'signed-run'],
+    ['A19', 'reviewer pass command', 'review-pass'],
+    ['A19', 'reviewer pass run binding', 'review-pass-binding'],
+    ['A19', 'reviewer finding command', 'finding'],
+    ['A19', 'reviewer finding run binding', 'finding-binding'],
+    ['A26', 'legacy role aliases', 'alias'],
+  ];
+  for (const [rowId, label, marker] of authorityMutations) {
     const expected = AUTHORITY_BY_ROW.get(rowId);
     assert.ok(expected && expected.length > 1, `${rowId} must have a multi-source authority contract`);
-    const target = expected.at(-1);
+    const target = expected.find((entry) => entry.label === label);
+    assert.ok(target, `${rowId} mutation target must exist: ${label}`);
     const targetSource = read(resolve(root, target.path));
     const targetRef = `\`${target.path}:${lineOf(targetSource, target.pattern)}\``;
     const replaced = refreshDocumentHashes(auditText.replace(targetRef, '`package.json:1`'));
     assert.ok(!auditCitationPolicy(replaced), `${rowId} irrelevant extra-citation replacement must fail after document hashes are refreshed`);
-    console.log(`AUDIT_CITATION_MUTATION ${rowId} extra-replacement REJECTED documentHashesRefreshed=1`);
+    console.log(`AUDIT_CITATION_MUTATION ${rowId} ${marker}-replacement REJECTED documentHashesRefreshed=1`);
     const removedExtra = refreshDocumentHashes(auditText.replace(targetRef, ''));
     assert.ok(!auditCitationPolicy(removedExtra), `${rowId} extra-citation removal must fail after document hashes are refreshed`);
-    console.log(`AUDIT_CITATION_MUTATION ${rowId} extra-removal REJECTED documentHashesRefreshed=1`);
+    console.log(`AUDIT_CITATION_MUTATION ${rowId} ${marker}-removal REJECTED documentHashesRefreshed=1`);
   }
 }
 
@@ -716,9 +743,9 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   // Receipt runners retain a bounded stdout prefix. Emit these cheap pinned
   // environment/language facts before the verbose command ledger while still
   // requiring every later assertion and the authoritative final exit code.
-  runtimeChecks();
-  unicodeChecks();
-  semanticChecks();
+  const runtimeMarker = runtimeChecks();
+  const unicodeMarkers = unicodeChecks();
+  const semanticMarkers = semanticChecks();
   auditDocumentChecks();
   auditCitationMutationChecks();
   externalReviewArtifactChecks();
@@ -727,6 +754,15 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   rowSemanticMutationChecks();
   completenessChecks();
   managedBlockChecks();
+  // Replay only markers returned by already-completed assertions so both the
+  // bounded stdout prefix and persisted output tail retain the pinned proof.
+  const unicodeReplay = unicodeMarkers.find((marker) => marker.startsWith('UNICODE path=AGENTS.md '));
+  const semanticReplay = semanticMarkers.find((marker) => marker === 'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED');
+  assert.ok(unicodeReplay, 'validated AGENTS Unicode marker must be available for tail replay');
+  assert.ok(semanticReplay, 'validated semantic mutation marker must be available for tail replay');
+  console.log(runtimeMarker);
+  console.log(unicodeReplay);
+  console.log(semanticReplay);
   console.log('AGENTS_VERIFY FINAL GREEN');
 }
 process.exit(exitCode);
