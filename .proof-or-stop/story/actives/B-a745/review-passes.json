@@ -29,6 +29,26 @@
         "scanEscalationReason": null
       },
       "_hash": "dccd66be9dda96b8635ec36aad588be44e173aa2d3eeff4206abad4f553a97cc"
+    },
+    {
+      "id": "B-a745:RP-002",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Verified F-001/F-002/F-004 resolutions against code, not text. F-001: explicit commandId miss -> pinned_command_missing (stop); legacy non-matching -> pinned_command_non_inventory (repository-full, never a seed edge, never subtracts); no branch can ever emit a reduced story-fast/story-intermediate effective tier (subset-invariant-checked repository-full-only return). Confirmed live: validation_plan --storyId=B-a745 --tier=fast prints status: plan, selected: 121 of 121. F-002: resolution is honest, not overstated -- the CHK-005:happy:0 receipt selector really is the stored non-discriminating finalAuthority: no (read from checklist.json verificationIntent), and the committed fixture at validation-tier-planner-smoke.ts:2246 mechanically proves that exact weakness while also proving the new status: plan / status: stop discriminator is real and bidirectionally enforced (assertValidationPlanStatusInvariant). F-004: both glosses reworded with accurate scope language and concrete remedies, correcting the prior factually-wrong no-longer-exists claim. Re-ran inverse questions: no false-positive plan renderable, printed counts live-verified true (121), read-only guarantee holds (no working-tree diff from validation_plan itself; byte-identity fixture passes). Full smoke suite re-run live: PASS.",
+      "createdAt": "2026-09-02T03:37:24.655Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-005",
+      "envelopeId": "baa6d59ebd3c0008a228c77481451fe74c0e4b3fc08110678b3576596e66fb5b",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9aecc0c215edd7a9f5a3dfed574506f9dd893fae8d9ddac68c0b0c7b6f311ad"
     }
   ]
 }
