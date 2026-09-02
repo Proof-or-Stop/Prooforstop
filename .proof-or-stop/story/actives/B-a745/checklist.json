@@ -228,7 +228,58 @@
       "context": "Plan section 'Proposed CLI and UX'. Register `proof-or-stop validation_plan --storyId=B-xxxx --tier=fast|intermediate|full` with --explain and --json in the command catalog. Output must show requested and effective tier, selected versus full count derived at runtime, inclusion reasons grouped by command, unclassified inputs, escalation reason codes, estimated duration and basis, whether the run is final authority (fast/intermediate: no), and the artifact path/digest when one is written. The command writes no evidence, executes no validation command, and changes no gate. Note the plan's `--focus` / `--tier` mutual-rejection rule applies to the future `validate --tier` command in Rollout Story 4, not to `validation_plan`; do NOT implement that rejection here.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#proposed-cli-and-ux",
+        "CLAUDE.md#handler-encoding-conventions"
+      ],
+      "userSees": "`proof-or-stop validation_plan --storyId=B-a745 --tier=fast` prints `requestedTier: story-fast`, `effectiveTier: repository-full`, `selected: <n> of <n> commands`, a `finalAuthority: no` line, the inclusion reasons grouped per command, the unclassified inputs, and each escalation reason with its plain-language gloss. Adding `--json` prints the same facts as a single JSON object. `proof-or-stop validation_plan --tier=fast` with no storyId exits with `validation_plan: storyId is required`.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validation_plan --storyId --tier=fast prints requested and effective tier, a selected-versus-total count derived at runtime, per-command inclusion reasons, unclassified inputs, glossed escalation reasons, estimated duration with its basis, and finalAuthority: no.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "--json emits a single parseable JSON object carrying the same fields as the human output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Omitting storyId, or passing an unknown tier name, is rejected with a specific error naming the offending argument rather than silently defaulting.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The command is registered in command-policy with ownershipClass readOnly and destructiveRisk none, so a non-owner of the story can run it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invoking the planner leaves the story store byte-identical: a fixture snapshots every story file before and after the call and asserts equality, and asserts the handler exposes no write, persist, execute or run flag.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
