@@ -10,7 +10,35 @@
       "userSees": "ls packages/graph/src/shells/web/dossier.js prints the path, and git diff --stat shows app.css, app.js and app.body.html changed",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dossier.js exists in packages/graph/src/shells/web and self-registers window.openStoryDossier",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "app.body.html carries the dossierSlot span and app.js carries the openDossierFor routing helper",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the ported dossier.js is byte-identical to the upstream source it was taken from, so nothing was re-authored during the port",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the port does not delete or rewrite pre-existing app.js behavior: the playback entry point still registers on window",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
