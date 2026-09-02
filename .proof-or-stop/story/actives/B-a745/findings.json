@@ -5,7 +5,7 @@
       "desc": "validation-plan.ts / validation-relevance-input.ts: userSees mismatch, reproduced live on this real repo/story. CHK-001 userSees promises `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` on this repository \"lists every configured command with an id= value\"; CHK-005 userSees promises the same invocation \"prints requested and effective tier ... selected: <n> of <n> commands\". Running that exact command right now (any tier: fast/intermediate/full) returns `status: stop` with escalation `pinned_command_missing`, `selected: 0 of 0`, and no unit list at all -- the promised output never appears. Root cause (validation-relevance-input.ts:743-784 resolveValidationCommandPin against buildValidationPinUniverse(routine.commands)): every checklist verificationEvidence pin recorded across CHK-001..CHK-006 (checklist_get) references `node packages/main/dist/tasks/validation-tier-planner-smoke.js`, which was deliberately registered ONLY via package.json test:serial-reference + RESOURCE_POLICY per CHK-006s own design (\"rather than a discovery manifest\"), and is NOT one of the 120 entries in proof-or-stop.config.json validate.commands that configuredValidationCommands()/the pin resolver actually consults. Because firstStopEscalation() (validation-tier-planner.ts:452-459) fires on the FIRST unresolved pin found anywhere in the checklist, this is not a corner case: it is the command permanent, 100%-reproducible behavior for this story, and will recur for any future Proof-or-Stop self-hosted story whose evidence cites a root test:serial-reference member script not independently duplicated into validate.commands -- a structural gap between two disjoint command registries the feature never reconciles.",
       "severity": "high",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T03:03:34.001Z",
@@ -18,7 +18,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "happy|ts|validation-plan-validation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by splitting pin-resolution outcomes by what the evidence actually asserted (commits 913fce8326 RED / bce775f1d0 GREEN). Evidence carrying an explicit commandId that does not resolve still STOPS with pinned_command_missing, unchanged, because it asserted an identity in the inventory's own namespace. Evidence carrying only a legacy free-form command string that normalizes to no inventory command is now classified as pinned_command_non_inventory: it contributes an escalation reason so the effective tier stays repository-full, is listed in the report, and never stops the plan or licenses pruning. Fail-closed is preserved in the only sense that matters -- nothing is ever omitted on its account, and repository-full is the same width a stop would have widened to. The spec makes pins additive ('Checklist pins can add commands; they cannot subtract commands'), so an unbound legacy pin adds nothing and can subtract nothing. The split was also required to break a self-referential deadlock: CHK-005:happy:0 pins the acceptance command itself, so the planner stopped BECAUSE evidence existed for it, and no selector could ever observe a successful plan. The ambiguity path was deliberately NOT split: an ambiguous legacy string WOULD bind, to the wrong command, which is a present hazard rather than an absent one. Verified live: validation_plan --storyId=B-a745 --tier=fast now prints status: plan, effectiveTier: repository-full, selected: 121 of 121.",
+      "resolvedAt": "2026-09-02T03:32:04.489Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a745:F-002",
