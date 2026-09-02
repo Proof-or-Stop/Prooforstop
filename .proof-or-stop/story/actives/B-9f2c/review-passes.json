@@ -437,6 +437,34 @@
         "scanEscalationReason": "Re-verification pass for a resolved finding: read the target decision doc in full plus the affected README section, grep-swept the file and the live docs corpus (docs/**/*.md, CLAUDE.md, README.md, AGENTS.md) for the stale phrasing, and cross-checked cited code claims directly in packages/main/src/tasks/full-suite-runner.ts."
       },
       "_hash": "76495336d5aca5bea76563b9517fcad109039ec0fea9f369d60ab5b9970b6d4d"
+    },
+    {
+      "id": "B-9f2c:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review at head d349c71a bound to RR-020, superseding RP-011 which was invalidated only by commit 9a05f7677e (F-004 doc fix) plus its finding_resolve metadata; no source code changed since RP-011. Verified via git show 9a05f7677e that the commit touches only docs/requirements/decisions/graph-command-migration.md (12 lines), correcting a second stale two-mechanism cross-reference in the same file that F-002 had already fixed elsewhere. Checked the new paragraph's factual claims against code: test:process-fact-contract is repoRead('test:process-fact-contract') at full-suite-runner.ts:180 (line number matches), and entriesFromSerialReference/validateInventory both throw a hard Error on a test:serial-reference member missing its RESOURCE_POLICY entry, confirming the abort-not-skip claim. Fan-out swept the repo for any remaining stale two-list/two-mechanism/two-authority framing tied to this topic: no live stale occurrence found; the one remaining two-list mention is correctly framed as historical narrative. Confirmed test:graph-story-flag-smoke is spelled identically across all four registration sites (task file, lattice.config.json, package.json script+serial-reference, full-suite-runner.ts RESOURCE_POLICY) with no dangling references. git status shows only framework-owned .proof-or-stop/story/actives/B-9f2c metadata touched by my own review_run_start/dispatch calls. No concept was deleted or replaced in this incremental change. No blocker.",
+      "createdAt": "2026-09-02T14:59:29.799Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-020",
+      "envelopeId": "0a7fc0e32a8b08c55785d1f2cbdb9f3669220f2d900c6c2bb7aab137d8be8b36",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5829f0ce40367f23edbf8430b852ab33119ce3fe14b1fd35432a91b904247b16"
     }
   ]
 }
