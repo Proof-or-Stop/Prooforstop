@@ -11,8 +11,8 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "This increment performs NO relevance pruning and never returns a reduced tier; effectiveTier is a TypeScript literal type, not a union, so no pruning code path can exist. Validation therefore does not get faster - the value here is stable identity, honest pin resolution and an explain output. Impact index, exclusion proofs, worktree overlay, runner decomposition, signed selection artifacts, tier execution and the kill switch all belong to Rollout Stories 2 to 4 and are explicitly excluded. One receipt is knowingly weak: CHK-005:happy:0 is pinned to the selector 'finalAuthority: no', which prints on every branch including failures and produced a documented false positive (F-002); verification pins are immutable so it could not be corrected, and the discrimination is instead proven by a committed fixture. The governing spec contradicts itself on whether an unresolvable legacy pin should stop; this implementation follows its widening matrix and the contradiction is filed for the spec owner.",
-  "pitfalls": "Four things cost real time and the next person should know them. (1) The global proof-or-stop binary resolves into ANOTHER story's worktree (.worktrees/B-fe8f) and is a pre-rename build, so it fails with 'promptEnvelope.roles contains unknown role'; dispatch and agent_prompt are both dead through it. Every command in this story had to run as node packages/main/dist/cli.js. Diagnose the entrypoint before believing an 'unknown role' error is a registry defect - it is not. (2) The proof selector on a mechanical receipt must DISCRIMINATE. 'finalAuthority: no' prints on every branch, so the receipt recorded pass while its own outputTail showed status: stop. Pins are immutable, so a bad selector is uncorrectable - choose it as carefully as the command. (3) Registering one new CLI command needs six registries, not one: registry.ts, command-catalog.ts, command-policy.ts, config.ts DEFAULT_PHASE_TOOLS, cli/activity-policy.ts READ_ONLY_COMMANDS and process-fact-levels.ts, each failing closed. And a new test suite needs THREE inventories - npm script, test:serial-reference and RESOURCE_POLICY - plus validate.commands if any evidence will pin it, which is what F-005 was. (4) Do not copy a count out of a subagent report into a durable record without re-running the query; that produced two findings here, the second inside the correction for the first.",
+  "limitations": "This increment performs NO relevance pruning and never returns a reduced tier; effectiveTier is a TypeScript literal type, not a union, so no pruning code path can exist. Validation therefore does not get faster - the value here is stable identity, honest pin resolution and an explain output. Impact index, exclusion proofs, worktree overlay, runner decomposition, signed selection artifacts, tier execution and the kill switch all belong to Rollout Stories 2 to 4 and are explicitly excluded. One receipt is knowingly weak: CHK-005:happy:0 is pinned to the selector 'finalAuthority: no', which prints on every branch including failures and produced a documented false positive (F-002); verification pins are immutable so it could not be corrected, and the discrimination is instead proven by a committed fixture. On whether an unresolvable LEGACY pin should stop, the governing spec's widening matrix qualifies the stop with 'explicit' while its resolver step 4 and Step 7 invariant do not, and this story's own frozen CHK-002:edge:0 encodes the unqualified reading; the implementation follows the qualified reading because under the unqualified one the planner is self-referentially unusable (its own acceptance evidence pins the planner command) and nothing is pruned either way. An independent Codex host filed that choice as a defect; the reconciliation is delegated to the document owner via the committed repository draft docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan.",
+  "pitfalls": "Four things cost real time and the next person should know them. (1) The global proof-or-stop binary resolves into ANOTHER story's worktree (.worktrees/B-fe8f) and is a pre-rename build, so it fails with 'promptEnvelope.roles contains unknown role'; dispatch and agent_prompt are both dead through it. Every command in this story had to run as node packages/main/dist/cli.js. Diagnose the entrypoint before believing an 'unknown role' error is a registry defect - it is not. (2) The proof selector on a mechanical receipt must DISCRIMINATE. 'finalAuthority: no' prints on every branch, so the receipt recorded pass while its own outputTail showed status: stop. Pins are immutable, so a bad selector is uncorrectable - choose it as carefully as the command. (3) Registering one new CLI command needs six registries, not one: registry.ts, command-catalog.ts, command-policy.ts, config.ts DEFAULT_PHASE_TOOLS, cli/activity-policy.ts READ_ONLY_COMMANDS and process-fact-levels.ts, each failing closed. And a new test suite needs THREE inventories - npm script, test:serial-reference and RESOURCE_POLICY - plus validate.commands if any evidence will pin it, which is what F-005 was. (4) Do not copy a count out of a subagent report into a durable record without re-running the query; that produced two findings here, the second inside the correction for the first. (5) A claim such as 'filed for the spec owner' must name an in-repository artifact that exists at write time; a session task chip is not one, and gap_log is currently broken, so story_draft is the durable deferral mechanism.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 1367355
     },
     "DEV": {
-      "count": 1,
-      "durationMs": 5624289
+      "count": 2,
+      "durationMs": 6650828
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 5509827
+      "count": 2,
+      "durationMs": 6407011
     },
     "TEST": {
       "count": 1,
-      "durationMs": 539854
+      "durationMs": 11395636
     }
   },
-  "totalDurationMs": 13365147,
+  "totalDurationMs": 26144652,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-02T04:35:56.198Z",
-  "updatedAt": "2026-09-02T04:35:56.198Z"
+  "updatedAt": "2026-09-02T08:08:55.704Z"
 }
