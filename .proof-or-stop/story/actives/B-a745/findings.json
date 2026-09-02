@@ -603,6 +603,24 @@
       "resolvedAt": "2026-09-02T10:10:33.727Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-029",
+      "desc": "B-a745:F-028 resolvedReason claims the sixth instance and, for the commit-message sub-case, implicitly the first/only one (this time in a commit message), of the pasted-output rule violation (F-013/F-021: no count or command asserted in prose unless its actual output was pasted, extended by F-028 itself to commit bodies). That tally is itself an unverified, undercounted figure asserted in a durable record (findings.json) -- exactly the class of defect the rule exists to prevent. Independently re-ran git log --format=%H|%ad|%s --date=iso-strict main..HEAD and read every commit body authored after F-021 resolved (2026-09-02T08:58:04.421Z): two EARLIER commits already assert the same abbreviated commandSetDigest (eba363ed...) as prose with no command/output pasted in the body -- 899a13a6cd (RED(B-a745:F-023), authored 2026-09-02T09:28:44Z: real-inventory digest (eba363ed...) cases are regression guards that already hold) and 8613d6d6ec (GREEN(B-a745:F-023), authored 2026-09-02T09:29:36Z: the real inventory commandSetDigest (eba363ed...) does not move), both chronologically BEFORE 7e1f1c42c8 (09:53:55Z). The abbreviated digest is the true value (independently reproduced live: node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest: -> commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, matching prefix eba363ed), so these are form defects, not false facts -- same disposition as F-028. But they are NOT covered by F-028s rule extension, which is explicitly forward-only (from here on), and they were not counted in the sixth-instance tally, which undercounts total commit-message instances in this branch (at least 3, not 1) and total same-class instances overall (at least 8, not 6). The 3f83a2127d and 286a9b0921 commit bodies named in this rounds dispatch were independently checked and carry no comparable unpasted figures -- clean. Recommend: file 899a13a6cd/8613d6d6ec as an explicit accepted_risk pair under the same immutable-history rationale as F-028 (or a single combined finding), and correct the sixth-instance framing in F-028s record to acknowledge the undercount rather than leaving a wrong total in a permanent record.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T10:15:28.096Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-032",
+      "_hash": "d1d55530e68f92720f1ccf47b6d87d3e185bb31f729f96a99e5375cf11376cc1",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json"
+      ],
+      "signatureTag": "missing|json|a745-resolvedreason-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
