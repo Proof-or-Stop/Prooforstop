@@ -1076,7 +1076,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:328-339 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:149-154 still authorize stale_or_not_reproduced as a legacy input alias when phrased as a migration. That contradicts docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:31-33 and :320-325, which prohibit retaining retired verdict vocabulary as a legacy input alias and permit it only in explicit prohibitions or non-active historical context. The defect is mechanically demonstrated by the current signed RR-070 assembled Task Context: CHK-001 affirmatively says to amend Dynamic Finding authority and retain the former combined verdict as a legacy alias, yet review_run_start accepted and signed it. This is a verified HIGH authority-boundary bypass: digest signing can bless the exact contradictory Story-authored authority the pre-digest guard is meant to reject. Remove the affirmative safe-migration exception/fixture or otherwise make REVIEW context validation reject legacy-alias retention while preserving explicit prohibition and non-active historical context; do not modify Dynamic Finding runtime or authority.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T02:26:56.441Z",
@@ -1089,7 +1089,11 @@
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 7bff68c and the subsequent complete-context envelope hardening: legacy-alias migration no longer accepts active stale_or_not_reproduced, quoted-fixture and disjoint whole-source laundering are rejected, full-context smoke passes, and signed concept/quality review runs RR-072/RR-073 now admit the complete 6-item/60-intent context.",
+      "resolvedAt": "2026-09-02T03:44:35.688Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-049",
