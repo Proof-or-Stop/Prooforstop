@@ -314,10 +314,29 @@ export const VALIDATION_WIDENING_REASON_CODES = Object.keys(
   VALIDATION_WIDENING_REASONS,
 ) as ValidationWideningReasonCode[];
 
-/** The stop codes: rows whose outcome is to produce no plan at all. */
+/**
+ * The stop codes: rows whose outcome is to produce no plan at all. DERIVED from
+ * the table, and the resolver's ONLY authority on what stops — `isValidation
+ * StopReasonCode` below is how the resolver asks, so a row whose outcome becomes
+ * (or stops being) `stop` changes the resolver's behaviour without anyone
+ * editing the resolver. A hand-written list of code names next to a table that
+ * already declares the same fact is the shape that drifts (B-a745 F-006).
+ */
 export const VALIDATION_STOP_REASON_CODES = VALIDATION_WIDENING_REASON_CODES.filter(
   (code) => VALIDATION_WIDENING_REASONS[code].outcome === 'stop',
 );
+
+const VALIDATION_STOP_REASON_CODE_SET: ReadonlySet<string> = new Set<string>(VALIDATION_STOP_REASON_CODES);
+
+/**
+ * Does this code produce no plan at all? Accepts `unknown` on purpose: the
+ * caller's codes arrive from collected input and stored JSON that never met a
+ * schema, so an unrecognised value must answer "no" rather than throw a type
+ * error somewhere further down.
+ */
+export function isValidationStopReasonCode(code: unknown): code is ValidationWideningReasonCode {
+  return typeof code === 'string' && VALIDATION_STOP_REASON_CODE_SET.has(code);
+}
 
 /**
  * Runtime re-validation of a code, and the single read path for a gloss. An
@@ -469,9 +488,14 @@ function collectUnclassifiedInputs(input: StoryRelevanceInput): ValidationTierPl
   return entries;
 }
 
+/**
+ * The FIRST collected escalation whose table row says it produces no plan. The
+ * membership test is the table's, so this function never needs to be edited when
+ * a row's outcome changes.
+ */
 function firstStopEscalation(input: StoryRelevanceInput): ValidationWideningReason | null {
   for (const escalation of input.escalations) {
-    if (escalation.code === 'pinned_command_missing' || escalation.code === 'pinned_command_ambiguous') {
+    if (isValidationStopReasonCode(escalation.code)) {
       return validationWideningReason(escalation.code, escalation.detail);
     }
   }
@@ -479,11 +503,27 @@ function firstStopEscalation(input: StoryRelevanceInput): ValidationWideningReas
 }
 
 /**
+ * Guard on the way OUT of every stop return: the reason a stop carries must be
+ * one the table declares as a stop. Without it, a stop could be returned with a
+ * widening reason attached and the two facts would disagree in the artifact.
+ */
+function assertStopReason(reason: ValidationWideningReason): ValidationWideningReason {
+  if (!isValidationStopReasonCode(reason.code) || reason.outcome !== 'stop') {
+    throw new Error(
+      `resolveValidationTierPlan: returned a stop carrying reason "${reason.code}" (outcome ` +
+      `"${reason.outcome}"), which the widening matrix does not declare as a stop ` +
+      `(stops: ${VALIDATION_STOP_REASON_CODES.join(', ')})`,
+    );
+  }
+  return reason;
+}
+
+/**
  * Map a `StoryRelevanceInput` plus a requested tier onto an effective tier and
  * the reasons for it.
  *
  * Ordering note, deliberate and worth stating because it is the only place the
- * order is observable: `no_validator` is decided BEFORE an unresolved pin. A
+ * order is observable: `no_validator` is decided BEFORE a stop escalation. A
  * project with no validator has no commands, so every pin in it would read as
  * missing, and reporting "your pin is broken" would bury the real fact that the
  * project configured no validation at all. Neither branch can produce a PASS, so
@@ -518,7 +558,8 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
   // 2. A pin that does not resolve is a STOP: no plan, no PASS artifact.
   const stopReason = firstStopEscalation(input);
   if (stopReason) {
-    return { ...common, status: 'stop', reason: stopReason, escalationReasons: [stopReason] };
+    const reason = assertStopReason(stopReason);
+    return { ...common, status: 'stop', reason, escalationReasons: [reason] };
   }
 
   const escalationReasons: ValidationWideningReason[] = [];
@@ -542,11 +583,11 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
 
   // 4. An empty universe is a classified STOP. "Nothing ran" is never a pass.
   if (universe.length === 0) {
-    const reason = validationWideningReason(
+    const reason = assertStopReason(validationWideningReason(
       'empty_selection_unclassified',
       `story ${input.storyId} resolves routine source kind "${sourceKind}" with zero executable units, so a ` +
       'plan would select nothing at all; an empty selection is never interpreted as a pass',
-    );
+    ));
     return { ...common, status: 'stop', reason, escalationReasons: [...escalationReasons, reason] };
   }
 
