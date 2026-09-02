@@ -13576,6 +13576,38 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "bde64d4cb12b663ce50447dd7738b7d8316a58a00a87545563f135b845c25b0f"
+    },
+    {
+      "id": "B-5a15:RP-285",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test-coverage review PASS for epoch RI-063 (strictly read-only). (a) STRUCTURE INTACT after the main merge + 5 fix commits: 5 items, 53 intents (CHK-001 3/4/3, CHK-002 2/3/4, CHK-003 3/3/4, CHK-004 4/8/2, CHK-005 3/4/3), 53 evidence rows, intentRef 1:1, zero duplicate refs, zero orphan evidence, zero uncovered intents. Priorities: 22 literal must + 29 defaulting via core/verification.ts:214 (collected.intent.priority || 'must') + 2 explicit should (CHK-004:happy:2 and :3) = 51 effective must. CORRECTION TO THE BRIEFING: intentRef() at core/verification.ts:24 is `intent?.id || itemId:lane:index` - a FALLBACK, not verbatim intent.id. Exactly ONE intent carries an explicit id (CHK-001:edge:oversized-output-probe); the other 52 refs are positional. So both the strict-verbatim reading and the prefix reading are wrong in general; only the fallback semantics yields the correct 53 refs at 1:1. (b) RECEIPTS UNIFORMLY STALE, NOT SELECTIVELY CORRUPTED: 53/53 mechanical=true, 53/53 receipt.exitCode===0, 53/53 selectorMatched===true, all on ONE storyFilesHash af9bbe50 - no split across hashes, no row that lost its receipt. 53 DISTINCT outputDigests, i.e. each row was earned in its own execution rather than one run cloned 53 times. (c) ZERO FAKERY: 0 waivers, 0 nonMechanicalReason, 0 result=fail, 0 deferred, 0 receipt.timeoutOverride. Kinds: 46 integration_test + 7 logic_test. Every evidence row's command AND receipt selector matches its intent exactly (0 mismatches). (d) CHK-002 PLANNED PATH SURVIVED: happy=2/edge=3/adversarial=4; the consumer verification_evidence_batch_add is a registered handler in handlers/checklist.ts, and commitCanonicalCausalEvidence at :1607 is a local non-exported const. Off-by-one in the briefing: the handler begins at :2445, not :2444 (:2444 is the closing line of verification_evidence_add). Substance confirmed. (e) THE FIX COMMITS DID NOT CHANGE WHAT THE PINNED COMMAND PROVES: all 53 intents pin `node --test packages/main/tests/causal-evidence.test.mjs`, with 53 UNIQUE selectors mapping 1:1 to real emitIntentMarker call sites and zero cross-wired refs (24 pin the full marker line B-5a15|ref|PASS|text, 29 pin the bare descriptive text). Emit ordering verified: every one of the 56 emit sites has at least 1 preceding assert (min 1, median 30, max 86), so selectorMatched cannot be manufactured. FRESH RUN: 19 pass / 2 fail (exit 1), 54 markers emitted, EXACTLY 51 of the 53 pinned selectors present and 2 absent. The 3 surplus markers (CHK-001:adversarial:session-like-environment, CHK-003:adversarial:4, CHK-003:adversarial:5) are extra coverage pinned by no intent - not fakery. identityCommand specifically checked: the surviving definition at handlers/verifier.ts:2139 is byte-identical to the deleted shadow and is the one threaded into createValidationCausalPreflightGate at :2324, both built from the same tsArgs/validateFile/validateFileDefaultTimeoutMs(); the gate therefore guards the same command, and the suite's own test 'F-250/F-252/F-256/F-260/F-262: validate-file execution uses the causal preflight plan' PASSED in the fresh run. No coverage impact. (f) F-351/F-355/F-359 CONFIRMED UNREPAIRED AND CORRECTLY DIAGNOSED: the 2 absent selectors are exactly CHK-004:happy:2 and CHK-004:happy:3. Current live pre_review_check_read: status=FAIL, codes=PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_AUTHORITY_INADMISSIBLE; plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=inadmissible criticReattestation=not_required. PR_AUTHORITY_INADMISSIBLE IS STILL the operative blocker; the cause has NOT shifted again. Disambiguated the two push sites mechanically: core/pre-review-check.ts:371 (!proof.authority) vs :428 (!executableProvenanceCurrent). Because executableProofState (:298-325) sets authority/positives/mutationsBite/transcriptsRelated together and its only falsifying paths (the early `return state` guards and the !row branch at :318) zero ALL of them, the live executableEvidence=current + mutations=biting + transcript=related proves proof.authority===true; hence the code comes EXCLUSIVELY from :428. Note that the summary field executableEvidence derives from proof.positives at :467, NOT from provenance, so 'executableEvidence=current' is fully compatible with :428 firing and is not counter-evidence. Confirmed empirically against the stored artifact: BOTH provenance digests have drifted - runner scripts/run-proofstory-pre-review-live-proof.mjs stored e45f9001 vs current f67d6d99; target packages/main/dist/tasks/proofstory-pre-review-check-smoke.js stored 898bd46c vs current 7914afb8. F-359's repair (re-capture the live proof in DEV) is correct and remains the operative fix; no test should be weakened. ADDITIONAL OBSERVATION, not filed as a new finding because it is the same root cause already owned by F-359: the 2 failures are the SAME cause in TWO tests, not one. Beyond the known site at :2469 (its allowlist at :2495-2504 lacks PR_AUTHORITY_INADMISSIBLE, so isEvidenceRefreshBootstrap is false, the block is entered, and assert.equal(preReview.status,'pass') throws at :2506 upstream of the :2514 marker guard - exactly as F-355 established), a SECOND test at :2643 fails at :2684 because its own allowlist at :2666-2682 likewise lacks PR_AUTHORITY_INADMISSIBLE, making preReviewFailClosed false. That second test contains ZERO emitIntentMarker calls, so it suppresses no pinned selector and the coverage impact stays confined to the two F-351 selectors - but the F-359 re-capture must clear BOTH sites, since verifying only :2469 would leave the suite red. VERDICT: no NEW blocking coverage defect. Per instruction, validate --story=B-5a15 was NOT run (watchdog); checklist.json was read directly. Strictly read-only: no file edits, no git operations, no evidence writes, no takeover flags.",
+      "createdAt": "2026-09-02T13:03:49.264Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-863",
+      "envelopeId": "fe833c561b94a50ac326911ff58a7b54b9a6704a8feaa5c5c554b912e7b4f6bb",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b0d4e4a7ec8285fbdfffb2dc3a38993f06f68f93e290b11c42ba38864799abce"
     }
   ]
 }
