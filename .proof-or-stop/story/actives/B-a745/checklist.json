@@ -370,16 +370,14 @@
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
-          "result": "pass",
-          "note": "Zero matches is a stop that produces no plan.",
-          "headHash": "60d58f38b826dfb083bd7237c2d77674ac6ec7c9",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "SUPERSEDED INTENT, not an unmet one. This intent reads: 'A legacy pin string that normalizes to no configured command stops with pinned_command_missing and produces no plan.' That behaviour was DELIBERATELY REVERSED during REVIEW by the fix for finding B-a745:F-001, so no honest mechanical evidence for it can exist -- the stated behaviour is gone by design. Under the new behaviour an explicit commandId that does not resolve STILL stops with pinned_command_missing, while a legacy free-form string that normalizes to nothing is classified pinned_command_non_inventory, escalates to repository-full, and does not stop. WHY THE CHANGE WAS MADE: the old behaviour made the command self-referentially unusable (evidence for the planner pinned the planner, so the planner stopped BECAUSE evidence existed for it) and would have stopped on essentially every real story, since verification evidence pins test binaries that are not validation commands. Fail-closed is preserved: nothing is ever pruned, and repository-full is the same width the stop would have widened to. WHO VALIDATED IT: the decision was escalated to the main agent by the implementer rather than improvised, the reasoning was independently checked and endorsed by the proof-or-stop-review-behavior lane (pass RP-002), and the governing spec was found to contradict ITSELF on this point -- its widening matrix says only an EXPLICIT pin stops, its resolver step 4 says any no-match stops. That contradiction is filed for the spec owner (story B-ccf4) to reconcile. WHAT IS ACTUALLY COVERED BY COMMITTED FIXTURES, in place of this intent: 'an unknown commandId stops as pinned_command_missing and produces no binding' (the surviving stop path), 'a legacy string matching nothing is a non-inventory evidence command, not a stop' and 'a non-inventory legacy pin plans repository-full instead of stopping, and seeds no command' (the replacement behaviour, both branches). The test-coverage lane verified both branches are covered (pass RP-004). This waiver records that the acceptance criterion moved under review, with reviewer sign-off; it does not excuse an untested behaviour.",
+          "headHash": "ba87634d4b4b387a62a49d4bcf0e774aba158c3f",
           "materialHash": "ec47e1b7720d94da623e532a08112ecbaf8c884faffc61da3596616c8b3c185f",
           "storyFilesHash": "37b4850b0369a8ddf37805ca49f1edf9c086f72687e67395c86415087a37ee38",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-09-02T03:58:34.148Z"
+          "timestamp": "2026-09-02T04:14:06.926Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
