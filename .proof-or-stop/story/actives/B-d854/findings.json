@@ -994,6 +994,21 @@
       ],
       "signatureTag": "edge|mjs|unrelated-bounded-scope",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-045",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:161 and tests/AGENTS.verify.mjs:227 — current-version audit evidence is stale after the main sync: A19 still records `interface:quorum-submit-registration` at `packages/main/src/cli/command-catalog.ts:3080`, while the current repository-local authority resolves that command at line 3097. A fresh `node tests/AGENTS.verify.mjs --final` on HEAD 78383bc exits 1 in `auditCitationMutationChecks` with actual `:3080` versus expected `:3097`. WHY high/current acceptance blocker: the Story promises reproducible current-version evidence and a final GREEN verifier, but the fresh verifier now fails; the audit citation and any pinned hash/evidence must be refreshed against the merged current source, then the full verifier and affected evidence rerun.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T16:04:33.794Z",
+      "reviewRound": "2026-09-02T16:01:30.349Z",
+      "reviewRunId": "B-d854:RR-049",
+      "_hash": "4c5f7c678e8e0e22a161d3c27d7cf7ff6622c8dc18199908ca735b7f411d8290",
+      "signatureTag": "edge|unknown|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
