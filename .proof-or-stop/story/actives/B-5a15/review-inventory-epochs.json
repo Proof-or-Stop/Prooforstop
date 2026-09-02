@@ -6848,9 +6848,9 @@
       "epochId": "B-5a15:RI-067",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-02T15:40:29.128Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-09-02T15:41:47.311Z",
-      "updatedAt": "2026-09-02T16:01:13.691Z",
+      "updatedAt": "2026-09-02T16:45:27.299Z",
       "cutoff": {
         "headHash": "678ed33aa5eadc68a7e4c2986b0145736f4a1b01",
         "materialHash": "9009f784e0f25de817ee33de760d15e256559a30a46f0fb20d913c02b0f314b6",
@@ -6916,7 +6916,10 @@
       ],
       "baselineFindingIds": [],
       "receiptId": "B-5a15:RI-067:RCP-001",
-      "_hash": "768a3f0c5b540a6966cfc94aa933ed84a00c60cb3e61eea9347756e6a5969be3"
+      "cancelledAt": "2026-09-02T16:45:27.299Z",
+      "cancelReason": "Cancelling FINALIZED-but-unconsumable RI-067 receipt. Its cutoff 9009f784e0 no longer matches current material because the F-365 fix was committed after finalization, so story_advance DEV refuses with REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff. F-365 was a genuine story-owned defect that had to be fixed in place per triage rule 1 - my own over-broad assertion in proofstory-acceptance-basis-smoke.ts asserted status==='partial' on an aggregate the fixture itself contradicts (it writes consumers/c2.ts as a real cross-file consumer before the shadow scenario), and because that assertion threw first, the actual adversarial check at the next line was never reached. Fixed, resolved, and verified with a positive control proving the kept assertion is load-bearing. Discarded verdicts: concept RP-294/RR-886, quality RP-295/RR-887, test-coverage RP-296/RR-888, critic CRIT-01/RR-889 - all four were genuine PASSes on cutoff 9009f784e0 with a COMPLETE coverage judgement. Current state is fully settled: working tree clean, zero open findings from this review cycle, tsc clean, proofstory-acceptance-basis-smoke exit 0, verify-process-fact-contract and retired-authority-vocabulary-guard-smoke both TRUE exit 0, all 53 receipts mechanical with valid receipts on a single storyFilesHash, and validate coverage total 53 / required 51 / covered 53 / missing 0. The one remaining DEV-only repair is resealing pre_review_check, which reports PR_ARTIFACT_TAMPERED purely because the F-365 commit moved the hash its seal was bound to. Next: fresh epoch on the settled tree, three lanes plus critic, finalize, consume into DEV, reseal pre-review, re-earn receipts, then TEST.",
+      "terminalRunSequenceBoundary": 889,
+      "_hash": "6b95c57be2784c62c68ab32237502fca1e2a2c290780f8e13e43f1919f7bb2a8"
     }
   ],
   "receipts": [
@@ -8104,7 +8107,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-09-02T16:01:13.691Z",
-      "_hash": "0ad2e1d37d2931a83bcee9a25b09096098edaad581e0203f48c48481938a2fcb"
+      "invalidatedAt": "2026-09-02T16:45:27.299Z",
+      "invalidationReason": "Cancelling FINALIZED-but-unconsumable RI-067 receipt. Its cutoff 9009f784e0 no longer matches current material because the F-365 fix was committed after finalization, so story_advance DEV refuses with REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff. F-365 was a genuine story-owned defect that had to be fixed in place per triage rule 1 - my own over-broad assertion in proofstory-acceptance-basis-smoke.ts asserted status==='partial' on an aggregate the fixture itself contradicts (it writes consumers/c2.ts as a real cross-file consumer before the shadow scenario), and because that assertion threw first, the actual adversarial check at the next line was never reached. Fixed, resolved, and verified with a positive control proving the kept assertion is load-bearing. Discarded verdicts: concept RP-294/RR-886, quality RP-295/RR-887, test-coverage RP-296/RR-888, critic CRIT-01/RR-889 - all four were genuine PASSes on cutoff 9009f784e0 with a COMPLETE coverage judgement. Current state is fully settled: working tree clean, zero open findings from this review cycle, tsc clean, proofstory-acceptance-basis-smoke exit 0, verify-process-fact-contract and retired-authority-vocabulary-guard-smoke both TRUE exit 0, all 53 receipts mechanical with valid receipts on a single storyFilesHash, and validate coverage total 53 / required 51 / covered 53 / missing 0. The one remaining DEV-only repair is resealing pre_review_check, which reports PR_ARTIFACT_TAMPERED purely because the F-365 commit moved the hash its seal was bound to. Next: fresh epoch on the settled tree, three lanes plus critic, finalize, consume into DEV, reseal pre-review, re-earn receipts, then TEST.",
+      "_hash": "b3c60b99506ce9e11f796651a8e775811bd0fbcc4fbbb1bac2d6b285786e0506"
     }
   ],
   "criticReceipts": [
