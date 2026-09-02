@@ -60,10 +60,26 @@
       "phase": "DEV",
       "headHash": "f4e9acdd21358f4e613c7164d28db1f003273a0c",
       "materialHash": "d014fc0f24fe31a94afa783c8c164bb0e59657a7f020212f6287c0f68789f26d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Not scope creep: this file is the canonical decision doc for the very command this story extends, it is named in CHK-005's relatedDocs, and two reviewer-filed findings required correcting it. F-002 (high, filed by the docs lane) found the 'Test-surface placement' section claimed only TWO test-membership authorities while RESOURCE_POLICY in full-suite-runner.ts is a third, fail-closed one; CHK-005 copied that two-list framing and consequently registered its new smoke task in two surfaces instead of three, which aborted the entire root test suite and blocked done_required_validate. F-004 (medium, same lane) then found the F-002 fix had corrected one occurrence but missed a SECOND stale claim in the same file, which also independently misstated that test:process-fact-contract is reached only through test:serial-reference when it carries repoRead('test:process-fact-contract') at full-suite-runner.ts:180. Leaving either uncorrected would ship a decision doc that actively causes the bug it exists to prevent, for the fourth time. Both fixes are documentation-only, verified claim-by-claim against code before committing, and independently re-verified by the concept, quality and docs lanes at the current tree. After the second fix the whole file and the entire live docs corpus (CLAUDE.md, README.md, AGENTS.md, docs/**) were swept for remaining stale two-surface framing; only two unrelated hits remain, and the docs and concept reviewers each re-ran that sweep independently rather than trusting the report.",
+      "timestamp": "2026-09-02T15:00:55.818Z",
+      "paths": [
+        "docs/requirements/decisions/graph-command-migration.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/graph-command-migration.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "ec34728a8a851e9aed91ebc6b29b2e86960cec12",
+      "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa"
     }
   ],
   "createdAt": "2026-09-02T08:28:24.942Z",
-  "updatedAt": "2026-09-02T14:22:05.719Z",
+  "updatedAt": "2026-09-02T15:00:55.818Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -84,6 +100,7 @@
     "packages/graph/dist": "packages/graph/dist",
     "packages/main/dist": "packages/main/dist",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts"
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "docs/requirements/decisions/graph-command-migration.md": "docs/requirements/decisions/graph-command-migration.md"
   }
 }
