@@ -2018,7 +2018,11 @@ function assertCloseoutTrustBoundary() {
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
-    // persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
+    // (see B-cdf6:F-057 coupling note). B-5a15 F-361: the pin move is NOT
+    // persistSyntheticAdmittedWindowForTest (already on main); it is the new canonical
+    // writer topology_critic_receipt_set plus its registry row, a
+    // deriveCertificationDomainInputHashes fixture, an acquireOwnerLease seed, and
+    // main's refresh-stale checklist policy row. Compat surface unchanged (2/2 counts).
     '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
