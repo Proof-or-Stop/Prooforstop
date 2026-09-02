@@ -318,9 +318,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-5a15:CW-016",
       "storyId": "B-5a15",
-      "state": "BLOCKED",
+      "state": "CANCELLED",
       "createdAt": "2026-09-02T20:09:56.509Z",
-      "updatedAt": "2026-09-02T20:09:56.509Z",
+      "updatedAt": "2026-09-02T20:15:06.856Z",
       "blockerCode": "pre_cert_coverage_missing",
       "blockerDetail": "51 required verification intent(s) are missing coverage.",
       "inventory": {
@@ -329,7 +329,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "_hash": "fd3abcc18b9eda7447aecb2773f1065470aff959aa7a8015732ea763aaf33ec1"
+      "cancelledAt": "2026-09-02T20:15:06.856Z",
+      "cancelReason": "CW-016 is a sticky BLOCKED record: certification_window_begin returned the same window id and identical 51-count on two consecutive calls, so it is re-reading a persisted verdict rather than re-evaluating. Coverage was re-earned in between (refreshed 53/53 at 947d375) and intent_coverage_check reports pass with 0 gaps; the only commit since is metadata-only (checklist.json + closeout-write-receipts.jsonl), which per CLAUDE.md does not move storyFilesHash. Cancelling to force a fresh admission evaluation.",
+      "_hash": "2df04e27e3207e51e2d649dc5a6897d31cc7a24caa8cf169b2ccc3aa46b6d3ac"
     }
   ],
   "receipts": [
