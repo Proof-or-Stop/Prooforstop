@@ -109,7 +109,12 @@ check(
 // canonical name alongside it in the same file. A file that mentions only the old
 // spelling has not been migrated; a file that mentions both is read-both by design.
 {
-  const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
+  // maxBuffer: `git ls-files` output crossed Node's 1MB execFileSync default as the
+  // repo grew (14997 files / ~1.05MB), which surfaced as `spawnSync git ENOBUFS` with
+  // `status: 0` -- git itself succeeded and only the capture buffer overflowed, so the
+  // failure looked like a rename regression rather than a size limit. 64MB leaves
+  // decades of headroom; do not drop this back to the default.
+  const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
     .trim().split('\n').filter(Boolean);
   const skip = (f) =>
     f.includes('node_modules/') || f.includes('/dist/') || f.startsWith('dist/')
