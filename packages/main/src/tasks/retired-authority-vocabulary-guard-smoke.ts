@@ -692,9 +692,9 @@ const typeProgramInstrumentation = {
   dynamicFullAnalysisByFile: new Map<string, number>(),
 };
 
-// Refreshed by B-fe8f: the Story 3 finding-ledger, runtime-evidence-receipt, and
-// finding-runtime-evidence sources add three repo files that need a dynamic
-// binding graph build (repo builds 389 -> 392 on top of the synthetic set).
+// Re-attested for B-fe8f: five Story-owned sources each add one graph build;
+// two pre-existing spare slots absorb part of that increase, so the bounded
+// ceiling rises by three from 808 to the measured total of 811.
 const DYNAMIC_BINDING_BUILD_CEILING = 811;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
@@ -5263,7 +5263,6 @@ for (const file of retiredFutureBacklogPlanFiles) {
 }
 
 violations.push(...assertGeneratedHelp());
-process.stderr.write(`${JSON.stringify([...typeProgramInstrumentation.dynamicBindingBuildFiles.entries()].filter(([file]) => /finding|runtime-evidence|artifact-store/.test(file)))} repoUnique=${[...typeProgramInstrumentation.dynamicBindingBuildFiles].filter(([file]) => !file.includes('dynamic-code-control-')).length} repoDuplicates=${JSON.stringify([...typeProgramInstrumentation.dynamicBindingBuildFiles].filter(([file, count]) => !file.includes('dynamic-code-control-') && count !== 1))}\n`);
 assertTypeProgramInstrumentation();
 
 if (violations.length > 0) {
