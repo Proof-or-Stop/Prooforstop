@@ -67,6 +67,38 @@
         "scanEscalationReason": null
       },
       "_hash": "b17832302fd8df744df37d8b598181ff2be3e898f51c8a6aab2ae9bef140fa1d"
+    },
+    {
+      "id": "B-9f2c:RP-003",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Symbol extraction (Step 1) on commit c56c0dd8d4 yielded no exported code symbols (docs-only commit: CLAUDE.md + packages/graph/README.md); fell back to Fallback 1 full-text scan of both touched .md files plus their referenced code. Compared: (a) README Story dossier section (48 new lines) against upstream README (git show HEAD:README.md in /Users/qipan/work/repo/proof-or-stop-graph) and against the ported packages/graph/src/shells/web/dossier.js (1119 lines) + app.js + http.ts + build-web.mjs; (b) CLAUDE.md graph flag table + Story dossier paragraph (15 new lines) against packages/main/src/handlers/graph.ts and command-catalog.ts. Verified: 4s/15s /api/story poll interval (dossier.js:1037 setInterval(poll,pollLive?4000:15000)); opening sweep from T+0 + reduced-motion skip (dossier.js:280,1114); Play button + panel list (map/loop/web/checklist-outcome/findings feed/origin-decision/swarm/pulse/wire log) all present with matching behavior; neighbour click-through in 'the web' panel (app.js relationsOf/openStory wiring); client-side derivation from /api/story with no new JSON API added (http.ts route list unchanged apart from the /story/<id> shell route); CSS-custom-property theming; lane-name merging comment present verbatim in dossier.js. The port deliberately omits many upstream-only prose details (editorial masthead styling, '✦ dossier' glyph vs actual 'open dossier' button text, LIVE badge blink, monitor-style phase box animation, density-adaptive breakpoints, dot-click inspector, Space-bar-replay mention) -- confirmed these omissions do not leave any overclaiming residue: the port's shorter prose only asserts what ported code demonstrably does. CLAUDE.md --story flag row cross-checked against packages/main/src/handlers/graph.ts: assertGraphStoryExists (lines 341-366) runs before startServer is called and even before the --json branch, and does list near-miss candidates via 'did you mean:' (graphStorySuggestions). README divergence from upstream preserved: header reads 'proof-or-stop graph' not 'proof-or-stop-graph', 'How the CLI reaches this package' section intact verbatim, and the only proof-or-stop-graph occurrence in the README is the legitimate ~/.cache/proof-or-stop-graph/ cache path (not presented as a runnable command). Language convention matches existing per-file convention (CLAUDE.md addition in Chinese, README addition in English) -- not flagged as a defect per task instructions. No doc-code inconsistencies found; 0 findings registered.",
+      "createdAt": "2026-09-02T09:19:25.157Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-007",
+      "envelopeId": "915f46f7f4c80d0ecb56d799797d7c0b92c6ffc0e63bf8850b7ab1f4a6f55bad",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "CLAUDE.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/web/app.body.html"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb36eb5939c3c2db71c1e7b398e5cf851cd0abc411ac1d30ff57cecb6245c548"
     }
   ]
 }
