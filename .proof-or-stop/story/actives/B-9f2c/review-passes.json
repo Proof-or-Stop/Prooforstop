@@ -644,6 +644,42 @@
         "scanEscalationReason": null
       },
       "_hash": "de3c67fdc7525ee05d8c8ad0d86d2c7fedc5459e997f3c520f2ac80ea736a7c0"
+    },
+    {
+      "id": "B-9f2c:RP-022",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-confirmed prior RP-019 (RR-024, head b94e532) verdict against the new frozen head 11f9440be5. git diff b94e532..11f9440 touches ONLY .proof-or-stop/ framework/dev-memory metadata (checklist.json, review-*.json, acceptance-rollout-report.json, certification-window.json, prompt-envelopes.json, dev-memory/*) -- confirmed empty diff on packages/, docs/, CLAUDE.md, lattice.config.json, package.json, README.md between those two commits. Re-ran the concept-deletion scan on git diff main...HEAD: --diff-filter=D and --diff-filter=R are both empty, so no symbol/route/config key/documented concept was removed or renamed with dangling references; the 45-file diff remains additive (dossier.js port, /story/<id> route, --story flag, graph-story-flag-smoke task, doc corrections in CLAUDE.md and graph-command-migration.md, re-approved fingerprint pin in retired-authority-vocabulary-guard-smoke.ts). Verified test:graph-story-flag-smoke is spelled identically (grep, no variants) across all four registration sites: lattice.config.json:2120, package.json test:serial-reference list and its script alias at line 56, and full-suite-runner.ts RESOURCE_POLICY line 159, plus the task file packages/main/src/tasks/graph-story-flag-smoke.ts. No blocker.",
+      "createdAt": "2026-09-02T17:30:46.673Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-030",
+      "envelopeId": "f57b385787ede6db4cbe586ba716987d7d34794371dbce2209b794ad5cab4940",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "02ac91dc5a4a9f97b7924fa8ab312fc59113491991a586763efe391b3310ebca"
     }
   ]
 }
