@@ -36,7 +36,7 @@ import { loadConfig } from '../core/config.js';
 import { CONFIG_FILENAMES } from '../core/brand-paths.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import { validateResourceClaims, type ResourceClaim } from '../core/keyed-scheduler.js';
-import { assertDeclaredValidationCommandId } from '../core/validation-command-identity.js';
+
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
   VALIDATION_EVIDENCE_BOUND_BYTES,
@@ -77,11 +77,20 @@ import {
   captureDonePrepareGeneratedMetadataTransaction,
   rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
+import {
+  VALIDATION_COMMAND_SHELL_META_RE,
+  assertDeclaredValidationCommandId,
+  parseLegacyValidationCommandString,
+} from '../core/validation-command-identity.js';
 import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
-const SHELL_META_RE = /[;&|<>$()`]/;
+// B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
+// core/validation-command-identity.ts so the legacy pin resolver compares evidence
+// strings under EXACTLY this parse. Extraction only - the behaviour below is
+// unchanged, including the non-shell branch omitting `shell` entirely.
+const SHELL_META_RE = VALIDATION_COMMAND_SHELL_META_RE;
 
 export interface ValidationSetupScan {
   validateFiles: Array<{ name: string; present: boolean }>;
@@ -123,52 +132,12 @@ function hasDirectoryEntry(projectRoot: string, dir: string, suffixes: string[])
   }
 }
 
-function splitShellWords(command: string): string[] {
-  const out: string[] = [];
-  let cur = '';
-  let quote: '"' | "'" | null = null;
-  let escaped = false;
-  for (const ch of command) {
-    if (escaped) {
-      cur += ch;
-      escaped = false;
-      continue;
-    }
-    if (ch === '\\') {
-      escaped = true;
-      continue;
-    }
-    if (quote) {
-      if (ch === quote) quote = null;
-      else cur += ch;
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote = ch;
-      continue;
-    }
-    if (/\s/.test(ch)) {
-      if (cur) {
-        out.push(cur);
-        cur = '';
-      }
-      continue;
-    }
-    cur += ch;
-  }
-  if (cur) out.push(cur);
-  return out;
-}
-
 function commandFromString(label: string, value: string): ValidationCommand | null {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (SHELL_META_RE.test(trimmed)) {
-    return { label, command: trimmed, args: [], shell: true };
-  }
-  const parts = splitShellWords(trimmed);
-  if (parts.length === 0) return null;
-  return { label, command: parts[0], args: parts.slice(1) };
+  const parsed = parseLegacyValidationCommandString(value);
+  if (!parsed) return null;
+  return parsed.shell
+    ? { label, command: parsed.command, args: [], shell: true }
+    : { label, command: parsed.command, args: parsed.args };
 }
 
 /**

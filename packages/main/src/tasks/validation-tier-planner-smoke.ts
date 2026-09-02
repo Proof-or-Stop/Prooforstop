@@ -600,8 +600,12 @@ testCase('commands differing only by shell-versus-argv form are distinct', () =>
 });
 
 testCase('commands differing only by their environment overlay are distinct', () => {
-  const plain = command({ label: 'test', command: 'npm', args: ['test'] });
-  const overlaid = command({ label: 'test (CI)', command: 'npm', args: ['test'], env: { CI: '1' } });
+  // Both must DECLARE an id: the environment is deliberately outside the narrow
+  // portable id (CHK-001), so two commands differing only by their overlay would
+  // otherwise collide as duplicate provisional ids. That is the asymmetry these
+  // two items hold apart — narrow for identity, complete for pin resolution.
+  const plain = command({ label: 'test', command: 'npm', args: ['test'], id: 'test-plain' });
+  const overlaid = command({ label: 'test (CI)', command: 'npm', args: ['test'], env: { CI: '1' }, id: 'test-ci' });
   const universe = pinUniverse([plain, overlaid]);
   assert.notEqual(
     universe.entries[0].normalizedTupleDigest,

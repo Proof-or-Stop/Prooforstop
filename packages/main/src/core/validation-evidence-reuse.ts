@@ -6,6 +6,7 @@ import type { TestEvidenceData, VerificationCoverageReport } from './types.js';
 import type {
   RoutineValidationCommandExecution,
   RoutineValidationIdentity,
+  RoutineValidationIdentityCommand,
   RoutineValidationSourceKind,
   ValidationCommand,
   ValidationCommandResult,
@@ -133,6 +134,58 @@ export function resolveValidationCommandCwd(
     : projectRoot;
 }
 
+/**
+ * The ONE per-command normalization. Everything that needs to compare two
+ * validation commands as EXECUTABLES goes through this: the routine reuse
+ * identity below, and (B-a745 CHK-002) the legacy pin resolver in
+ * `core/validation-command-identity.ts`.
+ *
+ * B-a745 CHK-001/CHK-002 extracted it out of {@link buildRoutineValidationIdentity}
+ * so a second copy of the cwd / shell / environment / executable rules can never
+ * drift into existence. Extraction only: the object this returns, field for
+ * field, is exactly what the identity used to build inline, so
+ * `buildRoutineValidationIdentity`'s digest is unchanged.
+ */
+export function normalizeRoutineValidationCommand(args: {
+  projectRoot: string;
+  command: ValidationCommand;
+  processEnvironment?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+}): RoutineValidationIdentityCommand {
+  const processEnvironment = args.processEnvironment ?? process.env;
+  const platform = args.platform ?? process.platform;
+  const command = args.command;
+  const cwd = resolveValidationCommandCwd(args.projectRoot, command);
+  const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
+  // node:child_process uses an implicit command shell on Windows even when
+  // ValidationCommand.shell is false. Bind identity to that actual execution
+  // principal (ComSpec/cmd.exe), not to a command that spawn never executes
+  // directly.
+  const usesShell = validationCommandUsesShell(command, platform);
+  const shellExecutableCommand = usesShell
+    ? platform === 'win32'
+      ? String(effectiveEnvironment.ComSpec ?? effectiveEnvironment.COMSPEC ?? 'cmd.exe')
+      : '/bin/sh'
+    : null;
+  const executable = resolveExecutable(command.command, cwd, effectiveEnvironment, platform);
+  const shellExecutable = shellExecutableCommand
+    ? resolveExecutable(shellExecutableCommand, cwd, effectiveEnvironment, platform)
+    : null;
+  return {
+    label: command.label,
+    command: command.command,
+    args: [...command.args],
+    cwd,
+    shell: usesShell,
+    timeoutMs: resolveCommandTimeoutMs(command),
+    optional: command.optional === true,
+    focus: [...(command.focus ?? [])],
+    effectiveEnvironmentDigest: validationIdentityDigest(effectiveEnvironment),
+    executableDigest: executable ? fileDigest(executable) : null,
+    shellExecutableDigest: shellExecutable ? fileDigest(shellExecutable) : null,
+  };
+}
+
 export function buildRoutineValidationIdentity(args: {
   projectRoot: string;
   sourceKind: RoutineValidationSourceKind;
@@ -148,37 +201,12 @@ export function buildRoutineValidationIdentity(args: {
 }): RoutineValidationIdentity {
   const processEnvironment = args.processEnvironment ?? process.env;
   const platform = args.platform ?? process.platform;
-  const commands = args.commands.map((command) => {
-    const cwd = resolveValidationCommandCwd(args.projectRoot, command);
-    const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
-    // node:child_process uses an implicit command shell on Windows even when
-    // ValidationCommand.shell is false. Bind identity to that actual execution
-    // principal (ComSpec/cmd.exe), not to a command that spawn never executes
-    // directly.
-    const usesShell = validationCommandUsesShell(command, platform);
-    const shellExecutableCommand = usesShell
-      ? platform === 'win32'
-        ? String(effectiveEnvironment.ComSpec ?? effectiveEnvironment.COMSPEC ?? 'cmd.exe')
-        : '/bin/sh'
-      : null;
-    const executable = resolveExecutable(command.command, cwd, effectiveEnvironment, platform);
-    const shellExecutable = shellExecutableCommand
-      ? resolveExecutable(shellExecutableCommand, cwd, effectiveEnvironment, platform)
-      : null;
-    return {
-      label: command.label,
-      command: command.command,
-      args: [...command.args],
-      cwd,
-      shell: usesShell,
-      timeoutMs: resolveCommandTimeoutMs(command),
-      optional: command.optional === true,
-      focus: [...(command.focus ?? [])],
-      effectiveEnvironmentDigest: validationIdentityDigest(effectiveEnvironment),
-      executableDigest: executable ? fileDigest(executable) : null,
-      shellExecutableDigest: shellExecutable ? fileDigest(shellExecutable) : null,
-    };
-  });
+  const commands = args.commands.map((command) => normalizeRoutineValidationCommand({
+    projectRoot: args.projectRoot,
+    command,
+    processEnvironment,
+    platform,
+  }));
   const unsigned = {
     schema: 'proofOrStop.routine-validation-identity' as const,
     version: 1 as const,
