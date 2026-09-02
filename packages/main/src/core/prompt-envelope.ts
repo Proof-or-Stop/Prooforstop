@@ -276,8 +276,18 @@ function controlledConceptPairIsExplicitlyNegative(
       const firstRange = leftRange.start <= rightRange.start ? leftRange : rightRange;
       const secondRange = leftRange.start <= rightRange.start ? rightRange : leftRange;
       const relationship = text.slice(firstRange.end, secondRange.start);
+      const relationshipBoundary = Math.max(
+        relationship.lastIndexOf(' and '),
+        relationship.lastIndexOf(' then '),
+        relationship.lastIndexOf(' but '),
+        relationship.lastIndexOf(' however '),
+        relationship.lastIndexOf(' yet '),
+        relationship.lastIndexOf(' although '),
+        relationship.lastIndexOf(' while '),
+      );
+      const scopedRelationship = relationship.slice(relationshipBoundary + 1);
       const immediateSuffix = text.slice(end, Math.min(text.length, end + 48));
-      const negativeRelationship = /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[^.;]{0,120}\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(relationship)
+      const negativeRelationship = /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[^.;]{0,120}\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(scopedRelationship)
         || /^\s*(?:(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never|is\s+forbidden|is\s+prohibited)\b/u.test(immediateSuffix);
       const negativeLead = /^(?:do\s+not\s+let|verify\s+(?:the\s+)?guidance\s+never\s+claims?\s+that)\b/u.test(localPrefix.trim())
         || /^no\s+reviewer$/u.test(localPrefix.trim())
@@ -339,12 +349,26 @@ function isExplicitRejectedAuthorityStatement(text: string): boolean {
   // never a whole-source escape hatch for punctuation- or clause-separated
   // statements that must each be evaluated by the normal fail-closed guard.
   if (claim.length === 0 || claim.length > 240) return false;
-  if (/[.!?;:\r\n。！？；：]/u.test(claim)) return false;
-  return !/\b(?:and|but|however|yet|although|while|then|therefore)\b/iu.test(claim);
+  if (!/^[\p{L}\p{N}_\s]+$/u.test(claim)) return false;
+  return !/\b(?:and|or|nor|but|however|yet|although|while|then|therefore|so|if|unless|because|whereas)\b/iu.test(claim);
 }
 
 function isBoundedSignedDispositionInspection(segment: string): boolean {
   return /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u.test(segment);
+}
+
+function hasCrossSegmentDispositionAssignment(segments: readonly string[]): boolean {
+  const inspection = /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u;
+  for (let index = 0; index < segments.length - 1; index += 1) {
+    if (!inspection.test(segments[index])) continue;
+    const continuation = segments[index + 1];
+    const dispositionCoreference = /\b(?:it|that\s+disposition|the\s+disposition)\b/u.test(continuation);
+    const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
+    if (!dispositionCoreference || !findingTarget) continue;
+    if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
+    return true;
+  }
+  return false;
 }
 
 function isCanonicalTriageInventorySegment(segment: string): boolean {
@@ -484,7 +508,9 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     || isExplicitRejectedAuthorityStatement(source.text)
     || isNegativeMutationVerificationIntent(source)) return null;
   const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
-  for (const segment of triageAuthoritySegments(source.text)) {
+  const segments = triageAuthoritySegments(source.text);
+  if (hasCrossSegmentDispositionAssignment(segments)) return 'unauthorized disposition minting';
+  for (const segment of segments) {
     if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion)) {
       return 'Dynamic Finding authority amendment asserted from Task Context';
     }
@@ -531,9 +557,10 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     }
 
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
-    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|by\s+itself|on\s+its\s+own)\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|by\s+itself|on\s+its\s+own|nothing\s+except|no\s+other\s+factor|without\s+regard\s+to\s+applicability)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
+      const qualifier = segment.slice(soleRange.start, soleRange.end);
       return matchRanges(segment, severity).some(severityRange => {
         const severityBeforeQualifier = severityRange.end <= soleRange.start;
         const qualifierBeforeSeverity = soleRange.end <= severityRange.start;
@@ -545,8 +572,10 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
         // occur nearby. In particular, `only after applicable ... low/medium`
         // is an applicability-timing boundary, not severity-only ownership.
         return severityBeforeQualifier
-          ? /^(?:(?:is|are|was|were|be|being|remains?|becomes?)(?:\s+the)?)?$/u.test(bridge)
-          : /^(?:by|from|of|on)?$/u.test(bridge);
+          ? (qualifier === 'no other factor'
+              ? /^(?:and)?$/u.test(bridge)
+              : /^(?:(?:is|are|was|were|be|being|remains?|becomes?)(?:\s+the)?)?$/u.test(bridge))
+          : /^(?:by|from|of|on)(?:\s+the)?$|^$/u.test(bridge);
       });
     });
     if (soleQualifierBindsSeverity
@@ -576,7 +605,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       return 'unknown applicability used to route or unblock';
     }
   }
-  const normalizedSource = triageAuthoritySegments(source.text)
+  const normalizedSource = segments
     .filter(segment => !isCanonicalTriageInventorySegment(segment)
       && !isApprovedFutureDeferralBoundary(segment)
       && !isApprovedNegativeCapabilityInventory(segment)
