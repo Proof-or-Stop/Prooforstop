@@ -25526,7 +25526,7 @@
       "desc": "Wave 4 verifier-owned acceptance surfaces independently re-verified at current HEAD fe66d8437a3680e5a4ce11e5ee3f04d9898bfffc: (1) acceptance_topology_check reports status=pass/structuralPass=true but with evidentiary=false, authority=diagnostic_only, mode=observe, and row result=inconclusive_basis_unverified -- a materially weaker signal than a clean pass. The acceptance-basis binding.headHash=3d74e2d7c45ceb1a3da998233bdd7ae5e8ee1994 does not match current HEAD, confirming the basis is stale relative to current head even though basisStatus=complete. (2) pre_review_check_read reports status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND]. (3) acceptance_rollout_report_read and acceptance_rollout_check both report ok=false, status=fail, mode=enforce, blocking=true, diagnostics=[AR_REPORT_STALE], receipt=stale. lattice.config.json and proof-or-stop.config.json both confirm acceptanceRolloutGateMode=enforce (not observe/warn, not rolled back), so this is a genuinely enforced current block, not a silenced/rolled-back one. The embedded rollout report binding.headHash=ff6ad3601d2ff226085faed3bffffe4b6036c02d is a THIRD distinct head hash, different from both current HEAD and the acceptance-basis headHash -- three artifacts disagree on which head they are bound to. Rollout quorum shape itself (independently grepped) shows genuine full-3x2 (hostId claude-cli + codex-cli pairs across the historical campaign, quorum:\"full-3x2\", mislabeled3x1Count:0), so the quorum-shape requirement is structurally satisfiable once the report is regenerated at current head -- the defect is staleness, not degraded 3x1. Separately, F-476 (open, high, reviewRunId B-45a0:RR-1200) documents 2 of 50 verificationEvidence receipts (CHK-011:happy:0, CHK-014:happy:1) left non-mechanical (no receipt block: no exitCode/outputDigest/selectorMatched/executedAt) by the last refresh. All of this is consistent with prior request_changes disposition on this basis, but the persisted topology-critic-receipt.json itself is independently stale on 3 dimensions: criticProvenance.sessionId=sess-20190789c2d955442b2ad0f1e88ae507 does not match any current dispatch session; criticProvenance.headHash=7b0b5b1765f750a6f9ca4d71f9ecd90199219a66 is a FOURTH distinct head hash matching neither current HEAD nor either artifact binding above; and findingRefs terminates at F-469, predating both F-475 (resolved) and F-476 (open, current). topology_critic_receipt_check independently flags this same receipt REJECTED with 'finding refs are noncanonical or stale'. Net: acceptance topology is NOT admissible at current head across all four Wave 4 surfaces; remediation (DEV bounce: reissue rollout report + pre-review + basis at current head, re-earn F-476's 2 receipts) is queued but not yet performed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-02T05:09:45.234Z",
@@ -25566,7 +25566,11 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "wave4-acceptance-surfaces-stale-at-head",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "All Wave-4 surfaces reissued in the remediation DEV bounce in canonical order: replay campaign re-executed at clean HEAD (admission PASS, assurance PASS), acceptance basis regenerated after all evidence writes (complete, digest baa96351...), acceptance_topology_check structural pass with zero diagnostics, acceptance_rollout_report reissued (full-3x2), live proof recaptured (PROOFSTORY_PRE_REVIEW_PROOF, exit 0), pre_review_check reissued LAST signing PASS with zero codes.",
+      "resolvedAt": "2026-09-02T07:13:19.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-478",
