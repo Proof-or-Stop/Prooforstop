@@ -1366,7 +1366,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:322-343 — HIGH: isExplicitRejectedAuthorityStatement still treats comma- or em-dash-separated compound authority prose as one atomic rejected claim. Production-dist reproduction with assembleFullPromptEnvelope accepts both `Reject severity alone decides Story scope — reviewers bestow defer_with_proof on the Finding as an invalid authority statement.` and the comma/confer equivalent. This lets arbitrary unsafe severity/disposition authority bypass the REVIEW Task Context guard despite the new multi-statement restriction; atomicity must reject all clause-separating punctuation, not only period/semicolon/colon or named conjunctions.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T12:37:59.015Z",
@@ -1374,7 +1374,11 @@
       "reviewRunId": "B-9a49:RR-093",
       "_hash": "baeee1510fce41f8aa6406f352d12d1f5aec12768611abd799354fa8a0e4e832",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 987f533c1998cf689c189438a6674e1a4bdae861. The rejected-authority wrapper is now a strict atomic grammar: comma, em dash, en dash, colon, parentheses, ASCII/Unicode commas, ideographic comma, quoted compounds, and clause conjunctions cannot carry a second authority assignment. Relation-scoped negation rejects unrelated negation plus bestow/confer/grant tails while admitting a true must-not-bestow prohibition. Adjacent Unicode-segment coreference assignment and four severity-exclusivity equivalents are rejected. RED reproduced the exact F-061 comma/em-dash bypasses. GREEN rebuilt dist first, ran the full-context suite twice, rejected nine unsafe probes while admitting three safe controls, exercised five reviewer roles and three Task Context surfaces, and passed registry, measurement, prompt baseline, process-fact, runtime-fact, and all 60 current mechanical verification receipts. Pre-review is PASS/current and protected Dynamic Finding authority/runtime paths remain unchanged.",
+      "resolvedAt": "2026-09-02T12:56:02.712Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
