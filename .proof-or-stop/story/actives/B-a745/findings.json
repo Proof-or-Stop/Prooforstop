@@ -136,7 +136,7 @@
       "desc": "validate --concept flagged deletedSymbols: splitShellWords with 10 residual references. Independently verified: all 10 are non-blocking. verifier.ts commandFromString now delegates to core/validation-command-identity.ts:parseLegacyValidationCommandString (git diff confirms no shadow re-definition remains in verifier.ts; grep confirms zero matches for splitShellWords in verifier.ts). 8 of the 10 residuals (validation-tier-planner-smoke.ts:519 and validate-command-timeout-smoke.ts:29,273,293,483,497,521,531) are prose inside comments or test-case description strings, not calls. The remaining 2 (done-required-validation.ts:113,282) are that file own pre-existing, file-private splitShellWords definition/call, unrelated to the deleted verifier.ts symbol -- confirmed via git log that this function already existed on main before this story branched, done-required-validation.ts has zero imports referencing verifier.ts or validation-command-identity.ts for this symbol, and the file is scope-protected (not modified by this story). This is a false-positive concept-check residual, not a genuine dangling reference.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "All 10 grep residuals for the deleted verifier.ts-local splitShellWords are non-blocking: 8 are comment/test-description prose, and the remaining 2 are done-required-validation.ts own pre-existing private function of the same name (present on main before this story, no import/reference to the deleted symbol, file is scope-protected and untouched by this story). verifier.ts itself has zero references to splitShellWords and now delegates commandFromString to core/validation-command-identity.ts:parseLegacyValidationCommandString.",
@@ -158,7 +158,11 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "signatureTag": "missing|ts|validate-concept-flagged",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Concept-gate basis, filed with evidenceState=disproven by the concept lane and non-blocking. Resolving to close the round: the lane independently re-derived that all ten splitShellWords residuals are false positives -- eight are comment and test-description prose, and the two code hits at done-required-validation.ts:113 and :282 are that file's own pre-existing file-private copy, confirmed by git log to predate this Story on main, with no import from verifier.ts or validation-command-identity.ts. That file is in this Story's protectedFiles and was not modified. The duplicate-parser drift risk it represents is recorded separately for its own Story.",
+      "resolvedAt": "2026-09-02T03:32:08.232Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
