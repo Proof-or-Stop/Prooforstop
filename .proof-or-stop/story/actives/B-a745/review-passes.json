@@ -524,6 +524,29 @@
         "scanEscalationReason": null
       },
       "_hash": "15a6dc6bd06bf45fd9dc7552a5f4589a0c00739b58aca5a349c451ea5ab1a0cf"
+    },
+    {
+      "id": "B-a745:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 7 re-binding: no product source/fixture change since RP-019 (git diff 37eeed14..HEAD touches only lifecycle metadata + dev-memory/experience.jsonl). Coverage re-confirmed 34/34 must verificationIntent covered (33 mechanical evidence + 1 documented permanent waiver on CHK-002:edge:0, unchanged content). validation-tier-planner-smoke.js re-run and ends PASS, exit 0. No blocker.",
+      "createdAt": "2026-09-02T11:29:33.403Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-036",
+      "envelopeId": "f5ed353bb2195950754511646ed2e7b6c5546062c256f1d86d7af72ec1cb05a3",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e400fe200731fef7e3fb5c4db54075fbbbbef17371265e7c656267071e88cbb"
     }
   ]
 }
