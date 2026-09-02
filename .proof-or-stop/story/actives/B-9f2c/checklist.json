@@ -625,7 +625,11 @@
           {
             "desc": "running the new npm script executes the task and exits 0",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:graph-story-flag-smoke",
+              "selector": "graph --story smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -686,6 +690,27 @@
           "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
           "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
           "timestamp": "2026-09-02T09:02:57.460Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "npm run test:graph-story-flag-smoke",
+          "result": "pass",
+          "note": "Runs the task through the npm script alias registered by this item, proving the alias resolves and the task executes rather than merely being declared. Exits 0 and prints the task pass line in about 2 seconds.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "80f9f506a12f67cd25524cbc5486eef7a3588d25b1367c3e25e12cab52b50074",
+            "outputTail": "\n> proof-or-stop@0.3.272 test:graph-story-flag-smoke\n> node packages/main/dist/tasks/graph-story-flag-smoke.js\n\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-4q8vBH (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-4q8vBH (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-4q8vBH (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:03:11.434Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "bfea44face007d014a9501487882512d24c07156",
+          "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
+          "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
+          "timestamp": "2026-09-02T09:03:11.638Z"
         }
       ]
     }
