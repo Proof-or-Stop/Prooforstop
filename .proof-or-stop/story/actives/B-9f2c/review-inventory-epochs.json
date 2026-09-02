@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-9f2c:RIE-001",
+      "storyId": "B-9f2c",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-02T14:17:09.532Z",
+      "updatedAt": "2026-09-02T14:17:19.366Z",
+      "cutoff": {
+        "headHash": "161aa08faa358f9a46ff84f7ba8681a5bb88be02",
+        "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
+        "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4"
+      },
+      "scopeDigest": "35575721c897a6b5a8a6851354046741d9cf0aecf8f340772d5cba67090a2351",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-9f2c:RIE-001:RCP-001",
+      "consumedAt": "2026-09-02T14:17:19.366Z",
+      "consumedByReviewRound": "2026-09-02T09:12:52.423Z",
+      "_hash": "daef607f7d146581b28cf3faae2ef8f0307a03e9d80df4faf01e41fa9eba656e"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-9f2c:RIE-001:RCP-001",
+      "epochId": "B-9f2c:RIE-001",
+      "storyId": "B-9f2c",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "cutoff": {
+        "headHash": "161aa08faa358f9a46ff84f7ba8681a5bb88be02",
+        "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
+        "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4"
+      },
+      "scopeDigest": "35575721c897a6b5a8a6851354046741d9cf0aecf8f340772d5cba67090a2351",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-02T14:17:09.532Z",
+      "consumedAt": "2026-09-02T14:17:19.366Z",
+      "_hash": "68cbfdbc06f44a3a3f7855f9db3e283f5f7021952a182b5501241e9f84628f48"
+    }
+  ],
+  "criticReceipts": []
+}
