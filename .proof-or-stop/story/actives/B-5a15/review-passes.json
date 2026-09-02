@@ -13727,6 +13727,31 @@
         "scanEscalationReason": null
       },
       "_hash": "669879e0a379a42febfe72e17c84013fee5b43e9988313feef9aa0d26b7b867f"
+    },
+    {
+      "id": "B-5a15:RP-290",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage re-confirmation for epoch RI-066 (head 829ed82a6b). F-364 commit c6000f1d40 verified comment-only by diff: 1 file, 10 changed lines, 0 non-comment changed lines; no test file, assertion, pin literal, or source logic touched. Coverage re-measured from checklist.json plus a live run of the pinned command: 5 items / 53 declared intents, 53 unique intentRefs, 0 duplicates, 0 orphans, evidence 1:1 (53 entries / 53 distinct intentRefs); 51 effective must (29 priority-absent defaulting + 22 explicit) + 2 should; exactly 1 non-positional id (CHK-001:edge:oversized-output-probe), 52 positional. Receipts: 53/53 mechanical=true, 53 exitCode=0, 53 selectorMatched=true, ONE storyFilesHash af9bbe506973, 53 distinct outputDigests, 53 distinct executionKeys, timeoutMs 270000 x53. 0 waivers, 0 nonMechanicalReason, 0 result=fail, 0 timeoutOverride, 0 nonzero commandReruns. Marker reconciliation: 56 unique emitIntentMarker refs = 53 declared + 3 supplementary NON-intent (CHK-001:adversarial:session-like-environment is a non-declared string id; CHK-003:adversarial:4 and :5 exceed the 0-3 declared array), so supplementary markers cannot inflate coverage. FRESH live measurement: pre_review_check_read exit 0 returns exactly PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_AUTHORITY_INADMISSIBLE with mode=observe blocking=false, so the live code set is UNCHANGED from the prior epoch. Pinned suite runs 19 pass / 2 fail; both F-359 sites fail at the predicted lines (test at :2469 asserts falsy at :2506; test at :2643 asserts falsy at :2684). Absent-selector set is exactly CHK-004:happy:2 and CHK-004:happy:3, giving 54 runtime marker lines = 51 of 53 declared + 3 supplementary. Mechanical root cause: those two selectors are emitted at lines 2516/2520 inside test F-247 (spanning 2469-2526), after the assertion that aborts at 2506, hence unreachable; PR_AUTHORITY_INADMISSIBLE occurs 0 times in causal-evidence.test.mjs while being live in the actual output, which is exactly why the preReviewFresh || preReviewFailClosed assertion at 2506 evaluates falsy. Remaining open F-351/F-355 are DEV-only pre-review staleness, open by design, not source defects. No new test-coverage gap; no blocker from this lane.",
+      "createdAt": "2026-09-02T14:02:53.879Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-878",
+      "envelopeId": "e9e97f9cb91c36f1883d0df5dff2795a9e9ae67da1f84c05e8421bc804de3ec8",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2556d3f6d60868c3cc9a01a10517b49b38fe915431d77f5398dbc619a1fcad5f"
     }
   ]
 }
