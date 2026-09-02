@@ -584,6 +584,42 @@
         "scanEscalationReason": null
       },
       "_hash": "d5207cd7fdd16bbff677ed7320dcf9041a9f6eb28f2cc00287319261d3e97aad"
+    },
+    {
+      "id": "B-9f2c:RP-020",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Fully re-verified against frozen tree b94e532: (1) THREE membership authorities section still accurate and matches code (full-suite-runner.ts line 180/216-224 exact throw string). (2) Independent fan-out sweep: no stale two-list/two-mechanism/two-authority framing survives anywhere in live docs corpus. (3) Standing graph docs claims (README dossier section, /story/<id> route, --story flag row, cache path) all verified against code. (4) Merge of main introduced zero new contradicting doc files. Zero findings.",
+      "createdAt": "2026-09-02T16:38:25.423Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-026",
+      "envelopeId": "141bbb218af48bd0c432a3fe7f3db535c246843228f1276e3581b7ecaff3dda9",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Full-text grep sweep across CLAUDE.md/README.md/AGENTS.md/docs/** for stale test-list framing (fallback 1: docs-only review scope, no code symbol diff to anchor on)."
+      },
+      "_hash": "31ea5143dc9ef81376aea7c250bf282515a1341b1b622b16f4094b2a9a692df7"
     }
   ]
 }
