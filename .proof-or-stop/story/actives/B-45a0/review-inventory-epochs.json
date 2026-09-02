@@ -18648,6 +18648,37 @@
       ],
       "createdAt": "2026-09-02T05:11:12.814Z",
       "_hash": "e8616bd219ea19e62e3df94a53b31ad7f24e5b45d2cf13660dc9320df4664222"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-118:CRIT-02",
+      "epochId": "B-45a0:RI-118",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-09-02T04:21:59.530Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "ca6b0acd3f316c0f7a258249d70da599d7c5c7d3",
+        "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+        "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408"
+      },
+      "aggregateFindingSetDigest": "303e7ea103579d8e9fb4ac7d5b7ef211277f56f8c09d33f408b4d2fe8106f054",
+      "requiredLaneCoverageDigest": "13fd11c7e3ba2f06658b2bd47212e953bd788ea8fd438ca7d6be2b24e1e3a4e7",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1212",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-549"
+      ],
+      "readEvidenceDigest": "488fc1beac096d9c875f8b1196e4ddd1fdd13a77de59ca825d62024b784da42b",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-478",
+          "disposition": "verified_family",
+          "familyKey": "wave4-acceptance-surfaces-stale-at-head",
+          "reason": "current-head re-attestation of the wave-1 F-476 family (same two non-mechanical receipts CHK-011:happy:0 / CHK-014:happy:1); remediation queued for the DEV bounce this record enables"
+        }
+      ],
+      "createdAt": "2026-09-02T05:32:13.491Z",
+      "_hash": "ed23d92bc206e0e15ddcf134d221b9e2a6555d9f5f297bbdebd307fd5666bc7e"
     }
   ]
 }
