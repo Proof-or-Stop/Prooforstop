@@ -1066,6 +1066,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-049",
+      "desc": "D2 authority alignment remains internally contradictory in the executable proposal. Section 6 correctly states at lines 173-187 that complete repair closure is a distinct release path for the claimed-deferral-lineage floor, matching the authoritative plan lines 1912-1919. But the proposal consistency table at line 341 broadly says the Agent projection restricts lineage release to strong pre_existing_unaffected/out_of_scope/duplicate/disproven proof and mentions closure_proven only as clearing the downstream mandatory-repair obligation; it omits complete repair closure as a lineage-floor release path and therefore reintroduces the exact D2 omission in the document's final authority summary. The current prompt-registry smoke at lines 665-694 only checks that the phrase complete repair closure releases that lineage floor appears somewhere in the proposal, so the contradictory summary survives all passing smokes. Amend the table to distinguish non-repair supersession from the separate complete-repair-closure path, and make the semantic test bind that distinction in the consistency row; do not alter Dynamic Finding runtime authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T02:27:40.373Z",
+      "reviewRound": "2026-09-02T02:22:09.054Z",
+      "reviewRunId": "B-9a49:RR-069",
+      "_hash": "9aa481e89db148e3cd0c87d9ae26183d7da0b6d67f12fd65e0fdd630ed69d934",
+      "files": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|md|authority-alignment-remains",
+      "signatureTagSource": "auto"
     }
   ]
 }
