@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-9f2c:F-001",
+      "desc": "CHK-002 adversarial:0 was authored from a false premise and one of its two clauses is unsatisfiable on this branch. The intent text reads 'the local d3 hard-failure branch in scripts/build-web.mjs survives the port AND dossier.js is concatenated after app.js, not before'. The d3 hard-failure change exists only as an uncommitted edit in the MAIN checkout; it is not committed on story/B-9f2c and it is not upstream either. Verified two ways: grep -c 'd3 is missing' packages/graph/scripts/build-web.mjs returns 0 on this branch, and the CHK-002 implementer independently reported build-web.mjs is now byte-identical to upstream. So no work on this branch can either satisfy or violate that clause. The load-order clause is the real risk and IS proven: build-web.mjs concatenates app.js at line 33, playback.js at 36 and dossier.js at 40, and the recorded evidence for this intent pins that ordering with a negative control. No evidence was fabricated for the d3 clause; the implementer recorded its voiding in the evidence note. Deliberately NOT fixed by rewriting the intent: verificationIntent is frozen after PLAN by design, and checklist_update correctly refused the edit. Rewriting a frozen intent mid-DEV to match what was actually built is exactly the self-absolution the freeze exists to prevent. Filing this instead so the mismatch is auditable rather than silently reworded.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:40:36.688Z",
+      "reviewRound": "",
+      "_hash": "7701c01dc18321aef343a7860e8055467c02c8cc3a6270b83452d4c7af1ef5f0",
+      "files": [
+        "packages/graph/scripts/build-web.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-authored-false",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
