@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify committed dev-memory records as non-material in the shared freshness classifier",
+      "context": "core/evidence-freshness.ts isMaterialExcludedPath; derive the path from core/brand-paths.ts, never a literal; keep records tracked.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a regression fixture proving dev_memory_capture and dev_memory_finish_decision leave materialHash and storyFilesHash unchanged",
+      "context": "Drive the real commands in a scratch story and compare captureEvidenceHashSnapshot before and after; also assert a reviewer pass envelope stays valid across the finish decision.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

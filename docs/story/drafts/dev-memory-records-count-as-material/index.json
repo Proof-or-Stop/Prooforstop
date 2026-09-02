@@ -1,0 +1,16 @@
+{
+  "name": "dev-memory-records-count-as-material",
+  "title": "Exclude committed dev-memory records from material and story-files hashes so the DONE gate cannot invalidate its own evidence",
+  "description": "The DONE gate requires a dev_memory_finish_decision (missing_dev_memory_finish_decision blocks story_advance DONE). Recording it, and any dev_memory_capture it cites, writes tracked files under .proof-or-stop/dev-memory (experience.jsonl and finish-decisions/<story>.json). isMaterialExcludedPath in core/evidence-freshness.ts excludes only the story directory and gitignored runtime artifacts, so those dev-memory files count as MATERIAL: committing them changes materialHash and storyFilesHash even though no product source changed. On story B-a745 that single commit (ddf9189cba) invalidated every reviewer pass Prompt Envelope, every mechanical verification receipt, the 3x2 cross-host quorum, the DONE-required evidence and the certification window, forcing a TEST->DEV->REVIEW->TEST bounce, four lane re-passes, three fresh host reviews, a quorum resubmission and a second DONE-required run to reach a DONE that the code had already earned. The gate therefore mandates an action that stales the evidence the same gate consumes. This story makes dev-memory records lifecycle metadata for hashing purposes (or moves them under the story/runtime exclusion), adds a regression fixture asserting that dev_memory_capture plus dev_memory_finish_decision leave materialHash and storyFilesHash unchanged, and documents the ordering in the DONE convergence guidance.",
+  "type": "bug",
+  "priority": "high",
+  "keywords": [
+    "dev-memory",
+    "material-hash",
+    "storyFilesHash",
+    "DONE",
+    "evidence-freshness",
+    "convergence"
+  ],
+  "createdAt": "2026-09-02T12:30:56.214Z"
+}
