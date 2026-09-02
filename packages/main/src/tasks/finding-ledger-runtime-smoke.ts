@@ -696,6 +696,48 @@ function runFindingProjectionRegression(root: string): void {
     .signature = 'bad-signature';
   expectAuthorityRefusal(badSignatureAuthority);
 
+  const missingSignedDigestAuthority = structuredClone(validAuthorityLedger) as typeof validAuthorityLedger & {
+    receipts: Array<Record<string, unknown>>;
+  };
+  const missingSignedDigestCarrier = missingSignedDigestAuthority.receipts.find((receipt) => (
+    (receipt.recordIds as string[]).includes(authorityTransition.recordId)
+  ))!;
+  const signedWithDigest = (missingSignedDigestCarrier as unknown as Record<string, unknown>)
+    .findingLedgerReceipt as ReturnType<typeof signFindingLedgerReceipt>;
+  const {
+    exactRequestDigest: _exactRequestDigest,
+    receiptHash: _receiptHash,
+    signature: _signature,
+    ...legacySignedPayload
+  } = signedWithDigest;
+  const resignedWithoutDigest = signFindingLedgerReceipt(
+    legacySignedPayload,
+    findingLedgerSignerFromWorkspace(root),
+  );
+  (missingSignedDigestCarrier as unknown as Record<string, unknown>).findingLedgerReceipt = resignedWithoutDigest;
+  assert.equal(
+    typeof (missingSignedDigestCarrier as unknown as Record<string, unknown>).exactRequestDigest,
+    'string',
+  );
+  assert.equal(resignedWithoutDigest.exactRequestDigest, undefined);
+  assert.equal(verifyFindingLedgerReceipt(resignedWithoutDigest, trust), true);
+  writeAuthorityCandidate(missingSignedDigestAuthority);
+  assert.equal(
+    store.readFindings(authorityStoryId).findings[0]?.status,
+    'open',
+    'a current-key signed lifecycle receipt without a signed exactRequestDigest must not receive lifecycle authority',
+  );
+  assert.equal(
+    queryFindingLedger(
+      store.readFindingLedger<JsonValue>(authorityStoryId),
+      authorityStoryId,
+      findingLedgerSignerFromWorkspace(root),
+    ).signedRows,
+    true,
+    'legacy receipt compatibility may remain available to the read-only query surface',
+  );
+  console.log('finding.lifecycle_signed_exact_request_digest: PASS missingSigned=open legacyQuery=accepted');
+
   const tamperedAuthority = structuredClone(validAuthorityLedger);
   const tamperedTransition = tamperedAuthority.records.find((record) => (
     record.recordId === authorityTransition.recordId
@@ -711,7 +753,7 @@ function runFindingProjectionRegression(root: string): void {
 
   writeAuthorityCandidate(validAuthorityLedger);
   assert.equal(store.readFindings(authorityStoryId).findings[0]?.status, 'resolved');
-  console.log('finding.lifecycle_transition_authority: PASS unsigned=open badSignature=open tampered=open signed=resolved exactCas=true');
+  console.log('finding.lifecycle_transition_authority: PASS unsigned=open badSignature=open missingSignedExactRequestDigest=open tampered=open signed=resolved exactCas=true');
   sparseProjectionRegressionCompleted = true;
   console.log('lifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none');
 }

@@ -110,8 +110,8 @@ function isTrustedFindingLifecycleTransition(
     || carrier.replayed !== false
     || typeof carrier.exactRequestDigest !== 'string'
     || !/^[0-9a-f]{64}$/.test(carrier.exactRequestDigest)
-    || (signed.exactRequestDigest !== undefined
-      && signed.exactRequestDigest !== carrier.exactRequestDigest)) return false;
+    || typeof signed.exactRequestDigest !== 'string'
+    || signed.exactRequestDigest !== carrier.exactRequestDigest) return false;
 
   const recordsBefore = ledger.records.slice(0, recordIndex);
   const recordsThrough = ledger.records.slice(0, recordIndex + 1);
