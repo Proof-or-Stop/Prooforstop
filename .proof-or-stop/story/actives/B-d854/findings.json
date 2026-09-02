@@ -601,7 +601,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:92,99 and tests/AGENTS.verify.mjs:125-136,151-155 — F-027 remains acceptance-blocking because the claimed complete authority sets still omit three existing material subclaims. A19 says dispatch is explicit, but its dispatch authority is only packages/main/src/core/agent-dispatch-registry.ts:22, a canonicalName row; it does not prove the registered dispatch command or its target-cardinality validation, which is directly stated at packages/main/src/cli/command-catalog.ts:2479 and implemented in packages/main/src/handlers/story-dispatch.ts:884. A19 says reviewer_batch is read-only, but its exact modeled pattern resolves to reviewer-batch.ts:8, which only starts the active-lanes bullet; the read-only contract is at reviewer-batch.ts:2 and the no-side-effect boundary at :32. A26 says host orchestration replaces the legacy model, but its three authorities prove body-free prompt rendering, thin registry mode, and legacy aliases only; host orchestration is explicitly documented at reviewer-batch.ts:21-26 or transition-effects.ts:267. The 12 new A19/A26 remove/replace mutations all pass, but none targets these omitted existing subclaims, so the verifier still reports complete-set GREEN without proving the full row conclusions. WHY high: exact evidence for every one of the 24+2 corrections is the Story's direct acceptance result. Add separate exact authority entries/cell citations for dispatch command validation, reviewer_batch read-only boundary, and host orchestration, then add removal/replacement mutations for each.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T02:52:49.922Z",
@@ -617,7 +617,11 @@
         "packages/main/src/handlers/transition-effects.ts"
       ],
       "signatureTag": "missing|md|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 4df805fc completes A19 dispatch command/cardinality/runtime authority, strict read-only reviewer_batch authority, and A26 host-orchestration authority. A19 now has 18 exact entries and the verifier exhaustively rejects removal and irrelevant replacement for every entry (36 mutations); A26 has 4 entries and 8 mutations.",
+      "resolvedAt": "2026-09-02T03:07:18.680Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-029",
