@@ -244,6 +244,31 @@
         "scanEscalationReason": null
       },
       "_hash": "352e055f50fcaa3c5fc7df92e91ed8ac1f56f7e08c0df90af573e0807b1ff297"
+    },
+    {
+      "id": "B-fe8f:RP-009",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round-7 re-review after commit 4b9eab2b5f (test(finding-ledger-smoke): keep the pinned installedCli selector token) at head 05e97db, story went DEV->REVIEW for evidence-refresh timing. Diff is log-message-only in assertVersionSync: the underlying assert.ok(installedVersion===expected||installedVersion===previous,...) is byte-identical to the version I already reviewed and mutation-tested last round (RP-007); only the printed line changed from `installedCli=${installedState}` back to a literal `installedCli=true` (accurate: reaching that line means the assert already held) plus a new appended `installedState=${installedState}` diagnostic token carrying the same bumped/pre-merge distinction that was previously (mis)placed in the installedCli field itself. This restores substring matching for the pinned CHK-006:happy:5 selector `...localCli=true installedCli=true` -- confirmed by direct inspection of checklist data: happy[5].verification.selector equals that exact string, and it is a literal substring of the persisted evidences receipt.outputTail (`...installedCli=true installedState=main-checkout-pending-merge`), receipt.selectorMatched=true, receipt.exitCode=0, full outputTail ends in the expected Finding ledger integrity: PASS / Runtime evidence integrity: PASS / green.story3_matrix: PASS chain. Read-only verified the coordinators claim across the whole checklist (not just CHK-006): all 71 verificationEvidence records (checklist_get, no write commands) have mechanical=true and result=pass, and all 71 share one uniform headHash=4b9eab2b5f5a70d85cb8c3307d977d26d3db37df / materialHash=7927627416dd2df0de4f9f8f9dfd65555f12a364f43a211987bb9ec62a4ae378 / storyFilesHash=e1ff6e86e4824cb5a234e1d1e44625ba57a4f149278086385ab438d799924018 -- i.e. every intent is bound to the one new material commit, none stale, none non-mechanical. Independently reran the RED pinned command live this round (unmutated, no dist changes): exit 0, 12 PASS lines. Did NOT rerun/mutate packages/main/dist in place this round per coordinator instruction; started one background full-smoke rerun for extra confirmation but killed it early on noticing a second finding-ledger-runtime-smoke.js process already running (the coordinators own background refresh) to avoid resource contention -- relied instead on the already-persisted mechanical receipt above plus the RED rerun plus direct diff/selector analysis. No blocking finding.",
+      "createdAt": "2026-09-02T12:20:51.235Z",
+      "reviewRound": "2026-09-02T12:16:39.339Z",
+      "reviewRunId": "B-fe8f:RR-022",
+      "envelopeId": "8b2e3fdd257481f707dff269a2594e6abf013257f56bfb00fc80fad51019d947",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c4328d0da346a90ad021b6a096ba5b42b8d40559fcf1163ec4bab0df545a66be"
     }
   ]
 }
