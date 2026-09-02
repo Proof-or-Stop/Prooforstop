@@ -176,7 +176,11 @@
           {
             "desc": "npm --prefix packages/graph run build succeeds and the built assets/app.html contains openStoryDossier",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run build >/dev/null 2>&1 && grep -c openStoryDossier packages/graph/assets/app.html | awk '$1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}'",
+              "selector": "BUILT_APP_HTML_HAS_DOSSIER_OK"
+            }
           },
           {
             "desc": "io/http.ts serves app.html for a /story/<id> path",
@@ -206,7 +210,30 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/graph/scripts/build-web.mjs",
+          "command": "npm --prefix packages/graph run build >/dev/null 2>&1 && grep -c openStoryDossier packages/graph/assets/app.html | awk '$1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}'",
+          "result": "pass",
+          "note": "Rebuilds the graph browser client end to end and asserts the generated assets/app.html actually contains openStoryDossier, proving dossier.js was concatenated into the built page rather than merely present as a source file.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "90561af57bc4b697c5b45eb8de334729c1a267784dcb71428c5f7abe4e7f681c",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs >/dev/null 2>&1 && grep packages/graph/assets/app.html | awk $1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}\n\nassets: app.html (486KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:39:20.872Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "db195e37c70a06305411c9b1fb24ab647f45adaf",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:39:21.033Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
