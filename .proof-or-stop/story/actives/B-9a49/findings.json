@@ -1413,6 +1413,25 @@
       "_hash": "e2ef458e45fdddfedbe38f861bc9cddd893616987f63b175ceefe10976537712",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-064",
+      "desc": "packages/main/src/core/prompt-envelope.ts:350-407,409-433,599-625 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:705-721,811-825 — HIGH: 78def3f fixes every exact F-062 and prior Round-28 probe, but the claimed structural closure still has four verified false-negative classes in production dist. (1) `rejectedAuthorityRelationCount` counts relation categories as booleans rather than relation occurrences, so compound same-category run-ons are ACCEPTED: `Reject reviewers bestow defer_with_proof agents grant defer_with_proof as an invalid authority statement.` and `Reject severity alone decides Story scope criticality controls ownership as an invalid authority statement.` (2) the bounded prohibition actionList still treats semantic double-negative/time-order authorization as prohibition: `Reviewers do not refrain from bestowing defer_with_proof on the Finding.` and `Reviewers do not delay before bestowing defer_with_proof on the Finding.` are ACCEPTED. (3) Unicode cross-segment assignment remains an enumerated coreference list: `Reviewers inspect a signed defer_with_proof disposition； then grant the inspected disposition to the Finding。` is ACCEPTED. (4) severity exclusivity remains a finite phrase inventory: `Severity is the single criterion determining Story scope.`, `Severity is enough by itself to determine Story scope.`, and `Severity is sufficient on its own to determine Story scope.` are ACCEPTED. Exact plain/backtick/NBSP/thin-space F-062 run-ons, comma/hesitate/refuse negation, this/same/repeated-disposition Unicode assignments, all previously reported severity cases, and safe atomic rejection/direct and coordinated prohibition/signed inspection/only-after-applicable/reference/CHK-003 controls behave correctly. These are direct same-contract equivalents, not unrelated prose. Exact-one must count bounded relation occurrences; prohibition and exclusivity need complete positive grammar or structural fields rather than expanding token lists again.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T13:26:19.834Z",
+      "reviewRound": "2026-09-02T13:23:13.505Z",
+      "reviewRunId": "B-9a49:RR-099",
+      "_hash": "290e6e8d5e57a95e308166e5bbf06fb11a0395ecfc0bf40cb7dc15b06ec562ac",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "task-context-same-relation-double-negation-coreference-exclusivity-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
