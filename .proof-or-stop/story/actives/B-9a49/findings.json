@@ -1232,7 +1232,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:326-359 whole-source invariant lead laundering (high): the latest grammar correctly rejects F-053 pre-outcome and F-054 sentence/semicolon tails, but its boundedLead still accepts any 96-character text after an initial compare/verify/audit/check and before the Dynamic Finding authority noun. The production dist therefore signs affirmative authority clauses placed in that lead whenever the remainder is a valid invariant: `Verify this Story adds a new applicability verdict and compare the Dynamic Finding runtime before and after this change and verify it remains unchanged.`, `Audit a new applicability verdict now authoritative while checking the Dynamic Finding runtime before and after this change and verify it remains unchanged.`, and parenthetical, relative, concessive, conditional, and Unicode-em-dash variants all returned ACCEPTED. The exact CHK-003 safe comparison and full inventory wording remain admitted, while F-053/F-054 originals and post-invariant relative/conditional tails reject. This is a residual pre-digest authority bypass: whole-source validation is syntactic only at the tail and does not prove that the lead is invariant-only. Replace the arbitrary bounded lead/bridge with an allowlisted invariant grammar or apply semantic residue rejection to the complete source, and add the actor/authoritative plus parenthetical/relative/concessive/conditional/Unicode-lead mutations without a finite verb-list shortcut.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T07:41:11.020Z",
@@ -1244,7 +1244,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1b8fdfe672fbf1d7970573bdf6be6f82f2651f33. The invariant exception now requires a pure audit/comparison lead, a frozen before-and-after/across bridge, an exact Dynamic Finding subject and invariant outcome, so actor, authoritative, parenthetical, relative, concessive, conditional, em-dash, Unicode and pre-authority residue cannot be laundered. RED reproduced the original lead attacks; GREEN production-dist reviewer matrix RR-085 rejects them while admitting exact CHK-002/CHK-003 safe forms. Full-context, registry, measurement, baseline, pre-review and rollout checks pass; 60/60 evidence is current and protected Dynamic Finding paths remain unchanged.",
+      "resolvedAt": "2026-09-02T08:13:56.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-056",
