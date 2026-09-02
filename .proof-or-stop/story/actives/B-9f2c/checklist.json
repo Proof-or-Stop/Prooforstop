@@ -91,7 +91,45 @@
       "userSees": "proof-or-stop graph --story=B-9999 --no-open exits non-zero printing 'graph: B-9999 is not a story in this repository', while --story on a real id prints 'graph serving http://localhost:8731/story/<id>'",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "graph --story=<real id> reports and opens the /story/<id> URL rather than /",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the story field is registered on the graph command schema as an optional string",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "graph with no --story still reports the plain / URL, byte-for-byte unchanged from before this story",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "a story id needing URL escaping is encoded in the opened URL rather than injected raw",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "an unknown --story id is refused before the server starts listening, so no port is bound",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the validation cannot be bypassed by calling the handler directly with an argument object that never passed through the Zod schema",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
