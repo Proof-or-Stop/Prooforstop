@@ -826,7 +826,7 @@
       "desc": "Durable audit overclaims a global semantic-role completeness guarantee that the verifier does not enforce. docs/audits/AGENTS-current-version-audit.md:91-94 says composite behavioral claims require complete producer-to-consumer or guard/branch chains and definition-only citations cannot satisfy those rows. In tests/AGENTS.verify.mjs, authority() defaults every unannotated entry to role=support (:99), REQUIRED_AUTHORITY_ROLES contains only A05/A10/A12/A13/A14 (:265-271), and validateAuthorityRoleCompleteness iterates only that map (:273-281). Consequently composite rows A18, A19, A20, A21, A22, A24, A25, and A26 have no enforced semantic role chain; changing all their entry roles to definition/support does not enter the completeness check. The sole definition-only mutation targets A05 (:349-360), and executable source mutations cover only five rows (:326-346). Current source citations may resolve, but the claimed false-green defense is not established for the broader composite set. Fix by either narrowing the audit claim explicitly to the five protected rows, or assign and enforce required semantic roles for every composite behavioral row and add representative definition-only/source mutations across that set.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T08:50:57.644Z",
@@ -838,7 +838,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "missing|md|durable-audit-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fc98ed3 replaces the five-row role union with 40 named subclaim chains across all 13 composite rows A05, A10, A12, A13, A14, A18, A19, A20, A21, A22, A24, A25, and A26. It binds 86 role entries and individually deletes or inverts 66 executable endpoints; all 66 mutations are rejected. Audit wording now matches this exact guarantee.",
+      "resolvedAt": "2026-09-02T09:23:38.920Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-038",
