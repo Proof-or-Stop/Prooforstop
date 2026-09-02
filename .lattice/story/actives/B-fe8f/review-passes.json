@@ -1,0 +1,45 @@
+{
+  "passes": [
+    {
+      "id": "B-fe8f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review found no blocker. The Story adds ledger/runtime primitives without deleting a live concept; repository residue scans found no retired @lattice/lab reference in package/script/bin surfaces. F-015 is closed by kernel-held directory-relative open/rename/read and the complete smoke proved the post-check logical-path replacement creates zero outside writes. F-016 is closed by current-key signature verification plus exact operation/carrier/record/chain/CAS/source bindings; unsigned, bad-signature and payload-changed candidates remain open while the exact signed transition resolves. Build, full Story 3 smoke, process-fact contract and diff check pass.",
+      "createdAt": "2026-09-02T01:02:02.453Z",
+      "reviewRound": "2026-09-02T00:54:51.339Z",
+      "reviewRunId": "B-fe8f:RR-013",
+      "envelopeId": "81d07186989689e4d1d0054cb0e6f475b5ff674e4757b7e8506ec7bf48883513",
+      "writerSessionId": "sess-5102ad1b3560d0df84ba703ef1394e20",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7797778702baea0c3f82d82252d62947856fe15aee37f9337ed95f39e577a5fd"
+    }
+  ]
+}
