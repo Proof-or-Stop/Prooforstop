@@ -181,6 +181,24 @@
       ],
       "signatureTag": "adversarial|md|adversarial-lacks-valid",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-011",
+      "desc": "CHK-003:edge:1 is only partially covered. The evidence records the local invocation string and version plus the global invoked path, version, and canonical realpath, but it computes `fs.realpathSync` only for `/opt/homebrew/bin/proof-or-stop`; it never records the canonical resolved realpath for the repository-local `node bin/proof-or-stop.js` authority even though the intent explicitly requires invoked path and canonical realpath for each runtime. Add the local canonical path/realpath to a fresh mechanical receipt. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T00:29:49.491Z",
+      "reviewRound": "2026-09-02T00:20:22.610Z",
+      "reviewRunId": "B-d854:RR-004",
+      "_hash": "6970746d0a78e4c6804ca910ffcc56a60159442b688f8547aba682818617f5b2",
+      "files": [
+        "AGENTS.md"
+      ],
+      "signatureTag": "missing|md|edge-partially-covered",
+      "signatureTagSource": "auto"
     }
   ]
 }
