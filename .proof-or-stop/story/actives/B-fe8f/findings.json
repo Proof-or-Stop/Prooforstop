@@ -451,7 +451,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5266 (commit dd45caa2ea) adds an unconditional process.stderr.write dumping raw dynamicBindingBuildFiles Map entries (filtered for finding|runtime-evidence|artifact-store) plus repoUnique/repoDuplicates arrays, immediately before assertTypeProgramInstrumentation(). It is not gated behind a verbose/debug flag and is not part of the pinned success-selector contract on line 5276 (a separate stdout write) -- this reads as leftover ad-hoc calibration output the author used while deriving the new DYNAMIC_BINDING_BUILD_CEILING=811 value, still present after the ceiling bump landed. Every future run of this smoke, including full validate, will permanently emit this diagnostic noise to stderr. Note: an earlier finding_add attempt for this exact issue (2026-09-02T14:49:12.770Z) was auto-normalized into review-pass B-fe8f:RP-011 solely because that draft happened to contain the literal token PASS (a framework flow-fact-policy artifact, unrelated to this story); this call rephrases to file it correctly as an open finding.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T14:50:24.244Z",
@@ -476,7 +476,11 @@
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto",
       "recordId": "lr_mtk7qp2t_tai_7504428d3f85469f91ca0a00c4cd1c2b",
-      "ledgerCommitReceiptId": "lrc_mtk7qp2t_tai_989452ed14104784b7937776b5ef062d"
+      "ledgerCommitReceiptId": "lrc_mtk7qp2t_tai_989452ed14104784b7937776b5ef062d",
+      "resolvedAt": "2026-09-02T14:52:50.404Z",
+      "resolvedReason": "Fixed by commit 7827dae774 (test: correct B-fe8f binding budget rationale), which removes the unconditional process.stderr.write calibration dump from retired-authority-vocabulary-guard-smoke.ts and replaces the ceiling comment with the corrected rationale (five Story-owned sources, two spare slots absorbed, 808 -> 811). Verified: grep for repoDuplicates in the current source returns no match, and the guard still prints only its stdout PASS selector line.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
