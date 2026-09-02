@@ -44,10 +44,26 @@
       "phase": "REVIEW",
       "headHash": "5c9a1b11cbd5d556dc6c730f4ec4c0ba8cdb14f6",
       "materialHash": "b863d9373a6e379c7a26d2ecb2557d1a9f0ffc5a84def95cf3cc9930c7ed1ef5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Not scope creep: this story's own CHK-005 work created the obligation, and leaving it unmet ships a repository whose entire root test suite aborts. CHK-005 added test:graph-story-flag-smoke to package.json's test:serial-reference, but RESOURCE_POLICY in full-suite-runner.ts is a THIRD membership authority beyond test:serial-reference and lattice.config.json's validate.commands. entriesFromSerialReference fails CLOSED on any serial-reference member lacking a policy entry, so the omission aborted the whole suite with 'canonical inventory mismatch unknownPolicy=[test:graph-story-flag-smoke]' rather than merely skipping the member; npm test exited 1 in 858ms, which is what blocked done_required_validate. The file's own comments record two prior stories (B-cdf6, B-49ed) hitting this identical trap and state the policy entry is mandatory, not optional. The entry added is the plain repoRead policy, which matches those precedents and is correct on the merits: the task only reads the repo and spawns the CLI against temporary directories, binds no port and holds no lock -- it asserts the opposite, that an unknown --story id is refused BEFORE any listener is created. Verified after the change: npm test now proceeds past inventory validation and executes the suite.",
+      "timestamp": "2026-09-02T14:22:05.719Z",
+      "paths": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f4e9acdd21358f4e613c7164d28db1f003273a0c",
+      "materialHash": "d014fc0f24fe31a94afa783c8c164bb0e59657a7f020212f6287c0f68789f26d"
     }
   ],
   "createdAt": "2026-09-02T08:28:24.942Z",
-  "updatedAt": "2026-09-02T10:26:37.389Z",
+  "updatedAt": "2026-09-02T14:22:05.719Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -67,6 +83,7 @@
     "packages/graph/assets": "packages/graph/assets",
     "packages/graph/dist": "packages/graph/dist",
     "packages/main/dist": "packages/main/dist",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts"
   }
 }
