@@ -1533,7 +1533,7 @@ const DELEGATION_EXEMPT_CALLEES: ReadonlySet<string> = new Set(['resolveStoryWor
  */
 function contextNames(code: string): Set<string> {
   const names = new Set<string>(['ctx']);
-  const re = /([\w$]+)\s*:\s*HandlerContext(?:\[\s*(?:'store')\s*\])?(?![\w$<\[])/g;
+  const re = /([\w$]+)\s*:\s*HandlerContext(?:\[\s*(?:'store'|"store")\s*\])?(?![\w$<\[])/g;
   for (let match = re.exec(code); match; match = re.exec(code)) names.add(match[1]!);
   return names;
 }
