@@ -2173,7 +2173,7 @@ testCase('a plan render and a stop render differ on the documented status discri
   // the discriminator.
   assert.ok(shared.includes('finalAuthority: no'), 'finalAuthority: no must keep printing on every branch');
   assert.ok(
-    !Object.values(VALIDATION_PLAN_STATUS_LINES).includes('finalAuthority: no'),
+    !(Object.values(VALIDATION_PLAN_STATUS_LINES) as readonly string[]).includes('finalAuthority: no'),
     'finalAuthority: no is not, and must never become, the status discriminator',
   );
 });

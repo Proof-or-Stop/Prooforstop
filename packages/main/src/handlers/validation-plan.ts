@@ -376,6 +376,92 @@ export function buildValidationPlanReport(args: {
   };
 }
 
+// ---------------------------------------------------------------------------
+// The status discriminator (B-a745 F-002).
+// ---------------------------------------------------------------------------
+
+/**
+ * THE line a machine selector must key on to tell a produced plan from a
+ * refusal. One line per outcome, stable, greppable, and mutually exclusive.
+ *
+ * Why this table exists at all: `finalAuthority: no` is printed on EVERY branch
+ * and that is correct — a stop is not final authority either — but it therefore
+ * discriminates NOTHING. A recorded receipt for this Story's own flagship claim
+ * pinned exactly that string as its selector, so the selector matched while the
+ * command was stopping with `selected: 0 of 0`, and the evidence was stamped
+ * `result: pass` with the failing output sitting in its own `outputTail`.
+ *
+ * The remedy is not to drop `finalAuthority: no`; it is to guarantee that a
+ * DISCRIMINATING line always exists and that nothing shared between two
+ * different outcomes' renders can be mistaken for one. Pin `status: plan` (or
+ * `status: stop`) to assert an outcome; never pin a line this module prints
+ * unconditionally.
+ */
+export const VALIDATION_PLAN_STATUS_LINES = {
+  plan: 'status: plan',
+  stop: 'status: stop',
+  'no-tier-pass': 'status: no-tier-pass',
+} as const satisfies Record<ValidationTierPlanResult['status'], string>;
+
+/**
+ * Line prefixes whose VALUE depends on the outcome. No line starting with one of
+ * these may ever be byte-identical across two different outcomes' renders — the
+ * fixture enforces that by intersecting a plan render with a stop render. Adding
+ * a new outcome-bearing line means adding its prefix here, deliberately.
+ */
+export const VALIDATION_PLAN_OUTCOME_BEARING_LINE_PREFIXES = [
+  'status:',
+  'effectiveTier:',
+  'executionMode:',
+  'selected:',
+  'tierSelection ',
+] as const;
+
+/**
+ * Runtime re-validation at the render boundary, per the Handler encoding
+ * convention. It binds the status WORD to the facts that make it true, so a
+ * report carrying refusal-shaped facts cannot render `status: plan`:
+ *
+ *   status === 'plan'  <=>  an effective tier, an execution mode, tier
+ *                           selections and a non-empty selection all exist.
+ *
+ * The equivalence is checked in BOTH directions. Without the reverse direction a
+ * future edit could quietly produce a `stop` that still carried a selection, and
+ * the discriminator would stop meaning what a reader assumes it means.
+ */
+export function assertValidationPlanStatusInvariant(report: ValidationPlanReport): string {
+  const statusLine = VALIDATION_PLAN_STATUS_LINES[report.status];
+  if (!statusLine) {
+    throw new Error(
+      `validation_plan: unknown result status ${JSON.stringify(report.status)} ` +
+      `(expected one of ${Object.keys(VALIDATION_PLAN_STATUS_LINES).join(', ')})`,
+    );
+  }
+  const planShaped =
+    report.effectiveTier !== null &&
+    report.executionMode !== null &&
+    report.tierSelections !== null &&
+    report.counts.total > 0 &&
+    report.counts.selected > 0;
+  if (report.status === 'plan' && !planShaped) {
+    throw new Error(
+      'validation_plan: a report rendering "status: plan" must carry an effective tier, an execution mode, ' +
+      'tier selections and a non-empty selection; this one does not, so it would render a plan discriminator ' +
+      'for a result that planned nothing',
+    );
+  }
+  if (report.status !== 'plan' && planShaped) {
+    throw new Error(
+      `validation_plan: a ${report.status} result may not carry plan-shaped facts (effective tier, execution ` +
+      'mode and a non-empty selection); "status: plan" is the only line that may assert those',
+    );
+  }
+  if (report.status !== 'plan' && (report.counts.selected !== 0 || report.units.length !== 0)) {
+    throw new Error(`validation_plan: a ${report.status} result selects nothing at all and lists no unit`);
+  }
+  return statusLine;
+}
+
 function formatMs(ms: number): string {
   return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms}ms`;
 }
@@ -384,10 +470,15 @@ function formatMs(ms: number): string {
 const UNIT_PREVIEW_LIMIT = 5;
 
 export function renderValidationPlanText(report: ValidationPlanReport, explain: boolean): string {
+  // Refuse before printing: a report whose status word contradicts its own facts
+  // must never reach an operator or a selector.
+  const statusLine = assertValidationPlanStatusInvariant(report);
   const lines: string[] = [];
   lines.push(`validation_plan: ${report.storyId}`);
   lines.push(`storyPhase: ${report.storyPhase}`);
-  lines.push(`status: ${report.status}`);
+  // THE discriminator. Read from the table so the printed text and the value a
+  // selector is told to pin cannot drift apart.
+  lines.push(statusLine);
   lines.push(`requestedTier: ${report.requestedTier} (requested as "${report.requestedTierInput}")`);
   if (report.effectiveTier) lines.push(`effectiveTier: ${report.effectiveTier}`);
   lines.push(`sourceKind: ${report.sourceKind}`);
@@ -399,6 +490,9 @@ export function renderValidationPlanText(report: ValidationPlanReport, explain: 
     }
   }
   lines.push(`reductionApplied: ${report.reductionApplied}`);
+  // Printed on EVERY branch on purpose, and therefore NOT a discriminator: see
+  // VALIDATION_PLAN_STATUS_LINES. Pinning this line proves only that the command
+  // ran, never that it produced a plan.
   lines.push('finalAuthority: no');
   lines.push(
     '  This is explain-only planning output. It is not evidence that anything passed, and a fast or ' +
