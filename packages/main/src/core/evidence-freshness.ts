@@ -311,7 +311,12 @@ export function classifyEvidenceFreshness(
   evidenceHash?: string,
 ): EvidenceFreshnessClassification {
   if (!evidenceHash) return 'LEGACY_UNBOUND';
-  if (/Unable to get git HEAD/i.test(freshness.reason)) return 'RUNTIME_UNAVAILABLE';
+  // B-83aa CHK-001: the unreadable-HEAD / underivable-materialHash branches of
+  // checkEvidenceFreshnessForGit now FAIL CLOSED (fresh=false) but are still a
+  // runtime-unavailable condition, not a material comparison — keep them on the
+  // RUNTIME_UNAVAILABLE projection so incremental eligibility forces a full run
+  // for the same reason it did before the fail-closed change.
+  if (/Unable to get git HEAD|\(fail closed\)/i.test(freshness.reason)) return 'RUNTIME_UNAVAILABLE';
   if (!freshness.fresh) {
     return freshness.materialFiles.includes('<story-files-changed>')
       ? 'RELATED_STORY_MATERIAL_DRIFT'
@@ -493,6 +498,83 @@ export function tryCaptureEvidenceHashSnapshot(args: EvidenceHashSnapshotCapture
     return undefined;
   }
 }
+
+// B-83aa CHK-001: shared missing-digest classifier for evidence hash snapshots.
+//
+// captureEvidenceHashSnapshot NEVER throws on a git or hash failure: headHash /
+// materialHash / storyFilesHash are each optional and are simply OMITTED, and
+// tryCaptureEvidenceHashSnapshot only turns a *thrown* error into undefined. An
+// unborn repository (git init, zero commits) or a repository with no `main` ref
+// therefore yields a RETURNED snapshot that binds nothing. Every lifecycle-gate
+// consumer that reads a snapshot must classify it here instead of treating
+// thrown-vs-returned as the only distinction. Omitted keys, empty strings,
+// whitespace-only strings and `null` all count as missing — never as present.
+export type EvidenceHashSnapshotDigestKey = 'headHash' | 'materialHash' | 'storyFilesHash';
+
+export const EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS: readonly EvidenceHashSnapshotDigestKey[] = [
+  'headHash',
+  'materialHash',
+  'storyFilesHash',
+];
+
+/** Upper bound (chars) of the single-line classifier detail. */
+export const EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS = 300;
+
+export interface EvidenceHashSnapshotClassification {
+  /** true when every required digest is present. */
+  complete: boolean;
+  /** Required digests that are absent, in canonical key order. */
+  missing: EvidenceHashSnapshotDigestKey[];
+  /** One line, <= EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS chars, names every missing digest. */
+  detail: string;
+}
+
+/** Any object exposing the three digest keys (a full snapshot, a partial fixture, or nothing). */
+export type EvidenceHashSnapshotLike =
+  | { readonly [K in EvidenceHashSnapshotDigestKey]?: string | null | undefined }
+  | null
+  | undefined;
+
+function evidenceDigestPresent(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function boundEvidenceHashSnapshotDetail(detail: string): string {
+  const oneLine = detail.replace(/\s*[\r\n]+\s*/g, ' ').trim();
+  if (oneLine.length <= EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS) return oneLine;
+  return `${oneLine.slice(0, EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS - 3)}...`;
+}
+
+export function classifyEvidenceHashSnapshot(
+  snapshot: EvidenceHashSnapshotLike,
+  required: readonly EvidenceHashSnapshotDigestKey[] = EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
+): EvidenceHashSnapshotClassification {
+  const scope = EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS.filter((key) => required.includes(key));
+  const missing = scope.filter((key) => !evidenceDigestPresent(snapshot?.[key]));
+  const present = scope.filter((key) => !missing.includes(key));
+  if (missing.length === 0) {
+    return {
+      complete: true,
+      missing,
+      detail: boundEvidenceHashSnapshotDetail(`evidence hash snapshot complete: ${present.join(', ')} present`),
+    };
+  }
+  const cause = snapshot
+    ? 'could not be derived from the current git state'
+    : 'no snapshot was captured';
+  return {
+    complete: false,
+    missing,
+    detail: boundEvidenceHashSnapshotDetail(
+      `evidence hash snapshot is partial: ${missing.join(', ')} unavailable (${cause}); the binding cannot vouch for the missing digest${missing.length === 1 ? '' : 's'}`
+      + (present.length > 0 ? `; present: ${present.join(', ')}` : ''),
+    ),
+  };
+}
+
+/** Reason emitted by checkEvidenceFreshnessForGit when the current git HEAD cannot be read. */
+export const EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON =
+  'current git HEAD is unreadable; the evidence binding cannot be verified (fail closed)';
 
 export function checkEvidenceHashSnapshotReuse(
   snapshot: EvidenceHashSnapshot | undefined,
@@ -860,10 +942,14 @@ export function checkEvidenceFreshnessForGit(
 
   const asOf = asOfRef.trim() || 'HEAD';
   const currentHead = asOf === 'HEAD' ? currentGitHead(gitCwd) : gitCommitAtRef(gitCwd, asOf);
-  if (!currentHead) {
+  // B-83aa CHK-001 (fail closed): the evidence carries a headHash binding, so an
+  // unreadable current HEAD means the binding CANNOT be verified. Previously this
+  // returned fresh=true ("skipping freshness check"), which let an unborn or
+  // unreadable repository pass every consumer as if it held a verified binding.
+  if (!currentHead || !classifyEvidenceHashSnapshot({ headHash: currentHead }, ['headHash']).complete) {
     return {
-      fresh: true,
-      reason: 'Unable to get git HEAD, skipping freshness check',
+      fresh: false,
+      reason: EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON,
       changedFiles: [],
       materialFiles: [],
     };
@@ -871,6 +957,20 @@ export function checkEvidenceFreshnessForGit(
 
   if (evidenceMaterialHash) {
     const materialHash = currentMaterialHash(gitCwd, currentHead, metadataRoot);
+    // B-83aa CHK-001 (fail closed): the evidence carries a materialHash binding
+    // but the current material digest cannot be derived (git ls-tree failure /
+    // unreadable ref). Previously this silently fell through to the weaker head
+    // comparison; now it fails closed and names the material digest.
+    const materialBinding = classifyEvidenceHashSnapshot({ headHash: currentHead, materialHash }, ['materialHash']);
+    if (!materialBinding.complete) {
+      return {
+        fresh: false,
+        reason: `current materialHash could not be derived at HEAD ${currentHead.slice(0, 7)}; the evidence materialHash binding cannot be verified (fail closed): ${materialBinding.detail}`,
+        currentHead,
+        changedFiles: [],
+        materialFiles: [],
+      };
+    }
     if (materialHash) {
       if (materialHash === evidenceMaterialHash) {
         return {

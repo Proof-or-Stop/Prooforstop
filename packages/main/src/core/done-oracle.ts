@@ -39,6 +39,7 @@ import {
   captureEvidenceHashSnapshot,
   checkEvidenceFreshnessForGit,
   checkEvidenceHashSnapshotReuse,
+  classifyEvidenceHashSnapshot,
   currentMaterialHash,
   type EvidenceHashSnapshot,
 } from './evidence-freshness.js';
@@ -337,6 +338,34 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     : captureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
   const currentBindingMaterialHash = completedSnapshot?.materialHash ?? currentBinding.materialHash;
   const currentBindingStoryFilesHash = completedSnapshot?.storyFilesHash ?? currentBinding.storyFilesHash;
+
+  // 0. B-83aa CHK-001: classify the current binding ONCE. captureEvidenceHashSnapshot
+  //    never throws — a digest it cannot derive is simply omitted — so an unborn
+  //    HEAD or an unreadable tree yields a snapshot that binds nothing. A missing
+  //    headHash / materialHash FAILS CLOSED here with one explicit blocking row; a
+  //    missing storyFilesHash (no main / origin/main merge-base) is disclosed as a
+  //    non-blocking warn because every downstream consumer (escalation, floor,
+  //    delivery check) already falls back to strict materialHash for it. Complete
+  //    snapshots push no row, so the rendered checklist stays byte-identical.
+  const bindingClassification = classifyEvidenceHashSnapshot({
+    headHash: currentBinding.headHash,
+    materialHash: currentBindingMaterialHash,
+    storyFilesHash: currentBindingStoryFilesHash,
+  });
+  if (!bindingClassification.complete) {
+    const bindingBlocking = bindingClassification.missing.some((key) => key !== 'storyFilesHash');
+    rows.push(doneCheckRow({
+      id: 'evidence-hash-snapshot',
+      status: bindingBlocking ? 'fail' : 'warn',
+      label: 'Evidence hash snapshot',
+      detail: bindingClassification.detail,
+      hint: bindingBlocking
+        ? 'the current git HEAD / material tree must be readable from the story worktree (fail closed); repair the git state (unborn HEAD, unreadable ref or tree) and rerun'
+        : 'storyFilesHash is unavailable (no main / origin/main merge-base); DONE consumers fall back to strict materialHash',
+      source: 'captureEvidenceHashSnapshot',
+      blocking: bindingBlocking,
+    }));
+  }
 
   // Resolve workflow policy for policy-aware gates
   const config = loadConfig(root);
