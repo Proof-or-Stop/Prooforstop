@@ -13846,6 +13846,47 @@
         "scanEscalationReason": null
       },
       "_hash": "b6db729dd3b120202bc01392243915038f6e572fbfd3be2f41a22773a3a2208b"
+    },
+    {
+      "id": "B-5a15:RP-293",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic for epoch B-5a15:RI-066 wave 1 at frozen cutoff 9009f784e0/119929430a. Independently recomputed the raw finding set from the predicate at review-inventory-epoch.ts:363-372 (evidenceForRun plus isEligibleBaselineFinding): 6 candidate runs above sequence boundary 874, all matching the cutoff materialHash and storyFilesHash, yielding ZERO raw findings; waves=[] and signed baselineFindingIds=[] contribute none. Confirmed F-351/F-355 and the four AT_UNMAPPED findings F-158/F-185/F-188/F-203 all fail the predicate on materialHash mismatch against the cutoff, so listing any would be rejected at review-inventory-epoch.ts:411. Coverage audit: computed the frozen non-story material diff (41 files via git diff --name-status -M main...829ed82a6b) and intersected it with the union of the three bound lane manifests RP-289/RP-290/RP-291; all 41 files are covered (10 read fully, 38 triaged, ZERO absent from every manifest). Verified the concept lane substantive claim by running scripts/verify-process-fact-contract.mjs directly without a pipe: exit 0 and 'Process fact contract verified', confirming registry lockstep held after the AST repin that F-353/F-358 flagged. Probed the largest triage-only region, the new 1498-line core/causal-evidence.ts, against the fully-read causal-evidence.test.mjs: the gate-consumed signing predicates verifyCausalEvidenceReceipt, computeCausalReceiptHash, verifyCausalPreflight, verifyCausalDependencyDecision, evaluateCausalDependencies and createCausalExecutionKey are all exercised there, so the triage is substantively backed rather than nominal. Found four exported symbols with zero test and zero production consumers (verifyCausalEvidenceLedger, causalExecutionIdentityMatchesCurrent, redactEnvironment, hasCausalDependencyDecisionIdentityBinding), established by per-path quoted-glob grep with a firing positive control after an unquoted --include glob aborted at exit 0; this is not a new unreviewed region because hasCausalDependencyDecisionIdentityBinding is already the named AT_UNMAPPED_SCOPE_REF tracked by open pre-epoch findings F-158/F-185/F-188/F-203 and the residue class is covered by resolved F-360, all DEV-only. No material region or risk went unreviewed and no new finding is warranted.",
+      "createdAt": "2026-09-02T14:11:29.382Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-882",
+      "envelopeId": "bba76539b665d4fcb343c8188d52c30ab0e627d03bf667e87aeecc95cc82e948",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "10ef31b8573b99f11628efce4275587114cb94e4b2aea5c83df46d7845224801"
     }
   ]
 }
