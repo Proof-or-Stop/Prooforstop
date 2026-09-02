@@ -754,6 +754,19 @@ const everyReviewerUnsafeAuthorityRepresentatives = [
   'Severity is the decisive factor. It always determines Story scope.',
   'Severity is the decisive factor. The audit trail is preserved. It determines Story scope.',
   'Reviewers inspect a signed defer_with_proof disposition. It is not stale and grant the reviewed artifact to the Finding.',
+  'Reviewers inspect a signed defer_with_proof disposition. Record the audit result. Preserve the verification evidence. Log the check output. Then grant it to the Finding.',
+  'Severity is the decisive factor. Record the audit result. Preserve the verification evidence. Log the check output. It determines Story scope.',
+  'Severity determines Story scope and no competing factor matters.',
+  'Severity determines Story ownership without considering any alternative input.',
+  'Unknown applicability permits transferring the Finding to another Story.',
+  'Uncertain applicability authorizes postponing the Finding beyond the current Story.',
+  'A dismissed Finding conclusively establishes exclusion from the current Story.',
+  'defer_with_proof is equivalent to nonownership by this Story.',
+  'Story scope rests wholly upon severity.',
+  'Story ownership is based just on criticality.',
+  'Story responsibility proceeds exclusively according to the risk rating.',
+  'Unresolved applicability warrants sending the issue elsewhere without an owner.',
+  'A finding_dismiss receipt demonstrates that the issue lies beyond this Story.',
 ] as const;
 const everyReviewerSafeAuthorityRepresentatives = [
   'Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.',
@@ -762,6 +775,13 @@ const everyReviewerSafeAuthorityRepresentatives = [
   'Reviewers may inspect a signed defer_with_proof disposition but cannot mint, sign, or supply it.',
   'Reviewers must not bestow defer_with_proof on the Finding.',
   'Reviewers inspect a signed defer_with_proof disposition. The audit trail is preserved. It does not bind the Finding.',
+  'Reviewers inspect a signed defer_with_proof disposition. Record the audit result. Preserve the verification evidence. Log the check output. Then it does not bind the Finding.',
+  'Severity is the decisive factor. Record the audit result. Preserve the verification evidence. Log the check output. It does not determine Story scope.',
+  'Story scope does not rest wholly upon severity.',
+  'Unknown applicability does not permit transferring the Finding to another Story.',
+  'A dismissed Finding does not establish exclusion from the current Story.',
+  'defer_with_proof is not evidence of nonownership by this Story.',
+  'Reject `Unknown applicability permits transferring the Finding to another Story` as an invalid authority statement.',
 ] as const;
 
 const unsafeTaskContextAuthorityStatements = [

@@ -323,14 +323,14 @@ function controlledConceptPairIsExplicitlyNegative(
 
 function hasDismissalApplicabilityAssertion(text: string): boolean {
   const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed|(?:closed|dismissed|archived)\s+finding|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|archiv(?:e|es|ed|ing)(?:\s+the)?\s+finding|closing|close\s+the\s+finding)\b/u;
-  const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|the|current)\s+)?story\s+boundary|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
+  const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story\s+boundary|(?:lies?|is|sits?)\s+beyond\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story|exclusion\s+from\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story|nonownership\s+by\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
   return hasConceptPair(text, dismissal, applicabilityOutcome, 220)
     && !controlledConceptPairIsExplicitlyNegative(text, dismissal, applicabilityOutcome, 220);
 }
 
 function hasUnknownApplicabilityRoutingAssertion(text: string): boolean {
   const unknownApplicability = /\b(?:(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)\s+applicability|applicability\s+(?:is|remains|stays)?\s*(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)|applicability\s+(?:is|remains|stays|has)?\s*(?:not\s+yet|not\s+been)\s+(?:known|determined|assessed|evaluated))\b/u;
-  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|defer\s+with\s+proof|non\s+blocking|advisory|away\s+from\s+(?:this|the|current|the\s+current)\s+story|leave(?:s|ing)?\s+(?:(?:this|the|current|the\s+current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|(?:removal|clearance)\s+of\s+(?:the\s+)?(?:review\s+)?blocker|(?:review\s+)?gate\s+relief|unblock(?:s|ed)?)\b/u;
+  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|defer\s+with\s+proof|non\s+blocking|advisory|away\s+from\s+(?:this|the|current|the\s+current)\s+story|leave(?:s|ing)?\s+(?:(?:this|the|current|the\s+current)\s+)?story|(?:finding|issue|defect|work)\s+(?:to|into|beyond)\s+(?:(?:another|this|current|the(?:\s+current)?)\s+)?story|(?:finding|issue|defect|work)\s+elsewhere|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|(?:removal|clearance)\s+of\s+(?:the\s+)?(?:review\s+)?blocker|(?:review\s+)?gate\s+relief|unblock(?:s|ed)?)\b/u;
   return hasConceptPair(text, unknownApplicability, routingOrGateRelief, 220)
     && !controlledConceptPairIsExplicitlyNegative(text, unknownApplicability, routingOrGateRelief, 220);
 }
@@ -383,10 +383,10 @@ function rejectedAuthorityRelationCount(claim: string): number {
   const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
   const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
   const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed|(?:closed|dismissed|archived)\s+finding|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|archiv(?:e|es|ed|ing)(?:\s+the)?\s+finding|closing|close\s+the\s+finding)\b/u;
-  const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|the|current)\s+)?story\s+boundary|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
+  const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story\s+boundary|(?:lies?|is|sits?)\s+beyond\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story|exclusion\s+from\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story|nonownership\s+by\s+(?:(?:this|current|the(?:\s+current)?)\s+)?story|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
   const unknownApplicability = /\b(?:(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)\s+applicability|applicability\s+(?:is|remains|stays)?\s*(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved))\b/u;
-  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|non\s+blocking|advisory|away\s+from\s+(?:this|the|current)\s+story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|unblock(?:s|ed)?)\b/u;
-  const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
+  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|non\s+blocking|advisory|away\s+from\s+(?:this|the|current)\s+story|(?:finding|issue|defect|work)\s+(?:to|into|beyond)\s+(?:(?:another|this|current|the(?:\s+current)?)\s+)?story|(?:finding|issue|defect|work)\s+elsewhere|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|unblock(?:s|ed)?)\b/u;
+  const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|nonownership\s+by\s+(?:(?:this|the|current)\s+)?story|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
   const storyAuthoredChange = /\b(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b/u;
   const relations: Array<[RegExp, RegExp]> = [
     [reviewerActor, deferral],
@@ -425,11 +425,11 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
   const inspection = /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u;
   for (let index = 0; index < segments.length - 1; index += 1) {
     if (!inspection.test(segments[index])) continue;
-    // A short evidentiary aside must not break the antecedent. Inspect a
-    // bounded three-segment continuation window and keep polarity attached to
-    // the actual coreferent assignment segment.
+    // Evidence-only asides do not discharge the controlled antecedent. Scan
+    // the remaining source so a longer list of audit/reporting sentences
+    // cannot launder a later coreferent assignment.
     for (let continuationIndex = index + 1;
-      continuationIndex < Math.min(segments.length, index + 4);
+      continuationIndex < segments.length;
       continuationIndex += 1) {
       const continuation = segments[continuationIndex];
       const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt)|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
@@ -498,9 +498,9 @@ function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean 
   );
   if (splitAuthority.test(flattened)) return true;
 
-  // Preserve the same bounded antecedent window as disposition coreference:
-  // one or two short intervening evidence clauses cannot erase the definite
-  // severity-authority subject before its pronoun/noun continuation.
+  // Evidence-only asides do not discharge the definite severity-authority
+  // antecedent. Scan the remaining source so adding more reporting sentences
+  // cannot make a later pronoun continuation authoritative.
   const antecedent = new RegExp(
     `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s*$`,
     'u',
@@ -510,7 +510,7 @@ function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean 
     'u',
   );
   return segments.some((segment, index) => antecedent.test(segment)
-    && segments.slice(index + 1, index + 4).some(candidate => continuation.test(candidate)));
+    && segments.slice(index + 1).some(candidate => continuation.test(candidate)));
 }
 
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
@@ -661,7 +661,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       || isApprovedIndependentAxesInvariant(segment)) continue;
 
     const deferral = /\b(?:defer\s+with\s+proof|finding\s+deferral\s+disposition|deferral(?!\s+lineage))\b/u;
-    const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
+    const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|nonownership\s+by\s+(?:(?:this|the|current)\s+)?story|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
     if (hasConceptPair(segment, deferral, collapsedOutcome)
       && !controlledConceptPairIsExplicitlyNegative(segment, deferral, collapsedOutcome)) {
       return 'disposition collapsed into applicability';
@@ -681,7 +681,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     }
 
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
-    const soleAuthority = /\b(?:alone|solely|only|entirely|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|decisive\s+factor|determinative\s+control|sufficient\s+by\s+itself|enough\s+by\s+itself|sufficient\s+on\s+its\s+own|by\s+itself|on\s+its\s+own|sole\s+criterion|single\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|entirely|wholly|just|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|decisive\s+factor|determinative\s+control|sufficient\s+by\s+itself|enough\s+by\s+itself|sufficient\s+on\s+its\s+own|by\s+itself|on\s+its\s+own|sole\s+criterion|single\s+criterion|nothing\s+except|no\s+(?:other|competing|alternative)\s+(?:factor|criterion|basis|input|consideration)|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     // Reject the authority relation by grammar as well as by individual
     // exclusivity markers. A definite singular decision input ("the ...
@@ -710,13 +710,16 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
           ? (qualifier === 'no other factor'
               ? /^(?:and)?$/u.test(bridge)
               : /^(?:(?:is|are|was|were|be|being|remains?|becomes?)(?:\s+the)?|has|have|had)?$/u.test(bridge))
-          : /^(?:by|from|of|on)(?:\s+the)?$|^$/u.test(bridge);
+          : /^(?:by|from|of|on|upon|according\s+to)(?:\s+the)?$|^$/u.test(bridge);
       });
     });
     const severityResponsibilityPair = hasConceptPair(segment, severity, storyResponsibility);
+    const excludesAlternativeBasis = /\b(?:no\s+(?:competing|alternative|other)\s+(?:factor|criterion|basis|input|consideration)|without\s+(?:considering|regard(?:ing)?|accounting\s+for)\s+(?:any\s+)?(?:competing|alternative|other)\s+(?:factor|criterion|basis|input|consideration))\b/u.test(segment);
     if (severityResponsibilityPair
       && (grammaticalSoleAuthority
         || (soleQualifierBindsSeverity
+          && !controlledConceptPairIsExplicitlyNegative(segment, severity, storyResponsibility))
+        || (excludesAlternativeBasis
           && !controlledConceptPairIsExplicitlyNegative(segment, severity, storyResponsibility)))) {
       return 'severity used as sole ownership or scope authority';
     }
