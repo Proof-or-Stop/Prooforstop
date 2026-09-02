@@ -1,6 +1,6 @@
 {
   "storyId": "B-a745",
-  "checkedAt": "2026-09-02T01:10:36.386Z",
+  "checkedAt": "2026-09-02T01:17:15.709Z",
   "features": [
     {
       "feature": "Optional declared id field on ValidationCommand",
@@ -53,8 +53,8 @@
     },
     {
       "feature": "Migration behavior: show a warning until the project declares stable IDs",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
     },
@@ -158,15 +158,15 @@
     },
     {
       "feature": "Story input contract: command duration history from prior signed validation artifacts, collected for duration estimation",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
     },
     {
       "feature": "Story input contract: verification intent captured as human-readable reason context (never the sole machine mapping)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
     },
@@ -544,28 +544,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 55,
-    "covered": 41,
-    "excluded": 11,
-    "gaps": 3,
+    "total": 57,
+    "covered": 44,
+    "excluded": 13,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "3adfab6ba9f83cf6b4ca0b95f172f9a79b0e01a1af51bba96a09280fa507300a",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "plan.md's CHK-001 design notes give a concrete commandSetDigest field formula that omits `focus` and `label`, then immediately assert in prose that focus IS included in the digest, and separately the governing spec requires a label-only config change to invalidate the selection command-set digest. Which is authoritative for implementation: the literal field formula (excluding focus and label) or the prose claim plus the spec's label-invalidation requirement?",
-      "evidence": "plan.md CHK-001: \"`commandSetDigest` = sha256 over the ordered list of `{id, command, args, cwdRelative, shell, timeoutMs, optional}`. `focus` is deliberately excluded from relevance but IS included in the digest, because a focus change is a config change that must invalidate a plan.\" (the enumerated formula omits `focus` entirely, contradicting the very next sentence). Governing spec, Stable command identity section: \"A stable planner command ID may remain the graph node across a label rename, but both the selection command-set digest and existing routine identity both change\" (the plan's own formula also omits `label`, whose change it explicitly requires to invalidate the digest).",
-      "sourcePointers": [
-        ".worktrees/B-ccf4/docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#stable-command-identity",
-        ".worktrees/B-ccf4/docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#compatibility-with-existing-truth-sources",
-        "packages/main/src/core/validation-evidence-reuse.ts#buildRoutineValidationIdentity",
-        ".proof-or-stop/story/actives/B-a745/plan.md#chk-001"
-      ],
-      "resolution": "The reviewer is right and the contradiction was mine, in plan.md rather than in the governing spec. plan.md CHK-001 stated a commandSetDigest formula of {id, command, args, cwdRelative, shell, timeoutMs, optional} while the next sentence asserted focus IS included, and the formula also omitted label. The spec settles both omissions in the same sentence: 'The proposed stable id may remain the graph node across a label rename, but both the selection command-set digest and existing routine identity must change' (Stable command identity section), restated in the compatibility section as 'A stable planner command ID may survive the rename for graph continuity, but the selection command-set digest and existing routine identity both change.' A digest that omits label cannot change on a label-only rename, so omitting label directly violates that requirement. RESOLUTION: the commandSetDigest formula is now {id, label, command, args, cwdRelative, shell, timeoutMs, optional, focus} - label and focus are both IN the digest. The prose contradiction is removed. The distinction that caused the confusion is now stated explicitly in plan.md: being in the DIGEST and being in RELEVANCE are different questions. The spec's migration bullet 'keep existing focus tags for backward compatibility but exclude them from dynamic relevance computation' constrains RELEVANCE only; it says nothing about the digest, and a focus edit is a config change that must invalidate a plan. So focus is excluded from relevance and included in the digest, and those two facts are not in tension. This also does not disturb routine validation reuse: that identity is separately computed by buildRoutineValidationIdentity and already binds label plus the full config-file snapshot, so it invalidates on a label rename independently of anything this Story adds. A new acceptance intent on CHK-001 pins the exact case in one fixture: renaming ONLY a label leaves the stable id unchanged AND changes the commandSetDigest.",
-      "resolvedAt": "2026-09-02T01:12:44.414Z"
-    }
-  ]
+  "_hash": "bbdf7f7d1558f2c025293728e67e9159cfca83779d1a0cfa45f492a3dc9b2cc3",
+  "openQuestions": []
 }
