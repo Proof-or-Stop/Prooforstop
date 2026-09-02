@@ -83,12 +83,32 @@
  *  (31) EMPTY UNIVERSE — a classified stop, never a passing empty plan. Written so an
  *       implementation returning {allPass: true, selected: []} FAILS.
  *  (32) RUNTIME RE-VALIDATION — the planner core re-checks tier and input.
+ *
+ * CHK-005 cases proven here (section "Proposed CLI and UX"):
+ *  (33) HUMAN OUTPUT (load-bearing) — every field the spec's output list names is
+ *       present and LABELLED: requested and effective tier, selected-versus-total
+ *       counts, per-unit inclusion reasons grouped by unit, unclassified inputs,
+ *       each escalation code followed by its gloss, an estimated duration with its
+ *       basis, and `finalAuthority: no`.
+ *  (34) --json — ONE parseable object carrying the same facts as the human text,
+ *       including per-unit duration whose unknown state carries no numeric field.
+ *  (35) REJECTION BY NAME — a missing storyId, an omitted tier and an unknown tier
+ *       are each refused naming the offender. Nothing silently defaults.
+ *  (36) COMMAND POLICY — the row exists and reads readOnly / none / all phases.
+ *  (37) READ-ONLY BY MEASUREMENT (the load-bearing one) — every byte under the
+ *       project root is snapshotted before and after invocation and asserted
+ *       identical, so adding ANY store write to the handler FAILS this case; and no
+ *       write/persist/execute/run-shaped flag is accepted at the schema OR the
+ *       handler.
+ *  (38) RUNTIME RE-VALIDATION — a schema-bypassing tier and storyId are rejected at
+ *       the handler entry AND at the planner-core entry.
  */
 
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { z } from 'zod';
 
 import {
   PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX,
@@ -114,7 +134,7 @@ import {
   isStoryMetadataPath,
   type EvidenceHashSnapshot,
 } from '../core/evidence-freshness.js';
-import type { ChecklistItem } from '../core/types.js';
+import type { ChecklistItem, StoryInfo } from '../core/types.js';
 import {
   buildRoutineValidationIdentity,
   validationCommandUsesShell,
@@ -139,6 +159,16 @@ import {
   type ValidationWideningReasonCode,
 } from '../core/validation-tier-planner.js';
 import type { RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
+import {
+  VALIDATION_PLAN_TIER_ALIASES,
+  createValidationPlanHandlers,
+  resolveValidationPlanRequest,
+} from '../handlers/validation-plan.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { MAIN_TOOLS } from '../cli/command-catalog.js';
+import { getCommandPolicy } from '../core/command-policy.js';
+import { resetConfigCache } from '../core/config.js';
+import { StoryStore } from '../core/store.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
@@ -1565,6 +1595,392 @@ testCase('the planner core rejects a schema-bypassing tier and a malformed input
   );
   assert.equal(assertValidationTier('story-fast', 'fixture'), 'story-fast');
   assert.throws(() => assertValidationTier(7, 'fixture'), /fixture/);
+});
+
+
+// ---------------------------------------------------------------------------
+// CHK-005 — the read-only `validation_plan` CLI.
+//
+// Spec: section "Proposed CLI and UX" (owned by story B-ccf4, not yet on main).
+//
+// The CLI is the only surface of this Story a human ever touches, so these cases
+// assert the OUTPUT CONTRACT, not merely that a function returns something:
+// every field the spec's "Human output must show" list names has to be present
+// and LABELLED, the counts have to be derived at runtime, and every escalation
+// code has to arrive with its gloss attached — a bare code is exactly what the
+// product review rejected.
+// ---------------------------------------------------------------------------
+
+console.log(`\n${MARKER}: running CHK-005 validation_plan CLI cases`);
+
+const PLAN_CLI_STORY_ID = 'B-a745';
+
+/**
+ * A complete project root: a Proof-or-Stop config declaring validate.commands, a
+ * story, and a checklist. Deliberately NOT a git repository — the collector then
+ * degrades to `changed_files_unavailable` / an empty hash snapshot through its
+ * own classified paths, which is a real production state and keeps the case
+ * deterministic on any host.
+ */
+function planCliRoot(options: {
+  commands?: unknown[];
+  phase?: string;
+  items?: ChecklistItem[];
+  doneRequiredEvidence?: Record<string, unknown>;
+} = {}): { root: string; store: StoryStore; ctx: HandlerContext } {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-plan-'));
+  temporaryRoots.push(root);
+  writeFileSync(
+    join(root, 'proof-or-stop.config.json'),
+    `${JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
+      validate: {
+        commands: options.commands ?? [
+          { label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' },
+          { label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' },
+        ],
+      },
+    }, null, 2)}\n`,
+    'utf-8',
+  );
+  resetConfigCache();
+  const store = new StoryStore(root);
+  store.writeStory(PLAN_CLI_STORY_ID, {
+    storyId: PLAN_CLI_STORY_ID,
+    name: 'validation-plan-cli',
+    title: 'Read-only validation planner CLI',
+    description: 'Fixture story for the validation_plan CLI contract.',
+    type: 'feature',
+    phase: (options.phase ?? 'DEV') as StoryInfo['phase'],
+    priority: 'high',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    startedAt: null,
+    endedAt: null,
+  });
+  store.writeChecklist(PLAN_CLI_STORY_ID, { items: options.items ?? [] });
+  if (options.doneRequiredEvidence) {
+    store.writeDoneRequiredEvidence(
+      PLAN_CLI_STORY_ID,
+      options.doneRequiredEvidence as unknown as Parameters<StoryStore['writeDoneRequiredEvidence']>[1],
+    );
+  }
+  const ctx = { store, root, scanRoot: root } as HandlerContext;
+  return { root, store, ctx };
+}
+
+function planCli(ctx: HandlerContext) {
+  return createValidationPlanHandlers(ctx).validation_plan;
+}
+
+/** Every byte under a directory tree, so ANY write anywhere fails the comparison. */
+function treeBytes(root: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  const visit = (path: string, relativePath: string): void => {
+    if (!statSync(path).isDirectory()) {
+      result[relativePath] = readFileSync(path).toString('base64');
+      return;
+    }
+    for (const name of readdirSync(path).sort()) {
+      visit(join(path, name), relativePath ? `${relativePath}/${name}` : name);
+    }
+  };
+  try {
+    visit(root, '');
+  } catch {
+    return {};
+  }
+  return result;
+}
+
+function planCliTool() {
+  const tool = MAIN_TOOLS.find((entry) => entry.name === 'validation_plan');
+  assert.ok(tool, 'validation_plan must be registered in the CLI command catalog');
+  return tool!;
+}
+
+// ---------------------------------------------------------------------------
+// (33) HUMAN OUTPUT (load-bearing) — every labelled field the spec's output list
+//      names, with runtime-derived counts and `finalAuthority: no`.
+// ---------------------------------------------------------------------------
+testCase('validation_plan --tier=fast prints every labelled field including finalAuthority: no', () => {
+  const { ctx } = planCliRoot();
+  const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
+
+  assert.match(text, /^requestedTier: story-fast \(requested as "fast"\)$/m);
+  assert.match(text, /^effectiveTier: repository-full$/m);
+  assert.match(text, /^selected: 2 of 2 validation unit\(s\)$/m);
+  assert.match(text, /^finalAuthority: no$/m);
+  assert.match(text, /^sourceKind: configured$/m);
+  assert.match(text, /^status: plan$/m);
+
+  // Per-command inclusion reasons, GROUPED BY COMMAND.
+  assert.match(text, /^inclusion reasons by unit \(2\):$/m);
+  assert.match(text, /^ {2}unit-suite \[unit\]$/m);
+  assert.match(text, /^ {2}lint-suite \[lint\]$/m);
+  assert.match(text, /included: .*command_exclusion_unproven/);
+
+  // Unclassified inputs are LISTED under their own label.
+  assert.match(text, /^unclassified inputs \(\d+\):$/m);
+
+  // Every escalation code is followed by its plain-language gloss.
+  assert.match(text, /^escalation reasons \(\d+\):$/m);
+  for (const code of ['impact_index_unusable', 'command_exclusion_unproven']) {
+    const gloss = validationWideningReasonGloss(code as ValidationWideningReasonCode);
+    assert.ok(text.includes(`[${code}]`), `escalation code ${code} is not printed`);
+    assert.ok(text.includes(gloss.slice(0, 60)), `escalation code ${code} is printed without its gloss`);
+  }
+
+  // Estimated duration WITH its basis.
+  assert.match(text, /^estimatedDuration: /m);
+  assert.match(text, /^ {2}basis: /m);
+
+  // No reader may mistake this for a written selection artifact.
+  assert.match(text, /^artifact: none /m);
+});
+
+testCase('the printed counts are derived at runtime, not written into the renderer', () => {
+  const three = planCliRoot({
+    commands: [
+      { label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' },
+      { label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' },
+      { label: 'types', command: 'npx', args: ['tsc', '--noEmit'], id: 'types-suite' },
+    ],
+  });
+  const text = planCli(three.ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'intermediate', explain: true });
+  assert.match(text, /^selected: 3 of 3 validation unit\(s\)$/m);
+  assert.match(text, /^inclusion reasons by unit \(3\):$/m);
+  assert.match(text, /^requestedTier: story-intermediate \(requested as "intermediate"\)$/m);
+});
+
+testCase('a no-validator project reports no tier pass instead of an empty plan', () => {
+  const { ctx } = planCliRoot({ commands: [] });
+  const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'full' });
+  assert.match(text, /^status: no-tier-pass$/m);
+  assert.match(text, /^finalAuthority: no$/m);
+  assert.ok(text.includes('[no_validator]'), 'the no-validator reason code must be printed');
+  assert.ok(
+    text.includes(validationWideningReasonGloss('no_validator').slice(0, 60)),
+    'the no-validator code must be printed with its gloss',
+  );
+  assert.doesNotMatch(text, /^effectiveTier: /m, 'a no-tier-pass result carries no effective tier at all');
+});
+
+// ---------------------------------------------------------------------------
+// (34) --json — one parseable object carrying the SAME facts.
+// ---------------------------------------------------------------------------
+testCase('validation_plan --json emits one parseable object carrying the same facts', () => {
+  const { ctx } = planCliRoot();
+  const raw = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', json: true });
+  const report = JSON.parse(raw) as Record<string, any>;
+
+  assert.equal(report.storyId, PLAN_CLI_STORY_ID);
+  assert.equal(report.status, 'plan');
+  assert.equal(report.requestedTierInput, 'fast');
+  assert.equal(report.requestedTier, 'story-fast');
+  assert.equal(report.effectiveTier, 'repository-full');
+  assert.equal(report.finalAuthority, false);
+  assert.equal(report.sourceKind, 'configured');
+  assert.equal(report.counts.selected, 2);
+  assert.equal(report.counts.total, 2);
+  assert.equal(report.units.length, 2);
+  assert.deepEqual(report.units.map((unit: any) => unit.id).sort(), ['lint-suite', 'unit-suite']);
+  for (const unit of report.units) {
+    assert.ok(Array.isArray(unit.inclusionReasons) && unit.inclusionReasons.length > 0);
+    assert.ok(typeof unit.duration.basis === 'string' && unit.duration.basis.length > 0);
+  }
+  assert.ok(Array.isArray(report.unclassifiedInputs));
+  assert.ok(report.escalationReasons.length > 0);
+  for (const reason of report.escalationReasons) {
+    assert.ok(typeof reason.gloss === 'string' && reason.gloss.trim().length > 0, `${reason.code} has no gloss`);
+    assert.equal(reason.gloss, validationWideningReasonGloss(reason.code));
+  }
+  assert.ok(typeof report.durationEstimate.basis === 'string' && report.durationEstimate.basis.length > 0);
+  assert.equal(report.artifact.written, false);
+  assert.equal(report.artifact.path, null);
+
+  // The same facts, not a second computation: the human text agrees.
+  const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
+  assert.match(text, new RegExp(`^selected: ${report.counts.selected} of ${report.counts.total} `, 'm'));
+  assert.match(text, new RegExp(`^effectiveTier: ${report.effectiveTier}$`, 'm'));
+});
+
+testCase('duration history from prior signed validation artifacts reaches the report with its basis', () => {
+  const { ctx } = planCliRoot({
+    doneRequiredEvidence: {
+      schema: 'proofOrStop.done-required-evidence',
+      version: 1,
+      storyId: PLAN_CLI_STORY_ID,
+      status: 'pass',
+      startedAt: '2026-01-01T00:00:00.000Z',
+      endedAt: '2026-01-01T00:05:00.000Z',
+      durationMs: 300000,
+      policyHash: 'fixture',
+      commandSetHash: 'fixture',
+      reasons: [],
+      receipts: [
+        { label: 'unit', command: 'npm', args: ['test'], cwd: '.', status: 'pass', exitCode: 0, durationMs: 4000, outputDigest: 'x', outputTail: '', startedAt: '2026-01-01T00:00:00.000Z', endedAt: '2026-01-01T00:00:04.000Z' },
+      ],
+    },
+  });
+  const report = JSON.parse(planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', json: true })) as Record<string, any>;
+  const unit = report.units.find((entry: any) => entry.id === 'unit-suite');
+  const lint = report.units.find((entry: any) => entry.id === 'lint-suite');
+  assert.equal(unit.duration.status, 'known');
+  assert.equal(unit.duration.estimateMs, 4000);
+  assert.match(unit.duration.basis, /prior signed validation receipt/);
+  assert.equal(lint.duration.status, 'unknown-duration');
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(lint.duration, 'estimateMs'),
+    false,
+    'an unknown duration carries no numeric field at all; a 0 would read as instant',
+  );
+  assert.equal(report.durationEstimate.knownCount, 1);
+  assert.equal(report.durationEstimate.unknownCount, 1);
+  assert.equal(report.durationEstimate.knownTotalMs, 4000);
+});
+
+// ---------------------------------------------------------------------------
+// (35) REJECTIONS BY NAME — nothing silently defaults.
+// ---------------------------------------------------------------------------
+testCase('a missing storyId and an unknown tier are each rejected BY NAME, never defaulted', () => {
+  const { ctx } = planCliRoot();
+  const call = planCli(ctx);
+
+  assert.throws(
+    () => call({ tier: 'fast' } as never),
+    /validation_plan: storyId is required/,
+    'a missing storyId must be rejected naming storyId',
+  );
+  assert.throws(() => call({ storyId: '   ', tier: 'fast' }), /storyId is required/);
+  assert.throws(
+    () => call({ storyId: PLAN_CLI_STORY_ID } as never),
+    /validation_plan: tier is required/,
+    'an omitted tier must be rejected, never silently defaulted to fast',
+  );
+  assert.throws(
+    () => call({ storyId: PLAN_CLI_STORY_ID, tier: 'quick' }),
+    /unknown tier "quick"/,
+    'an unknown tier must be rejected naming the value that was passed',
+  );
+  assert.throws(() => call({ storyId: PLAN_CLI_STORY_ID, tier: 'quick' }), /fast, intermediate, full/);
+});
+
+testCase('the catalog schema constrains storyId and tier as the first line of defence', () => {
+  const tool = planCliTool();
+  const schema = z.object(tool.schema);
+  assert.equal(schema.safeParse({ storyId: PLAN_CLI_STORY_ID, tier: 'fast' }).success, true);
+  assert.equal(schema.safeParse({ storyId: '', tier: 'fast' }).success, false, 'an empty storyId must fail the schema');
+  assert.equal(schema.safeParse({ storyId: PLAN_CLI_STORY_ID, tier: '' }).success, false, 'an empty tier must fail the schema');
+});
+
+// ---------------------------------------------------------------------------
+// (36) COMMAND POLICY — the row exists and classifies the command read-only.
+// ---------------------------------------------------------------------------
+testCase('validation_plan is classified readOnly / none / all phases in command-policy', () => {
+  const policy = getCommandPolicy('validation_plan');
+  assert.ok(policy, 'validation_plan must have a CommandPolicy row');
+  assert.equal(policy!.ownershipClass, 'readOnly');
+  assert.equal(policy!.destructiveRisk, 'none');
+  assert.equal(policy!.allowedPhases, 'all');
+  assert.match(policy!.reason, /executes no validation command/);
+  assert.match(policy!.reason, /writes nothing/);
+});
+
+// ---------------------------------------------------------------------------
+// (37) THE LOAD-BEARING ONE — the command is read-only BY MEASUREMENT.
+//      Every byte under the project root is snapshotted before and after, so
+//      adding ANY store write to the handler fails this case. And no
+//      write/persist/execute/run-shaped flag is accepted, at either layer.
+// ---------------------------------------------------------------------------
+testCase('invoking validation_plan leaves every byte under the project root identical', () => {
+  const { root, store, ctx } = planCliRoot({
+    items: [
+      checklistItem({
+        id: 'CHK-001',
+        files: { modify: ['src/core/foo.ts'], create: [], test: ['tests/foo.test.ts'] },
+        verificationEvidence: [
+          { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm test', result: 'pass', note: 'fixture evidence' },
+        ],
+      }),
+    ],
+  });
+  const before = treeBytes(root);
+  const beforeStory = JSON.stringify(store.readStory(PLAN_CLI_STORY_ID));
+  const beforeChecklist = JSON.stringify(store.readChecklist(PLAN_CLI_STORY_ID));
+
+  for (const tier of ['fast', 'intermediate', 'full']) {
+    planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier, explain: true });
+    planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier, json: true });
+  }
+
+  assert.deepEqual(treeBytes(root), before, 'validation_plan wrote to the project root; it is contractually read-only');
+  assert.equal(JSON.stringify(store.readStory(PLAN_CLI_STORY_ID)), beforeStory, 'the story record must be byte-identical');
+  assert.equal(JSON.stringify(store.readChecklist(PLAN_CLI_STORY_ID)), beforeChecklist, 'the checklist must be byte-identical');
+});
+
+testCase('no write / persist / execute / run flag is accepted, at the schema OR the handler', () => {
+  const tool = planCliTool();
+  const schema = z.object(tool.schema);
+  const { ctx } = planCliRoot();
+  const call = planCli(ctx);
+
+  for (const flag of ['write', 'persist', 'execute', 'run', 'launch', 'apply', 'capture', 'refresh', 'runCommands', 'writeEvidence', 'advancePhase']) {
+    assert.equal(
+      schema.safeParse({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', [flag]: true }).success,
+      false,
+      `the catalog schema must reject --${flag}`,
+    );
+    // Handler encoding convention: the schema is only the FIRST line of defence.
+    assert.throws(
+      () => call({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', [flag]: true } as never),
+      new RegExp(flag),
+      `the handler must refuse ${flag} even when the schema is bypassed`,
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (38) HANDLER ENCODING CONVENTION — the zod bypass is still rejected, at BOTH
+//      the handler entry and the planner-core entry.
+// ---------------------------------------------------------------------------
+testCase('a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry', () => {
+  // Handler entry, called directly with no schema in the path at all.
+  assert.throws(() => resolveValidationPlanRequest({ storyId: '', tier: 'fast' }), /storyId is required/);
+  assert.throws(() => resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID, tier: 'story-quick' }), /unknown tier "story-quick"/);
+  assert.throws(() => resolveValidationPlanRequest({ storyId: 7 as never, tier: 'fast' }), /storyId/);
+  assert.throws(() => resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID, tier: 3 as never }), /tier/);
+  assert.deepEqual(
+    resolveValidationPlanRequest({ storyId: ` ${PLAN_CLI_STORY_ID} `, tier: 'full', explain: true }),
+    { storyId: PLAN_CLI_STORY_ID, tierInput: 'full', requestedTier: 'repository-full', explain: true, json: false },
+  );
+
+  // Planner core entry, reached with no handler and no schema in the path.
+  assert.throws(
+    () => resolveValidationTierPlan({ input: planInput(), requestedTier: 'fast' as ValidationTier }),
+    /unknown tier "fast"/,
+    'the CLI alias is NOT the core vocabulary; the core must still reject it by name',
+  );
+  assert.throws(
+    () => resolveValidationTierPlan({ input: { ...planInput(), storyId: '' }, requestedTier: 'story-fast' }),
+    /storyId/,
+    'an empty storyId must be rejected at the planner-core entry too',
+  );
+});
+
+testCase('the CLI tier aliases map onto the canonical vocabulary and add no fourth tier', () => {
+  assert.deepEqual(
+    VALIDATION_PLAN_TIER_ALIASES,
+    {
+      fast: 'story-fast',
+      intermediate: 'story-intermediate',
+      full: 'repository-full',
+      'story-fast': 'story-fast',
+      'story-intermediate': 'story-intermediate',
+      'repository-full': 'repository-full',
+    },
+  );
+  const targets = new Set(Object.values(VALIDATION_PLAN_TIER_ALIASES));
+  assert.deepEqual([...targets].sort(), [...VALIDATION_TIERS].sort());
 });
 
 for (const root of temporaryRoots) {
