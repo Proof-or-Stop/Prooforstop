@@ -1063,7 +1063,7 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-02T03:02:34.353Z",
       "endTime": "2026-09-02T03:17:03.148Z",
       "userSees": "A failing pre-implementation contract test becomes green after the change, and digest/adapter verification confirms the published English Agent prompts are fresh and compatible.",
@@ -2272,6 +2272,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "The exact live safe-negative sentence now passes, unsafe dismissal and authority-laundering mutations remain biting, and all 60 intents were mechanically refreshed against commit 6540abb."
+    },
+    {
+      "timestamp": "2026-09-02T03:23:36.495Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for the Round 20 acceptance blocker: the guard rejects a safe before/after invariant that explicitly requires Dynamic Finding runtime semantics to remain unchanged."
     }
   ]
 }
