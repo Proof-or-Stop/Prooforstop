@@ -25,6 +25,36 @@
         "scanEscalationReason": null
       },
       "_hash": "211c1c428c3df1ce598758ec5cb265ef770f96260665ffe14191c4a023c549e1"
+    },
+    {
+      "id": "B-41c8:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 2 re-audit after the F-001..F-007 fix wave. All 15 verificationIntent items across CHK-001..CHK-004 have mechanical verificationEvidence (receipt present, selectorMatched=true, mechanical=true). CHK-004's 3 receipts (happy:0, edge:0, adversarial:0), invalidated by refresh_stale (executor truncates pinned stdout at 12000 chars before selector match; F-007 shrank the raw default script output from ~15105 to 9914 chars, and the npm-wrapped pinned command to 10034 chars, both inside the 12000-char window), were re-earned at headHash e50125b15110094f5a5ea661447ffae5fc24604b (F-007 GREEN, committed as 5675372 record verification_evidence_batch_add metadata): confirmed genuinely mechanical, not stale-but-stamped. The other 12 (CHK-001..003) remain mechanical though bound to a later headHash (e7e44db1e5, the F-006 commit) -- a hash-binding staleness question the TEST-phase freshness gate owns, not a coverage gap. Fix-to-test mapping checked: F-004 (65afc419bb RED / 402b79bc9e GREEN), F-005 (e89cf6a909 RED / a20d0e0e40 GREEN), F-007 (4eb037bee9 RED / e50125b151 GREEN) are real RED/GREEN pairs; spot-checked 4eb037bee9 in a temp detached worktree (built packages/main, ran dist/tasks/single-owner-extraction-smoke.js) and confirmed it genuinely FAILs (37/38 cases passed, default stdout 15105 chars vs the 10000 bound), matching the commit message. F-006 (e7e44db1e5) has no separate RED commit but pastes the exact pre-change FAIL diff (actual/expected digest mismatch) in the commit body for a single deterministic pin value that is a direct, already-tested consequence of CHK-004 adding an entry to validate.commands -- judged acceptable Debugging Contract evidence for a mechanical re-pin, not a behavior change needing its own test. F-001/F-002/F-003 are comment-only / dead-code removals with no behavioral surface to test (F-002's unused destructure is covered by the tsc lint gate; F-003's helper-body removal is covered by the existing brand-path-smoke assertion the same commit updated from a positive to a negated check). Filed B-41c8:F-010 (low/edge, non-blocking): CHK-004:happy:0's pinned selector/case name (line 1822) still says the audit is listed with its call lines, but F-007's default (non-verbose) rendering only prints <file> <classification> per caller; the case still substantively verifies call lines via report data and an in-memory verbose render, so this is a stale-selector-text/documentation issue, not a coverage gap or vacuous check -- CHK-004 userSees is unaffected (it never promised call lines by default). Noted but not duplicating: B-41c8:F-008 (concept, medium, open, round-2-advisory) already covers a genuinely vacuous string-match regression guard at line 1936 (post-rename label string no longer reachable); confirmed by reading classificationOf() -- correctly the concept lane's finding, not test-coverage's. No open blocking finding this round (F-008 medium is R2-ADVISORY, F-009/F-010 low never block per isAdvisoryThisRound). Recording pass.",
+      "createdAt": "2026-09-02T16:03:33.684Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-009",
+      "envelopeId": "4d026615488c325b5d0ee073fe3159a5d44161498557d41de352e4db6bb5725e",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/proof-or-stop-handoff.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8401f9d99ccc950fdb1184a28ab951334b0e5b1814af888a02d5f69762b69106"
     }
   ]
 }
