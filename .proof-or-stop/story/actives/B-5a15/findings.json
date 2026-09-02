@@ -18780,7 +18780,7 @@
       "desc": "DEFERRED (non-blocking, unclaimed scope): pre_review basis reconciles only 2 of 5 planned paths, leaving PR_PLANNED_PATH_UNRESOLVED for CHK-002/CHK-004/CHK-005. ROOT CAUSE (verified, not inferred): producerConsumerRelation (core/acceptance-discovery-adapters.ts:1773) resolves an edge only via graph.sourceScans, and sourceScans is populated ONLY for files inside the bounded closure built at :1290-1310, which grows from registry entries matching planned/explicit-topology/phase-control facts and explicitly excludes hub files (const hubs = new Set(registryFiles), :1283). The four undiscovered actual: refs are therefore outside the closure, NOT defective code. EVIDENCE the edges are real: (a) CHK-004 packages/main/src/handlers/verifier.ts imports preflightCausalEvidence at :90 and calls it at :670, lexically inside the declared consumer createValidationCausalPreflightGate (:617-:687) - a correct, correctly-nested edge that still does not resolve; (b) CHK-002 consumer commitCanonicalCausalEvidence is a CausalRefreshCommitter property (checklist.ts:1441), not a callable function symbol; (c) CHK-005 deriveCausalMetrics is called at checklist.ts:2579 but its enclosing function is createChecklistHandlers (:1585), not the declared consumer verification_evidence_batch_add, so the declaration itself is mis-targeted. NOT A REGRESSION FROM THIS STORY: plannedActualReconciliations is populated only when phaseBasis === 'pre_review' (core/acceptance-coverage-basis.ts:319), so the plan-phase basis showing 0/5 is correct by design. WHY DEFERRED: mechanically non-blocking on every gate - acceptance_topology_check reports Status pass / Blocking no / authority diagnostic_only with zero diagnostics; pre_review_check reports mode observe blocking=false; and lifecycle_check --target=REVIEW lists exactly one blocker (missing_verification_evidence) with no PR_* code present. Fixing it means either widening the discovery closure or re-declaring three planned-path endpoint symbols, neither claimed by any B-5a15 checklist item. FOLLOW-UP MUST: decide whether the closure should admit declared planned-path endpoint files, and correct the CHK-005 consumer symbol to createChecklistHandlers (or the true enclosing callable) and the CHK-002 consumer to a real callable rather than a property.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-01T19:21:44.738Z",
@@ -18792,7 +18792,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|ts|deferred-blocking-unclaimed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "SUPERSEDED by B-5a15:F-347 and RETRACTED: this finding's stated root cause is DISPROVEN. F-345 claimed the undiscovered actual: refs were outside the bounded discovery closure so graph.sourceScans had no entry for them. Direct measurement refutes that: dumping basis.sourceInventoryRefs from the pre-review artifact yields 84 entries INCLUDING source-file:closure:packages/main/src/handlers/verifier.ts and source-file:closure:packages/main/src/handlers/checklist.ts, plus explicit inventory rows for the symbols themselves; adapter blindSpots is 0; and readBoundedSourceSetForTest accepts all four relevant files with zero blindSpots. The files were scanned and the symbols were inventoried all along. The actual cause, established by instrumenting a scratch copy of dist and recorded in F-347, was a single endpoint failing endpointMatchesArtifactKind because CHK-002 declared a non-exported local const as expectedArtifactKind=source_file. The deferral recommendation in F-345 (widen the closure) would therefore have been wrong work. Retained for audit trail only; do not act on its analysis.",
+      "resolvedAt": "2026-09-02T07:00:21.807Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-346",
