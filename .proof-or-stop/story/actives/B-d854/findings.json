@@ -75,7 +75,7 @@
       "desc": "AGENTS.md:16-566 — “translate the complete root AGENTS.md” was implemented as an undocumented consolidation, not a fully accounted translation. The baseline has 598 lines/32 fences/41 table rows/11 blockquotes; the final has 566/20/21/0. A deterministic command inventory finds 14 still-current repository-local CLI examples removed from runnable guidance (aux_detail, aux_diagnose, aux_scan, aux_sync, aux_trace, decision_get, decision_set, fixture_batch_add, gap_log, story_create, test_fixture, test_story, understanding_get, understanding_set; each --help exits 0). The evidence supplies only the blanket sentence “obsolete and duplicate legacy sections consolidated” rather than listing each intentional removal and justification, contrary to CHK-002:edge:0 and the complete-translation request. Restore faithful English coverage or provide a complete itemized audit proving every deletion is an authorized consistency correction rather than lost content.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-02T00:25:12.164Z",
@@ -86,7 +86,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|agents-translate-complete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "AGENTS.md restores the 14 current CLI examples removed by the earlier consolidation, while the audit ledger accounts for intentional current/legacy changes. Structural inventories and mutation rejection pass in node tests/AGENTS.verify.mjs --final.",
+      "resolvedAt": "2026-09-02T01:05:08.600Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-005",
