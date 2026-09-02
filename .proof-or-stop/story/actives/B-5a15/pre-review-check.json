@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-09-02T04:24:06.947Z",
+  "cutoffAt": "2026-09-02T04:24:27.765Z",
   "planBasisDigest": "sha256:96e3b93b1dec0d430b08bc8bd7ed08edb169224c3eaa879deeebad4d4010505c",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -265,12 +265,9 @@
           "method": "static_call_graph",
           "pathRefs": [
             "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add",
-            "actual:source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
             "actual:source_file:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies",
             "actual:source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
-            "actual:source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
             "actual:source_file:packages/main/src/handlers/certification-window.ts#buildCertificationDecision",
-            "actual:source_file:packages/main/src/handlers/verifier.ts#createValidationCausalPreflightGate",
             "path:process-fact:acceptance_basis->consumer:<audit-only>",
             "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
             "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
@@ -355,7 +352,7 @@
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:2e9af6934914eaaeb35ecf607ae33a942e7b288591b55c2c29d7012b645d34b3"
+          "resultDigest": "sha256:563c0eaa86ed58c7f7e571f58004f6888c776d76bdf44738c3484d15164b137c"
         }
       ],
       "scopeRefs": [
@@ -670,36 +667,13 @@
           ],
           "relation": "exact",
           "reconciliationDigest": "sha256:4766e7c174056a6e07cca468a7d086b99a4314aa543f39e975fd73e4503bc5b3"
-        },
-        {
-          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
-          "plannedPathRef": "planned:CHK-004:happy:0:CHK-004-preflight-to-evidence-enforcement",
-          "actualPathRefs": [
-            "actual:source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
-            "actual:source_file:packages/main/src/handlers/verifier.ts#createValidationCausalPreflightGate"
-          ],
-          "relation": "exact",
-          "reconciliationDigest": "sha256:b2c5e619ba3ecf8230360d6dbce7e30731ec0d689fbcce3e4d2d12142e38b0c4"
-        },
-        {
-          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
-          "plannedPathRef": "planned:CHK-005:happy:0:CHK-005-ledger-to-causal-metrics",
-          "actualPathRefs": [
-            "actual:source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
-            "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add"
-          ],
-          "relation": "exact",
-          "reconciliationDigest": "sha256:51d125492c9863255c9a5e85261aa1406126eeaecb0dbe72d29134a34524ae02"
         }
       ],
       "enumeratedPathRefs": [
         "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add",
-        "actual:source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
         "actual:source_file:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies",
         "actual:source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
-        "actual:source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
         "actual:source_file:packages/main/src/handlers/certification-window.ts#buildCertificationDecision",
-        "actual:source_file:packages/main/src/handlers/verifier.ts#createValidationCausalPreflightGate",
         "path:process-fact:acceptance_basis->consumer:<audit-only>",
         "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
@@ -747,7 +721,7 @@
         "sealDigest": "sha256:042168c05ab7437c47a4a062ee592066332fad70fd0bb889ac59ec481ce795db"
       },
       "binding": {
-        "headHash": "e92e073e5c3899a7ad481fad0ce622c3518c93bc",
+        "headHash": "6b9d62b23bac28d43be5b1ea3e8ee0e5500c355e",
         "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
         "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868",
         "scopeCheckDigest": "sha256:dd962ed6ed303ead91819555f25ab01762c8183354c6e5b7076d37b8c0e733b8",
@@ -755,7 +729,7 @@
         "closureFilesHash": "sha256:92e9c3b52be22b6144788bd628ec15768939f686aed758dfb948736d79e75fb5"
       },
       "receiptRef": "receipt:coverage-basis:B-5a15:pre_review:b3525978b670b76c",
-      "basisDigest": "sha256:351e618e808ca301cd493b2fa907601ac26f4e4019a39aeacb9c7c21d6320cf6"
+      "basisDigest": "sha256:53cb22badac01e71ad3b4fb8bfb659ebd929de5cd1f4229dd35686f6ad729a10"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -765,17 +739,17 @@
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-5a15",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:351e618e808ca301cd493b2fa907601ac26f4e4019a39aeacb9c7c21d6320cf6",
+      "basisDigest": "sha256:53cb22badac01e71ad3b4fb8bfb659ebd929de5cd1f4229dd35686f6ad729a10",
       "topologyDigest": "sha256:c06794b926a296e5bd3c9aa23b2f468d2c13b19c278bc0df791d017e8fdf55ae",
       "scopeCheckDigest": "sha256:dd962ed6ed303ead91819555f25ab01762c8183354c6e5b7076d37b8c0e733b8",
       "scopeContractDigest": "sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae",
-      "headHash": "e92e073e5c3899a7ad481fad0ce622c3518c93bc",
+      "headHash": "6b9d62b23bac28d43be5b1ea3e8ee0e5500c355e",
       "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
       "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868",
       "closureFilesHash": "sha256:92e9c3b52be22b6144788bd628ec15768939f686aed758dfb948736d79e75fb5",
       "sealDigest": "sha256:042168c05ab7437c47a4a062ee592066332fad70fd0bb889ac59ec481ce795db",
       "workspaceIdentityDigest": "sha256:502be69be3d8741b5a049f6ed4e08a9bea5b0c7a099a24169e0b2582e7422b78",
-      "signature": "P2yeQa4l+cYkaONdVb73i9mK5GgJ29q5awJhzlfIZvoY02Y4RjkSwhtslzTVyftBhCRgzfa4Q8I5Dqd9DR4LDg=="
+      "signature": "wa7dR5EjqFmH6BFGKCuCZ+ZriFOUzdUwOHftGlJjMIq4dum2WifEwEUCgx8RkRu7mps6iCpb511ecvk2YCT/AQ=="
     }
   },
   "topologyDigest": "sha256:c06794b926a296e5bd3c9aa23b2f468d2c13b19c278bc0df791d017e8fdf55ae",
@@ -1185,7 +1159,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-02T04:24:06.947Z",
+  "issuedAt": "2026-09-02T04:24:27.765Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "ClE69K+c3OfGQROh+6kAsnV34MZaQFROfRiACMMVV3bPOMSyMQ8b0eUVO+hfjMgFgq1+H6Yh+dfYzQ0ppG23AQ=="
+  "signature": "QPmD8JSB/fi64bYMatMGShhImIJnQF6Jd33aPlJ5T35R6n+LGYhAa2t0T8NsNAIqqYdF84DUy2Q7p59hxDBDDA=="
 }
