@@ -442,6 +442,22 @@ project/
 6. **done_prepare 不是万能豁免**：它能自动化 merge / refresh / validate / next-action，但**跳不过 related drift**——若 merge main 改到了当前 story-owned files（storyFilesHash 真变），仍需重 review / 重 quorum / 重 delivery。
 7. **metadata-only dirty** 的处理：
    > Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged. Host must not manually bypass cleanTree.
+8. **Acknowledge out-of-scope paths BEFORE sealing acceptance artifacts (B-5a15 F-350)**：
+   `scope_contract_acknowledge` 会往 `scope-contract.json` 追加一条 revision，从而**移动 scope-contract
+   digest**。`acceptance-basis.json` 与 `pre-review-check.json` 都把该 digest 钉进自己的签名域，所以
+   **先密封、后确认**会让这两个已签产物立刻失效——报 `AT_SCOPE_BINDING_MISSING`（basis）和
+   `PR_ARTIFACT_TAMPERED`（pre-review），而它们恰恰是那次确认本来要解锁的门禁。这是**自伤式失效环**。
+
+   正确顺序：**先 `scope_contract_acknowledge` → 再 `acceptance_basis_generate` / `pre_review_check`
+   密封 → 最后挣 receipt 和 reviewer verdict**。
+
+   注意区分影响面：scope-contract revision **不是** story-owned material drift（`storyFilesHash` 不变，
+   `git diff` 只动 `.proof-or-stop/`），所以已挣的 `verificationEvidence` receipt **不会**失效；失效的
+   是两个签名验收产物 + reviewer 的 **run binding**。`pre_review_check` 只在 DEV 可用，因此在 REVIEW
+   才发现就必须回 DEV 重签。
+
+   同类纪律见「Review inventory epoch sequencing」：任何会移动 hash 的写入都要在开 epoch / 挣证据
+   **之前**批量做完，不要边挣边改。
 
 **依赖准备（INIT_CHECK 后，F-003）**：git worktree **不**继承主仓 gitignored 的 `node_modules`，新 worktree 默认缺依赖，直接跑 tsc / `proof-or-stop validate` 会因解析不到模块而失败。worktree 创建时若缺依赖会输出告警：
 
