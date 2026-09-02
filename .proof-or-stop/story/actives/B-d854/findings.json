@@ -366,6 +366,26 @@
       ],
       "signatureTag": "adversarial|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-019",
+      "desc": "tests/AGENTS.verify.mjs:301-336 limits semantic coverage to sentences containing a small keyword regex and four hand-picked phrases. Repro: in a detached temp worktree invert AGENTS.md INIT guidance from The CLI does not automatically invent missing reviewer evidence to The CLI automatically invents missing reviewer evidence, update only the audit Final SHA-256 to the mutated file, and run node tests/AGENTS.verify.mjs --final; it exits 0 with all four SEMANTIC_MUTATION lines and AGENTS_VERIFY FINAL GREEN. This is a lifecycle/authority inversion that CHK-002:adversarial:0 explicitly requires the verifier to reject.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T01:14:26.871Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-007",
+      "_hash": "1361e8e76b9efddf51fb54ac674e8f7209265b0495e15004ef50bcf7d0cf50e4",
+      "files": [
+        "tests/AGENTS.verify.mjs",
+        "AGENTS.md",
+        "docs/audits/AGENTS-current-version-audit.md"
+      ],
+      "signatureTag": "adversarial|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
