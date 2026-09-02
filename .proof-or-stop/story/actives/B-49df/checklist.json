@@ -15,7 +15,7 @@
     {
       "id": "CHK-002",
       "title": "Reject retired INIT reviewer identities from new Story evidence",
-      "context": "New init_check_set evidence and INIT_CHECK admission must use proof-or-stop-review-story-init plus product-reviewer. Retired lattice-* agent IDs may remain observable only in historical artifacts; they must not be generated, normalized into authority, or accepted as new canonical evidence.",
+      "context": "New init_check_set evidence and INIT_CHECK admission must use proof-or-stop-review-story-init plus product-reviewer. Retired lattice-* agent IDs may remain observable only in historical artifacts; they must not be generated, mapped into a permitted reviewer identity, or accepted as new canonical evidence.",
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
@@ -28,7 +28,7 @@
     {
       "id": "CHK-003",
       "title": "Fail closed when a Story writer executes from a foreign worktree runtime",
-      "context": "Promote the existing doctor cli-entrypoint/global-core-realpath diagnosis into a mutation admission check for Story writers. If the executing Proof-or-Stop core resolves to a different worktree/project runtime, stop before writing. Preserve legitimate installed-package use in external consumer repositories.",
+      "context": "Promote the existing doctor cli-entrypoint/global-core-realpath diagnosis into one shared mutation-admission policy consumed by every story-scoped mutating command enumerated from the canonical command-policy/dispatch registry. If the executing Proof-or-Stop core resolves to a different worktree/project runtime, stop before writing. Preserve legitimate installed-package use in external consumer repositories. Contract tests must prove registry coverage cannot silently omit a Story writer, and an end-to-end foreign-runtime rejection must prove zero bytes and zero refs changed.",
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
@@ -53,8 +53,8 @@
     },
     {
       "id": "CHK-005",
-      "title": "Prove fresh Story JSON contains only canonical active identity values",
-      "context": "Land focused RED tests before production changes. Add an end-to-end temporary-repository test that creates a fresh Story, writes scope and both INIT reviewer records, and scans generated active identity fields. It must assert schemaVersion proof-or-stop.scope_boundary.v1.1, agentId proof-or-stop-review-story-init, rejection of retired Agent IDs, foreign-runtime write refusal, historical v1 read compatibility, and post-release identity verifier success.",
+      "title": "Prove every registered active identity field in fresh Story JSON is canonical",
+      "context": "Land focused RED tests before production changes. Define one bounded Story JSON identity-field registry/inventory covering every field that carries an active product, schema, role, command, environment, config, or runtime identity. An end-to-end temporary-repository test must create a fresh Story, write scope and both INIT reviewer records, scan every registered field, and assert schemaVersion proof-or-stop.scope_boundary.v1.1, agentId proof-or-stop-review-story-init, rejection of retired Agent IDs, foreign-runtime write refusal, historical v1 read compatibility, and post-release identity verifier success. Historical narrative/provenance fields remain explicitly outside the active identity registry.",
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
