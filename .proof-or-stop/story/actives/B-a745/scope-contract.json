@@ -72,10 +72,28 @@
       "phase": "REVIEW",
       "headHash": "95255497cc007e903c67b3f9b0125b7a40be8cc8",
       "materialHash": "ec47e1b7720d94da623e532a08112ecbaf8c884faffc61da3596616c8b3c185f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Framework-written dev-memory artifacts produced by dev_memory_capture and dev_memory_finish_decision at story finish (entries 06d4416 and 90e7215, both sourced from B-a745), which the DONE gate requires via missing_dev_memory_finish_decision. They are lifecycle metadata, not product source, and were not in the scope contract because the contract was generated from plan.md Files sections before the finish-decision gate was encountered. No protected file was touched; no behaviour changes.",
+      "timestamp": "2026-09-02T11:26:51.808Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-a745.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-a745.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ddf9189cba067f0a0506cbb26660dfe301258225",
+      "materialHash": "e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42"
     }
   ],
   "createdAt": "2026-09-02T01:18:45.889Z",
-  "updatedAt": "2026-09-02T03:59:21.588Z",
+  "updatedAt": "2026-09-02T11:26:51.808Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -104,6 +122,8 @@
     "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
     "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
-    "proof-or-stop.config.json": "proof-or-stop.config.json"
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
+    ".proof-or-stop/dev-memory/finish-decisions/B-a745.json": ".proof-or-stop/dev-memory/finish-decisions/B-a745.json"
   }
 }
