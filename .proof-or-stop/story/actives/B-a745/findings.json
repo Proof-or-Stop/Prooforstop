@@ -487,7 +487,7 @@
       "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r3.] Codex (MAJOR as filed): 'Provisional command IDs remain dependent on checkout location. ValidationCommand accepts absolute cwd values, but commandCwdRelative computes their identity component with path.relative(projectRoot, absolute). The result changes when the same checkout is reached through a symlink alias, resides at a different directory depth, or uses another drive. That value feeds both the provisional ID and commandSetDigest, contradicting the promised host-portable stable identity.' OWNER VERIFICATION from source, pasted: resolveValidationCommandCwd returns command.cwd unchanged when isAbsolute(command.cwd), else resolve(projectRoot, cwd), else projectRoot; commandCwdRelative then takes relative(projectRoot, absolute). For a RELATIVE declared cwd this round-trips to the literal and is location-independent; for an ABSOLUTE declared cwd the identity component becomes a function of where the checkout lives, and for a symlink-aliased projectRoot it can differ from the literal. Scope note: this repository's proof-or-stop.config.json declares no cwd on any of its 121 commands (0 with cwd, 0 absolute), so there is no instance here; the defect is in the stated guarantee, the same class as F-017 (an EFFECTIVE value leaking into the DECLARED-intent tuple), so it is downgraded to medium but fixed in scope for consistency of the identity contract. Fix, mirroring the F-017 split: the portable tuple hashes the DECLARED cwd literal, posix-normalized, with absent meaning '.', and never resolves it; the complete runtime tuple keeps the resolved absolute cwd. An absolute declared cwd is inherently location-bound by the config author's choice, so additionally emit an inventory warning naming any command whose declared cwd is absolute. Fixtures: same relative cwd from two different projectRoot locations (and a symlinked alias of one) yields identical provisional id and commandSetDigest; an absolute declared cwd yields the warning and an id equal to hashing the literal.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-02T09:13:32.991Z",
@@ -497,7 +497,11 @@
         "packages/main/src/core/validation-command-identity.ts"
       ],
       "signatureTag": "adversarial|ts|registered-story-owner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commits 899a13a6cd RED / 8613d6d6ec GREEN), mirroring the F-017 split: the portable tuple now hashes the DECLARED cwd literal via declaredValidationCommandCwd (posix-normalized, absent or ./ -> '.'), never resolved, and narrowPortableValidationCommandTuple takes no project root at all; the complete runtime tuple keeps the resolved absolute cwd; buildValidationCommandInventory appends an inventoryWarnings entry for any absolute declared cwd ('cannot be portable by construction'). The digest key stays cwdRelative so relative declarations serialize byte-identically. OWNER VERIFICATION pasted: real-inventory commandSetDigest is unchanged at eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 (this repository declares no cwd on any of its 121 commands, as stated in the finding), asserted in-fixture as well. Fixtures: same relative cwd from two different projectRoot paths and from a symlinked alias yield identical id and digest; an absolute declared cwd yields the warning and an id equal to hashing the literal; the runtime tuple for it still carries the resolved path. The old case asserting absolute and relative declarations AGREE encoded the defect and was replaced. Downgraded from MAJOR to medium because no instance exists in this repository; fixed in scope for consistency of the identity contract.",
+      "resolvedAt": "2026-09-02T09:34:06.424Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
