@@ -620,11 +620,15 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
   );
 
   if (input.changedFiles.status === 'changed_files_unavailable') {
+    // B-a745 F-016: render the collector's BOUNDED classification, never
+    // `changedFiles.error`. The raw value can be git's entire usage block and
+    // stays on the structured input for diagnosis only.
     escalationReasons.push(
       validationWideningReason(
         'changed_files_unavailable',
         `the changed-file set between ${input.changedFiles.baseRef} and ${input.changedFiles.headRef} could ` +
-        `not be read (${input.changedFiles.error}); this is not an empty diff, it is an absence of knowledge`,
+        `not be read (${input.changedFiles.reason}: ${input.changedFiles.summary}); this is not an empty diff, ` +
+        'it is an absence of knowledge',
       ),
     );
   }
