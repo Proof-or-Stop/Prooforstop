@@ -1166,7 +1166,7 @@
       "desc": "B-9a49:F-042 resolvedReason audit-evidence mismatch (high): the official CLI record says the corrected five active roles are proof-or-stop-review-concept, quality, test-coverage, docs, and delivery, but the executable proposal and canonical registry correctly define behavior, concept, docs, quality, and test-coverage. proof-or-stop-review-delivery is a different non-modular-review role and cannot substitute for proof-or-stop-review-behavior. The implementation fix is present, but the append-only resolution evidence for the prior high finding states the wrong acceptance set, so F-042 closure is not truthfully evidenced. Add a traceable correction/superseding resolution record that explicitly names the exact canonical five without rewriting the historical Finding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T04:02:59.646Z",
@@ -1179,7 +1179,11 @@
         "packages/main/src/core/prompt-role-contract-registry.ts"
       ],
       "signatureTag": "missing|md|9a49-resolvedreason-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Append-only correction to the inaccurate B-9a49:F-042 resolvedReason: the exact five active modular REVIEW roles are proof-or-stop-review-behavior, proof-or-stop-review-concept, proof-or-stop-review-docs, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage. proof-or-stop-review-delivery is a separate DONE/delivery role and is not one of those five. The implementation and English proposal already contain the correct canonical five; this superseding audit record corrects only the prior resolution narrative and does not rewrite historical Finding data.",
+      "resolvedAt": "2026-09-02T04:14:40.215Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
