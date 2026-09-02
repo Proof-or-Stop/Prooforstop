@@ -13498,6 +13498,37 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "98f6a8e56beb63c923261861037df5d4e5d4bb4884b875662a81783588d47b00"
+    },
+    {
+      "id": "B-5a15:RP-283",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness-critic terminal for epoch B-5a15:RI-061 wave 1. COVERAGE JUDGEMENT: the three required lanes (concept RP-282/RR-848, quality RP-281/RR-849, test-coverage FINDING F-351/RR-850) are all bound to head 1df89edff5 with materialHash 0dd3167744 and storyFilesHash af9bbe5069, exactly matching this epochs frozen cutoff, so every lane verdict is anchored to the frozen material rather than to drifted state. All three manifests carry the same corpusDigest c7534616659c7577 as the signed candidate-spec-set, and all three report scanEscalationReason=null, so no lane claimed an escalation it did not perform. I recomputed this waves raw-finding set myself from findings.json against the eligible runs instead of trusting the dispatch prompt: candidates must match round 2026-09-02T10:34:38.494Z plus the cutoff material/storyFiles hashes and exceed initialRunSequenceBoundary 847, and evidenceForRun additionally requires a verified finding to carry BOTH readManifest and readLog. Three findings share the current round, but F-350 is resolved and carries readManifest without readLog so it is filtered out, and F-352 carries no reviewRunId at all (agent main-agent, a mechanism note) so it is not attached to any lane run; baselineFindingIds is empty and epoch.waves is empty. F-351 is therefore the ONLY raw finding, and I deliberately did not disposition F-350 or F-352 because review-inventory-epoch.ts flags a disposition for a non-raw finding as invalid. COMPLETENESS RESERVATION, recorded for the record rather than as a blocker: the story material against main is 44 non-metadata source files, of which the lanes read 11 fully and triaged 10 by name, leaving 23 neither read nor triaged, including the acceptance-topology, pre-review-check and certification-window smoke tasks. Those 23 lie OUTSIDE the signed 23-entry candidate-spec-set the lanes were bounded to, so this is a bounded-corpus scoping consequence and not a lane skipping work inside its own signed scope; I judge lane coverage COMPLETE with respect to the frozen signed corpus, and flag the corpus-versus-material delta as the residual risk a future wave or a widened candidate set should absorb. No additional unreviewed material region changed the verdict on F-351, whose defect I reproduced independently.",
+      "createdAt": "2026-09-02T12:15:23.214Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-852",
+      "envelopeId": "9b04f04266a64d5c8065ffdb3ca9a6ff58d3808dd967f744e43e63ca04257fcc",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/candidate-spec-set.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "0e9dcda7499eec5a5375cfab2f29be3d1c7a012e390d3ae17c8187c13f3c6efe"
     }
   ]
 }
