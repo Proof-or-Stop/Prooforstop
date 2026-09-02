@@ -333,10 +333,17 @@ function hasDynamicFindingAuthorityAmendmentAssertion(segment: string): boolean 
       const invariantComparisonLead = segment.slice(Math.max(0, authorityRange.start - 64), authorityRange.start);
       const invariantComparisonBridge = segment.slice(authorityRange.end, amendmentRange.end);
       const invariantComparisonOutcome = segment.slice(amendmentRange.end);
+      const invariantOutcomeMatch = /\b(?:remain|remains|stay|stays|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)\b|\bno\s+(?:authority|runtime|schema|semantic|contract)?\s*changes?\b/u.exec(invariantComparisonOutcome);
+      const invariantOutcomeTail = invariantOutcomeMatch
+        ? invariantComparisonOutcome.slice(invariantOutcomeMatch.index + invariantOutcomeMatch[0].length).trim()
+        : null;
+      const invariantOutcomeConsumesTail = invariantOutcomeTail !== null
+        && (invariantOutcomeTail.length === 0
+          || /^by\s+(?:the\s+)?(?:metadata|prompt|implementation|code)(?:\s+only)?\s+(?:registration|change|update)$/u.test(invariantOutcomeTail));
       const nominalReferenceIsInvariantComparison = nominalChangeReference
         && /\b(?:compare|verify|audit|check)\b[^.;]{0,48}$/u.test(invariantComparisonLead)
         && /\b(?:before\s+and\s+after|across)\b[^.;]{0,64}\b(?:change|changes|update|updates)$/u.test(invariantComparisonBridge)
-        && /\b(?:remain|remains|stay|stays|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)\b|\bno\s+(?:authority|runtime|schema|semantic|contract)?\s*changes?\b/u.test(invariantComparisonOutcome);
+        && invariantOutcomeConsumesTail;
       // A Story may name its own implementation change while proving that the
       // authoritative Dynamic Finding contract is invariant. This narrow
       // nominal-reference exception does not excuse an affirmative amendment
