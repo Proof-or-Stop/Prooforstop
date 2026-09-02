@@ -57,6 +57,24 @@
       ],
       "signatureTag": "missing|md|agents-story-verification",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-004",
+      "desc": "AGENTS.md:16-566 — “translate the complete root AGENTS.md” was implemented as an undocumented consolidation, not a fully accounted translation. The baseline has 598 lines/32 fences/41 table rows/11 blockquotes; the final has 566/20/21/0. A deterministic command inventory finds 14 still-current repository-local CLI examples removed from runnable guidance (aux_detail, aux_diagnose, aux_scan, aux_sync, aux_trace, decision_get, decision_set, fixture_batch_add, gap_log, story_create, test_fixture, test_story, understanding_get, understanding_set; each --help exits 0). The evidence supplies only the blanket sentence “obsolete and duplicate legacy sections consolidated” rather than listing each intentional removal and justification, contrary to CHK-002:edge:0 and the complete-translation request. Restore faithful English coverage or provide a complete itemized audit proving every deletion is an authorized consistency correction rather than lost content.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T00:25:12.164Z",
+      "reviewRound": "2026-09-02T00:20:22.610Z",
+      "reviewRunId": "B-d854:RR-003",
+      "_hash": "ca9ca9061e83139d5c9b20b5d0ea1fe58f5f28ce9bd5aa1fc4864b62dd057f1e",
+      "files": [
+        "AGENTS.md"
+      ],
+      "signatureTag": "missing|md|agents-translate-complete",
+      "signatureTagSource": "auto"
     }
   ]
 }
