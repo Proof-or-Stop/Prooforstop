@@ -19367,7 +19367,7 @@
       "desc": "quality-cleanup: three merge-hygiene residues left by the main merge that tsc cannot catch (non-blocking; grouped). (1) STALE SYMBOL REFERENCE: packages/main/src/core/pre-review-live-proof.ts:135 documents the no-borrowing guarantee by pointing at `executeActiveScenarioTopology`, which this merge renamed to `executeActiveScenarioWitnesses`. Verified by grep: that identifier now has exactly ONE live source occurrence repo-wide (this comment); every call site was ported. A comment naming a nonexistent function misdirects the next reader of the very invariant it is explaining. (2) DEAD EXPORT: packages/main/src/core/causal-evidence.ts:32 exports CAUSAL_AUTHORITY_SCHEMA ('proofbound.causal-evidence-authority.v1'), which is written but never read - grep across packages/main/src, packages/main/tests and scripts yields exactly 1 reference (its own declaration). Its sibling CAUSAL_AUTHORITY_KEY_FILE:33 IS consumed at causal-evidence.ts:280, so this is an orphan rather than a matched pair. Branch-authored, so it is this story's to drop or wire up. (3) SHADOWED DUPLICATE DECLARATION: packages/main/src/handlers/verifier.ts declares `const identityCommand` twice - at :2139 (outer, consumed only by runValidateFile at :2149) and again at :2161 inside runValidateFileAndRender, which shadows it for that whole function. I diffed the two declarations byte-for-byte: IDENTICAL, so there is no behavioral divergence today, but the shadowing means a future edit to one silently fails to affect the causal-preflight identity built from the other at :2330. Collapsing to the single outer binding removes the hazard.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T12:44:04.157Z",
@@ -19420,7 +19420,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-three",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED - all three items, and two of the three were defects MY merge introduced, so rule 1 applies rather than deferral. (1) STALE SYMBOL REFERENCE: core/pre-review-live-proof.ts:135 documented the no-borrowing guarantee by naming executeActiveScenarioTopology, which main renamed to executeActiveScenarioWitnesses. I verified the reviewer's grep claim - that identifier had exactly ONE live source occurrence repo-wide (this very comment) because every call site was ported. Updated to name the live symbol. The reviewer's framing is right that a comment naming a nonexistent function misdirects the next reader of the exact invariant it explains. (2) DEAD EXPORT: core/causal-evidence.ts:32 exported CAUSAL_AUTHORITY_SCHEMA with zero consumers. I checked provenance before acting: 'git show <merge-base>:packages/main/src/core/causal-evidence.ts | grep -c CAUSAL_AUTHORITY_SCHEMA' returns 0, so it was introduced by THIS story, not inherited from main - dead code inside my own claimed scope. Removed. (3) SHADOWED DUPLICATE: handlers/verifier.ts had two byte-identical 'const identityCommand: ValidationCommand' declarations at :2139 and :2161, the inner shadowing the outer. Provenance checked the same way: main has exactly ONE, so the duplicate was created by MY 'keep both sides' resolution of the verifier.ts conflict. The outer at :2139 is already in scope at the inner site, so the inner was pure redundancy. Removed. VERIFICATION after all three: tsc --noEmit -p packages/main clean; rebuild OK; and both pin guards re-run WITHOUT a pipe (the methodology error the concept lane caught earlier in this round) - scripts/verify-process-fact-contract.mjs TRUE exit 0 and retired-authority-vocabulary-guard-smoke.js TRUE exit 0. Note item (3) matters slightly beyond hygiene: a shadowed duplicate of the command object threaded into the causal preflight gate is exactly the kind of near-miss that makes a later reader unsure which instance the gate guards.",
+      "resolvedAt": "2026-09-02T12:50:20.693Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
