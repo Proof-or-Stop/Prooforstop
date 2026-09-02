@@ -75,6 +75,31 @@
         "scanEscalationReason": null
       },
       "_hash": "923518a5fd49e2a0e51e6337e4dd8e05342ba3892fdb61e789f909a49e429fdb"
+    },
+    {
+      "id": "B-a745:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round-2 re-audit after F-001/F-002/F-004/F-006 fixes. (1) Aggregation harness unchanged this round (grep for testCase/failures/process.exit across all 20 commits in main..HEAD shows zero removed lines touching them); exitCode 0 still means every case ran+passed. Ran both npx tsx and the compiled dist smoke file live: PASS, 81/81 ok, including all new cases. (2) CHK-005:happy:0 receipt remains pinned to the non-discriminating selector finalAuthority: no (confirmed in checklist.json verificationIntent.verification.selector, immutable by design). The substitute guarantee -- commit dd7bd9cb13 (RED) + d681784e06 (GREEN) -- adds two committed, currently-passing fixtures asserting plan/stop renders share no outcome-bearing line and finalAuthority: no is proven non-discriminating; both cases ran ok in this pass. Accepted as documented partial mitigation, matching F-002 resolution text. (3) F-001 pinned_command_non_inventory: confirmed BOTH branches are committed and passing -- an explicit unresolvable commandId still stops (test: an explicit unresolvable commandId still stops while an unresolvable legacy string does not) and an unresolvable legacy string widens instead of stopping (test: a legacy string matching nothing is a non-inventory evidence command, not a stop / a non-inventory legacy pin plans repository-full instead of stopping, and seeds no command). No happy-path-only gap. (4) F-006: VALIDATION_STOP_REASON_CODES is genuinely derived at module scope (validation-tier-planner.ts:325, filter on outcome===stop), and the committed fixture (the stop-code list is derived from the table and the resolver consults it) enumerates VALIDATION_WIDENING_REASON_CODES and asserts isValidationStopReasonCode agrees with each row plus drives the resolver through every collector escalation code -- a row whose outcome changed, or a hardcoded stop-list reintroduced without table backing, would fail this fixture. (5) All 34 must intents remain done/covered; verification_evidence_refresh_stale --dryRun reports 33 of 34 pinned evidence entries as headHash-stale (recorded before the F-001/F-002/F-004/F-006 commits touched the shared smoke file) with CHK-005:happy:0 fresh (re-run at 71dd68b785). This is routine story-progression staleness, not a regression: re-running the pinned commands live reproduces PASS. Per-commit committed-test check: F-001 -> 913fce8326 (RED)/bce775f1d0 (GREEN); F-002 -> dd7bd9cb13 (RED)/d681784e06 (GREEN); F-004 -> ba8c46c915 (RED)/41143352ef (GREEN); F-006 -> e1ca26fcdc (RED)/c94c88cbdb (GREEN). All four findings have a committed, currently-passing test. No blocking test-coverage issues this round.",
+      "createdAt": "2026-09-02T03:40:03.508Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-007",
+      "envelopeId": "67a3c5be25940220ede90d8b75fa055292ce3c2dabe339a21b17f22ed4715fc6",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validation-plan.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5f780f3a6072d0a4382196d21785ebb5c7e78faa9556a1ac3712beab2b41290"
     }
   ]
 }
