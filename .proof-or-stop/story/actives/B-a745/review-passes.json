@@ -547,6 +547,32 @@
         "scanEscalationReason": null
       },
       "_hash": "0e400fe200731fef7e3fb5c4db54075fbbbbef17371265e7c656267071e88cbb"
+    },
+    {
+      "id": "B-a745:RP-022",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 7 re-bind: no product source changed since RP-017 (headHash 37eeed1 -> 69518e5 diff touches only .proof-or-stop/ story metadata, confirmed via git diff --stat and git log). Fresh npm run build dist byte-identical to committed dist. Single invariant call site in validation-plan.ts (renderValidationPlanReport, sole implementation at L560, single production call site L787, text-shape helper L570 routes through it) unchanged. Narrow portable-tuple identity design in validation-command-identity.ts unchanged. No blocking findings.",
+      "createdAt": "2026-09-02T11:29:48.443Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-034",
+      "envelopeId": "45705801b9232f7f84a5da995d015460f200b77e3c8a276e1b74125a71103449",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e40597aa5847806eeb5072ce6ffa94f6b00363a3d6a817ba050e048a7220196a"
     }
   ]
 }
