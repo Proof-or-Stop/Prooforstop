@@ -1,6 +1,6 @@
 {
   "storyId": "B-a745",
-  "changes": "Adds Rollout Story 1 of the Story-relevance dynamic validation tiers plan. New core/validation-command-identity.ts gives every configured validation command a stable id: a declared id is kept verbatim, an undeclared one gets a deterministic prov- id over the narrow portable tuple of command, args, repo-relative cwd and shell, and a commandSetDigest covers the normalized inventory including label and focus. The same module owns the canonical legacy pin resolver (exact commandId, legacy-exact normalized tuple, pinned_command_missing, pinned_command_ambiguous, pinned_command_non_inventory). New core/validation-relevance-input.ts collects a normalized StoryRelevanceInput through the existing shared rename-aware and freshness readers rather than re-deriving them. New core/validation-tier-planner.ts defines the three tier names, the subset invariant and the fail-closed widening matrix, where every reason code carries a plain-language gloss declared in the same table. New handlers/validation-plan.ts exposes it as a read-only CLI. verifier.ts and validation-evidence-reuse.ts had their existing command normalization and legacy string parse EXTRACTED and exported so identity and pin resolution reuse one owner instead of duplicating the rules; buildRoutineValidationIdentity behaviour is unchanged. proof-or-stop.config.json registers the new suite as validate command 121.",
+  "changes": "Adds Rollout Story 1 of the Story-relevance dynamic validation tiers plan. New core/validation-command-identity.ts gives every configured validation command a stable id: a declared id is kept verbatim, an undeclared one gets a deterministic prov- id over the declared-intent portable tuple of command, args, repo-relative cwd and shell, and a commandSetDigest covers the normalized inventory including label and focus. The same module owns the canonical legacy pin resolver (exact commandId, legacy-exact normalized tuple, pinned_command_missing, pinned_command_ambiguous, pinned_command_non_inventory). New core/validation-relevance-input.ts collects a normalized StoryRelevanceInput through the existing shared rename-aware and freshness readers rather than re-deriving them. New core/validation-tier-planner.ts defines the three tier names, the subset invariant and the fail-closed widening matrix, where every reason code carries a plain-language gloss declared in the same table. New handlers/validation-plan.ts exposes it as a read-only CLI. verifier.ts and validation-evidence-reuse.ts had their existing command normalization and legacy string parse EXTRACTED and exported so identity and pin resolution reuse one owner instead of duplicating the rules; buildRoutineValidationIdentity behaviour is unchanged. proof-or-stop.config.json registers the new suite as validate command 121.",
   "usage": "node packages/main/dist/cli.js validation_plan --storyId=B-xxxx --tier=fast|intermediate|full [--explain] [--json]. It prints requestedTier, effectiveTier, a runtime-derived selected-of-total count, per-command inclusion reasons, unclassified inputs, each escalation reason code followed by a plain-language gloss, an estimated duration with its basis, and finalAuthority: no. It executes no validation command, writes no evidence and changes no gate.",
   "expectedOutcome": "An operator runs validation_plan against a Story and sees the full command inventory with stable ids, whether each recorded evidence pin resolves, which Story inputs were collected, and a readable explanation of why the effective tier is still the whole repository rather than a reduced set. Validation does not get faster: this increment can never reduce a set, by design.",
   "actualTranscript": "node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast prints: status: plan / requestedTier: story-fast (requested as \"fast\") / effectiveTier: repository-full / sourceKind: configured / selected: 121 of 121 validation unit(s) / reductionApplied: false / finalAuthority: no, followed by four escalation reasons each with a gloss (impact_index_unusable, command_exclusion_unproven, unclassified_material_input, pinned_command_non_inventory), per-unit inclusion reasons, unclassified inputs, an estimatedDuration line naming its basis, and an inventoryWarning naming the runtime count of commands still on provisional ids. Missing storyId is rejected with 'validation_plan: storyId is required'; --tier=quick with 'unknown tier \"quick\" (expected one of fast, intermediate, full)'.",
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 3,
-      "durationMs": 16090128
+      "durationMs": 16123790
     }
   },
-  "totalDurationMs": 41699233,
+  "totalDurationMs": 41732895,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-02T04:35:56.198Z",
-  "updatedAt": "2026-09-02T12:28:10.284Z"
+  "updatedAt": "2026-09-02T12:28:43.946Z"
 }
