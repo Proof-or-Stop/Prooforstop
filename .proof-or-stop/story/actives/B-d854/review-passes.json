@@ -398,6 +398,36 @@
         "scanEscalationReason": null
       },
       "_hash": "414de78fad7c5e144b22b66c3a65ad69e55d8806dc5e9c758b6cb1e1d8da3f39"
+    },
+    {
+      "id": "B-d854:RP-014",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 14 target commit 354ffbdab127ab2940a5d25a9ee28f7fb960c479 is GREEN. Target commit symbol extraction found 0 declarations, so the pure docs fallback compared 3 affected documentation paragraphs: the AGENTS.md legacy fixture maintenance example block, the audit artifact binding block, and the audit command ledger explanation. The test_fixture value is unambiguously conceptual and legacy: it sits under the Legacy fixture maintenance heading with explicit instructions to preview writes and replace conceptual identifiers, uses the self describing placeholder legacy-maintenance-fixture-id, and the following prose says fixture and test commands are compatibility only maintenance entrypoints rather than the default new Story verification path. Authority agrees: command-policy.ts marks test_fixture as legacy and dangerousMutating, command-catalog.ts accepts fixtureId as a string, the real repository local test_fixture help succeeds and requires a string fixtureId, and the verifier classifies test_fixture as conceptual, checks real help, and validates the exact payload through MAIN_TOOLS without executing it. Git diff syntax checking passes. The commit AGENTS.md SHA-256 is e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26, exactly matching both audit references and EXPECTED_AGENTS_SHA. Fresh final verification exited 0 with 26 of 26 GREEN, command ledger 46 of 46, and han=0, ufffd=0, nonAscii=0 for AGENTS.md, the audit report, and the verifier. No documentation inconsistency or promised but undelivered behavior was found.",
+      "createdAt": "2026-09-02T14:08:27.082Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-047",
+      "envelopeId": "4fefa4101f6de98adb41777ad8411bc8bde3ecdb6f4bb47b44e0ec980e1da3d4",
+      "writerSessionId": "sess-344f8d2efea524142dd9d1f57515ecf5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/test-fixture.ts"
+        ],
+        "scanEscalationReason": "Target commit has zero changed declarations; pure document fallback was bounded to changed paragraphs, related document references, and the authoritative test_fixture schema, policy, handler, and final verifier."
+      },
+      "_hash": "4b2eb872d65462e077fea76c6e5c2f6d2666ae760734955b65c9b28b835e2fb7"
     }
   ]
 }
