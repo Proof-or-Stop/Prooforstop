@@ -303,6 +303,24 @@
       ],
       "signatureTag": "missing|ts|validation-plan-resolvestoryworkspace",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-015",
+      "desc": "Build-artifact freshness observation, not a code defect: at the start of this review round (before I ran npm --prefix packages/main run build) packages/main/dist/handlers/validation-plan.js on disk in THIS worktree contained ZERO occurrences of resolveStoryWorkspace/resolveGitCwd -- i.e. it predated the entire F-010/F-011 fix (dist mtime ~04:35 vs the fix commits at ~08:43-08:54). This is NOT evidence fabrication: CHK-006's recorded verification_evidence receipts (headHash de019c2284, executedAt ~07:53Z) genuinely contain the new F-010 fixture output as `ok`, proving dist WAS rebuilt and fresh at capture time -- something (plausibly a concurrent reviewer/process also working this worktree, or simply no full `proof-or-stop validate` re-run since) let it drift stale again afterward. Because `npm run test:validation-tier-planner` executes dist, not src, a stale dist at DONE-gate time would silently re-validate old code even though the story's recorded evidence is genuine. The existing safety net (validate.commands[0] = `npm --prefix packages/main run build`, run first by any full `proof-or-stop validate`) covers this IF the DONE-gate path always goes through a full validate; flagging for traceability since I observed the drift once. I rebuilt dist as part of this review (git-ignored build artifact, no src/story state changed) so it is fresh again now; git status is clean.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:05:12.810Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-011",
+      "_hash": "25d9f3c5b190fdb39ce721c591d2a96d48ec03ce620b4b83ab4458a0a1640fcd",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|build-artifact-freshness",
+      "signatureTagSource": "auto"
     }
   ]
 }
