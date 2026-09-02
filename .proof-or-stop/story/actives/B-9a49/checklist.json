@@ -1004,25 +1004,45 @@
         },
         {
           "intentRef": "CHK-003:adversarial:runtime-matrix-invariant",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "permanent",
-          "note": "Permanent in-flight identity-migration waiver re-attested on the current canonical source: this immutable PLAN-time verifier asserts retired lattice-review role IDs. Canonical proof-or-stop REVIEW roles, non-evidentiary prompt metadata, and unchanged protected Dynamic Finding runtime are independently covered by current mechanical prompt-registry, full-envelope, process-fact, acceptance-basis, build, and diff-boundary receipts. This waiver does not claim the retired assertion passed.",
-          "headHash": "63d661f603a389761e5940072c2825fe466813a6",
-          "materialHash": "5d4d3c6b600fdebda3d4326e4993c3a1ddc42783d0464e00df3612d5ac819151",
-          "storyFilesHash": "2d8554dfde09f9433357aadb64ce9e850070f0f188c42b9a00dd1ffde4a74bc8",
-          "timestamp": "2026-09-02T02:19:40.231Z"
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused registry smoke proves declarative metadata cannot change the authoritative runtime matrix.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T03:02:06.618Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2ae2f44793bdac82cf228a8c7dc3319497fc6580",
+          "materialHash": "fd65db937a1d49d5f56dbdf1b7e5a582697349144da525f7b5e33182b0fbb9a7",
+          "storyFilesHash": "78e792a278652a3c8d2c778b5e47f5ed7a8cc31003284027f6eeeeccdea1fcc3",
+          "timestamp": "2026-09-02T03:02:07.721Z"
         },
         {
           "intentRef": "CHK-003:adversarial:no-dynamic-schema-expansion",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "permanent",
-          "note": "Permanent in-flight identity-migration waiver re-attested on the current canonical source: this immutable PLAN-time verifier asserts retired lattice-review role IDs. Canonical proof-or-stop REVIEW roles, non-evidentiary prompt metadata, and unchanged protected Dynamic Finding runtime are independently covered by current mechanical prompt-registry, full-envelope, process-fact, acceptance-basis, build, and diff-boundary receipts. This waiver does not claim the retired assertion passed.",
-          "headHash": "63d661f603a389761e5940072c2825fe466813a6",
-          "materialHash": "5d4d3c6b600fdebda3d4326e4993c3a1ddc42783d0464e00df3612d5ac819151",
-          "storyFilesHash": "2d8554dfde09f9433357aadb64ce9e850070f0f188c42b9a00dd1ffde4a74bc8",
-          "timestamp": "2026-09-02T02:19:40.231Z"
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused registry smoke proves the change does not expand Dynamic Finding schemas or lifecycle authority.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T03:02:07.068Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2ae2f44793bdac82cf228a8c7dc3319497fc6580",
+          "materialHash": "fd65db937a1d49d5f56dbdf1b7e5a582697349144da525f7b5e33182b0fbb9a7",
+          "storyFilesHash": "78e792a278652a3c8d2c778b5e47f5ed7a8cc31003284027f6eeeeccdea1fcc3",
+          "timestamp": "2026-09-02T03:02:07.721Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1412,14 +1432,24 @@
         },
         {
           "intentRef": "CHK-004:edge:version-and-local-artifacts",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "permanent",
-          "note": "Permanent in-flight version-migration waiver re-attested on the current canonical source: this immutable PLAN-time selector expects Proof-or-Stop 0.3.268, while the current approved identity migration requires 0.3.270. Version 0.3.270 is independently verified by the local CLI, manifests, lockfiles, branded constant, build, runtime-fact contract, prompt registry, and prompt baseline. This waiver does not claim the obsolete selector passed.",
-          "headHash": "63d661f603a389761e5940072c2825fe466813a6",
-          "materialHash": "5d4d3c6b600fdebda3d4326e4993c3a1ddc42783d0464e00df3612d5ac819151",
-          "storyFilesHash": "2d8554dfde09f9433357aadb64ce9e850070f0f188c42b9a00dd1ffde4a74bc8",
-          "timestamp": "2026-09-02T02:19:40.231Z"
+          "kind": "manual_transcript",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js --version",
+          "result": "pass",
+          "note": "Tool-executed local CLI version command proves the canonical 0.3.270 built entrypoint used for final adapter verification.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7819f94e3b27740add34c6860e629be948755fd8fce55e068765c460534e8406",
+            "outputTail": "Proof-or-Stop 0.3.270\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T03:02:07.582Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2ae2f44793bdac82cf228a8c7dc3319497fc6580",
+          "materialHash": "fd65db937a1d49d5f56dbdf1b7e5a582697349144da525f7b5e33182b0fbb9a7",
+          "storyFilesHash": "78e792a278652a3c8d2c778b5e47f5ed7a8cc31003284027f6eeeeccdea1fcc3",
+          "timestamp": "2026-09-02T03:02:07.721Z"
         },
         {
           "intentRef": "CHK-004:adversarial:false-red",
