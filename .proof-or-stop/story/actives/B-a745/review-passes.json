@@ -573,6 +573,35 @@
         "scanEscalationReason": null
       },
       "_hash": "e40597aa5847806eeb5072ce6ffa94f6b00363a3d6a817ba050e048a7220196a"
+    },
+    {
+      "id": "B-a745:RP-023",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 7 re-binding, no code changes. review_incremental_context + git diff c9ba872..HEAD confirm the only files changed since RP-020 are .proof-or-stop/dev-memory/experience.jsonl and story metadata (finish-decisions/B-a745.json, checklist.json, findings.json, index.json, review-*.json, test-evidence.json, etc.) -- zero packages/ source files touched. Finish-decision .proof-or-stop/dev-memory/finish-decisions/B-a745.json cites capturedEntryIds 06d4416 and 90e7215; both exist in experience.jsonl (lines 49-50) with sourceStoryId=B-a745. The wrong id c84e0c8 from an earlier draft is absent from the committed file (git log --follow shows only one commit, ddf9189cba, and it already carries the corrected ids) and c84e0c8 itself belongs to an unrelated older entry (sourceStoryId=B-a7c5) -- correction landed clean, no stray reference anywhere under .proof-or-stop/story/actives/B-a745/. Both lesson texts (06d4416, 90e7215) contain no counts of this story own artifacts (findings/commits/files) -- only enumerated failure-mechanism taxonomy and generic tool-config constants (300000ms idle watchdog default, verified against cli-engine.ts:1079 = 5*60*1000) -- and no unverified story-specific claims. scope-contract.json has an explicit acknowledgement (timestamp 2026-09-02T11:26:51.808Z) covering both dev-memory paths, citing the same two entry ids and framing them as lifecycle metadata not product source. Re-ran validate --concept: same 10 splitShellWords residuals as RP-020, all covered by resolved/disproven B-a745:F-007, no new residue. No blocker.",
+      "createdAt": "2026-09-02T11:30:55.446Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-035",
+      "envelopeId": "cd8c1ec1691626dd7231a9637694ac0297e4f2a33f6843db73eaaea0ee00e53c",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          ".proof-or-stop/dev-memory/finish-decisions/B-a745.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json",
+          ".proof-or-stop/story/actives/B-a745/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          ".proof-or-stop/story/actives/B-a745/process-events.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "22a4a46c173c18ef61b1624d8f46cd53d7d38e12633f6a04e617fed87977dded"
     }
   ]
 }
