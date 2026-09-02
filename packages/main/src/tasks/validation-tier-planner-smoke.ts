@@ -124,6 +124,7 @@ import {
   DEFAULT_STORY_RELEVANCE_READERS,
   collectStoryRelevanceInput,
   type ChangedFileStatusReader,
+  type StoryRelevanceChangedFiles,
   type StoryRelevanceInput,
   type StoryRelevanceInputArgs,
 } from '../core/validation-relevance-input.js';
@@ -1021,12 +1022,13 @@ testCase('a changed-file read failure is changed_files_unavailable, never an emp
 //       available for diagnosis on `changedFiles.error`, but it must never reach
 //       the detail line.
 // ---------------------------------------------------------------------------
-// RED note: `reason` / `summary` do not exist on StoryRelevanceChangedFiles yet, so the
-// accessor casts. The GREEN commit replaces the cast target with the real union member,
-// which is what keeps a future field removal a COMPILE error and not just a runtime one.
-function unavailableChangedFiles(input: StoryRelevanceInput): { error: string; reason: string; summary: string } {
+// Narrowed to the real union member, so deleting `reason` or `summary` from
+// StoryRelevanceChangedFiles is a COMPILE error here, not merely a runtime one.
+type UnavailableChangedFiles = Extract<StoryRelevanceChangedFiles, { status: 'changed_files_unavailable' }>;
+
+function unavailableChangedFiles(input: StoryRelevanceInput): UnavailableChangedFiles {
   assert.equal(input.changedFiles.status, 'changed_files_unavailable');
-  return input.changedFiles as unknown as { error: string; reason: string; summary: string };
+  return input.changedFiles as UnavailableChangedFiles;
 }
 
 const GIT_USAGE_DUMP = [

@@ -133,8 +133,31 @@ export type StoryRelevanceChangedFiles =
       status: 'changed_files_unavailable';
       baseRef: string;
       headRef: string;
+      /**
+       * Short machine classification of WHY the read failed. Operator-facing prose is
+       * derived from this, never from the raw subprocess output.
+       */
+      reason: ChangedFilesUnavailableReason;
+      /** One bounded, human-readable sentence. Never multi-line, never a stderr dump. */
+      summary: string;
+      /**
+       * The underlying error, preserved verbatim for diagnosis only. It may be
+       * arbitrarily long (git prints its whole usage block outside a repository), so it
+       * must NEVER be interpolated into an escalation detail.
+       */
       error: string;
     };
+
+/**
+ * Classification of a changed-file read failure. Deliberately coarse: the point is a
+ * readable one-line explanation, not a taxonomy of git exit paths.
+ */
+export type ChangedFilesUnavailableReason =
+  | 'not-a-git-repository'
+  | 'unknown-revision'
+  | 'git-unavailable'
+  | 'reader-contract-violation'
+  | 'unknown';
 
 export type StoryRelevanceHashes =
   | { status: 'available'; head: EvidenceHashSnapshot }
@@ -406,6 +429,62 @@ function assertCollectorArgs(args: StoryRelevanceInputArgs): void {
   }
 }
 
+/** Upper bound on the one-line failure summary. Prose, not a stderr transcript. */
+const CHANGED_FILES_SUMMARY_MAX_LENGTH = 120;
+
+function firstMeaningfulLine(raw: string): string {
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    // `Command failed: git diff ...` is the wrapper, not the cause; keep looking.
+    if (/^command failed:/i.test(trimmed)) continue;
+    return trimmed;
+  }
+  return raw.split(/\r?\n/)[0]?.trim() ?? '';
+}
+
+function boundSummary(text: string): string {
+  const flattened = text.replace(/\s+/g, ' ').trim();
+  if (flattened.length <= CHANGED_FILES_SUMMARY_MAX_LENGTH) return flattened;
+  return `${flattened.slice(0, CHANGED_FILES_SUMMARY_MAX_LENGTH - 1).trimEnd()}\u2026`;
+}
+
+/**
+ * Turn an arbitrary reader failure into a BOUNDED one-line classification.
+ *
+ * Outside a git repository git prints its entire `git diff` usage block on stderr, which
+ * the child-process wrapper folds into the thrown message. Interpolating that verbatim
+ * into the escalation detail turns the explain output into a wall of git help and
+ * destroys the interpretability the glossed escalations exist to provide. The raw error
+ * is kept on the structured result for diagnosis; only this summary is rendered.
+ */
+function classifyChangedFilesFailure(
+  raw: string,
+  code: unknown,
+): { reason: ChangedFilesUnavailableReason; summary: string } {
+  const haystack = raw.toLowerCase();
+  if (code === 'ENOENT' || /\benoent\b/.test(haystack)) {
+    return { reason: 'git-unavailable', summary: 'the git executable was not found on this host' };
+  }
+  if (/not a git repository|not a git repo\b/.test(haystack)) {
+    return { reason: 'not-a-git-repository', summary: 'the working directory is not a git repository' };
+  }
+  if (/bad revision|unknown revision|ambiguous argument|bad object|invalid object name/.test(haystack)) {
+    return { reason: 'unknown-revision', summary: 'one of the requested revisions could not be resolved' };
+  }
+  return { reason: 'unknown', summary: boundSummary(firstMeaningfulLine(raw)) || 'the changed-file reader failed' };
+}
+
+function unavailableChangedFiles(
+  baseRef: string,
+  headRef: string,
+  raw: string,
+  reason: ChangedFilesUnavailableReason,
+  summary: string,
+): StoryRelevanceChangedFiles {
+  return { status: 'changed_files_unavailable', baseRef, headRef, reason, summary: boundSummary(summary), error: raw };
+}
+
 function readChangedFiles(
   reader: ChangedFileStatusReader,
   gitCwd: string,
@@ -416,12 +495,13 @@ function readChangedFiles(
     const statuses = reader(gitCwd, baseRef, headRef);
     if (!statuses || typeof statuses !== 'object') {
       // A reader that returns a non-map has not proven "no changes" either.
-      return {
-        status: 'changed_files_unavailable',
+      return unavailableChangedFiles(
         baseRef,
         headRef,
-        error: 'changed-file reader returned a non-object result',
-      };
+        'changed-file reader returned a non-object result',
+        'reader-contract-violation',
+        'the changed-file reader returned a non-object result',
+      );
     }
     return {
       status: 'available',
@@ -432,7 +512,10 @@ function readChangedFiles(
     };
   } catch (error) {
     // NEVER `return []` here. See the module header, rule 1.
-    return { status: 'changed_files_unavailable', baseRef, headRef, error: errorMessage(error) };
+    const raw = errorMessage(error);
+    const code = error instanceof Error ? (error as NodeJS.ErrnoException).code : undefined;
+    const { reason, summary } = classifyChangedFilesFailure(raw, code);
+    return unavailableChangedFiles(baseRef, headRef, raw, reason, summary);
   }
 }
 
@@ -622,8 +705,11 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
   if (changedFiles.status === 'changed_files_unavailable') {
     escalations.push({
       code: 'changed_files_unavailable',
+      // The BOUNDED summary, never `changedFiles.error`: the raw value can be git's
+      // entire usage block and would make this line unreadable.
       detail:
-        `the changed-file set between ${baseRef} and ${headRef} could not be read (${changedFiles.error}). ` +
+        `the changed-file set between ${baseRef} and ${headRef} could not be read ` +
+        `(${changedFiles.reason}: ${changedFiles.summary}). ` +
         'This is NOT the same as an empty diff: nothing is known about what changed.',
     });
   }
