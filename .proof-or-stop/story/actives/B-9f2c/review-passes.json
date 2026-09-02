@@ -99,6 +99,40 @@
         "scanEscalationReason": null
       },
       "_hash": "eb36eb5939c3c2db71c1e7b398e5cf851cd0abc411ac1d30ff57cecb6245c548"
+    },
+    {
+      "id": "B-9f2c:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed. 22/22 must intents evidenced non-tautologically; verified F-001 handling, negative controls, and AB-001 scoping independently.",
+      "createdAt": "2026-09-02T09:19:34.190Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-003",
+      "envelopeId": "e2a6eed0e21b62b5a769b9e7ec448334cb3f56c080bdcf6e3f09ed3daecb46ba",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/proofstory.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c6024ff853a3918283d407cd17eb602b9e36feb2862a8d62672caf1eaf7df8b"
     }
   ]
 }
