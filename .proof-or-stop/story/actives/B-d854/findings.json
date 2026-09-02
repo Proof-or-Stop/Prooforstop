@@ -1009,6 +1009,26 @@
       "_hash": "4c5f7c678e8e0e22a161d3c27d7cf7ff6622c8dc18199908ca735b7f411d8290",
       "signatureTag": "edge|unknown|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-046",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:161 has a stale exact authority binding for A19: quorum-submit-registration cites packages/main/src/cli/command-catalog.ts:3080, while the current registered definition is at line 3097 after the main merge. WHY high: the Story promises exact current-version source citations and the final verifier now exits 1 at auditCitationMutationChecks because actual and expected authority tuples differ, so this blocks the audit evidence and current REVIEW acceptance. Reproduce with node tests/AGENTS.verify.mjs --final; observe A19 actual line 3080 versus expected line 3097 and AssertionError.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T16:04:42.383Z",
+      "reviewRound": "2026-09-02T16:01:30.349Z",
+      "reviewRunId": "B-d854:RR-050",
+      "_hash": "7187095acdc6971c41230b13a2c32d164257756479df6c38903b39e8c479d2d2",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "missing|md|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
