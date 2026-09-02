@@ -1143,7 +1143,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:330-349 residual invariant-tail authority laundering (high): the F-050 structural exception proves that a local compare/verify/audit/check + before-and-after/across + invariant outcome exists, but it does not require the remaining segment to be invariant-only. Current production-dist probes reject the original F-050 sentence yet still sign `Compare the Dynamic Finding runtime before and after this change remains unchanged while this Story adds a new applicability verdict.`, `... the Story declares a new applicability verdict authoritative.`, `... the prompt recognizes an additional official applicability verdict.`, and `... with a new applicability verdict now official.` The current smoke adds only unsafe sentences where the affirmative clause replaces the locally bound invariant form, so this valid-prefix-plus-affirmative-tail composition is untested. This remains a pre-digest Dynamic Finding authority bypass and makes F-050 closure broader than the implementation. Require the nominal exception to validate the complete authority-bearing relation/tail, then add mutation cases that append semantically affirmative clauses without relying on a finite amendment-verb list.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T04:02:49.838Z",
@@ -1155,7 +1155,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 262f503d35 by requiring the invariant exception to consume the complete remaining authority-bearing tail. Only an empty tail or a bounded causal phrase of the form by metadata/prompt/implementation/code registration/change/update is allowed; actor, authoritative, recognition, and verbless official-verdict tails are rejected. RED full-context regression failed on the actor-tail case before the fix; GREEN build, complete-context, focused/full 17-agent registry smokes and direct dist probes pass. All 60 pinned receipts were mechanically rerun, pre-review is PASS/current/biting/related/admissible, rollout is PASS/current/full-3x2, and protected Dynamic Finding authority/runtime diff is empty.",
+      "resolvedAt": "2026-09-02T04:14:38.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-052",
