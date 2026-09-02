@@ -1063,9 +1063,9 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T03:02:34.353Z",
-      "endTime": null,
+      "endTime": "2026-09-02T03:02:35.143Z",
       "userSees": "A failing pre-implementation contract test becomes green after the change, and digest/adapter verification confirms the published English Agent prompts are fresh and compatible.",
       "files": {
         "modify": [
@@ -2209,6 +2209,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin final closure of prompt delivery, envelope, digest, version, and adapter verification."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:35.143Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All sixteen delivery, isolation, digest, version, and adversarial intents now have passing tool-executed receipts; implementation is committed."
     }
   ]
 }
