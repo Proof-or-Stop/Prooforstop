@@ -43,6 +43,25 @@
       "resolvedAt": "2026-09-02T14:36:57.209Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-003",
+      "desc": "packages/main/src/tasks/graph-story-flag-smoke.ts CHK-005:adversarial:0 pinned command only re-verifies lattice.config.json validate.commands and package.json (test:<name> script + test:serial-reference membership) -- it never reads packages/main/src/tasks/full-suite-runner.ts's RESOURCE_POLICY, the THIRD fail-closed membership authority that was the actual root cause of the done_required_validate failure this round (npm test aborted in 858ms with 'canonical inventory mismatch unknownPolicy=[test:graph-story-flag-smoke]', fixed in f4e9acdd21). Negative control on a scratch copy (git show HEAD:packages/main/src/tasks/full-suite-runner.ts with the RESOURCE_POLICY repoRead('test:graph-story-flag-smoke') line at line 159 removed, never touching the tracked file) confirms the pinned adversarial command still prints SELECTOR_BOTH_SURFACES_REGISTERED and exits 0 against the real repo's lattice.config.json/package.json, i.e. it is a false positive for exactly the class of regression it claims to guard against ('the task is registered in BOTH surfaces, so membership in one list is never mistaken for coverage by the other'). The CHK-005 verificationIntent wording is frozen after PLAN so it cannot be reworded now (same disposition as F-001); this finding records the gap so the pinned probe (or a follow-up story) can add a third assertion reading RESOURCE_POLICY membership, matching the corrected 'three membership authorities' text just landed in docs/requirements/decisions/graph-command-migration.md by F-002. Not blocking: the live defect is already fixed (f4e9acdd21) and independently confirmed by the commit chain through done_required_validate; this is a test-completeness gap in the regression guard, not a currently-failing check.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T14:41:02.468Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-016",
+      "_hash": "f11a9cf6804ecfed0416a21a3d7eb93ef5e298cacef6f6668b8a78da77d82580",
+      "files": [
+        "packages/main/src/tasks/graph-story-flag-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
