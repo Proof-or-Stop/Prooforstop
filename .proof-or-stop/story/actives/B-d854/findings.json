@@ -753,7 +753,7 @@
       "desc": "tests/AGENTS.verify.mjs:22-30,664-720 and docs/audits/AGENTS-current-version-audit.md:25-41 — WHY high acceptance evidence gap: the historical runtime proof is circular rather than mechanically bound to its claimed tool-owned receipt. INITIAL_RUNTIME_AUDIT hardcodes the old paths, versions, and digest; runtimeChecks only asserts that the audit prose contains those same constants and derives a marker from them. It never reads an immutable prior checklist git object or validates a historical receipt object. Changing the constants and matching audit prose to invented values would satisfy both runtime context mutations and final GREEN. Current checklist receipts have outputDigest 103eac123147..., while 8d66e8e... now appears in their outputTail only because this verifier prints its own hardcoded value; git show 48d08c6:.proof-or-stop/story/actives/B-d854/checklist.json does contain old receipts with outputDigest 8d66e8e..., but that immutable object/path is not referenced or consumed, and the retained old tail does not independently bind every claimed path/version. The current-vs-historical labels are separated, but the historical facts are not proven. Bind an exact immutable evidence object and mechanically parse/validate the receipt and the facts it actually retained, or narrow the audit prose to facts the durable receipt can demonstrate; add a mutation of the historical values/digest that fails without relying on duplicated constants.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T08:15:15.959Z",
@@ -766,7 +766,11 @@
         ".proof-or-stop/story/actives/B-d854/checklist.json"
       ],
       "signatureTag": "missing|mjs|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 8beb88a removes the circular historical constants proof. The verifier parses immutable Git commit 48d08c69e90dd9d90c7b783a112e54aa955d6241 and blob 94a3682f2349e0fb42cbfb4ddea784c04a715201, selects CHK-003:edge:1 receipt digest 8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748, and verifies its unique preserved classification selector. The audit explicitly narrows the historical claim to classification-only; current exact runtime facts remain live-computed.",
+      "resolvedAt": "2026-09-02T08:42:22.638Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-035",
