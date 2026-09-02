@@ -377,7 +377,7 @@
       "desc": "tests/AGENTS.verify.mjs:162 and tests/AGENTS.verify.mjs:196-199 classify aux_diagnose/test_fixture as conceptual without proving the command resolves or --help succeeds. Repro in a detached temp worktree: patch bin/proof-or-stop.js so aux_diagnose --help exits 1 (observed Unknown command: aux_diagnose), then run node tests/AGENTS.verify.mjs --final; it still exits 0 and prints CASE 29 PASS. This violates CHK-001:adversarial:0 and CHK-003:adversarial:0, which require every active command example to resolve and the checker to reject invalid commands.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T01:14:17.310Z",
@@ -389,7 +389,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "adversarial|mjs|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Every active/conceptual command now resolves real `--help` before schema or execution. Owner run reports COMMAND_AVAILABILITY_MUTATION aux_diagnose REJECTED and test_fixture REJECTED while all 42 valid cases pass.",
+      "resolvedAt": "2026-09-02T01:35:09.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-019",
