@@ -171,6 +171,60 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Wire the new graph smoke task into the repository test surfaces",
+      "context": "Closes the gap raised by the PLAN scope review. graph-command-migration.md records this as a non-obvious trap from B-3e16: this repository maintains TWO separate test-surface lists, and a new task can typecheck and appear wired up while running in neither. Measured on this branch: lattice.config.json validate.commands holds 116 entries of which 62 are smoke tasks registered explicitly as 'node packages/main/dist/tasks/<name>-smoke.js', while package.json test:serial-reference holds 56 parts of which 14 are smoke entries registered as 'npm run test:<name>-smoke'. validate.commands already runs 'npm --prefix packages/graph run check', but test:serial-reference currently contains NO graph entry at all. So the CHK-003 smoke task must be registered by hand in validate.commands, given an npm script alias in package.json, and added to test:serial-reference; membership in one list never implies membership in the other.",
+      "relatedDocs": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "lattice.config.json"
+      ],
+      "userSees": "The new smoke task name appears in lattice.config.json, in a package.json script and in test:serial-reference, and running that npm script executes the task and exits 0",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the new smoke task is registered in lattice.config.json validate.commands using the node packages/main/dist/tasks/<name>-smoke.js form",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "package.json exposes an npm script for the task and test:serial-reference invokes it",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "running the new npm script executes the task and exits 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the task is registered in BOTH surfaces, so membership in one list is never mistaken for coverage by the other",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-09-02T08:22:56.265Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "The PLAN scope reviewer identified an uncovered requirement from docs/requirements/decisions/graph-command-migration.md: a new smoke task wired into neither test surface would pass tsc and look covered while never actually executing. No existing checklist item claims that wiring.",
+      "addedTitle": "Wire the new graph smoke task into the repository test surfaces",
+      "addedContext": "Closes the gap raised by the PLAN scope review. graph-command-migration.md records this as a non-obvious trap from B-3e16: this repository maintains TWO separate test-surface lists, and a new task can typecheck and appear wired up while running in neither. Measured on this branch: lattice.config.json validate.commands holds 116 entries of which 62 are smoke tasks registered explicitly as 'node packages/main/dist/tasks/<name>-smoke.js', while package.json test:serial-reference holds 56 parts of which 14 are smoke entries registered as 'npm run test:<name>-smoke'. validate.commands already runs 'npm --prefix packages/graph run check', but test:serial-reference currently contains NO graph entry at all. So the CHK-003 smoke task must be registered by hand in validate.commands, given an npm script alias in package.json, and added to test:serial-reference; membership in one list never implies membership in the other."
     }
   ]
 }
