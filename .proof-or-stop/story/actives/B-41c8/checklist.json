@@ -485,9 +485,9 @@
       "id": "CHK-004",
       "title": "Add a mechanical audit fixture that enumerates every resolveGitCwd call site in handlers and classifies each as workspace-rooted or ctx.root-reading",
       "context": "Match call expressions (resolveGitCwd({...})), not substrings -- a file-level grep on main returns thirty-one files including a comment-only mention in validate-channel.ts, which receives gitCwd threaded from review-preflight.ts as deps.gitCwd. For each real call site, classify whether the same handler reads the story index, checklist or validate.commands through ctx.store/ctx.root rather than the resolved workspace, and print the classified list. The fixture is registered in the canonical inventories and its output becomes the scope of the follow-up draft migrate-resolvegitcwd-callers-to-workspace; this story does NOT migrate the flagged callers beyond the four resolver implementations in the previous item. RED: the fixture must initially report a non-empty flagged list.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-09-02T14:46:47.347Z",
       "relatedDocs": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md"
       ],
@@ -525,6 +525,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "160f62ab2b773fca6b1417b368d76867dfa71cb2e9c268ffbe97efafaa5979f5",
+        "storyFilesHash": "f520c53bcbf768cfcedebf67008b447569321dd0955d3c0e6e349396b15048c5",
+        "headHash": "b11dd0fb02a623197d56a044212b024e01cf2802",
+        "attestedAt": "2026-09-02T14:46:47.550Z",
+        "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2"
       }
     }
   ]
