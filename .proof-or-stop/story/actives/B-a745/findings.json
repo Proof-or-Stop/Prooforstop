@@ -191,7 +191,7 @@
       "desc": "F-006 corrected resolution (resolvedAt 03:53:13) names \"the exact check that verified it\" as: grep -rn 'isValidationStopReasonCode|assertStopReason|VALIDATION_STOP_REASON_CODE' packages/main/src | grep -v /tasks/ -- but run verbatim (plain grep, no -E/-P) this is BRE mode where | is a LITERAL character, not alternation. It matches zero lines and returns nothing (verified: exit code 1, no output) -- it does not \"return production, non-fixture control-flow references\" as claimed. The command only does what is claimed with grep -E (or -e/-e/-e). This repeats, in miniature, the exact failure mode the correction was meant to eliminate: a specific reproducibility claim (\"run the grep above at the moment the number is needed\") that does not reproduce when actually run. Distinguish from the substance: the four cited line numbers (validation-tier-planner.ts:498, :511, :561, :586) ARE correct and I independently confirmed each one individually -- so the underlying qualitative claim (isValidationStopReasonCode/assertStopReason are called in real production control flow) is true. Only the illustrative combined command is broken.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T03:54:31.279Z",
@@ -202,7 +202,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "missing|ts|corrected-resolution-resolvedat",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Valid finding, accepted, and the reviewer is right twice over. The command I wrote into the first correction was `grep -rn 'a|b|c' ... | grep -v /tasks/` with a plain grep, which is BRE: the pipe is a literal character, so run verbatim it matches nothing and exits 1. I confirmed that myself before writing this -- form A returns no lines, exit=1. WHAT ACTUALLY HAPPENED: the check I RAN used escaped alternation (`\\|`), which is valid BRE and did return the references; the string I TRANSCRIBED into the resolution dropped the backslashes. So the underlying verification was real and the transcription of it was not -- which is precisely the same gap the correction was supposed to close, reproduced inside the correction itself. That is worth recording plainly rather than minimising. FIX APPLIED: F-006's resolution has been re-recorded a second time and now contains NO command at all. It keeps only the four line numbers and the qualitative claim they support, which are independently checkable and were each verified line-by-line by the reviewer. Removing the illustrative command removes the whole class of defect rather than repairing one instance of it. HEURISTIC ADOPTED, from the reviewer's own analysis, which diagnosed the mechanism better than I did: never assert a command as the verifying check unless its actual stdout is what gets pasted into the reasoning. Both of my defects were a claim asserted as checkable without the check being re-run at write time, and the second occurred inside the correction for the first with the anti-pattern explicitly in context -- which means it is mechanical rather than a lapse of attention, and needs a mechanical rule, not more care. SEVERITY: low is right. Blast radius of both was zero -- nothing downstream was gated on either false claim, and both were confined to reason-text, never to code, tests or gate logic.",
+      "resolvedAt": "2026-09-02T03:55:56.370Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
