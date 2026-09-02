@@ -1379,6 +1379,21 @@
       "resolvedAt": "2026-09-02T12:56:02.712Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-062",
+      "desc": "packages/main/src/core/prompt-envelope.ts:332-353 — HIGH: the Reject-wrapper still equates a punctuation-free character set with one atomic authority claim. Production-dist assembleFullPromptEnvelope accepts compound run-on payloads such as `Reject severity alone decides Story scope reviewers bestow defer_with_proof on the Finding as an invalid authority statement.`, the same compound inside backticks, and an NBSP/confer variant. Each payload contains two controlled authority relations but no banned punctuation or enumerated conjunction, so the whole-source exemption bypasses normal severity and disposition checks. Atomicity must be established structurally (exactly one bounded controlled claim), not by allowed characters alone.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T12:56:35.837Z",
+      "reviewRound": "2026-09-02T12:53:31.137Z",
+      "reviewRunId": "B-9a49:RR-098",
+      "_hash": "35ff0668245ea43925ef7aa0d388c4965147188b64de0c077fb38c73f49b74ab",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
