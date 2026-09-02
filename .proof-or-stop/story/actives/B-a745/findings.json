@@ -399,7 +399,7 @@
       "desc": "F-018 dismissal (files: packages/main/src/core/validation-relevance-input.ts) asserts the deferral draft is \"the first checklist item of the committed draft docs/story/drafts/planner-worktree-overlay-seeds (main commit 3750570004), listed by story_draft_list.\" I ran story_draft_list exactly as instructed, from this story's own REVIEW worktree (/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-a745, checked out to story/B-a745): it lists only 5 drafts (audit-evidence-case-count-metadata, codex-hook-managed-asset-drift, global-cli-worktree-drift, reconcile-pin-resolution-rules-tiers-plan, scope-question-help-discoverability) -- planner-worktree-overlay-seeds is ABSENT. Root cause: commit 3750570004 landed on local main AFTER story/B-a745 diverged (merge-base is the prior draft commit bcc0e1e3a4); story_draft_list (packages/main/src/handlers/story-draft.ts getDraftsDir/readdirSync) reads the CURRENT WORKING TREE, not the main git ref, so a worktree that has not merged that later main commit cannot see it. git log main does show 3750570004 and git ls-tree main has the three files, so the artifact genuinely exists on main -- but \"listed by story_draft_list\" is a specific, checkable claim that is false when run in the exact context (this story's worktree) where a reader would naturally verify it. This is the same class of defect this story has now hit three times before (F-011/F-013 session-chip citation, F-016 uncounted downstream sites before the independent host caught it, F-017 unreproduced digest): a specific claim presented as fact without being run in the context where it would be read. Recommend: either merge main into story/B-a745 before DONE (done_prepare --mergeMain, which the DONE-convergence rules already require) so the claim becomes true in this worktree too, or reword the dismissal to state the verification context (\"visible via story_draft_list once main is merged / from a checkout that includes commit 3750570004\") rather than asserting it unqualified.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T08:45:32.247Z",
@@ -411,7 +411,11 @@
         "docs/story/drafts/planner-worktree-overlay-seeds/index.json"
       ],
       "signatureTag": "missing|json|dismissal-files-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted; the reviewer is right and this is the FOURTH unverified specific claim in my prose on this story, and it broke the exact rule I adopted after the third ('no claim is asserted unless its actual output was pasted'). What happened: I ran story_draft_list from the MAIN checkout for the first draft and pasted a count, but for the second draft I asserted 'listed by story_draft_list' without running it at all, and from the story worktree the draft was absent because its commit 3750570004 landed on main after the branch's last merge. FIX: merged main into story/B-a745 (merge commit brings docs/story/drafts/planner-worktree-overlay-seeds/*), then ran `node packages/main/dist/cli.js story_draft_list` FROM THIS WORKTREE; its output now contains both lines: '- planner-worktree-overlay-seeds: Add staged, unstaged and untracked worktree files as explicit overlay seeds in the validation planner' and '- reconcile-pin-resolution-rules-tiers-plan: Reconcile the contradictory pin-resolution rules in the dynamic validation tiers plan'. The F-018 dismissal text remains as written and is now true in the context a reviewer checks. PROCESS SIGNAL, stated as such: four instances (F-008 count, F-009 grep, F-013 missing artifact, F-019 unverified listing) share one mechanism -- a specific checkable claim written into a durable record without executing the check in the same context the reader will use. The added rule from here: the check must be run in the story worktree, and its output pasted into the record, not summarised.",
+      "resolvedAt": "2026-09-02T08:47:15.810Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a745:F-020",
