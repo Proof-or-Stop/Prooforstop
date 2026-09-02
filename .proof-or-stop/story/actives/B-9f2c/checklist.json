@@ -74,19 +74,19 @@
           "command": "node -e \"const s=require('fs').readFileSync('packages/graph/src/shells/web/dossier.js','utf8'); if(!s.includes('window.openStoryDossier')) throw new Error('missing window.openStoryDossier'); console.log('CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER');\"",
           "result": "pass",
           "note": "The ported dossier.js exists at the packages/graph web shell path and self-registers window.openStoryDossier, the entry point app.js calls to open the dossier over the graph. The command throws if the registration is absent, so the pass cannot be vacuous.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e3f1231556d7fb5cde8d1cfd6728d3a59338393481d3ae31ade9af40b65182ab",
             "outputTail": "CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:39.265Z",
+            "executedAt": "2026-09-02T15:33:36.558Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -95,19 +95,19 @@
           "command": "node -e \"const fs=require('fs'); const b=fs.readFileSync('packages/graph/src/shells/web/app.body.html','utf8'); const a=fs.readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!b.includes('dossierSlot')) throw new Error('no dossierSlot'); if(!/function openDossierFor/.test(a)) throw new Error('no openDossierFor'); console.log('CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT');\"",
           "result": "pass",
           "note": "app.body.html carries the dossierSlot span in the drawer header and app.js carries the openDossierFor routing helper. Both legs must hold; the command throws on either one missing, so it cannot pass on a partial port.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0a4508be889c6b44388828256fffdde0cc6de913b001e899c84459ecfa3b48fe",
             "outputTail": "CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:39.450Z",
+            "executedAt": "2026-09-02T15:33:36.742Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -116,19 +116,19 @@
           "command": "node -e \"const a=require('fs').readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!a.includes('playbackMermaidReset')) throw new Error('playback entry point was deleted by the port'); if(!/function openDossierFor/.test(a)) throw new Error('dossier port not present, so this check is vacuous'); console.log('CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER');\"",
           "result": "pass",
           "note": "The pre-existing playback entry point still registers in app.js after the dossier port. The second leg asserts the dossier port actually landed, so this cannot pass vacuously on an unported file.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1700083a8f2cdb6572448bb6c1d4311e7f5ca667d61538d11b99dbdfee22c572",
             "outputTail": "CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:39.834Z",
+            "executedAt": "2026-09-02T15:33:37.134Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -137,19 +137,19 @@
           "command": "node -e \"const {execFileSync}=require('child_process'),c=require('crypto'),fs=require('fs'); const up=execFileSync('git',['-C','/Users/qipan/work/repo/proof-or-stop-graph','show','HEAD:src/shells/web/dossier.js'],{maxBuffer:1e8}); const here=fs.readFileSync('packages/graph/src/shells/web/dossier.js'); const h=b=>c.createHash('sha256').update(b).digest('hex'); if(h(up)!==h(here)) throw new Error('ported file differs from upstream'); console.log('CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM '+h(here));\"",
           "result": "pass",
           "note": "sha256 of the ported dossier.js equals sha256 of the upstream git object HEAD:src/shells/web/dossier.js, proving nothing was re-authored during the port. Pinned against the upstream git object rather than a scratchpad copy so the check stays re-runnable.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f11869297ef3d2438f7bdc855265db6505b20ac0415498d3c184e69dd6f6c0a4",
             "outputTail": "CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM c547472b1fec70d2b7305ea48d0da53cad0127426d4ef9e172e53e0b34f49d61\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:39.648Z",
+            "executedAt": "2026-09-02T15:33:36.944Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         }
       ],
       "userSeesSnapshot": {
@@ -231,19 +231,19 @@
           "command": "npm --prefix packages/graph run build >/dev/null 2>&1 && grep -c openStoryDossier packages/graph/assets/app.html | awk '$1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}'",
           "result": "pass",
           "note": "Rebuilds the graph browser client end to end and asserts the generated assets/app.html actually contains openStoryDossier, proving dossier.js was concatenated into the built page rather than merely present as a source file.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "90561af57bc4b697c5b45eb8de334729c1a267784dcb71428c5f7abe4e7f681c",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs >/dev/null 2>&1 && grep packages/graph/assets/app.html | awk $1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}\n\nassets: app.html (486KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:40.595Z",
+            "executedAt": "2026-09-02T15:33:38.001Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -252,19 +252,19 @@
           "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);if(!m){console.log(\"STORY_ROUTE_REGEX_NOT_EXTRACTED\");process.exit(1);}const re=eval(m[0]);const body=src.slice(src.indexOf(line));const servesAppHtml=/app\\.html/.test(body.slice(0,300));const ok=re.test(\"/story/B-9f2c\")&&servesAppHtml;console.log(ok?\"STORY_ROUTE_SERVES_APP_HTML_OK\":\"STORY_ROUTE_SERVES_APP_HTML_FAIL\");process.exit(ok?0:1);'",
           "result": "pass",
           "note": "Extracts the live route regex out of packages/graph/src/io/http.ts (not a hardcoded copy) and asserts /story/B-9f2c matches it and that the same branch serves app.html, so deleting or narrowing the route makes this probe fail.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "229c72f2e53bc1b869bf7649cc2ac9f1d5999b2771818c05c4dc5f6a73ca827e",
             "outputTail": "STORY_ROUTE_SERVES_APP_HTML_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:40.789Z",
+            "executedAt": "2026-09-02T15:33:38.195Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -273,19 +273,19 @@
           "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);const re=eval(m[0]);const cases=[[\"/story/B-9f2c\",true],[\"/story/a/b\",false],[\"/story/a/b/c\",false],[\"/story/\",false]];let ok=true;for(const [p,want] of cases){if(re.test(p)!==want)ok=false;}console.log(ok?\"NESTED_STORY_PATH_REJECTED_OK\":\"NESTED_STORY_PATH_REJECTED_FAIL\");process.exit(ok?0:1);'",
           "result": "pass",
           "note": "Uses the same regex extracted from http.ts and asserts the nested paths /story/a/b and /story/a/b/c plus the bare /story/ do NOT match, because the pattern segment is [^/]+; only single-segment story ids are served the shell.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ec77a08d79b51763e946568f88b22c3fcd10ea93e638b0541e3028cdc7f3f29c",
             "outputTail": "NESTED_STORY_PATH_REJECTED_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:40.978Z",
+            "executedAt": "2026-09-02T15:33:38.390Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -294,19 +294,19 @@
           "command": "node -e 'const fs=require(\"fs\");const s=fs.readFileSync(\"packages/graph/scripts/build-web.mjs\",\"utf8\").split(\"\\n\");const idx=n=>s.findIndex(l=>l.includes(\"read(\\u0027\"+n+\"\\u0027)\"));const app=idx(\"app.js\"),pb=idx(\"playback.js\"),d=idx(\"dossier.js\");const ok=d>-1&&app>-1&&pb>-1&&d>app&&d>pb;console.log(ok?\"DOSSIER_CONCATENATED_AFTER_APP_JS_OK\":\"DOSSIER_LOAD_ORDER_FAIL\");process.exit(ok?0:1);'",
           "result": "pass",
           "note": "Evidences the load-order half of this intent: dossier.js is concatenated strictly after both app.js and playback.js, which is load-bearing because dossier.js reads app.js top-level helpers off window. The d3 hard-failure clause of the authored intent is VOID on this branch: that change exists only as an uncommitted edit in the main checkout and is not on story/B-9f2c (grep -c 'd3 is missing' returns 0 here, and build-web.mjs is byte-identical to upstream), so there is no such branch to preserve and no evidence is fabricated for it.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e858ce0b6627b7591c8d7bda50b9d3e1cf54c7ef0211cccb8b955b41878a9371",
             "outputTail": "DOSSIER_CONCATENATED_AFTER_APP_JS_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:41.165Z",
+            "executedAt": "2026-09-02T15:33:38.583Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         }
       ],
       "userSeesSnapshot": {
@@ -411,19 +411,19 @@
           "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
           "result": "pass",
           "note": "Section (5) drives the real handler against an on-disk stub graph package and asserts the URL actually handed to openBrowser is http://localhost:18731/story/B-9f2c, plus startServerCalls==1. Negative control: rewriting the URL expression so the deep-link path is always taken made the task exit 1.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "9c1dfd5a9cd56de075ea424279b65115f94488ab766b873a87a748498f05ab8d",
-            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-iUcbHG (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-iUcbHG (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-iUcbHG (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "outputDigest": "ff5ccbea4902881c2eefcfe130bce91372fc4da9504db783294df2c003bee01e",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-80vU3d (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-80vU3d (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-80vU3d (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:46.565Z",
+            "executedAt": "2026-09-02T15:33:44.668Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -432,19 +432,19 @@
           "command": "node packages/main/dist/cli.js graph --help",
           "result": "pass",
           "note": "The rendered help shows '--story   string', not '--story <any>'. The literal token 'string' is load-bearing: the help renderer detects optionality via instanceof ZodOptional, so a .default() wrapper would render the flag as required with type any. Pinning the rendered type proves the catalog registered story as an OPTIONAL z.string(). Source of the registration: packages/main/src/cli/command-catalog.ts, graph entry.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "22ded010f57d95e2ea0cc539ef8f247c26e96d4ff5146f0f55b389bb0880c28f",
             "outputTail": "\n  proof-or-stop graph — Interactive story + evidence graph for this repository (reads story state; writes its index cache outside the repo)\n\n  Proof-or-Stop 0.3.274\n\nproof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json] [--story=<id>]\n\nRead-only visualizer for the stories and evidence of a Proof-or-Stop repository:\na browsable graph plus full-text search and per-story detail.\n\nOptions:\n  --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).\n  --port=<n>     HTTP port (default: 8731).\n  --no-open      Do not launch a browser.\n  --json         Print status as JSON and exit without serving.\n  --story=<id>   Open the graph on that story's dossier page (/story/<id>) instead\n                 of the root graph view (default: the root view). An id that is not\n                 a story in this repository is refused before the server listens,\n                 and the error names near-miss candidates.\n\nBehavior:\n  - Reads story state only; it never mutates story metadata, so it is allowed in\n    every phase (readOnly / destructiveRisk none).\n  - Its search index is written under the user cache directory, keyed by a hash of\n    the repository root, so running it never dirties the worktree that DONE gates\n    on a clean tree.\n  - The graph library, browser client and static assets live in the packages/graph\n    subpackage and are resolved at runtime; if they are missing, the command names\n    the missing directory and the build command instead of failing obscurely.\n  - Long-running when it serves (same shape as serve): the command stays in the\n    foreground until interrupted.\n\n  Arguments:\n    --root    string           Repository to read (default: nearest Proof-or-Stop root from cwd). \n    --port    number           HTTP port (default: 8731). \n    --open    boolean          Launch a browser once the server is listening; default true, use --no-open to suppress. \n    --json    boolean          Print status as JSON and exit without serving. \n    --story   string           Open the graph on that story's dossier page (/story/<id>); default is the root graph view. An unknown id is refused before the server listens. \n\n  Usage: proof-or-stop graph [--root=value] [--port=value] [--open] [--json] [--story=value]\n  (* = required)\n\n-> Not sure what to do next? Run proof-or-stop session_brief to recover the project context.\n\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:47.126Z",
+            "executedAt": "2026-09-02T15:33:45.235Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -453,19 +453,19 @@
           "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
           "result": "pass",
           "note": "Section (5) invokes the real handler with NO story argument and asserts the URL handed to openBrowser is exactly http://localhost:18732/ . Negative control run: replacing the conditional so the deep-link branch is always taken made the task exit 1 with 'without --story the URL must be unchanged'.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "a75a3334cf5c52ee87a5c61c1a4c81ada9633dd7c19698fd9ed1af98547dc678",
-            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sC4lDR (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sC4lDR (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sC4lDR (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "outputDigest": "2ce506238e3dbce359fcacdeb0eca5e052b545d000e599d338db66c3be7fd4fb",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-RGuqzX (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-RGuqzX (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-RGuqzX (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:49.744Z",
+            "executedAt": "2026-09-02T15:33:48.031Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -474,19 +474,19 @@
           "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
           "result": "pass",
           "note": "Section (5) serves the id 'B-9f2c#frag?q=1 x' and asserts on the URL the HANDLER produced (not a locally recomputed encode): it equals the encodeURIComponent form, and parsing it yields empty hash, empty search, a round-tripping id and exactly 3 path segments. Negative control run: deleting encodeURIComponent from the handler made the task exit 1 with 'the handler must URL-encode the id rather than interpolate it raw'.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "53ba8c5db210bff5423b1190bcd4544a915517220a4504d34fe0bbe6c7d47add",
-            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sohVY3 (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sohVY3 (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sohVY3 (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "outputDigest": "2686e35b29ea3e5962c9a244ca693a29baab3b94751becbbf96bc8f7049e93ae",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-eAYSyl (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-eAYSyl (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-eAYSyl (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:52.461Z",
+            "executedAt": "2026-09-02T15:33:50.782Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -495,19 +495,19 @@
           "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
           "result": "pass",
           "note": "Section (5) rejects an unknown id and then asserts the stub library recorded startServerCalls==0 and openedUrls==[] , i.e. nothing ever listened. Assertion uses rejectsPromptly because a regressed handler SERVES the bad id and never settles. Negative control run: removing the pre-listen check made the task exit 1 with 'did not settle within 10000ms - an unknown --story must be REFUSED, not served: the pre-listen validation is gone'.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "d26e9a91713114caaabc87ef4c1709a827de9abe523e42f2809907c3300d6c67",
-            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-PSvXpW (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-PSvXpW (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-PSvXpW (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "outputDigest": "c7577dc59099a7bd5c3cca869d028b5e3adf844948c68054c3bc964ffc52e631",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MVpocm (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MVpocm (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MVpocm (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:02:57.740Z",
+            "executedAt": "2026-09-02T15:33:53.516Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -516,19 +516,19 @@
           "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
           "result": "pass",
           "note": "Section (5) calls the real handler directly with story values Zod would never pass ('', '   ', null, 7, an object, an array, true) and asserts each is refused with the SPECIFIC diagnosis. No schema is involved on that path, so it exercises the handler-entry re-validation required by CLAUDE.md Handler encoding convention. Negative control run: weakening the entry check to a bare typeof test made the task exit 1 with 'handler entry must refuse \"\" with the right diagnosis'.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "d52d7c7c81eaeb232eb63a6dbef5f83a7090269309b0c77239b6ef218aa74700",
-            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-JmDpV9 (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-JmDpV9 (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-JmDpV9 (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "outputDigest": "0976849544634c538ea2bbed60b32359450ded8ad52a69135ed767f318e90c65",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-A5Mw10 (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-A5Mw10 (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-A5Mw10 (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:00.344Z",
+            "executedAt": "2026-09-02T15:33:56.261Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         }
       ],
       "userSeesSnapshot": {
@@ -611,19 +611,19 @@
           "command": "node -e \"const fs=require('fs');const a=fs.readFileSync('CLAUDE.md','utf8');const b=fs.readFileSync('packages/graph/README.md','utf8');const ok=a.includes('--story=<id>')&&a.includes('--story=B-xxxx')&&b.includes('--story=B-xxxx');console.log(ok?'DOCS_STORY_FLAG_BOTH':'FAIL claude='+a.includes('--story=<id>')+' readme='+b.includes('--story=B-xxxx'));process.exit(ok?0:1)\"",
           "result": "pass",
           "note": "Asserts BOTH docs document the flag in one command, so removing it from either file fails the check. CLAUDE.md must carry both the flag-table row (--story=<id>) and the usage example (--story=B-xxxx); README must carry the command form.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d4a9b772626c23fc7e834c21908e9335857c1651863cc314b524fb5a7662190f",
             "outputTail": "DOCS_STORY_FLAG_BOTH\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:00.534Z",
+            "executedAt": "2026-09-02T15:33:56.459Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -632,19 +632,19 @@
           "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const row=s.split('\\n').find(l=>l.startsWith('|')&&l.includes('/story/')&&l.includes('dossier'));console.log(row?'DOCS_ENDPOINT_ROW':'FAIL no /story row in endpoint table');process.exit(row?0:1)\"",
           "result": "pass",
           "note": "Requires the /story route to appear as an actual markdown TABLE row (line starts with |) mentioning the dossier, not merely as prose anywhere in the file.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "54ffab077dc44333ecaa5a2f5f863ac17c09d8cc1634b0f45f7fe64c6ea514c0",
             "outputTail": "DOCS_ENDPOINT_ROW\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:00.718Z",
+            "executedAt": "2026-09-02T15:33:56.650Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -653,19 +653,19 @@
           "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const ok=s.includes('## How the CLI reaches this package')&&/\\nproof-or-stop graph\\n/.test(s);console.log(ok?'DOCS_MIGRATION_WORDING_KEPT':'FAIL section='+s.includes('## How the CLI reaches this package'));process.exit(ok?0:1)\"",
           "result": "pass",
           "note": "Guards the pre-mortem risk that porting the upstream README would revert this repository's divergent wording: the How the CLI reaches this package section and the proof-or-stop graph invocation must both survive.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c92ac43e14aff0b92c66de90867df761e4a2a2ea255ff4373c7a68fdad08437e",
             "outputTail": "DOCS_MIGRATION_WORDING_KEPT\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:00.903Z",
+            "executedAt": "2026-09-02T15:33:56.844Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -674,19 +674,19 @@
           "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const bad=s.split('\\n').filter(l=>/(^|[\\x60$\\s])proof-or-stop-graph(\\s|\\x60|$)/.test(l));console.log(bad.length===0?'DOCS_NO_STALE_BINARY':'FAIL '+JSON.stringify(bad.slice(0,1)));process.exit(bad.length===0?0:1)\"",
           "result": "pass",
           "note": "Detects any line presenting proof-or-stop-graph as a RUNNABLE command, while deliberately allowing the legitimate cache-path mention (~/.cache/proof-or-stop-graph/). Negative control run: appending a line reading Run `proof-or-stop-graph` to start makes this probe exit 1, so it is discriminating rather than tautological.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e3c9a2b48c31598e7e72a85469c8ffbdeb309f3f0e45967c97207048b1930d76",
             "outputTail": "DOCS_NO_STALE_BINARY\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:01.085Z",
+            "executedAt": "2026-09-02T15:33:57.055Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         }
       ],
       "userSeesSnapshot": {
@@ -769,19 +769,19 @@
           "command": "node -e \"const fs=require(\\\"fs\\\");const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const t=\\\"packages/main/dist/tasks/graph-story-flag-smoke.js\\\";const hit=c.validate.commands.filter(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(t));if(hit.length!==1){console.error(\\\"FAIL validate.commands matches=\\\"+hit.length);process.exit(1);}console.log(\\\"SELECTOR_VALIDATE_COMMANDS_REGISTERED\\\");\"",
           "result": "pass",
           "note": "Parses lattice.config.json and asserts exactly one validate.commands entry is command=node with args containing packages/main/dist/tasks/graph-story-flag-smoke.js. Structural, not a grep: a mention in a comment or a differently-shaped entry would not satisfy it. Negative control: removing the entry makes it exit 1 with FAIL validate.commands matches=0.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "52abbb94bdd8358c1f5cdfc2ec433b9ce1d53914a5c8e8d5aad5c64d6d52d5f7",
             "outputTail": "SELECTOR_VALIDATE_COMMANDS_REGISTERED\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:01.276Z",
+            "executedAt": "2026-09-02T15:33:57.261Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -790,19 +790,19 @@
           "command": "node -e \"const fs=require(\\\"fs\\\");const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const s=p.scripts[\\\"test:graph-story-flag-smoke\\\"];const parts=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim());const inSR=parts.includes(\\\"npm run test:graph-story-flag-smoke\\\");if(s!==\\\"node packages/main/dist/tasks/graph-story-flag-smoke.js\\\"||!inSR){console.error(\\\"FAIL script=\\\"+s+\\\" inSerialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\\\");\"",
           "result": "pass",
           "note": "Asserts scripts[test:graph-story-flag-smoke] has the exact expected body AND that test:serial-reference, split on &&, contains npm run test:graph-story-flag-smoke as a member. Splitting on && is what makes it real membership rather than a substring hit anywhere in the long line. Negative control: stripping both makes it exit 1 with FAIL script=undefined inSerialReference=false.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b80ee53734cb7942c0ba46fd60e70be9bd5e4a5c72cca9aa002469cf2bd8acfd",
             "outputTail": "SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:01.461Z",
+            "executedAt": "2026-09-02T15:33:57.452Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -811,19 +811,19 @@
           "command": "npm run test:graph-story-flag-smoke",
           "result": "pass",
           "note": "Runs the task through the npm script alias registered by this item, proving the alias resolves and the task executes rather than merely being declared. Exits 0 and prints the task pass line in about 2 seconds.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "e53d0ebee7919e95c04404cc0fc51d4a9b14ca43343636adbc7c28d28f53748d",
-            "outputTail": "\n> proof-or-stop@0.3.273 test:graph-story-flag-smoke\n> node packages/main/dist/tasks/graph-story-flag-smoke.js\n\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-vhI8bG (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-vhI8bG (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-vhI8bG (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "outputDigest": "9c30bf22444cca2c5fdd15907bae57ef1f35aa11a042e76d8653bd9b9902b52f",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:graph-story-flag-smoke\n> node packages/main/dist/tasks/graph-story-flag-smoke.js\n\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MkdmV2 (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MkdmV2 (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MkdmV2 (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:04.181Z",
+            "executedAt": "2026-09-02T15:34:02.867Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -832,19 +832,19 @@
           "command": "node -e \"const fs=require(\\\"fs\\\");const t=\\\"graph-story-flag-smoke\\\";const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const inValidate=c.validate.commands.some(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(\\\"packages/main/dist/tasks/\\\"+t+\\\".js\\\"));const inScripts=p.scripts[\\\"test:\\\"+t]===\\\"node packages/main/dist/tasks/\\\"+t+\\\".js\\\";const inSR=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim()).includes(\\\"npm run test:\\\"+t);if(!(inValidate&&inScripts&&inSR)){console.error(\\\"FAIL validate.commands=\\\"+inValidate+\\\" scripts=\\\"+inScripts+\\\" serialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_BOTH_SURFACES_REGISTERED\\\");\"",
           "result": "pass",
           "note": "Checks BOTH separately-maintained surfaces in one shot and fails if either is missing, which is the trap this item exists for: the two lists are not subset-checked against each other. Decisive negative control: with lattice.config.json registered but package.json not, it exits 1 with FAIL validate.commands=true scripts=false serialReference=false, so membership in one list can never be mistaken for coverage by the other.",
-          "headHash": "11a91fbabfe7266ea4748c8e4729c28f660512dd",
-          "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
-          "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+          "headHash": "ecead84965d6c46c0bc3cc7a6617500a049354c7",
+          "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+          "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "65158fe83504cafcdeb7c2238d051ddfc83b629b826e67a7615f19157248539a",
             "outputTail": "SELECTOR_BOTH_SURFACES_REGISTERED\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:03:04.370Z",
+            "executedAt": "2026-09-02T15:34:03.073Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-09-02T14:03:04.399Z"
+          "timestamp": "2026-09-02T15:34:03.107Z"
         }
       ],
       "userSeesSnapshot": {
