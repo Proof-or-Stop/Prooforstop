@@ -1821,10 +1821,10 @@ const GENERIC_LOCAL_PROBE_LINES = [
   "import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';", // L1
   "import { assertCwdInWorktree } from './session.js';", // L2
   'function withLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T { return fn(); }', // L3 generic local function: a local callee
-  "function checkCwd(store: HandlerContext['store'], storyId: string): void { assertCwdInWorktree(store, storyId); }", // L4 `store` is typed as the store property, not the bare context
+  "function checkCwd(store: HandlerContext['store'], storyId: string): void { assertCwdInWorktree(store, storyId); }", // L4 `store` is the context's store (rooted at ctx.root): a non-local callee receiving it is a delegation
   'export async function probe<T extends string>(ctx: HandlerContext, storyId: T): Promise<string> {', // L5 generic exported async function
   '  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });', // L6 call
-  '  return withLock(ctx, storyId, () => { checkCwd(ctx.store, storyId); return gitCwd; });', // L7 a generic local callee receiving bare ctx is scanned in place, not flagged
+  '  return withLock(ctx, storyId, () => { checkCwd(ctx.store, storyId); return gitCwd; });', // L7 generic local callees receiving bare ctx / the store are scanned in place, not flagged
   '}', // L8
   '',
 ];
@@ -1996,18 +1996,18 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
     },
   },
   {
-    name: 'adversarial (F-011): a generic local function is a local callee, a store-typed parameter is not a context name, and no real caller is flagged via a function it declares itself',
+    name: 'adversarial (F-011): a generic local function is a local callee, a HandlerContext[\'store\'] parameter is the context store (its non-local callees are delegations) while HandlerContext<...> is not, and no real caller is flagged via a function it declares itself',
     run: () => {
       const probe = GENERIC_LOCAL_PROBE_LINES.join('\n');
       assert.deepEqual([...localFunctionNames(probe)].sort(), ['checkCwd', 'probe', 'withLock'], 'generic, async and exported function declarations are all local');
       assert.deepEqual([...localFunctionNames('export async function nested<T extends Map<string, Foo<T>>>(ctx: HandlerContext): T { }')], ['nested'], 'a nested generic clause is tolerated');
       const names = contextNames(`${probe}\nfunction g(context: HandlerContext, other: HandlerContext | undefined, typed: HandlerContext<Foo>, sub: HandlerContext['root']) {}`);
-      assert.deepEqual([...names].sort(), ['context', 'ctx', 'other'], 'HandlerContext followed by [ or < is a subscript / instantiation, not the bare context');
+      assert.deepEqual([...names].sort(), ['context', 'ctx', 'other', 'store'], 'the bare context and its store are context names; HandlerContext<...> and a non-store sub-part are not');
       const scan = scanResolverSource(probe);
       assert.deepEqual(scan.callLines, [6]);
-      assert.deepEqual(scan.remainingReads, [], 'neither the generic local callee nor the store-typed helper is a delegation');
-      assert.equal(scan.workspaceRooted, true);
-      assert.equal(classificationOf(scan), VACUOUS_WORKSPACE_LABEL);
+      assert.deepEqual(scan.remainingReads, [{ kind: 'handler', via: 'assertCwdInWorktree(store)', line: 4 }], 'the non-local callee receiving the store is the only delegation; the generic local callees are not');
+      assert.equal(scan.workspaceRooted, false);
+      assert.equal(classificationOf(scan), 'reads ctx.root: via-handler(assertCwdInWorktree)');
       // The same invariant on the real audit: a delegation names a callee outside its file, never a function the file declares.
       const report = auditResolverCallSites(HANDLERS_DIR);
       for (const caller of report.callers) {
