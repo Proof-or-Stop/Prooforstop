@@ -145,12 +145,13 @@
       "q": "Will the Owner rebaseline the scope contract so the Dynamic Finding authority document is explicitly excluded, proposal and prompt-envelope are canonical allowed changes, and the obsolete authority-migration acknowledgement is no longer the active scope explanation?",
       "evidence": "scope_contract_show acknowledgement[3] still says the Dynamic Finding decision document is the accepted authority migration, while current understanding/decision/checklist say the authority document remains unchanged. The canonical allowedModify set also omits the proposal and prompt-envelope even though both are current checklist/touchpoint surfaces.",
       "sourcePointers": [
-        "scope_contract_show:B-9a49 acknowledgement[3]",
-        "scope_contract_show:B-9a49 allowedModify",
-        "understanding_get:B-9a49",
-        "decision_get:B-9a49",
-        "checklist_get:B-9a49 CHK-001/CHK-004"
-      ]
+        ".proof-or-stop/story/actives/B-9a49/scope-contract.json",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "resolution": "Resolved by commit 3c0bb48abe: the scope contract now allows the English proposal and prompt-envelope guard as Agent-side implementation paths, explicitly protects and excludes the Dynamic Finding authority document and runtime surfaces, and records that this controlled replan supersedes the authority-migration interpretation in historical scope-ack:3 without deleting audit history.",
+      "resolvedAt": "2026-09-02T02:55:45.672Z"
     }
   ]
 }
