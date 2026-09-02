@@ -106,6 +106,34 @@
         "scanEscalationReason": null
       },
       "_hash": "1d9b70c4c6827e7342493e09f642bb131b5ab8fee4d0e8d6ac92e2ae1d756f10"
+    },
+    {
+      "id": "B-41c8:RP-005",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-3 CL-002 quality re-check: reviewed 871c4d17e6/6568823d3a/e3a1f0a57f/b7051a0e69/c774e0f9b7/ada9de0ccf/220075ce20/595b432d17 in full. Confirmed VACUOUS_WORKSPACE_LABEL is a genuine single-owner constant (grep: one definition site only). Confirmed the REGION_STRING remap for the type-annotation scan is contained to one call site (rootReadsOf typeAnnotationCode param, defaulting to code) and does not leak into the code-region reads; both code and typeAnnotationCode derive from the same kinds array over the same source so line offsets stay in sync by construction. F-009 headroom (391 chars measured vs the smoke own 11000 bound, 1000-char documented margin to the executors 12000 cap) is acceptable: documented at the constant with an explicit remediation path, and the bound-case failure message names the exact cause (audit block size) and the fix (compact block / SINGLE_OWNER_AUDIT_VERBOSE escape hatch). Mutation-tested: (a) the store label-guard sharing -- editing VACUOUS_WORKSPACE_LABELs one definition site does not desync classifier vs guard (40/40 still pass), which is the correct/expected proof of single ownership, not a defect; (b) narrowing the `(?:'store'|\"store\")` alternation to single-quote-only survives 40/40 unchanged -- filed as B-41c8:F-013 (low, non-blocking this round: untested/dead double-quote branch, no real handler ever uses double quotes). No new any-casts, non-null assertions, empty catches or duplicated regex fragments found in the CL-002 diff or the CHK-001..CHK-003 migrated files (story-workspace.ts, story-query.ts, session.ts, validation-plan.ts, local-assurance-story-projection.ts, evidence-freshness.ts, done-required-validation.ts) beyond already-resolved F-001..F-011. F-013 is the only open finding from this pass and is low severity (already advisory in round 3); no blocking finding remains open in this lane.",
+      "createdAt": "2026-09-02T16:41:58.285Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-012",
+      "envelopeId": "1c727242c13f558e82a766f1403f054bf3780aa9fd0ca3e6454aac977a9eb7dd",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7033a11aa9a1724d0f6a8fb4e0fe1d27a4b2164c37fd129023b7088b225171ea"
     }
   ]
 }
