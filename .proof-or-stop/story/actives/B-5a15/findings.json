@@ -19213,6 +19213,66 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-migration",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-357",
+      "desc": "concept-cleanup: the concept residue CLI gate silently degrades to a non-blocking warn on a large merge, exactly when it is most needed. Running `node packages/main/dist/cli.js validate --concept` on this post-merge HEAD returns: \"[concept] warn: git diff failed (main...HEAD): spawnSync /bin/sh ENOBUFS / recommendation: skip concept LLM reviewer\". The 1426-commit main merge makes the `git diff main...HEAD` output exceed the spawnSync buffer, so the gate that is supposed to extract deleted symbols and grep for residue produces NO signal and does not block. Adversarial shape: the gate fails OPEN on diff size. A merge is the highest-risk moment for half-deleted concepts (this review found three real residue items by hand: F-353, F-354, F-356), yet gate coverage drops to zero precisely as diff size grows -- so the bigger and riskier the change, the less the gate checks, with only a warn line to notice. Per the CLAUDE.md CLI-gate table, concept is documented as \"scan git diff main...HEAD for deleted symbols + repo-wide grep for residual references\"; on this HEAD it delivers none of that. I compensated manually for this review (per-file diff extraction found only one deleted exported symbol, preReviewCaseRequiresSemanticBinding, which I confirmed is still live at pre-review-live-proof.ts:139 and is a signature-reflow false positive). Fix: raise maxBuffer or stream the diff (or fall back to per-file `git diff` extraction as I did) so the gate degrades to slower-but-complete rather than silently empty; and consider making an ENOBUFS skip fail closed rather than warn, since \"gate could not run\" is not evidence of no residue.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T12:43:17.977Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-854",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0dfe4a2f1b984d08e89223cff0ae8168e839559cd35447445e8732fd8c49766d"
+      },
+      "readDiagnostics": [],
+      "_hash": "99b87fa559aa822075ba824a246faf21a8ff41ce5f8365b8d687cf25e27ebae1",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts"
+      ],
+      "signatureTag": "adversarial|ts|concept-cleanup-concept",
+      "signatureTagSource": "auto"
     }
   ]
 }
