@@ -46,7 +46,7 @@
           },
           {
             "desc": "The RED artifact is bound to the pre-fix source hash and contains characterization only; production behavior and GREEN implementation files are unchanged by the RED commit.",
-            "type": "docs",
+            "type": "logic",
             "priority": "must",
             "verification": {
               "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
