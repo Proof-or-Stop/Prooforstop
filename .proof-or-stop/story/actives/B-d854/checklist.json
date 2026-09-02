@@ -129,7 +129,11 @@
           {
             "desc": "Translate every human-language surface in root AGENTS.md, including headings, prose, table cells, block quotes, HTML comments, code comments and example annotations, then scan the complete file and prove there are zero Unicode Han-script characters and zero U+FFFD replacement characters. Any remaining non-ASCII character must be an intentional language-neutral technical symbol rather than untranslated prose. WHY: a partial translation or corrupted replacement glyph does not satisfy the request for a fully English file.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const non=[...new Set([...s].filter(c=>c.codePointAt(0)>127).map(c=>c.codePointAt(0)))];if(/\\\\p{Script=Han}/u.test(s)||s.includes(\\\"\\\\ufffd\\\")||non.length)process.exit(1);console.log(\\\"UNICODE_WHOLE_FILE_PASS han=0 replacement=0 nonAscii=0\\\")\"",
+              "selector": "UNICODE_WHOLE_FILE_PASS"
+            }
           }
         ],
         "edge": [
@@ -154,7 +158,29 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const non=[...new Set([...s].filter(c=>c.codePointAt(0)>127).map(c=>c.codePointAt(0)))];if(/\\\\p{Script=Han}/u.test(s)||s.includes(\\\"\\\\ufffd\\\")||non.length)process.exit(1);console.log(\\\"UNICODE_WHOLE_FILE_PASS han=0 replacement=0 nonAscii=0\\\")\"",
+          "result": "pass",
+          "note": "Whole-file tool execution proves every heading, paragraph, table cell, comment, and example is ASCII English/technical syntax with zero Han characters, zero replacement glyphs, and no residual non-ASCII code point requiring classification.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "39b0090713c7deb90641ac13dace77231909934b1fec5202815be713b56878af",
+            "outputTail": "UNICODE_WHOLE_FILE_PASS han=0 replacement=0 nonAscii=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T00:16:51.433Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fabcd279d87ed8dfdd46d34150e89da05c90cf1a",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:16:51.636Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
