@@ -1432,13 +1432,23 @@
         },
         {
           "intentRef": "CHK-004:edge:version-and-local-artifacts",
-          "kind": "waiver",
-          "waiverType": "permanent",
-          "note": "The immutable PLAN-time selector requires Proof-or-Stop 0.3.270, but merged local main has superseded it with synchronized 0.3.271 in both manifests, both lockfiles, the branded constant, and the freshly built local CLI. Replaying 0.3.270 would be false evidence; this attributable waiver applies only to the obsolete exact-version selector, while the current version and build remain independently verified.",
-          "headHash": "9e390870a5bfc5f3d15e7c8f9004f4e5cc37560e",
+          "kind": "integration_test",
+          "command": "node bin/proof-or-stop.js --version",
+          "result": "pass",
+          "note": "Re-execute the controlled-replan version pin against the repository-local CLI; the tool derives the command and selector and records the actual receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "532c62e9066b7f3f6fdbeaefec1dc973bfbad12a1ad2f2a7100e15c148c76609",
+            "outputTail": "Proof-or-Stop 0.3.271\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T20:49:21.232Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "5ded9df23b48d6215215066bb58e897bbc195e1d",
           "materialHash": "cf5cb9728d4d45496fae85fbe171b9f608dc756c949d2edeee95ec5395aceeee",
           "storyFilesHash": "dcd4b75b4edf9fb72c70887458e3f5a6067225a32e0ac77f17ac3ece94690f02",
-          "timestamp": "2026-09-02T20:33:18.338Z"
+          "timestamp": "2026-09-02T20:49:21.405Z"
         },
         {
           "intentRef": "CHK-004:adversarial:false-red",
