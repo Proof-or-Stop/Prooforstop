@@ -18973,6 +18973,24 @@
       ],
       "signatureTag": "missing|mjs|recurred-head-1df89edff5",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-352",
+      "desc": "MECHANISM NOTE supporting B-5a15:F-351, and a CORRECTION to F-351's prescribed fix ordering. F-351 says 'settle the basis first, then reseal pre-review-check.json against it'. That is not achievable as literally stated, because the basis digest is NOT settleable by regeneration: acceptance_basis_generate auto-commits its own metadata, and the receipt binds headHash, so each regeneration binds the NEW head and yields a DIFFERENT basisDigest. Measured directly on an unchanged tree: basisDigest went sha256:ac4ff9fb -> sha256:4dd05029 across two consecutive acceptance_basis_generate runs with zero source changes, and the receipt's headHash tracked the auto-commit (658777bbd3). The digest chases its own commit, so there is no fixed value to seal against in advance. THE ACTUALLY CORRECT ORDERING, established by reading the consumer rather than guessing: issuePreReviewCheckArtifact (core/pre-review-check.ts:338-341) compares basis.priorPlanBasisDigest against input.planArtifact.basis.basisDigest READ AT RUN TIME. It does not require a pre-settled digest - it captures whatever the PLAN basis is at the moment it executes. So the repair is: in DEV, run acceptance_basis_generate and then pre_review_check BACK-TO-BACK with no intervening basis regeneration, and only afterwards re-earn the two CHK-004:happy:2 and :3 receipts, with no basis-affecting command between the reseal and the earn. Regenerate the basis LAST, not first. WHY THIS MATTERS BEYOND THIS STORY: the general rule I had been applying ('batch all material writes, then earn') is necessary but insufficient for artifacts whose digest is a function of their own auto-commit. For those, ordering must be consumer-driven: identify which artifact READS the other at run time, and run the reader immediately after the writer. F-350's lesson (acknowledge scope before sealing) and this note are the same family: both are self-referential staleness where the repair action is itself a hash-moving write. pre_review_check is DEV-only (command-policy allowedPhases: DEV), so discovering either condition in REVIEW forces a REVIEW->DEV round trip through a fresh review inventory epoch. NOT INDEPENDENTLY BLOCKING: this note documents mechanism only; the blocking condition is F-351 itself, which remains open and must be repaired in DEV. Filed as a separate note rather than folded into F-351 because F-351 is a reviewer-owned finding and its stated remediation is what needs correcting - editing a reviewer's finding text from the main agent would destroy the audit trail of what the reviewer actually concluded.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T12:07:32.424Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "_hash": "8a429ae62599163cd4beebfe93bd88094d3097836b1a89097a899404a701fdc6",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|ts|mechanism-note-supporting",
+      "signatureTagSource": "auto"
     }
   ]
 }
