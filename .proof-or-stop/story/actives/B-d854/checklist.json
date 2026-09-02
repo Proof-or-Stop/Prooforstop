@@ -203,6 +203,17 @@
           "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
           "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
           "timestamp": "2026-09-02T00:17:07.412Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const audit=x=>[!x.includes(\\\"must not be pushed\\\")&&\\\"polarity\\\",!x.includes(\\\"Advisory issues are intentionally possible\\\")&&\\\"advisory\\\",!x.includes(\\\"compatibility-only\\\")&&\\\"legacy\\\"].filter(Boolean);if(audit(s).length)process.exit(1);const a=audit(s.replace(\\\"must not be pushed\\\",\\\"must be pushed\\\")),b=audit(s.replace(\\\"Advisory issues are intentionally possible\\\",\\\"Advisory issues are mandatory blockers\\\")),c=audit(s.replaceAll(\\\"compatibility-only\\\",\\\"current\\\"));if(!a.includes(\\\"polarity\\\")||!b.includes(\\\"advisory\\\")||!c.includes(\\\"legacy\\\"))process.exit(1);console.log(\\\"SEMANTIC_MUTATION_PASS polarity advisory legacy\\\")\"",
+          "note": "A focused semantic detector passes the final text and rejects three representative mutations: inverted remote-push prohibition, advisory-to-mandatory gate drift, and erasure of compatibility-only qualifiers. Main-agent review also caught and corrected the implementer draft non-latest PASS semantic error before acceptance.",
+          "mechanical": false,
+          "headHash": "1cba67905c0d25c258beecdfd9404f30b90045c8",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:17:20.661Z"
         }
       ]
     },
