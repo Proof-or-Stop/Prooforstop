@@ -36,7 +36,11 @@
           {
             "desc": "the ported dossier.js is byte-identical to the upstream source it was taken from, so nothing was re-authored during the port",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {execFileSync}=require('child_process'),c=require('crypto'),fs=require('fs'); const up=execFileSync('git',['-C','/Users/qipan/work/repo/proof-or-stop-graph','show','HEAD:src/shells/web/dossier.js'],{maxBuffer:1e8}); const here=fs.readFileSync('packages/graph/src/shells/web/dossier.js'); const h=b=>c.createHash('sha256').update(b).digest('hex'); if(h(up)!==h(here)) throw new Error('ported file differs from upstream'); console.log('CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM '+h(here));\"",
+              "selector": "CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM"
+            }
           }
         ],
         "adversarial": [
@@ -125,6 +129,27 @@
           "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-09-02T08:34:16.955Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/dossier.js",
+          "command": "node -e \"const {execFileSync}=require('child_process'),c=require('crypto'),fs=require('fs'); const up=execFileSync('git',['-C','/Users/qipan/work/repo/proof-or-stop-graph','show','HEAD:src/shells/web/dossier.js'],{maxBuffer:1e8}); const here=fs.readFileSync('packages/graph/src/shells/web/dossier.js'); const h=b=>c.createHash('sha256').update(b).digest('hex'); if(h(up)!==h(here)) throw new Error('ported file differs from upstream'); console.log('CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM '+h(here));\"",
+          "result": "pass",
+          "note": "sha256 of the ported dossier.js equals sha256 of the upstream git object HEAD:src/shells/web/dossier.js, proving nothing was re-authored during the port. Pinned against the upstream git object rather than a scratchpad copy so the check stays re-runnable.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f11869297ef3d2438f7bdc855265db6505b20ac0415498d3c184e69dd6f6c0a4",
+            "outputTail": "CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM c547472b1fec70d2b7305ea48d0da53cad0127426d4ef9e172e53e0b34f49d61\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:34:48.887Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8c0908fa39a20a0ba6b58044e90dd54a3088e94c",
+          "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-02T08:34:49.047Z"
         }
       ]
     },
