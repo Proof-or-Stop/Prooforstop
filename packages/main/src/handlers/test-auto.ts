@@ -23,12 +23,12 @@ import {
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
-// B-cc10 CHK-005: renamed @lattice/core -> @proof-or-stop/core. This set gates a
+// B-cc10 CHK-005: renamed @proof-or-stop/core -> @proof-or-stop/core. This set gates a
 // SELF-PROTECTION check (refuse full-suite self-test), so it must match either spelling:
 // a miss would silently let the framework test itself and pollute its own state.
 const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
   '@proof-or-stop/core',
-  '@lattice/core',
+  '@proof-or-stop/core',
 ]);
 
 /**
@@ -54,10 +54,10 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
   return {
     async test_auto(args: { storyId?: string; trace?: boolean; enableProfiler?: boolean; dryRun?: boolean; confirm?: boolean }): Promise<string> {
       // 递归防护：fixture case 里调 $handlers.test_auto() 时跳过，防止无限递归卡死
-      if ((globalThis as any).__latticeTestAutoRunning) {
+      if ((globalThis as any).__proofOrStopTestAutoRunning) {
         return JSON.stringify({ hint: '→ test_auto 递归调用被跳过', allPassed: true, totalCases: 0, passedCases: 0, failedCases: 0, warnings: [], details: [] });
       }
-      (globalThis as any).__latticeTestAutoRunning = true;
+      (globalThis as any).__proofOrStopTestAutoRunning = true;
       try {
 
       const warnings: string[] = [];
@@ -190,7 +190,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
           }
           try {
             for (const c of group.cases) {
-              // DEBUG: 追踪项目配置文件（lattice canonical / legacy）被谁改了
+              // DEBUG: 追踪项目配置文件（proof-or-stop canonical / legacy）被谁改了
               const _cfgPicked = pickProjectConfigPath(root);
               const _cfgPath = _cfgPicked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
               const _cfgLabel = _cfgPicked
@@ -314,7 +314,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         })),
       }, null, 2);
 
-      } finally { (globalThis as any).__latticeTestAutoRunning = false; }
+      } finally { (globalThis as any).__proofOrStopTestAutoRunning = false; }
     },
   };
 }

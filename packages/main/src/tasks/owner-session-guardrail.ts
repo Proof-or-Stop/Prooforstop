@@ -10,7 +10,7 @@ const HOST_SESSION_ENV_RE = /\b(?:CLAUDE_CODE_SESSION_ID|CLAUDE_SESSION_ID|CODEX
 
 const ALLOWLIST = [
   'packages/main/src/core/owner-session-adapters.ts',
-  'packages/main/src/core/lattice-dispatch.ts',
+  'packages/main/src/core/proof-or-stop-dispatch.ts',
   'packages/main/src/core/codex-adapter-checks.ts',
   'packages/main/src/init-assets.ts',
 ];
@@ -59,7 +59,7 @@ assert.equal(existsSync(adapterPath), true, 'owner-session adapter boundary exis
 const cliEngine = readFileSync(join(projectRoot, 'packages/main/src/cli-engine.ts'), 'utf8');
 assert.doesNotMatch(
   cliEngine,
-  /process\.env\.LATTICE_ACTIVITY_SESSION/,
+  /process\.env\.PROOF_OR_STOP_ACTIVITY_SESSION/,
   'CLI activity and story process-event writers never consume the raw activity-session token',
 );
 assert.match(
@@ -69,10 +69,10 @@ assert.match(
 );
 const initAssets = readFileSync(join(projectRoot, 'packages/main/src/init-assets.ts'), 'utf8');
 assert.match(initAssets, /process\.env\.CODEX_THREAD_ID/, 'Codex wrapper consumes the real durable thread boundary');
-assert.match(initAssets, /LATTICE_OWNER_SESSION_ADAPTER_AGENT/, 'Codex wrapper injects a policy-distinct agent/role boundary');
+assert.match(initAssets, /PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT/, 'Codex wrapper injects a policy-distinct agent/role boundary');
 assert.doesNotMatch(
   initAssets,
-  /process\.env\.LATTICE_ACTIVITY_SESSION\s*=\s*[\s\S]{0,180}process\.env\.CODEX_/,
+  /process\.env\.PROOF_OR_STOP_ACTIVITY_SESSION\s*=\s*[\s\S]{0,180}process\.env\.CODEX_/,
   'Codex wrapper never maps a raw native token into the logged activity-session field',
 );
 
@@ -85,19 +85,19 @@ for (const relPath of [
   assert.match(content, /getSessionId\(\)/, `${relPath} consumes the shared canonical owner id`);
 }
 
-const dispatchPath = join(projectRoot, 'packages/main/src/core/lattice-dispatch.ts');
+const dispatchPath = join(projectRoot, 'packages/main/src/core/proof-or-stop-dispatch.ts');
 const dispatch = readFileSync(dispatchPath, 'utf8');
 const envBuilderStart = dispatch.indexOf('export function buildCanonicalHostRuntimeEnv');
 const envBuilderEnd = dispatch.indexOf('function commandTimedOut', envBuilderStart);
 assert.notEqual(envBuilderStart, -1, 'canonical host runtime env builder is exported for deterministic regression coverage');
 assert.notEqual(envBuilderEnd, -1, 'canonical host runtime env builder has a bounded source section');
 const envBuilder = dispatch.slice(envBuilderStart, envBuilderEnd);
-assert.match(envBuilder, /LATTICE_OWNER_SESSION_ADAPTER_TASK\s*=\s*identity\.taskIdentity/, 'child dispatch propagates task identity');
-assert.match(envBuilder, /LATTICE_OWNER_SESSION_ADAPTER_AGENT\s*=\s*identity\.agentOrRoleIdentity/, 'child dispatch propagates agent/role identity');
-assert.match(envBuilder, /delete env\.LATTICE_SESSION_ID/, 'child dispatch removes accidental inherited owner identity');
+assert.match(envBuilder, /PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK\s*=\s*identity\.taskIdentity/, 'child dispatch propagates task identity');
+assert.match(envBuilder, /PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT\s*=\s*identity\.agentOrRoleIdentity/, 'child dispatch propagates agent/role identity');
+assert.match(envBuilder, /delete env\.PROOF_OR_STOP_SESSION_ID/, 'child dispatch removes accidental inherited owner identity');
 assert.doesNotMatch(
   envBuilder,
-  /LATTICE_OWNER_SESSION_ADAPTER_SESSION\s*=\s*sessionId/,
+  /PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION\s*=\s*sessionId/,
   'child dispatch must not collapse every role onto the parent owner session',
 );
 const boundedStart = dispatch.indexOf('function runBoundedRealLeafDispatch');

@@ -2,13 +2,10 @@
  * aux_diagnose command (formerly diagnose, CHK-005)
  */
 import { execSync } from 'child_process';
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import type { HandlerContext, ProfileNode, ProofOrStopExtensionRuntime, TraceDiffResult } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import { loadTraceSnapshot } from '../../../main/dist/tasks/trace-store.js';
-import { diffTraces, summarizeDiff, type TraceDiffResult } from '../../../main/dist/tasks/trace-diff.js';
-import { startProfiler, type ProfileNode } from '../../../main/dist/tasks/profiler.js';
 
 export interface DiagnoseResult {
   caseName: string;
@@ -24,6 +21,8 @@ export interface DiagnoseResult {
 export function createAuxDiagnoseHandlers(ctx: HandlerContext) {
   const { root } = ctx;
   const progress = ctx.log || (() => {});
+  const runtime = requireCoreRuntime(ctx);
+  const { diffTraces, loadConfig, loadTraceSnapshot, startProfiler, summarizeDiff } = runtime;
 
   return {
     async aux_diagnose(args: { caseName: string; fixturePath?: string }): Promise<string> {
@@ -53,7 +52,7 @@ export function createAuxDiagnoseHandlers(ctx: HandlerContext) {
       try {
         const profiler = await startProfiler();
         try {
-          const result = await runCaseForDiagnose(caseObj, root);
+          const result = await runCaseForDiagnose(caseObj, root, runtime);
           if (!result.passed) caseError = result.error || 'case failed';
         } catch (e: any) {
           caseError = e?.message || String(e);
@@ -115,12 +114,16 @@ function findCase(fixturesDir: string, caseName: string, fixturePath?: string): 
 
 let __diagnoseRunning = false;
 
-async function runCaseForDiagnose(caseObj: any, root: string): Promise<{ passed: boolean; error?: string }> {
+async function runCaseForDiagnose(
+  caseObj: any,
+  root: string,
+  runtime: ProofOrStopExtensionRuntime,
+): Promise<{ passed: boolean; error?: string }> {
   // 递归防护：aux_diagnose → runCaseForDiagnose → execute 调 $handlers.aux_diagnose → 再次进入
   if (__diagnoseRunning) return { passed: true };
   __diagnoseRunning = true;
   try {
-    const { runCase, createIsolatedHandlers } = await import('../../../main/dist/handlers/test-runner-core.js');
+    const { runCase, createIsolatedHandlers } = runtime;
     const { handlers } = await createIsolatedHandlers(root);
     return await runCase(caseObj, root, handlers as Record<string, Function>, {}, null);
   } finally { __diagnoseRunning = false; }

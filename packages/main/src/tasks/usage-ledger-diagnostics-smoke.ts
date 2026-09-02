@@ -558,7 +558,7 @@ try {
 
   check('static: diagnostics.ts does not import dispatch/cli-engine/handlers/gate/registry', () => {
     const src = readFileSync(join(srcUsageLedgerDir, 'diagnostics.ts'), 'utf8');
-    const forbidden = ['dispatch', 'cli-engine', 'handlers', 'command-registry', 'lattice-dispatch', 'gate'];
+    const forbidden = ['dispatch', 'cli-engine', 'handlers', 'command-registry', 'proof-or-stop-dispatch', 'gate'];
     const importRe = /\bfrom\s+['"]([^'"]+)['"]/g;
     let m: RegExpExecArray | null;
     while ((m = importRe.exec(src)) !== null) {

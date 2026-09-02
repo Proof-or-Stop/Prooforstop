@@ -51,7 +51,7 @@ contract.
 
 ## Canonical Contract
 
-`LATTICE_SESSION_ID` is the only canonical owner-session id that core owner-lease
+`PROOF_OR_STOP_SESSION_ID` is the only canonical owner-session id that core owner-lease
 and lifecycle code should consume.
 
 Contract:
@@ -102,9 +102,9 @@ participate without a core exception.
 The target resolver order is:
 
 1. **Explicit canonical env**: a user, wrapper, runner, or host adapter sets
-   `LATTICE_SESSION_ID`.
+   `PROOF_OR_STOP_SESSION_ID`.
 2. **Host adapter bridge**: a Proof-or-Stop-owned adapter maps a host-native stable
-   task identity plus agent/role identity into `LATTICE_SESSION_ID` before core
+   task identity plus agent/role identity into `PROOF_OR_STOP_SESSION_ID` before core
    owner-lease code runs.
 3. **Generated-token fallback**: when a host exposes a durable task boundary and
    a durable agent/role boundary but no canonical native id, the adapter creates
@@ -114,7 +114,7 @@ The target resolver order is:
    project/worktree root, and parent process id and emit a warning before
    mutating commands.
 
-An explicit `LATTICE_SESSION_ID` is an assertion that the caller has already
+An explicit `PROOF_OR_STOP_SESSION_ID` is an assertion that the caller has already
 derived the intended task-and-agent/role boundary; it remains first for
 compatibility and operator control. When that assertion is absent, the adapter
 must validate both dimensions rather than substituting a repo-, worktree-, or
@@ -138,7 +138,7 @@ It can prevent accidental concurrency mistakes:
 
 It cannot prove identity:
 
-- a local process can set another process's `LATTICE_SESSION_ID`;
+- a local process can set another process's `PROOF_OR_STOP_SESSION_ID`;
 - the id has no signing key, public key, server authority, or reviewer
   attestation;
 - a generated token may be high entropy, but it is still only a local
@@ -161,7 +161,7 @@ should only receive the canonical result.
 Recommended adapter output:
 
 ```text
-sessionId: canonical LATTICE_SESSION_ID value
+sessionId: canonical PROOF_OR_STOP_SESSION_ID value
 sessionSource: explicit-env | host-adapter | generated-token | derived-ppid
 hostProvider: codex | claude-code | antigravity | agy | <future-host>
 taskIdentityValidated: boolean
@@ -181,7 +181,7 @@ fresh-ppid problem. The target migration keeps that knowledge in the Claude Code
 adapter:
 
 - the adapter may read the Claude Code native stable session value;
-- it must export or pass the corresponding `LATTICE_SESSION_ID`;
+- it must export or pass the corresponding `PROOF_OR_STOP_SESSION_ID`;
 - core owner-lease code must not directly inspect Claude-specific env vars;
 - diagnostics may still show `hostProvider=claude-code` and a source indicating
   that a host adapter supplied the id.
@@ -190,7 +190,7 @@ adapter:
 
 Codex must use the same canonical contract:
 
-- if the invoking environment already provides `LATTICE_SESSION_ID`, preserve it;
+- if the invoking environment already provides `PROOF_OR_STOP_SESSION_ID`, preserve it;
 - use `CODEX_THREAD_ID` as the ordinary direct Codex task boundary when present
   (with legacy session candidates only as adapter fallbacks), pair it with the
   policy-distinct `main` role for a direct owner, and require spawned reviewer /
@@ -208,7 +208,7 @@ by scope-guard semantics:
 
 - `antigravity` and `agy` remain provider strings for guard and diagnostics;
 - the adapter bridges any stable native or launcher-provided signal into
-  `LATTICE_SESSION_ID`;
+  `PROOF_OR_STOP_SESSION_ID`;
 - when no stable native signal exists, the adapter creates a generated token for
   the host session;
 - core code must not branch on Antigravity/agy-specific env names.
@@ -222,7 +222,7 @@ Minimum onboarding checklist:
 
 - name the provider string;
 - declare and validate its durable task identity and durable agent/role identity;
-- if both exist, derive and map an opaque `LATTICE_SESSION_ID` in the adapter;
+- if both exist, derive and map an opaque `PROOF_OR_STOP_SESSION_ID` in the adapter;
 - if both boundaries exist but no native canonical value exists, use
   generated-token fallback from approved runtime storage;
 - if either boundary cannot be validated, use the warned degraded-ppid path;
@@ -280,7 +280,7 @@ Rules:
   fallback all fail.
 - Record `sessionSource=derived-ppid` or equivalent.
 - `session_brief` and doctor output should label it as degraded.
-- The guidance should prefer exporting `LATTICE_SESSION_ID` or using a supported
+- The guidance should prefer exporting `PROOF_OR_STOP_SESSION_ID` or using a supported
   host adapter when repeated commands self-reject as foreign owner sessions.
 - Tests must preserve the known degradation: changing ppid changes the derived
   id, while changing project/worktree root or hostname also changes it.
@@ -301,7 +301,7 @@ owner-lease and lifecycle paths in slices:
 3. Move Claude Code native env handling out of owner-lease core and into the
    Claude Code adapter.
 4. Route Codex and Antigravity/agy launch/dispatch paths through the adapter so
-   they set or preserve `LATTICE_SESSION_ID`.
+   they set or preserve `PROOF_OR_STOP_SESSION_ID`.
 5. Replace lifecycle event collection and DEV-claim warnings that read ad hoc
    session env vars with the same shared canonical resolver consumed by owner
    leases.
@@ -321,8 +321,8 @@ Future implementation must cover at least these cases:
 
 | Case | Setup | Expected result |
 | --- | --- | --- |
-| Canonical env wins | `LATTICE_SESSION_ID=sess-a`; ppid changes | same session id; source is canonical or explicit env |
-| Blank canonical env ignored | `LATTICE_SESSION_ID` is whitespace; adapter has stable id | adapter id is used |
+| Canonical env wins | `PROOF_OR_STOP_SESSION_ID=sess-a`; ppid changes | same session id; source is canonical or explicit env |
+| Blank canonical env ignored | `PROOF_OR_STOP_SESSION_ID` is whitespace; adapter has stable id | adapter id is used |
 | Claude Code bridge | Claude adapter sees its native stable session signal; ppid changes | same canonical id; no Claude-specific env read in core |
 | Codex bridge | Codex wrapper passes canonical env or adapter-generated id | owner lease refresh recognizes the same session |
 | Antigravity/agy bridge | dispatch/pre-apply flow starts provider `antigravity` or `agy` | provider is diagnostic; canonical id drives ownership |
@@ -364,10 +364,10 @@ sessions.
 Minimum transcript set:
 
 1. Run the same story-scoped mutating command through one invocation shape that
-   changes parent PID while preserving the same `LATTICE_SESSION_ID`; the command
+   changes parent PID while preserving the same `PROOF_OR_STOP_SESSION_ID`; the command
    must refresh or reuse the same owner lease.
 2. Run the same command through a second, different parent-PID-changing shape
-   that also preserves `LATTICE_SESSION_ID`; it must still resolve to the same
+   that also preserves `PROOF_OR_STOP_SESSION_ID`; it must still resolve to the same
    owner session and not self-reject as a foreign owner.
 3. Run a degraded comparison with no canonical env, no adapter signal, and no
    generated token; changing ppid must produce a distinct derived id or an
@@ -396,7 +396,7 @@ Keep all existing story owner lease smoke tests green.
 
 Add adapter entry points for Claude Code, Codex, Antigravity/agy, and a fake
 future host fixture. Adapters map native or launcher-provided signals to
-`LATTICE_SESSION_ID` before generic owner-lease code runs.
+`PROOF_OR_STOP_SESSION_ID` before generic owner-lease code runs.
 
 ### R3. Generated-token fallback
 
@@ -457,7 +457,7 @@ stale-takeover, and local/non-Authority semantics.
 
 The target implementation is complete only when:
 
-1. `LATTICE_SESSION_ID` is documented and implemented as the single canonical
+1. `PROOF_OR_STOP_SESSION_ID` is documented and implemented as the single canonical
    owner-session id consumed by generic core code.
 2. Claude Code, Codex, Antigravity/agy, and a fake future host all reach the
    canonical contract through adapters that validate independent task and

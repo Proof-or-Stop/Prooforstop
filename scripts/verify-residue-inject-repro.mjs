@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * fbca-inject-check.mjs — proves the verify-lattice-residue.mjs gate has
+ * fbca-inject-check.mjs — proves the verify-proof-or-stop-residue.mjs gate has
  * zero-tolerance, *reproducible* detection of a newly introduced koala token
  * in product runtime source.
  *
@@ -12,7 +12,7 @@
  *   1. append a koala token line to a real product-source file under
  *      packages/main/src
  *   2. `git add` it  (now the inject is TRACKED and in ls-files scope)
- *   3. run `node scripts/verify-lattice-residue.mjs` and assert it EXITS 1 (FAIL)
+ *   3. run `node scripts/verify-proof-or-stop-residue.mjs` and assert it EXITS 1 (FAIL)
  *   4. unconditionally restore: `git reset` the path + `git checkout --` the file
  *   5. re-run the gate and assert it returns to EXIT 0 (PASS) — proves a clean revert
  *
@@ -25,7 +25,7 @@
  * shapes on purpose:
  *
  *   - koala token         -> proves the zero-tolerance presence check (check 1)
- *   - `.startsWith('.lattice/')` -> proves the forbidden DECISION check (check 4)
+ *   - `.startsWith('.proof-or-stop/')` -> proves the forbidden DECISION check (check 4)
  *
  * The second inject is the exact defect class the row flip exists to catch: a
  * DEPRECATED brand literal used as a path comparison, which recognizes only the
@@ -40,12 +40,12 @@ import { dirname, join } from 'node:path';
 // B-cc10 CHK-007: reuse the gate's OWN token derivation so the forbidden-decision
 // inject is built from the same constants the gate forbids. Importing the gate also
 // runs its inline self-test at module load, so a detector regression fails here too.
-import { readDeprecatedBrandTokens } from './verify-lattice-residue.mjs';
+import { readDeprecatedBrandTokens } from './verify-proof-or-stop-residue.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TARGET = 'packages/main/src/index.ts';
 const targetAbs = join(repoRoot, TARGET);
-const GATE = 'scripts/verify-lattice-residue.mjs';
+const GATE = 'scripts/verify-proof-or-stop-residue.mjs';
 
 function git(args) {
   return execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' });

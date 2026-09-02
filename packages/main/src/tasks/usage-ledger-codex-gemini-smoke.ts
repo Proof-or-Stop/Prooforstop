@@ -58,8 +58,8 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
   }
 }
 
-const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
-const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+const ON = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-codex-gemini-'));
 
@@ -67,7 +67,7 @@ function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
   return {
     storyId: 'S-test',
     phase: 'dispatch',
-    agentType: 'lattice-dispatch:codex',
+    agentType: 'proof-or-stop-dispatch:codex',
     model: 'codex',
     ...over,
   };
@@ -718,7 +718,7 @@ async function main(): Promise<void> {
         'projected usage must have a null prototype',
       );
       const sub = freshRoot();
-      const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
+      const gctx = ctx({ agentType: 'proof-or-stop-dispatch:gemini', model: 'gemini' });
       const handle = recordDispatchPreflight(sub, gctx, 'prompt', opts(ON));
       assert.ok(handle);
       recordDispatchFinalForProvider(
@@ -997,7 +997,7 @@ async function main(): Promise<void> {
 
   await check('CHK-002 gemini: provider-reported final supersedes estimate (no double count)', () => {
     const sub = freshRoot();
-    const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
+    const gctx = ctx({ agentType: 'proof-or-stop-dispatch:gemini', model: 'gemini' });
     const handle = recordDispatchPreflight(sub, gctx, 'prompt', opts(ON));
     assert.ok(handle);
     recordDispatchFinalForProvider(
@@ -1331,7 +1331,7 @@ async function main(): Promise<void> {
   // that supersedes the preflight estimate (estimateCount===0); no throw.
   await check('CHK-002 edge:2 gemini: malformed gemini usage -> unavailable final (provider gemini) supersedes estimate, no throw', () => {
     const sub = freshRoot();
-    const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
+    const gctx = ctx({ agentType: 'proof-or-stop-dispatch:gemini', model: 'gemini' });
     const handle = recordDispatchPreflight(sub, gctx, 'prompt', opts(ON));
     assert.ok(handle);
     let threw = false;
@@ -1445,7 +1445,7 @@ async function main(): Promise<void> {
   // gemini final: input=800, output=120, cacheRead=40, cacheCreation null ->
   // four-field unknown (cacheCreation null) but primary-known.
   {
-    const gctx = ctx({ agentType: 'lattice-dispatch:gemini', model: 'gemini' });
+    const gctx = ctx({ agentType: 'proof-or-stop-dispatch:gemini', model: 'gemini' });
     const h = recordDispatchPreflight(primaryRoot, gctx, 'gemini-prompt', opts(ON));
     assert.ok(h);
     recordDispatchFinalForProvider(
@@ -1462,7 +1462,7 @@ async function main(): Promise<void> {
   // claude final: all four dims known (input=500, output=200, cacheCreation=10,
   // cacheRead=50) -> four-field total 760 AND primary 700.
   {
-    const cctx = ctx({ agentType: 'lattice-dispatch:claude-code', model: 'claude-code' });
+    const cctx = ctx({ agentType: 'proof-or-stop-dispatch:claude-code', model: 'claude-code' });
     const h = recordDispatchPreflight(primaryRoot, cctx, 'claude-prompt', opts(ON));
     assert.ok(h);
     recordDispatchFinal(
@@ -1607,7 +1607,7 @@ async function main(): Promise<void> {
       projectRootHash: 'sha256:x',
       storyId: 'S-test',
       phase: 'dispatch',
-      agentType: 'lattice-dispatch:codex',
+      agentType: 'proof-or-stop-dispatch:codex',
       decision: { kind: 'allowed' },
       usage: {
         source: 'prompt-size-estimate',
@@ -1694,7 +1694,7 @@ async function main(): Promise<void> {
       projectRootHash: 'sha256:x',
       storyId: 'S-test',
       phase: 'dispatch',
-      agentType: 'lattice-dispatch:codex',
+      agentType: 'proof-or-stop-dispatch:codex',
       decision: { kind: 'allowed' },
       provider: { name: 'openai', model: 'gpt-5-codex' },
       usage: {
@@ -1763,7 +1763,7 @@ async function main(): Promise<void> {
       projectRootHash: 'sha256:x',
       storyId: 'S-test',
       phase: 'dispatch',
-      agentType: 'lattice-dispatch:codex',
+      agentType: 'proof-or-stop-dispatch:codex',
       decision: { kind: 'allowed' },
       usage: {
         source: 'unavailable',
@@ -1814,7 +1814,7 @@ async function main(): Promise<void> {
   // ======================================================================
   await check('REGRESSION claude: recordDispatchFinal with anthropic usage still supersedes', () => {
     const sub = freshRoot();
-    const cctx = ctx({ agentType: 'lattice-dispatch:claude-code', model: 'claude-code' });
+    const cctx = ctx({ agentType: 'proof-or-stop-dispatch:claude-code', model: 'claude-code' });
     const handle = recordDispatchPreflight(sub, cctx, 'prompt', opts(ON));
     assert.ok(handle);
     recordDispatchFinal(

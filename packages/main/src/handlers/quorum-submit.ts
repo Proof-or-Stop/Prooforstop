@@ -13,7 +13,7 @@ import {
 import type { ImmutableMetadataCommitTestHooks } from '../core/done-prepare-generated-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { deriveCanonicalHostKeyId, deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
-import { normalizeRelPath } from '../core/lattice-paths.js';
+import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { evaluateReviewEscalation } from '../core/review-escalation.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
@@ -82,7 +82,7 @@ function normalizeIdentity(value: unknown): string {
 }
 
 function toLane(name: string): string {
-  return name.startsWith('lattice-review-') ? name : `lattice-review-${name}`;
+  return name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`;
 }
 
 function parseRounds(value: unknown): number {

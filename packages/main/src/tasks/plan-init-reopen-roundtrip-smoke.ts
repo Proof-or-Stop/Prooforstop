@@ -13,8 +13,8 @@
  *     -> story_advance INIT_CHECK (dev_start REUSES the existing worktree)
  *     -> story_advance PLAN
  *
- * Every lattice command from INIT_CHECK onward runs FROM INSIDE the worktree with a
- * stable LATTICE_SESSION_ID (one owner lease), so this is the first smoke exercising
+ * Every proof-or-stop command from INIT_CHECK onward runs FROM INSIDE the worktree with a
+ * stable PROOF_OR_STOP_SESSION_ID (one owner lease), so this is the first smoke exercising
  * the from-inside-the-worktree path the two defects hid behind:
  *   (1) the missing PLAN->INIT machine edge, and
  *   (2) dev_start's worktree-reuse path bug (resolveWorktreePath/storyRel resolved
@@ -57,15 +57,15 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 function initRepo(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-plan-init-reopen-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-plan-init-reopen-'));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives',
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements', worktreeDir: '.worktrees',
   }, null, 2));
-  write(root, '.gitignore', ['.worktrees/', '.lattice/*', '!.lattice/story/', '!.lattice/story/**', ''].join('\n'));
+  write(root, '.gitignore', ['.worktrees/', '.proof-or-stop/*', '!.proof-or-stop/story/', '!.proof-or-stop/story/**', ''].join('\n'));
   write(root, 'README.md', 'plan-init-reopen round-trip smoke\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
@@ -73,14 +73,14 @@ function initRepo(): string {
   return root;
 }
 // Run the built CLI. `cwd` selects main-root vs inside-the-worktree; a fixed
-// LATTICE_SESSION_ID keeps one owner lease across both (the owner token derived from
+// PROOF_OR_STOP_SESSION_ID keeps one owner lease across both (the owner token derived from
 // other adapters is cwd-sensitive and would otherwise thrash on the reopen from the
-// worktree). LATTICE_PROJECT_ROOT is intentionally NOT set, so the metadata root
+// worktree). PROOF_OR_STOP_PROJECT_ROOT is intentionally NOT set, so the metadata root
 // follows cwd exactly as a real operator experiences it.
 function run(cwd: string, command: string, args: Record<string, unknown>): { code: number; out: string } {
   try {
     const stdout = execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
-      cwd, env: { ...process.env, LATTICE_SESSION_ID: SESSION }, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'],
+      cwd, env: { ...process.env, PROOF_OR_STOP_SESSION_ID: SESSION }, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     return { code: 0, out: stdout };
   } catch (e: any) {
@@ -91,7 +91,7 @@ function run(cwd: string, command: string, args: Record<string, unknown>): { cod
 // to stderr (cli-engine.ts), so operator-facing advisories are invisible to run().
 function runBoth(cwd: string, command: string, args: Record<string, unknown>): { code: number; out: string; err: string } {
   const r = spawnSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
-    cwd, env: { ...process.env, LATTICE_SESSION_ID: SESSION }, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'],
+    cwd, env: { ...process.env, PROOF_OR_STOP_SESSION_ID: SESSION }, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   return { code: typeof r.status === 'number' ? r.status : 1, out: r.stdout ?? '', err: r.stderr ?? '' };
 }
@@ -159,7 +159,7 @@ function seedStoryAtInitCheck(): { root: string; storyId: string; wt: string } {
   assert.ok(storyId, 'story_create should return a story id');
   freezeStory(new StoryStore(root), storyId!);
   repairInitCheck(root, storyId!);
-  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['add', '.proof-or-stop/story/actives']);
   git(root, ['commit', '-m', 'seed devstart reuse story']);
   // Surface the CLI output on failure like every other assertion in this file; a bare
   // "1 !== 0" here is undiagnosable when this seeding step fails.
@@ -357,7 +357,7 @@ async function crashInjectReopen(wt: string, storyId: string, reason: string): P
   const originalCwd = process.cwd();
   const crashStore = new CrashBeforeReopenAuditStore(wt);
   const ctx: HandlerContext = { root: wt, scanRoot: wt, store: crashStore };
-  process.env.LATTICE_SESSION_ID = SESSION;
+  process.env.PROOF_OR_STOP_SESSION_ID = SESSION;
   process.chdir(wt);
   resetConfigCache();
   let crashError: unknown;
@@ -540,7 +540,7 @@ function main(): void {
     const store = new StoryStore(root);
     freezeStory(store, storyId!);
     repairInitCheck(root, storyId!);
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'seed reopen smoke story']);
 
     const wt = join(worktree, storyId!);

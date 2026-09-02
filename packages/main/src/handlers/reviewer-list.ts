@@ -60,7 +60,7 @@ const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
 
 function reviewerLaneShortName(lane: string): string {
-  return lane.replace(/^lattice-review-/, '');
+  return lane.replace(/^proof-or-stop-review-/, '');
 }
 
 function supportedForceReviewerNames(): string {
@@ -74,7 +74,7 @@ export function normalizeForceReviewerName(value: string): string {
   const raw = String(value).trim();
   if (!raw) return '';
   if (isReviewRunLane(raw) && isPromptRoleEligibleForReviewEvidence(raw)) return reviewerLaneShortName(raw);
-  const lane = `lattice-review-${raw}`;
+  const lane = `proof-or-stop-review-${raw}`;
   if (isReviewRunLane(lane) && isPromptRoleEligibleForReviewEvidence(lane)) return raw;
   throw new Error(
     `reviewer_list: forceReviewer "${raw}" is not supported by review_run_start. Supported reviewers: ${supportedForceReviewerNames()}`,

@@ -2,7 +2,7 @@
  * Health issue tracking — receiver for silent catch classification
  *
  * Design purpose:
- *   lattice previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
+ *   proof-or-stop previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
  *   principle, classify into four categories:
  *     - DEBUG  (logging/progress)         → keep silent
  *     - PROBE  (probes, e.g. file not found) → keep silent
@@ -10,7 +10,7 @@
  *     - MUTATION (git/fs.write failure) → switch to throw
  *
  *   PERSIST-class failures were previously swallowed and could not be traced afterward. This module provides a lightweight
- *   JSONL append receiver: each issue is written to ~/.lattice/health.jsonl,
+ *   JSONL append receiver: each issue is written to ~/.proof-or-stop/health.jsonl,
  *   and `proof-or-stop doctor` can read them out.
  *
  * Design constraints:
@@ -34,7 +34,7 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 export interface HealthIssue {
@@ -49,7 +49,7 @@ export interface HealthIssue {
   context: Record<string, unknown>;
 }
 
-/** Default health.jsonl path: ~/.lattice/health.jsonl */
+/** Default health.jsonl path: ~/.proof-or-stop/health.jsonl */
 export function getHealthPath(): string {
   // Allow overriding the path via env for easier testing
   const envHealthPath = readBrandEnv('HEALTH_PATH');
@@ -86,7 +86,7 @@ export function reportHealthIssue(
     // Last line of defense: health itself crashed; write to stderr but do not throw
     try {
       const msg = e instanceof Error ? e.message : String(e);
-      process.stderr.write(`[lattice-health] failed to record health issue: ${msg}\n`);
+      process.stderr.write(`[proof-or-stop-health] failed to record health issue: ${msg}\n`);
     } catch { /* Truly nothing else to do */ }
   }
 }

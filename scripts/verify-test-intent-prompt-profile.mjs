@@ -22,17 +22,17 @@ function run(projectRoot, args) {
 }
 
 function makeProject(baseline) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-test-intent-prompt-profile-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-test-intent-prompt-profile-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, 'samples'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# prompt profile\n');
   writeFileSync(join(dir, 'samples', 'prompt.md'), baseline);
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Lab'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Lab'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proofOrStop@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'baseline'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   run(dir, ['lab', 'create', JSON.stringify({ id:'lab-test-intent-prompt-quality-v1', target:'test-intent-prompt', profile:'test-intent-prompt-quality-v1', editableFiles:['samples/prompt.md'] })]);

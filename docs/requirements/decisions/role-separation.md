@@ -9,7 +9,7 @@ runtime contract is stricter: `packages/main/src/core/agent-dispatch-registry.ts
 is the single mechanical authority for dispatch role, lifecycle phase, target
 cardinality, prompt class, commit permission, reviewer lane, evidence ownership,
 and permitted state-changing commands. Consumers must not infer privilege from
-prefixes such as `lattice-review-`.
+prefixes such as `proof-or-stop-review-`.
 
 The canonical role families are implementer, verification-intent, INIT and
 scope reviewers, story and coverage reviewers, delivery reviewer, finding
@@ -162,7 +162,7 @@ Organized by wave; each wave is independently verifiable, with data gates betwee
 | Wave | Story | Effort | Goal | Priority |
 |---|---|---|---|---|
 | **Wave 0 — verify the ROI of an independent implementer** | | | | |
-| S-01 | implementer agent definition (`.claude/agents/lattice-implementer.md`) | 1 day | Write a runnable agent definition | P0 |
+| S-01 | implementer agent definition (`.claude/agents/proof-or-stop-implementer.md`) | 1 day | Write a runnable agent definition | P0 |
 | S-02 | DEV / TEST_CASE phase dispatches the implementer | 2 days | phase transition automatically spins up the sub-agent | P0 |
 | S-03 | activity.jsonl telemetry tagged by role | 1 day | Be able to compare before/after with data | P0 |
 | S-04 | Wave 0 data review (after a 2-week observation window) | 0 days | Decide whether to proceed to Wave 1 | P0 gate |
@@ -224,7 +224,7 @@ Wave 3: (conditional on S-12 outcome) S-13
 
 **Description**
 
-Create `.claude/agents/lattice-implementer.md`, defining a CC sub-agent dedicated to the "implementation" role. This agent is invoked by the main agent via `Agent(subagent_type: "lattice-implementer", ...)`, and is responsible for the concrete coding work of the DEV and TEST_CASE phases.
+Create `.claude/agents/proof-or-stop-implementer.md`, defining a CC sub-agent dedicated to the "implementation" role. This agent is invoked by the main agent via `Agent(subagent_type: "proof-or-stop-implementer", ...)`, and is responsible for the concrete coding work of the DEV and TEST_CASE phases.
 
 Key design:
 - Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `proof-or-stop:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
@@ -242,7 +242,7 @@ The agent's input prompt is constructed by the main agent and must contain:
 
 **Checklist**
 
-1. **title**: Create the `.claude/agents/lattice-implementer.md` file and its frontmatter
+1. **title**: Create the `.claude/agents/proof-or-stop-implementer.md` file and its frontmatter
    **context**: The frontmatter contains `name`, `description`, `whenToUse`, `tools`, `disallowedTools`, `permissionMode: acceptEdits`, `isolation: worktree`, `model: inherit`. whenToUse must make clear "only invoked by the main agent during the DEV / TEST_CASE phase of a proof-or-stop story, not responding to the user directly"
 
 2. **title**: Write the body of the system prompt
@@ -254,7 +254,7 @@ The agent's input prompt is constructed by the main agent and must contain:
    - "Completion conditions and return format" (return a 2-5 line summary, do not be verbose)
 
 3. **title**: Verify CC can load this agent
-   **context**: Launch CC in the lattice-agent repo root, run `/agents` or have the main agent call `Agent(subagent_type: "lattice-implementer", description: "smoke", prompt: "echo hello")`, and confirm the agent is recognized and can run
+   **context**: Launch CC in the proof-or-stop-agent repo root, run `/agents` or have the main agent call `Agent(subagent_type: "proof-or-stop-implementer", description: "smoke", prompt: "echo hello")`, and confirm the agent is recognized and can run
 
 4. **title**: Real-machine smoke: have the implementer make a trivial change
    **context**: On a scratch story, have the implementer create a hello.txt and call update_task_state. Confirm: (a) the file was actually created (b) the checklist item was actually marked done (c) there was no story_advance call (d) the returned summary is concise
@@ -268,12 +268,12 @@ The agent's input prompt is constructed by the main agent and must contain:
 - adversarial: when the implementer attempts an overreaching operation (story_advance / rm / push) it must fail
 
 **Acceptance**
-- `.claude/agents/lattice-implementer.md` exists and its frontmatter is valid
+- `.claude/agents/proof-or-stop-implementer.md` exists and its frontmatter is valid
 - The smoke proves the agent can be recognized and executed by CC
 - The permission tightening is provable
 
 **Touchpoints**
-- Create: `.claude/agents/lattice-implementer.md`
+- Create: `.claude/agents/proof-or-stop-implementer.md`
 - (optional) Create: `docs/story/actives/B-xxxx/smoke/implementer-smoke.md` as a real-machine verification record
 
 ---
@@ -285,8 +285,8 @@ The agent's input prompt is constructed by the main agent and must contain:
 Make the main agent **naturally inclined to** delegate to the implementer when it enters the DEV or TEST_CASE phase. This story is a refactor of prompts + flow; it **does not modify proof-or-stop's core code**.
 
 Two points are changed:
-1. **Add a section about role separation at the top of CLAUDE.md**: tell the main agent that "the code-writing work of DEV and TEST_CASE should be delegated to the lattice-implementer sub-agent"
-2. **Add a line to the nextStepHint when story_advance enters DEV or TEST_CASE**: "Recommend calling Agent(subagent_type='lattice-implementer', ...) to do the coding work of this phase"
+1. **Add a section about role separation at the top of CLAUDE.md**: tell the main agent that "the code-writing work of DEV and TEST_CASE should be delegated to the proof-or-stop-implementer sub-agent"
+2. **Add a line to the nextStepHint when story_advance enters DEV or TEST_CASE**: "Recommend calling Agent(subagent_type='proof-or-stop-implementer', ...) to do the coding work of this phase"
 
 Note: **not mandatory**. The main agent may choose not to delegate, because some stories are extremely fine-grained (chore / docs type), where delegating to a sub-agent is more expensive than doing it yourself. Let the main agent judge for itself based on the story's type and priority.
 
@@ -297,11 +297,11 @@ Note: **not mandatory**. The main agent may choose not to delegate, because some
 
 **Checklist**
 
-1. **title**: Add a "sub-agent role separation" subsection at the top of `packages/lattice/CLAUDE.md`
+1. **title**: Add a "sub-agent role separation" subsection at the top of `CLAUDE.md`
    **context**: Explain that proof-or-stop supports the implementer sub-agent, and give the trigger conditions: delegate is recommended when story.type is in `[feature, bug, refactor]` and priority >= medium and the checklist item count >= 2. When type is in `[chore, docs]` or the item count < 2, it is faster for the main agent to do it itself
 
 2. **title**: Add a delegate suggestion to the hint when story_advance enters DEV
-   **context**: In the `story_advance.DEV` hint in `handlers/hints.ts`, append a line: "Recommend Agent(subagent_type='lattice-implementer', description='execute DEV', prompt='story id + pending checklist items + allowed tools')". Only append when story.type/priority/size meets the conditions
+   **context**: In the `story_advance.DEV` hint in `handlers/hints.ts`, append a line: "Recommend Agent(subagent_type='proof-or-stop-implementer', description='execute DEV', prompt='story id + pending checklist items + allowed tools')". Only append when story.type/priority/size meets the conditions
 
 3. **title**: Same for the hint when story_advance enters TEST_CASE
    **context**: Same idea, but the prompt template is slightly different (emphasizing writing fixtures rather than writing implementation code)
@@ -323,8 +323,8 @@ Note: **not mandatory**. The main agent may choose not to delegate, because some
 - A delegate is run end-to-end on a real machine once and written into DOGFOOD-EVIDENCE.md
 
 **Touchpoints**
-- Modify: `packages/lattice/CLAUDE.md`
-- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
+- Modify: `CLAUDE.md`
+- Modify: `packages/main/src/handlers/hints.ts`
 
 ---
 
@@ -334,7 +334,7 @@ Note: **not mandatory**. The main agent may choose not to delegate, because some
 
 Each record in activity.jsonl is currently `{tool, args, status, at}`. Add a `role` field (`main` / `implementer` / `test-analyst` / `unknown`) so that data analysis can be done at the end of Wave 0.
 
-The source for judging `role`: the environment variable `LATTICE_ROLE`. When the main agent delegates to a sub-agent, it stuffs this variable into the sub-agent's env (CC's AgentTool allows passing an environment variable or injecting it via the initialPrompt).
+The source for judging `role`: the environment variable `PROOF_OR_STOP_ROLE`. When the main agent delegates to a sub-agent, it stuffs this variable into the sub-agent's env (CC's AgentTool allows passing an environment variable or injecting it via the initialPrompt).
 
 Note this is best-effort: if the env is not passed, the role field is `unknown`, which does not affect the other fields.
 
@@ -343,19 +343,19 @@ Note this is best-effort: if the env is not passed, the role field is `unknown`,
 **Checklist**
 
 1. **title**: Add a `role` field to activity.ts
-   **context**: Add `role: process.env.LATTICE_ROLE || 'unknown'` to the record object in appendActivity. The schema version stays the same (the new field is additive)
+   **context**: Add `role: process.env.PROOF_OR_STOP_ROLE || 'unknown'` to the record object in appendActivity. The schema version stays the same (the new field is additive)
 
 2. **title**: Add the role field to health.ts as well
    **context**: health.jsonl also needs to know which role produced a silent failure. Same env-variable source
 
 3. **title**: Document the env-variable injection in the implementer section of CLAUDE.md
-   **context**: Tell the main agent that when it delegates to a sub-agent, it includes in the prompt `"Your first Bash call after launch is export LATTICE_ROLE=implementer"`. This convention is ugly but effective. TODO: change it in the future if the CC Agent tool supports env pass-through
+   **context**: Tell the main agent that when it delegates to a sub-agent, it includes in the prompt `"Your first Bash call after launch is export PROOF_OR_STOP_ROLE=implementer"`. This convention is ugly but effective. TODO: change it in the future if the CC Agent tool supports env pass-through
 
 4. **title**: Add a simple data-analysis script
-   **context**: Create `packages/lattice/scripts/wave0-review.sh`, which groups by role and counts the tool frequency, the status=fail ratio, and the average duration of a story in activity.jsonl. Output a readable table
+   **context**: Create `scripts/wave0-review.sh`, which groups by role and counts the tool frequency, the status=fail ratio, and the average duration of a story in activity.jsonl. Output a readable table
 
 5. **title**: fixture: verify the role field is written correctly
-   **context**: A unit test constructs a call with the LATTICE_ROLE env and asserts the written activity.jsonl line contains the corresponding role
+   **context**: A unit test constructs a call with the PROOF_OR_STOP_ROLE env and asserts the written activity.jsonl line contains the corresponding role
 
 **Test directions**
 - happy: env set → both activity.jsonl and health.jsonl record the correct role
@@ -368,10 +368,10 @@ Note this is best-effort: if the env is not passed, the role field is `unknown`,
 - fixture coverage
 
 **Touchpoints**
-- Modify: `packages/lattice/packages/main/src/core/activity.ts`
-- Modify: `packages/lattice/packages/main/src/core/health.ts`
-- Create: `packages/lattice/scripts/wave0-review.sh`
-- Modify: `packages/lattice/CLAUDE.md` (env-convention section)
+- Modify: `packages/main/src/core/activity.ts`
+- Modify: `packages/main/src/core/health.ts`
+- Create: `scripts/wave0-review.sh`
+- Modify: `CLAUDE.md` (env-convention section)
 
 ---
 
@@ -414,7 +414,7 @@ The review result is written into this story's `decision.json`, as the basis for
    **context**: Fill in the decision per the decision tree above, `{decision: "proceed-wave-1" | "observe-more" | "rollback"}`, with detailed reasoning
 
 5. **title**: Execute according to the decision
-   **context**: proceed → create the Wave 1 stories. observe-more → do not enter a new wave, extend the observation window. rollback → delete .claude/agents/lattice-implementer.md and the related sections of CLAUDE.md, and restore the main agent holding both roles
+   **context**: proceed → create the Wave 1 stories. observe-more → do not enter a new wave, extend the observation window. rollback → delete .claude/agents/proof-or-stop-implementer.md and the related sections of CLAUDE.md, and restore the main agent holding both roles
 
 **Test directions**
 - This story has no code tests, only a data review
@@ -427,7 +427,7 @@ The review result is written into this story's `decision.json`, as the basis for
 **Touchpoints**
 - Create: `docs/story/actives/B-xxxx/review.md`
 - Fill: `docs/story/actives/B-xxxx/decision.json`
-- (if rollback) Modify: `packages/lattice/CLAUDE.md`, delete `.claude/agents/lattice-implementer.md`
+- (if rollback) Modify: `CLAUDE.md`, delete `.claude/agents/proof-or-stop-implementer.md`
 
 ---
 
@@ -470,7 +470,7 @@ Refactor: turn test_auto into an action that is **triggered automatically** when
    **context**: Add a line: "Test execution in the TEST phase is a side effect of story_advance; do not call test_auto separately". Also note that test_auto is still usable in the sub-agent / script scenario
 
 4. **title**: Add an @deprecated tag to the test_auto handler (warn when the main agent calls it)
-   **context**: The handler entry checks `process.env.LATTICE_ROLE === 'main'` and console.warns, suggesting "please trigger it indirectly via story_advance". Do not hard-block; keep compatibility
+   **context**: The handler entry checks `process.env.PROOF_OR_STOP_ROLE === 'main'` and console.warns, suggesting "please trigger it indirectly via story_advance". Do not hard-block; keep compatibility
 
 5. **title**: fixture: verify the test execution and fallback during story_advance TEST
    **context**: Construct a scratch story with a passing fixture → story_advance TEST succeeds and enters TEST. Then construct a failing one → story_advance TEST fails, stays at DEV, and returns testResult
@@ -485,11 +485,11 @@ Refactor: turn test_auto into an action that is **triggered automatically** when
 - The fixture covers the three paths pass/fail/empty
 
 **Touchpoints**
-- Modify: `packages/lattice/packages/main/src/handlers/story-advance.ts`
-- Modify: `packages/lattice/packages/main/src/core/types.ts`
-- Modify: `packages/lattice/packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
-- Modify: `packages/lattice/CLAUDE.md`
-- Create/modify: `packages/lattice/packages/main/tests/fixtures/story-advance-test-auto.json`
+- Modify: `packages/main/src/handlers/story-advance.ts`
+- Modify: `packages/main/src/core/types.ts`
+- Modify: `packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
+- Modify: `CLAUDE.md`
+- Create/modify: `packages/main/tests/fixtures/story-advance-test-auto.json`
 
 ---
 
@@ -497,7 +497,7 @@ Refactor: turn test_auto into an action that is **triggered automatically** when
 
 **Description**
 
-Create `.claude/agents/lattice-test-analyst.md`. Responsibility: when the testResult.fail of story_advance --phase TEST is > 0, the main agent calls `Agent(subagent_type: "lattice-test-analyst", prompt: contains the failing case name and stdout tail + the list of changed files)`, and the analyst judges the root cause.
+Create `.claude/agents/proof-or-stop-test-analyst.md`. Responsibility: when the testResult.fail of story_advance --phase TEST is > 0, the main agent calls `Agent(subagent_type: "proof-or-stop-test-analyst", prompt: contains the failing case name and stdout tail + the list of changed files)`, and the analyst judges the root cause.
 
 The analyst's output:
 1. Root-cause classification: `code-bug` / `test-bug` / `environment` / `flaky` / `unknown`
@@ -513,14 +513,14 @@ The analyst's tightened permissions:
 
 **Checklist**
 
-1. **title**: Create `.claude/agents/lattice-test-analyst.md`
+1. **title**: Create `.claude/agents/proof-or-stop-test-analyst.md`
    **context**: frontmatter: name, whenToUse="Use when proof-or-stop test phase fails and needs root cause analysis", tools (Read/Glob/Grep/Bash allowlist), disallowedTools (Edit/Write/NotebookEdit), permissionMode: acceptEdits, isolation: worktree (reuse the story worktree)
 
 2. **title**: Write the diagnosis workflow in the system prompt
    **context**: 5 steps: (1) read testResult.firstFailure.stdoutTail (2) git diff HEAD to see recent changes (3) read the source files of the failing cases (4) classify the root cause (5) write bug.json or return a decision. Particularly emphasize: cannot touch code/tests, can only write bug.json
 
 3. **title**: Add an analyst delegate hint to the story_advance TEST fail branch
-   **context**: Add a passage to the hint text: "on fail, please call Agent(subagent_type='lattice-test-analyst', prompt='storyId + testResult JSON + recent diff hint')". Include a concrete prompt template
+   **context**: Add a passage to the hint text: "on fail, please call Agent(subagent_type='proof-or-stop-test-analyst', prompt='storyId + testResult JSON + recent diff hint')". Include a concrete prompt template
 
 4. **title**: Real-machine smoke: construct a deliberately-failing story and run the full analyst flow
    **context**: A scratch story with a deliberately wrong fixture → story_advance TEST fails → call the analyst per the hint → observe whether the analyst classifies correctly and writes bug.json
@@ -534,13 +534,13 @@ The analyst's tightened permissions:
 - adversarial: when the analyst attempts Edit it is rejected by tool permissions
 
 **Acceptance**
-- `.claude/agents/lattice-test-analyst.md` exists
+- `.claude/agents/proof-or-stop-test-analyst.md` exists
 - The real-machine smoke proves the diagnosis closed loop
 - That the analyst cannot Edit is provable
 
 **Touchpoints**
-- Create: `.claude/agents/lattice-test-analyst.md`
-- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
+- Create: `.claude/agents/proof-or-stop-test-analyst.md`
+- Modify: `packages/main/src/handlers/hints.ts`
 - Create: `docs/story/actives/B-xxxx/smoke/analyst-smoke.md`
 
 ---
@@ -565,7 +565,7 @@ Wave 1 introduces the two roles implementer and test-analyst that write artifact
 - the implementer is blocked from writing bug.json (exclusive to test-analyst)
 - test-analyst is blocked from writing test-evidence.json (written by the story_advance script)
 
-These two constraints add a role check at the handler layer: something like `if (role === 'implementer' && handlerName === 'bug_report') throw`. role is read from `process.env.LATTICE_ROLE` (already laid down by S-03).
+These two constraints add a role check at the handler layer: something like `if (role === 'implementer' && handlerName === 'bug_report') throw`. role is read from `process.env.PROOF_OR_STOP_ROLE` (already laid down by S-03).
 
 **Checklist**
 
@@ -579,14 +579,14 @@ These two constraints add a role check at the handler layer: something like `if 
    **context**: Add fields as above; use defaults when reading old bug.json
 
 4. **title**: Add a role write-permission check at the handler layer
-   **context**: The `bug_report` handler entry checks LATTICE_ROLE. If it is `implementer` then throw `'bug_report is not allowed for role=implementer, delegate back to main for analyst dispatch'`. The `test_auto` entry likewise checks for a non-`main` role
+   **context**: The `bug_report` handler entry checks PROOF_OR_STOP_ROLE. If it is `implementer` then throw `'bug_report is not allowed for role=implementer, delegate back to main for analyst dispatch'`. The `test_auto` entry likewise checks for a non-`main` role
 
 5. **title**: fixture: role-overreach test
-   **context**: Simulate calling bug_report with env LATTICE_ROLE=implementer and assert it throws
+   **context**: Simulate calling bug_report with env PROOF_OR_STOP_ROLE=implementer and assert it throws
 
 **Test directions**
 - happy: each role can only write its own artifact
-- edge: when LATTICE_ROLE is unset it defaults to 'unknown', allowed under the lenient rule (to avoid deadlocking old sessions)
+- edge: when PROOF_OR_STOP_ROLE is unset it defaults to 'unknown', allowed under the lenient rule (to avoid deadlocking old sessions)
 - adversarial: deliberately forging the env to attempt overreach is blocked
 
 **Acceptance**
@@ -595,9 +595,9 @@ These two constraints add a role check at the handler layer: something like `if 
 - Old stories can still be read compatibly
 
 **Touchpoints**
-- Modify: `packages/lattice/packages/main/src/core/types.ts`
-- Modify: `packages/lattice/packages/main/src/handlers/bug.ts`
-- Modify: `packages/lattice/packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
+- Modify: `packages/main/src/core/types.ts`
+- Modify: `packages/main/src/handlers/bug.ts`
+- Modify: `packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
 - Create/modify: a role-overreach fixture
 
 ---
@@ -686,10 +686,10 @@ After fault-finding, the main agent switches back to plan mode and decides for e
 - Real-machine verification that the critique output structure is correct
 
 **Touchpoints**
-- Modify: `packages/lattice/packages/main/src/cli-prompts.ts`
-- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
-- Modify: `packages/lattice/packages/main/src/core/types.ts`
-- Modify: `packages/lattice/CLAUDE.md`
+- Modify: `packages/main/src/cli-prompts.ts`
+- Modify: `packages/main/src/handlers/hints.ts`
+- Modify: `packages/main/src/core/types.ts`
+- Modify: `CLAUDE.md`
 
 ---
 
@@ -760,10 +760,10 @@ Two new proof-or-stop handlers:
 - complete fixture coverage
 
 **Touchpoints**
-- Create: `packages/lattice/packages/main/src/handlers/plan-critique.ts`
-- Modify: `packages/lattice/packages/main/src/core/types.ts`
-- Modify: `packages/lattice/packages/main/src/core/machine.ts`
-- Modify: `packages/lattice/packages/main/src/handlers/story-review.ts`
+- Create: `packages/main/src/handlers/plan-critique.ts`
+- Modify: `packages/main/src/core/types.ts`
+- Modify: `packages/main/src/core/machine.ts`
+- Modify: `packages/main/src/handlers/story-review.ts`
 - Create: fixture file
 
 ---
@@ -827,11 +827,11 @@ The allowed-tools allowlist of the `PLAN_REVIEW` phase:
 - The skip escape hatch has a fixture
 
 **Touchpoints**
-- Modify: `packages/lattice/packages/main/src/core/machine.ts`
-- Modify: `packages/lattice/packages/main/src/core/types.ts` (PhaseEnum)
-- Modify: `packages/lattice/packages/main/src/handlers/story-advance.ts`
-- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
-- Modify: `packages/lattice/packages/main/src/cli-engine.ts` (phase-scoped allowed tools)
+- Modify: `packages/main/src/core/machine.ts`
+- Modify: `packages/main/src/core/types.ts` (PhaseEnum)
+- Modify: `packages/main/src/handlers/story-advance.ts`
+- Modify: `packages/main/src/handlers/hints.ts`
+- Modify: `packages/main/src/cli-engine.ts` (phase-scoped allowed tools)
 
 ---
 
@@ -872,7 +872,7 @@ Isomorphic to S-04 / S-08. Key metrics:
 
 **Description** (skeleton; details to be expanded when we actually reach this step)
 
-If the Wave 2 data proves the limitation of self-critique (the same mind has a hard time truly finding faults in itself), then create `.claude/agents/lattice-red-team.md`:
+If the Wave 2 data proves the limitation of self-critique (the same mind has a hard time truly finding faults in itself), then create `.claude/agents/proof-or-stop-red-team.md`:
 
 - dedicated to the PLAN_REVIEW phase
 - independent context (fresh agent), seeing only checklist.json + decision.json, not the main agent's thought trace
@@ -901,7 +901,7 @@ const ROLE_ARTIFACT_WRITE: Record<string, Set<string>> = {
 };
 ```
 
-The entry point is before the tool dispatch in `cli-engine.ts`. role is read from the `LATTICE_ROLE` env. Overreach → return a clear error.
+The entry point is before the tool dispatch in `cli-engine.ts`. role is read from the `PROOF_OR_STOP_ROLE` env. Overreach → return a clear error.
 
 **Checklist** (omitted, simple structure)
 
@@ -921,7 +921,7 @@ Refactor: when the watchdog reads activity.jsonl, count the role field as well; 
 
 **Description**
 
-Done alongside S-03. Add `LATTICE_ROLE` pass-through to the hook env, so the preCommand / postCommand scripts can branch by role.
+Done alongside S-03. Add `PROOF_OR_STOP_ROLE` pass-through to the hook env, so the preCommand / postCommand scripts can branch by role.
 
 **Checklist** (omitted)
 
@@ -979,14 +979,14 @@ Every wave has a rollbackable point. Concrete operations:
 
 **Wave 0 rollback**:
 ```bash
-rm .claude/agents/lattice-implementer.md
+rm .claude/agents/proof-or-stop-implementer.md
 git revert <S-02 commit>   # the CLAUDE.md + hints.ts changes
 # the role field in activity.jsonl is additive and can be kept
 ```
 
 **Wave 1 rollback**:
 ```bash
-rm .claude/agents/lattice-test-analyst.md
+rm .claude/agents/proof-or-stop-test-analyst.md
 git revert <S-05 commit>   # the story_advance auto test_auto change
 # the new fields in test-evidence.json / bug.json are additive, kept
 ```
@@ -1013,7 +1013,7 @@ Every wave has a mandatory gate story and a rollback playbook. The gate's data d
 
 ---
 
-## Advisory Read-Only Reviewer Mode (`LATTICE_REVIEWER_READONLY=1`)
+## Advisory Read-Only Reviewer Mode (`PROOF_OR_STOP_REVIEWER_READONLY=1`)
 
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
 **not** a normal Proof-or-Stop gate reviewer. These advisory reviewers should not be able to call
@@ -1023,15 +1023,15 @@ owner session, which then records evidence through the normal gate.
 ### Dispatch rule for owner agents
 
 When an **owner session** launches an advisory external reviewer (Claude/Codex/Gemini), it
-**must** set `LATTICE_REVIEWER_READONLY=1` on that spawned process only — not on the owner
+**must** set `PROOF_OR_STOP_REVIEWER_READONLY=1` on that spawned process only — not on the owner
 session itself or on any normal Proof-or-Stop gate reviewer subagent.
 
 ```bash
 # Correct: sandbox only the advisory process
-LATTICE_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and return JSON findings"
+PROOF_OR_STOP_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and return JSON findings"
 
 # Wrong: do NOT set this on normal gate reviewers
-# lattice-review-concept, lattice-review-quality, etc. must NOT have this env set
+# proof-or-stop-review-concept, proof-or-stop-review-quality, etc. must NOT have this env set
 ```
 
 The owner instructs the advisory reviewer to return structured JSON or plain-text findings and
@@ -1048,7 +1048,7 @@ The owner instructs the advisory reviewer to return structured JSON or plain-tex
 The advisory reviewer must return its findings as structured output (JSON preferred), not call
 any of the above commands itself.
 
-### What LATTICE_REVIEWER_READONLY=1 enforces
+### What PROOF_OR_STOP_REVIEWER_READONLY=1 enforces
 
 When set on a spawned reviewer process:
 
@@ -1066,9 +1066,9 @@ A read-only reviewer cannot produce a Proof-or-Stop `review_pass_set` record, a 
 entry, or any other lifecycle artifact. Owner sessions that receive advisory reviewer output
 must explicitly call the relevant Proof-or-Stop commands themselves to materialize evidence.
 
-### If LATTICE_REVIEWER_READONLY was omitted
+### If PROOF_OR_STOP_REVIEWER_READONLY was omitted
 
-If an owner session launched an advisory reviewer **without** setting `LATTICE_REVIEWER_READONLY=1`,
+If an owner session launched an advisory reviewer **without** setting `PROOF_OR_STOP_REVIEWER_READONLY=1`,
 the owner must treat the reviewer's output as **non-sandboxed advisory text** and apply extra
 scrutiny before recording any evidence:
 
@@ -1082,20 +1082,20 @@ scrutiny before recording any evidence:
 
 ### Normal Proof-or-Stop gate reviewers must NOT set this mode
 
-Standard reviewers (`lattice-review-*` subagents in REVIEW phase) need to call `review_run_start`,
+Standard reviewers (`proof-or-stop-review-*` subagents in REVIEW phase) need to call `review_run_start`,
 `finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and
-`delivery_check_set`. Setting `LATTICE_REVIEWER_READONLY=1` on a normal gate reviewer will block
+`delivery_check_set`. Setting `PROOF_OR_STOP_REVIEWER_READONLY=1` on a normal gate reviewer will block
 all of those calls and break the review lifecycle.
 
 ### When to use
 
-| Situation | Use LATTICE_REVIEWER_READONLY=1? |
+| Situation | Use PROOF_OR_STOP_REVIEWER_READONLY=1? |
 |---|---|
 | External Claude/Codex/Gemini asked to inspect code and return text/JSON findings | **Yes** — owner must set it on the spawned process |
-| Normal `lattice-review-concept` / `lattice-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
-| `lattice-evaluator` or `lattice-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
+| Normal `proof-or-stop-review-concept` / `proof-or-stop-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
+| `proof-or-stop-evaluator` or `proof-or-stop-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
 | CI runner doing a read-only docs audit before reporting to owner | **Yes** |
-| Advisory reviewer launched without LATTICE_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
+| Advisory reviewer launched without PROOF_OR_STOP_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
 
 ---
 
@@ -1104,5 +1104,5 @@ all of those calls and break the review lifecycle.
 - `docs/requirements/decisions/cc-learnings.md` — the existing proof-or-stop refactor plan, the predecessor and baseline of this document
 - `docs/requirements/decisions/task-checklist-cc-style.md` — the CC TodoWrite-style refactor, the source of this document's prompt pattern
 - `CC/src/tools/AgentTool/builtInAgents.ts` — CC's built-in sub-agent definitions, the reference for the implementer/test-analyst agent definitions
-- `packages/lattice/packages/main/src/handlers/story-advance.ts` — the B-7eed auto-merge implementation, the basis for the Wave 1 S-05 refactor
-- `packages/lattice/packages/main/src/core/machine.ts` — the phase state machine, the place that Wave 2 S-11 will change
+- `packages/main/src/handlers/story-advance.ts` — the B-7eed auto-merge implementation, the basis for the Wave 1 S-05 refactor
+- `packages/main/src/core/machine.ts` — the phase state machine, the place that Wave 2 S-11 will change

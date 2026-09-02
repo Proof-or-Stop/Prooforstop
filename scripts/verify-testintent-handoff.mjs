@@ -27,10 +27,10 @@ function parseJson(text) {
 }
 
 function createProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-testintent-handoff-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-testintent-handoff-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -79,7 +79,7 @@ try {
   assert(handoff.summary.existingIntentItems.some((item) => item.itemId === 'CHK-002' && item.happy === 1), 'existing intent counts should be summarized');
   assert(handoff.prompt.includes(`story ${storyId}`), 'prompt should include story id');
   assert(handoff.prompt.includes('Main agent must not write testIntent'), 'prompt should preserve role boundary');
-  assert(handoff.prompt.includes('lattice checklist_update'), 'prompt should include update command guidance');
+  assert(handoff.prompt.includes('proof-or-stop checklist_update'), 'prompt should include update command guidance');
   assert(handoff.prompt.includes('CHK-001'), 'prompt should include checklist item ids');
   assert(handoff.commandExamples.length === 1 && handoff.commandExamples[0].includes('CHK-001'), 'command examples should focus missing items');
 

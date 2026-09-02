@@ -1,11 +1,11 @@
 /**
  * @task B-9ba3
  * @checklist CHK-003
- * @title lattice-lab sandbox creates isolated git worktrees for experiments
+ * @title proof-or-stop-lab sandbox creates isolated git worktrees for experiments
  * @type feature
  * @priority high
  * @description
- *   lattice-lab 不能在当前工作区里直接做实验。sandbox 负责为每次 run 规划独立
+ *   proof-or-stop-lab 不能在当前工作区里直接做实验。sandbox 负责为每次 run 规划独立
  *   branch/worktree 路径，并在 confirm 后创建隔离 worktree，让实验和正式开发、
  *   story worktree 互不污染。
  * @changes

@@ -1,0 +1,136 @@
+{
+  "storyId": "B-022e",
+  "checkedAt": "2026-09-01T17:16:39.603Z",
+  "features": [
+    {
+      "feature": "Active package/CLI/config/path/runtime/prompt/docs surfaces use Proof-or-Stop identity only",
+      "covered_by": "CHK-001, CHK-003, CHK-004, CHK-005, CHK-006, CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md; checklist.json"
+    },
+    {
+      "feature": "Historical proof bytes remain exact and independently verifiable",
+      "covered_by": "CHK-001, CHK-002, CHK-005, CHK-006, CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md; checklist.json"
+    },
+    {
+      "feature": "Root and @proof-or-stop/core converge on version 0.3.270",
+      "covered_by": "CHK-004, CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.json; plan.md; package manifests"
+    },
+    {
+      "feature": "@proof-or-stop/utils remains independently 0.3.268 with @proof-or-stop/core peer floor ^0.3.268",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.json; plan.md; packages/utils/package.json"
+    },
+    {
+      "feature": "@proof-or-stop/lab remains independently 0.3.65 with @proof-or-stop/core peer floor ^0.3.65",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.json; plan.md; packages/lab/package.json"
+    },
+    {
+      "feature": "Adversarial version verification rejects any older or mismatched authority without freezing an obsolete patch number",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json"
+    },
+    {
+      "feature": "Main-merge version correction is convergence-only and does not widen features or legacy aliases",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md; decision.json"
+    },
+    {
+      "feature": "Active INIT reviewer identity is proof-or-stop-review-story-init and retired role identities remain unresolvable",
+      "covered_by": "CHK-005, CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md; checklist.json"
+    },
+    {
+      "feature": "Packed clean consumers expose only canonical Proof-or-Stop package and command identities",
+      "covered_by": "CHK-003, CHK-004, CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md; checklist.json"
+    },
+    {
+      "feature": "Remote publish and push are outside this story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-007, CHK-008",
+      "source": "plan.md"
+    },
+    {
+      "feature": "Execution plan states the current final version contract",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md"
+    },
+    {
+      "feature": "Understanding outcome states current CLI and package-version split",
+      "covered_by": "CHK-004, CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.json"
+    },
+    {
+      "feature": "docs/CLI.md version correction remains within existing CHK-006/CHK-008 DEV touchpoints and is not a PLAN scope gap",
+      "covered_by": "CHK-006, CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist relatedDocs; docs/CLI.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-022e/background.md",
+      ".proof-or-stop/story/actives/B-022e/checklist.json",
+      ".proof-or-stop/story/actives/B-022e/decision.json",
+      ".proof-or-stop/story/actives/B-022e/plan.md",
+      ".proof-or-stop/story/actives/B-022e/understanding.json",
+      "package.json",
+      "packages/lab/package.json",
+      "packages/main/package.json",
+      "packages/utils/package.json"
+    ],
+    "filesTriagedByName": [
+      "AGENTS.md",
+      "docs/CLI.md",
+      "docs/dev/test-coverage.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "README.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 13,
+    "covered": 12,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-09-01T16:06:49.189Z",
+  "_hash": "e030dfcdb03240af064a0cd848d7278fb06590feef5f2c50e3703908cca0b38e",
+  "openQuestions": []
+}

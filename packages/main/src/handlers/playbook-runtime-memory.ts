@@ -118,7 +118,7 @@ function buildRuntimeHealth(ctx: HandlerContext) {
   });
   const wiringChecks = ([
     ['src/handlers/session.ts', /buildMemoryFreshnessPack[\s\S]*renderMemoryFreshnessPack/],
-    ['src/handlers/lattice-handoff.ts', /buildMemoryFreshnessPack[\s\S]*renderMemoryFreshnessPack/],
+    ['src/handlers/proof-or-stop-handoff.ts', /buildMemoryFreshnessPack[\s\S]*renderMemoryFreshnessPack/],
     ['src/handlers/story-create.ts', /Runtime memory STORY_INTAKE advisory only[\s\S]*renderMemoryFreshnessPack/],
     ['src/handlers/transition-orchestrator.ts', /buildMemoryFreshnessPack[\s\S]*Runtime memory advisory \(not gate evidence\)/],
     ['src/handlers/done-closure.ts', /buildMemoryFreshnessPack[\s\S]*Advisory memory considered/],

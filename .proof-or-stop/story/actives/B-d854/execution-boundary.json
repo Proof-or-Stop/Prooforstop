@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d854",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".codex",
+    ".proof-or-stop-codex",
+    "AGENTS.md",
+    "bin",
+    "docs",
+    "package.json",
+    "packages/main",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "Codex",
+  "confirmationNote": "Bounded to read-only audit commands and editing the root AGENTS.md.",
+  "createdAt": "2026-09-01T22:53:09.910Z",
+  "updatedAt": "2026-09-01T22:53:09.910Z",
+  "_hash": "27e7d789c2430869e1e3a0d4ad91fd1100821af51b4f8fa17b129e1b57a0ed7d"
+}

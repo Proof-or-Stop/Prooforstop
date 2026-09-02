@@ -7,7 +7,7 @@ import { join } from 'path';
 
 const root = process.cwd();
 const cli = join(root, 'bin', 'proof-or-stop.js');
-const lattice = join(root, 'bin', 'proof-or-stop-codex.js');
+const proofOrStop = join(root, 'bin', 'proof-or-stop-codex.js');
 const candidateDir = join(root, 'experiments', 'candidates', 'story-review');
 const reportDir = join(root, 'experiments', 'reports');
 const resultPath = join(reportDir, 'story-review-structured-v1.json');
@@ -32,11 +32,11 @@ function parseJson(text) {
 }
 
 function createTempProject(baseline) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-story-review-exp-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-review-exp-'));
   ensureDir(join(dir, 'docs', 'story', 'actives'));
   ensureDir(join(dir, 'docs', 'requirements'));
   ensureDir(join(dir, 'samples'));
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -50,8 +50,8 @@ function createTempProject(baseline) {
   writeFileSync(join(dir, 'README.md'), '# story review experiment\n');
   writeFileSync(join(dir, 'samples', 'story-review.txt'), baseline);
   run('git', ['init', '-b', 'main'], dir);
-  run('git', ['config', 'user.name', 'Lattice Lab'], dir);
-  run('git', ['config', 'user.email', 'lattice-lab@example.com'], dir);
+  run('git', ['config', 'user.name', 'ProofOrStop Lab'], dir);
+  run('git', ['config', 'user.email', 'proof-or-stop-lab@example.com'], dir);
   run('git', ['add', '.'], dir);
   run('git', ['commit', '-m', 'baseline'], dir);
   run('node', [cli, '--root', dir, 'lab', 'create', JSON.stringify({
@@ -87,9 +87,9 @@ function buildCandidates(baseline) {
 }`),
     sample('r03-fix-command-first', 'Fix Command First', `
 Fix first:
-1. lattice checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
-2. lattice decision_set '{...preMortem...}'
-3. lattice story_review '{"storyId":"B-x"}'
+1. proof-or-stop checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
+2. proof-or-stop decision_set '{...preMortem...}'
+3. proof-or-stop story_review '{"storyId":"B-x"}'
 
 Review data:
 issueCount=4
@@ -281,7 +281,7 @@ function main() {
   const reviewPath = join(root, 'docs', 'story', 'actives', 'B-0f18', 'review.json');
   const baseline = existsSync(reviewPath)
     ? readFileSync(reviewPath, 'utf8')
-    : run('node', [lattice, 'story_review', JSON.stringify({ storyId: 'B-0f18' })]);
+    : run('node', [proofOrStop, 'story_review', JSON.stringify({ storyId: 'B-0f18' })]);
   const candidates = buildCandidates(baseline);
   writeFileSync(join(candidateDir, '00-baseline-current.txt'), baseline);
   for (const candidate of candidates) writeFileSync(join(candidateDir, `${candidate.id}.txt`), candidate.text);

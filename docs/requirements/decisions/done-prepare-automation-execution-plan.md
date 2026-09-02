@@ -167,7 +167,7 @@ Dirty-file policy:
 - supersedes the first implementation's blanket clean-tree rule: initial
   preflight may proceed when the only dirty rows classify as same-story Proof-or-Stop
   lifecycle metadata for the requested story, such as
-  `.lattice/story/actives/<storyId>/done-required-evidence.json`;
+  `.proof-or-stop/story/actives/<storyId>/done-required-evidence.json`;
 - initial preflight still blocks material/source, fixture, runtime artifact,
   declared artifact, other-story Proof-or-Stop metadata, and unexpected dirty rows
   using the shared dirty-worktree classifier;
@@ -306,7 +306,7 @@ post-DONE files that the finalization step must update:
 - `package-lock.json`;
 - `packages/main/package.json`;
 - `packages/main/package-lock.json`;
-- `packages/main/src/core/lattice-brand.ts`.
+- `packages/main/src/core/proof-or-stop-brand.ts`.
 
 If required version sources are already inconsistent, report
 `postDoneVersionState: inconsistent` and include the mismatched values. This is
@@ -349,8 +349,8 @@ DONE prepare: BLOCKED
 blockedAt: cleanTree
 reason: done_prepare produced files that must be committed before DONE
 files:
-  - .lattice/story/actives/B-xxxx/test-evidence.json
-next: git add <files> && git commit -m "lattice: refresh B-xxxx done prepare evidence"
+  - .proof-or-stop/story/actives/B-xxxx/test-evidence.json
+next: git add <files> && git commit -m "proof-or-stop: refresh B-xxxx done prepare evidence"
 ```
 
 If delegated prepare work already created commit(s), stop with:
@@ -360,7 +360,7 @@ DONE prepare: BLOCKED
 blockedAt: cleanTree
 reason: done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE
 commits:
-  - <sha> lattice: record B-xxxx verification_evidence_refresh_stale metadata
+  - <sha> proof-or-stop: record B-xxxx verification_evidence_refresh_stale metadata
 commands:
   - git log --oneline <old-head>..HEAD
   - proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
@@ -449,8 +449,8 @@ storyId: B-xxxx
 blockedAt: cleanTree
 reason: done_prepare produced metadata changes that must be committed before DONE
 files:
-  - .lattice/story/actives/B-xxxx/test-evidence.json
-next: git add <files> && git commit -m "lattice: refresh B-xxxx done prepare evidence"
+  - .proof-or-stop/story/actives/B-xxxx/test-evidence.json
+next: git add <files> && git commit -m "proof-or-stop: refresh B-xxxx done prepare evidence"
 ```
 
 Generated commit output:
@@ -461,7 +461,7 @@ storyId: B-xxxx
 blockedAt: cleanTree
 reason: done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE
 commits:
-  - <sha> lattice: record B-xxxx verification_evidence_refresh_stale metadata
+  - <sha> proof-or-stop: record B-xxxx verification_evidence_refresh_stale metadata
 commands:
   - git log --oneline <old-head>..HEAD
   - proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
@@ -741,7 +741,7 @@ tests. It only removes repeated closure orchestration.
 
 DONE-required execution and reuse use one bounded contract:
 
-- The DONE-required phase budget is the safe sum of effective sequential command timeouts plus bounded grace. A phase-specific override wins the global phase override, which wins the derived budget. The direct `done_required_validate` CLI max covers that derived phase; the `done_prepare` CLI max covers routine validation plus every enabled closeout phase. An explicit `LATTICE_MAX_TIMEOUT_MS` remains authoritative. Each effective command timeout is capped at Node's maximum legal timer delay before arming the real timer, so a huge configured value cannot overflow into an immediate timeout. Structured `failed` / `timed_out` / `blocked` results remain parseable on stdout and exit nonzero; routine `done_prepare` idle/max aborts use the same terminal timeout shape and release child processes, timers, and locks for an immediate rerun.
+- The DONE-required phase budget is the safe sum of effective sequential command timeouts plus bounded grace. A phase-specific override wins the global phase override, which wins the derived budget. The direct `done_required_validate` CLI max covers that derived phase; the `done_prepare` CLI max covers routine validation plus every enabled closeout phase. An explicit `PROOF_OR_STOP_MAX_TIMEOUT_MS` remains authoritative. Each effective command timeout is capped at Node's maximum legal timer delay before arming the real timer, so a huge configured value cannot overflow into an immediate timeout. Structured `failed` / `timed_out` / `blocked` results remain parseable on stdout and exit nonzero; routine `done_prepare` idle/max aborts use the same terminal timeout shape and release child processes, timers, and locks for an immediate rerun.
 - `done_prepare` defaults `reuseFreshDoneRequired=true`, independently of post-closeout `reuseFreshValidation`. Reuse requires the canonical DONE-required evaluator to pass and evidence HEAD to equal current HEAD, or be its ancestor with every path touched by every intervening commit classified as trusted story metadata (including modify-then-revert history). HEAD must remain unchanged across evaluation. Any code, config, non-metadata, non-ancestor, unreadable evidence/lineage, or concurrent HEAD movement refuses reuse.
 - `validate:false` means `disposition=skipped_explicitly` and `result=not_run`; it neither executes nor reuses nor manufactures evidence, while reporting `existingEvidenceBasis=fresh|stale|missing`. Executed and reused paths report `disposition`, `result`, `refusalReasons`, and any `timeoutLayer` in human and JSON output.
 - Progress and heartbeat output uses stderr/the logging side channel, never JSON stdout. Reporter failures are diagnostic-only. Heartbeats refresh idle liveness only; command, phase, idle, and absolute max deadlines, child-tree termination, lock release, and timer cleanup remain independent.

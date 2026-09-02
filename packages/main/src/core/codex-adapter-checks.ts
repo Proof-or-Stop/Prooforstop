@@ -1,9 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { delimiter, isAbsolute, join, relative, resolve } from 'node:path';
 import {
-  LATTICE_CODEX_ADAPTER_MANIFEST,
+  PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
   renderProofOrStopCodexAdapterManifest,
@@ -16,7 +16,7 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
-import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
@@ -57,7 +57,7 @@ export interface CodexAdapterMaterialSnapshot {
 /**
  * Local wrapper basenames (B-cdf6 rename; B-cc10 CHK-006 alias removal).
  *
- * B-cdf6 kept the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases as
+ * B-cdf6 kept the deprecated `bin/proof-or-stop-codex.js` / `bin/proofOrStop.js` aliases as
  * additional accepted entries. B-cc10 CHK-006 REMOVED both aliases from the repository,
  * so they are removed from these lists too: a name that can no longer exist would only
  * widen the accepted set without ever matching, and would keep teaching the dead name to
@@ -80,7 +80,7 @@ export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/proof-or-stop-codex.js verif
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/proof-or-stop.js verify_codex';
 export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'proof-or-stop codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'proof-or-stop init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
 // The global fallback runs the real installed `proof-or-stop session_brief`, which can
 // traverse a large repo before writing its heartbeat. Keep local wrapper probes
@@ -357,7 +357,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 interface CodexManifestSelection {
   relPath: string;
-  brand: 'proof-or-stop' | 'lattice';
+  brand: 'proof-or-stop' | 'proof-or-stop';
   /** True when a DEPRECATED spelling of dir or filename is what resolved. */
   legacy: boolean;
 }
@@ -381,7 +381,7 @@ function resolveCodexManifest(root: string): CodexManifestSelection | null {
   for (const relPath of adapterManifestCandidates()) {
     if (!existsSync(join(root, relPath))) continue;
     const legacy = relPath !== CANONICAL_CODEX_MANIFEST_REL;
-    return { relPath, brand: legacy ? 'lattice' : 'proof-or-stop', legacy };
+    return { relPath, brand: legacy ? 'proof-or-stop' : 'proof-or-stop', legacy };
   }
   return null;
 }
@@ -422,7 +422,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
   const manifestPath = join(root, selection.relPath);
   const actual = readText(manifestPath);
   const expected = renderProofOrStopCodexAdapterManifest();
-  const expectedIdentity = LATTICE_CODEX_ADAPTER_MANIFEST;
+  const expectedIdentity = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST;
   let parsed: unknown;
   try {
     parsed = JSON.parse(actual);
@@ -487,7 +487,7 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const claudeDir = join(root, '.claude', 'agents');
   // B-cc10 CHK-007: this READ was pinned to the deprecated adapter directory, so once
   // `init` was unified onto the canonical one this check reported "missing
-  // .claude/agents or .lattice-codex/agents" on a freshly-inited project — a
+  // .claude/agents or .proof-or-stop-codex/agents" on a freshly-inited project — a
   // fresh init failing its own verify_codex. Read-both: canonical first, deprecated
   // as the fallback, so an unmigrated project still verifies.
   const agentsRelDir = `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
@@ -561,7 +561,7 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 }
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
-  const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
+  const offenders = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
   const lowerHooks = join(root, '.codex', 'hooks');
   // B-cc10 CHK-002: check the hooks-alias exclusion under EVERY accepted adapter
   // dir spelling. Checking one spelling would let the offending directory hide
@@ -596,13 +596,13 @@ function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boo
 
 function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void {
   const hooksJsonPath = join(root, '.codex', 'hooks.json');
-  const hookScriptPath = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  const hookScriptPath = join(root, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
   if (!existsSync(hooksJsonPath)) {
     push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proof-or-Stop PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   if (!existsSync(hookScriptPath)) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks/lattice-scope-pretool.cjs', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks/proof-or-stop-scope-pretool.cjs', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
 
@@ -627,18 +627,18 @@ function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void 
     return matcher === CODEX_PRETOOL_SCOPE_HOOK_MATCHER
       || (/apply_patch/.test(matcher) && /Edit|Write/.test(matcher));
   });
-  if (!hasMatcher || !hookEntriesContainCommand(preToolUse, '.codex/hooks/lattice-scope-pretool.cjs')) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json does not wire lattice-scope-pretool.cjs for apply_patch/Edit/Write', LOCAL_INIT_VERIFY_COMMAND);
+  if (!hasMatcher || !hookEntriesContainCommand(preToolUse, '.codex/hooks/proof-or-stop-scope-pretool.cjs')) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json does not wire proof-or-stop-scope-pretool.cjs for apply_patch/Edit/Write', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
 
   const hookScript = readText(hookScriptPath);
   if (!/provider:\s*['"]codex['"]/.test(hookScript) || !hookScript.includes('prewrite_guard_check')) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks/lattice-scope-pretool.cjs does not delegate to prewrite_guard_check as provider=codex', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks/proof-or-stop-scope-pretool.cjs does not delegate to prewrite_guard_check as provider=codex', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
 
-  push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'pass', true, '.codex/hooks.json wires apply_patch/Edit/Write to lattice-scope-pretool.cjs');
+  push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'pass', true, '.codex/hooks.json wires apply_patch/Edit/Write to proof-or-stop-scope-pretool.cjs');
 }
 
 function activityForEntrypoint(root: string, tool: string, entrypoint: string): Record<string, unknown> | null {
@@ -679,7 +679,7 @@ function runHeartbeat(
   displayCommand?: string,
   timeoutOverride?: GlobalFallbackHeartbeatTimeoutOverride,
 ): void {
-  // B-cdf6:F-039 — this fallback hardcoded the deprecated `bin/lattice-codex.js`,
+  // B-cdf6:F-039 — this fallback hardcoded the deprecated `bin/proof-or-stop-codex.js`,
   // against the canonical-name-first convention the rest of this file follows. It is
   // currently unreachable (every call site for this id supplies displayCommand), but
   // an unreachable string that teaches the old bin name is still a trap for the next
@@ -699,12 +699,12 @@ function runHeartbeat(
       timeout: timeoutMs,
       env: {
         ...process.env,
-        LATTICE_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
-        LATTICE_ACTIVITY_RECORD_READONLY: '1',
-        LATTICE_ACTIVITY_SESSION: session,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
+        PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '1',
+        PROOF_OR_STOP_ACTIVITY_SESSION: session,
         CODEX_THREAD_ID: id === 'local-wrapper-heartbeat' ? session : '',
         PROOF_OR_STOP_AGENT: 'main',
-        LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
+        PROOF_OR_STOP_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
   } catch (e: any) {
@@ -758,7 +758,7 @@ function runHeartbeat(
         label,
         'warn',
         false,
-        'installed global lattice still reports a legacy raw heartbeat identity; upgrade the global CLI before using it for owner coordination',
+        'installed global proof-or-stop still reports a legacy raw heartbeat identity; upgrade the global CLI before using it for owner coordination',
         retryCommand,
       );
       return;
@@ -804,33 +804,34 @@ function pathContains(parent: string, child: string): boolean {
 }
 
 /**
- * Locate a globally installed CLI on PATH, preferring the canonical bin name.
- *
- * Read-both by design (B-cdf6): a globally installed package built before the rename
- * exposes only `lattice`, so probing `proof-or-stop` alone would report "no global CLI"
- * on a machine that has a perfectly working one. Canonical name wins when both exist.
+ * Locate the canonical globally installed CLI on PATH.
  */
 function resolveGlobalCliCommandPath(root: string): string | null {
-  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
-    const command = process.platform === 'win32' ? 'where' : 'sh';
-    // A login shell may rebuild PATH and silently bypass a caller-provided shim. This
-    // probe is specifically about the current process environment, so preserve PATH.
-    const args = process.platform === 'win32' ? [bin] : ['-c', `command -v ${bin}`];
-    try {
-      const out = execFileSync(command, args, {
-        cwd: root,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 2_000,
-        env: process.env,
-      }).trim();
-      const found = out.split(/\r?\n/).find(Boolean);
-      if (found) return found;
-    } catch {
-      // probe: this bin name is not on PATH; try the next alias.
+  const pathValue = process.platform === 'win32'
+    ? process.env.Path ?? process.env.PATH ?? ''
+    : process.env.PATH ?? '';
+  const extensions = process.platform === 'win32'
+    ? (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
+    : [''];
+  const names = process.platform === 'win32'
+    ? [PROOF_OR_STOP_PRIMARY_BIN, ...extensions.map(extension => `${PROOF_OR_STOP_PRIMARY_BIN}${extension}`)]
+    : [PROOF_OR_STOP_PRIMARY_BIN];
+  for (const rawDir of pathValue.split(delimiter)) {
+    const dir = rawDir || '.';
+    const absoluteDir = isAbsolute(dir) ? dir : resolve(root, dir);
+    for (const name of names) {
+      const candidate = resolve(absoluteDir, name);
+      try {
+        if (!statSync(candidate).isFile()) continue;
+        if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
+        return candidate;
+      } catch {
+        // Continue through the inherited PATH in order; the first runnable
+        // canonical command wins without a login shell rewriting PATH.
+      }
     }
   }
-  // No global CLI under any known name; heartbeat execution reports the real failure.
+  // No canonical global CLI on PATH; heartbeat execution reports the real failure.
   return null;
 }
 
@@ -838,7 +839,7 @@ function resolveGlobalCliCommandPath(root: string): string | null {
  * Read a wrapper's text, concatenating any sibling wrapper it re-exports.
  *
  * A wrapper may hold no behaviour of its own and simply `import` a canonical sibling,
- * in which case the env contract lives one hop away. (B-cdf6's `bin/lattice-codex.js`
+ * in which case the env contract lives one hop away. (B-cdf6's `bin/proof-or-stop-codex.js`
  * alias was exactly that shape; B-cc10 CHK-006 removed it, but the delegation-following
  * remains correct for any future thin wrapper.) Only relative sibling imports inside
  * `bin/` are followed, and only one hop, so this cannot be used to satisfy the check
@@ -865,7 +866,7 @@ function readWrapperTextFollowingDelegation(root: string, wrapperRelPath: string
 }
 
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
-  // Global-thin projects: executable Codex adapter behavior lives in the global lattice CLI.
+  // Global-thin projects: executable Codex adapter behavior lives in the global proofOrStop CLI.
   // Local wrapper is not required regardless of whether legacy bin/ files exist.
   if (isGlobalThinProject(root)) {
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor');
@@ -893,21 +894,21 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
   // A retained deprecated alias may hold no behaviour of its own and simply
   // `import` its canonical sibling (that is how B-cdf6 keeps the two from drifting).
   // Verify the env contract on whichever file actually sets it, so a thin alias is
-  // not reported as a wrapper "missing LATTICE_ACTIVITY_SOURCE".
+  // not reported as a wrapper "missing PROOF_OR_STOP_ACTIVITY_SOURCE".
   const text = readWrapperTextFollowingDelegation(root, wrapperRelPath);
   // B-cdf6: this is a STATIC text check over generated wrapper source, so it must
   // accept both the pre-rename literal spelling AND the post-rename composed form.
-  // The generated wrapper no longer contains the literal `LATTICE_ACTIVITY_SOURCE`:
+  // The generated wrapper no longer contains the literal `PROOF_OR_STOP_ACTIVITY_SOURCE`:
   // it emits `setEnv('ACTIVITY_SOURCE', 'codex')`, whose helper writes BOTH brand
   // prefixes at runtime. Grepping only the old literal reported a wrapper that is
-  // functionally correct as "missing LATTICE_ACTIVITY_SOURCE". Each entry below is
+  // functionally correct as "missing PROOF_OR_STOP_ACTIVITY_SOURCE". Each entry below is
   // satisfied by ANY of its accepted spellings; a wrapper that sets none of them
   // still fails, so the contract is unchanged — only its spelling tolerance widened.
   const required: ReadonlyArray<readonly string[]> = [
-    ['LATTICE_ACTIVITY_SOURCE', 'PROOF_OR_STOP_ACTIVITY_SOURCE', "setEnv('ACTIVITY_SOURCE'"],
+    ['PROOF_OR_STOP_ACTIVITY_SOURCE', 'PROOF_OR_STOP_ACTIVITY_SOURCE', "setEnv('ACTIVITY_SOURCE'"],
     ['codex'],
-    ['LATTICE_ACTIVITY_RECORD_READONLY', 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', "setEnv('ACTIVITY_RECORD_READONLY'"],
-    ['LATTICE_CODEX_ENTRYPOINT', 'PROOF_OR_STOP_CODEX_ENTRYPOINT', "setEnv('CODEX_ENTRYPOINT'"],
+    ['PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', "setEnv('ACTIVITY_RECORD_READONLY'"],
+    ['PROOF_OR_STOP_CODEX_ENTRYPOINT', 'PROOF_OR_STOP_CODEX_ENTRYPOINT', "setEnv('CODEX_ENTRYPOINT'"],
   ];
   const missing = required
     .filter(accepted => !accepted.some(piece => text.includes(piece)))
@@ -971,7 +972,7 @@ function checkGlobalFallback(
       'Global fallback heartbeat',
       'warn',
       false,
-      'skipped in packaged desktop runtime; standalone binaries do not require a global lattice command',
+      'skipped in packaged desktop runtime; standalone binaries do not require a global proof-or-stop command',
       `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`,
     );
     return;
@@ -984,27 +985,24 @@ function checkGlobalFallback(
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 2_000,
     }).trim();
-    // B-cc10 CHK-005: probe the canonical scope first, then the deprecated one, so an
-    // existing global install still satisfies the heartbeat instead of silently skipping.
     const globalCoreCandidates = [
       { path: join(globalRoot, '@proof-or-stop', 'core'), label: '@proof-or-stop/core' },
-      { path: join(globalRoot, '@lattice', 'core'), label: '@lattice/core' },
     ];
     const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));
     if (existsSync(currentCore) && globalCore) {
       const currentReal = realpathSync(currentCore);
       const globalReal = realpathSync(globalCore.path);
-      const latticeCommand = resolveGlobalCliCommandPath(root);
-      const latticeReal = latticeCommand && existsSync(latticeCommand) ? realpathSync(latticeCommand) : '';
-      const actualLatticeUsesGlobalCore = !!latticeReal && pathContains(globalReal, latticeReal);
-      if (actualLatticeUsesGlobalCore && currentReal !== globalReal) {
+      const proofOrStopCommand = resolveGlobalCliCommandPath(root);
+      const proofOrStopReal = proofOrStopCommand && existsSync(proofOrStopCommand) ? realpathSync(proofOrStopCommand) : '';
+      const actualProofOrStopUsesGlobalCore = !!proofOrStopReal && pathContains(globalReal, proofOrStopReal);
+      if (actualProofOrStopUsesGlobalCore && currentReal !== globalReal) {
         push(
           checks,
           'global-fallback-heartbeat',
           'Global fallback heartbeat',
           'warn',
           false,
-          `global ${globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global lattice as heartbeat-only, not current-worktree gate/status evidence`,
+          `global ${globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global proof-or-stop as heartbeat-only, not current-worktree gate/status evidence`,
           resolveCodexSessionBriefCommand(root),
         );
         return;
@@ -1018,9 +1016,9 @@ function checkGlobalFallback(
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    // B-cc10 F-057: fall back to the CANONICAL bin. This fell back to executing 'lattice',
+    // B-cc10 F-057: fall back to the CANONICAL bin. This fell back to executing 'proof-or-stop',
     // which CHK-006 deleted, so on a machine whose global shim still points at a migrated
-    // checkout the heartbeat probe fails with 'Cannot find module .../bin/lattice.js'. Line
+    // checkout the heartbeat probe fails with 'Cannot find module .../bin/proofOrStop.js'. Line
     // 814 above legitimately probes BOTH names when DISCOVERING an installed CLI; this site
     // is different — it picks the command to EXECUTE, so it must name the one that exists.
     resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_PRIMARY_BIN,

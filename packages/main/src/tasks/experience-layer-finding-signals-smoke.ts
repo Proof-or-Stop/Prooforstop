@@ -123,10 +123,10 @@ function mkGitProject(): { root: string; baseHash: string } {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'B-000c Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -265,7 +265,7 @@ async function run(): Promise<void> {
     });
 
     // ─── learning-store: ensureLearningDir on fresh temp ──────────────────────
-    check('learning-store: ensureLearningDir creates .lattice/learning/', () => {
+    check('learning-store: ensureLearningDir creates .proof-or-stop/learning/', () => {
       const root = mkTempRoot(); tmpRoots.push(root);
       const dir = ensureLearningDir(root);
       assert.ok(existsSync(dir), 'directory created');
@@ -397,7 +397,7 @@ async function run(): Promise<void> {
 
     // ─── REGISTRY: both entries present with correct properties ────────────────
     check('registry: finding-signals.json + learning-log.jsonl are exclude/volatile/repairable', () => {
-      for (const rel of ['.lattice/learning/finding-signals.json', '.lattice/learning/learning-log.jsonl']) {
+      for (const rel of ['.proof-or-stop/learning/finding-signals.json', '.proof-or-stop/learning/learning-log.jsonl']) {
         const entry = findRuntimeArtifactEntry(rel);
         assert.ok(entry, `registry entry exists for ${rel}`);
         assert.equal(entry?.materialHash, 'exclude', `${rel} materialHash=exclude`);
@@ -434,7 +434,7 @@ async function run(): Promise<void> {
       // module with no relative imports of its own — and brand-paths.ts satisfies it (verified
       // below rather than asserted here, so a future non-leaf cannot sneak in by being listed).
       // It is imported because the state-dir name must come from the resolver, not a hardcoded
-      // literal; lattice-paths.ts was NOT eligible since it imports brand-paths.js itself.
+      // literal; proof-or-stop-paths.ts was NOT eligible since it imports brand-paths.js itself.
       const allowedLeaf = ['./brand-paths.js', './digest.js', './experience-layer-types.js'];
       assert.deepEqual(relativeImports(types), [], `types.ts must have no relative imports, got: ${relativeImports(types).join(', ')}`);
       assert.deepEqual(

@@ -17,7 +17,7 @@
  *      error; it never returns the partial run, and never returns it as a pass.
  *      An aborted `abortSignal` likewise cannot produce allPass.
  *   4. WORKER COUNT. Configurable through the `jobs` option and the
- *      LATTICE_VALIDATE_JOBS env var, refused when set to something unusable,
+ *      PROOF_OR_STOP_VALIDATE_JOBS env var, refused when set to something unusable,
  *      reported in `details`, and `jobs=1` restores strict sequential
  *      execution — i.e. the parallelism is genuinely switchable, not implicit.
  *
@@ -25,7 +25,7 @@
  * overlap). Ordering claims are proven structurally, so they cannot flake.
  *
  * Every plan below passes `jobs` EXPLICITLY, so an operator running the whole
- * validate under `LATTICE_VALIDATE_JOBS=<n>` does not silently change what this
+ * validate under `PROOF_OR_STOP_VALIDATE_JOBS=<n>` does not silently change what this
  * file asserts. The default itself is checked through `resolveValidatePlanJobs`
  * with an explicit env object instead.
  */
@@ -57,7 +57,7 @@ const ok = (message, condition = true) => {
   assertions++;
 };
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-b7dff-chk003-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b7dff-chk003-'));
 
 /**
  * A command that prints `marker`, optionally sleeps, and exits `code`. Each one
@@ -181,17 +181,17 @@ try {
   // ── 4. WORKER COUNT: configurable, refused when unusable, reported ────────
   assert.equal(resolveValidatePlanJobs({}), DEFAULT_VALIDATE_PLAN_JOBS);
   assert.equal(DEFAULT_VALIDATE_PLAN_JOBS, 4);
-  assert.equal(resolveValidatePlanJobs({ LATTICE_VALIDATE_JOBS: '7' }), 7);
-  assert.equal(resolveValidatePlanJobs({ LATTICE_VALIDATE_JOBS: '  ' }), DEFAULT_VALIDATE_PLAN_JOBS);
-  assert.equal(resolveValidatePlanJobs({ LATTICE_VALIDATE_JOBS: '99' }, 3), 3);
+  assert.equal(resolveValidatePlanJobs({ PROOF_OR_STOP_VALIDATE_JOBS: '7' }), 7);
+  assert.equal(resolveValidatePlanJobs({ PROOF_OR_STOP_VALIDATE_JOBS: '  ' }), DEFAULT_VALIDATE_PLAN_JOBS);
+  assert.equal(resolveValidatePlanJobs({ PROOF_OR_STOP_VALIDATE_JOBS: '99' }, 3), 3);
   for (const bad of ['0', '-2', 'abc', '2.5', '65']) {
-    assert.throws(() => resolveValidatePlanJobs({ LATTICE_VALIDATE_JOBS: bad }), /LATTICE_VALIDATE_JOBS/, `LATTICE_VALIDATE_JOBS=${bad} must be refused`);
+    assert.throws(() => resolveValidatePlanJobs({ PROOF_OR_STOP_VALIDATE_JOBS: bad }), /PROOF_OR_STOP_VALIDATE_JOBS/, `PROOF_OR_STOP_VALIDATE_JOBS=${bad} must be refused`);
   }
   for (const bad of [0, -1, 2.5, 65]) {
     assert.throws(() => resolveValidatePlanJobs({}, bad), /jobs must be an integer/, `jobs=${bad} must be refused`);
   }
   assertions += 14;
-  console.log('VI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value');
+  console.log('VI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or PROOF_OR_STOP_VALIDATE_JOBS, defaults to 4, and refuses an unusable value');
 
   const SLEEP_MS = 700;
   const sequentialStart = Date.now();

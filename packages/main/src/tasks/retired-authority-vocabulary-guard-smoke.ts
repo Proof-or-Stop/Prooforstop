@@ -43,7 +43,7 @@ const bannedActiveRules: PatternRule[] = [
   { label: 'Authority completion', pattern: /\bAuthority\s+completion\b/i },
   { label: 'production completion', pattern: /\bproduction\s+completion\b/i },
   { label: 'production DONE', pattern: /\bproduction\s+DONE\b/i },
-  { label: 'LATTICE_AUTHORITY_*', pattern: /\bLATTICE_AUTHORITY_[A-Z0-9_]*\b/ },
+  { label: 'PROOF_OR_STOP_AUTHORITY_*', pattern: /\bPROOF_OR_STOP_AUTHORITY_[A-Z0-9_]*\b/ },
   { label: 'active authority_* command', pattern: /\bauthority_[a-z][a-z0-9_]*\b/ },
   { label: 'retired story resolver command', pattern: /\bstory_authority_resolve\b/ },
 ];
@@ -51,7 +51,7 @@ const bannedActiveRules: PatternRule[] = [
 const activeTextFiles = [
   'README.md',
   'docs/guide.md',
-  'lattice.config.json',
+  'proof-or-stop.config.json',
   'packages/main/package.json',
   'packages/main/src/registry.ts',
   'packages/main/src/core/config.ts',
@@ -65,7 +65,7 @@ const activeTextDirs = [
   // B-cc10 F-055: canonical first. listFilesFromRoot returns [] for a nonexistent root,
   // so listing only the renamed dir contributed ZERO files and the guard passed on nothing.
   '.proof-or-stop-codex',
-  '.lattice-codex',
+  '.proof-or-stop-codex',
   '.claude/agents',
   'packages/main/templates/agents',
 ] as const;
@@ -79,12 +79,13 @@ const SHIPPED_EXECUTABLE_SOURCE_DIRS = [
   'packages/utils/src',
 ] as const;
 const SHIPPED_EXECUTABLE_ENTRYPOINTS = [
-  // B-cc10 CHK-007: `bin/lattice.js` was REMOVED by CHK-006 (deprecated bin alias
+  // B-cc10 CHK-007: `bin/proofOrStop.js` was REMOVED by CHK-006 (deprecated bin alias
   // deletion), but this pin still required it to exist, so the guard failed closed on
   // its own repo. Replaced with the canonical wrapper that actually ships.
   'bin/proof-or-stop.js',
   'bin/bootstrap-runner.js',
   'packages/main/src/cli.ts',
+  'packages/main/src/extension-api.ts',
   'packages/main/src/index.ts',
   'packages/main/src/tasks/test-flow-e2e.ts',
   'packages/lab/src/index.ts',
@@ -180,7 +181,10 @@ const PACKAGE_ALIAS_MANIFEST_RECORDS: PackageAliasManifestRecord[] = SHIPPED_PAC
 }));
 const PACKAGE_ALIAS_EDGE_INVENTORY = buildPackageAliasEdgeInventory(PACKAGE_ALIAS_MANIFEST_RECORDS);
 const PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM = 'package-imports-self-exports-edge-inventory-sha256-v1';
-const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = 'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923';
+// Explicitly re-attested for B-022e after the public Core extension API was
+// added for packed @proof-or-stop/utils consumers.
+const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = '3b484827d8704b3952b2fe20528d24a1e0b569bce8f5a8aaa36f69f321e3f7eb';
+const RETIRED_PACKAGE_SCOPE = ['@lat', 'tice/'].join('');
 
 function packageAliasEdgeInventoryHash(records: readonly PackageAliasManifestRecord[], edges: readonly PackageAliasEdge[]): string {
   const manifestSurfaces = records.map(record => ({
@@ -272,11 +276,11 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/flow-stability-smoke.ts',
   'packages/main/src/tasks/host-overflow-smoke.ts',
   'packages/main/src/tasks/init-preflight-smoke.ts',
-  'packages/main/src/tasks/lattice-baseline-smoke.ts',
-  'packages/main/src/tasks/lattice-cli-migration-smoke.ts',
-  'packages/main/src/tasks/lattice-evidence-smoke.ts',
-  'packages/main/src/tasks/lattice-handoff-smoke.ts',
-  'packages/main/src/tasks/lattice-parallel-wave-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-baseline-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-evidence-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-handoff-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-parallel-wave-smoke.ts',
   'packages/main/src/tasks/lifecycle-check-smoke.ts',
   'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
   'packages/main/src/tasks/live-smoke-transcript-smoke.ts',
@@ -308,7 +312,7 @@ const legacyQuarantineFiles = new Set([
   'packages/main/src/core/baseline-contracts.ts',
   'packages/main/src/core/legacy-delivery-claims-compat.ts',
   'packages/main/src/core/baseline-suite-report.ts',
-  'packages/main/src/core/lattice-baseline.ts',
+  'packages/main/src/core/proof-or-stop-baseline.ts',
   'packages/main/src/core/verdicts.ts',
   'packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts',
   'packages/main/src/tasks/retired-authority-server-semantics-smoke.ts',
@@ -370,7 +374,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37'],
+  // B-022e post-merge re-attestation: canonical agent/config/store tokens changed
+  // fixture data only; the approved compatibility constructor call shapes and
+  // occurrence counts above remain unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '0db66c17122a2b50330de960fa3be4ece0d77b48bd5815d21dcff60513d8871e'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -378,13 +385,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // pinned-source drift check, so it moves with any cli-engine.ts edit.
   // B-cdf6 CHK-002: repinned after the user-facing bin rename made the CLI's own
   // hint/error strings derive from the invoked bin token (proof-or-stop, with
-  // lattice kept as a deprecated alias). Only string interpolation and the
+  // proof-or-stop kept as a deprecated alias). Only string interpolation and the
   // redundant-bin-token tolerance changed; the approved non-literal loader call
   // site above is untouched, and no new dynamic load was introduced.
   // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
   // the WHOLE file by design, so any edit invalidates the approved non-literal loader
   // call site until a human re-approves it. Commit 8f42f1113e (F-047) changed one
-  // string in this file (`lattice: from-draft metadata` -> canonical) and the pin was
+  // string in this file (`proofOrStop: from-draft metadata` -> canonical) and the pin was
   // not refreshed, so the smoke went red on this branch while passing on main.
   //
   // Re-approval basis, checked before repinning rather than after: `git diff main...HEAD`
@@ -417,17 +424,32 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // argument, or path producer was added, removed, or rewritten; only the approved call
   // site's line number moved (809/814 -> 814). As always, BOTH coupled copies of this
   // digest (here and in scripts/verify-process-fact-contract.mjs) were updated together.
-  ['packages/main/src/cli-engine.ts', 'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79'],
-  ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
-  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
+  // B-022e final re-attestation: Lab ownership-class wiring changed the
+  // enclosing file, while runCli's `file://${initPath}` loader and producer are
+  // unchanged; the exact structural pin remains mutation-sensitive.
+  // B-022e delivery follow-up: extension phase admission/read-only handling
+  // changed elsewhere in runCli; the initPath producer and import() call are
+  // byte-identical, so this remains an exact whole-source re-attestation.
+  ['packages/main/src/cli-engine.ts', '7b37de7ab1f95c4803603853a7d58e05c866036dec37021deeec00e9f430e27c'],
+  // B-022e post-merge re-attestation: runtime identity/path tokens changed;
+  // startCircuitServe's filePath producer and import(`file://${filePath}`)
+  // call shape remain unchanged.
+  ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
+  // B-022e post-merge re-attestation: fixture identities and expected command
+  // names changed to their canonical spellings; loadRuntime(modulePath) is unchanged.
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
 const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
-  ['packages/main/src/verifier/browser-client.ts', '48f529b542edbb79c796a5ef6ab51dad8e5e13cc2e3416e76f6bae74104d5527'],
+  // B-022e re-attestation: only verifier runtime identity tokens changed;
+  // the exact-file exemption remains narrow and mutation-sensitive.
+  ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
   ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
-  ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
-  ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
+  // Same B-022e identity-only re-attestation for the task-side browser client.
+  ['packages/main/src/tasks/browser-client.ts', '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772'],
+  // B-022e identity-only re-attestation for the Python fixture module label.
+  ['packages/main/src/handlers/fixture-executors.ts', 'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822'],
   // B-1734: bin/bootstrap-runner.js gained a build-aware importDistModules() wait loop
   // (F-003/C4). Its runCli(...) and register(...) calls now resolve their callee through
   // `await importDistModules()` (an opaque any-returning local function) instead of the
@@ -436,11 +458,20 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // dynamically-imported dist entry points bootstrap-runner has always invoked; the
   // refactor added NO eval/Function/new dynamic import(). Whole-source exemption pinned to
   // the exact post-refactor fingerprint — any drift re-triggers the full dynamic-code scan.
-  // Repinned when main was merged into the B-cdf6 rename branch: the merged file is that
-  // same post-refactor source plus exactly three brand-text lines (two console.error
-  // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
-  // eval/Function/require/import() was added, so this exemption's basis is unchanged.
-  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
+  // B-022e re-attestation: the zod loader became the bounded literal import('zod'),
+  // while MAIN_DIST, UTILS_DIST, and LAB_DIST remain the same path-derived loaders.
+  // Ownership metadata and identity text add no executable-code construction sink.
+  // B-022e F-050: the public Utils catalog now contains only genuinely external
+  // commands and supplies its ownership/phase metadata directly. Bootstrap no
+  // longer performs a private core-name filter; dynamic import specifiers and
+  // all executable-code sites remain unchanged.
+  ['bin/bootstrap-runner.js', 'a9681ef9a0d924ee214800d61f2f78838afe9f67c51cf8930938b32861cd96c6'],
+  // B-022e: main's standalone entrypoint loads the canonical Lab package first,
+  // then one repository-relative build fallback. The exact-file pin covers both
+  // the loader producer and the dynamically imported Lab namespace calls.
+  // B-022e delivery follow-up: nested Lab routing adds only ownership/phase
+  // metadata; workspaceLabSpecifier and its import() call remain unchanged.
+  ['packages/main/src/cli.ts', 'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -493,12 +524,12 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/core/command-policy.ts',
   'packages/main/src/core/dispatch-policy.ts',
   'packages/main/src/core/dispatch-runner.ts',
-  'packages/main/src/core/lattice-autopilot.ts',
-  'packages/main/src/core/lattice-dispatch.ts',
-  'packages/main/src/core/lattice-evidence.ts',
-  'packages/main/src/core/lattice-handoff.ts',
-  'packages/main/src/core/lattice-hosts.ts',
-  'packages/main/src/core/lattice-parallel-wave.ts',
+  'packages/main/src/core/proof-or-stop-autopilot.ts',
+  'packages/main/src/core/proof-or-stop-dispatch.ts',
+  'packages/main/src/core/proof-or-stop-evidence.ts',
+  'packages/main/src/core/proof-or-stop-handoff.ts',
+  'packages/main/src/core/proof-or-stop-hosts.ts',
+  'packages/main/src/core/proof-or-stop-parallel-wave.ts',
   'packages/main/src/core/lifecycle-readiness.ts',
   'packages/main/src/core/planned-steps-executor.ts',
   'packages/main/src/core/proof-admissibility.ts',
@@ -519,8 +550,8 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/handlers/evidence-plan.ts',
   'packages/main/src/handlers/evidence-refresh.ts',
   'packages/main/src/handlers/init-preflight.ts',
-  'packages/main/src/handlers/lattice-autopilot.ts',
-  'packages/main/src/handlers/lattice-cli.ts',
+  'packages/main/src/handlers/proof-or-stop-autopilot.ts',
+  'packages/main/src/handlers/proof-or-stop-cli.ts',
   'packages/main/src/handlers/lifecycle-control.ts',
   'packages/main/src/handlers/lifecycle-orchestrate.ts',
   'packages/main/src/handlers/live-smoke-transcript.ts',
@@ -1523,14 +1554,16 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'importDistModules', argument: 'pathToFileURL(MAIN_DIST).href' },
       { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
-      { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
     ],
+  }],
+  ['packages/main/src/cli.ts', {
+    calls: [{ anchor: 'runDirectCli', argument: 'workspaceLabSpecifier' }],
   }],
   // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
   // probes a LIST of sibling bootstrap wrappers (canonical first, deprecated alias as
   // fallback) instead of a single hardcoded one — so the loader argument changed from
-  // `localLattice` to the loop variable `candidate`. Same benign class: resolving a sibling
-  // dist path at runtime is inherent to a bootstrap wrapper. bin/lattice-codex.js is now a
+  // `localProofOrStop` to the loop variable `candidate`. Same benign class: resolving a sibling
+  // dist path at runtime is inherent to a bootstrap wrapper. bin/proof-or-stop-codex.js is now a
   // thin delegating alias with no loader of its own, so only the canonical file is listed.
   ['bin/proof-or-stop-codex.js', {
     calls: [{ anchor: 'main', argument: 'pathToFileURL(candidate).href' }],
@@ -1541,28 +1574,19 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
-  // bin names (canonical proof-or-stop + the retained lattice alias), and because the
+  // bin names (canonical proof-or-stop + the retained proof-or-stop alias), and because the
   // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
-  // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
+  // bin/proof-or-stop-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.
-  // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
-  // was added to bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist
-  // loader call sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into
-  // importDistModules, LAB_DIST/zod still in runLocalBootstrap); this whole-file structural
-  // fingerprint gates that call-site allowlist, so it moves with any edit to this
-  // security-sensitive entry.
-  //
-  // Repinned when main was merged into the B-cdf6 rename branch: the merged file carries
-  // BOTH sides (theirs' importDistModules() wait loop + our three brand strings), so its
-  // digest matched neither parent's pin. Re-approval basis, checked before repinning:
-  // `diff` of the merged file against the MERGE_HEAD copy is exactly three lines, all of
-  // them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice
-  // session_brief` -> `proof-or-stop session_brief`). The four approved non-literal dist
-  // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
-  // runLocalBootstrap) are byte-identical to that copy, including their path producers —
-  // no import()/require() call, argument, or producer was added, moved, or rewritten.
-  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
-  ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
+  // B-022e re-attestation: there are now three approved non-literal dist loaders.
+  // The former path-derived zod loader is the literal package import('zod'), so it
+  // leaves this exception set instead of receiving a broader allowance.
+  // B-022e F-050: consuming the public Utils ownership/phase exports changes
+  // bootstrap wiring only; the three approved loader arguments are unchanged.
+  ['bin/bootstrap-runner.js', 'a9681ef9a0d924ee214800d61f2f78838afe9f67c51cf8930938b32861cd96c6'],
+  ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
+  // Same exact-file review boundary as the dynamic-module-call exemption above.
+  ['packages/main/src/cli.ts', 'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -4029,13 +4053,13 @@ function assertPositiveControls(): void {
     'Authority completion',
     'production completion',
     'production DONE',
-    'LATTICE_AUTHORITY_URL',
+    'PROOF_OR_STOP_AUTHORITY_URL',
     'authority_status',
   ];
   const violations = scanText('<positive-control>', controls.join('\n'));
   for (const control of controls) {
     assert.ok(
-      violations.some(v => v.text.includes(control) || (control === 'LATTICE_AUTHORITY_URL' && v.label === 'LATTICE_AUTHORITY_*')),
+      violations.some(v => v.text.includes(control) || (control === 'PROOF_OR_STOP_AUTHORITY_URL' && v.label === 'PROOF_OR_STOP_AUTHORITY_*')),
       `positive control must catch ${control}`,
     );
   }
@@ -4096,6 +4120,14 @@ function assertShippedExecutableRootPositiveControls(): void {
     PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH,
     `${PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM}: package imports/self-exports edge inventory drift requires explicit review`,
   );
+  const shippedPackageNames = new Set(PACKAGE_ALIAS_MANIFEST_RECORDS.map(record => record.manifest.name));
+  assert.ok(shippedPackageNames.has('@proof-or-stop/utils'), 'reviewed alias inventory must include canonical @proof-or-stop/utils');
+  assert.ok(shippedPackageNames.has('@proof-or-stop/lab'), 'reviewed alias inventory must include canonical @proof-or-stop/lab');
+  assert.equal(
+    [...shippedPackageNames].some(name => typeof name === 'string' && name.startsWith(RETIRED_PACKAGE_SCOPE)),
+    false,
+    'reviewed alias inventory must not retain retired package identities',
+  );
   for (const edge of PACKAGE_ALIAS_EDGE_INVENTORY.filter(edge => !edge.targetPattern.includes('*'))) {
     const target = packageSourceTarget(edge, '');
     assert.ok(target && EXECUTABLE_SOURCE_EXTENSIONS.some(extension => existsSync(join(repoRoot, `${target}${extension}`))), `package alias edge must resolve to a source target: ${edge.specifierPattern}`);
@@ -4154,7 +4186,7 @@ function assertShippedExecutableRootPositiveControls(): void {
     assert.equal(existsSync(join(repoRoot, entrypoint)), true, `pinned shipped executable entrypoint must exist: ${entrypoint}`);
     assert.equal(isExecutableSourceFile(entrypoint), true, `pinned shipped executable entrypoint must use a scanned extension: ${entrypoint}`);
   }
-  // B-cc10 CHK-007: `bin/lattice.js` was removed by CHK-006. This loop scans a
+  // B-cc10 CHK-007: `bin/proofOrStop.js` was removed by CHK-006. This loop scans a
   // SYNTHETIC source string (no filesystem read), so it did not fail — but naming a
   // deleted file would let the case rot into testing nothing meaningful.
   for (const binEntrypoint of ['bin/proof-or-stop.js', 'bin/bootstrap-runner.js']) {
@@ -4204,8 +4236,8 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    7,
-    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    9,
+    'bootstrap-runner.js and cli.ts are pinned in both exact exemption maps, making nine whole-source entries; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
@@ -5088,7 +5120,7 @@ function assertContract(): void {
     'authorityDone',
     'fullAuthorityDone',
     'productionDone',
-    'LATTICE_AUTHORITY_*',
+    'PROOF_OR_STOP_AUTHORITY_*',
     'active `authority_*` command surfaces',
     'local assurance',
     'admissibilityStatus',
@@ -5159,7 +5191,7 @@ function runCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -5180,7 +5212,7 @@ function assertGeneratedHelp(): Violation[] {
     ['conduit_status', '--help'],
     ['story_export', '--help'],
   ];
-  return outputs.flatMap(args => scanText(`lattice ${args.join(' ')}`, runCli(args)));
+  return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
 }
 
 const violations: Violation[] = [];

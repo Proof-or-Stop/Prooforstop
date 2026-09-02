@@ -37,7 +37,7 @@ import { join } from 'node:path';
 
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 
-const STORY_DIR_REL = '.lattice/story/actives';
+const STORY_DIR_REL = '.proof-or-stop/story/actives';
 
 function git(cmd: string, cwd: string): string {
   return execSync(`git ${cmd}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -51,11 +51,11 @@ function initGitRepo(dir: string): void {
   git('config commit.gpgsign false', dir);
 }
 
-/** lattice.config.json so the project-level resolver shares storyDir / gitRoot. */
+/** proof-or-stop.config.json so the project-level resolver shares storyDir / gitRoot. */
 function writeConfig(metadataRoot: string, gitRoot?: string): void {
   const cfg: Record<string, unknown> = { storyDir: STORY_DIR_REL };
   if (gitRoot !== undefined) cfg.gitRoot = gitRoot;
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), JSON.stringify(cfg, null, 2));
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), JSON.stringify(cfg, null, 2));
 }
 
 /**

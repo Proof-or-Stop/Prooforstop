@@ -303,7 +303,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   );
 }
 
-// ── 6. Disallowed changeKind is gated; story/lattice metadata is never gated ───
+// ── 6. Disallowed changeKind is gated; story/proof-or-stop metadata is never gated ───
 {
   const contract = makeContract({
     mode: 'enforce',
@@ -506,7 +506,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 {
   const contract = makeContract({ mode: 'enforce', allowedModify: ['src/allowed.ts'] });
   const codeHunk = makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'cccc3333cccc3333' });
-  const metaHunkA = makeHunk('.lattice/story/actives/B-x/findings.json', { digest: 'eeee5555eeee5555' });
+  const metaHunkA = makeHunk('.proof-or-stop/story/actives/B-x/findings.json', { digest: 'eeee5555eeee5555' });
   const metaHunkB = makeHunk('docs/story/actives/B-x/index.json', { digest: 'ffff6666ffff6666' });
 
   const packBefore = makePack([codeHunk, metaHunkA]);
@@ -528,9 +528,9 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 // ── 11b. B-edca: custom storyDir paths are excluded from the digest when
 //         projectRoot is provided; sibling paths outside storyDir stay material. ─
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-custom-storydir-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-custom-storydir-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       storyDir: 'workflow/stories',
     }, null, 2));
     resetConfigCache();
@@ -592,7 +592,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 
 // ── 12. CHK-005: review run signature folds in the binding hash ──────────────
 {
-  const base = ['B-x', 'B-x:RR-001', 'lattice-review-quality', 'lattice-review-quality', 'round-1', '2026-01-01T00:00:00.000Z', 'head', 'material', ''] as const;
+  const base = ['B-x', 'B-x:RR-001', 'proof-or-stop-review-quality', 'proof-or-stop-review-quality', 'round-1', '2026-01-01T00:00:00.000Z', 'head', 'material', ''] as const;
   const noBinding = signReviewRun(...base);
   const withBinding = signReviewRun(...base, 'binding-hash-abc');
   assert.notEqual(noBinding, withBinding, 'a present scope binding hash changes the run signature');
@@ -601,15 +601,15 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 }
 
 // ── 13. CHK-005 integration: collectReviewerEvidenceState gate behavior ──────
-const BASELINE_LANES = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
+const BASELINE_LANES = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality', 'proof-or-stop-review-test-coverage'];
 
 function writeScopeStory(root: string, opts: { withContract: boolean }): { store: StoryStore; storyId: string; reviewRound: string; contract: ScopeContractData | null } {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }));
@@ -732,7 +732,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13a. Fresh scope binding passes the gate.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-fresh-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scopebind-fresh-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
@@ -748,7 +748,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13b. No-scope legacy story stays backward compatible (no binding required).
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-legacy-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scopebind-legacy-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: false });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: false });
@@ -763,7 +763,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13c. Stale scope binding (scope contract changed after review) is rejected.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scopebind-stale-'));
   try {
     const { store, storyId, reviewRound, contract } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
@@ -779,7 +779,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     );
     const reason = getGuardFailureReason(storyId, store, 'TEST', root) ?? '';
     assert.match(reason, /scope binding/, 'gate failure reason names the scope binding problem');
-    assert.match(reason, /lattice-review-/, 'gate failure reason names the affected reviewer lane');
+    assert.match(reason, /proof-or-stop-review-/, 'gate failure reason names the affected reviewer lane');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -787,7 +787,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // 13d. Natural-language-only evidence (run with no scope binding) is rejected.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-nl-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scopebind-nl-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     // Seed runs WITHOUT a scope binding (prose-only reviewer evidence: a run was
@@ -810,7 +810,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 // ── 14. CHK-006 fail-closed: a corrupt scope-contract.json must NOT silently
 //        downgrade a scope-protected story to "no contract" (= gate bypass). ──
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-corrupt-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scopebind-corrupt-'));
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
@@ -855,7 +855,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // ── 14b. CHK-006 backward compat: a genuinely MISSING contract → null (legacy). ──
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scopebind-missing-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scopebind-missing-'));
   try {
     const { store, storyId } = writeScopeStory(root, { withContract: false });
     assert.equal(
@@ -875,14 +875,14 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // ── 15. CHK-006: scope_contract_init_from_plan seeds a usable contract ───────
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-initplan-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-initplan-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }));
@@ -984,7 +984,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   const binding = computeReviewScopeBinding({ contract: bindContract, diffPack: bindPack })!;
   const round = '2026-05-23T12:01:00.000Z';
   const boundRun: ReviewRun = {
-    reviewRunId: 'B-x:RR-1', storyId: 'B-x', agent: 'lattice-review-quality', lane: 'lattice-review-quality',
+    reviewRunId: 'B-x:RR-1', storyId: 'B-x', agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
     reviewRound: round, startedAt: round, headHash: 'h', materialHash: 'm', promptHash: '', scopeBinding: binding,
   };
   assert.equal(
@@ -1027,7 +1027,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   // A stale run: pack has different hunks from what was bound.
   const stalePack = makePack([makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'deadbeef99887766' })]);
   const boundRun: ReviewRun = {
-    reviewRunId: 'B-p:RR-1', storyId: 'B-p', agent: 'lattice-review-quality', lane: 'lattice-review-quality',
+    reviewRunId: 'B-p:RR-1', storyId: 'B-p', agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
     reviewRound: round, startedAt: round, headHash: 'h', materialHash: 'm', promptHash: '',
     scopeBinding: binding,
   };
@@ -1124,11 +1124,11 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 
 // B-0784: parser-backed anchors never select control flow or local variables.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-anchor-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-ast-anchor-'));
   try {
     const path = 'src/anchors.ts';
     mkdirSync(join(root, 'src'), { recursive: true });
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'src',
       rootDir: '.',
       scopeProtection: { astAnchors: 'enforce', pathCanonicalization: 'off' },
@@ -1282,7 +1282,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 // B-0784 F-014/F-019: every declaration/control-flow/change-kind noun is
 // exercised through parser-backed diff production, not representative aliases.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-declaration-matrix-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-ast-declaration-matrix-'));
   try {
     const path = 'src/matrix.ts';
     mkdirSync(join(root, 'src'), { recursive: true });
@@ -1433,7 +1433,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-delete-dev-null-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-ast-delete-dev-null-'));
   try {
     mkdirSync(join(root, 'src'), { recursive: true });
     writeFileSync(join(root, 'src/deleted.ts'), 'export function critical() { return 1; }\n');
@@ -1478,10 +1478,10 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   const initRenameRepo = (prefix: string): string => {
     const root = mkdtempSync(join(tmpdir(), prefix));
     mkdirSync(join(root, 'src'), { recursive: true });
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'src',
       rootDir: '.',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scopeProtection: { pathCanonicalization: 'enforce', astAnchors: 'enforce' },
     }));
@@ -1494,7 +1494,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     return root;
   };
 
-  const pureRoot = initRenameRepo('lattice-ast-pure-rename-');
+  const pureRoot = initRenameRepo('proof-or-stop-ast-pure-rename-');
   try {
     execFileSync('git', ['mv', 'src/old.ts', 'src/new.ts'], { cwd: pureRoot });
     resetConfigCache();
@@ -1529,7 +1529,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     rmSync(pureRoot, { recursive: true, force: true });
   }
 
-  const modifiedRoot = initRenameRepo('lattice-ast-rename-modify-');
+  const modifiedRoot = initRenameRepo('proof-or-stop-ast-rename-modify-');
   try {
     execFileSync('git', ['mv', 'src/old.ts', 'src/new.ts'], { cwd: modifiedRoot });
     writeFileSync(join(modifiedRoot, 'src/new.ts'), baseSource.replace('critical', 'renamed'));
@@ -1582,7 +1582,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     rmSync(modifiedRoot, { recursive: true, force: true });
   }
 
-  const missingPreviousRoot = initRenameRepo('lattice-ast-rename-missing-previous-');
+  const missingPreviousRoot = initRenameRepo('proof-or-stop-ast-rename-missing-previous-');
   try {
     writeFileSync(join(missingPreviousRoot, 'src/new.ts'), baseSource.replace('critical', 'renamed'));
     const missingPreviousDiff = [
@@ -1686,13 +1686,13 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   const modes = ['off', 'warn', 'enforce'] as const;
   for (const pathMode of modes) {
     for (const astMode of modes) {
-      const root = mkdtempSync(join(tmpdir(), `lattice-rollout-${pathMode}-${astMode}-`));
+      const root = mkdtempSync(join(tmpdir(), `proof-or-stop-rollout-${pathMode}-${astMode}-`));
       try {
         mkdirSync(join(root, 'src'), { recursive: true });
-        writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+        writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
           scanRoot: 'src',
           rootDir: '.',
-          storyDir: '.lattice/story/actives',
+          storyDir: '.proof-or-stop/story/actives',
           requirementsDir: 'docs/requirements',
           scopeProtection: { pathCanonicalization: pathMode, astAnchors: astMode },
         }));
@@ -1788,14 +1788,14 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     }
   }
 
-  const root = mkdtempSync(join(tmpdir(), 'lattice-rollout-persisted-bytes-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-rollout-persisted-bytes-'));
   try {
     mkdirSync(join(root, 'src'), { recursive: true });
     const writeConfig = (pathCanonicalization: 'off' | 'warn' | 'enforce', astAnchors: 'off' | 'warn' | 'enforce'): void => {
-      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
         scanRoot: 'src',
         rootDir: '.',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
         scopeProtection: { pathCanonicalization, astAnchors },
       }));
@@ -1818,10 +1818,10 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     store.writeScopeContract(storyId, makeContract({
       storyId,
       mode: 'enforce',
-      allowedModify: ['src/matrix.ts', 'lattice.config.json'],
+      allowedModify: ['src/matrix.ts', 'proof-or-stop.config.json'],
       fileRules: [{ path: 'src/matrix.ts', allowedAnchors: ['matrix'] }],
     }));
-    const artifactPath = join(root, '.lattice/story/actives', storyId, 'scope-contract.json');
+    const artifactPath = join(root, '.proof-or-stop/story/actives', storyId, 'scope-contract.json');
     const legacyBytes = readFileSync(artifactPath, 'utf8');
     writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 2; }\n');
     const offHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
@@ -1844,7 +1844,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     enforceHandlers.scope_contract_set({
       storyId,
       mode: 'enforce',
-      allowedModify: ['src/matrix.ts', 'lattice.config.json'],
+      allowedModify: ['src/matrix.ts', 'proof-or-stop.config.json'],
       fileRules: [{ path: 'src/matrix.ts', allowedAnchors: ['matrix'] }],
     });
     const reenabled = store.readScopeContract(storyId)!;

@@ -2,7 +2,7 @@
  * B-253e CHK-001 / CHK-004: LLM usage ledger record types + schema validator.
  *
  * Implements the JSONL record shape and the "Required record constraints" from
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md
  * ("JSON Ledger Record Shape", "Required record constraints", "Per-dimension
  * absence rule", "Privacy Constraints").
  *

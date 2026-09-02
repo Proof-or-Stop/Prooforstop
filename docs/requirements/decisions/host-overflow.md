@@ -170,7 +170,7 @@ The supervised dispatch layer is now landed as explicit Proof-or-Stop surfaces:
   preview without creating a dispatch record, worktree, receipt, or external
   host session.
 - `dispatch_prepare` persists rebuildable dispatch metadata under
-  `.lattice/dispatches/` plus prompt placeholders. It still does not create the
+  `.proof-or-stop/dispatches/` plus prompt placeholders. It still does not create the
   projected worktree or auto-run a host.
 - `dispatch_run` is manual-first but executable. For `fake`, it runs the local
   deterministic harness inside the isolated overflow worktree and returns a

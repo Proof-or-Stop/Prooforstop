@@ -50,7 +50,7 @@ function clone<T>(value: T): T {
 }
 
 function runCohort(path = runnerPath): AcceptanceRolloutCohortInputV1 {
-  const frozenInputPath = cohortArgPath || process.env.LATTICE_ROLLOUT_COHORT_INPUT_PATH;
+  const frozenInputPath = cohortArgPath || process.env.PROOF_OR_STOP_ROLLOUT_COHORT_INPUT_PATH;
   if (frozenInputPath) {
     return JSON.parse(readFileSync(frozenInputPath, 'utf8')) as AcceptanceRolloutCohortInputV1;
   }
@@ -112,9 +112,9 @@ function runIssuerMutationSmoke(): void {
     encoding: 'utf8',
     env: {
       ...process.env,
-      LATTICE_ROLLOUT_COHORT_STORY_ID: storyId,
-      LATTICE_ROLLOUT_COHORT_ARM: 'candidate',
-      LATTICE_ROLLOUT_COHORT_SCENARIO: 'omission',
+      PROOF_OR_STOP_ROLLOUT_COHORT_STORY_ID: storyId,
+      PROOF_OR_STOP_ROLLOUT_COHORT_ARM: 'candidate',
+      PROOF_OR_STOP_ROLLOUT_COHORT_SCENARIO: 'omission',
     },
     maxBuffer: 32 * 1024 * 1024,
   });
@@ -264,14 +264,14 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'rollout-smoke@example.test']);
     git(root, ['config', 'user.name', 'Rollout Smoke']);
-    const rolloutKeyName = 'lattice-acceptance-rollout-verifier-v1.key';
+    const rolloutKeyName = 'proof-or-stop-acceptance-rollout-verifier-v1.key';
     const mainCommon = resolve(projectRoot, git(projectRoot, ['rev-parse', '--git-common-dir']));
     const tempCommon = resolve(root, git(root, ['rev-parse', '--git-common-dir']));
     if (existsSync(join(mainCommon, rolloutKeyName))) {
       copyFileSync(join(mainCommon, rolloutKeyName), join(tempCommon, rolloutKeyName));
     }
-    write(join(root, 'lattice.config.json'), JSON.stringify({
-      storyDir: '.lattice/story/actives',
+    write(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -284,10 +284,10 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     mkdirSync(join(root, 'packages/main'), { recursive: true });
     symlinkSync(join(projectRoot, 'packages/main/dist'), join(root, 'packages/main/dist'), 'dir');
     // The verifier replays the production gate commands with ITS OWN trusted CLI
-    // (replayProductionGateState resolves `<cliRoot>/bin/lattice.js`, and cliRoot is
+    // (replayProductionGateState resolves `<cliRoot>/bin/proofOrStop.js`, and cliRoot is
     // the verifier project — never the evidence repo, so a preserved repo cannot
     // forge the replay with a doctored CLI). This fixture stands in for that
-    // verifier project, so it needs the same bin/ bootstrap a real Lattice-managed
+    // verifier project, so it needs the same bin/ bootstrap a real ProofOrStop-managed
     // repo has; without it the replay fails with MODULE_NOT_FOUND instead of
     // exercising the substitution defence.
     symlinkSync(join(projectRoot, 'bin'), join(root, 'bin'), 'dir');
@@ -346,8 +346,8 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
       `real transition consumer passes clean observe control: ${observe}; ` +
       `signedBinding=${JSON.stringify(artifact.report.binding)} currentBinding=${JSON.stringify(currentBinding)} currentRunnerDigest=${currentRunnerDigest}`);
     const history = acceptanceRolloutHistoryDigest(artifact);
-    write(join(root, 'lattice.config.json'), JSON.stringify({
-      storyDir: '.lattice/story/actives',
+    write(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -359,8 +359,8 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     resetConfigCache();
     const warn = runAcceptanceRolloutGate(ctx, storyId);
     ok(warn.includes('mode=warn; status=pass; blocking=false'), 'warn preserves status and diagnostics without blocking');
-    write(join(root, 'lattice.config.json'), JSON.stringify({
-      storyDir: '.lattice/story/actives',
+    write(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -429,8 +429,8 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     });
     ok(stale.diagnostics.includes('AR_REPORT_STALE') && stale.blocking, 'stale signed receipt fails enforce');
 
-    write(join(root, 'lattice.config.json'), JSON.stringify({
-      storyDir: '.lattice/story/actives',
+    write(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scanRoot: 'packages/main',
       testsDir: 'packages/main/tests',
@@ -447,7 +447,7 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     rmSync(root, { recursive: true, force: true });
   }
 
-  process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: [`acceptance-rollout:${assertions}`], mutations: ['reviewer-host-removal', 'quorum-forgery', 'review-round-forgery', 'transcript-removal', 'waiver-forgery', 'restoration-tamper'] })}\n`);
+  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: [`acceptance-rollout:${assertions}`], mutations: ['reviewer-host-removal', 'quorum-forgery', 'review-round-forgery', 'transcript-removal', 'waiver-forgery', 'restoration-tamper'] })}\n`);
   process.stdout.write(`ProofStory acceptance rollout smoke: PASS (${assertions} assertions)\n`);
 }
 

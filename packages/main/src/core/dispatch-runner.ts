@@ -1,4 +1,4 @@
-import type { DispatchAuthorityState } from './lattice-dispatch.js';
+import type { DispatchAuthorityState } from './proof-or-stop-dispatch.js';
 
 // Env vars whose names match these patterns are considered sensitive and never recorded.
 const SENSITIVE_ENV_PATTERNS = [
@@ -9,7 +9,7 @@ const SENSITIVE_ENV_PATTERNS = [
 // Only names starting with these prefixes are included in the safe-name summary.
 const SAFE_ENV_PREFIXES = [
   'PATH', 'HOME', 'USER', 'SHELL', 'TERM', 'LANG', 'LC_', 'TZ',
-  'PWD', 'OLDPWD', 'NODE_', 'npm_', 'LATTICE_', 'CI', 'GITHUB_',
+  'PWD', 'OLDPWD', 'NODE_', 'npm_', 'PROOF_OR_STOP_', 'CI', 'GITHUB_',
   'RUNNER_', 'TMPDIR', 'TEMP', 'TMP', 'LOGNAME',
 ];
 

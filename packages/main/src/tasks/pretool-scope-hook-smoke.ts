@@ -14,7 +14,7 @@
  *   5. extractPathsFromToolInput parses Edit/Write/MultiEdit/NotebookEdit/apply_patch correctly
  *   4. prewrite_guard_check CLI returns pass when no guard session
  *   5. prewrite_guard_check CLI blocks when guard session + enforce contract + out-of-scope path
- *   6. lattice-scope-pretool.cjs hook exits 0 (pass-through) when CLI produces no BLOCKED output
+ *   6. proof-or-stop-scope-pretool.cjs hook exits 0 (pass-through) when CLI produces no BLOCKED output
  * @changes
  *   - [CHK-005] Add PreToolUse scope hook integration smoke
  */
@@ -37,9 +37,9 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'lattice-scope-pretool.cjs');
-const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'lattice-scope-pretool.cjs');
-const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'pretool-scope-smoke', LATTICE_AGENT: 'pretool-scope-smoke' };
+const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'proof-or-stop-scope-pretool.cjs');
+const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
+const sessionEnv = { ...process.env, PROOF_OR_STOP_SESSION_ID: 'pretool-scope-smoke', PROOF_OR_STOP_AGENT: 'pretool-scope-smoke' };
 
 function normalizeToRelativePaths(root: string, paths: readonly string[]): string[] {
   return paths
@@ -81,8 +81,8 @@ const preToolEntry = (hooks.PreToolUse as any[])[0];
 assert.equal(preToolEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
 assert.match(
   preToolEntry.hooks[0].command,
-  /lattice-scope-pretool\.cjs/,
-  'PreToolUse hook must reference lattice-scope-pretool.cjs',
+  /proof-or-stop-scope-pretool\.cjs/,
+  'PreToolUse hook must reference proof-or-stop-scope-pretool.cjs',
 );
 assert.ok('UserPromptSubmit' in hooks, 'getClaudeHooks() must still include UserPromptSubmit');
 assert.ok('PostToolUse' in hooks, 'getClaudeHooks() must still include PostToolUse');
@@ -98,13 +98,13 @@ const codexPreToolEntry = (codexHooks.PreToolUse as any[])[0];
 assert.equal(codexPreToolEntry.matcher, CODEX_PRETOOL_SCOPE_HOOK_MATCHER, 'Codex PreToolUse matcher must match apply_patch/Edit/Write');
 assert.match(
   codexPreToolEntry.hooks[0].command,
-  /\.codex\/hooks\/lattice-scope-pretool\.cjs/,
-  'Codex PreToolUse hook must reference lowercase .codex/hooks/lattice-scope-pretool.cjs',
+  /\.codex\/hooks\/proof-or-stop-scope-pretool\.cjs/,
+  'Codex PreToolUse hook must reference lowercase .codex/hooks/proof-or-stop-scope-pretool.cjs',
 );
 assert.doesNotMatch(
   codexPreToolEntry.hooks[0].command,
-  /\.lattice-codex\/hooks/,
-  'Codex PreToolUse hook must not use uppercase .lattice-codex/hooks',
+  /\.proof-or-stop-codex\/hooks/,
+  'Codex PreToolUse hook must not use uppercase .proof-or-stop-codex/hooks',
 );
 
 console.log('✓ Test 1b: getCodexHooks() includes PreToolUse');
@@ -112,7 +112,7 @@ console.log('✓ Test 1b: getCodexHooks() includes PreToolUse');
 // ─── Test 2: mergeClaudeHooks generates settings with PreToolUse ──────────────
 // Indirect: run managed asset check in a claude-profile temp dir and verify settings
 
-const settingsRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-settings-'));
+const settingsRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-pretool-settings-'));
 try {
   git(settingsRoot, ['init', '-b', 'main']);
   git(settingsRoot, ['config', 'user.email', 'hook@test']);
@@ -131,7 +131,7 @@ try {
   const ptEntry = settings.hooks.PreToolUse[0];
   assert.ok(ptEntry, 'PreToolUse must have at least one entry');
   assert.equal(ptEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
-  assert.match(ptEntry.hooks[0].command, /lattice-scope-pretool\.cjs/, 'PreToolUse command must reference lattice-scope-pretool.cjs');
+  assert.match(ptEntry.hooks[0].command, /proof-or-stop-scope-pretool\.cjs/, 'PreToolUse command must reference proof-or-stop-scope-pretool.cjs');
 
   // Existing hooks must still be present
   assert.ok(Array.isArray(settings.hooks.PostToolUse), 'PostToolUse must be present');
@@ -144,7 +144,7 @@ try {
 
 // ─── Test 2b: codex profile generates lowercase Codex hooks ──────────────────
 
-const codexInitRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-codex-init-'));
+const codexInitRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-pretool-codex-init-'));
 try {
   git(codexInitRoot, ['init', '-b', 'main']);
   git(codexInitRoot, ['config', 'user.email', 'hook@test']);
@@ -155,14 +155,14 @@ try {
   });
 
   const hooksJsonPath = join(codexInitRoot, '.codex', 'hooks.json');
-  const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
   assert.ok(existsSync(hooksJsonPath), 'codex profile must generate lowercase .codex/hooks.json');
-  assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/lattice-scope-pretool.cjs');
-  const upperHooksPath = join(codexInitRoot, '.lattice-codex', 'hooks');
+  assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/proof-or-stop-scope-pretool.cjs');
+  const upperHooksPath = join(codexInitRoot, '.proof-or-stop-codex', 'hooks');
   if (existsSync(upperHooksPath)) {
     const lower = statSync(join(codexInitRoot, '.codex', 'hooks'));
     const upper = statSync(upperHooksPath);
-    assert.equal(upper.ino, lower.ino, 'uppercase .lattice-codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
+    assert.equal(upper.ino, lower.ino, 'uppercase .proof-or-stop-codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
   }
 
   const generated = JSON.parse(readFileSync(hooksJsonPath, 'utf8'));
@@ -177,7 +177,7 @@ try {
 
 // ─── Test 2c: managed asset apply migrates legacy scope-pretool names ─────────
 
-const migrationRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-migrate-'));
+const migrationRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-pretool-migrate-'));
 try {
   git(migrationRoot, ['init', '-b', 'main']);
   git(migrationRoot, ['config', 'user.email', 'hook@test']);
@@ -189,13 +189,13 @@ try {
 
   const legacyClaudeHooks = JSON.parse(JSON.stringify(getClaudeHooks()));
   legacyClaudeHooks.PreToolUse[0].hooks[0].command = legacyClaudeHooks.PreToolUse[0].hooks[0].command
-    .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
+    .replace('proof-or-stop-scope-pretool.cjs', 'scope-pretool.cjs');
   write(migrationRoot, '.claude/settings.json', JSON.stringify({ hooks: legacyClaudeHooks }, null, 2) + '\n');
   write(migrationRoot, '.claude/hooks/scope-pretool.cjs', readFileSync(hookPath, 'utf8'));
 
   const legacyCodexHooks = JSON.parse(JSON.stringify(getCodexHooks()));
   legacyCodexHooks.PreToolUse[0].hooks[0].command = legacyCodexHooks.PreToolUse[0].hooks[0].command
-    .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
+    .replace('proof-or-stop-scope-pretool.cjs', 'scope-pretool.cjs');
   write(migrationRoot, '.codex/hooks.json', JSON.stringify({ hooks: legacyCodexHooks }, null, 2) + '\n');
   write(migrationRoot, '.codex/hooks/scope-pretool.cjs', readFileSync(codexHookPath, 'utf8'));
 
@@ -204,15 +204,15 @@ try {
   });
 
   const migratedSettings = readFileSync(join(migrationRoot, '.claude', 'settings.json'), 'utf8');
-  assert.match(migratedSettings, /lattice-scope-pretool\.cjs/, 'managed apply must migrate Claude settings to lattice-scope-pretool.cjs');
+  assert.match(migratedSettings, /proof-or-stop-scope-pretool\.cjs/, 'managed apply must migrate Claude settings to proof-or-stop-scope-pretool.cjs');
   assert.doesNotMatch(migratedSettings, /\/scope-pretool\.cjs/, 'managed apply must remove old Claude scope-pretool command');
-  assert.ok(existsSync(join(migrationRoot, '.claude', 'hooks', 'lattice-scope-pretool.cjs')), 'managed apply must create new Claude hook script');
+  assert.ok(existsSync(join(migrationRoot, '.claude', 'hooks', 'proof-or-stop-scope-pretool.cjs')), 'managed apply must create new Claude hook script');
   assert.ok(!existsSync(join(migrationRoot, '.claude', 'hooks', 'scope-pretool.cjs')), 'managed apply must remove generated old Claude hook script');
 
   const migratedCodexHooks = readFileSync(join(migrationRoot, '.codex', 'hooks.json'), 'utf8');
-  assert.match(migratedCodexHooks, /lattice-scope-pretool\.cjs/, 'managed apply must migrate Codex hooks.json to lattice-scope-pretool.cjs');
+  assert.match(migratedCodexHooks, /proof-or-stop-scope-pretool\.cjs/, 'managed apply must migrate Codex hooks.json to proof-or-stop-scope-pretool.cjs');
   assert.doesNotMatch(migratedCodexHooks, /\/scope-pretool\.cjs/, 'managed apply must remove old Codex scope-pretool command');
-  assert.ok(existsSync(join(migrationRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs')), 'managed apply must create new Codex hook script');
+  assert.ok(existsSync(join(migrationRoot, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs')), 'managed apply must create new Codex hook script');
   assert.ok(!existsSync(join(migrationRoot, '.codex', 'hooks', 'scope-pretool.cjs')), 'managed apply must remove generated old Codex hook script');
 
   console.log('✓ Test 2c: managed asset apply migrates legacy scope-pretool hook names');
@@ -306,12 +306,12 @@ console.log('✓ Test 4: normalizeToRelativePaths normalizes paths correctly');
 
 // ─── Test 5: prewrite_guard_check CLI — pass when no guard session ────────────
 
-const noGuardRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-no-guard-'));
+const noGuardRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-pretool-no-guard-'));
 try {
   git(noGuardRoot, ['init', '-b', 'main']);
   git(noGuardRoot, ['config', 'user.email', 'pg@test']);
   git(noGuardRoot, ['config', 'user.name', 'PG Test']);
-  write(noGuardRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
+  write(noGuardRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
   git(noGuardRoot, ['add', '.']);
   git(noGuardRoot, ['commit', '-m', 'init']);
 
@@ -354,12 +354,12 @@ try {
 
 // ─── Test 6: prewrite_guard_check CLI — blocked when guard+contract+out-of-scope
 
-const enforceRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-enforce-'));
+const enforceRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-pretool-enforce-'));
 try {
   git(enforceRoot, ['init', '-b', 'main']);
   git(enforceRoot, ['config', 'user.email', 'pg@test']);
   git(enforceRoot, ['config', 'user.name', 'PG Test']);
-  write(enforceRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
+  write(enforceRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'src' }, null, 2));
   write(enforceRoot, 'src/allowed.ts', 'export const x = 1;\n');
   git(enforceRoot, ['add', '.']);
   git(enforceRoot, ['commit', '-m', 'init']);
@@ -448,9 +448,9 @@ try {
   rmSync(enforceRoot, { recursive: true, force: true });
 }
 
-// ─── Test 7: lattice-scope-pretool.cjs hook — passes through when no BLOCKED output ───
+// ─── Test 7: proof-or-stop-scope-pretool.cjs hook — passes through when no BLOCKED output ───
 
-const hookTestRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-hook-'));
+const hookTestRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-pretool-hook-'));
 try {
   // Simulate hook call for a non-write tool → should pass immediately (exit 0)
   const readPayload = JSON.stringify({
@@ -510,7 +510,7 @@ try {
   assert.equal(codexNoCliResult.status, 0, 'Codex hook: apply_patch without CLI should pass through gracefully (exit 0)');
   assert.notEqual(codexNoCliResult.status, 2, 'Codex hook: should not block when CLI is not available');
 
-  console.log('✓ Test 7: Claude/Codex lattice-scope-pretool hooks pass through gracefully when CLI unavailable');
+  console.log('✓ Test 7: Claude/Codex proof-or-stop-scope-pretool hooks pass through gracefully when CLI unavailable');
 } finally {
   rmSync(hookTestRoot, { recursive: true, force: true });
 }

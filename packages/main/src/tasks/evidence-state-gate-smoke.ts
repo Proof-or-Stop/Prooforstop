@@ -51,7 +51,7 @@ function git(cwd: string, args: string[]): string {
 
 const REVIEW_ROUND = '2026-05-17T12:01:00.000Z';
 const STORY_ID = 'B-evst';
-const REVIEWERS = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
+const REVIEWERS = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality', 'proof-or-stop-review-test-coverage'];
 
 /**
  * Build a tmp repo with a story already in REVIEW phase, checklist done,
@@ -59,13 +59,13 @@ const REVIEWERS = ['lattice-review-concept', 'lattice-review-quality', 'lattice-
  * Returns the store + worktree path; callers seed findings then run the TEST gate.
  */
 function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<string, string> } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-evst-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-evst-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'balanced' },
@@ -186,8 +186,8 @@ function seedWithSubject(store: StoryStore, runIds: Map<string, string>, subject
   store.writeFindings(STORY_ID, {
     findings: [
       subject,
-      makeFinding({ idSuffix: '101', agent: 'lattice-review-quality', reviewRunId: runIds.get('lattice-review-quality')!, severity: 'low', status: 'resolved' }),
-      makeFinding({ idSuffix: '102', agent: 'lattice-review-test-coverage', reviewRunId: runIds.get('lattice-review-test-coverage')!, severity: 'low', status: 'resolved' }),
+      makeFinding({ idSuffix: '101', agent: 'proof-or-stop-review-quality', reviewRunId: runIds.get('proof-or-stop-review-quality')!, severity: 'low', status: 'resolved' }),
+      makeFinding({ idSuffix: '102', agent: 'proof-or-stop-review-test-coverage', reviewRunId: runIds.get('proof-or-stop-review-test-coverage')!, severity: 'low', status: 'resolved' }),
     ],
   });
 }
@@ -197,7 +197,7 @@ function assertLegacyMissingEvidenceStateStillBlocks(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const legacy = makeFinding({
-      idSuffix: '001', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+      idSuffix: '001', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
       severity: 'critical', status: 'open',
       // intentionally NO evidenceState field -> legacy finding
     });
@@ -221,7 +221,7 @@ function assertVerifiedOpenStillBlocks(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const verified = makeFinding({
-      idSuffix: '002', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+      idSuffix: '002', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
       severity: 'high', status: 'open', evidenceState: 'verified',
     });
     seedWithSubject(store, runIds, verified);
@@ -240,7 +240,7 @@ function assertSuspectedDoesNotBlockAndIsAdvisory(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const suspected = makeFinding({
-      idSuffix: '003', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+      idSuffix: '003', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
       severity: 'critical', status: 'open', evidenceState: 'suspected',
       uncertaintyReason: 'no repro yet, only static reading of the code path',
     });
@@ -251,7 +251,7 @@ function assertSuspectedDoesNotBlockAndIsAdvisory(): void {
 
     // suspected finding surfaces in finding_list advisory/attention area, not blocking.
     const out = execFileSync(process.execPath, [cliPath, 'finding_list', JSON.stringify({ storyId: STORY_ID })], {
-      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     const parsed = JSON.parse(out);
     assert.ok(Array.isArray(parsed.attention?.suspected), 'finding_list must expose attention.suspected');
@@ -268,7 +268,7 @@ function assertResolvedAndDismissedDoNotBlock(): void {
     const { root, store, runIds } = createReviewRepo();
     try {
       const closed = makeFinding({
-        idSuffix: '004', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+        idSuffix: '004', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
         severity: 'critical', status, evidenceState: 'verified',
       });
       seedWithSubject(store, runIds, closed);
@@ -288,7 +288,7 @@ function assertDisprovenOpenDoesNotBlock(): void {
   try {
     const disproven: Finding = {
       ...makeFinding({
-        idSuffix: '005', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+        idSuffix: '005', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
         severity: 'critical', status: 'open',
       }),
       evidenceState: 'disproven',
@@ -304,7 +304,7 @@ function assertDisprovenOpenDoesNotBlock(): void {
     assert.equal(isFindingBlocking(disproven, ['critical', 'high'], 1), false);
 
     const out = execFileSync(process.execPath, [cliPath, 'finding_list', JSON.stringify({ storyId: STORY_ID })], {
-      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     const parsed = JSON.parse(out);
     assert.ok(parsed.attention?.disproven?.includes(disproven.id), 'disproven finding must appear in attention area');
@@ -320,22 +320,22 @@ function assertFindingListRendersEvidenceState(): void {
   try {
     // mix: legacy (no field), explicit verified, explicit suspected.
     const legacy = makeFinding({
-      idSuffix: '006', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+      idSuffix: '006', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
       severity: 'low', status: 'resolved',
     });
     const verified = makeFinding({
-      idSuffix: '007', agent: 'lattice-review-quality', reviewRunId: runIds.get('lattice-review-quality')!,
+      idSuffix: '007', agent: 'proof-or-stop-review-quality', reviewRunId: runIds.get('proof-or-stop-review-quality')!,
       severity: 'medium', status: 'open', evidenceState: 'verified',
     });
     const suspected = makeFinding({
-      idSuffix: '008', agent: 'lattice-review-test-coverage', reviewRunId: runIds.get('lattice-review-test-coverage')!,
+      idSuffix: '008', agent: 'proof-or-stop-review-test-coverage', reviewRunId: runIds.get('proof-or-stop-review-test-coverage')!,
       severity: 'high', status: 'open', evidenceState: 'suspected',
       uncertaintyReason: 'flagged by static read, repro still pending',
     });
     store.writeFindings(STORY_ID, { findings: [legacy, verified, suspected] });
 
     const out = execFileSync(process.execPath, [cliPath, 'finding_list', JSON.stringify({ storyId: STORY_ID })], {
-      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     const parsed = JSON.parse(out);
     assert.equal(parsed.findings.length, 3);
@@ -388,7 +388,7 @@ function assertSuspectedWithoutReasonRejected(): void {
       };
     });
     wstore.writeReviewRuns(STORY_ID, { runs: freshRuns });
-    const reviewRunId = runIds.get('lattice-review-concept')!;
+    const reviewRunId = runIds.get('proof-or-stop-review-concept')!;
 
     let threw = '';
     try {
@@ -397,7 +397,7 @@ function assertSuspectedWithoutReasonRejected(): void {
         desc: 'suspected without a reason should be rejected',
         severity: 'high',
         category: 'edge',
-        agent: 'lattice-review-concept',
+        agent: 'proof-or-stop-review-concept',
         reviewRunId,
         evidenceState: 'suspected',
       })], { cwd: worktreePath, env: { ...process.env }, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
@@ -415,7 +415,7 @@ function assertSuspectedWithoutReasonRejected(): void {
       desc: 'suspected with a clear reason is accepted',
       severity: 'high',
       category: 'edge',
-      agent: 'lattice-review-concept',
+      agent: 'proof-or-stop-review-concept',
       reviewRunId,
       evidenceState: 'suspected',
       uncertaintyReason: 'no repro yet, suspicion comes from static reading only',
@@ -460,13 +460,13 @@ function assertHandlerRejectionCases(): void {
       };
     });
     wstore.writeReviewRuns(STORY_ID, { runs: freshRuns });
-    const reviewRunId = runIds.get('lattice-review-concept')!;
+    const reviewRunId = runIds.get('proof-or-stop-review-concept')!;
 
     const callFindingAdd = (extra: Record<string, unknown>): string => {
       try {
         execFileSync(process.execPath, [cliPath, 'finding_add', JSON.stringify({
           storyId: STORY_ID, desc: 'rejection case', severity: 'high', category: 'edge',
-          agent: 'lattice-review-concept', reviewRunId, ...extra,
+          agent: 'proof-or-stop-review-concept', reviewRunId, ...extra,
         })], { cwd: worktreePath, env: { ...process.env }, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
       } catch (e: any) {
         return [e?.stdout?.toString?.() ?? '', e?.stderr?.toString?.() ?? '', e?.message ?? ''].join('\n');
@@ -500,11 +500,11 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const verifiedBlocker = makeFinding({
-      idSuffix: '201', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+      idSuffix: '201', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
       severity: 'critical', status: 'open', evidenceState: 'verified',
     });
     const suspectedSibling = makeFinding({
-      idSuffix: '202', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+      idSuffix: '202', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
       severity: 'critical', status: 'open', evidenceState: 'suspected',
       uncertaintyReason: 'sibling finding still unverified, only suspected at this point',
     });
@@ -512,8 +512,8 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
       findings: [
         verifiedBlocker,
         suspectedSibling,
-        makeFinding({ idSuffix: '203', agent: 'lattice-review-quality', reviewRunId: runIds.get('lattice-review-quality')!, severity: 'low', status: 'resolved' }),
-        makeFinding({ idSuffix: '204', agent: 'lattice-review-test-coverage', reviewRunId: runIds.get('lattice-review-test-coverage')!, severity: 'low', status: 'resolved' }),
+        makeFinding({ idSuffix: '203', agent: 'proof-or-stop-review-quality', reviewRunId: runIds.get('proof-or-stop-review-quality')!, severity: 'low', status: 'resolved' }),
+        makeFinding({ idSuffix: '204', agent: 'proof-or-stop-review-test-coverage', reviewRunId: runIds.get('proof-or-stop-review-test-coverage')!, severity: 'low', status: 'resolved' }),
       ],
     });
     const reason = getGuardFailureReason(STORY_ID, store, 'TEST', root);
@@ -539,7 +539,7 @@ function assertReviewerStatusAgreesWithGate(): void {
     const { root, store, runIds } = createReviewRepo();
     try {
       const suspected = makeFinding({
-        idSuffix: '301', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+        idSuffix: '301', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
         severity: 'critical', status: 'open', evidenceState: 'suspected',
         uncertaintyReason: 'static read only, no mechanical repro of the suspected gap yet',
       });
@@ -564,7 +564,7 @@ function assertReviewerStatusAgreesWithGate(): void {
     const { root, store, runIds } = createReviewRepo();
     try {
       const verified = makeFinding({
-        idSuffix: '302', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
+        idSuffix: '302', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
         severity: 'critical', status: 'open', evidenceState: 'verified',
       });
       seedWithSubject(store, runIds, verified);

@@ -1,6 +1,6 @@
 
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import type { HandlerContext } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 import { join, relative, dirname } from 'path';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 
@@ -65,10 +65,11 @@ function formatAge(days: number): string {
 
 export function createAuxDocHandlers(ctx: HandlerContext) {
   const { root } = ctx;
+  const { loadConfig } = requireCoreRuntime(ctx);
   return {
     /**
      * List project docs (for picking relatedDocs in the PLAN phase).
-     * Scans the docDirs from the resolved project config (lattice.config.json) (defaults to docs/, requirements/),
+     * Scans the docDirs from the resolved project config (proof-or-stop.config.json) (defaults to docs/, requirements/),
      * plus CLAUDE.md / README.md / AGENTS.md at the project root.
      * Extracts the H1 title of each markdown file and groups the output by directory.
      */

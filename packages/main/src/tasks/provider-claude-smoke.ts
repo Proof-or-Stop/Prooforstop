@@ -36,7 +36,7 @@ import type {
 
 type JsonObject = Record<string, any>;
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-provider-claude-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-provider-claude-'));
 
 const PASS_LINE =
   '✓ provider-claude smoke passed: enable-gated bounded Claude execution, noninteractive auth preflight, secretRefs enforcement, env redaction summary, and never-validation/never-DONE invariants verified';

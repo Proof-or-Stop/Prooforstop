@@ -304,13 +304,13 @@ assert.equal(officialBindingAccepts({ ...official, observedFailure: 'generic fai
 const introduction = runGit(['log', '--format=%H', '--diff-filter=A', '--', relSelf]).split('\n').filter(Boolean)[0];
 if (introduction) {
   const introducedPaths = runGit(['show', '--format=', '--name-only', introduction]).split('\n').filter(Boolean);
-  const nonMetadata = introducedPaths.filter((path) => !path.startsWith('.lattice/story/'));
+  const nonMetadata = introducedPaths.filter((path) => !path.startsWith('.proof-or-stop/story/'));
   assert.deepEqual(nonMetadata, [relSelf], `RED introduction commit changed production paths: ${nonMetadata.join(', ')}`);
 } else {
   const statusResult = run('git', ['status', '--porcelain=v1', '--untracked-files=all']);
   assert.equal(statusResult.status, 0, `git status failed: ${statusResult.stderr}`);
   const dirtyPaths = (statusResult.stdout ?? '').trimEnd().split('\n').filter(Boolean).map((line) => line.slice(3));
-  const nonMetadata = dirtyPaths.filter((path) => !path.startsWith('.lattice/story/') && path !== relSelf);
+  const nonMetadata = dirtyPaths.filter((path) => !path.startsWith('.proof-or-stop/story/') && path !== relSelf);
   assert.deepEqual(nonMetadata, [], `uncommitted production changes contaminate RED: ${nonMetadata.join(', ')}`);
 }
 

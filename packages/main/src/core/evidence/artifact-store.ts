@@ -4,7 +4,7 @@
  * B-0aa1: Candidate-only artifact storage primitives.
  *
  * Layout:
- *   <root>/.lattice/evidence/
+ *   <root>/.proof-or-stop/evidence/
  *     objects/sha256/<digest>.json   — immutable canonical artifact JSON
  *     refs/by-id/<artifactId>.json   — mutable pointer to current digest
  *     ledger/observed.jsonl          — append-only event ledger
@@ -31,7 +31,7 @@ import {
 import { isAbsolute, join, relative, resolve } from 'path';
 import type { EvidenceArtifact, ArtifactKind, EvidenceScope, SubjectBinding } from './types.js';
 import { EVIDENCE_SCHEMA_VERSION } from './types.js';
-import { PROOF_OR_STOP_DIR } from '../lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../proof-or-stop-paths.js';
 import type { EvidenceBlobRef, RuntimeEvidenceBlobStore } from '../runtime-evidence-receipt.js';
 
 export const RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY = 'runtime-evidence-local-fs-atomic-rename-v1' as const;

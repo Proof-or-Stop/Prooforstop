@@ -22,13 +22,13 @@ Dev-memory is advisory context only. Its purpose is to help agents recall releva
 
 | Scope | Path | Lifetime |
 |-------|------|---------|
-| **project** | `<projectRoot>/.lattice/dev-memory/experience.jsonl` | project lifetime |
-| **global** | `~/.lattice/dev-memory/experience.jsonl` | machine lifetime |
-| **story-candidate** | `<projectRoot>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl` | story lifetime |
+| **project** | `<projectRoot>/.proof-or-stop/dev-memory/experience.jsonl` | project lifetime |
+| **global** | `~/.proof-or-stop/dev-memory/experience.jsonl` | machine lifetime |
+| **story-candidate** | `<projectRoot>/.proof-or-stop/story/actives/<storyId>/dev-memory-candidates.jsonl` | story lifetime |
 
 - Paths resolve deterministically without a Proof-or-Stop daemon running.
-- Project/global reads use `.lattice/dev-memory/experience.jsonl` and `~/.lattice/dev-memory/experience.jsonl` as the sole canonical storage. The legacy `.lattice/dev-memory/experience.jsonl` read fallback was removed in B-a4e3 (existing data was migrated to `.lattice`); `.lattice` is no longer read.
-- Writes only target canonical `.lattice` storage; dev-memory commands must not append to or mutate legacy `.lattice` files.
+- Project/global reads use `.proof-or-stop/dev-memory/experience.jsonl` and `~/.proof-or-stop/dev-memory/experience.jsonl` as the sole canonical storage. The legacy `.proof-or-stop/dev-memory/experience.jsonl` read fallback was removed in B-a4e3 (existing data was migrated to `.proof-or-stop`); `.proof-or-stop` is no longer read.
+- Writes only target canonical `.proof-or-stop` storage; dev-memory commands must not append to or mutate legacy `.proof-or-stop` files.
 - JSONL format: one JSON object per line, schema-versioned via required fields.
 - Story candidates are written by `proof-or-stop dev_memory_finish`. They are **not** automatically promoted to project/global memory — this is a deliberate review step.
 
@@ -70,7 +70,7 @@ The dev-memory reader computes supersession status from those fields at read tim
 
 Supersession is a presentation and ranking projection only. It does not delete, edit, hide, or promote legacy entries, and it does not change their authority status.
 
-The legacy Koala lessons captured during B-ad2c remain readable as historical context. Current Proof-or-Stop/Lattice replacement memories should cite those legacy IDs through `dev-memory:<id>` evidence refs and/or `supersedes-<id>` tags so searches for old Koala terminology surface current Proof-or-Stop/Lattice guidance first.
+The legacy Koala lessons captured during B-ad2c remain readable as historical context. Current Proof-or-Stop/Proof-or-Stop replacement memories should cite those legacy IDs through `dev-memory:<id>` evidence refs and/or `supersedes-<id>` tags so searches for old Koala terminology surface current Proof-or-Stop/Proof-or-Stop guidance first.
 
 Supersession metadata is still **non-authoritative**:
 
@@ -107,9 +107,9 @@ Supersession metadata is still **non-authoritative**:
 
 `proof-or-stop dev_memory_finish` works in three modes:
 
-**Outside Proof-or-Stop (no active story, no `--scope=global`)** — for ordinary non-Lattice sessions. Does NOT require or create `.lattice/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
+**Outside Proof-or-Stop (no active story, no `--scope=global`)** — for ordinary non-Proof-or-Stop sessions. Does NOT require or create `.proof-or-stop/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
 
-**Story-candidate write (active story branch, no `--scope=global`)** — defaults to the current `story/<id>` branch and writes session experience candidates to `<root>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id. Use `--storyId=<id>` to override the target story explicitly; this is a target override within this same path, not a separate mode.
+**Story-candidate write (active story branch, no `--scope=global`)** — defaults to the current `story/<id>` branch and writes session experience candidates to `<root>/.proof-or-stop/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id. Use `--storyId=<id>` to override the target story explicitly; this is a target override within this same path, not a separate mode.
 
 **Global promotion (`--scope=global`)** — copies relevant project entries into global dev-memory, de-duped by id, as `scope: global`, non-authoritative. Does not create or append story candidates, even when run from an active story branch. Useful for promoting cross-project lessons.
 
@@ -170,7 +170,7 @@ These fields are a reminder baked into every entry. A consumer that tries to int
   > gate-checked: `dev-memory-preflight-ack.json` (one per story, written by
   > `dev_memory_preflight_ack`, checked by `evaluateDevMemoryPreflightGate`
   > at every DEV-entry door) and the `dev_memory_finish_decision` record
-  > under `.lattice/dev-memory/finish-decisions/` (checked by
+  > under `.proof-or-stop/dev-memory/finish-decisions/` (checked by
   > `canFinishGuard`, the DONE gate). Neither is a `DevMemoryEntry`. The
   > preflight-ack record carries no `gateEvidence`/`authority` fields at all
   > (it never claimed non-authoritative status over lesson content in the

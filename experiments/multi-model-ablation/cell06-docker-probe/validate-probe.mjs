@@ -26,7 +26,7 @@ const AUTH_ALLOWED_ROOT_LABELS = Object.freeze(["tmp", "os-tmp", "var-tmp"]);
 const AUTH_REJECTED_SOURCE_CLASSES = Object.freeze([
   "home",
   "repo",
-  "lattice-dir",
+  "proof-or-stop-dir",
   "paper-repo",
   "prior-cell-results",
   "future-results",
@@ -203,7 +203,7 @@ function rejectContamination(value) {
     if (lower.includes("cell03") || lower.includes("reviewer") || lower.includes("proofbound-memory")) {
       throw new Error(`contamination token detected: ${stringValue}`);
     }
-    if (stringValue.startsWith("/Users/jek") || lower.includes("/.lattice") || lower.includes("lattice-paper")) {
+    if (stringValue.startsWith("/Users/jek") || lower.includes("/.proof-or-stop") || lower.includes("proof-or-stop-paper")) {
       throw new Error(`host path contamination detected: ${stringValue}`);
     }
   }
@@ -370,7 +370,7 @@ function validateRow(row, manifest) {
   assert(row.contaminationScan?.status === "clean", "contamination scan must be clean");
   assert(row.runtime?.hostHomeMounted === false, "host home must not be mounted");
   assert(row.runtime?.repoMounted === false, "repo must not be mounted");
-  assert(row.runtime?.latticeMounted === false, "lattice must not be mounted");
+  assert(row.runtime?.proof-or-stopMounted === false, "proof-or-stop must not be mounted");
   assert(row.runtime?.paperMounted === false, "paper must not be mounted");
   assert(row.runtime?.foreignResultsMounted === false, "foreign results must not be mounted");
   assert(Array.isArray(row.runtime?.mounts) && row.runtime.mounts.length === 1, "row mounts mismatch");

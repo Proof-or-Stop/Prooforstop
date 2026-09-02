@@ -12,16 +12,15 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "proof-or-stop": "dist/cli.js",
-    "lattice": "dist/cli.js"
+    "proof-or-stop": "dist/cli.js"
   },
   "exports": {
     ".": "./dist/index.js",
+    "./extension-api": "./dist/extension-api.js",
     "./test": "./dist/tasks/test-flow-e2e.js"
   },
   "scripts": {
     "build": "node ../../scripts/build-main-with-binding.mjs",
-    "prepack": "npm --prefix ../lab run build",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test:e2e": "node dist/tasks/cli-e2e.js",
@@ -116,7 +115,8 @@
     "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js",
     "test:core-package-rename": "node scripts/verify-core-package-rename.mjs",
     "test:state-dir-migration": "node scripts/verify-state-dir-migration.mjs",
-    "test:lattice-residue": "node ../../scripts/verify-lattice-residue.mjs",
+    "test:identity-state-migrate-atomicity": "node tests/identity-state-migrate-atomicity.test.mjs",
+    "test:proof-or-stop-residue": "node ../../scripts/verify-proof-or-stop-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
@@ -124,9 +124,9 @@
     "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
   },
   "dependencies": {
-    "@proof-or-stop/lab": "file:../lab",
+    "@proof-or-stop/lab": "0.3.65",
     "proper-lockfile": "^4.1.2",
-    "typescript": "^5.9.3",
+    "typescript": "^5.7.0",
     "ws": "^8.21.1",
     "xstate": "^5.30.0",
     "zod": "^4.4.3"
@@ -134,8 +134,5 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/ws": "^8.18.1"
-  },
-  "bundleDependencies": [
-    "@proof-or-stop/lab"
-  ]
+  }
 }

@@ -42,8 +42,8 @@ function freshnessThresholdMs() {
   const configured = Number(
     process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
       || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
-      || process.env.LATTICE_SESSION_BRIEF_FRESH_MINUTES
-      || process.env.LATTICE_SESSION_BRIEF_REMINDER_MINUTES
+      || process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
+      || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
       || DEFAULT_FRESH_MINUTES,
   );
   const minutes = Number.isFinite(configured) && configured > 0
@@ -56,8 +56,8 @@ function findRepoRoot(start) {
   let dir = path.resolve(String(start || process.cwd()));
   while (true) {
     if (
-      fs.existsSync(path.join(dir, '.lattice'))
-      || fs.existsSync(path.join(dir, 'lattice.config.json'))
+      fs.existsSync(path.join(dir, '.proof-or-stop'))
+      || fs.existsSync(path.join(dir, 'proof-or-stop.config.json'))
       || fs.existsSync(path.join(dir, '.koala'))
       || fs.existsSync(path.join(dir, '.git'))
     ) {
@@ -80,7 +80,7 @@ function hasFreshSessionBrief(root, thresholdMs) {
 
 function activityFiles(root) {
   return [
-    path.join(root, '.lattice', 'activity.jsonl'),
+    path.join(root, '.proof-or-stop', 'activity.jsonl'),
     path.join(root, '.koala', 'activity.jsonl'),
     path.join(root, 'docs', 'story', 'activity.jsonl'),
     ...storyActivityFiles(root),
@@ -137,7 +137,7 @@ function isSessionBrief(entry) {
 function containsSessionBriefCommand(value) {
   if (typeof value !== 'string') return false;
   const command = value.replace(/["']/g, '').trim();
-  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*lattice\s+session_brief(?:$|[\s;&|()])/.test(command)
-    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/lattice\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
+  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*proofOrStop\s+session_brief(?:$|[\s;&|()])/.test(command)
+    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/proofOrStop\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
     || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?packages\/main\/dist\/cli\.js\s+session_brief(?:$|[\s;&|()])/.test(command);
 }

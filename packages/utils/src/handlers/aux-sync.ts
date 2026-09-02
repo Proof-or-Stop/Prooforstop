@@ -1,14 +1,12 @@
 
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { CODE_EXTENSIONS, scan, extractBlocks, extractFlows } from '../../../main/dist/tasks/extract.js';
-import { MetadataStore } from '../../../main/dist/tasks/metadata-store.js';
-import { validateMetadata } from '../../../main/dist/tasks/metadata-validate.js';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import type { HandlerContext } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 
 export function createAuxSyncHandlers(ctx: HandlerContext) {
   const { root, scanRoot } = ctx;
+  const { CODE_EXTENSIONS, MetadataStore, extractBlocks, extractFlows, loadConfig, scan, validateMetadata } = requireCoreRuntime(ctx);
   const config = loadConfig(root);
   const metaStore = new MetadataStore(root);
 

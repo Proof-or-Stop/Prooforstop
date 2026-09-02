@@ -187,9 +187,9 @@ export function getGuardFailureReason(
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
-          // B-ad2c F-005: classify reviewer evidence by lattice-review-* lane prefix
+          // B-ad2c F-005: classify reviewer evidence by proof-or-stop-review-* lane prefix
           // (shared isReviewerAgent helper), NOT by `agent != main`. Otherwise
-          // main / main-agent / lattice-implementer findings recorded during DEV
+          // main / main-agent / proof-or-stop-implementer findings recorded during DEV
           // are misclassified as reviewer evidence and block REVIEW→TEST when
           // they lack a reviewRunId. Mirrors core/review-run.ts
           // collectReviewerEvidenceState (used by machine.ts canPassReview /
@@ -219,13 +219,13 @@ export function getGuardFailureReason(
               const names = optIn.map(r => r.name).join(',');
               const missingNames = missing.map(r => r.name).join(',');
               const presentAgents = Array.from(new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent))).join(', ') || 'none';
-              return `Cannot enter TEST: Round 1 expects ${optIn.length} reviewer(s) (opt-in: ${names}); currently ${currentRoundReviewerFindings.length} finding(s) cover ${optIn.length - missing.length} reviewer(s) (missing: ${missingNames}; seen agents: ${presentAgents})\n→ Launch the missing lattice-review-* agents in parallel`;
+              return `Cannot enter TEST: Round 1 expects ${optIn.length} reviewer(s) (opt-in: ${names}); currently ${currentRoundReviewerFindings.length} finding(s) cover ${optIn.length - missing.length} reviewer(s) (missing: ${missingNames}; seen agents: ${presentAgents})\n→ Launch the missing proof-or-stop-review-* agents in parallel`;
             }
           } else {
             if (currentRoundReviewerFindings.length === 0) {
               return currentRound
-                ? `Cannot enter TEST: Round ${rc} has no reviewer finding in the current review round (${currentRound}); please launch the corresponding lattice-review-* agent`
-                : `Cannot enter TEST: all findings come from the main agent (reviewers did not run)\n→ Launch lattice-review-* subagents`;
+                ? `Cannot enter TEST: Round ${rc} has no reviewer finding in the current review round (${currentRound}); please launch the corresponding proof-or-stop-review-* agent`
+                : `Cannot enter TEST: all findings come from the main agent (reviewers did not run)\n→ Launch proof-or-stop-review-* subagents`;
             }
           }
         }

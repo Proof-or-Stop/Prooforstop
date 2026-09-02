@@ -39,7 +39,7 @@ import type {
   DispatchStatusResult,
   DispatchWatchResult,
   HostRuntimeProbe,
-} from '../core/lattice-dispatch.js';
+} from '../core/proof-or-stop-dispatch.js';
 import type {
   DispatchPolicy,
   DispatchPolicyCheckResult,
@@ -64,15 +64,15 @@ function git(root: string, args: string[]): string {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
   }, null, 2) + '\n');
 }
 
 function writeDispatchPolicy(root: string, policy: DispatchPolicyWithRealHost): void {
-  const dir = join(root, '.lattice/dispatch-policies');
+  const dir = join(root, '.proof-or-stop/dispatch-policies');
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${policy.policy}.json`), JSON.stringify(policy, null, 2) + '\n');
 }
@@ -104,7 +104,7 @@ if (
 }
 
 const prompt = fs.readFileSync(args[3], 'utf8');
-const mode = process.env.LATTICE_FAKE_CLAUDE_MODE || 'success';
+const mode = process.env.PROOF_OR_STOP_FAKE_CLAUDE_MODE || 'success';
 function writeRelative(file, body) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, body);
@@ -116,11 +116,11 @@ if (mode === 'timeout') {
   console.error('intentional fake claude failure');
   process.exit(5);
 } else if (mode === 'env') {
-  if (process.env.LATTICE_FAKE_CLAUDE_SECRET) {
+  if (process.env.PROOF_OR_STOP_FAKE_CLAUDE_SECRET) {
     console.error('secret leaked to fake claude');
     process.exit(7);
   }
-  if (process.env.LATTICE_FAKE_CLAUDE_ALLOWED !== 'allowed-value') {
+  if (process.env.PROOF_OR_STOP_FAKE_CLAUDE_ALLOWED !== 'allowed-value') {
     console.error('allowed env missing');
     process.exit(8);
   }
@@ -158,7 +158,7 @@ function initRepo(root: string): void {
   writeFileSync(join(root, 'README.md'), '# unattended dispatch smoke\n');
   writeConfig(root);
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'lattice@example.com']);
+  git(root, ['config', 'user.email', 'proofOrStop@example.com']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
@@ -238,7 +238,7 @@ function realClaudePolicy(opts: {
     maxRuntimeMinutes: opts.maxRuntimeMinutes ?? 1,
     maxBudgetUSD: 5.0,
     network: 'restricted',
-    envAllowlist: opts.envAllowlist ?? ['LATTICE_FAKE_CLAUDE_MODE'],
+    envAllowlist: opts.envAllowlist ?? ['PROOF_OR_STOP_FAKE_CLAUDE_MODE'],
     envDenylist: opts.envDenylist ?? [],
     commandAllowlist: opts.commandAllowlist ?? [CANONICAL_CLAUDE_LAUNCHER],
     retryLimit: 0,
@@ -251,7 +251,7 @@ function realClaudePolicy(opts: {
   };
 }
 
-const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-unattended-smoke-'));
+const sandboxRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-unattended-smoke-'));
 const root = join(sandboxRoot, 'repo', 'root');
 const fakeClaudeBin = join(sandboxRoot, 'fake-claude-bin');
 try {
@@ -404,7 +404,7 @@ try {
   assertAuthorityFalse(watchResult, 'watchResult');
 
   const watchText = runText('dispatch_watch', { dispatchId: autoResult.dispatchId });
-  assert.match(watchText, /lattice\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
+  assert.match(watchText, /proofOrStop\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
   assert.match(watchText, /status: accepted_local/, 'dispatch_watch text must show status');
 
   // ── Step 5: dispatch_cancel on a prepared dispatch preserves evidence ────────
@@ -567,7 +567,7 @@ try {
     assert.throws(
       () => withProcessEnv({
         PATH: fakeClaudePath,
-        LATTICE_FAKE_CLAUDE_MODE: 'success',
+        PROOF_OR_STOP_FAKE_CLAUDE_MODE: 'success',
       }, () => run('dispatch_auto', {
         storyId: 'B-unattended',
         policy: 'chk008-claude-real-missing-opt-in',
@@ -593,7 +593,7 @@ try {
     assert.throws(
       () => withProcessEnv({
         PATH: fakeClaudePath,
-        LATTICE_FAKE_CLAUDE_MODE: 'success',
+        PROOF_OR_STOP_FAKE_CLAUDE_MODE: 'success',
       }, () => run('dispatch_auto', {
         storyId: 'B-unattended',
         policy: 'chk008-claude-real-missing-launcher',
@@ -616,7 +616,7 @@ try {
     }));
     const realSuccess = withProcessEnv({
       PATH: fakeClaudePath,
-      LATTICE_FAKE_CLAUDE_MODE: 'success',
+      PROOF_OR_STOP_FAKE_CLAUDE_MODE: 'success',
     }, () => run<DispatchAutoResult>('dispatch_auto', {
       storyId: 'B-unattended',
       policy: 'chk008-claude-real-success',
@@ -659,14 +659,14 @@ try {
     writeDispatchPolicy(root, realClaudePolicy({
       policy: 'chk008-claude-real-env',
       allowedPaths: ['packages/main/src/generated/claude-env.txt'],
-      envAllowlist: ['LATTICE_FAKE_CLAUDE_MODE', 'LATTICE_FAKE_CLAUDE_ALLOWED'],
-      envDenylist: ['LATTICE_FAKE_CLAUDE_SECRET'],
+      envAllowlist: ['PROOF_OR_STOP_FAKE_CLAUDE_MODE', 'PROOF_OR_STOP_FAKE_CLAUDE_ALLOWED'],
+      envDenylist: ['PROOF_OR_STOP_FAKE_CLAUDE_SECRET'],
     }));
     const envRun = withProcessEnv({
       PATH: fakeClaudePath,
-      LATTICE_FAKE_CLAUDE_MODE: 'env',
-      LATTICE_FAKE_CLAUDE_ALLOWED: 'allowed-value',
-      LATTICE_FAKE_CLAUDE_SECRET: secretValue,
+      PROOF_OR_STOP_FAKE_CLAUDE_MODE: 'env',
+      PROOF_OR_STOP_FAKE_CLAUDE_ALLOWED: 'allowed-value',
+      PROOF_OR_STOP_FAKE_CLAUDE_SECRET: secretValue,
     }, () => run<DispatchAutoResult>('dispatch_auto', {
       storyId: 'B-unattended',
       policy: 'chk008-claude-real-env',
@@ -678,9 +678,9 @@ try {
       'fake claude env probe must pass only when denied secret is filtered out');
     const envStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: envRun.dispatchId });
     assert.equal(envStatus.runner?.runnerKind, 'claude-code-real');
-    assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_FAKE_CLAUDE_ALLOWED'), true,
-      'runner env summary must list safe LATTICE_ allowlisted names without values');
-    assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_FAKE_CLAUDE_SECRET'), false,
+    assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('PROOF_OR_STOP_FAKE_CLAUDE_ALLOWED'), true,
+      'runner env summary must list safe PROOF_OR_STOP_ allowlisted names without values');
+    assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('PROOF_OR_STOP_FAKE_CLAUDE_SECRET'), false,
       'runner env summary must not list denied secret env var');
     const envTranscript = readFileSync(join(root, envStatus.dispatch.transcriptFile), 'utf8');
     assert.match(envTranscript, /env ok/, 'real claude env transcript must capture stdout');
@@ -697,7 +697,7 @@ try {
     }));
     const nonzeroRun = withProcessEnv({
       PATH: fakeClaudePath,
-      LATTICE_FAKE_CLAUDE_MODE: 'fail',
+      PROOF_OR_STOP_FAKE_CLAUDE_MODE: 'fail',
     }, () => run<DispatchAutoResult>('dispatch_auto', {
       storyId: 'B-unattended',
       policy: 'chk008-claude-real-nonzero',
@@ -727,7 +727,7 @@ try {
     }));
     const timeoutRun = withProcessEnv({
       PATH: fakeClaudePath,
-      LATTICE_FAKE_CLAUDE_MODE: 'timeout',
+      PROOF_OR_STOP_FAKE_CLAUDE_MODE: 'timeout',
     }, () => run<DispatchAutoResult>('dispatch_auto', {
       storyId: 'B-unattended',
       policy: 'chk008-claude-real-timeout',
@@ -814,11 +814,11 @@ try {
   // 9c: fake required commands run with filtered env and cannot read denied secrets
   {
     const secretValue = 'super-secret-value-that-must-not-leak';
-    const savedSecret = process.env.LATTICE_DENIED_SECRET;
+    const savedSecret = process.env.PROOF_OR_STOP_DENIED_SECRET;
     const leakProbeCommand =
-      'node -e "if (process.env.LATTICE_DENIED_SECRET) { console.error(process.env.LATTICE_DENIED_SECRET); process.exit(2); } console.log(\'secret absent\')"';
+      'node -e "if (process.env.PROOF_OR_STOP_DENIED_SECRET) { console.error(process.env.PROOF_OR_STOP_DENIED_SECRET); process.exit(2); } console.log(\'secret absent\')"';
     try {
-      process.env.LATTICE_DENIED_SECRET = secretValue;
+      process.env.PROOF_OR_STOP_DENIED_SECRET = secretValue;
       run<DispatchPolicy>('dispatch_policy_create', {
         policy: 'chk008-env-filter',
         allowedHosts: ['fake'],
@@ -827,7 +827,7 @@ try {
         maxRuntimeMinutes: 1,
         maxBudgetUSD: 5.0,
         network: 'none',
-        envDenylist: ['LATTICE_DENIED_SECRET'],
+        envDenylist: ['PROOF_OR_STOP_DENIED_SECRET'],
         commandAllowlist: [leakProbeCommand],
       });
       const envResult = run<DispatchAutoResult>('dispatch_auto', {
@@ -846,11 +846,11 @@ try {
       assert.doesNotMatch(envCommands[0].output, /super-secret-value-that-must-not-leak/,
         'command result output must not contain denied secret value');
       const envStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: envResult.dispatchId });
-      assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_DENIED_SECRET'), false,
+      assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('PROOF_OR_STOP_DENIED_SECRET'), false,
         'runner env summary must not list denied secret env var');
     } finally {
-      if (savedSecret === undefined) delete process.env.LATTICE_DENIED_SECRET;
-      else process.env.LATTICE_DENIED_SECRET = savedSecret;
+      if (savedSecret === undefined) delete process.env.PROOF_OR_STOP_DENIED_SECRET;
+      else process.env.PROOF_OR_STOP_DENIED_SECRET = savedSecret;
     }
   }
 

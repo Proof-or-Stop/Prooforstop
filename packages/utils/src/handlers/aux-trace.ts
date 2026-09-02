@@ -1,13 +1,10 @@
 /**
  * aux_trace command (formerly arch_trace, CHK-006)
  */
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import type { HandlerContext, ProfileNode } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 import { extname, join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import { scanAllTraces } from '../../../main/dist/tasks/trace-store.js';
-import type { ProfileNode } from '../../../main/dist/tasks/profiler.js';
-import { CODE_EXTENSIONS } from '../../../main/dist/tasks/extract.js';
 
 interface LogicLine {
   entry: string;
@@ -34,6 +31,7 @@ interface ArchTraceResult {
 export function createAuxTraceHandlers(ctx: HandlerContext) {
   const { root } = ctx;
   const progress = ctx.log || (() => {});
+  const { CODE_EXTENSIONS, loadConfig, scanAllTraces } = requireCoreRuntime(ctx);
 
   return {
     async aux_trace(args?: { format?: 'json' | 'mermaid' }): Promise<string> {
@@ -90,7 +88,7 @@ export function createAuxTraceHandlers(ctx: HandlerContext) {
       // Collect all detected cycle paths
       const cycles = detectCycles(impactGraph);
 
-      const blindZones = detectBlindZones(root, config, allFunctions);
+      const blindZones = detectBlindZones(root, config, allFunctions, CODE_EXTENSIONS);
       const result: ArchTraceResult = { logicLines: mergedLines, impactGraph, blindZones, cycles };
 
       if (format === 'mermaid') return generateMermaid(result);
@@ -202,7 +200,7 @@ function mergeLogicLines(lines: LogicLine[]): LogicLine[] {
   return [...map.values()];
 }
 
-function detectBlindZones(root: string, config: any, tracedFunctions: Set<string>): string[] {
+function detectBlindZones(root: string, config: any, tracedFunctions: Set<string>, codeExtensions: ReadonlySet<string>): string[] {
   const scanRoot = join(root, config.scanRoot || '');
   const blindZones: string[] = [];
   function scan(dir: string) {
@@ -211,7 +209,7 @@ function detectBlindZones(root: string, config: any, tracedFunctions: Set<string
       if (entry.isDirectory()) {
         if (entry.name === 'node_modules' || entry.name === '.git') continue;
         scan(join(dir, entry.name));
-      } else if (CODE_EXTENSIONS.has(extname(entry.name)) && !entry.name.endsWith('.d.ts')) {
+      } else if (codeExtensions.has(extname(entry.name)) && !entry.name.endsWith('.d.ts')) {
         const filePath = join(dir, entry.name);
         const relPath = filePath.replace(scanRoot, '').replace(/\\/g, '/').replace(/^\//, '');
         try {

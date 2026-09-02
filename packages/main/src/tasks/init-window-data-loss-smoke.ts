@@ -8,7 +8,7 @@
  * Root cause this guards (confirmed):
  *   `story_create` used to write a story's INIT metadata
  *   (`<storyDir>/<storyId>/index.json` etc.) into the SHARED main checkout as
- *   UNTRACKED files. The repo `.gitignore` allowlists `.lattice/story/actives/**`
+ *   UNTRACKED files. The repo `.gitignore` allowlists `.proof-or-stop/story/actives/**`
  *   (i.e. it is NOT ignored), which is EXACTLY the file class a plain
  *   `git clean -fd` removes. A story sitting in INIT therefore had its metadata
  *   committed to no branch, so a concurrent `git clean -fd` (or a wrong-branch
@@ -57,7 +57,7 @@ import { fileURLToPath } from 'node:url';
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 
-const STORY_DIR_REL = '.lattice/story/actives';
+const STORY_DIR_REL = '.proof-or-stop/story/actives';
 
 /**
  * A valid `story_create` background that clears the handler's section / length
@@ -89,29 +89,29 @@ function write(root: string, path: string, content: string): void {
 
 /**
  * Build a throwaway git repo carrying the REAL `.gitignore` allowlist for
- * `.lattice/story/*` (+ `!.lattice/story/actives/**`), plus a `lattice.config.json`
+ * `.proof-or-stop/story/*` (+ `!.proof-or-stop/story/actives/**`), plus a `proof-or-stop.config.json`
  * pointing storyDir at the allowlisted actives tree. This puts the story metadata
  * leaf in the allowlisted-not-ignored class — exactly the file class a plain
  * `git clean -fd` removes when it is untracked.
  */
 function initRepo(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-init-window-data-loss-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-window-data-loss-'));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  // Mirror the production `.gitignore` lattice rules verbatim: `.lattice/*` is
+  // Mirror the production `.gitignore` proof-or-stop rules verbatim: `.proof-or-stop/*` is
   // ignored, the story tree is re-allowlisted, but `activity.jsonl` is ignored
   // again. This is the precise rule shape from the repo root `.gitignore`.
   write(root, '.gitignore', [
-    '.lattice/*',
-    '!.lattice/story/',
-    '.lattice/story/*',
-    '!.lattice/story/actives/',
-    '!.lattice/story/actives/**',
-    '.lattice/story/actives/**/activity.jsonl',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '.proof-or-stop/story/*',
+    '!.proof-or-stop/story/actives/',
+    '!.proof-or-stop/story/actives/**',
+    '.proof-or-stop/story/actives/**/activity.jsonl',
     '',
   ].join('\n'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: STORY_DIR_REL,
@@ -119,7 +119,7 @@ function initRepo(): string {
     storyPrefix: 'B',
   }, null, 2));
   write(root, 'README.md', 'init-window-data-loss smoke fixture\n');
-  git(root, ['add', '.gitignore', 'lattice.config.json', 'README.md']);
+  git(root, ['add', '.gitignore', 'proof-or-stop.config.json', 'README.md']);
   git(root, ['commit', '-m', 'init']);
   return root;
 }
@@ -201,12 +201,12 @@ function assertInitMetadataSurvivesConcurrentClean(): void {
     );
 
     // Lay down an ignored runtime leaf that is NOT under the actives allowlist
-    // (the `.lattice/*` ignore catches it). It must be removable by `clean -fdx`.
-    const runtimeLeafAbs = join(root, '.lattice', 'runtime', 'init-window-scratch.tmp');
+    // (the `.proof-or-stop/*` ignore catches it). It must be removable by `clean -fdx`.
+    const runtimeLeafAbs = join(root, '.proof-or-stop', 'runtime', 'init-window-scratch.tmp');
     mkdirSync(dirname(runtimeLeafAbs), { recursive: true });
     writeFileSync(runtimeLeafAbs, 'ephemeral runtime leaf\n');
     assert.equal(
-      isIgnored(root, '.lattice/runtime/init-window-scratch.tmp'),
+      isIgnored(root, '.proof-or-stop/runtime/init-window-scratch.tmp'),
       true,
       'fixture invariant: a runtime leaf outside the actives allowlist must be ignored',
     );

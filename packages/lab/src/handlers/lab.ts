@@ -81,7 +81,7 @@ function resolveFilePath(root: string, path: string): string {
 function readCandidateContent(root: string, targetPath: string): string {
   const resolved = resolveFilePath(root, targetPath);
   if (!existsSync(resolved)) {
-    throw new Error(`lattice-lab candidate target 不存在: ${targetPath}`);
+    throw new Error(`proof-or-stop-lab candidate target 不存在: ${targetPath}`);
   }
   return readFileSync(resolved, 'utf8');
 }
@@ -177,7 +177,7 @@ function evaluateCandidate(args: {
   }
 
   if (!chosenMetrics) {
-    throw new Error(`lattice-lab candidate evaluation failed for ${args.targetPath}`);
+    throw new Error(`proof-or-stop-lab candidate evaluation failed for ${args.targetPath}`);
   }
 
   const stability = computeStabilityPenalty({ repeatScores, hadCrash });
@@ -204,6 +204,18 @@ export function createLabHandlers(ctx: LabHandlerContext) {
   const { root } = ctx;
 
   return {
+    lab_help(): string {
+      return [
+        'Proof-or-Stop Lab commands:',
+        '  proof-or-stop lab create   (flat compatibility: lab_create)',
+        '  proof-or-stop lab run      (flat compatibility: lab_run)',
+        '  proof-or-stop lab eval     (flat compatibility: lab_eval)',
+        '  proof-or-stop lab compare  (flat compatibility: lab_compare)',
+        '  proof-or-stop lab promote  (flat compatibility: lab_promote)',
+        '  proof-or-stop lab help     (flat compatibility: lab_help)',
+      ].join('\n');
+    },
+
     lab_create(args: {
       target: string;
       profile: string;

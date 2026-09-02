@@ -22,7 +22,7 @@ const repoRoot = join(here, '..', '..', '..', '..');
 function runCli(args: string[]): string {
   return execFileSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
     cwd: repoRoot,
-    env: { ...process.env, LATTICE_ACTIVITY_RECORD_READONLY: '0' },
+    env: { ...process.env, PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '0' },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -35,7 +35,7 @@ function runJson(args: string[]): RolloutCheckResult {
 function runCliFailure(args: string[]): { status: number | null; stderr: string; stdout: string } {
   const result = spawnSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
     cwd: repoRoot,
-    env: { ...process.env, LATTICE_ACTIVITY_RECORD_READONLY: '0' },
+    env: { ...process.env, PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '0' },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -67,7 +67,7 @@ function assertRolloutShape(result: RolloutCheckResult, label: string): void {
   assert.equal(result.schemaVersion, 'lattice.rollout_check.v1', `${label} schema`);
   assert.equal(result.readOnly, true, `${label} is read-only`);
   assert.equal(result.macAppRequired, false, `${label} does not require Mac App`);
-  // B-cdf6 CHK-002: the canonical bin is now proof-or-stop; `lattice` survives
+  // B-cdf6 CHK-002: the canonical bin is now proof-or-stop; `proof-or-stop` survives
   // only as a deprecated invocation alias and is NOT re-exposed as a structured
   // `legacyAlias` product field.
   assert.equal(result.product.primaryBin, 'proof-or-stop', `${label} primary bin`);
@@ -79,7 +79,7 @@ function assertRolloutShape(result: RolloutCheckResult, label: string): void {
   assert.ok(commands.some(command => command.startsWith('proof-or-stop check')), `${label} records proof-or-stop check probe`);
   assert.ok(commands.some(command => command.startsWith('proof-or-stop doctor')), `${label} records proof-or-stop doctor probe`);
   assert.ok(commands.every(command => command.startsWith('proof-or-stop ') || command === 'filesystem stat'), `${label} commands prefer proof-or-stop`);
-  assert.ok(!commands.some(command => command.startsWith('lattice ')), `${label} records no probe under the deprecated bin name`);
+  assert.ok(!commands.some(command => command.startsWith('proofOrStop ')), `${label} records no probe under the deprecated bin name`);
   for (const forbidden of result.safety.forbiddenArgs) {
     assert.ok(!commands.some(command => command.includes(forbidden)), `${label} never records ${forbidden}`);
   }
@@ -110,17 +110,17 @@ assert.match(help, /rollout_check/, 'help exposes rollout_check');
 // B-cdf6 CHK-002: help mirrors the invoked bin; this run invokes the compiled
 // entry, so it falls back to the canonical name rather than printing `cli`.
 assert.match(help, /Entrypoint:\s+proof-or-stop/, 'help names proof-or-stop as entrypoint');
-assert.doesNotMatch(help, /Usage: lattice /, 'help never teaches the deprecated bin as the usage form');
+assert.doesNotMatch(help, /Usage: proofOrStop /, 'help never teaches the deprecated bin as the usage form');
 const storyCreateHelp = runCli(['story_create', '--help']);
-// B-cdf6 CHK-002: this asserted `lattice story_create` before the rename. The
+// B-cdf6 CHK-002: this asserted `proof-or-stop story_create` before the rename. The
 // help examples now render the canonical bin, so the old expectation inverted
 // into a guard that pinned the PRE-rename brand — it failed precisely because
 // the rename succeeded. Assert the canonical form, and assert the deprecated
 // form is absent so the example text cannot silently regress.
 assert.match(storyCreateHelp, /proof-or-stop story_create/, 'story_create help uses proof-or-stop examples');
-assert.doesNotMatch(storyCreateHelp, /lattice story_create/, 'story_create help no longer teaches the deprecated bin');
+assert.doesNotMatch(storyCreateHelp, /proof-or-stop story_create/, 'story_create help no longer teaches the deprecated bin');
 assert.match(storyCreateHelp, /proof-or-stop session_brief/, 'story_create help next step uses proof-or-stop');
-assert.doesNotMatch(storyCreateHelp, /lattice session_brief/, 'story_create help next-step hint no longer teaches the deprecated bin');
+assert.doesNotMatch(storyCreateHelp, /proof-or-stop session_brief/, 'story_create help next-step hint no longer teaches the deprecated bin');
 
 const flat = runJson(['rollout_check', `--projects=${repoRoot}`, '--format=json']);
 assertRolloutShape(flat, 'flat command');
@@ -135,12 +135,12 @@ const allEmptyProjects = runCliFailure(['rollout_check', '--projects=,, ,', '--f
 assert.match(allEmptyProjects.stderr, /rollout_check --projects was provided but did not include any project paths/, 'all-empty explicit project list is a clear CLI failure');
 assert.equal(allEmptyProjects.stdout, '', 'all-empty explicit project list does not emit a zero-project success payload');
 
-const alias = runJson(['lattice', 'rollout', 'check', `--projects=${repoRoot}`, '--json']);
+const alias = runJson(['proof-or-stop', 'rollout', 'check', `--projects=${repoRoot}`, '--json']);
 assertRolloutShape(alias, 'space alias');
 assert.equal(alias.projects[0]?.path, repoRoot, 'space alias scans requested project');
 
 // Core handles non-Proof-or-Stop/nonexistent projects as explicit project results.
-const tempRoot = join(tmpdir(), `lattice-rollout-smoke-${process.pid}-${Date.now()}`);
+const tempRoot = join(tmpdir(), `proof-or-stop-rollout-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(tempRoot, { recursive: true });
 try {
   const plainProject = join(tempRoot, 'plain');
@@ -174,7 +174,7 @@ try {
   writeFileSync(join(externalMonorepo, 'package.json'), JSON.stringify({ name: 'external-monorepo', version: '1.0.0' }, null, 2));
   writeFileSync(join(externalMain, 'package.json'), JSON.stringify({ name: '@example/main', version: '1.0.0' }, null, 2));
   const externalResult = buildRolloutCheck({ root: tempRoot, projects: [externalMonorepo] });
-  const configProbe = externalResult.projects[0]?.probes.find(probe => probe.id === 'lattice_config_doctor');
+  const configProbe = externalResult.projects[0]?.probes.find(probe => probe.id === 'proof_or_stop_config_doctor');
   assert.equal(configProbe?.status, 'pass', 'external packages/main layout is not treated as the Proof-or-Stop source tree');
   assert.match(configProbe?.detail ?? '', /external project/, 'external packages/main layout keeps external-project guidance');
   assert.ok(!configProbe?.nextAction?.includes('Refresh the local CLI package'), 'external packages/main layout avoids self-layout refresh guidance');

@@ -86,7 +86,7 @@ lookup is folded into `learning-store` until a second consumer appears).
 | Module | Responsibility | New / change | Coupling |
 | --- | --- | --- | --- |
 | `core/experience-layer-types.ts` | All types (leaf module) | new | none |
-| `core/learning-store.ts` (incl. signature lookup / dedup) | Read/write `.lattice/learning/*` (source-of-truth + derived cache) | new | -> types |
+| `core/learning-store.ts` (incl. signature lookup / dedup) | Read/write `.proof-or-stop/learning/*` (source-of-truth + derived cache) | new | -> types |
 | `core/finding-signals.ts` | Derive `finding-signals.json` from findings (read-only, derived) | new | -> store; reads findings through the finding port |
 | `core/experience-hint-loader.ts` | Top-N hint ranking / filtering / progressive disclosure | new | -> store (read-only) |
 | `handlers/learning.ts` | `learning_scan` / `learning_hints` / `learning_signals_*` | new | -> core |
@@ -121,7 +121,7 @@ The v1.0 draft re-built three facilities that already exist. v1.1 reuses them:
   capture layer. Extend it (add `status: candidate -> active -> stale ->
   archived` plus `promotionHistory`) rather than building a new store. The
   earlier `proposed` state of the full lifecycle lives as a staged proposal in
-  `.lattice/learning/proposals/<id>.json`; a dev-memory entry begins only once a
+  `.proof-or-stop/learning/proposals/<id>.json`; a dev-memory entry begins only once a
   proposal is human-approved into `candidate`, so this `status` enum is the
   post-approval subset of the full
   `proposed -> candidate -> active -> stale -> archived` lifecycle. Because

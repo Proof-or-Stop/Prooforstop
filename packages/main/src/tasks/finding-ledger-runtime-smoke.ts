@@ -119,7 +119,7 @@ import { adapterSessionEnv } from './adapter-session-env.js';
 // strips before executing pinned commands.
 const RUNTIME_CLI_TEST_SESSION_ENV = adapterSessionEnv(
   'bfe8f-runtime-evidence-smoke',
-  'lattice-implementer',
+  'proof-or-stop-implementer',
 );
 const require = createRequire(import.meta.url);
 
@@ -326,7 +326,7 @@ function hasProtectedPathSurface(value: unknown, protectedValues: readonly strin
 function story3VerifierMutationAccepted(repositoryRoot: string, mutation: string): boolean {
   return spawnSync(process.execPath, [join(repositoryRoot, 'scripts', 'verify-process-fact-contract.mjs'), '--quiet'], {
     cwd: repositoryRoot,
-    env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
+    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: mutation },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   }).status === 0;
@@ -336,7 +336,7 @@ async function runStory3DependencyFixture(root: string): Promise<void> {
   mkdirSync(root, { recursive: true });
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+    storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
   }, null, 2));
   const dependencyStore = new StoryStore(root);
   const plan = (storyId: string, depends: string[] = []): StoryInfo => ({
@@ -539,7 +539,7 @@ function runFindingProjectionRegression(root: string): void {
   assert.equal(store.readFindingLedger<JsonValue>(storyId).records.filter((record) => record.recordType === 'finding').length, 2);
   assert.equal(store.readFindings(storyId).findings.some((finding) => finding.id === 'B-SPARSE:F-005'), true);
   const priorAgent = process.env.PROOF_OR_STOP_AGENT;
-  process.env.PROOF_OR_STOP_AGENT = 'lattice-implementer';
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
   try {
     const resolved = handlers.finding_resolve({
       storyId,
@@ -600,7 +600,7 @@ function runFindingProjectionRegression(root: string): void {
   }), /Finding B-LIFECYCLE-AUTHORITY:F-001 created/);
   const authorityOpenMirror = structuredClone(store.readFindings(authorityStoryId));
   const priorAuthorityAgent = process.env.PROOF_OR_STOP_AGENT;
-  process.env.PROOF_OR_STOP_AGENT = 'lattice-implementer';
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
   try {
     assert.match(authorityHandlers.finding_resolve({
       storyId: authorityStoryId,
@@ -765,7 +765,7 @@ function assertVersionSync(repositoryRoot: string): void {
     version: string;
     packages?: Record<string, { version?: string }>;
   };
-  const runtimeConstant = readFileSync(join(repositoryRoot, 'packages', 'main', 'src', 'core', 'lattice-brand.ts'), 'utf8');
+  const runtimeConstant = readFileSync(join(repositoryRoot, 'packages', 'main', 'src', 'core', 'proof-or-stop-brand.ts'), 'utf8');
   const parts = (value: string): number[] => value.split('.').map((part) => Number(part));
   const [previousMajor, previousMinor, previousPatch] = parts(previous);
   const [major, minor, patch] = parts(expected);
@@ -774,7 +774,7 @@ function assertVersionSync(repositoryRoot: string): void {
   assert.equal(mainPackage.version, expected);
   assert.equal(lockfile.version, expected);
   assert.equal(lockfile.packages?.['']?.version, expected);
-  assert.match(runtimeConstant, /LATTICE_CLI_VERSION = '0\.3\.271' as const/);
+  assert.match(runtimeConstant, /PROOF_OR_STOP_CLI_VERSION = '0\.3\.271' as const/);
 
   const local = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), '--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
@@ -794,42 +794,54 @@ function assertCleanPackInstall(repositoryRoot: string): void {
   const consumer = join(scratch, 'consumer');
   try {
     mkdirSync(consumer, { recursive: true });
-    const packed = spawnSync('npm', ['pack', '--json', '--pack-destination', scratch], {
-      cwd: join(repositoryRoot, 'packages', 'main'),
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    assert.equal(packed.status, 0, `npm pack failed: ${packed.stderr}\n${packed.stdout}`);
-    const tarball = readdirSync(scratch).find((name) => name.endsWith('.tgz'));
-    assert.ok(tarball, 'npm pack did not emit a core tarball');
-    const tarListing = spawnSync('tar', ['-tf', join(scratch, tarball)], {
+    // Lab is an independently versioned sibling package that core depends on by
+    // exact version; it is supplied as a local tarball (never fetched from a
+    // registry) so the clean-install proof stays offline and deterministic.
+    const packages = ['main', 'lab'] as const;
+    const tarballs: Record<string, string> = {};
+    for (const directory of packages) {
+      const packed = spawnSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', scratch, '.'], {
+        cwd: join(repositoryRoot, 'packages', directory),
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      assert.equal(packed.status, 0, `npm pack ${directory} failed: ${packed.stderr}\n${packed.stdout}`);
+      const records = JSON.parse(packed.stdout) as Array<{ filename: string }>;
+      assert.equal(records.length, 1, `npm pack ${directory} did not emit exactly one tarball`);
+      tarballs[directory] = join(scratch, records[0].filename);
+      assert.ok(existsSync(tarballs[directory]), `npm pack ${directory} tarball missing`);
+    }
+    const tarListing = spawnSync('tar', ['-tf', tarballs.main], {
       encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(tarListing.status, 0, `tar listing failed: ${tarListing.stderr}`);
-    assert.match(tarListing.stdout, /package\/node_modules\/@proof-or-stop\/lab\/package\.json/);
-    assert.doesNotMatch(tarListing.stdout, /node_modules\/@lattice\/lab/);
+    assert.match(tarListing.stdout, /^package\/dist\/cli\.js$/m);
+    assert.doesNotMatch(tarListing.stdout, /package\/node_modules\//, 'core tarball must not bundle sibling packages');
     const initialized = spawnSync('npm', ['init', '-y'], {
       cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(initialized.status, 0, `clean consumer init failed: ${initialized.stderr}`);
     const installed = spawnSync('npm', [
-      'install', join(scratch, tarball), '--ignore-scripts', '--no-audit', '--no-fund',
+      'install', tarballs.lab, tarballs.main, '--ignore-scripts', '--no-audit', '--no-fund', '--offline',
     ], {
       cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(installed.status, 0, `clean tarball install failed: ${installed.stderr}\n${installed.stdout}`);
-    const core = JSON.parse(readFileSync(join(consumer, 'node_modules', '@proof-or-stop', 'core', 'package.json'), 'utf8')) as { name: string };
-    const lab = JSON.parse(readFileSync(join(
-      consumer, 'node_modules', '@proof-or-stop', 'core', 'node_modules', '@proof-or-stop', 'lab', 'package.json',
-    ), 'utf8')) as { name: string };
+    const core = JSON.parse(readFileSync(join(consumer, 'node_modules', '@proof-or-stop', 'core', 'package.json'), 'utf8')) as {
+      name: string; dependencies?: Record<string, string>;
+    };
+    const lab = JSON.parse(readFileSync(join(consumer, 'node_modules', '@proof-or-stop', 'lab', 'package.json'), 'utf8')) as {
+      name: string; version: string;
+    };
     assert.equal(core.name, '@proof-or-stop/core');
     assert.equal(lab.name, '@proof-or-stop/lab');
+    assert.equal(core.dependencies?.['@proof-or-stop/lab'], lab.version, 'installed lab must satisfy the exact core dependency');
     const cli = spawnSync(join(consumer, 'node_modules', '.bin', 'proof-or-stop'), ['--version'], {
       cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(cli.status, 0, `clean-installed CLI failed: ${cli.stderr}`);
     assert.match(cli.stdout, /Proof-or-Stop 0\.3\.271/);
-    console.log('green.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=true registryFetch=false cli=true');
+    console.log('green.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=false registryFetch=false cli=true');
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -1107,7 +1119,7 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
   mkdirSync(root, { recursive: true });
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+    storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
   }, null, 2));
   writeFileSync(join(root, 'source.txt'), 'runtime evidence source\n');
   git(root, ['init', '-q']);
@@ -1154,7 +1166,7 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
 
   const legacyHandlers = createFindingHandlers({ root, scanRoot: root, store });
   const priorLegacyAgent = process.env.PROOF_OR_STOP_AGENT;
-  process.env.PROOF_OR_STOP_AGENT = 'lattice-implementer';
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
   try {
     assert.match(legacyHandlers.finding_resolve({
       storyId: legacyStoryId,
@@ -1540,7 +1552,7 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(freshnessResults.some((result) => result.valid), false);
     console.log('runtime.freshness_matrix: PASS acceptedStale=0');
 
-    const persistedText = `${JSON.stringify(runJson)}\n${readTreeText(join(root, '.lattice', 'evidence'))}\n${readTreeText(store.storyDirPath(storyId))}`;
+    const persistedText = `${JSON.stringify(runJson)}\n${readTreeText(join(root, '.proof-or-stop', 'evidence'))}\n${readTreeText(store.storyDirPath(storyId))}`;
     assert.equal(persistedText.includes(signingEnv.RUNTIME_SECRET_TOKEN), false);
     console.log('runtime.environment_privacy: PASS leakedValues=0');
 
@@ -1670,7 +1682,7 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       ...runArgs,
       idempotencyKey: 'runtime-build-lock-successor-interleaving',
       afterCanonicalBuildLockForTest: () => {
-        const target = join(tmpdir(), `lattice-build-lock-${createHash('sha256').update(String(root)).digest('hex')}`);
+        const target = join(tmpdir(), `proof-or-stop-build-lock-${createHash('sha256').update(String(root)).digest('hex')}`);
         const probe = spawnSync(process.execPath, ['-e', String.raw`
           const lockfile = require(process.argv[1]);
           try {

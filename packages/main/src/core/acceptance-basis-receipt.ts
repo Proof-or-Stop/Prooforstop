@@ -13,7 +13,7 @@ import { digestCanonicalJson } from './digest.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { acceptanceCoverageBasisSemanticDigest, verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
 
-const KEY_FILE = 'lattice-acceptance-basis-verifier-v1.key';
+const KEY_FILE = 'proof-or-stop-acceptance-basis-verifier-v1.key';
 
 export interface AcceptanceBasisReceiptVerification {
   ok: boolean;

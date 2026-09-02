@@ -5,7 +5,7 @@
  * This extends the proven experience-hint-surface pattern (B-5a48) from the
  * advisory review hints to the full runtime pack: ONE place owns the
  * arm resolution + event dedup + render-gate, so the seven lifecycle
- * entrypoints (story-create, transition-orchestrator, session, lattice-handoff,
+ * entrypoints (story-create, transition-orchestrator, session, proof-or-stop-handoff,
  * done-prepare, done-closure, dev-memory) share an identical implementation
  * with NO drift in the dedup key, the event payload, or the render-gate.
  *

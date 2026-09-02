@@ -26,7 +26,7 @@ const DEFAULT_MAX_SNAPSHOTS = 5;
 
 /**
  * Read maxTraceSnapshots directly from the project config file (bypasses
- * loadConfig cache). lattice.config.json is the active project config
+ * loadConfig cache). proof-or-stop.config.json is the active project config
  * when both are present; either file is sufficient.
  */
 function getMaxSnapshots(root: string): number {
@@ -49,9 +49,9 @@ function getCurrentCommit(root: string): string {
   }
 }
 
-/** CHK-002: trace files go to .lattice/traces/ instead of fixturesDir, surviving git restore/clean */
+/** CHK-002: trace files go to .proof-or-stop/traces/ instead of fixturesDir, surviving git restore/clean */
 function traceFilePath(root: string, fixtureName: string): string {
-  return join(root, '.lattice', 'traces', fixtureName.replace(/\.json$/, '') + '.trace.json');
+  return join(root, '.proof-or-stop', 'traces', fixtureName.replace(/\.json$/, '') + '.trace.json');
 }
 
 /** Build the composite key: caseName:commitHash */
@@ -138,7 +138,7 @@ export function loadTraceSnapshot(
 }
 
 export function scanAllTraces(root: string): TraceSnapshot[] {
-  const tracesDir = join(root, '.lattice', 'traces');
+  const tracesDir = join(root, '.proof-or-stop', 'traces');
   const results: TraceSnapshot[] = [];
   function scan(dir: string) {
     if (!existsSync(dir)) return;

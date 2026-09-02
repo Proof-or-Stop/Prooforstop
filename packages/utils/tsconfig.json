@@ -3,6 +3,10 @@
     "target": "ES2022",
     "module": "Node16",
     "moduleResolution": "Node16",
+    "baseUrl": ".",
+    "paths": {
+      "@proof-or-stop/core/extension-api": ["../main/dist/extension-api.d.ts"]
+    },
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,

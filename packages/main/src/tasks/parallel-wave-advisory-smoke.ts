@@ -3,7 +3,7 @@
  *
  * Hermetic (no StoryStore, no git): the two pure helpers are exercised with synthetic
  * inputs only.
- *   - computeScopeGlobOverlaps (core/lattice-parallel-wave.ts): which ACTIVE parallel
+ *   - computeScopeGlobOverlaps (core/proof-or-stop-parallel-wave.ts): which ACTIVE parallel
  *     peers' write-sets statically overlap self's, for the advisory scope_glob_overlap
  *     wave degradation.
  *   - decompositionAdvisoryIssues (handlers/story-review.ts): evaluateDecompositionGate's
@@ -13,7 +13,7 @@
  * Run: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js
  */
 
-import { computeScopeGlobOverlaps, scopeGlobOverlapDegradations, safeReadScopeContract } from '../core/lattice-parallel-wave.js';
+import { computeScopeGlobOverlaps, scopeGlobOverlapDegradations, safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { decompositionAdvisoryIssues } from '../handlers/story-review.js';
 import type { StoryInfo, ScopeContractData, StoryPhase } from '../core/types.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
@@ -291,7 +291,7 @@ void (() => {
     // §4.7 requires mode='off' to disable BOTH behaviors. The story-review advisory side is
     // covered above; the WAVE side is gated in storyRef by the exact branch
     //   `const scopeGlobOverlaps = scopeGlobEnabled ? computeScopeGlobOverlaps(...) : []`
-    // (lattice-parallel-wave.ts: scopeGlobEnabled is derived in createParallelWave from
+    // (proof-or-stop-parallel-wave.ts: scopeGlobEnabled is derived in createParallelWave from
     // `resolveAuditConfig(profile, root).parallelGate.mode !== 'off'`). We runtime-test that exact
     // mode->enabled->overlaps decision at the helper boundary (createParallelWave is too heavy to
     // call hermetically — see the F-008 note below).
@@ -318,7 +318,7 @@ void (() => {
     // changed-file probes at `root` — a faithful fake is large and brittle. Instead, crash-safety
     // is proven by (a) the safeReadScopeContract helper tests above (throw -> null), and (b) the
     // SOURCE FACT that createParallelWave routes EVERY scope-contract read through
-    // safeReadScopeContract: lattice-parallel-wave.ts builds `contractsByStoryId` with
+    // safeReadScopeContract: proof-or-stop-parallel-wave.ts builds `contractsByStoryId` with
     // `const c = safeReadScopeContract(store, s.storyId)` and storyRef then only does pure
     // contractsByStoryId.get(...) lookups (no direct store.readScopeContract in the storyRef path),
     // so one corrupt scope-contract.json cannot throw out of createParallelWave.

@@ -14,7 +14,7 @@ export type AdapterOwnerSessionSource = 'explicit-env' | 'host-adapter' | 'gener
 /**
  * Both brand spellings are declared. Every READ of these keys goes through
  * `readBrandEnv`, which prefers the canonical `PROOF_OR_STOP_*` name and falls back
- * to the deprecated `LATTICE_*` one, so the deprecated block below is not dead
+ * to the deprecated `PROOF_OR_STOP_*` one, so the deprecated block below is not dead
  * weight: it documents the names a teammate's pre-rename branch may still export and
  * keeps them type-visible rather than only reachable via the index signature.
  */
@@ -31,18 +31,6 @@ export interface OwnerSessionEnv {
   PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE?: string | undefined;
   PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY?: string | undefined;
   PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED?: string | undefined;
-  /** @deprecated pre-rename spellings; still read as a fallback, never required. */
-  LATTICE_SESSION_ID?: string | undefined;
-  LATTICE_ACTIVITY_SOURCE?: string | undefined;
-  LATTICE_ACTIVITY_SESSION?: string | undefined;
-  LATTICE_AGENT?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_PROVIDER?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_SESSION?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_TASK?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_AGENT?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_ROLE?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY?: string | undefined;
-  LATTICE_OWNER_SESSION_ADAPTER_GENERATED?: string | undefined;
   CLAUDE_CODE_SESSION_ID?: string | undefined;
   CLAUDE_SESSION_ID?: string | undefined;
   CODEX_SESSION_ID?: string | undefined;

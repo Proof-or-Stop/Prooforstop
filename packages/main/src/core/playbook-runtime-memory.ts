@@ -32,7 +32,7 @@ import {
   type RuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndexSourceDigests,
 } from './playbook-runtime-memory-index.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import {
   buildRuntimeMemoryPackCacheContext,
   computeMemoryPackDigest,

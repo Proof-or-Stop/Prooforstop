@@ -33,8 +33,8 @@ import type { BoundedProviderExecutor, ProviderExecResult } from '../providers/t
 
 type Json = Record<string, any>;
 
-const WORKTREE = '/tmp/lattice-story-worktree';
-const ROOT = '/tmp/lattice-project-root';
+const WORKTREE = '/tmp/proof-or-stop-story-worktree';
+const ROOT = '/tmp/proof-or-stop-project-root';
 
 // --- Stubs -------------------------------------------------------------------
 
@@ -76,11 +76,11 @@ function storeStub(worktreePath: string | null): any {
 }
 
 const WORKTREE_POLICY: WorktreePolicyView = {
-  resolver: 'lattice.story.resolve',
+  resolver: 'proofOrStop.story.resolve',
   requiresAuthoritativeWorktree: true,
   allowWorktreeRepair: false,
   allowedPathRoots: [],
-  forbiddenPathGlobs: ['.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'],
+  forbiddenPathGlobs: ['.proof-or-stop/story/**', 'docs/story/**', '**/tests/fixtures/**'],
   requiresCleanWorktree: false,
   preserveUnrelatedDirtyChanges: true,
   requireGitStatusEvidence: true,
@@ -139,13 +139,13 @@ function exec(opts: { jobPlan: any; store: any; git: GitRunner; provider?: Bound
 
 // glob matching: story / fixture JSON are forbidden; ordinary src files are not.
 assert.equal(matchesForbiddenGlob('docs/story/actives/B-x/index.json', WORKTREE_POLICY.forbiddenPathGlobs), 'docs/story/**');
-assert.equal(matchesForbiddenGlob('.lattice/story/actives/B-x/checklist.json', WORKTREE_POLICY.forbiddenPathGlobs), '.lattice/story/**');
+assert.equal(matchesForbiddenGlob('.proof-or-stop/story/actives/B-x/checklist.json', WORKTREE_POLICY.forbiddenPathGlobs), '.proof-or-stop/story/**');
 assert.equal(matchesForbiddenGlob('packages/main/tests/fixtures/foo.json', WORKTREE_POLICY.forbiddenPathGlobs), '**/tests/fixtures/**');
 assert.equal(matchesForbiddenGlob('./docs/story/x.json', WORKTREE_POLICY.forbiddenPathGlobs), 'docs/story/**');
 assert.equal(matchesForbiddenGlob('packages/main/src/core/foo.ts', WORKTREE_POLICY.forbiddenPathGlobs), null);
 
 // resolveWorktreePolicy keeps the forbidden globs as a floor even if a plan tries to drop them.
-const floored = resolveWorktreePolicy({ worktreePolicy: { resolver: 'lattice.story.resolve', forbiddenPathGlobs: ['custom/**'] } } as any);
+const floored = resolveWorktreePolicy({ worktreePolicy: { resolver: 'proofOrStop.story.resolve', forbiddenPathGlobs: ['custom/**'] } } as any);
 assert.ok(floored.forbiddenPathGlobs.includes('docs/story/**'), 'story glob is a non-droppable floor');
 assert.ok(floored.forbiddenPathGlobs.includes('custom/**'), 'plan may add globs');
 

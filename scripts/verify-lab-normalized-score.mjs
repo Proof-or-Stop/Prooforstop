@@ -28,11 +28,11 @@ function parseCliJson(text) {
 }
 
 function createProject(prompt) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-lab-normalized-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-lab-normalized-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  mkdirSync(join(dir, '.lattice-codex', 'agents'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  mkdirSync(join(dir, '.proof-or-stop-codex', 'agents'), { recursive: true });
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -44,10 +44,10 @@ function createProject(prompt) {
   }, null, 2));
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# temp\n');
-  writeFileSync(join(dir, '.lattice-codex', 'agents', 'test-case-reviewer.md'), prompt);
+  writeFileSync(join(dir, '.proof-or-stop-codex', 'agents', 'test-case-reviewer.md'), prompt);
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proofOrStop@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   run(dir, ['lab', 'create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
@@ -72,7 +72,7 @@ const cases = {
   'normalized-high': () => {
     const temp = createProject(strongPrompt.replace('5 轮 cap\n', ''));
     try {
-      writeFileSync(join(temp, '.lattice-codex', 'agents', 'test-case-reviewer.md'), strongPrompt);
+      writeFileSync(join(temp, '.proof-or-stop-codex', 'agents', 'test-case-reviewer.md'), strongPrompt);
       run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
       const compare = parseCliJson(run(temp, ['lab', 'compare', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json']));
       assert(compare.best.normalizedScore > 0.8, 'normalizedScore should exceed 0.8 for high-quality reviewer prompt');
@@ -84,7 +84,7 @@ const cases = {
   'normalized-penalty': () => {
     const temp = createProject(strongPrompt);
     try {
-      writeFileSync(join(temp, '.lattice-codex', 'agents', 'test-case-reviewer.md'), `${strongPrompt}${'padding line\n'.repeat(260)}`);
+      writeFileSync(join(temp, '.proof-or-stop-codex', 'agents', 'test-case-reviewer.md'), `${strongPrompt}${'padding line\n'.repeat(260)}`);
       run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
       const result = JSON.parse(readFileSync(join(temp, 'experiments', 'runs', 'lab-reviewer-reviewer-quality-v1', 'run-001', 'result.json'), 'utf8'));
       assert(result.normalizedScore >= 0 && result.normalizedScore <= 1, 'normalizedScore should stay in 0..1');

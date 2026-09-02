@@ -54,7 +54,7 @@ const cliEngineMod = await import(CLI_ENGINE_DIST);
 
 let passed = 0;
 let failed = 0;
-const tmpBase = join(tmpdir(), `lattice-dev-memory-verify-${randomUUID()}`);
+const tmpBase = join(tmpdir(), `proof-or-stop-dev-memory-verify-${randomUUID()}`);
 mkdirSync(tmpBase, { recursive: true });
 
 function ok(label) {
@@ -92,7 +92,7 @@ check('valid entry passes validation', () => {
     lesson: 'The tsc gate only runs if dist exists; always build first',
     reusePrompt: 'Did you run build before validate?',
     tags: ['build', 'lint'],
-    sourceAgent: 'lattice-implementer',
+    sourceAgent: 'proof-or-stop-implementer',
   });
   const result = dm.validateEntry(entry);
   if (!result.ok) throw new Error(result.error);
@@ -180,20 +180,20 @@ check('authority="authoritative" fails validation', () => {
 console.log('\n--- Section 2: Path resolution ---');
 
 check('project path resolves deterministically with env override', () => {
-  const orig = process.env.LATTICE_PROJECT_ROOT;
-  process.env.LATTICE_PROJECT_ROOT = '/tmp/fake-project';
+  const orig = process.env.PROOF_OR_STOP_PROJECT_ROOT;
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = '/tmp/fake-project';
   const path = dm.resolveProjectMemoryPath();
-  process.env.LATTICE_PROJECT_ROOT = orig || '';
-  if (!path.includes('.lattice')) throw new Error('path should include .lattice: ' + path);
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = orig || '';
+  if (!path.includes('.proof-or-stop')) throw new Error('path should include .proof-or-stop: ' + path);
   if (!path.endsWith('experience.jsonl')) throw new Error('path should end with experience.jsonl');
   if (!path.includes('dev-memory')) throw new Error('path should include dev-memory');
 });
 
 check('global path resolves deterministically with env override', () => {
-  const orig = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = tmpBase;
+  const orig = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = tmpBase;
   const path = dm.resolveGlobalMemoryPath();
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = orig || '';
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = orig || '';
   if (!path.endsWith('experience.jsonl')) throw new Error('expected experience.jsonl, got: ' + path);
   if (!path.startsWith(tmpBase)) throw new Error('should be under override dir');
 });
@@ -222,10 +222,10 @@ check('appendEntry + readEntries roundtrip', () => {
   const entry = dm.createEntry({
     category: 'debugging',
     scope: 'project',
-    summary: 'Use lattice doctor to check stuck locks',
-    trigger: 'lattice validate hanging',
-    lesson: 'lattice doctor reveals stuck-lock state and suggests resolution',
-    reusePrompt: 'Is there a stuck lock? Run lattice doctor first.',
+    summary: 'Use proof-or-stop doctor to check stuck locks',
+    trigger: 'proof-or-stop validate hanging',
+    lesson: 'proof-or-stop doctor reveals stuck-lock state and suggests resolution',
+    reusePrompt: 'Is there a stuck lock? Run proof-or-stop doctor first.',
     sourceAgent: 'verify-script',
   });
   dm.appendEntry(testFile, entry);
@@ -259,7 +259,7 @@ console.log('\n--- Section 4: Search and dedup ---');
 const searchEntries = [
   dm.createEntry({ category: 'failure-mode', scope: 'project', summary: 'reviewer subagent not spawned', trigger: 'INIT phase stuck', lesson: 'spawn reviewer before advancing', reusePrompt: 'Did you spawn the INIT reviewer?', sourceAgent: 'agent-a', tags: ['reviewer', 'INIT'] }),
   dm.createEntry({ category: 'pattern', scope: 'project', summary: 'run build before tsc gate', trigger: 'tsc gate skipping', lesson: 'dist must exist for tsc to scan sub-packages', reusePrompt: 'Run build first', sourceAgent: 'agent-b', tags: ['build', 'tsc'] }),
-  dm.createEntry({ category: 'anti-pattern', scope: 'global', summary: 'modifying story JSON directly', trigger: 'trying to fix metadata', lesson: 'always use lattice CLI not raw JSON', reusePrompt: 'Use lattice CLI commands', sourceAgent: 'agent-a', tags: ['cli'] }),
+  dm.createEntry({ category: 'anti-pattern', scope: 'global', summary: 'modifying story JSON directly', trigger: 'trying to fix metadata', lesson: 'always use proofOrStop CLI not raw JSON', reusePrompt: 'Use proofOrStop CLI commands', sourceAgent: 'agent-a', tags: ['cli'] }),
 ];
 
 check('search by query finds relevant entries', () => {
@@ -309,26 +309,26 @@ check('preflight with no memory returns empty-state message', () => {
   // Use a dir with no experience file
   const emptyDir = join(tmpBase, 'empty-preflight');
   const emptyGlobal = join(tmpBase, 'empty-global');
-  const origProject = process.env.LATTICE_PROJECT_ROOT;
-  const origGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  process.env.LATTICE_PROJECT_ROOT = emptyDir;
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = emptyGlobal;
+  const origProject = process.env.PROOF_OR_STOP_PROJECT_ROOT;
+  const origGlobal = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = emptyDir;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = emptyGlobal;
   const result = dm.buildPreflightPack({ query: 'reviewer' });
-  process.env.LATTICE_PROJECT_ROOT = origProject || '';
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = origGlobal || '';
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = origProject || '';
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = origGlobal || '';
   const formatted = dm.formatPreflightPack(result);
   if (!formatted.includes('Dev Memory Preflight')) throw new Error('should have header');
   if (!formatted.includes('no relevant entries')) throw new Error('should say no entries');
 });
 
 check('preflight returns ≤5 relevant entries by default', () => {
-  const origProject = process.env.LATTICE_PROJECT_ROOT;
-  const origGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  process.env.LATTICE_PROJECT_ROOT = preflightDir;
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = join(tmpBase, 'empty-global2');
+  const origProject = process.env.PROOF_OR_STOP_PROJECT_ROOT;
+  const origGlobal = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = preflightDir;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = join(tmpBase, 'empty-global2');
   const result = dm.buildPreflightPack({ query: 'reviewer build' });
-  process.env.LATTICE_PROJECT_ROOT = origProject || '';
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = origGlobal || '';
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = origProject || '';
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = origGlobal || '';
   if (result.entries.length > 5) throw new Error(`too many entries: ${result.entries.length}`);
 });
 
@@ -350,16 +350,16 @@ check('formatPreflightPack includes "Dev Memory Preflight" header', () => {
 
 console.log('\n--- Section 6: CLI smoke tests ---');
 
-// Use the compiled CLI directly — avoids local lattice bootstrap version skew.
-const LATTICE_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
+// Use the compiled CLI directly — avoids local proof-or-stop bootstrap version skew.
+const PROOF_OR_STOP_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
 const cliEnv = {
   ...process.env,
-  LATTICE_PROJECT_ROOT: join(tmpBase, 'cli-test-project'),
-  LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'cli-test-global'),
+  PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'cli-test-project'),
+  PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'cli-test-global'),
 };
 
-function runLattice(args, env = cliEnv, cwd = ROOT) {
-  const result = spawnSync('node', [LATTICE_CLI, ...args], {
+function runProofOrStop(args, env = cliEnv, cwd = ROOT) {
+  const result = spawnSync('node', [PROOF_OR_STOP_CLI, ...args], {
     cwd,
     encoding: 'utf-8',
     env,
@@ -378,11 +378,11 @@ function runGit(cwd, args) {
 
 function createActiveStoryRepo(label, storyId = 'B-active') {
   const root = join(tmpBase, label);
-  const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
+  const storyDir = join(root, '.proof-or-stop', 'story', 'actives', storyId);
   mkdirSync(storyDir, { recursive: true });
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     phaseTools: { '*': ['dev_memory_*'] },
   }, null, 2) + '\n', 'utf-8');
   const now = new Date().toISOString();
@@ -401,8 +401,8 @@ function createActiveStoryRepo(label, storyId = 'B-active') {
   }, null, 2) + '\n', 'utf-8');
   writeFileSync(join(root, 'seed.txt'), 'seed\n', 'utf-8');
   runGit(root, ['init']);
-  runGit(root, ['config', 'user.email', 'lattice-test@noreply.local']);
-  runGit(root, ['config', 'user.name', 'Lattice Test']);
+  runGit(root, ['config', 'user.email', 'proof-or-stop-test@noreply.local']);
+  runGit(root, ['config', 'user.name', 'ProofOrStop Test']);
   runGit(root, ['add', '.']);
   runGit(root, ['commit', '-m', 'init active story fixture']);
   runGit(root, ['checkout', '-b', 'story/' + storyId]);
@@ -414,14 +414,14 @@ function readJsonl(filePath) {
 }
 
 check('dev_memory_list prints empty state when no entries', () => {
-  const result = runLattice(['dev_memory_list', '--scope=project']);
+  const result = runProofOrStop(['dev_memory_list', '--scope=project']);
   const out = result.stdout + result.stderr;
   if (result.status !== 0) throw new Error(`Exit ${result.status}: ${out}`);
   if (!out.includes('No dev-memory experience entries yet')) throw new Error('expected empty state: ' + out);
 });
 
 check('dev_memory_capture writes an entry and prints Captured id', () => {
-  const r = runLattice([
+  const r = runProofOrStop([
     'dev_memory_capture',
     '--category=pattern',
     '--summary=Run build before tsc gate in CI',
@@ -436,7 +436,7 @@ check('dev_memory_capture writes an entry and prints Captured id', () => {
 });
 
 check('dev_memory_list after capture shows the entry', () => {
-  const r = runLattice(['dev_memory_list', '--scope=project']);
+  const r = runProofOrStop(['dev_memory_list', '--scope=project']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (out.includes('No dev-memory experience entries yet')) throw new Error('should have entries now');
@@ -444,14 +444,14 @@ check('dev_memory_list after capture shows the entry', () => {
 });
 
 check('dev_memory_search finds entry by query', () => {
-  const r = runLattice(['dev_memory_search', '--query=build']);
+  const r = runProofOrStop(['dev_memory_search', '--query=build']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('build') && !out.includes('pattern')) throw new Error('should find build entry: ' + out);
 });
 
 check('dev_memory_preflight emits Dev Memory Preflight header', () => {
-  const r = runLattice(['dev_memory_preflight', '--query=build']);
+  const r = runProofOrStop(['dev_memory_preflight', '--query=build']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Dev Memory Preflight')) throw new Error('missing preflight header: ' + out);
@@ -460,10 +460,10 @@ check('dev_memory_preflight emits Dev Memory Preflight header', () => {
 check('dev_memory_preflight with no memory shows empty state', () => {
   const emptyEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'empty-cli-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'empty-cli-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'empty-cli-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'empty-cli-global'),
   };
-  const r = runLattice(['dev_memory_preflight', '--query=anything'], emptyEnv);
+  const r = runProofOrStop(['dev_memory_preflight', '--query=anything'], emptyEnv);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Dev Memory Preflight')) throw new Error('missing header: ' + out);
@@ -471,16 +471,16 @@ check('dev_memory_preflight with no memory shows empty state', () => {
 
 check('dev_memory_finish writes candidate file', () => {
   // First capture another entry
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture',
     '--category=debugging',
-    '--summary=Use lattice doctor to diagnose stuck locks',
-    '--trigger=lattice validate hanging indefinitely',
-    '--lesson=lattice doctor reveals stuck-lock state and suggests fix path',
-    '--reusePrompt=Is there a stuck lock? Run lattice doctor',
+    '--summary=Use proof-or-stop doctor to diagnose stuck locks',
+    '--trigger=proof-or-stop validate hanging indefinitely',
+    '--lesson=proof-or-stop doctor reveals stuck-lock state and suggests fix path',
+    '--reusePrompt=Is there a stuck lock? Run proof-or-stop doctor',
   ]);
-  // Now finish with a fake storyId (no story dir required in non-Lattice mode)
-  const r = runLattice(['dev_memory_finish', '--storyId=B-test123']);
+  // Now finish with a fake storyId (no story dir required in non-ProofOrStop mode)
+  const r = runProofOrStop(['dev_memory_finish', '--storyId=B-test123']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Experience candidates') && !out.includes('written')) {
@@ -489,7 +489,7 @@ check('dev_memory_finish writes candidate file', () => {
 });
 
 check('dev_memory_start --dryRun emits preflight and finish reminder', () => {
-  const r = runLattice(['dev_memory_start', '--agent=claude', '--query=new reviewer task', '--dryRun']);
+  const r = runProofOrStop(['dev_memory_start', '--agent=claude', '--query=new reviewer task', '--dryRun']);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   if (!out.includes('Dev Memory Preflight')) throw new Error('missing preflight: ' + out);
@@ -499,7 +499,7 @@ check('dev_memory_start --dryRun emits preflight and finish reminder', () => {
 
 check('dev_memory_start default is dry-run (does not launch agent binary)', () => {
   // dev_memory_start never spawns external binaries — always dry-run
-  const r = runLattice(['dev_memory_start', '--agent=claude', '--query=test query']);
+  const r = runProofOrStop(['dev_memory_start', '--agent=claude', '--query=test query']);
   const out = r.stdout + r.stderr;
   // Should not crash with "command not found" style errors
   if (out.toLowerCase().includes('enoent') && out.toLowerCase().includes('claude')) {
@@ -533,12 +533,12 @@ check('dev-memory.md explicitly states it cannot satisfy gate evidence', () => {
   }
 });
 
-check('dev-memory.md does NOT document lattice dev_start for this feature', () => {
+check('dev-memory.md does NOT document proof-or-stop dev_start for this feature', () => {
   const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
   const content = readFileSync(docPath, 'utf-8');
-  // Must not use "lattice dev_start" (without "memory_") as a command for this feature
-  if (content.includes('lattice dev_start') || content.includes('### dev_start')) {
-    throw new Error('doc must not use "lattice dev_start" or "### dev_start" — use dev_memory_start instead');
+  // Must not use "proof-or-stop dev_start" (without "memory_") as a command for this feature
+  if (content.includes('proof-or-stop dev_start') || content.includes('### dev_start')) {
+    throw new Error('doc must not use "proof-or-stop dev_start" or "### dev_start" — use dev_memory_start instead');
   }
   // Must mention dev_memory_start
   if (!content.includes('dev_memory_start')) {
@@ -565,14 +565,14 @@ check('dev-memory.md explicitly distinguishes dev_memory_start from lifecycle/wo
 
 console.log('\n--- Section 8: Review findings ---');
 
-check('dev_memory_finish default storyDir uses .lattice/story/actives (not docs/story/actives)', () => {
+check('dev_memory_finish default storyDir uses .proof-or-stop/story/actives (not docs/story/actives)', () => {
   // Check the handler resolves through loadConfig(root).storyDir so the canonical
   // default and legacy-.koala write guard stay centralized.
   const handlerPath = join(ROOT, 'packages', 'main', 'src', 'handlers', 'dev-memory.ts');
   if (!existsSync(handlerPath)) throw new Error(`handler not found: ${handlerPath}`);
   const src = readFileSync(handlerPath, 'utf-8');
   if (src.includes("'docs', 'story', 'actives'") || src.includes('"docs", "story", "actives"')) {
-    throw new Error('handler default storyDir must not use docs/story/actives — use .lattice/story/actives');
+    throw new Error('handler default storyDir must not use docs/story/actives — use .proof-or-stop/story/actives');
   }
   if (!src.includes('loadConfig(root).storyDir')) {
     throw new Error('handler must use loadConfig(root).storyDir for the default storyDir');
@@ -582,28 +582,28 @@ check('dev_memory_finish default storyDir uses .lattice/story/actives (not docs/
   }
 });
 
-check('dev_memory_finish uses .lattice/story/actives path in CLI smoke test', () => {
+check('dev_memory_finish uses .proof-or-stop/story/actives path in CLI smoke test', () => {
   // Run finish and check the output path
   const finishEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'finish-path-test'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'finish-path-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'finish-path-test'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'finish-path-global'),
   };
   // Capture something first
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture',
     '--category=pattern',
     '--summary=Finish path test entry for candidate dir',
     '--trigger=testing candidate dir path',
-    '--lesson=Test that finish uses dot lattice story actives path',
+    '--lesson=Test that finish uses dot proof-or-stop story actives path',
     '--reusePrompt=Check candidate dir path',
   ], finishEnv);
-  const r = runLattice(['dev_memory_finish', '--storyId=B-pathtest'], finishEnv);
+  const r = runProofOrStop(['dev_memory_finish', '--storyId=B-pathtest'], finishEnv);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
-  // Output path should contain .lattice/story/actives
-  if (!out.includes('.lattice') || !out.includes('story') || !out.includes('actives')) {
-    throw new Error(`finish output must reference .lattice/story/actives path, got: ${out}`);
+  // Output path should contain .proof-or-stop/story/actives
+  if (!out.includes('.proof-or-stop') || !out.includes('story') || !out.includes('actives')) {
+    throw new Error(`finish output must reference .proof-or-stop/story/actives path, got: ${out}`);
   }
   // Must NOT reference docs/story/actives
   if (out.includes('docs/story/actives') || out.includes('docs\\story\\actives')) {
@@ -614,8 +614,8 @@ check('dev_memory_finish uses .lattice/story/actives path in CLI smoke test', ()
 check('dev_memory_capture warns on possible duplicate', () => {
   const dupEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'dup-test-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'dup-test-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'dup-test-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'dup-test-global'),
   };
   const commonArgs = [
     'dev_memory_capture',
@@ -626,9 +626,9 @@ check('dev_memory_capture warns on possible duplicate', () => {
     '--reusePrompt=Did you run build before validate?',
   ];
   // Capture first entry
-  runLattice(commonArgs, dupEnv);
+  runProofOrStop(commonArgs, dupEnv);
   // Capture nearly identical entry — should warn
-  const r2 = runLattice(commonArgs, dupEnv);
+  const r2 = runProofOrStop(commonArgs, dupEnv);
   const out2 = r2.stdout + r2.stderr;
   if (r2.status !== 0) throw new Error(`Exit ${r2.status}: ${out2}`);
   if (!out2.includes('Possible duplicate')) {
@@ -639,11 +639,11 @@ check('dev_memory_capture warns on possible duplicate', () => {
 check('dev_memory_list returns newest-first order', () => {
   const listEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'list-order-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'list-order-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'list-order-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'list-order-global'),
   };
   // Capture two entries with slight delay to ensure different timestamps
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture', '--category=pattern',
     '--summary=First entry for order test - oldest',
     '--trigger=order test first', '--lesson=First lesson for order testing newest first',
@@ -651,13 +651,13 @@ check('dev_memory_list returns newest-first order', () => {
   ], listEnv);
   // Small synchronous delay via spawnSync
   execSync('node -e "const d=Date.now();while(Date.now()-d<50){}"');
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture', '--category=workflow',
     '--summary=Second entry for order test - newest',
     '--trigger=order test second', '--lesson=Second lesson for order testing newest first',
     '--reusePrompt=check order second',
   ], listEnv);
-  const r = runLattice(['dev_memory_list', '--scope=project'], listEnv);
+  const r = runProofOrStop(['dev_memory_list', '--scope=project'], listEnv);
   const out = r.stdout + r.stderr;
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
   const firstIdx = out.indexOf('First entry for order test');
@@ -671,21 +671,21 @@ check('dev_memory_list returns newest-first order', () => {
 check('dev_memory_finish writes story-candidate scope and sourceStoryId', () => {
   const scEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'sc-test-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'sc-test-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'sc-test-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'sc-test-global'),
   };
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture', '--category=debugging',
     '--summary=Story candidate scope field test entry for finish',
     '--trigger=testing scope field in candidate file',
     '--lesson=Finish should set scope to story-candidate and sourceStoryId',
     '--reusePrompt=Check scope and sourceStoryId in candidate file',
   ], scEnv);
-  const r = runLattice(['dev_memory_finish', '--storyId=B-sctest'], scEnv);
+  const r = runProofOrStop(['dev_memory_finish', '--storyId=B-sctest'], scEnv);
   if (r.status !== 0) throw new Error(`Exit ${r.status}: ${r.stdout + r.stderr}`);
 
-  // Find the candidate file under .lattice/story/actives
-  const candidateFile = join(scEnv.LATTICE_PROJECT_ROOT, '.lattice', 'story', 'actives', 'B-sctest', 'dev-memory-candidates.jsonl');
+  // Find the candidate file under .proof-or-stop/story/actives
+  const candidateFile = join(scEnv.PROOF_OR_STOP_PROJECT_ROOT, '.proof-or-stop', 'story', 'actives', 'B-sctest', 'dev-memory-candidates.jsonl');
   if (!existsSync(candidateFile)) throw new Error(`candidate file not found: ${candidateFile}`);
 
   const lines = readFileSync(candidateFile, 'utf-8').trim().split('\n').filter(l => l.trim());
@@ -763,61 +763,61 @@ check('CLI engine: dev_memory_start description distinguishes it from lifecycle/
 });
 
 // ---------------------------------------------------------------------------
-// Section 9: dev_memory_finish without --storyId (outside-Lattice mode)
+// Section 9: dev_memory_finish without --storyId (outside-ProofOrStop mode)
 // ---------------------------------------------------------------------------
 
-console.log('\n--- Section 9: dev_memory_finish outside-Lattice mode ---');
+console.log('\n--- Section 9: dev_memory_finish outside-ProofOrStop mode ---');
 
 check('dev_memory_finish without --storyId succeeds (exit 0)', () => {
   const noStoryEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'nostory-test-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-test-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'nostory-test-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-test-global'),
   };
   // Capture an entry first so there is something to report
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture',
     '--category=pattern',
-    '--summary=Outside-Lattice session experience for finish test',
+    '--summary=Outside-ProofOrStop session experience for finish test',
     '--trigger=testing finish without storyId',
     '--lesson=dev_memory_finish should work without a story context',
     '--reusePrompt=Run dev_memory_finish without storyId',
   ], noStoryEnv);
-  const r = runLattice(['dev_memory_finish'], noStoryEnv);
+  const r = runProofOrStop(['dev_memory_finish'], noStoryEnv);
   if (r.status !== 0) {
     throw new Error(`dev_memory_finish without --storyId must exit 0, got exit ${r.status}: ${r.stdout + r.stderr}`);
   }
 });
 
-check('dev_memory_finish without --storyId does NOT create .lattice/story/actives', () => {
+check('dev_memory_finish without --storyId does NOT create .proof-or-stop/story/actives', () => {
   const noStoryEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'nostory-no-dir-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-no-dir-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'nostory-no-dir-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-no-dir-global'),
   };
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture',
     '--category=workflow',
-    '--summary=Check that finish never creates story actives dir outside Lattice',
-    '--trigger=outside-Lattice session with no storyId',
+    '--summary=Check that finish never creates story actives dir outside ProofOrStop',
+    '--trigger=outside-ProofOrStop session with no storyId',
     '--lesson=finish without storyId must not create story directories',
     '--reusePrompt=Verify no story dirs created',
   ], noStoryEnv);
-  runLattice(['dev_memory_finish'], noStoryEnv);
-  const storyActivesDir = join(noStoryEnv.LATTICE_PROJECT_ROOT, '.lattice', 'story', 'actives');
+  runProofOrStop(['dev_memory_finish'], noStoryEnv);
+  const storyActivesDir = join(noStoryEnv.PROOF_OR_STOP_PROJECT_ROOT, '.proof-or-stop', 'story', 'actives');
   if (existsSync(storyActivesDir)) {
-    throw new Error(`dev_memory_finish without --storyId must NOT create .lattice/story/actives, but found: ${storyActivesDir}`);
+    throw new Error(`dev_memory_finish without --storyId must NOT create .proof-or-stop/story/actives, but found: ${storyActivesDir}`);
   }
 });
 
 check('dev_memory_finish without --storyId empty state does not touch story dirs', () => {
   const emptyEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'nostory-empty-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-empty-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'nostory-empty-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-empty-global'),
   };
   // No capture first — project memory is empty
-  const r = runLattice(['dev_memory_finish'], emptyEnv);
+  const r = runProofOrStop(['dev_memory_finish'], emptyEnv);
   if (r.status !== 0) {
     throw new Error(`dev_memory_finish (empty state) must exit 0, got ${r.status}: ${r.stdout + r.stderr}`);
   }
@@ -825,7 +825,7 @@ check('dev_memory_finish without --storyId empty state does not touch story dirs
   if (!out.includes('no experience entries')) {
     throw new Error(`empty-state message missing, got: ${out}`);
   }
-  const storyActivesDir = join(emptyEnv.LATTICE_PROJECT_ROOT, '.lattice', 'story', 'actives');
+  const storyActivesDir = join(emptyEnv.PROOF_OR_STOP_PROJECT_ROOT, '.proof-or-stop', 'story', 'actives');
   if (existsSync(storyActivesDir)) {
     throw new Error(`dev_memory_finish empty-state must not create story actives dir`);
   }
@@ -834,18 +834,18 @@ check('dev_memory_finish without --storyId empty state does not touch story dirs
 check('dev_memory_finish --scope=global without --storyId writes global dev-memory entries', () => {
   const globalEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'global-export-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-export-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'global-export-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-export-global'),
   };
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture',
     '--category=debugging',
     '--summary=Global export test entry for scope=global finish path',
-    '--trigger=testing global scope promotion in outside-Lattice mode',
+    '--trigger=testing global scope promotion in outside-ProofOrStop mode',
     '--lesson=dev_memory_finish scope=global must write to global dev-memory',
     '--reusePrompt=Verify global export writes entries',
   ], globalEnv);
-  const r = runLattice(['dev_memory_finish', '--scope=global'], globalEnv);
+  const r = runProofOrStop(['dev_memory_finish', '--scope=global'], globalEnv);
   if (r.status !== 0) {
     throw new Error(`dev_memory_finish --scope=global must exit 0, got ${r.status}: ${r.stdout + r.stderr}`);
   }
@@ -854,7 +854,7 @@ check('dev_memory_finish --scope=global without --storyId writes global dev-memo
     throw new Error(`output should mention global, got: ${out}`);
   }
   // Verify global file was actually written
-  const globalFile = join(globalEnv.LATTICE_GLOBAL_MEMORY_DIR, 'experience.jsonl');
+  const globalFile = join(globalEnv.PROOF_OR_STOP_GLOBAL_MEMORY_DIR, 'experience.jsonl');
   if (!existsSync(globalFile)) {
     throw new Error(`global dev-memory file not created: ${globalFile}`);
   }
@@ -875,11 +875,11 @@ check('dev_memory_finish --scope=global without --storyId writes global dev-memo
 check('dev_memory_finish --scope=global deduplicates already-global entries', () => {
   const dedupEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: join(tmpBase, 'global-dedup-project'),
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-dedup-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: join(tmpBase, 'global-dedup-project'),
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-dedup-global'),
   };
   // Capture one entry and export twice — second run should report 0 new entries
-  runLattice([
+  runProofOrStop([
     'dev_memory_capture',
     '--category=pattern',
     '--summary=Dedup test entry for global scope idempotency check',
@@ -887,8 +887,8 @@ check('dev_memory_finish --scope=global deduplicates already-global entries', ()
     '--lesson=Repeat global export should not duplicate entries',
     '--reusePrompt=Run global export twice, count must not grow',
   ], dedupEnv);
-  runLattice(['dev_memory_finish', '--scope=global'], dedupEnv);
-  const r2 = runLattice(['dev_memory_finish', '--scope=global'], dedupEnv);
+  runProofOrStop(['dev_memory_finish', '--scope=global'], dedupEnv);
+  const r2 = runProofOrStop(['dev_memory_finish', '--scope=global'], dedupEnv);
   if (r2.status !== 0) throw new Error(`second export must exit 0, got ${r2.status}`);
   const out = r2.stdout + r2.stderr;
   // Second run should report 0 new entries (or "already present")
@@ -897,24 +897,24 @@ check('dev_memory_finish --scope=global deduplicates already-global entries', ()
   }
 });
 
-check('docs: dev-memory.md does not imply --storyId is mandatory for finish outside Lattice', () => {
+check('docs: dev-memory.md does not imply --storyId is mandatory for finish outside ProofOrStop', () => {
   const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
   const content = readFileSync(docPath, 'utf-8');
   // Must not say "--storyId is required" for finish
   if (content.match(/--storyId\s+is\s+required/i)) {
-    throw new Error('docs must not say "--storyId is required" — storyId is optional for outside-Lattice finish');
+    throw new Error('docs must not say "--storyId is required" — storyId is optional for outside-ProofOrStop finish');
   }
-  // Must explicitly say storyId is optional OR outside-Lattice works without it
+  // Must explicitly say storyId is optional OR outside-ProofOrStop works without it
   const hasOptional = content.includes('--storyId` is optional') ||
     content.includes('--storyId` optional') ||
     content.includes('storyId is optional') ||
     content.includes('no `--storyId`') ||
     content.includes('without `--storyId`') ||
-    content.includes('Outside Lattice') ||
-    content.includes('outside-Lattice') ||
-    content.includes('outside Lattice');
+    content.includes('Outside ProofOrStop') ||
+    content.includes('outside-ProofOrStop') ||
+    content.includes('outside ProofOrStop');
   if (!hasOptional) {
-    throw new Error('docs must state that --storyId is optional (outside-Lattice use) for dev_memory_finish');
+    throw new Error('docs must state that --storyId is optional (outside-ProofOrStop use) for dev_memory_finish');
   }
   // Must mention dev_memory_finish (already checked in section 7, belt-and-suspenders)
   if (!content.includes('dev_memory_finish')) {
@@ -946,22 +946,22 @@ check('dev_memory_finish in active story defaults to story candidate file', () =
   const activeRoot = createActiveStoryRepo('active-story-default');
   const env = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: activeRoot,
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-default-global'),
+    PROOF_OR_STOP_PROJECT_ROOT: activeRoot,
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-default-global'),
   };
-  const capture = runLattice(['dev_memory_capture', JSON.stringify({
+  const capture = runProofOrStop(['dev_memory_capture', JSON.stringify({
     category: 'workflow',
     summary: 'Active story default finish writes candidate evidence refs',
-    trigger: 'finishing an active Lattice story session',
+    trigger: 'finishing an active ProofOrStop story session',
     lesson: 'Bare dev_memory_finish should target the active story branch',
     reusePrompt: 'When in story branch, finish should write story candidates',
     evidenceRefs: ['evidence/transcript.md', 'command:node scripts/verify-dev-memory.mjs'],
   })], env, activeRoot);
   if (capture.status !== 0) throw new Error('capture failed: ' + (capture.stdout + capture.stderr));
 
-  const finish = runLattice(['dev_memory_finish'], env, activeRoot);
+  const finish = runProofOrStop(['dev_memory_finish'], env, activeRoot);
   if (finish.status !== 0) throw new Error('finish failed: ' + (finish.stdout + finish.stderr));
-  const candidateFile = join(activeRoot, '.lattice', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
+  const candidateFile = join(activeRoot, '.proof-or-stop', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
   if (!existsSync(candidateFile)) throw new Error('candidate file not written: ' + candidateFile);
   const entries = readJsonl(candidateFile);
   if (entries.length !== 1) throw new Error('expected 1 candidate entry, got ' + entries.length);
@@ -979,10 +979,10 @@ check('dev_memory_finish --scope=global in active story does not write story can
   const activeRoot = createActiveStoryRepo('active-story-global');
   const env = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: activeRoot,
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-global-memory'),
+    PROOF_OR_STOP_PROJECT_ROOT: activeRoot,
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-global-memory'),
   };
-  const capture = runLattice(['dev_memory_capture', JSON.stringify({
+  const capture = runProofOrStop(['dev_memory_capture', JSON.stringify({
     category: 'pattern',
     summary: 'Active story global finish writes only global memory',
     trigger: 'promoting active story lesson globally',
@@ -991,11 +991,11 @@ check('dev_memory_finish --scope=global in active story does not write story can
   })], env, activeRoot);
   if (capture.status !== 0) throw new Error('capture failed: ' + (capture.stdout + capture.stderr));
 
-  const finish = runLattice(['dev_memory_finish', '--scope=global'], env, activeRoot);
+  const finish = runProofOrStop(['dev_memory_finish', '--scope=global'], env, activeRoot);
   if (finish.status !== 0) throw new Error('global finish failed: ' + (finish.stdout + finish.stderr));
-  const candidateFile = join(activeRoot, '.lattice', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
+  const candidateFile = join(activeRoot, '.proof-or-stop', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
   if (existsSync(candidateFile)) throw new Error('global finish must not create story candidates: ' + candidateFile);
-  const globalFile = join(env.LATTICE_GLOBAL_MEMORY_DIR, 'experience.jsonl');
+  const globalFile = join(env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR, 'experience.jsonl');
   if (!existsSync(globalFile)) throw new Error('global memory file not created: ' + globalFile);
   const entries = readJsonl(globalFile);
   if (entries.length !== 1) throw new Error('expected 1 global entry, got ' + entries.length);
@@ -1017,12 +1017,12 @@ console.log('\n--- Section: DEFAULT_PHASE_TOOLS regression (no phaseTools overri
 
 function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default') {
   const root = join(tmpBase, label);
-  const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
+  const storyDir = join(root, '.proof-or-stop', 'story', 'actives', storyId);
   mkdirSync(storyDir, { recursive: true });
   // Deliberately NO phaseTools — relies on DEFAULT_PHASE_TOOLS from config.ts
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
   }, null, 2) + '\n', 'utf-8');
   const now = new Date().toISOString();
   writeFileSync(join(storyDir, 'index.json'), JSON.stringify({
@@ -1040,8 +1040,8 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   }, null, 2) + '\n', 'utf-8');
   writeFileSync(join(root, 'seed.txt'), 'seed\n', 'utf-8');
   runGit(root, ['init']);
-  runGit(root, ['config', 'user.email', 'lattice-test@noreply.local']);
-  runGit(root, ['config', 'user.name', 'Lattice Test']);
+  runGit(root, ['config', 'user.email', 'proof-or-stop-test@noreply.local']);
+  runGit(root, ['config', 'user.name', 'ProofOrStop Test']);
   runGit(root, ['add', '.']);
   runGit(root, ['commit', '-m', 'init default-config active story fixture']);
   runGit(root, ['checkout', '-b', 'story/' + storyId]);
@@ -1053,12 +1053,12 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   const storyId = 'B-active-default';
   const defaultEnv = {
     ...process.env,
-    LATTICE_PROJECT_ROOT: defaultRoot,
-    LATTICE_GLOBAL_MEMORY_DIR: join(tmpBase, 'default-config-global-memory'),
+    PROOF_OR_STOP_PROJECT_ROOT: defaultRoot,
+    PROOF_OR_STOP_GLOBAL_MEMORY_DIR: join(tmpBase, 'default-config-global-memory'),
   };
 
   check('dev_memory_capture allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runLattice([
+    const r = runProofOrStop([
       'dev_memory_capture',
       '--category=pattern',
       '--summary=DEFAULT_PHASE_TOOLS must include dev_memory_* for DEV access',
@@ -1073,20 +1073,20 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
   });
 
   check('dev_memory_list allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runLattice(['dev_memory_list', '--scope=project'], defaultEnv, defaultRoot);
+    const r = runProofOrStop(['dev_memory_list', '--scope=project'], defaultEnv, defaultRoot);
     const out = r.stdout + r.stderr;
     if (r.status !== 0) throw new Error(`dev_memory_list rejected in DEV with default config. Exit ${r.status}: ${out}`);
     if (out.includes('No dev-memory experience entries yet')) throw new Error('expected entries from prior capture: ' + out);
   });
 
   check('dev_memory_search allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runLattice(['dev_memory_search', '--query=phaseTools'], defaultEnv, defaultRoot);
+    const r = runProofOrStop(['dev_memory_search', '--query=phaseTools'], defaultEnv, defaultRoot);
     const out = r.stdout + r.stderr;
     if (r.status !== 0) throw new Error(`dev_memory_search rejected in DEV with default config. Exit ${r.status}: ${out}`);
   });
 
   check('dev_memory_preflight allowed in DEV with default config (no phaseTools override)', () => {
-    const r = runLattice(['dev_memory_preflight', '--query=config'], defaultEnv, defaultRoot);
+    const r = runProofOrStop(['dev_memory_preflight', '--query=config'], defaultEnv, defaultRoot);
     const out = r.stdout + r.stderr;
     if (r.status !== 0) throw new Error(`dev_memory_preflight rejected in DEV with default config. Exit ${r.status}: ${out}`);
   });
@@ -1099,7 +1099,7 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
 console.log('\n--- Section: B-1148 regressions ---');
 
 check('project dev-memory path is not gitignored (B-1148 Risk A)', () => {
-  // .gitignore must unignore .lattice/dev-memory/ so experience.jsonl can be tracked.
+  // .gitignore must unignore .proof-or-stop/dev-memory/ so experience.jsonl can be tracked.
   // git check-ignore exits 0 if the file IS ignored, 1 if it is not (or when -v is used
   // and the match is a negation rule). Use git ls-files --error-unmatch or check-ignore
   // output to determine policy.
@@ -1107,18 +1107,18 @@ check('project dev-memory path is not gitignored (B-1148 Risk A)', () => {
   if (!existsSync(gitignorePath)) throw new Error('.gitignore not found');
   const content = readFileSync(gitignorePath, 'utf-8');
   // Must have a negation rule for dev-memory
-  if (!content.includes('!.lattice/dev-memory/') && !content.includes('!.lattice/dev-memory/**')) {
-    throw new Error('.gitignore must have !.lattice/dev-memory/ or !.lattice/dev-memory/** to allow tracking project dev-memory');
+  if (!content.includes('!.proof-or-stop/dev-memory/') && !content.includes('!.proof-or-stop/dev-memory/**')) {
+    throw new Error('.gitignore must have !.proof-or-stop/dev-memory/ or !.proof-or-stop/dev-memory/** to allow tracking project dev-memory');
   }
-  // The .lattice/* rule must be present (sanity check that the gitignore structure is still intact)
-  if (!content.includes('.lattice/*')) {
-    throw new Error('.gitignore must retain .lattice/* catch-all rule');
+  // The .proof-or-stop/* rule must be present (sanity check that the gitignore structure is still intact)
+  if (!content.includes('.proof-or-stop/*')) {
+    throw new Error('.gitignore must retain .proof-or-stop/* catch-all rule');
   }
-  // Negation must come AFTER the .lattice/* catch-all (last-match-wins)
-  const catchAllIdx = content.lastIndexOf('.lattice/*');
-  const devMemoryIdx = content.indexOf('!.lattice/dev-memory/');
+  // Negation must come AFTER the .proof-or-stop/* catch-all (last-match-wins)
+  const catchAllIdx = content.lastIndexOf('.proof-or-stop/*');
+  const devMemoryIdx = content.indexOf('!.proof-or-stop/dev-memory/');
   if (devMemoryIdx !== -1 && devMemoryIdx < catchAllIdx) {
-    throw new Error('!.lattice/dev-memory/ negation must appear AFTER .lattice/* catch-all in .gitignore (last-match-wins)');
+    throw new Error('!.proof-or-stop/dev-memory/ negation must appear AFTER .proof-or-stop/* catch-all in .gitignore (last-match-wins)');
   }
 });
 
@@ -1130,11 +1130,11 @@ check('token-aware search: "authority reviewer" finds reviewer entries (B-1148 R
       scope: 'project',
       summary: 'Reviewer calling finding_add with pass-only body is auto-normalized to review_pass_set',
       trigger: 'Reviewer reports PASS via finding_add and it becomes an open finding',
-      lesson: 'flow-policy:pass-only-normalization converts low-severity lattice-review-* finding_add to review_pass_set',
+      lesson: 'flow-policy:pass-only-normalization converts low-severity proof-or-stop-review-* finding_add to review_pass_set',
       reusePrompt: 'reviewer pass-only finding_add normalized review_pass_set',
       tags: ['reviewer', 'finding-add', 'review-pass', 'normalization'],
       sourceStoryId: 'B-9b8f',
-      evidenceRefs: ['.lattice/story/actives/B-9b8f/summary.json'],
+      evidenceRefs: ['.proof-or-stop/story/actives/B-9b8f/summary.json'],
     }),
     dm.createEntry({
       category: 'workflow',
@@ -1145,7 +1145,7 @@ check('token-aware search: "authority reviewer" finds reviewer entries (B-1148 R
       reusePrompt: 'reviewer review_run_start reviewRunId binding lane',
       tags: ['reviewer-lane', 'review-run-start', 'reviewRunId'],
       sourceStoryId: 'B-ad12',
-      evidenceRefs: ['.lattice/story/actives/B-ad12/summary.json'],
+      evidenceRefs: ['.proof-or-stop/story/actives/B-ad12/summary.json'],
     }),
     dm.createEntry({
       category: 'pattern',
@@ -1156,7 +1156,7 @@ check('token-aware search: "authority reviewer" finds reviewer entries (B-1148 R
       reusePrompt: 'fail-closed gate hook node absent',
       tags: ['pre-push', 'gate-design', 'fail-closed'],
       sourceStoryId: 'B-eab3',
-      evidenceRefs: ['.lattice/story/actives/B-eab3/summary.json'],
+      evidenceRefs: ['.proof-or-stop/story/actives/B-eab3/summary.json'],
     }),
   ];
   const results = dm.searchEntries(entries, { query: 'authority reviewer', limit: 20 });
@@ -1179,7 +1179,7 @@ check('token-aware search: "reviewer" finds reviewer entries and excludes unrela
       reusePrompt: 'check reviewer behavior',
       tags: ['reviewer'],
       sourceStoryId: 'B-9b8f',
-      evidenceRefs: ['.lattice/story/actives/B-9b8f/summary.json'],
+      evidenceRefs: ['.proof-or-stop/story/actives/B-9b8f/summary.json'],
     }),
     dm.createEntry({
       category: 'pattern',
@@ -1190,7 +1190,7 @@ check('token-aware search: "reviewer" finds reviewer entries and excludes unrela
       reusePrompt: 'run build before tsc gate',
       tags: ['build', 'tsc'],
       sourceStoryId: 'B-eab3',
-      evidenceRefs: ['.lattice/story/actives/B-eab3/summary.json'],
+      evidenceRefs: ['.proof-or-stop/story/actives/B-eab3/summary.json'],
     }),
   ];
   const results = dm.searchEntries(entries, { query: 'reviewer', limit: 10 });
@@ -1204,11 +1204,11 @@ check('search includes sourceStoryId in searchable text (B-1148)', () => {
     scope: 'project',
     summary: 'Story owner lease fail-closed on non-owner writes',
     trigger: 'non-owner session hits storyScopedMutating command',
-    lesson: 'always set LATTICE_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
-    reusePrompt: 'set LATTICE_SESSION_ID for owner lease commands',
+    lesson: 'always set PROOF_OR_STOP_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
+    reusePrompt: 'set PROOF_OR_STOP_SESSION_ID for owner lease commands',
     tags: ['owner-lease', 'session'],
     sourceStoryId: 'B-c55d',
-    evidenceRefs: ['.lattice/story/actives/B-c55d/summary.json'],
+    evidenceRefs: ['.proof-or-stop/story/actives/B-c55d/summary.json'],
   });
   const results = dm.searchEntries([entry], { query: 'B-c55d', limit: 10 });
   if (results.length === 0) throw new Error('sourceStoryId "B-c55d" should be searchable');
@@ -1224,7 +1224,7 @@ check('formatEntryShort shows sourceStoryId and evidenceRefs when present (B-114
     reusePrompt: 'check format output for source refs',
     tags: ['test'],
     sourceStoryId: 'B-test99',
-    evidenceRefs: ['.lattice/story/actives/B-test99/summary.json'],
+    evidenceRefs: ['.proof-or-stop/story/actives/B-test99/summary.json'],
   });
   const formatted = dm.formatEntryShort(entry);
   if (!formatted.includes('B-test99')) throw new Error('formatted output missing sourceStoryId');
@@ -1245,22 +1245,22 @@ check('preflight output is bounded (B-1148 CHK-005 edge)', () => {
       reusePrompt: `reuse prompt for entry ${i}`,
       tags: [`tag${i}`],
       sourceStoryId: `B-test${i}`,
-      evidenceRefs: [`.lattice/story/actives/B-test${i}/summary.json`],
+      evidenceRefs: [`.proof-or-stop/story/actives/B-test${i}/summary.json`],
     }));
   }
   const tmpPreflightDir = join(tmpBase + '-bounded', 'preflight-bound');
   mkdirSync(tmpPreflightDir, { recursive: true });
-  // Write to the path buildPreflightPack actually reads: <root>/.lattice/dev-memory/experience.jsonl
+  // Write to the path buildPreflightPack actually reads: <root>/.proof-or-stop/dev-memory/experience.jsonl
   const preflightPath = dm.resolveProjectMemoryPath(tmpPreflightDir);
   for (const e of manyEntries) dm.appendEntry(preflightPath, e);
 
-  const origProject = process.env.LATTICE_PROJECT_ROOT;
-  const origGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  process.env.LATTICE_PROJECT_ROOT = tmpPreflightDir;
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = join(tmpBase + '-bounded', 'empty-global');
+  const origProject = process.env.PROOF_OR_STOP_PROJECT_ROOT;
+  const origGlobal = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = tmpPreflightDir;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = join(tmpBase + '-bounded', 'empty-global');
   const result = dm.buildPreflightPack({ maxEntries: 5 });
-  process.env.LATTICE_PROJECT_ROOT = origProject || '';
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = origGlobal || '';
+  process.env.PROOF_OR_STOP_PROJECT_ROOT = origProject || '';
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = origGlobal || '';
 
   if (result.entries.length !== 5) throw new Error(`preflight should return exactly maxEntries=5, got ${result.entries.length}`);
   const formatted = dm.formatPreflightPack(result);

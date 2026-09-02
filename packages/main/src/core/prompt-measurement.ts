@@ -49,7 +49,7 @@ const runtimeSemanticValue = {
 const runtimeCompactText = [
   'Lifecycle: INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE.',
   'Only the Story owner/implementer writes implementation; independent reviewers write signed findings or passes.',
-  'Story and fixture facts use Lattice CLI paths; gate evidence is structured and fail-closed.',
+  'Story and fixture facts use ProofOrStop CLI paths; gate evidence is structured and fail-closed.',
   'Never fabricate host, human, provider, receipt, or Authority evidence.',
 ].join('\n');
 

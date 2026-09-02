@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   The current default lattice CLI no longer exposes truth_scan / truth_nav / truth_analyze /
+ *   The current default proofOrStop CLI no longer exposes truth_scan / truth_nav / truth_analyze /
  *   truth_to_story / truth_extract, but the underlying truth tasks and legacy MCP handler semantics still exist.
  *   This reconnects the entire group of truth_* commands back to the main registry, so that the default CLI, doc hints, and
  *   repo-local wrappers no longer reference commands the user can't actually run.

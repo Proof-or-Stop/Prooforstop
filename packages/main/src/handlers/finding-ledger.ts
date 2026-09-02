@@ -1210,7 +1210,7 @@ function canonicalBuildLockInProgress(projectRoot: string): boolean {
     // Exact target/options shared with scripts/build-lock-target.mjs and
     // scripts/build-lock.mjs. Keep the read in-package so a clean npm install
     // does not depend on repository-level scripts existing outside the package.
-    const target = join(tmpdir(), `lattice-build-lock-${createHash('sha256').update(String(projectRoot)).digest('hex')}`);
+    const target = join(tmpdir(), `proof-or-stop-build-lock-${createHash('sha256').update(String(projectRoot)).digest('hex')}`);
     if (!existsSync(target)) return false;
     return properLockfile.checkSync(target, { stale: 30_000, update: 10_000 });
   } catch {
@@ -1226,7 +1226,7 @@ function canonicalBuildLockInProgress(projectRoot: string): boolean {
  * publish critical section.
  */
 function withCanonicalBuildLock<T>(projectRoot: string, fn: () => T): T {
-  const target = join(tmpdir(), `lattice-build-lock-${createHash('sha256').update(String(projectRoot)).digest('hex')}`);
+  const target = join(tmpdir(), `proof-or-stop-build-lock-${createHash('sha256').update(String(projectRoot)).digest('hex')}`);
   closeSync(openSync(target, 'a'));
   const nonce = randomBytes(12).toString('hex');
   const readyPath = join(tmpdir(), `proof-or-stop-runtime-lock-${nonce}.ready`);

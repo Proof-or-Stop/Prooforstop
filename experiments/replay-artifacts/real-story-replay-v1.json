@@ -3,7 +3,7 @@
   "stories": {
     "B-e452": {
       "evidenceQuality": "backfilled",
-      "source": "lattice story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata",
+      "source": "proof-or-stop story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata",
       "why": "B-e452 is a real DONE/PASS transcript-diff gate story, but it predates the current summary artifact contract.",
       "explain": "Backfill preserves the historical artifact gap while recording the observable story outcome: four checklist items tightened user-facing outcome transcripts, defined expected/actual/diff artifact semantics, added TEST/DONE advisory checks, and covered missing/passing transcript paths. The score uses lower-weight backfilled summary and fixture evidence rather than pretending native summary.json existed.",
       "summary": {

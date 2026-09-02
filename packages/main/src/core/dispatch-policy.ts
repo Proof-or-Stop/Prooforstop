@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, normalize, sep } from 'node:path';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export type DispatchPolicyStatus = 'authorized' | 'supervised' | 'refused';
 export type DispatchNetworkPolicy = 'none' | 'local' | 'restricted';
@@ -274,7 +274,7 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
     // be excluded from this refusal ONLY for a PURE review-only policy — the narrow
     // review-only grant WITHOUT the implementation flag. When allowRealHostSubprocess
     // is true the policy expresses IMPLEMENTATION intent and codex stays refused
-    // (codex is the live impl target at lattice-dispatch.ts's runCodexRealLeafDispatch,
+    // (codex is the live impl target at proof-or-stop-dispatch.ts's runCodexRealLeafDispatch,
     // which fires on selectedHost==='codex' && allowRealHostSubprocess===true), so the
     // two flags are mutually exclusive for codex. gemini/antigravity always remain refused.
     const reviewOnlyCodex = allowReviewOnlyRealHostSubprocess && !allowRealHostSubprocess;
@@ -372,7 +372,7 @@ export function getDispatchPolicy(root: string, policy: string): DispatchPolicy 
 
   const filePath = policyPath(root, name);
   if (!existsSync(filePath)) {
-    throw new Error(`dispatch policy not found: ${name} (expected at .lattice/dispatch-policies/${name}.json)`);
+    throw new Error(`dispatch policy not found: ${name} (expected at .proof-or-stop/dispatch-policies/${name}.json)`);
   }
   // Sweep hardening: the on-disk record is untrusted input. Fail closed on invalid
   // JSON or a malformed field shape rather than casting it to DispatchPolicy and
@@ -517,7 +517,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     } else {
       const filePath = policyPath(root, policyName);
       if (!existsSync(filePath)) {
-        return refusedResult(policyName, [`policy not found: ${policyName} (no file at .lattice/dispatch-policies/${policyName}.json)`], `Create the policy first with dispatch_policy_create --policy=${policyName}`);
+        return refusedResult(policyName, [`policy not found: ${policyName} (no file at .proof-or-stop/dispatch-policies/${policyName}.json)`], `Create the policy first with dispatch_policy_create --policy=${policyName}`);
       }
       let loaded: unknown;
       try {
@@ -557,7 +557,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     // a PURE review-only policy — i.e. the narrow review-only grant WITHOUT the
     // implementation flag. When allowRealHostSubprocess === true the policy
     // expresses IMPLEMENTATION intent, and codex is the live impl target at
-    // lattice-dispatch.ts (runCodexRealLeafDispatch fires whenever
+    // proof-or-stop-dispatch.ts (runCodexRealLeafDispatch fires whenever
     // selectedHost==='codex' && allowRealHostSubprocess===true). So codex must
     // stay refused here regardless of allowReviewOnlyRealHostSubprocess, making
     // the two flags mutually exclusive for codex: a review-only policy can never

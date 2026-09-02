@@ -76,7 +76,7 @@ import {
   captureDonePrepareGeneratedMetadataTransaction,
   rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
-import { normalizeRelPath } from '../core/lattice-paths.js';
+import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
@@ -238,7 +238,7 @@ function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: s
 
 function markFocusedResult(result: any, focus: string): any {
   if (!focus) return result;
-  const provider = String(result.provider ?? 'lattice-verifier');
+  const provider = String(result.provider ?? 'proof-or-stop-verifier');
   const focusedProvider = provider.endsWith('-focused') ? provider : `${provider}-focused`;
   const summary = String(result.summary ?? 'Validation completed');
   const details = Array.isArray(result.details) ? result.details : [];
@@ -691,7 +691,7 @@ function reusedStoryValidationResult(args: {
   warn?: boolean;
 }): any {
   const result = externalResult({
-    provider: 'lattice-verifier-reused',
+    provider: 'proof-or-stop-verifier-reused',
     status: args.warn ? 'warn' : 'pass',
     summary: `Validation PASS reused (${args.reuse.lineage}); commandExecutions=0`,
     details: [
@@ -721,7 +721,7 @@ function reusedStoryValidationResult(args: {
   const priorCommandExecution = priorEvidence?.commandExecution;
   if (!priorCommandExecution) {
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because canonical command evidence disappeared before persistence',
@@ -749,7 +749,7 @@ function reusedStoryValidationResult(args: {
   }).trim();
   if (preexistingManagedDirty) {
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because canonical metadata was already dirty',
@@ -797,7 +797,7 @@ function reusedStoryValidationResult(args: {
     // one condition surface differently from the identical condition in
     // persistStoryValidationEvidence, which returns a result the caller can render and classify.
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because its evidence file exceeds the persisted size bound',
@@ -821,7 +821,7 @@ function reusedStoryValidationResult(args: {
   });
   if (!commitResult.ok) {
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse could not persist its canonical PASS receipt',
@@ -906,7 +906,7 @@ function persistStoryValidationEvidence(
   const failureKind = validationFailureKindFromResult(result, allPass);
   const persistenceFailure = (reason: string) => ({
     ...externalResult({
-      provider: 'lattice-verifier-executed-persistence',
+      provider: 'proof-or-stop-verifier-executed-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation result could not persist its canonical evidence transaction',
@@ -1099,7 +1099,7 @@ function externalResult(args: {
     commands: args.commands ?? [],
   }, allPass);
   return {
-    provider: args.provider ?? 'lattice-verifier',
+    provider: args.provider ?? 'proof-or-stop-verifier',
     status: args.status,
     allPass,
     ...(failureKind ? { failureKind } : {}),
@@ -1291,7 +1291,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const allOk = results.every((r) => r.ok);
         if (args.json) {
           return JSON.stringify({
-            provider: 'lattice-verifier-gates',
+            provider: 'proof-or-stop-verifier-gates',
             status: allOk ? 'pass' : 'fail',
             allPass: allOk,
             gates: results.map((r) => ({ name: r.name, ok: r.ok, result: r.result })),
@@ -1335,16 +1335,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const buildNoValidatorResult = () => {
             if (!args.story) {
               return externalResult({
-                provider: 'lattice-verifier-no-validation-entry',
+                provider: 'proof-or-stop-verifier-no-validation-entry',
                 status: 'warn',
                 summary: 'No project validator configured; skipped project-specific validation',
                 details: [
                   `当前目录: ${projectRoot}`,
-                  '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
+                  '未找到 validate.ts/js/mts，也未在 proof-or-stop.config.json 配置 validate.command(s)',
                   '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
                   'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
                 ],
-                warnings: ['这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。'],
+                warnings: ['这是 skip/warn，不是代码失败。需要强门禁时请在 proof-or-stop.config.json 配置 validate.command 或 validate.commands。'],
                 headSha: currentHead(handlerGitCwd),
               });
             }
@@ -1363,17 +1363,17 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               snapshot: built.snapshot, identity: built.identity, reuse, warn: true,
             });
             const base = externalResult({
-              provider: 'lattice-verifier-no-validation-entry',
+              provider: 'proof-or-stop-verifier-no-validation-entry',
               status: 'warn',
               summary: 'No project validator configured; skipped project-specific validation',
               details: [
                 `当前目录: ${projectRoot}`,
-                '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
+                '未找到 validate.ts/js/mts，也未在 proof-or-stop.config.json 配置 validate.command(s)',
                 '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
                 'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
               ],
               warnings: [
-                '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。',
+                '这是 skip/warn，不是代码失败。需要强门禁时请在 proof-or-stop.config.json 配置 validate.command 或 validate.commands。',
               ],
               headSha: currentHead(handlerGitCwd),
             });
@@ -1415,7 +1415,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
             : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
           const base = await executeValidationPlan({
-            provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
+            provider: usingConfigured ? 'proof-or-stop-verifier-configured-commands' : 'proof-or-stop-verifier-fallback-commands',
             commands,
             warnings: [],
             ...(focus ? { focus } : {}),
@@ -1612,7 +1612,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           } catch { /* not git — graceful: headSha stays undefined */ }
 
           const wrapped = markFocusedResult({
-            provider: 'lattice-verifier',
+            provider: 'proof-or-stop-verifier',
             status: code === 0 ? 'pass' : 'fail',
             allPass: code === 0,
             summary: code === 0 ? 'All checks passed' : 'Validation failed',

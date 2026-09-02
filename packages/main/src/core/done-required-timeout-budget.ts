@@ -114,7 +114,7 @@ export function doneRequiredDerivedBudget(root: string): TimeoutBudget {
 
 export function donePreparePhaseBudget(root: string, phaseEnv: string, derived?: TimeoutBudget): TimeoutBudget {
   // Routed through readBrandEnv (not a raw process.env[phaseEnv] lookup) so a phase
-  // override still applies when the operator exported the deprecated LATTICE_* spelling.
+  // override still applies when the operator exported the deprecated PROOF_OR_STOP_* spelling.
   const phaseOverride = positiveInt(readBrandEnv(phaseEnv));
   if (phaseOverride) return { timeoutMs: phaseOverride, source: 'phase-env' };
   const globalOverride = positiveInt(readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS'));
@@ -144,12 +144,12 @@ function executableOnInheritedPath(name: string, root: string, env: NodeJS.Proce
   return null;
 }
 
-function trustedLatticeExecutable(
+function trustedProofOrStopExecutable(
   root: string,
   executable: string,
   env: NodeJS.ProcessEnv,
 ): boolean {
-  const resolvedExecutable = executable === 'lattice'
+  const resolvedExecutable = executable === 'proof-or-stop'
     ? executableOnInheritedPath(executable, root, env)
     : safeRealpath(isAbsolute(executable) ? executable : resolve(root, executable));
   if (!resolvedExecutable) return false;
@@ -169,19 +169,19 @@ function recognizedLiveSmokeCommand(
 ): 'done_required_validate' | 'done_prepare' | 'pre_review_live_proof' | null {
   if (command === PRE_REVIEW_LIVE_PROOF_COMMAND) return 'pre_review_live_proof';
   const trimmed = command.trim();
-  // A wider budget is reserved for one direct Lattice closeout command. Shell
+  // A wider budget is reserved for one direct ProofOrStop closeout command. Shell
   // composition/substitution and executable-affecting inline environment stay
-  // on the fixed arbitrary-command ceiling. LATTICE_SESSION_ID is the sole
+  // on the fixed arbitrary-command ceiling. PROOF_OR_STOP_SESSION_ID is the sole
   // inert inline assignment needed by the owner-lease workflow.
   if (!trimmed || /[;&|<>\n\r`]|\$\(/.test(trimmed)) return null;
   const match = trimmed.match(
     // B-cdf6:F-062 — accept EITHER session-id env prefix. This recognizer previously
-    // matched only the deprecated `LATTICE_SESSION_ID=` spelling, so a caller using the
+    // matched only the deprecated `PROOF_OR_STOP_SESSION_ID=` spelling, so a caller using the
     // canonical `PROOF_OR_STOP_SESSION_ID=` silently lost the wider live-smoke timeout
     // budget with no error. Read-both applies to parsing too, not just to env lookup.
-    /^(?:(?:PROOF_OR_STOP|LATTICE)_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
+    /^(?:(?:PROOF_OR_STOP|PROOF_OR_STOP)_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
   );
-  if (!match || !trustedLatticeExecutable(root, match[1], env)) return null;
+  if (!match || !trustedProofOrStopExecutable(root, match[1], env)) return null;
   return match[2] === 'done_required_validate' || match[2] === 'done_prepare' ? match[2] : null;
 }
 
@@ -260,7 +260,7 @@ export function liveSmokeCaptureBudget(
 }
 
 // Canonical spellings. Every consumer resolves these via readBrandEnv, which also
-// accepts the deprecated LATTICE_* spelling of the same suffix.
+// accepts the deprecated PROOF_OR_STOP_* spelling of the same suffix.
 const CLOSEOUT_PHASE_ENVS = [
   'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
   'PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',

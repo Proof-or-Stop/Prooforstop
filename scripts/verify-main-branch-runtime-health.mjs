@@ -84,8 +84,8 @@ const candidateCliPaths = cliCandidates();
 const cli = candidateCliPaths.find(isRunnableCli) || candidateCliPaths.find((candidate) => existsSync(candidate)) || candidateCliPaths[0];
 const staleStorySegment = `${sep}.worktrees${sep}B-8f6a${sep}`;
 
-assert(existsSync(localDistCli), `Missing built Lattice CLI at ${localDistCli}. Run npm run build first.`);
-assert(isRunnableCli(cli), `Expected runnable built Lattice CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
+assert(existsSync(localDistCli), `Missing built ProofOrStop CLI at ${localDistCli}. Run npm run build first.`);
+assert(isRunnableCli(cli), `Expected runnable built ProofOrStop CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
 assert(!cli.includes(staleStorySegment), `Main branch runtime health must not use stale story worktree CLI path: ${cli}`);
 
 function findHardcodedWorktreeCliIssues(source, label, options = {}) {
@@ -173,12 +173,12 @@ function assertNoHardcodedWorktreeCliPaths() {
 
 assertNoHardcodedWorktreeCliPaths();
 
-const temp = mkdtempSync(join(tmpdir(), 'lattice-main-runtime-'));
+const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-main-runtime-'));
 
 try {
   mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true });
-  writeJson(join(temp, 'lattice.config.json'), {
+  writeJson(join(temp, 'proof-or-stop.config.json'), {
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -190,8 +190,8 @@ try {
   });
 
   git(temp, ['init']);
-  git(temp, ['config', 'user.name', 'Lattice Test']);
-  git(temp, ['config', 'user.email', 'lattice@example.com']);
+  git(temp, ['config', 'user.name', 'ProofOrStop Test']);
+  git(temp, ['config', 'user.email', 'proofOrStop@example.com']);
   writeFileSync(join(temp, '.gitignore'), 'node_modules\n');
   git(temp, ['add', '.']);
   git(temp, ['commit', '-m', 'init']);
