@@ -320,6 +320,31 @@
         "scanEscalationReason": null
       },
       "_hash": "6d900e5a31f4a44edcb909458f2d3ec8a75632131f6b17e7518a019148a18409"
+    },
+    {
+      "id": "B-a745:RP-013",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4, second pass, story-level. (1) story_draft_list run live from THIS worktree: both drafts present verbatim as pasted in F-019 resolvedReason -- my own output matches the pasted lines exactly. (2) validation-command-identity.ts resolver-outcome-4 comment (commit 9ca24bc78a) read at its current lines: every clause checks out -- CHK-002:edge:0 carries a real permanent supersession waiver for the zero-is-a-stop reading (confirmed via checklist_get), and docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan exists on this branch naming B-ccf4 as owner and stating the story exists for the owner to reconcile -- the comments claims are literally true. F-020s own claim (grepped for filed/submitted/reported to, found none else) independently reproduced. (3) F-019s PROCESS SIGNAL paragraph over-unifies four distinct prose defects under one mechanism; filed as B-a745:F-021 (low, non-blocking this round) since F-013s failure mode is not fixed by the run-in-worktree-and-paste rule this paragraph proposes. (4) validate --concept on current tree: same 10 splitShellWords residuals as prior rounds, all previously adjudicated; nothing new from the comment-only 9ca24bc78a commit. (5) Width check of F-016/F-017/F-019/F-020 resolutions and summary.json pitfalls (6)-(7): F-016s 4-site claim and commit hashes verified live against git log; F-017s platform-removal claim verified live and its commandSetDigest independently reproduced byte-identical on this host via validation_plan --json; pitfalls (6)-(7) check out against plan.md CHK-001s actual design note and F-016s actual site count. No blocking finding of mine is open.",
+      "createdAt": "2026-09-02T08:57:24.649Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-022",
+      "envelopeId": "cfa555ad33c5f81bf5ec6c65dd215f8cd2e2fb1d78c46411f66966b9768facdc",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          ".proof-or-stop/story/actives/B-a745/summary.json",
+          "docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan/index.json",
+          "packages/main/src/core/validation-command-identity.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a3cb11a631a7ff0ff546c1c08f6872e35cfdec5a0dc8e555050961c5af38ac84"
     }
   ]
 }
