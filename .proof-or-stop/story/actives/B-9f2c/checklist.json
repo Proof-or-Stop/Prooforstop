@@ -363,7 +363,11 @@
           {
             "desc": "a story id needing URL escaping is encoded in the opened URL rather than injected raw",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -454,6 +458,27 @@
           "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:54:33.319Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) serves the id 'B-9f2c#frag?q=1 x' and asserts on the URL the HANDLER produced (not a locally recomputed encode): it equals the encodeURIComponent form, and parsing it yields empty hash, empty search, a round-tripping id and exactly 3 path segments. Negative control run: deleting encodeURIComponent from the handler made the task exit 1 with 'the handler must URL-encode the id rather than interpolate it raw'.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "89ee57f699ce5b43b4a258180375ad8222d9bafb0ae9f8f54bc257993d056738",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-Bu92Rf (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-Bu92Rf (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-Bu92Rf (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:54:38.488Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f8b339ec3d2cc474a733eaa4a9e164b4fffbd262",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:54:38.645Z"
         }
       ]
     },
