@@ -13887,6 +13887,33 @@
       },
       "readDiagnostics": [],
       "_hash": "10ef31b8573b99f11628efce4275587114cb94e4b2aea5c83df46d7845224801"
+    },
+    {
+      "id": "B-5a15:RP-294",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept lane re-attestation for RI-067. Frozen cutoff 9009f784e0 is byte-identical to RI-066 (concept PASS RP-289/RR-880): git diff --name-status -M 829ed82a6b..678ed33aa5 restricted to packages/main/src, packages/main/tests, packages/graph, packages/utils, scripts, docs and *.md is EMPTY, so zero source material changed since the prior pass. review_incremental_context independently classifies this lane CURRENT_MATERIAL with scopeChanged=false and eligibilityReasonCodes ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS. Concept-residue scan: the story diff main...HEAD has ZERO deleted and ZERO renamed files; the change is additive (new core/causal-evidence.ts concept plus four new test suites). Verified the five genuinely-removed same-file helpers reach exactly 0 occurrences repo-wide at HEAD using direct per-path grep -c with no shell glob (isCallableDeclaration, sameFileCallableBody, sameFileCallableCallNames, sameFileCallableCalls, MAX_SAME_FILE_CALL_REACHABILITY_DEPTH), i.e. definitions and all call sites were removed together leaving no dangling reference and no misleading comment. Symbols that still resolve (normalizeEvidence 27, preReviewCaseRequiresSemanticBinding 6, currentPreReviewInputForContext 5, sameFileCallableReachable 5, hasSameFileIncomingCall 2) were reshaped in place rather than deleted, so they are not residue. B-cdf6:F-057 lockstep holds: both coupled copies of the cli-engine canonical AST fingerprint carry the identical pin 3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b exactly once each, in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs, with the coupling note and the F-363 divergence accounting intact on both sides. No new concept residue; no blocker.",
+      "createdAt": "2026-09-02T15:47:09.315Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-886",
+      "envelopeId": "245bb13fde9c3c73cd4d762676a5475094f0ac6ba70d64733c42f3e7aff1d7aa",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b82acca2abbb2b49573e859378709c38716d17027b4c535bc58997dcb1e7e374"
     }
   ]
 }
