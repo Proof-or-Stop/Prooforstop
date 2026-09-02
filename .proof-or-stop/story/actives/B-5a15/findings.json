@@ -19494,6 +19494,24 @@
       "resolvedAt": "2026-09-02T13:07:43.383Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-362",
+      "desc": "COVERAGE GAP found by the RI-063 completeness critic, which could NOT record it because review_run_start refused on an uncommitted working tree - so I am recording it on the critic's behalf rather than letting a real finding die with a blocked run. THE CRITIC ALSO CORRECTED MY SEQUENCING PLAN AND WAS RIGHT: I intended to commit two comment-only files AFTER finalizing the epoch, so they could not invalidate the cutoff. That is unworkable, because the critic receipt is a PRECONDITION of finalization - the chain review_run_start -> review_pass_set -> review_inventory_critic_set cannot even start on a dirty tree, and review_run_start classifies dirt by PATH, not content, with no clean-tree bypass in --help. Verbatim refusal: 'review_run_start: git working tree has uncommitted material_source_changes/unexpected_dirty_files changes (packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, scripts/verify-process-fact-contract.mjs). Commit or revert all code/config changes, then rerun review_run_start.' I have now committed those two files first, as it prescribed. THE SUBSTANTIVE GAP: the critic audited all 41 non-metadata material files against the union of every same-round read manifest and asked the decisive question - did each file CHANGE after it was last read in full? 30 of 41 are provably stable since their last full read and are legitimately covered (wave-1 manifests alone cover 17/41, which is correct incremental scoping, not a gap). 10 files changed after their last full read and were never re-read. One is materially serious: packages/main/src/tasks/certification-window-smoke.ts carries +36 story-authored lines versus main and was last read fully at RP-244 (@1aea7835d1), +81/-5 ago. I verified the content independently: those lines are the F-142 CHK-003 causal-selectivity acceptance test, which asserts that an unrelated material commit keeps a certification window ADMITTED while a story-owned commit drives it INVALIDATED. That is the core acceptance proof for CHK-003, and NO wave-1 lane read it. The critic notes the mechanism that let it slip: the test-coverage lane read only 1 of the 5 new test files. Second-highest: packages/main/src/core/validation-executor.ts (+110/-7 unreviewed here, mostly main's B-45a0 runtime tracing with +3 story-authored) adds tracing with silent catch fallbacks in the receipt-execution path; it was externally reviewed on main, so lower risk, but unread in this story. Lower risk remainder: flow-stability-smoke.ts (+18 story-authored), validate-progress-heartbeat-smoke.ts, done-required-validation-smoke.ts, process-fact-levels.ts, process-fact-registry.ts, the two config files (+711/-119 total but only +1/-8 story-authored), tool-executed-evidence-receipt-smoke.ts. WORTH RECORDING ABOUT THE CRITIC'S METHOD: it initially flagged core/store.ts and core/certification-window.ts as unread, then WITHDREW that after finding both were read fully in earlier rounds (RP-228, RP-281) and are byte-identical at the cutoff. It also re-derived the raw-finding predicate from review-inventory-epoch.ts:363-372 instead of trusting my summary, and independently confirmed F-361 is the sole raw finding and that F-355 is correctly excluded (bound to RR-857, material 297fba66e1 != cutoff) - listing it would have made the receipt invalid per :411. REMEDIATION, folded into the next pass so it costs no extra cycle: the comment-fix commit re-stales the three lane verdicts anyway, so the next epoch must re-run all three lanes regardless. That pass MUST include a full read of certification-window-smoke.ts by the test-coverage lane (it owns CHK-003's acceptance proof) and of validation-executor.ts by the quality lane.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T13:17:45.231Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "_hash": "4ea75f14eaf1d64fca967003e4ba06edea2e20b486698e7dba325c191101c951",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-found-completeness",
+      "signatureTagSource": "auto"
     }
   ]
 }
