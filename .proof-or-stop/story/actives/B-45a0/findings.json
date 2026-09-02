@@ -25577,7 +25577,7 @@
       "desc": "WAVE 2 RE-ATTESTATION (family: wave4-acceptance-surfaces-stale-at-head, same defect as B-45a0:F-476, current storyFilesHash 227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408): CHK-011:happy:0 (node scripts/run-dynamic-validation-replay.mjs --verify-threshold) and CHK-014:happy:1 (node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json) both still carry mechanical=false with nonMechanicalReason=\"receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt\" (checklist.json, timestamp 2026-09-02T04:48:59.382Z). Re-mechanically confirmed at unchanged cutoff: 50 total verificationEvidence records, 48/50 mechanical, only these same 2 non-mechanical, no new defect class introduced. This is a re-attestation of the existing queued DEV remediation (via verification_run), not a fresh finding requiring separate remediation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T05:21:40.062Z",
@@ -25608,7 +25608,11 @@
         ".proof-or-stop/story/actives/B-45a0/checklist.json"
       ],
       "signatureTag": "missing|json|wave-attestation-family",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Wave-2 re-attestation of the F-476 family, resolved by the same remediation: both non-mechanical receipts (CHK-011:happy:0, CHK-014:happy:1) re-earned via verification_run with full tool-owned receipt blocks (exit 0, selector matched) in the DEV bounce that the RI-118 receipt consumption enabled.",
+      "resolvedAt": "2026-09-02T07:13:20.856Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
