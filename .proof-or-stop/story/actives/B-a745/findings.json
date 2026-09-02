@@ -412,6 +412,24 @@
       ],
       "signatureTag": "missing|json|dismissal-files-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-020",
+      "desc": "validation-command-identity.ts:580 (after the F-013 fix) still says the widening-matrix supersession \"is filed with the spec owner B-ccf4 to reconcile\". F-013's own resolution was that a prior version of this sentence cited an unfindable session task chip and that the fix gives it \"a true referent\": docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan (confirmed present, story_draft_list lists it, and its index.json description does say the decision doc is \"owned by story B-ccf4\"). But the verb is still not literally accurate: nothing was actually filed WITH B-ccf4's owner. I checked .worktrees/B-ccf4/.proof-or-stop/story/actives/B-ccf4/ and there is no reference back to this draft, B-a745, or reconcile-pin-resolution-rules-tiers-plan anywhere in B-ccf4's own story files -- no link, no notification, no dependency record. The draft is a passive, discoverable-if-searched-for artifact in docs/story/drafts, not something submitted to or received by B-ccf4's owner. \"Filed with X\" implies an act of submission to a specific recipient; what actually exists is \"a draft exists that names X as the eventual reconciler\". F-013's resolution explicitly reasoned about exactly this word (\"filed\" for the earlier session chip) and concluded the fix gives the sentence a true referent -- but a true referent for the noun (the draft exists) does not make the verb (filed with) true. Given this story's own established pattern of self-correcting specific prose claims, recommend either rewording the comment to \"a reconciliation draft exists for the spec owner at docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan\" or adding an actual link from B-ccf4's story metadata to close the loop.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:45:46.527Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-015",
+      "_hash": "9ae5ad700801d19c3c6c4a3b6c810b60967c8b0f35dea2666df805f80fc65d6f",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|validation-command-identity",
+      "signatureTagSource": "auto"
     }
   ]
 }
