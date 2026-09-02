@@ -2698,6 +2698,24 @@ function buildStoryWorktreeFixture(layout: 'plain' | 'wrapper-root'): {
   fixtureGit(gitRoot, ['worktree', 'add', '-q', worktreePath, `story/${WORKTREE_FIXTURE_STORY_ID}`]);
   // The story's OWN change, committed on the story branch only: main never sees it.
   writeFixtureFile(worktreePath, WORKTREE_FIXTURE_CHANGED_FILE, 'export const touched = 1;\n');
+  if (layout === 'plain') {
+    // The story's metadata evolves on the story branch too (checklist progress,
+    // evidence pins): main's committed copy is the stale INIT snapshot. This is
+    // exactly the residual the owner reproduction showed once git state matched:
+    // an evidence pin recorded in the worktree that main's checklist never had.
+    resetConfigCache();
+    new StoryStore(worktreePath).writeChecklist(WORKTREE_FIXTURE_STORY_ID, {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          files: { modify: [WORKTREE_FIXTURE_CHANGED_FILE], create: [], test: [] },
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run not-in-inventory', result: 'pass', note: 'worktree-only pin' },
+          ],
+        }),
+      ],
+    });
+  }
   fixtureGit(worktreePath, ['add', '-A']);
   fixtureGit(worktreePath, ['commit', '-q', '-m', 'story change']);
 
@@ -2721,16 +2739,28 @@ function escalationCodes(report: Record<string, any>): string[] {
 testCase('F-010: validation_plan invoked from the main checkout plans the SAME tree as from the story worktree', () => {
   const { metadataRoot, worktreePath } = buildStoryWorktreeFixture('plain');
 
+  const worktreeBytesBefore = treeBytes(worktreePath);
+  const mainBytesBefore = treeBytes(metadataRoot);
+
   const fromWorktree = planFromRoot(worktreePath);
   const fromMainCheckout = planFromRoot(metadataRoot);
 
   // The fixture is only meaningful if the story really changed something that the
-  // worktree view sees: the story-branch commit must surface as an input.
+  // worktree view sees: the story-branch commit must surface as an input, and so
+  // must the worktree-only evidence pin recorded in the story-branch checklist.
   assert.ok(
     unclassifiedValues(fromWorktree).includes(WORKTREE_FIXTURE_CHANGED_FILE),
     `the worktree view must see the story's own change (got ${JSON.stringify(unclassifiedValues(fromWorktree))})`,
   );
+  assert.ok(
+    escalationCodes(fromWorktree).includes('pinned_command_non_inventory'),
+    'the worktree view must see the evidence pin that only the story-branch checklist records',
+  );
   assert.equal(fromWorktree.status, 'plan');
+
+  // Reading the story's tree from the main checkout must stay read-only for BOTH trees.
+  assert.deepEqual(treeBytes(worktreePath), worktreeBytesBefore, 'validation_plan wrote into the story worktree');
+  assert.deepEqual(treeBytes(metadataRoot), mainBytesBefore, 'validation_plan wrote into the main checkout');
 
   // Same story, same dist, different cwd: the relevance input must be IDENTICAL.
   assert.deepEqual(
