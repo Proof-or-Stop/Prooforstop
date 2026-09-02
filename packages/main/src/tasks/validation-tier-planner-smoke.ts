@@ -44,6 +44,25 @@
  *       `configuredValidationCommands` already uses, not a second tokenizer.
  *  (15) NO IN-PLACE MIGRATION — resolving never mutates the evidence it was handed.
  *  (16) RUNTIME RE-VALIDATION — a schema-bypassing malformed pin is still rejected.
+ *
+ * CHK-003 cases proven here (section "Story input contract"):
+ *  (17) POSITIVE COLLECTION — every input kind in the spec's table is gathered and
+ *       every seed records its provenance.
+ *  (18) DELETE + RENAME — a deleted path stays a seed; a rename contributes BOTH the
+ *       old and the new path.
+ *  (19) CANONICAL EXCLUSION — story metadata and registered runtime artifacts are
+ *       excluded through `isStoryMetadataPath` / `isMaterialExcludedPath`, never a
+ *       local allowlist.
+ *  (20) READ FAILURE (load-bearing) — an unreadable changed-file set is
+ *       `changed_files_unavailable` with an escalation, and an honestly EMPTY diff
+ *       stays `available` with none. A `catch { return [] }` implementation fails here.
+ *  (21) DURATION HISTORY — collected from prior signed validation artifacts; a command
+ *       with no history reports unknown-duration and carries no numeric field at all.
+ *  (22) ADVERSARIAL (duration) — mutating duration history changes neither the seed set
+ *       nor the selection digest: it is estimate-only by construction.
+ *  (23) ADVERSARIAL (intent) — verification intent is reason context only and produces
+ *       no command-to-seed edge; every edge that exists comes from a resolved pin.
+ *  (24) RUNTIME RE-VALIDATION — the collector re-checks its own inputs.
  */
 
 import assert from 'node:assert/strict';
@@ -61,6 +80,21 @@ import {
   resolveValidationCommandPin,
   type ValidationPinResolutionResult,
 } from '../core/validation-command-identity.js';
+import {
+  DEFAULT_STORY_RELEVANCE_READERS,
+  collectStoryRelevanceInput,
+  type ChangedFileStatusReader,
+  type StoryRelevanceInput,
+  type StoryRelevanceInputArgs,
+} from '../core/validation-relevance-input.js';
+import {
+  captureEvidenceHashSnapshot,
+  changedFileStatusesBetweenRenameAware,
+  isMaterialExcludedPath,
+  isStoryMetadataPath,
+  type EvidenceHashSnapshot,
+} from '../core/evidence-freshness.js';
+import type { ChecklistItem } from '../core/types.js';
 import {
   buildRoutineValidationIdentity,
   validationCommandUsesShell,
@@ -670,6 +704,462 @@ testCase('a malformed commandId is rejected at the resolver entry, not silently 
     () => resolvePin(commands, { command: 7 as unknown as string }),
     /command/,
     'a schema-bypassing non-string legacy command must still be rejected',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// CHK-003 — the Story input collector (`core/validation-relevance-input.ts`).
+// Spec section "Story input contract".
+// ---------------------------------------------------------------------------
+
+const FIXTURE_HEAD_SNAPSHOT: EvidenceHashSnapshot = {
+  schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+  headHash: 'head0000000000000000000000000000000000000',
+  materialHash: 'material00000000000000000000000000000000',
+  storyFilesHash: 'storyfiles000000000000000000000000000000',
+  gitCwd: ROOT,
+  metadataRoot: ROOT,
+  ref: 'HEAD',
+  capturedAt: '2026-01-01T00:00:00.000Z',
+  materialDirtyFiles: [],
+};
+
+function fixtureHashSnapshot(args: { ref?: string }): EvidenceHashSnapshot {
+  return { ...FIXTURE_HEAD_SNAPSHOT, ref: args.ref ?? 'HEAD' };
+}
+
+function checklistItem(overrides: Partial<ChecklistItem> & { id: string }): ChecklistItem {
+  return {
+    title: `${overrides.id} title`,
+    status: 'done',
+    startTime: null,
+    endTime: null,
+    ...overrides,
+  } as ChecklistItem;
+}
+
+function statusReader(statuses: Record<string, string>): ChangedFileStatusReader {
+  return () => ({ ...statuses });
+}
+
+const throwingStatusReader: ChangedFileStatusReader = () => {
+  throw new Error('fatal: bad revision "main"');
+};
+
+const RELEVANCE_COMMANDS: ValidationCommand[] = [
+  command({ label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' }),
+  command({ label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' }),
+];
+
+function collect(overrides: Partial<StoryRelevanceInputArgs> = {}): StoryRelevanceInput {
+  return collectStoryRelevanceInput({
+    projectRoot: ROOT,
+    gitCwd: ROOT,
+    story: { storyId: 'B-a745', phase: 'DEV' },
+    checklist: { items: [] },
+    routine: { sourceKind: 'configured', commands: RELEVANCE_COMMANDS },
+    platform: 'linux',
+    processEnvironment: { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv,
+    readers: { changedFileStatuses: statusReader({}), hashSnapshot: fixtureHashSnapshot },
+    ...overrides,
+  });
+}
+
+function seedOf(input: StoryRelevanceInput, kind: string, value: string) {
+  return input.seeds.find((seed) => seed.kind === kind && seed.value === value);
+}
+
+// ---------------------------------------------------------------------------
+// (17) POSITIVE — every input kind in the spec's table is collected, and every
+//      seed records where it came from.
+// ---------------------------------------------------------------------------
+testCase('the collector gathers every Story input kind with per-seed provenance', () => {
+  const input = collect({
+    story: {
+      storyId: 'B-a745',
+      phase: 'DEV',
+      riskSignals: [{ category: 'guard', matched: 'guard' }],
+    },
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          files: { modify: ['src/core/machine-x.ts'], create: ['src/core/new-x.ts'], test: ['src/tasks/x-smoke.ts'] },
+          verificationIntent: {
+            happy: [{ desc: 'the planner explains its selection', type: 'cli', priority: 'must' }],
+            edge: [],
+            adversarial: [],
+          },
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm test', result: 'pass', note: 'fixture evidence' },
+          ],
+        }),
+      ],
+    },
+    readers: {
+      changedFileStatuses: statusReader({ 'src/core/touched.ts': 'M' }),
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  });
+
+  assert.equal(input.storyId, 'B-a745');
+  assert.equal(input.phase, 'DEV');
+  assert.equal(input.hashes.status, 'available');
+  assert.equal(input.hashes.status === 'available' && input.hashes.head.headHash, FIXTURE_HEAD_SNAPSHOT.headHash);
+  assert.equal(input.hashes.status === 'available' && input.hashes.head.materialHash, FIXTURE_HEAD_SNAPSHOT.materialHash);
+  assert.equal(input.hashes.status === 'available' && input.hashes.head.storyFilesHash, FIXTURE_HEAD_SNAPSHOT.storyFilesHash);
+  assert.equal(input.changedFiles.status, 'available');
+
+  assert.deepEqual(seedOf(input, 'path', 'src/core/touched.ts')?.provenance, ['changed-file']);
+  assert.deepEqual(seedOf(input, 'path', 'src/core/machine-x.ts')?.provenance, ['checklist-modify']);
+  assert.deepEqual(seedOf(input, 'path', 'src/core/new-x.ts')?.provenance, ['checklist-create']);
+  assert.deepEqual(seedOf(input, 'path', 'src/tasks/x-smoke.ts')?.provenance, ['checklist-test']);
+  assert.deepEqual(seedOf(input, 'command', 'unit-suite')?.provenance, ['evidence-pin']);
+  assert.deepEqual(seedOf(input, 'risk-signal', 'guard')?.provenance, ['risk-signal']);
+  for (const seed of input.seeds) {
+    assert.ok(seed.provenance.length > 0, `seed ${seed.kind}:${seed.value} must record its provenance`);
+  }
+
+  assert.equal(input.pinnedCommands.length, 1);
+  assert.equal(input.pinnedCommands[0].commandId, 'unit-suite');
+  assert.equal(input.pinnedCommands[0].itemId, 'CHK-001');
+  assert.equal(input.executionInventory.sourceKind, 'configured');
+  assert.deepEqual(input.executionInventory.commandIds, ['unit-suite', 'lint-suite']);
+  assert.ok(input.executionInventory.commandSetDigest.length === 64);
+  assert.equal(input.escalations.length, 0);
+});
+
+testCase('the collector defaults to the SHARED rename-aware reader and the shared hash snapshot', () => {
+  // The injectable readers exist for the failure fixture below; the DEFAULTS must
+  // still be the canonical shared readers, so the collector never grows its own
+  // git access path alongside `core/evidence-freshness.ts`.
+  assert.equal(
+    DEFAULT_STORY_RELEVANCE_READERS.changedFileStatuses,
+    changedFileStatusesBetweenRenameAware,
+    'changed paths must come from the shared rename-aware reader',
+  );
+  assert.equal(
+    DEFAULT_STORY_RELEVANCE_READERS.hashSnapshot,
+    captureEvidenceHashSnapshot,
+    'hashes must come from the shared evidence hash snapshot reader',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// (18) DELETE + RENAME — a deleted path stays a seed and BOTH sides of a rename
+//      stay seeds. The spec states both rules explicitly.
+// ---------------------------------------------------------------------------
+testCase('a deleted path remains a seed and a rename contributes both old and new paths', () => {
+  const input = collect({
+    readers: {
+      changedFileStatuses: statusReader({
+        'src/core/removed.ts': 'D',
+        'src/core/old-name.ts': 'R100',
+        'src/core/new-name.ts': 'R100',
+      }),
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  });
+  const deleted = seedOf(input, 'path', 'src/core/removed.ts');
+  assert.ok(deleted, 'a deleted file must remain a seed');
+  assert.equal(deleted!.changeStatus, 'D');
+  assert.equal(deleted!.deleted, true);
+  assert.ok(seedOf(input, 'path', 'src/core/old-name.ts'), 'the rename source must remain a seed');
+  assert.ok(seedOf(input, 'path', 'src/core/new-name.ts'), 'the rename destination must remain a seed');
+});
+
+// ---------------------------------------------------------------------------
+// (19) EXCLUSION uses the CANONICAL classifier, never a local allowlist.
+// ---------------------------------------------------------------------------
+testCase('story metadata and registered runtime artifacts are excluded by the canonical classifier', () => {
+  const metadataPath = '.proof-or-stop/story/actives/B-a745/index.json';
+  const runtimeArtifactPath = '.proof-or-stop/activity.jsonl';
+  const materialPath = 'src/core/machine-x.ts';
+  // Guard the fixture itself against drifting away from the canonical rule.
+  assert.equal(isStoryMetadataPath(metadataPath), true);
+  assert.equal(isMaterialExcludedPath(runtimeArtifactPath), true);
+  assert.equal(isMaterialExcludedPath(materialPath), false);
+
+  const input = collect({
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          files: { modify: [metadataPath], create: [], test: [] },
+        }),
+      ],
+    },
+    readers: {
+      changedFileStatuses: statusReader({ [runtimeArtifactPath]: 'M', [materialPath]: 'M' }),
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  });
+
+  assert.equal(seedOf(input, 'path', metadataPath), undefined, 'story metadata is not a material seed');
+  assert.equal(seedOf(input, 'path', runtimeArtifactPath), undefined, 'a registered runtime artifact is not a material seed');
+  assert.ok(seedOf(input, 'path', materialPath), 'real material must still seed');
+  const excluded = input.excludedPaths.map((entry) => entry.path).sort();
+  assert.deepEqual(excluded, [runtimeArtifactPath, metadataPath].sort());
+  assert.equal(input.excludedPaths.find((entry) => entry.path === metadataPath)?.reason, 'story-metadata');
+  assert.equal(input.excludedPaths.find((entry) => entry.path === runtimeArtifactPath)?.reason, 'runtime-artifact');
+});
+
+// ---------------------------------------------------------------------------
+// (20) READ FAILURE (load-bearing) — a failure to read changed files is
+//      `changed_files_unavailable`, NEVER an empty array. The second half of the
+//      case is what makes a `catch { return [] }` implementation FAIL: an
+//      honestly empty diff must stay `available` with no escalation, so the two
+//      states can never be conflated.
+// ---------------------------------------------------------------------------
+testCase('a changed-file read failure is changed_files_unavailable, never an empty seed set', () => {
+  const failed = collect({
+    readers: { changedFileStatuses: throwingStatusReader, hashSnapshot: fixtureHashSnapshot },
+  });
+  assert.equal(failed.changedFiles.status, 'changed_files_unavailable');
+  assert.notEqual(failed.changedFiles.status, 'available', 'a read failure must never be reported as a clean diff');
+  assert.match(
+    failed.changedFiles.status === 'changed_files_unavailable' ? failed.changedFiles.error : '',
+    /bad revision/,
+    'the underlying reader error must be preserved',
+  );
+  const escalation = failed.escalations.find((entry) => entry.code === 'changed_files_unavailable');
+  assert.ok(escalation, 'a read failure must escalate');
+  assert.ok((escalation!.detail ?? '').length > 0, 'the escalation must carry a human-readable detail');
+
+  const empty = collect({
+    readers: { changedFileStatuses: statusReader({}), hashSnapshot: fixtureHashSnapshot },
+  });
+  assert.equal(empty.changedFiles.status, 'available', 'an honestly empty diff is available, not unavailable');
+  assert.deepEqual(
+    empty.escalations.filter((entry) => entry.code === 'changed_files_unavailable'),
+    [],
+    'an empty diff must not escalate',
+  );
+  assert.notEqual(
+    failed.selectionDigest,
+    empty.selectionDigest,
+    'an unreadable diff and an empty diff must not produce the same planning input',
+  );
+});
+
+testCase('a hash snapshot failure is classified, not silently dropped', () => {
+  const input = collect({
+    readers: {
+      changedFileStatuses: statusReader({}),
+      hashSnapshot: () => {
+        throw new Error('fatal: not a git repository');
+      },
+    },
+  });
+  assert.equal(input.hashes.status, 'hash_snapshot_unavailable');
+  assert.ok(input.escalations.some((entry) => entry.code === 'hash_snapshot_unavailable'));
+});
+
+// ---------------------------------------------------------------------------
+// (21) DURATION HISTORY — collected from prior signed validation artifacts.
+//      Absent history is UNKNOWN-duration, never zero.
+// ---------------------------------------------------------------------------
+testCase('duration history is collected and an absent history reports unknown-duration, never zero', () => {
+  const input = collect({
+    durationHistory: {
+      artifacts: [
+        {
+          storyId: 'B-a745',
+          status: 'PASS',
+          receipts: [
+            { label: 'unit', command: 'npm', args: ['test'], durationMs: 4000 },
+            { label: 'unit', command: 'npm', args: ['test'], durationMs: 6000 },
+          ],
+        },
+      ],
+    },
+  });
+  assert.equal(input.durationHistory.status, 'collected');
+  const unit = input.durationHistory.estimates.find((entry) => entry.commandId === 'unit-suite');
+  assert.ok(unit, 'the matched command must carry an estimate');
+  assert.equal(unit!.status, 'known');
+  assert.equal(unit!.sampleCount, 2);
+  assert.equal(typeof unit!.estimateMs, 'number');
+  assert.ok((unit!.basis ?? '').length > 0, 'an estimate must name its basis');
+
+  const lint = input.durationHistory.estimates.find((entry) => entry.commandId === 'lint-suite');
+  assert.ok(lint, 'a command with no history must still be reported');
+  assert.equal(lint!.status, 'unknown-duration');
+  assert.equal(lint!.sampleCount, 0);
+  assert.equal(lint!.estimateMs, undefined, 'no history must never be reported as a duration');
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(lint!, 'estimateMs'),
+    false,
+    'an unknown duration must not even carry the key, so no reader can coerce it to 0',
+  );
+
+  const none = collect();
+  for (const estimate of none.durationHistory.estimates) {
+    assert.equal(estimate.status, 'unknown-duration');
+    assert.equal(estimate.sampleCount, 0);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (22) ADVERSARIAL — duration history is ESTIMATE-ONLY: mutating it can never
+//      change what would be selected.
+// ---------------------------------------------------------------------------
+testCase('mutating duration history leaves the selected set and the selection digest unchanged', () => {
+  const seedsArgs: Partial<StoryRelevanceInputArgs> = {
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          files: { modify: ['src/core/machine-x.ts'], create: [], test: [] },
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm test', result: 'pass', note: 'fixture evidence' },
+          ],
+        }),
+      ],
+    },
+    readers: {
+      changedFileStatuses: statusReader({ 'src/core/touched.ts': 'M' }),
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  };
+  const withoutHistory = collect(seedsArgs);
+  const withHistory = collect({
+    ...seedsArgs,
+    durationHistory: {
+      artifacts: [
+        {
+          storyId: 'B-a745',
+          status: 'PASS',
+          receipts: [
+            { label: 'unit', command: 'npm', args: ['test'], durationMs: 999_999 },
+            { label: 'lint', command: 'npm', args: ['run', 'lint'], durationMs: 1 },
+          ],
+        },
+      ],
+    },
+  });
+
+  assert.deepEqual(withHistory.seeds, withoutHistory.seeds, 'duration data must not change the seed set');
+  assert.deepEqual(
+    withHistory.pinnedCommands,
+    withoutHistory.pinnedCommands,
+    'duration data must not change pinned commands',
+  );
+  assert.deepEqual(
+    withHistory.executionInventory.commandIds,
+    withoutHistory.executionInventory.commandIds,
+    'duration data must not change the execution inventory',
+  );
+  assert.equal(
+    withHistory.selectionDigest,
+    withoutHistory.selectionDigest,
+    'the selection digest must be computed WITHOUT duration history, so an estimate can never widen or narrow selection',
+  );
+  assert.notDeepEqual(
+    withHistory.durationHistory.estimates,
+    withoutHistory.durationHistory.estimates,
+    'the fixture must actually vary the duration data it claims cannot matter',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// (23) ADVERSARIAL — verification intent is REASON CONTEXT only: on its own it
+//      produces no command-to-seed edge. The spec: "never parsed as the only
+//      machine mapping".
+// ---------------------------------------------------------------------------
+testCase('verification intent is carried as reason context and produces no command-to-seed edge', () => {
+  const intentOnly = collect({
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationIntent: {
+            happy: [{ desc: 'npm test passes for the unit suite', type: 'cli', priority: 'must' }],
+            edge: [{ desc: 'lint-suite still runs when config is absent', type: 'cli', priority: 'must' }],
+            adversarial: [],
+          },
+        }),
+      ],
+    },
+  });
+  assert.equal(intentOnly.verificationIntentContext.length, 2, 'intent must be carried for the explain output');
+  assert.equal(intentOnly.verificationIntentContext[0].itemId, 'CHK-001');
+  assert.equal(intentOnly.verificationIntentContext[0].lane, 'happy');
+  assert.match(intentOnly.verificationIntentContext[0].desc, /unit suite/);
+  assert.deepEqual(
+    intentOnly.commandSeedEdges,
+    [],
+    'intent text naming a command must NOT create a command-to-seed edge on its own',
+  );
+  assert.deepEqual(intentOnly.pinnedCommands, [], 'intent is not a pin');
+  assert.deepEqual(
+    intentOnly.seeds.filter((seed) => seed.kind === 'command'),
+    [],
+    'intent must not seed a command',
+  );
+
+  const withoutIntent = collect({
+    checklist: { items: [checklistItem({ id: 'CHK-001' })] },
+  });
+  assert.equal(
+    intentOnly.selectionDigest,
+    withoutIntent.selectionDigest,
+    'intent must be outside the selection digest: it is reason context, never a machine mapping',
+  );
+
+  // Every edge that DOES exist must be attributable to a machine pin.
+  const pinned = collect({
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm test', result: 'pass', note: 'fixture evidence' },
+          ],
+        }),
+      ],
+    },
+  });
+  assert.equal(pinned.commandSeedEdges.length, 1);
+  assert.equal(pinned.commandSeedEdges[0].origin, 'evidence-pin');
+  assert.equal(pinned.commandSeedEdges[0].commandId, 'unit-suite');
+  for (const edge of pinned.commandSeedEdges) {
+    assert.equal(edge.origin, 'evidence-pin', 'the ONLY command-to-seed edge origin is a machine-resolved pin');
+  }
+});
+
+testCase('an unresolvable evidence pin is a classified stop, not a silently dropped seed', () => {
+  const input = collect({
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run gone', result: 'pass', note: 'fixture evidence' },
+          ],
+        }),
+      ],
+    },
+  });
+  assert.deepEqual(input.pinnedCommands, []);
+  assert.ok(input.escalations.some((entry) => entry.code === 'pinned_command_missing'));
+  assert.ok(input.unclassifiedInputs.some((entry) => entry.kind === 'evidence-pin'));
+});
+
+// ---------------------------------------------------------------------------
+// (24) Handler encoding convention: the collector re-validates its own inputs,
+//      because a schema is only the first line of defence.
+// ---------------------------------------------------------------------------
+testCase('the collector re-validates a schema-bypassing caller input', () => {
+  assert.throws(
+    () => collect({ story: { storyId: '   ', phase: 'DEV' } }),
+    /storyId/,
+    'an empty storyId must be rejected at the collector entry',
+  );
+  assert.throws(
+    () => collect({ routine: { sourceKind: 'nonsense' as never, commands: [] } }),
+    /sourceKind/,
+    'an unknown routine source kind must be rejected at the collector entry',
   );
 });
 
