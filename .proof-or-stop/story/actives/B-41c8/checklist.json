@@ -194,8 +194,8 @@
       "id": "CHK-002",
       "title": "Delegate the DONE-required command parser to the canonical legacy parser and prove all call sites agree",
       "context": "core/done-required-validation.ts private SHELL_META_RE / splitShellWords / commandFromString around lines 40, 113, 276 versus parseLegacyValidationCommandString in core/validation-command-identity.ts. RED fixture: a shared set of tricky inputs (metacharacters, quoted arguments, embedded spaces) parsed through every call site must agree on shell-versus-argv; any intentional divergence becomes an explicit, named, tested difference.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T14:03:19.525Z",
       "endTime": null,
       "relatedDocs": [
         "CLAUDE.md#handler-encoding-conventions"
