@@ -4,7 +4,7 @@
   "title": "Migrate the graph story dossier page and add a --story deep-link flag to the graph command",
   "description": "Port the per-story dossier page from the upstream proof-or-stop-graph repository (commits 4c3bde0, 7ecad9a, a0b14da, 1536588, all landed after the 10b5921 migration point already mirrored here) into packages/graph, and expose it from the CLI. The dossier is a full-window mission-control page for ONE story: a finding map, the seven-phase lifecycle loop, a dependency web, checklist/outcome panels, a findings feed, a dispatch swarm, a pulse chart and a wire log, all derived client-side from the existing /api/story detail. It has its own URL /story/<id>, served by the same HTTP shell as /. Upstream files: a new src/shells/web/dossier.js of 1119 lines, plus edits to app.css, app.js, app.body.html, io/http.ts, scripts/build-web.mjs and README.md. On top of the straight port, add a --story=<id> flag to the existing proof-or-stop graph command so the browser opens http://localhost:<port>/story/<id> directly instead of /. An unknown story id must be rejected BEFORE the server starts listening, following the precedent already set for --root in packages/main/src/handlers/graph.ts, where an unresolvable value is refused rather than silently serving an empty view.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -78,6 +78,15 @@
       "user": "Pan Qi",
       "sessionId": "graph-dossier-1788336363",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T14:25:10.299Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -85,5 +94,5 @@
     "branch": "story/B-9f2c",
     "createdAt": "2026-09-02T08:15:15.505Z"
   },
-  "currentReviewRound": "2026-09-02T09:12:52.423Z"
+  "currentReviewRound": "2026-09-02T14:25:10.299Z"
 }
