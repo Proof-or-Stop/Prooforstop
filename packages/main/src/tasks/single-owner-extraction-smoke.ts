@@ -1533,7 +1533,7 @@ const DELEGATION_EXEMPT_CALLEES: ReadonlySet<string> = new Set(['resolveStoryWor
  */
 function contextNames(code: string): Set<string> {
   const names = new Set<string>(['ctx']);
-  const re = /([\w$]+)\s*:\s*HandlerContext(?:\[\s*(?:'store'|"store")\s*\])?(?![\w$<\[])/g;
+  const re = /([\w$]+)\s*:\s*HandlerContext(?:\[\s*(?:'store')\s*\])?(?![\w$<\[])/g;
   for (let match = re.exec(code); match; match = re.exec(code)) names.add(match[1]!);
   return names;
 }
@@ -1833,6 +1833,7 @@ const GENERIC_LOCAL_PROBE_LINES = [
   '  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });', // L6 call
   '  return withLock(ctx, storyId, () => { checkCwd(ctx.store, storyId); return gitCwd; });', // L7 generic local callees receiving bare ctx / the store are scanned in place, not flagged
   '}', // L8
+  'function checkCwdQuoted(dq: HandlerContext["store"], storyId: string): void { assertCwdInWorktree(dq, storyId); }', // L9 the same store parameter with a double-quoted subscript (no formatter pins quote style here; finding.ts:564 already spells a type subscript this way): a context name and a delegation (F-013)
   '',
 ];
 
@@ -2006,13 +2007,13 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
     name: 'adversarial (F-011): generic local callees are local; HandlerContext[\'store\'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function',
     run: () => {
       const probe = GENERIC_LOCAL_PROBE_LINES.join('\n');
-      assert.deepEqual([...localFunctionNames(probe)].sort(), ['checkCwd', 'probe', 'withLock'], 'generic, async and exported function declarations are all local');
+      assert.deepEqual([...localFunctionNames(probe)].sort(), ['checkCwd', 'checkCwdQuoted', 'probe', 'withLock'], 'generic, async and exported function declarations are all local');
       assert.deepEqual([...localFunctionNames('export async function nested<T extends Map<string, Foo<T>>>(ctx: HandlerContext): T { }')], ['nested'], 'a nested generic clause is tolerated');
       const names = contextNames(`${probe}\nfunction g(context: HandlerContext, other: HandlerContext | undefined, typed: HandlerContext<Foo>, sub: HandlerContext['root']) {}`);
-      assert.deepEqual([...names].sort(), ['context', 'ctx', 'other', 'store'], 'the bare context and its store are context names; HandlerContext<...> and a non-store sub-part are not');
+      assert.deepEqual([...names].sort(), ['context', 'ctx', 'dq', 'other', 'store'], 'the bare context and its store (single- or double-quoted subscript) are context names; HandlerContext<...> and a non-store sub-part are not');
       const scan = scanResolverSource(probe);
       assert.deepEqual(scan.callLines, [6]);
-      assert.deepEqual(scan.remainingReads, [{ kind: 'handler', via: 'assertCwdInWorktree(store)', line: 4 }], 'the non-local callee receiving the store is the only delegation; the generic local callees are not');
+      assert.deepEqual(scan.remainingReads, [{ kind: 'handler', via: 'assertCwdInWorktree(store)', line: 4 }, { kind: 'handler', via: 'assertCwdInWorktree(dq)', line: 9 }], 'the non-local callee receiving the store (either quoting) is the only delegation; the generic local callees are not');
       assert.equal(scan.workspaceRooted, false);
       assert.equal(classificationOf(scan), 'reads ctx.root: via-handler(assertCwdInWorktree)');
       // The same invariant on the real audit: a delegation names a callee outside its file, never a function the file declares.
