@@ -393,6 +393,25 @@
       "signatureTagSource": "auto",
       "dismissReason": "Deferred to Rollout Story 2 with an in-repository artifact, not dismissed as wrong: the finding accurately describes current behaviour (no reference to materialDirtyFiles in collector, planner or handler; workspace_snapshot_changed is declared but never emitted). The governing spec assigns staged/unstaged/untracked overlay projection to Rollout Story 2 (line 718) and this story's recorded excluded scope names it; Story 1 never prunes, so the omission cannot drop a command. The honesty gap -- an explain-only planner silent about dirty state -- is acknowledged, not waved away, and is the first checklist item of the committed draft docs/story/drafts/planner-worktree-overlay-seeds (main commit 3750570004), listed by story_draft_list. Downgraded from MAJOR because no pruning is possible under any Story 1 path; if later evidence shows a Story 1 consumer acting on the digest as if it bound worktree state, pull it back immediately.",
       "dismissedAt": "2026-09-02T08:24:50.731Z"
+    },
+    {
+      "id": "B-a745:F-019",
+      "desc": "F-018 dismissal (files: packages/main/src/core/validation-relevance-input.ts) asserts the deferral draft is \"the first checklist item of the committed draft docs/story/drafts/planner-worktree-overlay-seeds (main commit 3750570004), listed by story_draft_list.\" I ran story_draft_list exactly as instructed, from this story's own REVIEW worktree (/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-a745, checked out to story/B-a745): it lists only 5 drafts (audit-evidence-case-count-metadata, codex-hook-managed-asset-drift, global-cli-worktree-drift, reconcile-pin-resolution-rules-tiers-plan, scope-question-help-discoverability) -- planner-worktree-overlay-seeds is ABSENT. Root cause: commit 3750570004 landed on local main AFTER story/B-a745 diverged (merge-base is the prior draft commit bcc0e1e3a4); story_draft_list (packages/main/src/handlers/story-draft.ts getDraftsDir/readdirSync) reads the CURRENT WORKING TREE, not the main git ref, so a worktree that has not merged that later main commit cannot see it. git log main does show 3750570004 and git ls-tree main has the three files, so the artifact genuinely exists on main -- but \"listed by story_draft_list\" is a specific, checkable claim that is false when run in the exact context (this story's worktree) where a reader would naturally verify it. This is the same class of defect this story has now hit three times before (F-011/F-013 session-chip citation, F-016 uncounted downstream sites before the independent host caught it, F-017 unreproduced digest): a specific claim presented as fact without being run in the context where it would be read. Recommend: either merge main into story/B-a745 before DONE (done_prepare --mergeMain, which the DONE-convergence rules already require) so the claim becomes true in this worktree too, or reword the dismissal to state the verification context (\"visible via story_draft_list once main is merged / from a checkout that includes commit 3750570004\") rather than asserting it unqualified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:45:32.247Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-015",
+      "_hash": "f2f65dfd4076a35558fed76a561d807b1da0953f846186e3189852ee19bc4a13",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json",
+        "docs/story/drafts/planner-worktree-overlay-seeds/index.json"
+      ],
+      "signatureTag": "missing|json|dismissal-files-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
