@@ -973,7 +973,7 @@
       "desc": "Current Story acceptance artifacts are not admissible after the canonical reviewer-identity migration, while CHK-005 evidence notes claim current signed PASS/full-3x2 coverage using only generic fixture-smoke commands. Independent authoritative reads on HEAD 8816d08 show: acceptance_basis --storyId=B-9a49 --json => status=invalid, evidentiary=false; pre_review_check_read => status=inconclusive, ok=false with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_report_read and acceptance_rollout_check => status=fail with AR_REPORT_STALE and AR_REPORT_TAMPERED. Generic replacement smokes pass and verify verifier behavior, but do not prove the persisted B-9a49 artifacts are current. This blocks truthful CHK-005 acceptance coverage. Remediation is evidence re-attestation through the official acceptance-basis/pre-review/rollout artifact commands and replacement of the affected Story-bound receipts; runtime code is not implicated unless re-attestation exposes a separate defect.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T01:48:57.155Z",
@@ -985,7 +985,11 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|current-story-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by regenerating current acceptance artifacts after the canonical reviewer-identity repair: acceptance_basis is verified/complete, topology passes, pre_review is PASS/current/admissible, rollout is PASS/current/full-3x2, and the CLI reports all 60 must intents mechanically evidenced.",
+      "resolvedAt": "2026-09-02T03:44:30.262Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-044",
