@@ -835,6 +835,25 @@
       ],
       "signatureTag": "missing|md|durable-audit-overclaims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-038",
+      "desc": "doc-code-drift: docs/audits/AGENTS-current-version-audit.md:73-84 claims the exact Agy invocation and prompt SHA-256 as durable provenance, but tests/AGENTS.verify.mjs:969-978 only checks selected prose tokens and :1008-1017 validates only ordinal 953 stdout bytes/hash/status. It never checks record.payload.item.command, cwd, executable path/version, or the prompt file/hash. Repro: the provenance token list omits 6e022d8eebd7235a521f3a764e13ccf107ad8bdd889f0dfac5177624e35c121a and every invocation flag; externalReviewArtifactChecks reads only record.payload.item.stdout. Therefore changing the audit to an invented prompt hash or altered invocation leaves --final GREEN. WHY high: the user explicitly required Agy CLI participation with evidence, so the claimed exact invocation/prompt provenance must be mechanically bound to the captured command record and prompt artifact/hash, or the prose must be narrowed to the stdout facts actually verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T08:52:18.337Z",
+      "reviewRound": "2026-09-02T08:41:59.853Z",
+      "reviewRunId": "B-d854:RR-030",
+      "_hash": "5a411ef73bcc8d6c21ac642dc9e083bc62a0d1f5b687ba6d69906deb4043cb10",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
