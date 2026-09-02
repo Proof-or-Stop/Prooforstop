@@ -1333,6 +1333,25 @@
       ],
       "signatureTag": "task-context-authority-synonym-default-allow",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-9a49:F-060",
+      "desc": "packages/main/src/core/prompt-envelope.ts:364-401 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:805-838 false-positive authority guard (high): the 280bdb0 fail-closed rewrite treats every Task Context mention of `Dynamic Finding plan|authority|runtime` as an amendment unless the complete sentence matches one of three narrow positive grammars. It therefore rejects ordinary non-amending reference prose such as `Use the Dynamic Finding execution plan as the governing reference for this Story.` with `Dynamic Finding authority amendment asserted from Task Context`. A current-production-dist safe-control probe inserted that exact sentence into safeTaskContextAuthorityStatements and the full-context smoke failed on story.description (exit 1); similarly plain read/dependency descriptions are outside the allowlist. This contradicts the function contract that Task Context may describe work/tests while only publication of an authority amendment is forbidden, and can prevent review_run_start for otherwise valid future Stories. The committed safe controls cover invariant, prohibition, and subordination wording only, so they cannot detect this overblocking. Preserve fail-closed rejection of 280bdb0 synonym/word-order mutations, but add non-amending reference/dependency/read safe controls across reviewer roles and distinguish reference speech acts from authority publication without restoring a finite unsafe-verb allowlist.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T09:00:41.672Z",
+      "reviewRound": "2026-09-02T08:55:56.905Z",
+      "reviewRunId": "B-9a49:RR-090",
+      "_hash": "3c0956fc016ed5953f0e92ac7ba0d0cbabf4d06168216b59003efbd0296a805a",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
