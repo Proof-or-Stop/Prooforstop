@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Restore the executable bit on package.json bin targets when dist is promoted",
       "context": "Probe rp-mtk46lj8-90q9av, review rr-mtk4acx4-oqze5c. scripts/promote-dist.mjs promoteDist must chmod every bin target listed in <packageRoot>/package.json after renaming staging into dist (both the main and utils builds share promoteDist). green-4-promote-dist.patch in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/ is the proven candidate.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T15:28:47.993Z",
-      "endTime": null,
+      "endTime": "2026-09-02T16:11:44.825Z",
       "userSees": "After npm --prefix packages/main run build re-emits dist, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version prints the version instead of permission denied",
       "files": {
         "modify": [
@@ -51,6 +51,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "b03bd33043bd5eea15d7d9a1a010c899302b54411dfd707edbef7ca88b65c9a0",
+        "storyFilesHash": "9a6cc8bf5c6836390bb287aeed0041cd3586ccf683ddedf8b3a57ac1ef2cdcdd",
+        "headHash": "7e3bef85f09043e20969a6392b9455d2233c7096",
+        "attestedAt": "2026-09-02T16:11:45.121Z",
+        "materialHash": "f0427d70f2cd7c951342fc11837f7d6197c4fe5a7c228f07a94b1758866cdf1f"
       }
     },
     {
