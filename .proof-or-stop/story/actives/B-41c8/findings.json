@@ -269,7 +269,7 @@
       "desc": "REVIEW->TEST validate failed: packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js throws \"dynamic binding graph builds must remain bounded at 808, got 809 (synthetic=419, repo=390)\". DYNAMIC_BINDING_BUILD_CEILING = 808 (retired-authority-vocabulary-guard-smoke.ts:695) pins a repository-wide count that grows by one for every source file under packages/main/src; this story added core/story-workspace.ts (CHK-003), so the real count is 809 while main (808 files) still passes. Acceptance-blocking. Fix: raise the ceiling to the value the current tree produces and add a maintenance comment stating that the ceiling moves by one per added source file and which story moved it; do not cite a commit hash. Standalone rc=1 reproduced in the worktree; codex-heartbeat-timeout-smoke, the other failure in the same run, passes standalone and is recorded as load-flaky for the test-and-guard credibility story.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-02T17:40:12.987Z",
@@ -280,7 +280,8 @@
         "packages/main/src/core/story-workspace.ts"
       ],
       "signatureTag": "missing|ts|review-test-validate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-015@418e5d8"
     }
   ]
 }
