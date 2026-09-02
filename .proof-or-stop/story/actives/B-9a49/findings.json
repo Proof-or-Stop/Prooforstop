@@ -1124,7 +1124,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:331-345 invariant-exception authority laundering (high): the new nominalChangeReference + explicitInvariantCheck exception skips every nominal `this change` token whenever the segment contains an audit verb and an unchanged assertion, but the amendment vocabulary does not include add/introduce/create. A production-dist probe assembled and signed the affirmative contradiction `Verify the Dynamic Finding runtime remains unchanged while this change adds a new applicability verdict.` and returned UNSAFE_ACCEPTED. This lets Story-authored Task Context combine a cosmetic no-change clause with a real Dynamic Finding authority amendment, contradicting the fail-closed pre-digest boundary. Keep the exact CHK-003 invariant safe, but scope the exception to a genuinely invariant relation and add mutations for nominal-change actor verbs such as adds/introduces/creates so contradictory whole-segment residue is rejected.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T03:43:04.617Z",
@@ -1132,7 +1132,11 @@
       "reviewRunId": "B-9a49:RR-073",
       "_hash": "e97222a82cb68c638e3d35ad3cb03ce2d0400cf4ffbd87149086846d2eb58045",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 34d12c1aa1 with a structural local-binding rule: nominal change/update is exempted only when locally tied to compare/verify/audit/check plus before-and-after or across and a subsequent invariant outcome. RED full-context regression failed under the prior implementation; GREEN build, complete-context smoke, focused/full 17-agent registry smoke, direct dist rejection probe, and broad adds/defines/allows/renames laundering cases pass. All 60 pinned verification receipts were then mechanically rerun at the new source material; pre-review is PASS/current/biting/related/admissible and rollout is PASS/current/full-3x2. Protected Dynamic Finding authority/runtime diff versus main remains empty.",
+      "resolvedAt": "2026-09-02T04:01:13.917Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
