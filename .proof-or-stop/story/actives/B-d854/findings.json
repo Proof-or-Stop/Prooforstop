@@ -701,7 +701,7 @@
       "desc": "tests/AGENTS.verify.mjs:125-159,691-706 and docs/audits/AGENTS-current-version-audit.md:92,99 — WHY high acceptance false-green: the 36+8 exhaustive mutations are real but exhaustive only over a still incomplete and partly circular self-defined authority set. A19 claims strict read-only reviewer_batch runtime behavior, yet the modeled entries resolve to reviewer-batch.ts:2, :8, and :32, all comments; the executable fail-closed boundary and its invocation are reviewer-batch.ts:149-168 and :263. A19 claims quorum_submit requires every current reviewer pass, yet it cites only command-catalog.ts:3080 description; the executable required-lane check and invoked guard are quorum-submit.ts:144-159 and :444. A26 claims host-orchestrator launch instruction, yet it cites reviewer-batch.ts:21 comment; actual generation/use is reviewer-batch.ts:178-181 and :331-333. Removing or bypassing any of these runtime guards/generators leaves every modeled pattern, exact-set policy, and all 36+8 citation mutations GREEN. This also makes the F-028 resolution prose overclaim strict read-only and host-orchestration authority. Add executable handler guard/call-site authorities for these subclaims and adversarial source mutations that remove or bypass each real runtime path, then refresh the audit exact sets and receipts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T03:12:17.951Z",
@@ -715,7 +715,11 @@
         "packages/main/src/handlers/quorum-submit.ts"
       ],
       "signatureTag": "missing|mjs|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fbc8caa4 binds runtime claims to executable reviewer_batch guards/calls, quorum pass checks/calls, host instruction generation/use, and finding current-run enforcement rather than comments or command descriptions. Runtime-kind source matching rejects comment-only lines. Commit 0581e1b7 exhaustively mutates all 98 entries. Commit bc88d3e4 additionally separates current live runtime drift from verified initial-audit drift without misleading the immutable evidence selector.",
+      "resolvedAt": "2026-09-02T08:08:26.767Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
