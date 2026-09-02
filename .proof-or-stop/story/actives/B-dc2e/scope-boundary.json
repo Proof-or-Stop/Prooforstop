@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-dc2e",
+  "mode": "maintenance",
+  "allowed": [
+    "Add a real-data case to tasks/full-suite-runner-smoke.ts that fails on genuine test:serial-reference versus RESOURCE_POLICY drift, accounting for the test:serial-reference-prefix chain, while keeping the synthetic cases",
+    "Design and implement a narrowing-only, audited evidence re-pin for B-ec67 verification pins and persist the selector text on every receipt",
+    "Extend the RED-before-GREEN guard in tasks/validation-tier-planner-smoke.ts to finding-fix commits (RED(F-nnn)/GREEN(F-nnn)) with an explicit no-RED marker for comment-only or registration-only fixes; consider a shared helper",
+    "Fix the failing assertion in tasks/validation-protocol-smoke.ts or record a deliberate deletion, and register it in npm scripts, test:serial-reference and RESOURCE_POLICY (all three) if kept; sweep tasks/ for other files no npm script references",
+    "Fixing any critical or high defect discovered during this story, and any defect that blocks this story acceptance, REVIEW, TEST or DONE",
+    "Persist host B's parsed findings from handlers/cross-host-review.ts as structured evidence (verdict JSON findings array or finding_add with the host as agent), never raw provider stdout",
+    "RED-first fixtures for every item, registered in the canonical inventories"
+  ],
+  "excluded": [
+    "gap_log provenance-chain migration and the global proof-or-stop entrypoint topology",
+    "Material-hash classification of dev-memory records and partial-hash-snapshot gate consumers, owned by other stories",
+    "Relaxing pin immutability in any way that allows a looser selector or a replacement that hides the prior receipt",
+    "The single-owner extraction items (rename-aware reader, DONE-required shell parser, workspace resolver), owned by the preceding story"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User message 2026-09-02: 'create the C and D stories first, then execute C, then D, until fully done.' D is the test-and-guard credibility group from the grouping proposal the user accepted; item 5 carries a design decision (narrowing-only re-pin) that the PLAN phase must record via decision_set with pre-mortems.",
+  "createdAt": "2026-09-02T13:18:33.579Z",
+  "updatedAt": "2026-09-02T13:18:33.579Z",
+  "_hash": "dcf69118b7e69c69aa85723613a08eb3e70ba56caf9bfc9d474d2e3266c7a10a"
+}

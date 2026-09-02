@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-83aa",
+  "allowedCommands": [
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node packages/main/tests/red/red-partial-hash-snapshot-binding.mjs",
+    "npm --prefix packages/main run build",
+    "npx tsc --noEmit -p packages/main",
+    "proof-or-stop validate",
+    "proof-or-stop validate --lint"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "packages/main/package.json",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/red/",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Implementer works in the story worktree only; no remote writes.",
+  "createdAt": "2026-09-02T15:01:12.372Z",
+  "updatedAt": "2026-09-02T15:01:12.372Z",
+  "_hash": "5de1ddd3312a41bdb8aae37b411ece13ec797dfa56f89041b76c213e1f90c739"
+}

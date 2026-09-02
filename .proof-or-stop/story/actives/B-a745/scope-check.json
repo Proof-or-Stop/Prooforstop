@@ -1,0 +1,557 @@
+{
+  "storyId": "B-a745",
+  "checkedAt": "2026-09-02T01:17:15.709Z",
+  "features": [
+    {
+      "feature": "Optional declared id field on ValidationCommand",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Deterministic provisional id from narrow portable tuple for undeclared/legacy commands",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Duplicate id (declared or provisional) rejected naming both entries, never deduped",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Identity never inferred from array index",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Identity never inferred from display label (label rename does not change id)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Existing focus tags preserved for compatibility, excluded from relevance computation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "commandSetDigest computed over normalized command inventory, changes when any normalized field changes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Migration behavior: show a warning until the project declares stable IDs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Adding optional id field must not perturb existing routine validation identity digest when no id is declared (byte-identical)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Declaring an id in project config must change routine identity source.inputDigest (config snapshot binding still applies)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Canonical legacy pin resolver: explicit commandId exact match takes priority",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Canonical legacy pin resolver: legacy free-form command string normalized with the SAME executable/argv normalizer as routine identity, compared on complete tuple (command/args/cwd/shell/environment)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Zero normalized matches stops with pinned_command_missing, no plan produced",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Multiple normalized matches stops with pinned_command_ambiguous; label/array order can never break the tie",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Successful legacy resolution records pinResolution=legacy-exact plus normalized-tuple digest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Historical verification evidence is never rewritten in place merely to migrate a pin",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input collector reads rename-aware changed paths via the shared evidence-freshness reader, not a custom git shell-out",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input collector: checklist files.modify/create/test as declared-scope seeds",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input collector: resolved evidence command pins as explicit seeds",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input collector: risk signals and touched process-fact classes as mandatory-widening seeds",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input collector: routine source kind and execution inventory",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input collector: base/HEAD/material/story-files hashes for freshness binding",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input contract: command duration history from prior signed validation artifacts, collected for duration estimation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story input contract: verification intent captured as human-readable reason context (never the sole machine mapping)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Deleted files remain seeds",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Both sides of a rename or copy remain seeds",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Story metadata and registered runtime artifacts excluded from material seeds via the canonical classifier, not a local path list",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Failure to obtain changed-file set reports changed_files_unavailable and escalates, never read as no changes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Language-neutral tier vocabulary story-fast/story-intermediate/repository-full and the subset invariant",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Reason-code enum from the fail-closed widening matrix, each code carrying a non-empty plain-language gloss",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Resolver maps StoryRelevanceInput + requested tier to an effective tier with escalation reasons",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "In this Story the resolver always returns effective repository-full or a classified stop; no pruning is performed",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "An empty selection is never interpreted as PASS",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "fallback and validate-file source kinds report source_kind_atomic and execute their existing atomic path unreduced",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "no-validator source kind preserves existing skip/warn semantics, produces no tier PASS",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Unclassified material input produces unclassified_material_input escalation reason and appears in unclassifiedInputs",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Read-only validation_plan CLI registered with --storyId/--tier/--explain/--json",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "CLI output shows requested tier, effective tier, selected-vs-full count, per-command inclusion reasons, unclassified inputs, glossed escalation reasons, estimated duration and basis, finalAuthority:no, and artifact path/digest when one is written",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "--focus/--tier simultaneous rejection on validate --tier",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md CHK-005 design notes: 'Do NOT implement the --focus / --tier mutual rejection. That rule belongs to validate --tier in Rollout Story 4'; matches Rollout Story 4 scope in the governing plan",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "validation_plan writes no evidence, executes no validation command, changes no gate (mechanically read-only)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Missing storyId or unknown tier rejected with a specific named error, not a silent default",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Command registered with ownershipClass readOnly / destructiveRisk none",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Fixture suite covering CHK-001 through CHK-005 behaviors, RED-then-GREEN discipline",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "New fixture suite registered in canonical membership authority (root test:serial-reference + RESOURCE_POLICY bidirectional mapping), not smoke-manifest.json/run-all-smokes",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "Zod-bypass runtime re-validation fixtures for every new min/max/enum-constrained field per Handler encoding convention",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Versioned impact index storage, digest validation, JS/TS static dependency adapter",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 2 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Current-HEAD plus staged/unstaged/untracked worktree overlay projection and double-read race detection",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 2 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Exclusion-proof completeness for reduced tiers",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 2 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Canonical-runner authority/policy adapter and exclusive atomic/decomposed expansion",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 2 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Optional runtime coverage enrichment merged as additive relevance evidence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 3 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "validate --tier=fast|intermediate|full non-authoritative execution flag",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 4 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Signed selection/receipt artifacts (UnsignedSelectionV1/UnsignedTierExecutionV1, signatures, consumer denylist)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 4 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Workspace execution capacity lease integration for tier execution",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 4 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Kill switch dynamicValidationTiers.enabled=false",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 4 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Calibration metrics aggregation and DEV/pre-REVIEW ergonomics recommendations",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 5 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Shadow comparator / omission-recall metrics against repository-full outcomes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 2/5 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    },
+    {
+      "feature": "Separate authority decision on whether any gate may consume intermediate/fast evidence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rollout Story 6 per governing plan; absent from checklist, consistent",
+      "source": "decisions:story-relevance-dynamic-validation-tiers-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 57,
+    "covered": 44,
+    "excluded": 13,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bbdf7f7d1558f2c025293728e67e9159cfca83779d1a0cfa45f492a3dc9b2cc3",
+  "openQuestions": []
+}

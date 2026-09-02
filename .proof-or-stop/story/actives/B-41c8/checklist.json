@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the rename-aware diff reader parse NUL-delimited output and fail loudly on unparseable rows",
+      "context": "core/evidence-freshness.ts changedFilesBetween / changedFilesBetweenRenameAware / changedFileStatusesBetweenRenameAware. RED fixtures: a rename of a path with a space, a non-ASCII path, and a path containing a quote character, each asserting BOTH sides survive; an unparseable row raises instead of being skipped. Keep the throw on an unresolvable ref and document it as the contract; audit callers for any catch-and-return-empty.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Delegate the DONE-required command parser to the canonical legacy parser and prove all call sites agree",
+      "context": "core/done-required-validation.ts private SHELL_META_RE / splitShellWords / commandFromString around lines 40, 113, 276 versus parseLegacyValidationCommandString in core/validation-command-identity.ts. RED fixture: a shared set of tricky inputs (metacharacters, quoted arguments, embedded spaces) parsed through every call site must agree on shell-versus-argv; any intentional divergence becomes an explicit, named, tested difference.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extract one story-workspace resolver with the phase-terminal guard and migrate the four existing resolver implementations onto it",
+      "context": "story-query.ts readStoryProjection, session.ts listActiveWorktrees and readStoryFromLinkedWorktree, local-assurance-story-projection.ts collectLinkedStoryWorktrees, validation-plan.ts resolveStoryWorkspace. The helper returns gitCwd via resolveGitCwd, a workspace-rooted StoryStore and workspace-loaded config, and applies the phase-terminal guard (`phase !== 'DONE' && phase !== 'DISCARDED'`). RED fixture per migrated site: invoke from a different cwd and assert identical output, modelled on B-a745's F-010 main-checkout and wrapper-root cases; plus a DONE-story case asserting the guard refuses a merged-and-removed worktree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a mechanical audit fixture that enumerates every resolveGitCwd call site in handlers and classifies each as workspace-rooted or ctx.root-reading",
+      "context": "Match call expressions (resolveGitCwd({...})), not substrings -- a file-level grep on main returns thirty-one files including a comment-only mention in validate-channel.ts, which receives gitCwd threaded from review-preflight.ts as deps.gitCwd. For each real call site, classify whether the same handler reads the story index, checklist or validate.commands through ctx.store/ctx.root rather than the resolved workspace, and print the classified list. The fixture is registered in the canonical inventories and its output becomes the scope of the follow-up draft migrate-resolvegitcwd-callers-to-workspace; this story does NOT migrate the flagged callers beyond the four resolver implementations in the previous item. RED: the fixture must initially report a non-empty flagged list.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

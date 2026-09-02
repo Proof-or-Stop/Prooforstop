@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write canonical scope-boundary v1.1 for new Stories while preserving historical v1 reads",
+      "context": "Change the canonical writer to emit exactly proof-or-stop.scope_boundary.v1.1. Readers and hash verification must continue to accept already persisted lattice.scope_boundary.v1 without rewriting historical bytes. A direct string replacement of signed history is forbidden.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+      ],
+      "userSees": "Fresh Story scope-boundary JSON shows schemaVersion proof-or-stop.scope_boundary.v1.1.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reject retired INIT reviewer identities from new Story evidence",
+      "context": "New init_check_set evidence and INIT_CHECK admission must use proof-or-stop-review-story-init plus product-reviewer. Retired lattice-* agent IDs may remain observable only in historical artifacts; they must not be generated, mapped into a permitted reviewer identity, or accepted as new canonical evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "Fresh INIT evidence names proof-or-stop-review-story-init and rejects the retired reviewer name.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fail closed when a Story writer executes from a foreign worktree runtime",
+      "context": "Promote the existing doctor cli-entrypoint/global-core-realpath diagnosis into one shared mutation-admission policy consumed by every story-scoped mutating command enumerated from the canonical command-policy/dispatch registry. If the executing Proof-or-Stop core resolves to a different worktree/project runtime, stop before writing. Preserve legitimate installed-package use in external consumer repositories. Contract tests must prove registry coverage cannot silently omit a Story writer, and an end-to-end foreign-runtime rejection must prove zero bytes and zero refs changed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "A mismatched global CLI stops with a repair command before changing Story files.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep the identity verifier green after DONE release-ledger writes",
+      "context": "B-022e passed the identity verifier before DONE, then its artifact/product capability release records introduced unclassified retired path tokens. Make release provenance classification or post-write verification fail closed so DONE cannot leave the identity-cutover contract red.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "DONE completes only when the post-release identity verification remains green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Prove every registered active identity field in fresh Story JSON is canonical",
+      "context": "Land focused RED tests before production changes. Define one bounded Story JSON identity-field registry/inventory covering every field that carries an active product, schema, role, command, environment, config, or runtime identity. An end-to-end temporary-repository test must create a fresh Story, write scope and both INIT reviewer records, scan every registered field, and assert schemaVersion proof-or-stop.scope_boundary.v1.1, agentId proof-or-stop-review-story-init, rejection of retired Agent IDs, foreign-runtime write refusal, historical v1 read compatibility, and post-release identity verifier success. Historical narrative/provenance fields remain explicitly outside the active identity registry.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+      ],
+      "userSees": "The test report proves newly generated Story JSON contains only canonical active identities.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

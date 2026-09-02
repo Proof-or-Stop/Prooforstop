@@ -1,0 +1,51 @@
+{
+  "storyId": "B-83aa",
+  "checkedAt": "2026-09-02T15:07:11.418Z",
+  "reviewRound": "",
+  "agentId": "proof-or-stop-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md (## Key Insights / ## Solution Tradeoffs) uses jargon terms without any definition or inferrable context, and this repro-first intake workflow is not documented in CLAUDE.md (the reviewer required baseline): (a) \"red-reviewed\" and \"classified as target-bug\" (Key Insights) never say what review states/classifications exist or what makes a repro qualify as target-bug; (b) \"pre-story binding artifact\" (Solution Tradeoffs) is never explained mechanically; (c) \"Authority proof\" and \"production proof\" (Solution Tradeoffs, alongside verificationEvidence/DONE evidence which ARE covered by CLAUDE.md) are real Proof-or-Stop concepts documented elsewhere (e.g. docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md) but are not defined anywhere in background.md itself. A newly-onboarded reader with only CLAUDE.md + background.md cannot determine what these terms mean."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "index.json description enumerates observations C2, C3, C4, C5, C6 (e.g. \"C2 checkEvidenceFreshnessForGit returns fresh=true...\", \"C4 runDoneOracleGate output names the missing material hash...\", \"C6 a no-main repo...\") but never defines or mentions \"C1\" anywhere, even though C1 is the foundational RED-transcript observation covering captureEvidenceHashSnapshot/tryCaptureEvidenceHashSnapshot behavior (verified in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/run1-partial-hash.txt: \"OBSERVED C1 captureEvidenceHashSnapshot(unborn)...\", \"OBSERVED C1 tryCaptureEvidenceHashSnapshot(unborn)...\"). The description opening sentence describes C1s underlying content (\"captureEvidenceHashSnapshot never throws...tryCaptureEvidenceHashSnapshot only converts a thrown error into undefined\") without ever labeling it C1, so a reader following the lettered scheme cannot tell whether C1 was intentionally excluded from scope, silently dropped, or is a numbering gap."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-09-02T15:05:24.972Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 (Implement fix for reproduced failure) has no userSees, no files, and no relatedDocs. Its scope overlaps heavily with CHK-002 which already specifies the same fix targets. Either give CHK-001 its own observable user-facing outcome or merge it into CHK-002 to avoid an item that can be marked done with no verifiable transcript."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-003 userSees second clause (each consumer site has a regression case) is an engineering assertion, not a user-visible transcript fragment. Tightening it to name the specific validate output line or test name would make acceptance unambiguous."
+        }
+      ]
+    },
+    {
+      "agentId": "proof-or-stop-review-story-init",
+      "checkedAt": "2026-09-02T15:07:11.418Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md (## Key Insights / ## Solution Tradeoffs) uses jargon terms without any definition or inferrable context, and this repro-first intake workflow is not documented in CLAUDE.md (the reviewer required baseline): (a) \"red-reviewed\" and \"classified as target-bug\" (Key Insights) never say what review states/classifications exist or what makes a repro qualify as target-bug; (b) \"pre-story binding artifact\" (Solution Tradeoffs) is never explained mechanically; (c) \"Authority proof\" and \"production proof\" (Solution Tradeoffs, alongside verificationEvidence/DONE evidence which ARE covered by CLAUDE.md) are real Proof-or-Stop concepts documented elsewhere (e.g. docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md) but are not defined anywhere in background.md itself. A newly-onboarded reader with only CLAUDE.md + background.md cannot determine what these terms mean."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "index.json description enumerates observations C2, C3, C4, C5, C6 (e.g. \"C2 checkEvidenceFreshnessForGit returns fresh=true...\", \"C4 runDoneOracleGate output names the missing material hash...\", \"C6 a no-main repo...\") but never defines or mentions \"C1\" anywhere, even though C1 is the foundational RED-transcript observation covering captureEvidenceHashSnapshot/tryCaptureEvidenceHashSnapshot behavior (verified in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/run1-partial-hash.txt: \"OBSERVED C1 captureEvidenceHashSnapshot(unborn)...\", \"OBSERVED C1 tryCaptureEvidenceHashSnapshot(unborn)...\"). The description opening sentence describes C1s underlying content (\"captureEvidenceHashSnapshot never throws...tryCaptureEvidenceHashSnapshot only converts a thrown error into undefined\") without ever labeling it C1, so a reader following the lettered scheme cannot tell whether C1 was intentionally excluded from scope, silently dropped, or is a numbering gap."
+        }
+      ]
+    }
+  ],
+  "_hash": "2059aa91028dd2f83e28099900d1de7ee72d38598aec05519ef4afa0494d1f09"
+}

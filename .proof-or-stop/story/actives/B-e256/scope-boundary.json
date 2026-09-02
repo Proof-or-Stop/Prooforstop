@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e256",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/core/runtime-environment-checks.ts checkGlobalCoreRealpath + packages/main/tests/global-core-realpath.test.mjs: doctor row with realpath, version, executable mode and an exact repoint remediation",
+    "packages/main/tests/red/red-global-cli-exec-bit.mjs committed and registered in proof-or-stop.config.json",
+    "scripts/promote-dist.mjs and scripts/build-main-with-binding.mjs (and the utils build if it shares promoteDist): restore the executable bit on every package.json bin target after promoting dist"
+  ],
+  "excluded": [
+    "Any change to Codex adapter entrypoint authority rules",
+    "Changing how npm link / global install is performed or automating the reinstall",
+    "Rewriting the build lock or dist promotion crash-safety design (B-1734)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User on 2026-09-02: develop B-e256 through the normal process until DONE, after B-83aa and B-c86f. Mode custom because the framework-generated repro-first background contains the word Authority, which the correctness_fix default keyword list rejects; the explicit excluded list carries the anti-expansion intent.",
+  "createdAt": "2026-09-02T15:05:15.317Z",
+  "updatedAt": "2026-09-02T15:05:15.317Z",
+  "_hash": "af4c132db9bc890f0fc841e19c1d760a544aafd4689da594e84fd805399b5e44"
+}

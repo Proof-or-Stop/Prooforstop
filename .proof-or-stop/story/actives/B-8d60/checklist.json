@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the chain verifier rename-aware for the legacy segment without weakening structural checks",
+      "context": "verifyGapLogArtifactBinding (packages/main/src/core/finding-verify.ts) compares receipt.artifactPath/ledgerPath against the current '.proof-or-stop/' constants and resolves receipts[0].parentHead at the NEW path via committedArtifactDigest; both fail for the 32 receipts written under '.lattice/'. Accept the frozen legacy literals only on receipts whose parentHead predates the cutover, and resolve the genesis anchor at the historical path for those commits. A fixture must show the real 32-receipt segment passes sequence/prev-link/digest-continuity/genesis checks while every existing mutation case in gap-log-smoke.ts still fails.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add an explicit audited chain re-anchor operation for the lost-key case that never re-signs legacy receipts",
+      "context": "The HMAC key (proof-or-stop-gap-log-provenance.key in the git common dir) is clone-local and was lost on the 2026-08-30 re-clone; re-signing the 32 legacy receipts with a new key would fabricate authenticity and violate the identity-cutover rule that prior evidence is preserved only as exact frozen rows. Design: a new command (for example gap_log_chain_reanchor) requiring acknowledge=true plus a reason of at least 30 characters (same shape as init_check_repair), which freezes the legacy segment as key-lost, then writes a signed epoch-boundary receipt under a fresh key whose previousIntegrityHash binds the legacy segment bytes digest and whose preArtifactDigest must equal both the last legacy postArtifactDigest and the committed HEAD artifact. Refuse when the legacy segment is structurally broken or the artifact drifted. Record the re-anchor as a process event with actor, reason, headHash and materialHash.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Teach the verifier and every consumer to trust a re-anchored ledger and to report actionable reasons",
+      "context": "Consumers: assertGapLogHistoryExtendable and the write path in audit-meta-store.ts, classifySharedLifecycleMetadata in lifecycle-registry.ts, done-prepare-generated-metadata.ts and scope-path-classifier.ts. A ledger whose legacy segment is structurally valid and whose epoch receipts are HMAC-valid is trusted. Replace the blanket invalid_binding_shape with distinct reasons (for example legacy_segment_key_lost / reanchor_required / legacy_path_mismatch) and make the gap_log error print the exact repair command. Add a doctor check that flags a key-lost or non-extendable ledger with the same hint.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Re-anchor the real repository ledger and prove gap_log works end to end again",
+      "context": "Run the re-anchor against the actual 32-receipt ledger in .proof-or-stop/story/actives/B-META-framework-audit/, then execute one real gap_log and show the new epoch receipt appended, the finding registered, and done_prepare treating the B-META rows as trusted. The transcript with literal output is the acceptance evidence; a fixture-only proof is not enough.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Document the migration decision and the clone-local key contract",
+      "context": "Update docs/requirements/decisions/lifecycle-artifact-scope.md (section 3, classifySharedLifecycleMetadata): the key is clone-local, so a re-clone requires an explicit re-anchor; legacy '.lattice/' path literals on pre-cutover receipts are frozen provenance bytes. Cross-reference docs/requirements/decisions/proof-or-stop-identity-cutover.md class 7 (Provenance/hash-bound bytes) and add a short CLAUDE.md pointer so the next rename or re-clone does not silently kill gap_log again.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

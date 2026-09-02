@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement fix for reproduced failure",
+      "context": "Probe: rp-mtk465sr-hoyapk, Review: rr-mtk4a7uu-t98f1q",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Commit red-gap-log-provenance-chain.mjs as a registered red test and design the audited one-shot chain migration",
+      "context": "Script + transcript in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects (probe rp-mtk465sr-hoyapk, review rr-mtk4a7uu-t98f1q). Three causes: missing HMAC key (renamed at 4106eb3531, never migrated), 32 receipts with .lattice/ path literals, artifact absent at the canonical path in receipts[0].parentHead. Receipts are HMAC-bound so they cannot be rewritten; design a genesis-reset record citing the legacy ledger digest + parent head, re-key, canonicalize paths for new receipts; verifier stays strict (no .lattice alias, per proof-or-stop-residue rules).",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-95bf/background.md"
+      ],
+      "userSees": "GREEN red-gap-log-provenance-chain: the B-META gap-log provenance chain verifies; gap_log can extend it",
+      "files": {
+        "modify": [
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/audit-meta-store.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-gap-log-provenance-chain.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-gap-log-provenance-chain.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run the migration on this repository and prove gap_log appends again",
+      "context": "Execute the one-shot migration command in the story worktree, commit the re-anchored ledger, then run proof-or-stop gap_log with a real source ref and show the receipt appended; add a doctor check that reports an unextendable chain with the migration command instead of the bare invalid_binding_shape error.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-95bf/background.md"
+      ],
+      "userSees": "proof-or-stop gap_log prints the new B-META finding id and gap-log-provenance.jsonl gains one receipt",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/gap-log.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

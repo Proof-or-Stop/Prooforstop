@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement fix for reproduced failure",
+      "context": "Probe: rp-mtk45bks-v1fiwl, Review: rr-mtk49u84-u7876u",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Commit the RED script red-partial-hash-snapshot-binding.mjs as a registered red test and make it GREEN",
+      "context": "Script + RED/GREEN transcripts + green-1-candidate.md are in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects (gitignored evidence store; probe rp-mtk45bks-v1fiwl, review rr-mtk49u84-u7876u). Copy to packages/main/tests/red/, register in proof-or-stop.config.json, then fix: checkEvidenceFreshnessForGit !currentHead branch must fail closed; buildHashRows must be blocking for target DONE.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-83aa/background.md"
+      ],
+      "userSees": "GREEN red-partial-hash-snapshot-binding: every lifecycle-gate consumer fails closed or discloses a partial hash snapshot",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-partial-hash-snapshot-binding.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-partial-hash-snapshot-binding.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a shared missing-digest classifier beside the reader and classify all five tryCaptureEvidenceHashSnapshot consumers",
+      "context": "done-oracle.ts ~286, phase-gates.ts ~834, verifier.ts ~628, lifecycle-readiness.ts ~853, session.ts ~1416. Per site record fail-closed / disclosed / tolerable with rationale; C4 and C6 are already disclosed by escalation/floor rows; session.ts swallows the DONE pre-check in a catch-all; also cover the evidenceMaterialHash-set-but-currentMaterialHash-undefined fall-through. Model fixtures on B-a745 F-022 (validation-tier-planner-smoke.ts).",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-83aa/background.md"
+      ],
+      "userSees": "proof-or-stop validate lists the classifier fixture as PASS and each consumer site has a regression case",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

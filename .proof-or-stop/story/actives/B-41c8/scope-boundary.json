@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-41c8",
+  "mode": "maintenance",
+  "allowed": [
+    "Delegate the private SHELL_META_RE / splitShellWords / commandFromString parse in core/done-required-validation.ts to parseLegacyValidationCommandString in core/validation-command-identity.ts, with any intentional divergence made explicit, named and tested",
+    "Extract one story-workspace resolver (gitCwd via resolveGitCwd, workspace-rooted StoryStore, workspace-loaded config, phase-terminal guard) and migrate story-query.ts, session.ts, local-assurance-story-projection.ts, validation-plan.ts and the resolveGitCwd sibling handlers onto it",
+    "Fixing any critical or high defect discovered during this story, and any defect that blocks this story acceptance, REVIEW, TEST or DONE",
+    "Make changedFilesBetween, changedFilesBetweenRenameAware and changedFileStatusesBetweenRenameAware in core/evidence-freshness.ts parse NUL-delimited git output and fail loudly on unparseable rows; keep the throw on an unresolvable ref as the documented contract",
+    "RED-first regression fixtures for each consumer, registered in the canonical root test:serial-reference chain plus RESOURCE_POLICY"
+  ],
+  "excluded": [
+    "Any change to how partial hash snapshots are classified by gate owners (partial-hash-snapshot-treated-as-binding draft, owned by another story)",
+    "Any change to what counts as material or story-owned files (that is the dev-memory-records-count-as-material draft, owned by another story)",
+    "Behaviour changes to the validation planner beyond consuming the shared resolver",
+    "gap_log provenance-chain migration and the global proof-or-stop entrypoint topology",
+    "The test-and-guard-credibility items: orphan smoke, membership smoke real-data case, RED guard for finding-fix commits, cross_host_review findings persistence, evidence re-pin policy"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User message 2026-09-02: 'A is handled by another story; create the C and D stories first, then execute C, then D, until fully done.' C is the single-owner extraction group the user chose after the grouping proposal; its three items and their exclusions mirror that proposal.",
+  "createdAt": "2026-09-02T13:27:48.338Z",
+  "updatedAt": "2026-09-02T13:27:48.338Z",
+  "_hash": "4c4aec34701793ec302f5817a56161477ac46af61c3354039291cdbc75e3d6a3"
+}

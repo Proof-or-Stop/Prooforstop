@@ -1,0 +1,15 @@
+{
+  "name": "zombie-detector-wrapper-root-layout",
+  "title": "Make detectZombieStories list worktrees from the git root so a wrapper-root layout does not flag healthy stories as zombies",
+  "description": "packages/main/src/handlers/story-query.ts detectZombieStories enumerates worktrees from the non-git metadata root. On a wrapper-root layout (proof-or-stop.config.json gitRoot configured below the invocation root) it therefore never sees the story worktree that git lists, and flags a healthy DEV story as a zombie; session_brief then never renders that story as active. Found on 2026-09-02 while implementing B-41c8 CHK-003, whose smoke deliberately does not assert the wrapper-root case for session_brief because of this. Fix: resolve the worktree list through the shared story workspace helper (core/story-workspace.ts, delivered by B-41c8) or at least through the configured git root, and add a wrapper-root fixture asserting a DEV story with a linked worktree is not a zombie and is rendered active.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "zombie",
+    "wrapper-root",
+    "gitRoot",
+    "session_brief",
+    "story-query"
+  ],
+  "createdAt": "2026-09-02T14:33:24.064Z"
+}

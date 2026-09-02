@@ -4,6 +4,21 @@ export type ValidationStatus = 'pass' | 'fail' | 'warn';
 export type ValidationFailureKind = 'validation_failure' | 'infra_failure';
 
 export interface ValidationCommand {
+  /**
+   * B-a745 CHK-001: OPTIONAL stable planner identity for this command.
+   *
+   * When absent, `core/validation-command-identity.ts` derives a deterministic
+   * provisional id (prefix `prov-`) from the narrow portable tuple
+   * {command, args, repo-relative cwd, shell}. A declared id survives a label
+   * rename so a planner graph node stays continuous across cosmetic edits.
+   *
+   * This field is deliberately NOT read by `buildRoutineValidationIdentity`:
+   * routine reuse identity keeps its own explicit field list, so declaring an id
+   * can never relax an existing reuse refusal. Declaring one in project config
+   * still changes `source.inputDigest`, because that digest binds the raw config
+   * file contents.
+   */
+  id?: string;
   label: string;
   command: string;
   args: string[];

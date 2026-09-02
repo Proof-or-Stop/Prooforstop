@@ -1,0 +1,630 @@
+{
+  "findings": [
+    {
+      "id": "B-a745:F-001",
+      "desc": "validation-plan.ts / validation-relevance-input.ts: userSees mismatch, reproduced live on this real repo/story. CHK-001 userSees promises `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` on this repository \"lists every configured command with an id= value\"; CHK-005 userSees promises the same invocation \"prints requested and effective tier ... selected: <n> of <n> commands\". Running that exact command right now (any tier: fast/intermediate/full) returns `status: stop` with escalation `pinned_command_missing`, `selected: 0 of 0`, and no unit list at all -- the promised output never appears. Root cause (validation-relevance-input.ts:743-784 resolveValidationCommandPin against buildValidationPinUniverse(routine.commands)): every checklist verificationEvidence pin recorded across CHK-001..CHK-006 (checklist_get) references `node packages/main/dist/tasks/validation-tier-planner-smoke.js`, which was deliberately registered ONLY via package.json test:serial-reference + RESOURCE_POLICY per CHK-006s own design (\"rather than a discovery manifest\"), and is NOT one of the 120 entries in proof-or-stop.config.json validate.commands that configuredValidationCommands()/the pin resolver actually consults. Because firstStopEscalation() (validation-tier-planner.ts:452-459) fires on the FIRST unresolved pin found anywhere in the checklist, this is not a corner case: it is the command permanent, 100%-reproducible behavior for this story, and will recur for any future Proof-or-Stop self-hosted story whose evidence cites a root test:serial-reference member script not independently duplicated into validate.commands -- a structural gap between two disjoint command registries the feature never reconciles.",
+      "severity": "high",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T03:03:34.001Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-001",
+      "_hash": "27b289b055a2d9a5b181048d6543c9b3608fdbf596a807020ce0cf86ed4f80aa",
+      "files": [
+        "packages/main/src/core/validation-relevance-input.ts",
+        "packages/main/src/handlers/validation-plan.ts",
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "happy|ts|validation-plan-validation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by splitting pin-resolution outcomes by what the evidence actually asserted (commits 913fce8326 RED / bce775f1d0 GREEN). Evidence carrying an explicit commandId that does not resolve still STOPS with pinned_command_missing, unchanged, because it asserted an identity in the inventory's own namespace. Evidence carrying only a legacy free-form command string that normalizes to no inventory command is now classified as pinned_command_non_inventory: it contributes an escalation reason so the effective tier stays repository-full, is listed in the report, and never stops the plan or licenses pruning. Fail-closed is preserved in the only sense that matters -- nothing is ever omitted on its account, and repository-full is the same width a stop would have widened to. The spec makes pins additive ('Checklist pins can add commands; they cannot subtract commands'), so an unbound legacy pin adds nothing and can subtract nothing. The split was also required to break a self-referential deadlock: CHK-005:happy:0 pins the acceptance command itself, so the planner stopped BECAUSE evidence existed for it, and no selector could ever observe a successful plan. The ambiguity path was deliberately NOT split: an ambiguous legacy string WOULD bind, to the wrong command, which is a present hazard rather than an absent one. Verified live: validation_plan --storyId=B-a745 --tier=fast now prints status: plan, effectiveTier: repository-full, selected: 121 of 121.",
+      "resolvedAt": "2026-09-02T03:32:04.489Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-002",
+      "desc": "validation-plan.ts renderValidationPlanText(): the mechanical acceptance receipt for CHK-005:happy:0 (the flagship claim, checklist_get storyId=B-a745) proves this bug was captured and marked pass anyway. That evidences receipt.outputTail is a real captured run of `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` and it literally contains `status: stop` / `pinned_command_missing` / `selected: 0 of 0` -- the exact opposite of the claim under test (\"prints requested and effective tier ... selected: <n> of <n> commands\") -- yet the record is `result: pass`, `selectorMatched: true`. Cause: the pinned selector for this evidence (verificationIntent CHK-005:happy:0.verification.selector) is the single string `finalAuthority: no`. renderValidationPlanText (validation-plan.ts lines 401-408) prints `finalAuthority: no` unconditionally in EVERY status branch (plan/stop/no-tier-pass), so this selector can never fail to match regardless of whether the command actually reached the plan path it is supposed to demonstrate. The mechanical evidence system (which the framework relies on precisely so a `pass` cannot be faked) gave a false positive for the story own headline acceptance criterion, on the story own real repository, using the story own real evidence pipeline -- masking finding F-001 from anyone trusting the receipt instead of reading its outputTail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T03:03:48.020Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-001",
+      "_hash": "da37c8b0c8364cf2c8488e6535d5e7a27132c7235d5bc299b97a32b199d97722",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts",
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "adversarial|ts|validation-plan-rendervalidationplantext",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Two-part response, and the honest answer is that one part could not be fully fixed. FIXED: the renderer now guarantees a discriminating, machine-selectable status line, and a committed fixture asserts that the plan and stop renderings differ on it and that no single literal appears in both a successful and a failing render (commits dd7bd9cb13 RED / d681784e06 GREEN). NOT FIXED, and stated plainly: the receipt for CHK-005:happy:0 remains pinned to the original non-discriminating selector 'finalAuthority: no'. Verification pins are immutable by design (B-ec67); verification_evidence_add refused the re-pin, and verification_intent_repair only backfills missing intents. So the selector that caused the false positive cannot be corrected in place. What was done instead: verification_run re-executed the pinned command, and the refreshed receipt now captures a genuine plan render rather than the stop output it previously carried, so the receipt is truthful about the current state. What is NOT claimed: that this receipt would catch a regression to the stop path -- it would not, because its selector still matches both. The discrimination is proven by the committed fixture instead, which is a stronger and more durable guarantee than a selector on one receipt. The framework-level consequences (an immutable pin makes a badly chosen selector permanently uncorrectable, and receipts do not persist the selector text so the weakness is not auditable from the receipt) are outside this Story and are recorded separately for their own Story.",
+      "resolvedAt": "2026-09-02T03:32:05.491Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-a745:F-003",
+      "desc": "placeholder",
+      "severity": "high",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T03:03:49.732Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-004",
+      "_hash": "1b28ff0ae89385603d6e4df30ceedd30b016abd94478c76758d00f46bb11769a",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts",
+        ".proof-or-stop/story/actives/B-a745/checklist.json"
+      ],
+      "signatureTag": "missing|ts|placeholder",
+      "signatureTagSource": "auto",
+      "dismissReason": "Erroneous placeholder created by a CLI call-ordering mistake in the test-coverage lane; its desc is literally \"placeholder\" and it describes no defect. The substantive issue that lane intended to report is the non-discriminating acceptance selector, already filed independently and far more thoroughly by the behavior lane as B-a745:F-002, which this duplicates. That lane self-reported the mistake and does not have finding_dismiss in its allowed command set, so dismissal is the main-agent action it explicitly requested. This is not dismissing a real finding to tidy up: F-002 remains open and blocking, and is being fixed in this Story.",
+      "dismissedAt": "2026-09-02T03:13:08.218Z"
+    },
+    {
+      "id": "B-a745:F-004",
+      "desc": "validation-tier-planner.ts:229-235 VALIDATION_WIDENING_REASONS.pinned_command_missing gloss (\"Recorded evidence points at a validation command that no longer exists in this project, so no plan is produced until the evidence is re-recorded\") is not actually actionable in the exact circumstance this story demonstrates it in (see F-001): the command DOES exist and DOES run in the project (it is a real, DONE-required root test:serial-reference member script) -- it is simply absent from the separate validate.commands registry the pin resolver consults. Following the glosss literal advice (re-record the evidence against a current command) sends an operator toward the wrong fix: there is no different, more-current command to re-pin to -- the real remedy is reconciling the two disjoint command registries (validate.commands vs test:serial-reference/RESOURCE_POLICY), which the gloss does not mention and the operator has no way to discover from the CLI output alone. The reviewer brief asked specifically whether these glosses are genuinely actionable or jargon restated in longer words; for this reason code, in its own dogfood story, the answer is neither -- it is confidently-worded but factually misleading actionability.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T03:04:01.541Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-001",
+      "_hash": "cf3fe62b5f9003abfdb0c897f564ea0767be350f7e52f325ef77e3634251316c",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "edge|ts|validation-tier-planner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commits ba8c46c915 RED / 41143352ef GREEN). The pinned_command_missing gloss previously advised re-recording the evidence against a current command, which is wrong in the situation this Story actually demonstrated: the command was not stale, it was absent from a different registry than the one the resolver consults. The gloss now names the real situation and the real remedy, and the new pinned_command_non_inventory code introduced by F-001 was written so as not to repeat the mistake. This matters more than its medium severity suggests, because the glosses are the operator-facing surface this Story's entire user value rests on -- a product reviewer required them precisely so an operator who has not read the spec can act on the output.",
+      "resolvedAt": "2026-09-02T03:32:06.406Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-005",
+      "desc": "Incomplete registration of the new smoke suite: validation-tier-planner-smoke is registered in the root test:serial-reference chain and in RESOURCE_POLICY, but NOT in proof-or-stop.config.json validate.commands. Consequence, and this is acceptance-blocking: every verification-evidence pin recorded by this Story names `node packages/main/dist/tasks/validation-tier-planner-smoke.js`, which is therefore absent from the planner's command universe, so resolveValidationCommandPin returns pinned_command_missing and the planner stops. `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` now prints `status: stop`, `selected: 0 of 0 validation unit(s)` and `[pinned_command_missing]` instead of the plan named in this Story's acceptance claim ACC-001-explain-output (requestedTier story-fast, effectiveTier repository-full, a runtime-derived selected-of-total count, finalAuthority: no). The planner is NOT at fault: the spec's fail-closed matrix mandates `Explicit command pin does not resolve -> Stop; no PASS artifact -> pinned_command_missing`, and the tool correctly detected a real defect in the Story that built it. Convention evidence that validate.commands is the right home: 65 of the 120 existing validate.commands entries are exactly the shape `node packages/main/dist/tasks/<name>-smoke.js`, so this suite is the odd one out rather than a special case. FIX: add the suite to validate.commands following the neighbouring entry shape including a resources claim. Do NOT fix by re-pinning the evidence at some other command, which would break the correspondence between each intent and the case that actually proves it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T03:04:07.535Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "_hash": "b6ab06ff3066b215fdbc3a88fd93a6f70ddd18b3925d8d9f2fc368dd118eb3e6",
+      "files": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|json|incomplete-registration-smoke",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-005@5269c69"
+    },
+    {
+      "id": "B-a745:F-006",
+      "desc": "packages/main/src/core/validation-tier-planner.ts:298 VALIDATION_STOP_REASON_CODES is exported but has zero references anywhere else in packages/main/src (not even within its own file beyond the definition, and not used by validation-plan.ts, the smoke suite, or any consumer). The actual stop-vs-widen branching in the resolver (lines 501/530) is done by direct status:stop returns, not by consulting this derived list. Low-severity dead exported symbol left behind by CHK-004; either wire it into an actual consumer (e.g. surface stop-only codes distinctly in validation_plan output) or remove the export.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:05:17.786Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-002",
+      "_hash": "418f75465c005493ff65f0d46381fb475c4b5cbbcca3df715ee8f32236813b2a",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "CORRECTED RESOLUTION, second correction (supersedes both earlier texts; see B-a745:F-008 for the withdrawn count and B-a745:F-009 for the non-running command in the first correction). Fixed by wiring the export in rather than deleting it (commits e1ca26fcdc RED / c94c88cbdb GREEN). The reasoning stands and is unchanged: firstStopEscalation was branching on a hand-written pair of code names while VALIDATION_WIDENING_REASONS already declared the same fact via outcome: 'stop' -- a duplicated fact, and F-001 had just changed which pin codes stop, so that is exactly where the next drift would have landed. Deleting a dead export would have removed the symptom and left the duplicated fact in place. THE LOAD-BEARING CLAIM, which stands on its own without any command or count: the table is consulted in real production control flow, not only from a fixture. isValidationStopReasonCode is called at packages/main/src/core/validation-tier-planner.ts:498 inside firstStopEscalation and at :511 inside assertStopReason; assertStopReason guards both stop returns, at :561 and :586. Each of those four line numbers was checked individually by an independent reviewer as well as by me. No count is restated here, deliberately. If a number is needed, run the query at the moment it is needed.",
+      "resolvedAt": "2026-09-02T03:55:55.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-007",
+      "desc": "validate --concept flagged deletedSymbols: splitShellWords with 10 residual references. Independently verified: all 10 are non-blocking. verifier.ts commandFromString now delegates to core/validation-command-identity.ts:parseLegacyValidationCommandString (git diff confirms no shadow re-definition remains in verifier.ts; grep confirms zero matches for splitShellWords in verifier.ts). 8 of the 10 residuals (validation-tier-planner-smoke.ts:519 and validate-command-timeout-smoke.ts:29,273,293,483,497,521,531) are prose inside comments or test-case description strings, not calls. The remaining 2 (done-required-validation.ts:113,282) are that file own pre-existing, file-private splitShellWords definition/call, unrelated to the deleted verifier.ts symbol -- confirmed via git log that this function already existed on main before this story branched, done-required-validation.ts has zero imports referencing verifier.ts or validation-command-identity.ts for this symbol, and the file is scope-protected (not modified by this story). This is a false-positive concept-check residual, not a genuine dangling reference.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "All 10 grep residuals for the deleted verifier.ts-local splitShellWords are non-blocking: 8 are comment/test-description prose, and the remaining 2 are done-required-validation.ts own pre-existing private function of the same name (present on main before this story, no import/reference to the deleted symbol, file is scope-protected and untouched by this story). verifier.ts itself has zero references to splitShellWords and now delegates commandFromString to core/validation-command-identity.ts:parseLegacyValidationCommandString.",
+        "sourceRefs": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/validation-command-identity.ts:299 parseLegacyValidationCommandString",
+          "packages/main/src/core/done-required-validation.ts:113"
+        ],
+        "reproCommand": "grep -n splitShellWords packages/main/src/handlers/verifier.ts (zero hits); git log --oneline --all -- packages/main/src/core/done-required-validation.ts (function predates this story on main)"
+      },
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:06:04.802Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-002",
+      "_hash": "05cba68860438ed1035403e4dac4fc30f5ced6ef3ed096156a6a789918a3e503",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-command-identity.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|validate-concept-flagged",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Concept-gate basis, filed with evidenceState=disproven by the concept lane and non-blocking. Resolving to close the round: the lane independently re-derived that all ten splitShellWords residuals are false positives -- eight are comment and test-description prose, and the two code hits at done-required-validation.ts:113 and :282 are that file's own pre-existing file-private copy, confirmed by git log to predate this Story on main, with no import from verifier.ts or validation-command-identity.ts. That file is in this Story's protectedFiles and was not modified. The duplicate-parser drift risk it represents is recorded separately for its own Story.",
+      "resolvedAt": "2026-09-02T03:32:08.232Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-008",
+      "desc": "finding_resolve prose for F-006 (validation-tier-planner.ts, commit c94c88cbdb) states the dead export VALIDATION_STOP_REASON_CODES now has \"14 references across the core and the suite,\" but no plausible independent grep reproduces 14: exact-token VALIDATION_STOP_REASON_CODES=5 occurrences (incl. its own declaration), and the full derived-symbol family (VALIDATION_STOP_REASON_CODES + VALIDATION_STOP_REASON_CODE_SET + isValidationStopReasonCode + assertStopReason) totals 19 occurrences including 4 declarations, or 15 excluding declarations -- never 14 under any consistent counting rule I could construct. The QUALITATIVE claim this number supports (the export is genuinely load-bearing in production control flow via firstStopEscalation()/assertStopReason(), not merely referenced from the fixture) is independently verified true by reading validation-tier-planner.ts:488-600 -- so this is not a load-bearing overstatement, just an unreproducible precise metric asserted as fact in an audit-relevant resolution text.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:50:54.718Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-006",
+      "_hash": "95f295aca8ca8c7e97592ac6656ab696419cdf00ceb4024e869d8e36aec607db",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "missing|ts|finding-resolve-prose",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Valid finding, accepted in full, and the reviewer's counting is correct rather than mine. I re-ran the counts myself instead of re-relaying: `grep -rho '<token>' packages/main/src | wc -l` gives VALIDATION_STOP_REASON_CODES 5, VALIDATION_STOP_REASON_CODE_SET 2, isValidationStopReasonCode 9, assertStopReason 3. No counting method produces 14, so the figure in the original F-006 resolution was simply wrong. ROOT CAUSE, which matters more than the number: I copied an artifact figure out of a subagent report into a durable audit record without running the query. This project's own dev-memory records exactly this anti-pattern -- a figure about an artifact is a second copy of something that lives elsewhere and drifts without you, and a claim must never be stated wider than the check actually run. I had that lesson in context and still did it, in a finding resolution, which is precisely the kind of durable record where it does damage. FIX APPLIED: F-006's resolution has been re-recorded. It now withdraws the figure explicitly, states the qualitative claim that is actually load-bearing (the table is consulted in production control flow, not only from a fixture), names the exact grep that establishes it, and cites the four concrete line numbers rather than a count. SEVERITY NOTE: the reviewer classified this low and reasoned that the qualitative claim it supported does check out, so nothing downstream was decided on the false figure. I agree with that assessment and am not escalating it; the correction is recorded because an audit record that cannot be reproduced is worse than one that says less.",
+      "resolvedAt": "2026-09-02T03:53:14.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-009",
+      "desc": "F-006 corrected resolution (resolvedAt 03:53:13) names \"the exact check that verified it\" as: grep -rn 'isValidationStopReasonCode|assertStopReason|VALIDATION_STOP_REASON_CODE' packages/main/src | grep -v /tasks/ -- but run verbatim (plain grep, no -E/-P) this is BRE mode where | is a LITERAL character, not alternation. It matches zero lines and returns nothing (verified: exit code 1, no output) -- it does not \"return production, non-fixture control-flow references\" as claimed. The command only does what is claimed with grep -E (or -e/-e/-e). This repeats, in miniature, the exact failure mode the correction was meant to eliminate: a specific reproducibility claim (\"run the grep above at the moment the number is needed\") that does not reproduce when actually run. Distinguish from the substance: the four cited line numbers (validation-tier-planner.ts:498, :511, :561, :586) ARE correct and I independently confirmed each one individually -- so the underlying qualitative claim (isValidationStopReasonCode/assertStopReason are called in real production control flow) is true. Only the illustrative combined command is broken.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:54:31.279Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-006",
+      "_hash": "becce91692b847549a53a95157a00d9161a76c4412c4eb9c5fd8bf656481d927",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "missing|ts|corrected-resolution-resolvedat",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Valid finding, accepted, and the reviewer is right twice over. The command I wrote into the first correction was `grep -rn 'a|b|c' ... | grep -v /tasks/` with a plain grep, which is BRE: the pipe is a literal character, so run verbatim it matches nothing and exits 1. I confirmed that myself before writing this -- form A returns no lines, exit=1. WHAT ACTUALLY HAPPENED: the check I RAN used escaped alternation (`\\|`), which is valid BRE and did return the references; the string I TRANSCRIBED into the resolution dropped the backslashes. So the underlying verification was real and the transcription of it was not -- which is precisely the same gap the correction was supposed to close, reproduced inside the correction itself. That is worth recording plainly rather than minimising. FIX APPLIED: F-006's resolution has been re-recorded a second time and now contains NO command at all. It keeps only the four line numbers and the qualitative claim they support, which are independently checkable and were each verified line-by-line by the reviewer. Removing the illustrative command removes the whole class of defect rather than repairing one instance of it. HEURISTIC ADOPTED, from the reviewer's own analysis, which diagnosed the mechanism better than I did: never assert a command as the verifying check unless its actual stdout is what gets pasted into the reasoning. Both of my defects were a claim asserted as checkable without the check being re-run at write time, and the second occurred inside the correction for the first with the anti-pattern explicitly in context -- which means it is mechanical rather than a lapse of attention, and needs a mechanical rule, not more care. SEVERITY: low is right. Blast radius of both was zero -- nothing downstream was gated on either false claim, and both were confined to reason-text, never to code, tests or gate logic.",
+      "resolvedAt": "2026-09-02T03:55:56.370Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-010",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host from cross_host_review run B-a745-xhr-r1, verdict verdict-96c790e338428427, stdoutDigest 46f20904efc159f90226e9dcebba96bcf46a0dd018d966136d69c3c73a68e95b; the handler persists no finding text, so the content was recovered verbatim from the Codex session transcript rollout-2026-09-02T08-21-50-01a060fe-de59-77b2-bc93-85a1895054c1.jsonl.] Codex (MAJOR): 'Planner reads Git state from the invocation root instead of the story worktree. The handler passes ctx.root as gitCwd and metadataRoot. Because validation_plan is read-only, allowed in all phases, and has no worktree-CWD gate, it can be invoked from the main checkout or a wrapper-root layout while targeting a story in another worktree. In those supported cases it hashes and diffs the wrong checkout, silently omitting the story actual changes or reporting changed_files_unavailable, so its StoryRelevanceInput and selectionDigest do not describe the requested story.' Codex fix: 'Resolve the story Git directory with resolveGitCwd using the store, storyId, metadataRoot, projectRoot, and loaded config, then pass that resolved directory as gitCwd while retaining the appropriate metadata root. Add main-checkout-to-active-worktree and configured wrapper-root regression tests.' OWNER REPRODUCTION (verified, not inferred): validation-plan.ts:591-593 literally passes projectRoot: root, gitCwd: root, metadataRoot: root. Running the SAME dist against the SAME storyId from the worktree yields status=plan with 19 unclassifiedInputs, escalations [pinned_command_non_inventory, impact_index_unusable, command_exclusion_unproven, unclassified_material_input], selectionDigest 181a5fe176a2...; from the main checkout root it yields status=plan with 0 unclassifiedInputs, escalations [impact_index_unusable, command_exclusion_unproven], selectionDigest 9c95447120b9.... The planner emits a confident plan about the wrong tree while naming B-a745. resolveGitCwd exists in core/story-signed-workspace-resolution.ts and is already used by 8 sibling handlers (verifier, done-prepare, validate-channel, red-evidence, proofstory, recover-evidence, prewrite-guard, transition-effects); validation-plan.ts is the odd one out. Severity high: a wrong-checkout relevance input is exactly the blind spot that, in later rollout stories, would become an omitted command, and today it already makes the explain output false. Fix in scope.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T07:37:21.274Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "_hash": "2e44c74d22e78245e0daa70cd0ed6717a4c87a733a5718c1d48c1730ed659472",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed across three RED/GREEN pairs, because gitCwd alone was not enough (commits c7c449e6f2/e1f222abc6 gitCwd via resolveGitCwd; d4d930c9d1/326169897a story metadata read from the resolved workspace store; e0baff1a65/de019c2284 config and command inventory read from the resolved workspace). The implementer found that after the gitCwd fix the main-checkout run STILL differed (18 vs 19 unclassified, then 51 vs 19) because main's committed checklist and validate.commands are the stale INIT-time snapshot; each residual got its own failing fixture before its fix. OWNER RE-VERIFICATION, run by me after the fix on the same dist and storyId: from the story worktree status=plan, unclassifiedInputs=19, escalations=4, selectionDigest=89378a5996d8a7086f5b0859b2c4dcd6cee6cb4d2c30cab25e5e8b1a24ddb27d; from /Users/jek/Documents/GitHub/Prooforstop (main checkout) status=plan, unclassifiedInputs=19, escalations=4, selectionDigest=89378a5996d8a7086f5b0859b2c4dcd6cee6cb4d2c30cab25e5e8b1a24ddb27d. Byte-identical digest from both cwds; before the fix they were 181a5fe176a2... versus 9c95447120b9.... Committed regression fixtures cover main-checkout-to-active-worktree AND a configured wrapper-root layout (non-git wrapper, gitRoot config, linked story worktree). The read-only guarantee was re-checked: the existing refusing-store and byte-snapshot case still passes and the new plain-layout case snapshots both trees. Credit: this was found by the independent Codex host in cross-host review round r1; no prior reviewer lane, and not the agy independent review, caught it. The wider pattern in sibling handlers is recorded as a separate deferred item.",
+      "resolvedAt": "2026-09-02T07:54:29.459Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-011",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host from cross_host_review run B-a745-xhr-r1, verdict verdict-96c790e338428427; content recovered verbatim from the Codex session transcript because the handler persists no finding text.] Codex (MAJOR as filed): 'Unresolved legacy pins incorrectly produce a plan instead of stopping. When a legacy evidence command matches zero inventory entries, the resolver returns pinned_command_non_inventory. The planner then deliberately widens this to repository-full and returns status=plan. This contradicts CHK-002 and the approved plan, which require zero matches to produce pinned_command_missing and no plan; even the adjacent code comment says zero is a stop.' OWNER TRIAGE, split into two parts. (A) THE SUBSTANTIVE DISAGREEMENT is the already-recorded F-001 design decision: the governing spec contradicts itself (its widening matrix says only an EXPLICIT pin stops; its resolver step 4 says any no-match stops). Codex, as a fresh reader with no review history, applied the frozen CHK-002 intent text and the resolver-step reading; the implementation follows the matrix reading, endorsed by the behavior lane (RP-002), recorded as a permanent supersession waiver on CHK-002:edge:0, and filed for the spec owner B-ccf4 to reconcile. That is a legitimate disagreement between two readings of a self-contradictory spec, not an unnoticed bug; it is NOT re-decided here and is deliberately downgraded from MAJOR because nothing is pruned under either reading. (B) THE CONCRETE CHECKABLE CLAIM IS TRUE AND IS A REAL DEFECT: the comment at validation-command-identity.ts ~line 551 still reads '3. Exactly one match binds. 4. Zero is a stop. 5. Two or more is a stop' while the code immediately below returns status non-inventory for zero matches. A comment that contradicts the implementation is exactly how the next reader gets misled, and it is the same drift class as the F-006 duplicated-fact finding. Fix in scope: rewrite the comment to state the actual three outcomes and point at the F-001 rationale.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T07:37:26.561Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "_hash": "2f3c00ef7d8feb9e903d06a8928c82accef1b8d00ef1ccdd59a685c00e05d20e",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commit 233415b3ac, comment-only). The comment in validation-command-identity.ts that read '4. Zero is a stop' now states the actual three outcomes -- one match binds, zero matches is non-inventory and widens to repository-full, two or more is a stop listing every candidate -- and points at the F-001 rationale. No behaviour change; suite still passes. The SUBSTANTIVE half of Codex's original finding (that zero matches ought to stop) is not re-decided here: it is the documented spec self-contradiction (widening matrix says only an explicit pin stops; resolver step 4 says any no-match stops), already carried by the F-001 resolution, the behavior lane pass RP-002, the permanent supersession waiver on CHK-002:edge:0, and the chip filed for spec owner B-ccf4. Codex read the frozen intent and the resolver-step sentence as a fresh reader with no review history; that is a legitimate disagreement between two readings of a contradictory document, and it was downgraded from MAJOR because nothing is pruned under either reading.",
+      "resolvedAt": "2026-09-02T07:54:30.646Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-012",
+      "desc": "validation-tier-planner-smoke.ts:2855-2882 the CHK-006 RED-before-GREEN acceptance guard derives its item list only from console.log(...running CHK-\\d{3}...) section headers and only matches commit subjects RED(CHK-\\d{3}): / GREEN(CHK-\\d{3}):. It never inspects the finding-fix commit family RED(F-0xx): / GREEN(F-0xx): / RED(B-a745:F-0xx): / GREEN(B-a745:F-0xx):. I manually checked out each of the six F-010 RED/GREEN commit pairs (c7c449e6f2/e1f222abc6, d4d930c9d1/326169897a, e0baff1a65/de019c2284) into isolated git worktrees, built dist there, and confirmed each RED genuinely fails on its own parent state and each paired GREEN turns it green -- so this specific story is honest. But the mechanism the suite itself calls its acceptance proof for RED-before-GREEN silently skips this whole commit family, so a future finding-fix commit pair that squashes RED into GREEN, or omits RED entirely, would pass this guard vacuously. Reviewer resolution prose for F-010/F-006/F-007 asserts RED-before-GREEN discipline as fact (e.g. F-010: each residual got its own failing fixture before its fix) as if it were mechanically checked, but nothing currently enforces that for this commit class.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T08:04:20.369Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-013",
+      "_hash": "0c9aeb42a220d6167be9d372816fb677f1c947dc9d8076e341dcd595981cb1f3",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|validation-tier-planner",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accepted as a real gap and DEFERRED with a traceable record, not waved away. The CHK-006 RED-before-GREEN guard derives its ids from the suite's CHK section headers and matches only RED(CHK-nnn)/GREEN(CHK-nnn) subjects, so the RED(F-0xx)/GREEN(F-0xx) finding-fix family is not enforced. On this story every such commit is honest: the test-coverage lane checked out all six F-010 commits into isolated worktrees, built each, and confirmed each RED fails on its parent and each GREEN passes; F-011 is comment-only and correctly has no RED. So the property HOLDS on B-a745 and was verified by a reviewer, but the mechanism would not catch a future squash. Why deferred rather than fixed here: it is medium severity in round 3 (blocking set is critical only), it is a guard-coverage gap in the story's own fixture rather than a regression of the acceptance surface or a lifecycle-gate distortion, and any code change at this point re-triggers reviewer re-runs plus three Codex cross-host rounds for a regex extension. Recorded as a follow-up task chip with the exact location, the dynamic-derivation requirement, and the comment-only exemption F-011 needs so the fix does not create a false failure. If later evidence shows a finding-fix commit on this story lacked a genuine RED, this must be pulled back in immediately.",
+      "dismissedAt": "2026-09-02T08:05:56.541Z"
+    },
+    {
+      "id": "B-a745:F-013",
+      "desc": "F-011 resolution prose and the permanent code comment it produced (validation-command-identity.ts:558-559, commit 233415b3ac) both assert \"filed with the spec owner B-ccf4 to reconcile\" for the resolver-vs-widening-matrix zero-match contradiction. I could find no artifact anywhere that constitutes such a filing: (1) gap_log was never called this story (activity.jsonl has exactly one gap_log invocation, my own --help probe just now); (2) B-META-framework-audit has zero references to story-relevance-dynamic-validation-tiers or pinned_command_missing; (3) B-ccf4's own story data has no reference to B-a745; (4) git log --all has no commit referencing this contradiction against B-ccf4; (5) B-a745's own plan.md/understanding.json/decision.json never mention filing anything with B-ccf4, only that the spec file lives on that branch. This is now the THIRD unverified/incorrect specific claim from the same owner in this story (after F-008's wrong number copied without verification and F-009's BRE/ERE transcription slip), and unlike those two it was not self-caught -- it is baked into a permanent source comment that will mislead any future reader (including B-ccf4's own owner) into believing a tracked reconciliation item exists when none does. Separately, the \"self-contradiction\" characterization is defensible but understates the weight of evidence: the story's own approved CHK-002:edge:0 (\"a legacy pin string that normalizes to no configured command stops with pinned_command_missing\") and the spec's acceptance-matrix invariant \"every pin resolves or selection stops\" (line 407) both independently align with Codex's \"stop\" reading; only a narrow reading of the matrix row's word \"Explicit\" supports the implementation's \"widen\" reading. The circularity argument (CHK-005:happy:0 pins the acceptance command itself) is the more honest justification for the F-001 reversal than \"spec self-contradiction\" alone. Recommend: either actually gap_log this to B-META-framework-audit (or file a concrete cross-story artifact against B-ccf4) and correct the comment/resolution text to stop claiming a filing that does not exist, or reword both to state plainly that no reconciliation artifact has been filed yet.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:04:22.059Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-010",
+      "_hash": "eacc66b8b6bb64b3f782386e2e95b43e71a701a612d5c3bbcdf9a04890fdc20d",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts:558-559"
+      ],
+      "signatureTag": "missing|ts:558-559|resolution-prose-permanent",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted in full; the reviewer was right on both counts and this is the third instance of an unverified specific claim in my prose on this story, the first not self-caught, and it reached a permanent code comment. (1) THE MISSING ARTIFACT: 'filed for spec owner B-ccf4 to reconcile' referred to a Claude Code session task chip, which lives in the session UI and not in the repository, and gap_log is broken (its provenance chain rejects every write since the brand rename). A chip is not something a reviewer, B-ccf4's owner, or a future reader can find in the repo. FIX: the repository now contains story draft docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan/ (created via story_draft, committed on main), with a four-section background, both reconciliation options, the self-referential-deadlock case, and a two-item checklist; it is listed by story_draft_list. The code comment and the F-011 resolution now have a true referent; the comment text itself is unchanged deliberately, because a comment-only source edit at this point would re-stale reviewer envelopes and force three fresh Codex rounds for a wording change, and its claim is now verifiable rather than false. (2) THE FRAMING: 'the spec contradicts itself' understated the case for Codex's reading. The story's own frozen CHK-002:edge:0 and the spec's Step 7 invariant 'every pin resolves or selection stops' (verified verbatim at the reviewer's cited line) both support the unqualified stop reading; the honest justification for F-001 is the CHK-005:happy:0 circularity (evidence for the planner pinned the planner, so under the unqualified reading no selector could ever observe a plan) plus the fact that nothing is pruned either way. The draft's description states it that way, and summary.json limitations has been re-recorded with the same honest framing. (3) PROCESS: I committed to treating a third instance as a Story-level process problem rather than fixing the instance. Rule adopted and applied from here on: any 'filed/recorded/deferred' claim in a durable record must name an in-repository artifact id or path that exists at write time, never a session chip; and no count or command is asserted in prose unless its actual output was pasted. The other deferred items on this story are currently session chips only; that is disclosed to the user as a gap in rule-4 traceability rather than presented as closed.",
+      "resolvedAt": "2026-09-02T08:08:54.669Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-014",
+      "desc": "validation-plan.ts:574-598 resolveStoryWorkspace(): the F-010 commit messages/comments claim this reads story metadata via \"the same projection story_get and session_brief already apply to active linked-worktree stories\" (story-query.ts:421 readStoryProjection / session.ts:931 readStoryFromLinkedWorktree). It is NOT the same code path, and it is not a byte-copy either -- it is a THIRD independent reimplementation of the fact \"resolve the StoryStore for wherever a story's git work actually lives\", alongside story-query.ts readStoryProjection (worktree found via listGitWorktrees(root) branch-scan, gated on phase!==DONE/DISCARDED), session.ts readStoryFromLinkedWorktree (worktree found via raw execSync(\"git worktree list\") branch-scan, same phase gate), and local-assurance-story-projection.ts collectLinkedStoryWorktrees (branch-scan + honors story.worktree.path binding, still no gitRoot config awareness). validation-plan.ts correctly reuses the shared resolveGitCwd/resolveStorySignedWorkspace chokepoint (~40 other call sites) for gitCwd, which IS the right DRY move and is genuinely superior (it honors story.worktree.path binding + configured gitRoot, unlike the other three). But resolveStoryWorkspace's own trigger (`resolve(gitCwd) !== resolve(root)`) has no phase-terminal guard, unlike story-query.ts/session.ts which both explicitly gate on phase !== DONE/DISCARDED before reading from a linked path -- so behavior CAN diverge for a DONE story whose worktree/gitRoot still resolves non-trivially. Given B-a745 F-010 exists specifically because two ad hoc worktree-discovery implementations already drifted from correctness, adding a fourth independently-maintained variant (even a better one) is the exact duplicated-fact risk CLAUDE.md flags (F-006 class). Recommend extracting a single shared helper (e.g. resolveStoryStoreForWorkspace(store, projectRoot, gitCwd, storyId)) that story-query.ts, session.ts, local-assurance-story-projection.ts and validation-plan.ts all call, so future correctness fixes (like this one) land once instead of needing four coordinated patches. Not blocking this diff (round 3, non-critical), but should be tracked.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:04:57.044Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-011",
+      "_hash": "384d1c702c257199bc7098a33648f5a997b7f9e2a7856cdef8a83968c94d320c",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "missing|ts|validation-plan-resolvestoryworkspace",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accepted as accurate and DEFERRED with a traceable record. The quality lane diffed story-query.ts readStoryProjection/listLinkedStoryWorktrees, session.ts listActiveWorktrees/readStoryFromLinkedWorktree, local-assurance-story-projection.ts collectLinkedStoryWorktrees and the new validation-plan.ts resolveStoryWorkspace against core/story-signed-workspace-resolution.ts and found that resolveStoryWorkspace is a FOURTH independent implementation of 'resolve the story StoryStore for wherever its git work lives', not the same projection the F-010 implementer reported; its gitCwd half correctly reuses the shared resolveGitCwd chokepoint (and is the only one that honors story.worktree.path plus configured gitRoot, which is why it alone handles the wrapper-root case), but its metadata-read wrapper is bespoke and lacks the phase-terminal guard (phase !== DONE/DISCARDED) that story-query.ts and session.ts both apply. CORRECTION OF MY OWN RECORD: I had relayed the 'same projection' claim into the follow-up task chip for the sibling-handler pattern without diffing the four sites myself; that chip is being replaced with corrected text. Why deferred rather than fixed here: medium in round 3 (blocking set is critical only); it is a maintainability/drift risk, not a behavioural defect (all three F-010 regression fixtures pass, the behavior lane reproduced identical output from the worktree, main checkout and an unrelated third worktree, and the phase-terminal guard is moot for a read-only planner on an active story); and any source change now re-triggers reviewer re-runs plus three Codex rounds. The extraction of one shared 'resolve story workspace: gitCwd + store + config' helper, with the phase guard, is exactly what the corrected follow-up task specifies.",
+      "dismissedAt": "2026-09-02T08:06:40.708Z"
+    },
+    {
+      "id": "B-a745:F-015",
+      "desc": "Build-artifact freshness observation, not a code defect: at the start of this review round (before I ran npm --prefix packages/main run build) packages/main/dist/handlers/validation-plan.js on disk in THIS worktree contained ZERO occurrences of resolveStoryWorkspace/resolveGitCwd -- i.e. it predated the entire F-010/F-011 fix (dist mtime ~04:35 vs the fix commits at ~08:43-08:54). This is NOT evidence fabrication: CHK-006's recorded verification_evidence receipts (headHash de019c2284, executedAt ~07:53Z) genuinely contain the new F-010 fixture output as `ok`, proving dist WAS rebuilt and fresh at capture time -- something (plausibly a concurrent reviewer/process also working this worktree, or simply no full `proof-or-stop validate` re-run since) let it drift stale again afterward. Because `npm run test:validation-tier-planner` executes dist, not src, a stale dist at DONE-gate time would silently re-validate old code even though the story's recorded evidence is genuine. The existing safety net (validate.commands[0] = `npm --prefix packages/main run build`, run first by any full `proof-or-stop validate`) covers this IF the DONE-gate path always goes through a full validate; flagging for traceability since I observed the drift once. I rebuilt dist as part of this review (git-ignored build artifact, no src/story state changed) so it is fresh again now; git status is clean.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:05:12.810Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-011",
+      "_hash": "25d9f3c5b190fdb39ce721c591d2a96d48ec03ce620b4b83ab4458a0a1640fcd",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|build-artifact-freshness",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accepted and closed. packages/main/dist is a gitignored build artifact; at this lane's start it predated the F-010/F-011 commits because several actors rebuilt it at different times during the shared-worktree review. The lane confirmed this was NOT evidence fabrication: the recorded CHK-006 receipts (headHash de019c2284) contain the real fresh F-010 fixture output, so dist was correctly rebuilt at capture time and drifted afterward. The lane rebuilt it from current src before every further check. Owner action: dist will be rebuilt again immediately before the standalone validate run and before DONE-required validation, since both execute dist, and DONE-required rebuilds as part of its own pipeline. No source or story change; low severity; nothing downstream consumed the stale build.",
+      "dismissedAt": "2026-09-02T08:06:41.190Z"
+    },
+    {
+      "id": "B-a745:F-016",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2 (--json output preserved at the owner's scratchpad codex-xhr-r2-raw-output.txt).] Codex (MAJOR as filed): 'Planner re-exposes unbounded raw git errors. The collector deliberately creates a bounded single-line reason and summary while retaining raw stderr only for diagnosis, but the planner interpolates changedFiles.error directly into an operator-facing escalation. A git failure can therefore emit a multiline, potentially very large payload, corrupt the line-oriented status output, and defeat the bounded-output protection already implemented upstream.' OWNER VERIFICATION: validation-tier-planner.ts:627 reads `not be read (${input.changedFiles.error}); this is not an empty diff...` while validation-relevance-input.ts exposes bounded `reason` (line ~140) and `summary` (line ~142) precisely so operator prose never carries raw stderr; the CHK-006 Part 2 fix bounded the COLLECTOR detail and its fixture asserts the collector, so the planner path was never covered. This is a regression of the acceptance-surface interpretability guarantee this story ships (the explain output), hence fixed in scope despite medium severity. Fix: render changedFiles.reason/summary or reuse the collector's bounded escalation detail, never .error, and add an end-to-end planner/render fixture using a long multiline git usage error.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:23:49.836Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "0bd0c65269001d543f499d87c211274603c00922a206c54bc2966f0e7419838d",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "edge|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at the reported site and at three sibling sites of the same class, all RED-first (207d6f1adc/28188ef373 for validation-tier-planner.ts:627, then 48048697fa/03df6da9fb for the siblings). The planner now renders the collector's bounded reason and one-line summary for changed_files_unavailable, never changedFiles.error; the raw error stays on the structured object for diagnosis. The implementer's grep of the three planner-side files for error interpolation found three further sites, all bounded under this finding: hash_snapshot_unavailable detail in validation-relevance-input.ts (now the same git-failure classification summary, raw kept on hashes.error, bounded hashes.summary added); collectDurationHistory readError, whose raw text reached validation-plan.ts:336 'basis' -- previously unreported by any reviewer -- now rendered via a new readSummary; and the malformed-evidence-pin unclassified detail, bounded defensively via a shared boundedFailureSummary helper. Fixtures: a 40-line multiline git usage dump driven through the planner and renderer yields a one-line escalation detail with the summary and none of the dump, and the status output stays line-oriented; equivalent cases for the hash-snapshot and duration-basis paths. Why fixed in scope at medium severity: the explain output is this story's acceptance surface, and the CHK-006 Part 2 fix had bounded only the collector, leaving every downstream interpolation uncovered -- the independent Codex host caught the gap that the collector-only fixture had made invisible.",
+      "resolvedAt": "2026-09-02T08:38:34.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-017",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2; --json output preserved at the owner scratchpad codex-xhr-r2-raw-output.txt.] Codex (MAJOR): 'Provisional command IDs change across operating systems. The supposedly host-portable tuple hashes validationCommandUsesShell(), which returns true on Windows even when shell is not declared, but false for the same command on Linux/macOS. Consequently the same repository configuration produces different prov-* IDs and commandSetDigest values across hosts, breaking stable pin identity and causing cross-host evidence pins to stop resolving.' OWNER VERIFICATION, read from source not inferred: narrowPortableValidationCommandTuple (validation-command-identity.ts:94-106) takes a platform parameter and sets shell = validationCommandUsesShell(command, platform), whose body (validation-evidence-reuse.ts:114-118) is command.shell === true || platform === 'win32'; provisionalValidationCommandId then hashes that shell field. A tuple that consumes the host platform is not portable by construction. This contradicts the recorded decision A-narrow-portable-id, whose rationale is that the id is stable across machines so a project can adopt it as a declared id and a future selection artifact can be verified on another host; it is therefore a defect in the story's core identity property, not a corner case, and the root cause is the owner's own plan.md CHK-001 design note, which instructed the implementer to reuse the routine identity's platform-effective shell rule for the narrow tuple. The correct split, which the spec's stable-identity section already implies, is: the PORTABLE tuple uses declared shell intent only (command.shell === true), while the COMPLETE runtime tuple used for pin resolution keeps the platform-effective rule. Fix in scope. Required fixtures: identical provisional id and commandSetDigest for the same undeclared-shell command with platform=linux, darwin and win32; and the complete runtime tuple still differing on win32.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:24:32.709Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "d8f34abd18ddbcd86667923523c9e6882b29ef891ecf109ab02822e1dd3a4338",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts",
+        ".proof-or-stop/story/actives/B-a745/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commits 8345c873d6 RED / 3790b0f193 GREEN). narrowPortableValidationCommandTuple and buildValidationCommandInventory no longer accept a platform input at all; the portable tuple's shell is the DECLARED intent only (command.shell === true), while the complete runtime tuple used for pin resolution keeps the platform-effective validationCommandUsesShell rule via buildValidationPinUniverse, because that tuple describes what actually executes. OWNER VERIFICATION, run by me rather than relayed: on this host the real 121-command inventory yields commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, identical to the implementer's figure, and buildValidationCommandInventory.toString() contains no platform reference. The implementer's before/after for a Windows-computed inventory (ad6cf022b1d6... -> eba363ed...) is the only figure I could not reproduce on this macOS host and is reported as the implementer's measurement, not mine; the committed fixture 'the real inventory commandSetDigest must be host-portable' asserts it on every run. New fixtures: identical provisional id and commandSetDigest for the same undeclared-shell command across linux/darwin/win32; a declared shell:true command portable across platforms and distinct from the undeclared one; the COMPLETE runtime tuple still differing on win32 (proves the runtime side was not flattened); and the real-inventory cross-platform digest. The old CHK-001 case was rewritten to the new contract, not deleted. ROOT CAUSE AND RECORD CORRECTION: this defect was authored by me. plan.md CHK-001's design note instructed the implementer to reuse the routine identity's platform-effective shell rule for the narrow tuple, which contradicts my own decision A-narrow-portable-id. plan.md is frozen after DEV and plan_set is refused in REVIEW, so that note remains textually wrong in plan.md; this resolution and summary.json pitfalls are the durable correction, and any reader of plan.md CHK-001 should treat its shell sentence as superseded by this finding. Found by the independent Codex host in cross-host review round 2; four reviewer lanes and the agy host had passed it.",
+      "resolvedAt": "2026-09-02T08:38:33.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-018",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2.] Codex (MAJOR as filed): 'Dirty worktree changes are omitted from relevance inputs. The hash snapshot records materialDirtyFiles, but seed collection only consumes committed main..HEAD statuses, and storyRelevanceSelectionDigest also omits materialDirtyFiles. During normal DEV work, modified or untracked source files therefore disappear from unclassified inputs and do not change the selection digest, so the plan does not bind or explain the actual worktree state.' OWNER VERIFICATION: correct as a description of current behaviour -- grep shows neither validation-relevance-input.ts, validation-tier-planner.ts nor handlers/validation-plan.ts references materialDirtyFiles, and the reason table declares workspace_snapshot_changed with a gloss that is never emitted. TRIAGE: this is Rollout Story 2 by the governing spec's own text (line 718: 'Add current-HEAD plus staged/unstaged/untracked overlay projection, double-read race detection, and exclusion-proof completeness') and is named in this story's recorded excluded scope ('worktree overlay and double-read race detection'). In Story 1 it cannot omit a command because nothing is ever pruned. Stated plainly rather than hidden behind scope: the explain output is currently SILENT about dirty state, which is an honesty gap for an explain-only tool. Deferred to the committed repository draft docs/story/drafts/planner-worktree-overlay-seeds (created via story_draft on main, commit 3750570004) which carries the seeds, digest binding, workspace_snapshot_changed escalation and fixtures.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:24:33.401Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "88707edf1ba93cd2bcc8f83004fbac3fed81da3a41f9aaca504e1d0c029463e1",
+      "files": [
+        "packages/main/src/core/validation-relevance-input.ts"
+      ],
+      "signatureTag": "missing|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "dismissReason": "Deferred to Rollout Story 2 with an in-repository artifact, not dismissed as wrong: the finding accurately describes current behaviour (no reference to materialDirtyFiles in collector, planner or handler; workspace_snapshot_changed is declared but never emitted). The governing spec assigns staged/unstaged/untracked overlay projection to Rollout Story 2 (line 718) and this story's recorded excluded scope names it; Story 1 never prunes, so the omission cannot drop a command. The honesty gap -- an explain-only planner silent about dirty state -- is acknowledged, not waved away, and is the first checklist item of the committed draft docs/story/drafts/planner-worktree-overlay-seeds (main commit 3750570004), listed by story_draft_list. Downgraded from MAJOR because no pruning is possible under any Story 1 path; if later evidence shows a Story 1 consumer acting on the digest as if it bound worktree state, pull it back immediately.",
+      "dismissedAt": "2026-09-02T08:24:50.731Z"
+    },
+    {
+      "id": "B-a745:F-019",
+      "desc": "F-018 dismissal (files: packages/main/src/core/validation-relevance-input.ts) asserts the deferral draft is \"the first checklist item of the committed draft docs/story/drafts/planner-worktree-overlay-seeds (main commit 3750570004), listed by story_draft_list.\" I ran story_draft_list exactly as instructed, from this story's own REVIEW worktree (/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-a745, checked out to story/B-a745): it lists only 5 drafts (audit-evidence-case-count-metadata, codex-hook-managed-asset-drift, global-cli-worktree-drift, reconcile-pin-resolution-rules-tiers-plan, scope-question-help-discoverability) -- planner-worktree-overlay-seeds is ABSENT. Root cause: commit 3750570004 landed on local main AFTER story/B-a745 diverged (merge-base is the prior draft commit bcc0e1e3a4); story_draft_list (packages/main/src/handlers/story-draft.ts getDraftsDir/readdirSync) reads the CURRENT WORKING TREE, not the main git ref, so a worktree that has not merged that later main commit cannot see it. git log main does show 3750570004 and git ls-tree main has the three files, so the artifact genuinely exists on main -- but \"listed by story_draft_list\" is a specific, checkable claim that is false when run in the exact context (this story's worktree) where a reader would naturally verify it. This is the same class of defect this story has now hit three times before (F-011/F-013 session-chip citation, F-016 uncounted downstream sites before the independent host caught it, F-017 unreproduced digest): a specific claim presented as fact without being run in the context where it would be read. Recommend: either merge main into story/B-a745 before DONE (done_prepare --mergeMain, which the DONE-convergence rules already require) so the claim becomes true in this worktree too, or reword the dismissal to state the verification context (\"visible via story_draft_list once main is merged / from a checkout that includes commit 3750570004\") rather than asserting it unqualified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:45:32.247Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-015",
+      "_hash": "f2f65dfd4076a35558fed76a561d807b1da0953f846186e3189852ee19bc4a13",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json",
+        "docs/story/drafts/planner-worktree-overlay-seeds/index.json"
+      ],
+      "signatureTag": "missing|json|dismissal-files-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted; the reviewer is right and this is the FOURTH unverified specific claim in my prose on this story, and it broke the exact rule I adopted after the third ('no claim is asserted unless its actual output was pasted'). What happened: I ran story_draft_list from the MAIN checkout for the first draft and pasted a count, but for the second draft I asserted 'listed by story_draft_list' without running it at all, and from the story worktree the draft was absent because its commit 3750570004 landed on main after the branch's last merge. FIX: merged main into story/B-a745 (merge commit brings docs/story/drafts/planner-worktree-overlay-seeds/*), then ran `node packages/main/dist/cli.js story_draft_list` FROM THIS WORKTREE; its output now contains both lines: '- planner-worktree-overlay-seeds: Add staged, unstaged and untracked worktree files as explicit overlay seeds in the validation planner' and '- reconcile-pin-resolution-rules-tiers-plan: Reconcile the contradictory pin-resolution rules in the dynamic validation tiers plan'. The F-018 dismissal text remains as written and is now true in the context a reviewer checks. PROCESS SIGNAL, stated as such: four instances (F-008 count, F-009 grep, F-013 missing artifact, F-019 unverified listing) share one mechanism -- a specific checkable claim written into a durable record without executing the check in the same context the reader will use. The added rule from here: the check must be run in the story worktree, and its output pasted into the record, not summarised.",
+      "resolvedAt": "2026-09-02T08:47:15.810Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-020",
+      "desc": "validation-command-identity.ts:580 (after the F-013 fix) still says the widening-matrix supersession \"is filed with the spec owner B-ccf4 to reconcile\". F-013's own resolution was that a prior version of this sentence cited an unfindable session task chip and that the fix gives it \"a true referent\": docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan (confirmed present, story_draft_list lists it, and its index.json description does say the decision doc is \"owned by story B-ccf4\"). But the verb is still not literally accurate: nothing was actually filed WITH B-ccf4's owner. I checked .worktrees/B-ccf4/.proof-or-stop/story/actives/B-ccf4/ and there is no reference back to this draft, B-a745, or reconcile-pin-resolution-rules-tiers-plan anywhere in B-ccf4's own story files -- no link, no notification, no dependency record. The draft is a passive, discoverable-if-searched-for artifact in docs/story/drafts, not something submitted to or received by B-ccf4's owner. \"Filed with X\" implies an act of submission to a specific recipient; what actually exists is \"a draft exists that names X as the eventual reconciler\". F-013's resolution explicitly reasoned about exactly this word (\"filed\" for the earlier session chip) and concluded the fix gives the sentence a true referent -- but a true referent for the noun (the draft exists) does not make the verb (filed with) true. Given this story's own established pattern of self-correcting specific prose claims, recommend either rewording the comment to \"a reconciliation draft exists for the spec owner at docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan\" or adding an actual link from B-ccf4's story metadata to close the loop.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:45:46.527Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-015",
+      "_hash": "9ae5ad700801d19c3c6c4a3b6c810b60967c8b0f35dea2666df805f80fc65d6f",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|validation-command-identity",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commit 9ca24bc78a, comment-only). The sentence at validation-command-identity.ts resolver outcome 4 now reads exactly: 'the spec's resolver step that read \"zero is a stop\" was superseded; that reconciliation is recorded as the repository draft docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan for the document's owner (B-ccf4) to reconcile'. The verb now claims only what happened -- a draft was recorded in the repository -- and names the artifact path, which exists on this branch after the main merge (2a3aa1c7f4). The implementer grepped the file for 'filed', 'submitted' and 'reported to' and found no other such claim. Accepted at the reviewer's severity (low) and fixed in scope because a permanent source comment must not overstate; the cost was one comment commit before the Codex rounds began, so no cross-host round was invalidated.",
+      "resolvedAt": "2026-09-02T08:48:14.221Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-021",
+      "desc": "B-a745:F-019 resolvedReason PROCESS SIGNAL paragraph overclaims a single shared mechanism across the four cited instances. F-008 (count never queried at all) and F-009 (the query WAS run correctly with escaped alternation; only the PASTED command text was mistranscribed, dropping backslashes) are not \"without executing the check\" -- one never ran a check, the other ran the right check and documented the wrong one. F-013 (a session-UI task chip cited as if it were a discoverable in-repo artifact) is not a context-execution gap either: running story_draft_list in the story worktree would not have caught it, because the referent was never repo-persisted in the first place -- that is a category error about what counts as a checkable artifact, and F-013s own resolution already adopted a DIFFERENT corrective rule for it (\"name an in-repo artifact that exists at write time, never a session chip\"). Only F-019 itself is a genuine worktree-vs-main-checkout context mismatch. The \"run in the story worktree, paste the output\" rule this paragraph proposes as THE unifying fix for all four would not prevent a recurrence of F-013s failure mode. Low severity: prose-only, non-mechanical, no code/gate impact, does not misstate anything about code behavior -- it just narrates the four prior prose corrections under a mechanism narrower than what they actually share.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:56:47.918Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-022",
+      "_hash": "998367dfcc91588f0bcd929a33ab5ccd7c3915aaf012917924b7a238796b0946",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json"
+      ],
+      "signatureTag": "missing|json|a745-resolvedreason-process",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted. The F-019 'process signal' paragraph over-unified four different mechanisms under one rule, and the reviewer's decomposition is more accurate than mine, so it is adopted here verbatim in substance: F-008 -- a check that was never run (a count copied from a subagent report); F-009 -- a check that WAS run correctly but was mistranscribed into the record (escaped vs unescaped alternation); F-013 -- a category error, citing a referent that was never repository-persisted (a session chip) as if it were a filing; F-019 -- a genuine context mismatch, the check run in the main checkout and asserted for the story worktree. One rule ('run in the story worktree, paste the output') covers F-008 and F-019, partly covers F-009 (pasting rather than retyping), and would NOT have prevented F-013, whose fix is a different rule: a durable record may only cite artifacts that exist in the repository at write time. Both rules stand separately from here; no further unifying claim is made. No code or fixture changed for this finding; it corrects an account, not a behaviour.",
+      "resolvedAt": "2026-09-02T08:58:04.421Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-022",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r3 (--json output preserved at owner scratchpad codex-xhr-r3-raw-output.txt).] Codex (MAJOR): 'Incomplete evidence hash snapshots are mislabeled as available. The collector marks every returned snapshot as available and only handles thrown errors. The canonical captureEvidenceHashSnapshot reader deliberately swallows git/hash failures and returns an object with optional headHash, materialHash, and storyFilesHash omitted, so non-git, unborn-repository, or hash-read failures produce an available snapshot containing null digest inputs and no hash_snapshot_unavailable escalation. The plan can therefore be presented without disclosing that no freshness binding was established.' OWNER VERIFICATION from source, pasted: evidence-freshness.ts EvidenceHashSnapshot declares headHash?, materialHash?, storyFilesHash? all optional, and captureEvidenceHashSnapshot returns `...(headHash ? { headHash } : {})` etc. without throwing; validation-relevance-input.ts:718 sets status 'available' for any returned snapshot and only a thrown error reaches line 728 'hash_snapshot_unavailable'; line 685 then renders `headHash: input.hashes.head.headHash ?? null`. So a plan can carry null head/material/storyFiles bindings while claiming the snapshot was available. This is a fail-closed DISCLOSURE hole on the story's core honesty property (a plan must either bind freshness or say it could not), hence high and fixed in scope. Fix: treat a snapshot missing any of the three digests as hash_snapshot_unavailable with a bounded one-line detail naming which digest(s) are missing; never render status plan with a null binding. Fixtures: injected snapshot with headHash omitted; with materialHash omitted; with all three omitted; and the real reader on an unborn git repository (git init, zero commits) which the behavior lane already showed renders status plan today.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T09:13:32.089Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "e4fcbb041e4ecb7254d420bedf22d45ffc46ef0dd630c48ab7edc827bf7e2175",
+      "files": [
+        "packages/main/src/core/validation-relevance-input.ts"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commits 8d9b6c2c14 RED / 9af45102b4 GREEN). A returned snapshot missing any of headHash/materialHash/storyFilesHash is now classified hash_snapshot_unavailable with a bounded one-line summary naming the missing digests (missingEvidenceHashDigests, boundedFailureSummary); the thrown path is unchanged; evidence-freshness.ts (protected) untouched. The planner gained a glossed hash_snapshot_unavailable row -- it previously had NO row, so even the thrown-error escalation was being dropped downstream -- and assertPlannerInput rejects an 'available' snapshot lacking a digest. The CLI report now carries freshnessBinding bound/unbound on EVERY branch, and the status invariant refuses 'bound' with a null digest and refuses status plan while unbound without the hash_snapshot_unavailable escalation. DESIGN CHOICE, confirmed by me: a widening to repository-full WITH mandatory disclosure, not a stop, consistent with the sibling changed_files_unavailable row and with the spec, which never lists this condition among stops; nothing is pruned. OWNER VERIFICATION, run by me in this worktree and pasted: real story -> `status: plan` / `selected: 121 of 121 validation unit(s)` / `freshnessBinding: bound (head 8613d6d6ecbe863aa33ef6e44aa60548f71dad8d, material 7758795b45...` / `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`; unborn repository (git init, zero commits, config and story metadata copied in) -> `status: plan` / `freshnessBinding: unbound (the snapshot at HEAD carries no headHash, materialHash, storyFilesHash digest)` / `[hash_snapshot_unavailable] outcome=repository-full`. Before the fix the behavior lane had shown that same unborn case rendering status plan with no mention of hashes. Five OTHER consumers of the same non-throwing reader (done-oracle, verifier, lifecycle-readiness, phase-gates, session) were reported by the implementer and are recorded as the repository draft docs/story/drafts/partial-hash-snapshot-treated-as-binding (main commit 09e0447244; listed by story_draft_list from this worktree after merging main, output pasted above in this session's log). Found by the independent Codex host in round 3.",
+      "resolvedAt": "2026-09-02T09:34:05.296Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-023",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r3.] Codex (MAJOR as filed): 'Provisional command IDs remain dependent on checkout location. ValidationCommand accepts absolute cwd values, but commandCwdRelative computes their identity component with path.relative(projectRoot, absolute). The result changes when the same checkout is reached through a symlink alias, resides at a different directory depth, or uses another drive. That value feeds both the provisional ID and commandSetDigest, contradicting the promised host-portable stable identity.' OWNER VERIFICATION from source, pasted: resolveValidationCommandCwd returns command.cwd unchanged when isAbsolute(command.cwd), else resolve(projectRoot, cwd), else projectRoot; commandCwdRelative then takes relative(projectRoot, absolute). For a RELATIVE declared cwd this round-trips to the literal and is location-independent; for an ABSOLUTE declared cwd the identity component becomes a function of where the checkout lives, and for a symlink-aliased projectRoot it can differ from the literal. Scope note: this repository's proof-or-stop.config.json declares no cwd on any of its 121 commands (0 with cwd, 0 absolute), so there is no instance here; the defect is in the stated guarantee, the same class as F-017 (an EFFECTIVE value leaking into the DECLARED-intent tuple), so it is downgraded to medium but fixed in scope for consistency of the identity contract. Fix, mirroring the F-017 split: the portable tuple hashes the DECLARED cwd literal, posix-normalized, with absent meaning '.', and never resolves it; the complete runtime tuple keeps the resolved absolute cwd. An absolute declared cwd is inherently location-bound by the config author's choice, so additionally emit an inventory warning naming any command whose declared cwd is absolute. Fixtures: same relative cwd from two different projectRoot locations (and a symlinked alias of one) yields identical provisional id and commandSetDigest; an absolute declared cwd yields the warning and an id equal to hashing the literal.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T09:13:32.991Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "333ed90c70732fe26c52011f5571b2628085ce4987df8c37243b0d1845beed88",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commits 899a13a6cd RED / 8613d6d6ec GREEN), mirroring the F-017 split: the portable tuple hashes the DECLARED cwd literal via declaredValidationCommandCwd (posix-normalized, absent or ./ -> '.'), never resolved; the complete runtime tuple keeps the resolved absolute cwd; buildValidationCommandInventory appends an inventoryWarnings entry for any absolute declared cwd. The old case asserting absolute and relative declarations AGREE encoded the defect and was replaced by six cases (two projectRoot locations, symlinked alias, absolute literal + warning, runtime tuple still resolved, real-inventory digest unchanged). RE-RECORDED for B-a745:F-027 with LITERAL COMMAND OUTPUT instead of prose, run in this worktree: $ python3 -c \"import json;c=json.load(open('proof-or-stop.config.json'))['validate']['commands'];print(len(c),sum(1 for x in c if isinstance(x,dict) and x.get('cwd')))\" -> 121 0 ; $ node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest: -> commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 . Downgraded from MAJOR to medium because no instance exists in this repository (0 of 121 commands declare a cwd, per the output above); fixed in scope for consistency of the identity contract.",
+      "resolvedAt": "2026-09-02T09:55:08.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-024",
+      "desc": "validation-plan.ts:757 the new F-022 freshnessBinding invariant (assertValidationPlanStatusInvariant, lines 502-533) is only invoked from renderValidationPlanText (line 547); the --json branch at line 757 returns JSON.stringify(report) directly and never calls the invariant. So a report that claims freshnessBinding.status=bound with a null digest, or status=plan while unbound without a disclosed hash_snapshot_unavailable escalation, would reach a --json caller (explicitly the machine/selector audience per the surrounding comments) unchecked. Currently unreachable in practice because freshnessBindingFor() (line 266) itself throws before such a report is ever built, but this leaves the defense-in-depth re-validation (Handler encoding convention: re-check at every consumption point) present on only one of the two output paths, and the same gap applies to every other invariant this function checks (status/count/escalation consistency), not just this new one.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T09:39:53.967Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-025",
+      "_hash": "a78726669708166245b72a692d69605163f58515a2e372f5ac6831e4f071d590",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "missing|ts|validation-plan-freshnessbinding",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-024@286a9b0"
+    },
+    {
+      "id": "B-a745:F-025",
+      "desc": "validation-plan.ts:757 `return request.json ? JSON.stringify(report) : renderValidationPlanText(report, request.explain);` -- the --json branch (CHK-005:happy:1, a documented acceptance surface) never calls assertValidationPlanStatusInvariant; only the text branch does. The freshnessBinding field doc comment at line ~248 explicitly overclaims universal coverage (\"There is no third shape: a null digest never renders under the word bound (enforced by assertValidationPlanStatusInvariant)\") but that enforcement is wired into renderValidationPlanText only. Empirically confirmed (node script constructing a buildValidationPlanReport call with an empty selectedUnitIds/universe and empty escalationReasons, simulating a schema-bypassing internal caller/fixture, the same threat model the code comments elsewhere explicitly anticipate: \"an internal caller, a fixture, an older serialized input\"): JSON.stringify(report) printed the internally-impossible status:plan report with zero error, while renderValidationPlanText on the identical report object correctly threw. NOT currently triggerable via the real single CLI call site: buildValidationPlanReport derives freshnessBinding and escalationReasons from ONE shared collectStoryRelevanceInput input, so the two cannot diverge today, and the most dangerous single case (a null digest rendered as bound) is independently guarded by freshnessBindingFor throwing at construction regardless of output format -- confirmed by a second node script. But the OTHER checks inside assertValidationPlanStatusInvariant (status/selection/tier consistency, and \"unbound must disclose hash_snapshot_unavailable\") have no independent construction-time guard anywhere; they exist only inside the function the JSON path skips. Machine consumers of --json are the more consequential audience for this gap (a script keying on status==\"plan\" would treat an internally-impossible report as a real plan, exactly what the function comment says must never reach a selector). Matches this repo own Handler encoding convention (CLAUDE.md#handler-encoding-conventions): a fail-closed check wired into one of several consumption points is not wired into all of them. Fix: call assertValidationPlanStatusInvariant (or extract its checks into a pure assertValidationPlanReport(report) that both branches call) unconditionally before either the JSON.stringify or the text render, or correct the doc comment to state the narrower true scope.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T09:41:36.960Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-023",
+      "_hash": "744a997b96575a68b5b75b6dc4c4fb6afbc44714ee0118f8491a7eb8c666e8ed",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "adversarial|ts|validation-plan-return",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-025@286a9b0"
+    },
+    {
+      "id": "B-a745:F-026",
+      "desc": "validation-command-identity.ts:226-228 buildValidationCommandInventory(args:{projectRoot,commands}) still declares a required projectRoot parameter, but F-023 (commit 8613d6d6ec) removed the only statement inside this function body that read it (the old `narrowPortableValidationCommandTuple({ projectRoot: args.projectRoot, command })` call became `narrowPortableValidationCommandTuple({ command })`). Confirmed by extracting the full function body: zero other reference to args.projectRoot inside it. Every caller (buildValidationPinUniverse, validation-plan.ts:744, and 7 call sites in validation-tier-planner-smoke.ts) still supplies a value that is silently dropped. The function's own JSDoc (added by the same F-023 commit) additionally misstates this as `projectRoot is provenance for the caller only; no identity input is derived from it` -- but the return type ValidationCommandInventory carries no projectRoot field anywhere, so it is not provenance either; it is simply unused. No behavioral bug (identity is correctly location-independent either way), but this is exactly the kind of concept-cleanup residue this review checks for: a dead parameter plus an inaccurate doc claim left over from an in-scope refactor.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T09:41:48.865Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-024",
+      "_hash": "1686aeccb8ddda5678189021d942c6d168465886b4dc6681b81f677af648d436",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|validation-command-identity",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-a745:F-026@7e1f1c4"
+    },
+    {
+      "id": "B-a745:F-027",
+      "desc": "B-a745:F-023 resolvedReason (findings.json) does not honour the pasted-output half of the two-rule discipline this Story adopted at F-013 (\"no count or command is asserted in prose unless its actual output was pasted\") and reaffirmed at F-021. Its OWNER VERIFICATION line states two specific quantitative facts as prose, not pasted command output: the commandSetDigest value `eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`, and \"this repository declares no cwd on any of its 121 commands\" -- neither is shown as a labelled command plus its literal terminal output, unlike F-022's adjacent OWNER VERIFICATION in the same review round, which pastes `status: plan` / `selected: 121 of 121 validation unit(s)` / `freshnessBinding: bound (...)` / `commandSetDigest: ...` as discrete lines from an actual run. I independently re-ran both checks this round (`validation_plan --storyId=B-a745 --tier=fast` prints commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661; a script over proof-or-stop.config.json.validate.commands confirms 121 total, 0 with cwd, 0 absolute) and both values are CORRECT -- so this is not a false claim, only a process-rule shortfall: a bare digest/count asserted from memory or computation notes rather than pasted CLI output. Low severity because non-mechanical and does not misstate code behaviour, matching the precedent set by this Story's own F-021 resolution for the same class of gap.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T09:42:07.908Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-024",
+      "_hash": "69aa1b5860a18c244f08fafc5e97e0ae716240eb67af7f97e8c0cef3f9a508e1",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json"
+      ],
+      "signatureTag": "missing|json|a745-resolvedreason-findings",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted. The F-023 resolution asserted the real-inventory digest and the 121-commands/0-cwd count as prose, which met the artifact rule but not the pasted-output rule adopted at F-021. The values were independently confirmed correct by the concept lane, so this is a form defect, not a false fact; it is still an instance because the rule exists precisely so that correctness does not depend on the reader trusting me. F-023 has been re-recorded with the literal commands and their literal output, run in this worktree ('121 0' and the commandSetDigest line). No code changed.",
+      "resolvedAt": "2026-09-02T09:55:10.172Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-028",
+      "desc": "commit 7e1f1c42c8 (\"B-a745: drop the dead projectRoot parameter from buildValidationCommandInventory\") message asserts \"The real commandSetDigest is unchanged (eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661)\" without showing the command run and its literal output at write time. This is the same pattern F-013/F-019 named and F-023/F-027 fixed in findings.json prose (a specific checkable value asserted in a durable, permanent record -- here a git commit message, which cannot be edited after the fact -- without pasting the command and its actual output). The digest value itself is TRUE (independently re-verified in this worktree: `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest:` -> `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`), so this is a form defect like F-027, not a false fact -- but it is a sixth instance of the same rule violation (F-008, F-009, F-013, F-019, F-023-original/F-027 were the first five), this time in a commit message rather than findings.json, which the two adopted rules (check run in the story worktree + pasted; durable record cites only artifacts existing at write time) already cover by their own stated scope (\"any durable record\", not just findings.json).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T10:04:19.571Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-030",
+      "_hash": "623378db85e31e7d62d7870756b5f051de195f29719e5f46f3971bf3bd216133",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|commit-7e1f1c42c8-a745",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as the sixth instance and as a fair extension of the rule. Commit 7e1f1c42c8's message asserts the real commandSetDigest as prose with neither the command nor its output. The value is true -- the concept lane re-ran the command independently and I ran it in this worktree: `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest:` -> `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661` -- so this is a form defect, not a false fact. WHY NOT FIXED IN PLACE: a commit message is immutable without rewriting history, and rewriting this branch would invalidate every review-run, receipt and host-verdict binding recorded against its commit hashes; that cost is not proportionate to a form defect whose value has been verified twice. Recorded as accepted_risk rather than fixed, deliberately, so the record does not claim a correction that did not happen. RULE EXTENSION, adopted: 'any durable record' includes commit messages; from here on, an implementer dispatch that asks for a figure to be asserted in a commit body must require the command and its pasted output in that body, not a restatement. Root cause on my side: my dispatch text asked the implementer to 'assert it in your report by pasting', which it did in its report, while the commit body restated the figure -- the instruction did not reach the commit.",
+      "resolvedAt": "2026-09-02T10:10:33.727Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-029",
+      "desc": "B-a745:F-028 resolvedReason claims the sixth instance and, for the commit-message sub-case, implicitly the first/only one (this time in a commit message), of the pasted-output rule violation (F-013/F-021: no count or command asserted in prose unless its actual output was pasted, extended by F-028 itself to commit bodies). That tally is itself an unverified, undercounted figure asserted in a durable record (findings.json) -- exactly the class of defect the rule exists to prevent. Independently re-ran git log --format=%H|%ad|%s --date=iso-strict main..HEAD and read every commit body authored after F-021 resolved (2026-09-02T08:58:04.421Z): two EARLIER commits already assert the same abbreviated commandSetDigest (eba363ed...) as prose with no command/output pasted in the body -- 899a13a6cd (RED(B-a745:F-023), authored 2026-09-02T09:28:44Z: real-inventory digest (eba363ed...) cases are regression guards that already hold) and 8613d6d6ec (GREEN(B-a745:F-023), authored 2026-09-02T09:29:36Z: the real inventory commandSetDigest (eba363ed...) does not move), both chronologically BEFORE 7e1f1c42c8 (09:53:55Z). The abbreviated digest is the true value (independently reproduced live: node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest: -> commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, matching prefix eba363ed), so these are form defects, not false facts -- same disposition as F-028. But they are NOT covered by F-028s rule extension, which is explicitly forward-only (from here on), and they were not counted in the sixth-instance tally, which undercounts total commit-message instances in this branch (at least 3, not 1) and total same-class instances overall (at least 8, not 6). The 3f83a2127d and 286a9b0921 commit bodies named in this rounds dispatch were independently checked and carry no comparable unpasted figures -- clean. Recommend: file 899a13a6cd/8613d6d6ec as an explicit accepted_risk pair under the same immutable-history rationale as F-028 (or a single combined finding), and correct the sixth-instance framing in F-028s record to acknowledge the undercount rather than leaving a wrong total in a permanent record.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T10:15:28.096Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-032",
+      "_hash": "d1d55530e68f92720f1ccf47b6d87d3e185bb31f729f96a99e5375cf11376cc1",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json"
+      ],
+      "signatureTag": "missing|json|a745-resolvedreason-claims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted in full, and the reviewer's point lands twice over. FIRST: the 'sixth instance' tally in the F-028 resolution was itself an artifact figure asserted in a durable record without being queried -- the exact anti-pattern this repository's oldest dev-memory lesson names (a figure about the artifact is a second copy of something that lives elsewhere and drifts). The census the reviewer ran shows it was an undercount. No corrected total is written here on purpose: the count of instances is a property of findings.json and git log, and anyone who needs it should run the query at the moment they need it. SECOND: two earlier commit messages, 899a13a6cd and 8613d6d6ec (the F-023 RED/GREEN pair), cite the abbreviated commandSetDigest as prose without command or output, the same form defect as F-028, and they predate the forward-only rule extension. Their value is true -- pasted here from this worktree: `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest:` -> `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661` -- and they are immutable without a history rewrite that would invalidate every binding on this branch, so both are recorded as accepted_risk under this finding with the same reasoning as F-028, not fixed and not silently left out. The F-028 resolution is not re-edited to patch its tally; this finding is the correction, and the wrong figure stays visible in F-028 as the record of what was actually written.",
+      "resolvedAt": "2026-09-02T10:17:43.308Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
