@@ -348,6 +348,27 @@
         "scanEscalationReason": null
       },
       "_hash": "3a88f2a266f6c27f46ba5e9b40c9a04cb5e2cef34598a02dd6e4f5054d2553e6"
+    },
+    {
+      "id": "B-d854:RP-012",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Final docs review GREEN. Independently verified the root AGENTS.md is fully English and replaces the former unbounded fix-all rule with the exact bounded defect triage rule: current-Story critical/high, security, data-integrity, destructive-compatibility, and lifecycle/acceptance blockers are fixed now; medium/low non-blockers require durable reproduction/evidence/impact/recommendation/ownership and are deferred, with escalation back into scope when evidence raises severity or blocks acceptance. The 26-row audit is readable and complete; baseline reports expected RED rows=26/26 exit=1, final reports GREEN rows=26/26 exit=0, Unicode han=0 ufffd=0 nonAscii=0, and the command ledger is 46/46. Exact authority evidence is mutation-protected: 117 cited entries, 234 citation mutations, 14 composite rows, 43 semantic chains, 69 executable endpoint mutations, and 137 chain-swap mutations all pass. Runtime wording correctly distinguishes dynamically rerunnable current classification (repository-local authority plus machine-local global entrypoint state) from the immutable historical receipt, without claiming unretained historical version/path details. Claude and Agy evidence is explicitly machine-local and durably bound; Agy binds ordinal/thread/turn/item/command/cwd/prompt/stdout/session fields and rejects mutation. The verifier output matches the report. No distinct docs blocker remains beyond the now-resolved F-036 through F-043 series.",
+      "createdAt": "2026-09-02T13:16:07.740Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-044",
+      "envelopeId": "c5e885c6099b9a2569a2432cc119478087c668e290093f57c049187842fe4ba3",
+      "writerSessionId": "sess-344f8d2efea524142dd9d1f57515ecf5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a935b42e9ff5ef6d66b18fd9f4e05906bcca7a7ba653d42f60133304bfbf7d12"
     }
   ]
 }
