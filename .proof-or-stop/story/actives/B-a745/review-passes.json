@@ -602,6 +602,26 @@
         "scanEscalationReason": null
       },
       "_hash": "22a4a46c173c18ef61b1624d8f46cd53d7d38e12633f6a04e617fed87977dded"
+    },
+    {
+      "id": "B-a745:RP-024",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round 7 re-binding review. Verified via review_incremental_context (isFirstPass=true, FULL_MISSING_TRUSTED_PRIOR_PASS, no valid trusted prior binding after TEST->DEV->REVIEW bounce). Cross-checked directly against prior RP-018 binding headHash 37eeed14 (found in review-runs.json for RR-029): git diff 37eeed14..HEAD --stat -- packages proof-or-stop.config.json package.json is EMPTY -- zero product source changed. Full diff (18 files) touches only .proof-or-stop/story/actives/B-a745/* lifecycle metadata (checklist evidence receipt refresh, phase-transition index entries, review-runs/review-passes/findings/scope-contract/delivery-check/done-required-evidence/certification-window/test-evidence/summary/process-events/process-metrics/prompt-envelopes) and .proof-or-stop/dev-memory/* finish-decision artifacts. Re-ran operator checks live: validation_plan --storyId=B-a745 --tier=fast (text) prints status: plan, freshnessBinding: bound (head d280d6c1...), selected: 121 of 121, commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661; --json emits the same facts including freshnessBinding.status=bound and identical commandSetDigest. Manually constructed a forged status:stop report carrying plan-shaped fields (effectiveTier/executionMode/non-empty selection) via renderValidationPlanReport from handlers/validation-plan.js and confirmed both the text (json:false) and json (json:true) render paths throw the IDENTICAL error: a stop result may not carry plan-shaped facts... No new behavior finding; this is a re-bind with no material drift.",
+      "createdAt": "2026-09-02T11:31:13.562Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-033",
+      "envelopeId": "65b4b6a647c9b89fa95b04e72208272264e2548573a503a55cc3cd233f6836f5",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8138afc9675da7d6477577ce2d5a5b7de59e24fda15af321b3bc94ccbe07efb6"
     }
   ]
 }
