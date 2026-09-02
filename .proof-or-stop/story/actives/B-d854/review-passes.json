@@ -502,6 +502,35 @@
         "scanEscalationReason": null
       },
       "_hash": "495e2abe7134b5c60bc9dd1daeaddbd4583d3e09fa5f3172a2a8753be2fb051f"
+    },
+    {
+      "id": "B-d854:RP-017",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 16 test-coverage review passed. F-047 root cause is fixed by rebinding A19 to command-catalog.ts:3097. All 10 must intents have current passing evidence at material c6aa9fb and storyFiles 99411d1; all 8 mechanical receipts are exit 0, selectorMatched, 4000-byte tails with 18 of 18 selectors. Fresh final verifier exits 0 with 26 of 26 GREEN, command ledger 46 of 46, citation mutation 117 plus 117, source authority 14 rows 43 chains 69 endpoints, semantic swaps 137, Unicode and external provenance checks.",
+      "createdAt": "2026-09-02T16:31:24.727Z",
+      "reviewRound": "2026-09-02T16:28:06.672Z",
+      "reviewRunId": "B-d854:RR-054",
+      "envelopeId": "8007ce49dbb3058c52f88c2878cf2699659bb24c6fcc2c2e6a59df19cc3220a6",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1343c946f47ca9146001cd8c00f2498901138ee7aa7227ba8b8f9feba1b6752"
     }
   ]
 }
