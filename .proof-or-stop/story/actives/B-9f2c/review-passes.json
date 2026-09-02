@@ -705,6 +705,33 @@
         "scanEscalationReason": "Bookkeeping-only re-verification round with no doc/code diff since the prior fully-verified pass (RP-020): confirmed via git diff (RP-020 bound head b94e532 vs current frozen head) that zero .md and zero packages/*/src files changed -- all 17 changed files are under .proof-or-stop/ (dev-memory-finish-decision re-stale artifacts). Re-read the decisions doc Test-surface placement section and the README/CLAUDE.md standing claim locations in full to reconfirm they are unchanged and code-accurate, and re-swept the full docs corpus (CLAUDE.md, README.md, AGENTS.md, docs/**/*.md) for stale two-list/two-mechanism/two-authority framing; only the same single pre-existing unrelated hit remains."
       },
       "_hash": "56ad3030edc73260bd883e2449e603b5b22b38647a47892e42f42faaa3b57803"
+    },
+    {
+      "id": "B-9f2c:RP-024",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed (re-earned round after dev_memory_finish_decision/rollout-report re-stale, no material change since RP-018/RR-027). Verified all 22 must-priority verificationIntent entries across CHK-001..CHK-005 have valid, non-stale, mechanical evidence at pinned headHash=11f9440be5/materialHash=ccfdb13e69 (result=pass, exitCode=0, mechanical=true, no nonMechanicalReason). This materialHash matches the receipt just written by verification_evidence_refresh_stale (commit d992948600), confirming zero stale evidence at current HEAD. Confirmed drift since RP-018 (bound to headHash=ecead84965) is genuinely metadata-only: git diff --stat ecead84965..11f9440be5 touches exactly 18 files, ALL under .proof-or-stop/story/actives/B-9f2c/* or .proof-or-stop/dev-memory/* (checklist.json evidence receipts re-signed, review-runs/review-passes/prompt-envelopes/process-events framework bookkeeping, acceptance-rollout-report.json regenerated, certification-window/scope-contract/delivery-check/index metadata) -- zero changes to any packages/graph or packages/main source/test file. Explicitly diffed checklist.json and confirmed no checklist item's 'files' block changed (only verificationEvidence receipt fields: headHash/materialHash/executedAt). Independently re-ran npm --prefix packages/graph run check standalone (outside the concurrent 4-lane validate load) and confirmed exit 0 clean pass with empty git status afterward -- the code=1 seen for this same command inside the concurrent background validate run was resource-contention noise from parallel lanes validating simultaneously, not a real regression, and does not affect this lane's verdict since done_required_validate already PASSED (root suite 59/59, 582s) as the independent fail-closed backstop. Re-read F-003 (medium, accepted_risk, CHK-005:adversarial:0 pinned-command limitation): disposition remains correct -- both available fixes (reword frozen intent; attach supplementary probe on same intentRef) are structurally refused by design, and the residual risk is independently backstopped by done_required_validate's now-PASSED root suite, which fails closed at module load if the RESOURCE_POLICY registration is ever removed. No new findings. readManifest: background.md, plan.md, checklist.json (all 5 items' verificationIntent/verificationEvidence), findings.json (F-001..F-004), review-passes.json (RP-018), git diff --stat ecead84965..11f9440be5, git diff (checklist.json only), and a standalone re-run of npm --prefix packages/graph run check.",
+      "createdAt": "2026-09-02T17:35:37.503Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-028",
+      "envelopeId": "d04de951d486215cce861fab1a39c209b94936cb9f22f679bc7b109b6c856ec7",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/certification-window.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4273c5568a8b07be6f230f44e0ba1c33a9c5b37c163284e476f9dd347e4454c0"
     }
   ]
 }
