@@ -1,25 +1,15 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-02T02:45:39.340Z",
+  "checkedAt": "2026-09-02T02:47:20.380Z",
   "reviewRound": "2026-09-02T02:22:09.054Z",
   "agentId": "product-reviewer",
-  "issues": [
-    {
-      "severity": "high",
-      "desc": "CHK-004 context still commits the Story to a documentation-only Dynamic Finding authority migration and to retaining the former combined verdict as an active legacy alias. That is the exact unintended authority-amendment/legacy-alias commitment this controlled replan must remove, and it contradicts CHK-001, which now correctly says the Story is subordinate, must not amend Dynamic Finding authority, and may mention retired verdict vocabulary only as historical evidence—not as active Task Context. Preserve CHK-004 RED/GREEN, full-envelope authority-injection, baseline, build, and adapter acceptance; revise only this stale scope prose so the canonical checks reject active legacy-alias retention."
-    }
-  ],
+  "issues": [],
   "agentResults": [
     {
       "agentId": "product-reviewer",
-      "checkedAt": "2026-09-02T02:45:39.340Z",
-      "issues": [
-        {
-          "severity": "high",
-          "desc": "CHK-004 context still commits the Story to a documentation-only Dynamic Finding authority migration and to retaining the former combined verdict as an active legacy alias. That is the exact unintended authority-amendment/legacy-alias commitment this controlled replan must remove, and it contradicts CHK-001, which now correctly says the Story is subordinate, must not amend Dynamic Finding authority, and may mention retired verdict vocabulary only as historical evidence—not as active Task Context. Preserve CHK-004 RED/GREEN, full-envelope authority-injection, baseline, build, and adapter acceptance; revise only this stale scope prose so the canonical checks reject active legacy-alias retention."
-        }
-      ]
+      "checkedAt": "2026-09-02T02:47:20.380Z",
+      "issues": []
     }
   ],
-  "_hash": "a3007fe3ac233936b75605c70aab4012efe872b2e2a61c51811fbb7f41ba02c0"
+  "_hash": "65dce395f4a29782b22ddad3ee665869c9eff6ff468a19428182898834fb0000"
 }
