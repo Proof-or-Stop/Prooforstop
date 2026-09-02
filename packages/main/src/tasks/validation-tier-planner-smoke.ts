@@ -2594,6 +2594,183 @@ testCase('the CLI tier aliases map onto the canonical vocabulary and add no four
 });
 
 // ---------------------------------------------------------------------------
+// F-010 (cross-host review, Codex) — the planner must read Git state from the
+// STORY's tree, never from the tree it happens to be invoked in.
+//
+// validation_plan is read-only and allowed from any cwd, so invoking it from the
+// main checkout (or from a configured wrapper root) against a story whose work
+// lives in a linked worktree is a supported call. Before the fix the handler
+// passed the invocation root as gitCwd, so that call diffed and hashed the WRONG
+// tree while still naming the story: 0 unclassified inputs from main, N from the
+// worktree, and two different selectionDigests for one story. The fixtures below
+// reproduce exactly that layout and require the two reports to be identical.
+// No cwd gate is added: the command must simply look at the right tree.
+// ---------------------------------------------------------------------------
+
+const GIT_FIXTURE_IDENTITY = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke'];
+const WORKTREE_FIXTURE_STORY_ID = 'B-a745';
+const WORKTREE_FIXTURE_CHANGED_FILE = 'src/core/planner-touched.ts';
+
+function fixtureGit(cwd: string, args: string[]): string {
+  return execFileSync('git', [...GIT_FIXTURE_IDENTITY, ...args], {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function writeFixtureFile(root: string, relPath: string, content: string): void {
+  const absolute = join(root, relPath);
+  mkdirSync(resolve(absolute, '..'), { recursive: true });
+  writeFileSync(absolute, content, 'utf-8');
+}
+
+/**
+ * A story that owns its work in a linked worktree, laid out the way the real
+ * lifecycle lays it out:
+ *
+ *   metadataRoot/                       proof-or-stop.config.json (+ gitRoot on a wrapper layout)
+ *     .proof-or-stop/story/actives/     the story metadata (NO worktree binding, like story_create)
+ *     [repo/]                           the git root: branch main, one base commit
+ *       .worktrees/<storyId>/           linked worktree on story/<storyId> with the story's own commit
+ *
+ * On the plain layout metadataRoot IS the git root and the metadata is committed
+ * on main, so the worktree carries it too. On the wrapper layout the metadata
+ * root is deliberately NOT a git repository and `gitRoot: "repo"` points at the
+ * inner repository, which is the configured wrapper-root case resolveGitCwd
+ * already serves for the sibling handlers.
+ */
+function buildStoryWorktreeFixture(layout: 'plain' | 'wrapper-root'): {
+  metadataRoot: string;
+  gitRoot: string;
+  worktreePath: string;
+} {
+  const metadataRoot = mkdtempSync(join(tmpdir(), `proof-or-stop-validation-plan-${layout}-`));
+  temporaryRoots.push(metadataRoot);
+  const gitRoot = layout === 'wrapper-root' ? join(metadataRoot, 'repo') : metadataRoot;
+  mkdirSync(gitRoot, { recursive: true });
+
+  writeFixtureFile(
+    metadataRoot,
+    'proof-or-stop.config.json',
+    `${JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
+      ...(layout === 'wrapper-root' ? { gitRoot: 'repo' } : {}),
+      validate: {
+        commands: [
+          { label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' },
+          { label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' },
+        ],
+      },
+    }, null, 2)}\n`,
+  );
+  writeFixtureFile(gitRoot, '.gitignore', '.worktrees/\n');
+  writeFixtureFile(gitRoot, 'README.md', '# validation_plan worktree fixture\n');
+  writeFixtureFile(gitRoot, WORKTREE_FIXTURE_CHANGED_FILE, 'export const touched = 0;\n');
+  fixtureGit(gitRoot, ['init', '-q']);
+  fixtureGit(gitRoot, ['checkout', '-q', '-B', 'main']);
+  fixtureGit(gitRoot, ['add', '-A']);
+  fixtureGit(gitRoot, ['commit', '-q', '-m', 'base']);
+
+  resetConfigCache();
+  const store = new StoryStore(metadataRoot);
+  store.writeStory(WORKTREE_FIXTURE_STORY_ID, {
+    storyId: WORKTREE_FIXTURE_STORY_ID,
+    name: 'validation-plan-worktree',
+    title: 'Planner reads the story tree',
+    description: 'Fixture story whose work lives in a linked worktree.',
+    type: 'feature',
+    phase: 'DEV' as StoryInfo['phase'],
+    priority: 'high',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    startedAt: null,
+    endedAt: null,
+    // NO worktree binding: the resolver must find the linked story branch itself.
+  });
+  store.writeChecklist(WORKTREE_FIXTURE_STORY_ID, { items: [] });
+  if (layout === 'plain') {
+    fixtureGit(gitRoot, ['add', '-A']);
+    fixtureGit(gitRoot, ['commit', '-q', '-m', 'story metadata']);
+  }
+
+  const worktreePath = join(gitRoot, '.worktrees', WORKTREE_FIXTURE_STORY_ID);
+  fixtureGit(gitRoot, ['branch', `story/${WORKTREE_FIXTURE_STORY_ID}`]);
+  fixtureGit(gitRoot, ['worktree', 'add', '-q', worktreePath, `story/${WORKTREE_FIXTURE_STORY_ID}`]);
+  // The story's OWN change, committed on the story branch only: main never sees it.
+  writeFixtureFile(worktreePath, WORKTREE_FIXTURE_CHANGED_FILE, 'export const touched = 1;\n');
+  fixtureGit(worktreePath, ['add', '-A']);
+  fixtureGit(worktreePath, ['commit', '-q', '-m', 'story change']);
+
+  return { metadataRoot, gitRoot, worktreePath };
+}
+
+function planFromRoot(root: string): Record<string, any> {
+  resetConfigCache();
+  const ctx = { store: new StoryStore(root), root, scanRoot: root } as HandlerContext;
+  return JSON.parse(planCli(ctx)({ storyId: WORKTREE_FIXTURE_STORY_ID, tier: 'fast', json: true })) as Record<string, any>;
+}
+
+function unclassifiedValues(report: Record<string, any>): string[] {
+  return (report.unclassifiedInputs as Array<{ value: string }>).map((entry) => entry.value).sort();
+}
+
+function escalationCodes(report: Record<string, any>): string[] {
+  return (report.escalationReasons as Array<{ code: string }>).map((entry) => entry.code).sort();
+}
+
+testCase('F-010: validation_plan invoked from the main checkout plans the SAME tree as from the story worktree', () => {
+  const { metadataRoot, worktreePath } = buildStoryWorktreeFixture('plain');
+
+  const fromWorktree = planFromRoot(worktreePath);
+  const fromMainCheckout = planFromRoot(metadataRoot);
+
+  // The fixture is only meaningful if the story really changed something that the
+  // worktree view sees: the story-branch commit must surface as an input.
+  assert.ok(
+    unclassifiedValues(fromWorktree).includes(WORKTREE_FIXTURE_CHANGED_FILE),
+    `the worktree view must see the story's own change (got ${JSON.stringify(unclassifiedValues(fromWorktree))})`,
+  );
+  assert.equal(fromWorktree.status, 'plan');
+
+  // Same story, same dist, different cwd: the relevance input must be IDENTICAL.
+  assert.deepEqual(
+    unclassifiedValues(fromMainCheckout),
+    unclassifiedValues(fromWorktree),
+    'invoked from the main checkout, the planner must list the story worktree’s changed files, not main’s',
+  );
+  assert.deepEqual(escalationCodes(fromMainCheckout), escalationCodes(fromWorktree));
+  assert.equal(
+    fromMainCheckout.selectionDigest,
+    fromWorktree.selectionDigest,
+    'the selectionDigest must describe the requested story’s tree regardless of the invocation root',
+  );
+  assert.deepEqual(fromMainCheckout, fromWorktree, 'the whole report must be identical from both roots');
+});
+
+testCase('F-010: on a configured wrapper-root layout validation_plan reads the story worktree, not the non-git wrapper', () => {
+  const { metadataRoot } = buildStoryWorktreeFixture('wrapper-root');
+
+  // The only legitimate invocation root on this layout is the wrapper itself,
+  // which is NOT a git repository. Before the fix the planner diffed and hashed
+  // the wrapper and degraded to the unavailable classifications; it must instead
+  // resolve the configured gitRoot's linked story worktree and read that tree.
+  const fromWrapper = planFromRoot(metadataRoot);
+
+  assert.equal(fromWrapper.status, 'plan');
+  for (const code of ['changed_files_unavailable', 'hash_snapshot_unavailable']) {
+    assert.equal(
+      escalationCodes(fromWrapper).includes(code),
+      false,
+      `the wrapper root is not a git repository, but the story's tree is: ${code} must not be reported`,
+    );
+  }
+  assert.ok(
+    unclassifiedValues(fromWrapper).includes(WORKTREE_FIXTURE_CHANGED_FILE),
+    `the story-branch change must be visible from the wrapper root (got ${JSON.stringify(unclassifiedValues(fromWrapper))})`,
+  );
+});
+
+// ---------------------------------------------------------------------------
 // CHK-006 — cross-cutting acceptance guards. These do not test one item; they
 // hold the Story's PROCESS and COVERAGE claims to a mechanical standard, so a
 // later change cannot quietly retire one of them.
