@@ -594,6 +594,11 @@ function externalReviewArtifactChecks() {
 
 let exitCode = runAuditRows();
 if (mode === 'final' && !selectedRow && exitCode === 0) {
+  // Receipt runners retain a bounded stdout prefix. Emit these cheap pinned
+  // environment/language facts before the verbose command ledger while still
+  // requiring every later assertion and the authoritative final exit code.
+  runtimeChecks();
+  unicodeChecks();
   auditDocumentChecks();
   auditCitationMutationChecks();
   externalReviewArtifactChecks();
@@ -602,8 +607,6 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   semanticChecks();
   rowSemanticMutationChecks();
   completenessChecks();
-  runtimeChecks();
-  unicodeChecks();
   managedBlockChecks();
   console.log('AGENTS_VERIFY FINAL GREEN');
 }
