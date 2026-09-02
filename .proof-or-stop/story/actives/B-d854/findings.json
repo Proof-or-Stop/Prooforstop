@@ -27,7 +27,7 @@
       "desc": "AGENTS.md:55-58 conflicts with the current canonical reviewer contract. The guide says Never directly read or write Story or fixture JSON, while review_run_start for this same Story requires the reviewer to read .proof-or-stop/story/actives/B-d854/background.md, plan.md, and checklist.json. The managed thin block at AGENTS.md:9 correctly prohibits direct edits only, and direct reads do not bypass signatures, hashes, locks, receipts, or lifecycle mutation validation. This overbroad prohibition makes a reviewer violate AGENTS.md in order to satisfy the canonical role prompt and therefore fails the requested prompt-consistency audit. Narrow the rule to direct writes/mutations, and state that bounded read-only reviewer inputs named by a canonical prompt are permitted; retain CLI reads for ordinary state inspection. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T00:23:48.930Z",
@@ -38,7 +38,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "adversarial|md|agents-conflicts-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "AGENTS.md now prohibits direct Story JSON writes and unbounded inspection while explicitly permitting bounded read-only canonical-prompt reviewer inputs; ordinary inspection remains CLI-first. Verified by the final audit ledger and verifier.",
+      "resolvedAt": "2026-09-02T01:05:05.528Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-003",
