@@ -42,6 +42,10 @@ may appear here only to prohibit its delivery as active Agent guidance.
 This proposal may change:
 
 - the canonical REVIEW Finding triage contract appended to active REVIEW roles;
+- declarative Role Contract metadata that adds the
+  `defect-triage-and-routing-check` required-check identifier to those same
+  roles; this identifier is Agent-visible guidance, not evidence that the
+  check ran and not lifecycle gate evidence;
 - Story Owner guidance in `AGENTS.md` and `CLAUDE.md`;
 - bounded implementer handoff guidance;
 - pre-digest REVIEW Task Context authority validation in prompt-envelope
@@ -76,6 +80,12 @@ REVIEW roles:
 Story Owner behavior is mirrored byte-for-byte in `AGENTS.md` and `CLAUDE.md`.
 The implementer keeps a smaller handoff rule: preserve evidence, report the
 out-of-item issue, and never widen the assigned item or Story unilaterally.
+
+Here, "five active modular REVIEW roles" means this canonical prompt-delivery
+set. It does not include auxiliary topology-critic infrastructure or retired
+compatibility channel lanes that may still exist in broader runtime lane
+inventories; those surfaces neither receive this contract nor gain its
+required-check identifier.
 
 This assembly model keeps the five active modular REVIEW roles consistent
 without creating five independent copies that can drift.
@@ -243,6 +253,11 @@ commands and artifacts exist, Agents must:
 6. follow current mechanical policy without claiming that a target-state
    assessment or deferral occurred.
 
+Prompt text alone does not mechanically enforce any of these facts. Current
+CLI handlers and lifecycle gates remain authoritative, including the narrow
+current rule that permits `finding_dismiss` only where current mechanical
+policy allows it.
+
 Agents must not fabricate assessment fields, verdicts, disposition plans,
 owners, routes, accepted-route proofs, signatures, freshness bindings, expiry,
 lineage, receipts, or manifest actions. In particular, they must not fabricate
@@ -356,7 +371,9 @@ This proposal is fully executed only when:
 - the proposal is tracked and digest-covered;
 - all text added by this change is English;
 - the canonical REVIEW contract matches the current Dynamic Finding authority;
-- all five REVIEW lanes receive the contract in every supported assembly mode;
+- all five active modular REVIEW prompt-delivery roles receive the contract in
+  every supported assembly mode, while auxiliary and retired lanes receive
+  neither the contract nor its required-check identifier;
 - Story Owner guidance is synchronized across Codex and Claude surfaces;
 - semantic RED/GREEN mutations prove inverse and obsolete behavior fails even
   after digest repinning;

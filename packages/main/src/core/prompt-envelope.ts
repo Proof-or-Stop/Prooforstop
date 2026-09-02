@@ -459,6 +459,21 @@ function isApprovedIndependentAxesInvariant(segment: string): boolean {
   return /^(?:inspect|verify|audit|check)\s+.+\b(?:evidence\s+state\s+)?severity\s+applicability\s+candidate\s+and\s+gate\s+impact\s+(?:are|remain)\s+independent\s+axes$/u.test(segment);
 }
 
+function hasNothingButSeverityAuthority(text: string): boolean {
+  // `but` is normally a clause boundary in Task Context segmentation, while
+  // `nothing but <subject>` is one atomic exclusive-subject construction.
+  // Detect that construction before segmentation so it cannot be laundered
+  // into two harmless-looking fragments.
+  const normalized = normalizeTriageAuthorityText(text);
+  const severitySubject = '(?:severity(?:\\s+(?:rating|rank|level|score))?|criticality|priority|seriousness(?:\\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\\s+(?:rating|rank|level|score))';
+  const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
+  const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
+  return new RegExp(
+    `(?:^|[.!?;]\\s*)nothing\\s+but\\s+${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}(?:$|[.!?;])`,
+    'u',
+  ).test(normalized);
+}
+
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
   if (source.kind !== 'verificationIntent') return false;
   const normalized = normalizeTriageAuthorityText(source.text);
@@ -571,6 +586,9 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     || isExplicitFailClosedQuotedFixture(source.text)
     || isExplicitRejectedAuthorityStatement(source.text)
     || isNegativeMutationVerificationIntent(source)) return null;
+  if (hasNothingButSeverityAuthority(source.text)) {
+    return 'severity used as sole ownership or scope authority';
+  }
   const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
   const segments = triageAuthoritySegments(source.text);
   if (hasCrossSegmentDispositionAssignment(segments)) return 'unauthorized disposition minting';
@@ -623,6 +641,17 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
     const soleAuthority = /\b(?:alone|solely|only|entirely|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|decisive\s+factor|determinative\s+control|sufficient\s+by\s+itself|enough\s+by\s+itself|sufficient\s+on\s+its\s+own|by\s+itself|on\s+its\s+own|sole\s+criterion|single\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
+    // Reject the authority relation by grammar as well as by individual
+    // exclusivity markers. A definite singular decision input ("the ...
+    // factor/criterion") or a "nothing but severity" subject asserts the
+    // same sole-authority relation even when its adjective is novel.
+    const severitySubject = '(?:severity(?:\\s+(?:rating|rank|level|score))?|criticality|priority|seriousness(?:\\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\\s+(?:rating|rank|level|score))';
+    const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
+    const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
+    const grammaticalSoleAuthority = new RegExp(
+      `(?:^|\\b)(?:nothing\\s+but\\s+${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}|${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}(?:factor|criterion|basis|authority|determinant|driver|rule|test|input|consideration)\\s+(?:that\\s+)?${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject})(?:$|\\b)`,
+      'u',
+    ).test(segment);
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
       const qualifier = segment.slice(soleRange.start, soleRange.end);
       return matchRanges(segment, severity).some(severityRange => {
@@ -642,9 +671,11 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
           : /^(?:by|from|of|on)(?:\s+the)?$|^$/u.test(bridge);
       });
     });
-    if (soleQualifierBindsSeverity
-      && hasConceptPair(segment, severity, storyResponsibility)
-      && !controlledConceptPairIsExplicitlyNegative(segment, severity, storyResponsibility)) {
+    const severityResponsibilityPair = hasConceptPair(segment, severity, storyResponsibility);
+    if (severityResponsibilityPair
+      && (grammaticalSoleAuthority
+        || (soleQualifierBindsSeverity
+          && !controlledConceptPairIsExplicitlyNegative(segment, severity, storyResponsibility)))) {
       return 'severity used as sole ownership or scope authority';
     }
 
