@@ -172,7 +172,6 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // its absence fails the whole suite closed as unknownPolicy rather than skipping the
   // member. The suite only reads the repository and its own runner-owned temp roots --
   // it spawns no CLI and holds no exclusive path, port or lock -- so repoRead is correct.
-  repoRead('test:validation-tier-planner'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);

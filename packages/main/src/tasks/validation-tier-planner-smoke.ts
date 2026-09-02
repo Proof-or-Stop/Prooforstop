@@ -168,6 +168,7 @@ import {
 } from '../handlers/validation-plan.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
+import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -2444,6 +2445,74 @@ const DONEWHEN_COVERAGE: Array<{ item: string; doneWhen: string; cases: string[]
     'no write / persist / execute / run flag is accepted, at the schema OR the handler',
   ] },
 ];
+
+// ---------------------------------------------------------------------------
+// (42) REAL REGISTRATION (load-bearing) — CHK-006's verification intent says the
+//      registration is proven by the bidirectional membership check rather than
+//      by inspection. `full-suite-runner-smoke` cannot prove that: it rebuilds
+//      `fixtureScripts['test:serial-reference']` FROM `FULL_SUITE_ENTRIES`, so
+//      the two authorities it compares are the same object and can never
+//      disagree. It reported PASS while `test:validation-tier-planner` sat in the
+//      real chain with no RESOURCE_POLICY row.
+//
+//      So this case reads the REAL root package.json chain and the REAL
+//      RESOURCE_POLICY and asserts the relationship directly. Deleting the
+//      `repoRead('test:validation-tier-planner')` row must fail HERE — that is
+//      the exact scenario the existing smoke let through.
+//
+//      Scope: assert the real relationship. Repairing full-suite-runner-smoke's
+//      synthetic-fixture blindness is a separately recorded item, not this one.
+// ---------------------------------------------------------------------------
+testCase('the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner', () => {
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
+
+  const scripts = (JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8')) as { scripts?: Record<string, string> }).scripts ?? {};
+
+  // The prefix chain is a legitimately separate list whose members would otherwise
+  // read as stalePolicy against the main chain, so compose the reference exactly the
+  // way the runner does instead of naively unioning or ignoring it.
+  const mainChain = scripts['test:serial-reference'];
+  const prefixChain = scripts['test:serial-reference-prefix'];
+  assert.ok(mainChain, 'root package.json must define test:serial-reference: it is the membership authority');
+  const serialReference = [prefixChain, mainChain].filter(Boolean).join(' && ');
+
+  // Authority 1: the real chain.
+  const referenceMembers = parseSerialReference(serialReference);
+  assert.ok(
+    parseSerialReference(mainChain!).includes('test:validation-tier-planner'),
+    'test:validation-tier-planner must be a member of the canonical test:serial-reference chain',
+  );
+  assert.equal(
+    scripts['test:validation-tier-planner'],
+    'node packages/main/dist/tasks/validation-tier-planner-smoke.js',
+    'the chain member must resolve to a real npm script running this suite',
+  );
+
+  // Authority 2: the real RESOURCE_POLICY, read through the module that declares it.
+  const policyNames = FULL_SUITE_ENTRIES.map((entry) => entry.name);
+  assert.ok(
+    policyNames.includes('test:validation-tier-planner'),
+    'RESOURCE_POLICY is a SEPARATE mandatory mapping; a chain member with no policy row fails the whole suite closed',
+  );
+
+  // The bidirectional relationship, computed over the REAL pair rather than over a
+  // fixture rebuilt from one of the two sides.
+  const policyByName = new Set(policyNames);
+  const unknownPolicy = referenceMembers.filter((name) => !policyByName.has(name));
+  const missingScripts = referenceMembers.filter((name) => !scripts[name]);
+  const stalePolicy = policyNames.filter((name) => !referenceMembers.includes(name));
+  assert.deepEqual(unknownPolicy, [], `real chain members with no RESOURCE_POLICY row: ${unknownPolicy.join(', ')}`);
+  assert.deepEqual(missingScripts, [], `real chain members with no npm script: ${missingScripts.join(', ')}`);
+  assert.deepEqual(stalePolicy, [], `RESOURCE_POLICY rows absent from the real chain: ${stalePolicy.join(', ')}`);
+
+  // End to end through the production reader, with the real policy as its default.
+  const entries = entriesFromSerialReference(serialReference, scripts);
+  assert.ok(
+    entries.some((entry) => entry.name === 'test:validation-tier-planner'),
+    'the production inventory reader must accept the real pair and yield this member',
+  );
+});
 
 testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed', () => {
   const declaredItems = new Set(DONEWHEN_COVERAGE.map((entry) => entry.item));
