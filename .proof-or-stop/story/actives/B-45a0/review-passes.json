@@ -25433,6 +25433,35 @@
         "scanEscalationReason": null
       },
       "_hash": "f778c186e72e0e17c74562598d8931ea6b66e0bc86bdb234ba4dc01ae2da78bb"
+    },
+    {
+      "id": "B-45a0:RP-558",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 4 independently re-verified at current HEAD c9f7ad1: acceptance_basis complete/verified zero diagnostics (basisDigest 3579f168, receiptVerification ok); acceptance_topology_check structuralPass true blocking false zero diagnosticCodes; pre_review_check_read status pass codes[] planBasisDigest matches; acceptance_rollout_report_read and acceptance_rollout_check both mode=enforce status=pass quorum=full-3x2 mislabeled3x1Count=0 falsePassCount=0 falseBlockCount=0. Diffed basis binding head f5f08483 to current head c9f7ad1: only .proof-or-stop/story/** paths moved (benign headHash-only drift), materialHash/storyFilesHash unchanged across acceptance_basis and rollout report bindings.",
+      "createdAt": "2026-09-02T07:59:51.508Z",
+      "reviewRound": "2026-09-02T07:46:34.931Z",
+      "reviewRunId": "B-45a0:RR-1227",
+      "envelopeId": "0bd109d60836d52fdf65fc72073e275a1221bcd80d45407be407437576ced0f6",
+      "writerSessionId": "sess-56bba047b4de70f8e3df143370f73184",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "07ab200c38534acd365e0b883d33fee49fd6243641d841483d779d53591a2ce9"
     }
   ]
 }
