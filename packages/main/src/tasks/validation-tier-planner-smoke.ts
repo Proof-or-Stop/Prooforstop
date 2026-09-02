@@ -10,9 +10,13 @@
  *   (1) DECLARED vs PROVISIONAL — a declared `id` survives verbatim; a command that
  *       declares none receives a deterministic `prov-` id derived from the NARROW
  *       portable tuple {command, args, cwdRelative, shell}.
- *   (2) SHARED SHELL RULE — the tuple's `shell` is the same value
- *       `buildRoutineValidationIdentity` binds (`shell === true || platform === 'win32'`),
- *       across injected platforms. There must not be a second shell rule.
+ *   (2) PORTABLE VERSUS RUNTIME SHELL (B-a745 F-017) — the NARROW PORTABLE tuple's
+ *       `shell` is the DECLARED intent only (`command.shell === true`), so the `prov-`
+ *       id and the commandSetDigest are identical on linux / darwin / win32. The
+ *       COMPLETE runtime tuple pin resolution compares keeps the platform-effective
+ *       rule `validationCommandUsesShell` (`shell === true || platform === 'win32'`),
+ *       because that is what actually executes. Two rules on purpose, for two
+ *       different questions; the portable one must not be able to consume the host.
  *   (3) COMMAND-SET DIGEST — two independent computations over the same set agree, and
  *       mutating ANY normalized digest field changes the digest.
  *   (4) DUPLICATES — two commands with identical narrow tuples are a hard error naming
@@ -278,20 +282,123 @@ testCase('the narrow tuple carries a repo-relative cwd, so an absolute and a rel
 });
 
 // ---------------------------------------------------------------------------
-// (2) The shell rule is the routine identity's rule, not a second one.
+// (2) PORTABLE versus RUNTIME shell (B-a745 F-017).
+//     The story's recorded decision `A-narrow-portable-id` promises an id that is
+//     stable across machines, usable as a declared-id migration target and
+//     verifiable on another host. Hashing the platform-effective shell rule into
+//     the portable tuple broke that: the same config produced a different
+//     `prov-` id and a different commandSetDigest on Windows. The portable tuple
+//     carries the DECLARED shell only; the COMPLETE runtime tuple keeps the
+//     effective rule. Every case here reads BOTH tuples out of ONE
+//     `buildValidationPinUniverse` call per platform, so the platform the
+//     universe was normalized under is provably the same for both halves.
 // ---------------------------------------------------------------------------
-testCase('tuple shell matches the routine identity shell rule on every platform', () => {
-  for (const platform of ['linux', 'darwin', 'win32'] as NodeJS.Platform[]) {
+const PORTABILITY_PLATFORMS: NodeJS.Platform[] = ['linux', 'darwin', 'win32'];
+
+function universeOn(platform: NodeJS.Platform, commands: ValidationCommand[]) {
+  return buildValidationPinUniverse({
+    projectRoot: ROOT,
+    commands,
+    processEnvironment: { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv,
+    platform,
+  });
+}
+
+testCase('the portable tuple shell is the declared intent, the complete runtime tuple shell is the effective rule', () => {
+  for (const platform of PORTABILITY_PLATFORMS) {
     for (const shell of [undefined, true, false]) {
       const entry = command({ label: 'x', command: 'npm', args: ['test'], ...(shell === undefined ? {} : { shell }) });
-      const tuple = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: entry, platform });
+      const [unit] = universeOn(platform, [entry]).entries;
+      // Portable: declared intent only. `undefined` and `false` are both "not declared".
       assert.equal(
-        tuple.shell,
-        validationCommandUsesShell(entry, platform),
-        `tuple shell disagrees with the shared rule on ${platform} shell=${String(shell)}`,
+        unit.tuple.shell,
+        entry.shell === true,
+        `portable tuple shell must be the DECLARED intent on ${platform} shell=${String(shell)}`,
       );
-      assert.equal(tuple.shell, entry.shell === true || platform === 'win32');
+      assert.equal(
+        narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: entry }).shell,
+        entry.shell === true,
+        `narrowPortableValidationCommandTuple must not consult the host on shell=${String(shell)}`,
+      );
+      // Runtime: the ONE effective rule the routine identity binds, unchanged.
+      assert.equal(
+        unit.completeTuple.shell,
+        validationCommandUsesShell(entry, platform),
+        `complete tuple shell must stay the effective rule on ${platform} shell=${String(shell)}`,
+      );
+      assert.equal(unit.completeTuple.shell, entry.shell === true || platform === 'win32');
     }
+  }
+});
+
+testCase('an undeclared-shell command has the same provisional id and commandSetDigest on linux, darwin and win32', () => {
+  const entry = command({ label: 'unit', command: 'npm', args: ['test'] });
+  const perPlatform = PORTABILITY_PLATFORMS.map((platform) => {
+    const universe = universeOn(platform, [entry]);
+    return { platform, id: universe.entries[0].id, commandSetDigest: universe.commandSetDigest };
+  });
+  const [reference] = perPlatform;
+  assert.ok(reference.id.startsWith(PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX));
+  for (const observed of perPlatform) {
+    assert.equal(
+      observed.id,
+      reference.id,
+      `provisional id must be host-portable: ${observed.platform} derived ${observed.id}, ${reference.platform} derived ${reference.id}`,
+    );
+    assert.equal(
+      observed.commandSetDigest,
+      reference.commandSetDigest,
+      `commandSetDigest must be host-portable: ${observed.platform} differs from ${reference.platform}`,
+    );
+  }
+});
+
+testCase('a declared shell: true command is portable across platforms AND distinct from the undeclared one', () => {
+  const undeclared = command({ label: 'unit', command: 'npm', args: ['test'] });
+  const declared = command({ label: 'unit', command: 'npm', args: ['test'], shell: true });
+  const declaredIds = PORTABILITY_PLATFORMS.map((platform) => universeOn(platform, [declared]).entries[0].id);
+  const declaredDigests = PORTABILITY_PLATFORMS.map((platform) => universeOn(platform, [declared]).commandSetDigest);
+  assert.equal(new Set(declaredIds).size, 1, `a declared shell must give ONE id, got ${declaredIds.join(', ')}`);
+  assert.equal(new Set(declaredDigests).size, 1, 'a declared shell must give ONE commandSetDigest');
+  for (const platform of PORTABILITY_PLATFORMS) {
+    assert.notEqual(
+      universeOn(platform, [undeclared]).entries[0].id,
+      declaredIds[0],
+      `declaring shell: true is a real identity change and must differ from the undeclared id on ${platform}`,
+    );
+  }
+});
+
+testCase('the COMPLETE runtime tuple for an undeclared-shell command still differs on win32', () => {
+  const entry = command({ label: 'unit', command: 'npm', args: ['test'] });
+  const posix = universeOn('linux', [entry]).entries[0];
+  const windows = universeOn('win32', [entry]).entries[0];
+  assert.equal(posix.completeTuple.shell, false);
+  assert.equal(windows.completeTuple.shell, true, 'win32 executes through a shell, and pin resolution must know');
+  assert.notEqual(
+    windows.normalizedTupleDigest,
+    posix.normalizedTupleDigest,
+    'the runtime side must NOT be flattened: what executes on win32 is a different tuple',
+  );
+  // While the portable side, from the very same universes, agrees.
+  assert.equal(windows.id, posix.id);
+});
+
+testCase('the REAL validate.commands inventory has one commandSetDigest whether computed for darwin or win32', () => {
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
+  const commands = configuredValidationCommands(repoRoot);
+  assert.ok(commands.length > 0, 'the real inventory must not be empty');
+  const digestOn = (platform: NodeJS.Platform) => buildValidationPinUniverse({ projectRoot: repoRoot, commands, platform });
+  const darwin = digestOn('darwin');
+  const windows = digestOn('win32');
+  assert.equal(
+    windows.commandSetDigest,
+    darwin.commandSetDigest,
+    `the real inventory's commandSetDigest must be host-portable (darwin ${darwin.commandSetDigest}, win32 ${windows.commandSetDigest})`,
+  );
+  for (let index = 0; index < darwin.entries.length; index += 1) {
+    assert.equal(windows.entries[index].id, darwin.entries[index].id, `entry ${index} id differs across platforms`);
   }
 });
 
