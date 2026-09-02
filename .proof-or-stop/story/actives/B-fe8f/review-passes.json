@@ -289,6 +289,31 @@
         "scanEscalationReason": null
       },
       "_hash": "5de70c15ee1cd9333e4f254447bccc3520e885d5ef369362eeba37c400d64a95"
+    },
+    {
+      "id": "B-fe8f:RP-011",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Converted pass-only finding_add record: quality-cleanup: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5266 (commit dd45caa2ea) adds an unconditional process.stderr.write dumping raw dynamicBindingBuildFiles Map entries (filtered for finding|runtime-evidence|artifact-store) plus repoUnique/repoDuplicates arrays, immediately before assertTypeProgramInstrumentation(). It is not gated behind a verbose/debug flag and is not part of the pinned selector contract (the real PASS selector is the process.stdout.write at line 5276) -- reads as leftover ad-hoc calibration output the author used to derive the new DYNAMIC_BINDING_BUILD_CEILING=811 value, left in place after the ceiling bump. Every run of this smoke (including full validate) now permanently prints this diagnostic noise to stderr.",
+      "createdAt": "2026-09-02T14:49:12.770Z",
+      "reviewRound": "2026-09-02T14:44:47.278Z",
+      "reviewRunId": "B-fe8f:RR-025",
+      "envelopeId": "ac62081838422e8b2804a28c257fbf8069ad081089547e886856b5db37acfbf8",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/proof-or-stop-paths.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "711ac55c545d9985121ca4e428b508ee283c108485c80aeae24584ef4813d9a4"
     }
   ]
 }
