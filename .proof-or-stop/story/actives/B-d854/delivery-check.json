@@ -1,0 +1,67 @@
+{
+  "storyId": "B-d854",
+  "checkedAt": "2026-09-02T14:36:30.446Z",
+  "headHash": "32964fd22eb444b4592b316e54422d4de6bc09ab",
+  "materialHash": "857d96b81b2e098721e746892abf4c3a11aee25d2298c19fc73fa4be0b3231b9",
+  "storyFilesHash": "15af07b927ee9318172b233838a6b6b6ae7e7c14208444d0bd14a2fea8112bb6",
+  "reviewRound": "2026-09-02T14:01:36.353Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md",
+      "promise": "The complete root AGENTS.md is English-only and preserves the current Proof-or-Stop lifecycle, roles, commands, gates, compatibility qualifiers, and technical identifiers.",
+      "status": "verified",
+      "verifiedBy": "Independent delivery review plus node tests/AGENTS.verify.mjs --final.",
+      "evidence": "Independent scan found han=0, U+FFFD=0, nonAscii=0; final verifier exited 0 with COMPLETENESS english=PASS, STRUCTURE mutation=REJECTED, semantic mutations rejected, and command ledger 46/46 PASS."
+    },
+    {
+      "docPath": "docs/audits/AGENTS-current-version-audit.md",
+      "promise": "The audit provides reproducible baseline RED and corrected GREEN proof for the 24 major and 2 low-priority inconsistencies previously identified.",
+      "status": "verified",
+      "verifiedBy": "Independent rerun of both verifier modes and reverse-check of the 26-row ledger.",
+      "evidence": "node tests/AGENTS.verify.mjs --baseline printed 26/26 RED and exited 1; node tests/AGENTS.verify.mjs --final printed 26/26 GREEN and exited 0. Bound hashes match baseline 57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 and final e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26."
+    },
+    {
+      "docPath": "AGENTS.md",
+      "promise": "The old unbounded fix-everything-nearby behavior is replaced by bounded defect triage: fix critical/high or acceptance/lifecycle blockers now, and traceably defer unrelated nonblocking medium/low defects.",
+      "status": "verified",
+      "verifiedBy": "Direct review of AGENTS.md lines 66-84 and final A16 RED/GREEN row.",
+      "evidence": "The final policy explicitly requires current-Story repair for critical/high, security, data-integrity, destructive-compatibility, or acceptance/REVIEW/TEST/DONE blockers; it requires reproducible evidence, impact, recommendation, and follow-up attribution for deferred medium/low work and explicitly states it replaces the former unbounded rule."
+    },
+    {
+      "docPath": "docs/audits/AGENTS-current-version-audit.md",
+      "promise": "Independent Claude CLI and Agy CLI audit inputs are reported with accurate machine-local provenance while repository-local implementation remains authoritative.",
+      "status": "verified",
+      "verifiedBy": "Independent path/hash/transcript verification and final provenance mutations.",
+      "evidence": "Claude transcript SHA-256 is 1cd25e48b697df884252a65b08c9eda602e4ce5bd4f6b3ec537899588030b0f7. Agy ordinal 953 records the exact completed command, cwd, version 1.1.23 at audit time, conversation f48bd033-f9a7-4198-8ad2-638be9d122ff, and exit 0; the prompt hash is 6e022d8eebd7235a521f3a764e13ccf107ad8bdd889f0dfac5177624e35c121a. Current installed Agy has since moved to 1.1.24, which does not alter the historical transcript claim."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-d854/findings.json",
+      "promise": "The unrelated identity-cutover verifier observation is not hidden or pulled into this Story without boundary evidence; it remains traceably deferred under the bounded-scope rule.",
+      "status": "verified",
+      "verifiedBy": "Direct review of finding B-d854:F-044 and current REVIEW/TEST gate state.",
+      "evidence": "F-044 is open, medium, suspected, and nonblocking; it includes the reproduction command, observed failure, source range, impact/scope rationale, uncertainty reason, and an explicit recommendation for a follow-up Story. It did not fail the configured 120-command validation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent verifier rerun: baseline mode printed ROW A01 through A26 RED and AUDIT baseline RED rows=26/26, exit 1; final mode printed AUDIT final GREEN rows=26/26, COMMAND_LEDGER cases=46/46 PASS, malformed-argument REJECTED, and exited 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent whole-file scan returned {han:0,ufffd:0,nonAscii:0}; final verifier also emitted UNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0, completeness PASS, structural mutation rejected, and semantic polarity/scope mutations rejected."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Routine TEST evidence at 2026-09-02T14:28:08.407Z is PASS with commandExecution complete=true, commandCount=120, requiredFailureCount=0, optionalFailureCount=0. Live-smoke transcript runs node tests/AGENTS.verify.mjs --final with exitCode=0 and the same current materialHash 857d96b81b2e098721e746892abf4c3a11aee25d2298c19fc73fa4be0b3231b9."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met at the current Story material hash. All 3 checklist items are done with 10/10 intent coverage; the exact baseline is 26/26 RED, the final guide is 26/26 GREEN and English-only, bounded triage replaces unbounded scope expansion, Claude/Agy provenance is explicit and machine-local, routine validation is 120/120 PASS, and F-044 is an evidence-bearing medium/suspected nonblocking follow-up rather than an unresolved acceptance TODO."
+  },
+  "_hash": "b5e2f65daf60380a6522b63481349cb1bec539143cd894ba008c5073fbe044f7"
+}
