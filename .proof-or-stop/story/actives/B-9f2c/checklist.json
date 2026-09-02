@@ -636,7 +636,11 @@
           {
             "desc": "the task is registered in BOTH surfaces, so membership in one list is never mistaken for coverage by the other",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const t=\\\"graph-story-flag-smoke\\\";const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const inValidate=c.validate.commands.some(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(\\\"packages/main/dist/tasks/\\\"+t+\\\".js\\\"));const inScripts=p.scripts[\\\"test:\\\"+t]===\\\"node packages/main/dist/tasks/\\\"+t+\\\".js\\\";const inSR=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim()).includes(\\\"npm run test:\\\"+t);if(!(inValidate&&inScripts&&inSR)){console.error(\\\"FAIL validate.commands=\\\"+inValidate+\\\" scripts=\\\"+inScripts+\\\" serialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_BOTH_SURFACES_REGISTERED\\\");\"",
+              "selector": "SELECTOR_BOTH_SURFACES_REGISTERED"
+            }
           }
         ]
       },
@@ -711,6 +715,27 @@
           "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
           "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
           "timestamp": "2026-09-02T09:03:11.638Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const t=\\\"graph-story-flag-smoke\\\";const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const inValidate=c.validate.commands.some(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(\\\"packages/main/dist/tasks/\\\"+t+\\\".js\\\"));const inScripts=p.scripts[\\\"test:\\\"+t]===\\\"node packages/main/dist/tasks/\\\"+t+\\\".js\\\";const inSR=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim()).includes(\\\"npm run test:\\\"+t);if(!(inValidate&&inScripts&&inSR)){console.error(\\\"FAIL validate.commands=\\\"+inValidate+\\\" scripts=\\\"+inScripts+\\\" serialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_BOTH_SURFACES_REGISTERED\\\");\"",
+          "result": "pass",
+          "note": "Checks BOTH separately-maintained surfaces in one shot and fails if either is missing, which is the trap this item exists for: the two lists are not subset-checked against each other. Decisive negative control: with lattice.config.json registered but package.json not, it exits 1 with FAIL validate.commands=true scripts=false serialReference=false, so membership in one list can never be mistaken for coverage by the other.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "65158fe83504cafcdeb7c2238d051ddfc83b629b826e67a7615f19157248539a",
+            "outputTail": "SELECTOR_BOTH_SURFACES_REGISTERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:03:20.655Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "76502b028b6408c8e3f2cd0bc7dbcf51ad681c98",
+          "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981",
+          "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
+          "timestamp": "2026-09-02T09:03:20.863Z"
         }
       ]
     }
