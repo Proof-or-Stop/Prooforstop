@@ -199,6 +199,36 @@
         "scanEscalationReason": null
       },
       "_hash": "65d69dd9feec673f444771ff97841c4373b8b04ab05830c5de998ab80cefcea6"
+    },
+    {
+      "id": "B-9f2c:RP-007",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-signature review after prior pass invalidated by 2 later commits. Focus: pin re-approval on graph.ts guard fingerprint (e3d27511 -> a8f949b8). Independently re-derived the fingerprint (own TS-printer+sha256 recompute matches pin exactly); confirmed --story diff adds zero new dynamic-code call sites vs main (byte-identical import/require/eval/Function occurrences); both pin sites updated consistently; comments accurate. Reconfirmed prior in-scope files. No findings.",
+      "createdAt": "2026-09-02T13:15:49.922Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-009",
+      "envelopeId": "c4b28f010b77ad23c2c43d9eee7e467cfc9f044435126cd40f14446e99f9861b",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/core/store/fn.ts",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3816738f4e6afa0d2a2c35ff285a996cec992ddc67c90f9311268a7cdeb64e8"
     }
   ]
 }
