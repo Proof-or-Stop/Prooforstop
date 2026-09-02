@@ -25432,6 +25432,49 @@
       "_hash": "ef491392222cf19d97bab930a5a700f3ca61a86376111dd21d8bb4cff1612860",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-475",
+      "desc": "All 44 must-priority verificationEvidence receipts across CHK-001..CHK-011 (executable logic_test/integration_test/docs_check kinds) are stale per checkEvidenceFreshnessForGit: their storyFilesHash=ea0dc5db... does not match current HEAD storyFilesHash=227118a0... at d2c171f6. Root cause: commit d2c171f6 (record B-45a0 dev-memory capture + finish decision metadata, 2026-09-02T04:23:08+08:00) appended one entry to .proof-or-stop/dev-memory/experience.jsonl AFTER the DEV->REVIEW phase_transition at 2026-09-02T04:21:59.782Z (whose materialHash 61ae4c33... matches the evidence exactly, confirming receipts were fresh at transition time). experience.jsonl is not covered by isStoryMetadataPath (only .proof-or-stop/story/ prefixes are excluded), so this dev-memory-only append moved storyFilesHash and re-staled every must-intent receipt with zero actual source/test/doc content change (confirmed: the 99 non-.proof-or-stop story-owned files are byte-identical between the evidence baseline commit 05c2b850 and current HEAD d2c171f6). Recommendation: re-run verification_evidence_refresh_stale (owner-only) to re-earn fresh receipts at current HEAD before REVIEW->TEST.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T04:29:56.776Z",
+      "reviewRound": "2026-09-02T04:21:59.530Z",
+      "reviewRunId": "B-45a0:RR-1195",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/process-events.jsonl",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a8bd53b1cf1ca0f0e7c60ffb49e0b057550bceb4e7349e9f7361253a24ef288e",
+      "files": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        "packages/main/src/core/material-path-policy.ts",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "missing|jsonl|priority-verificationevidence-receipts",
+      "signatureTagSource": "auto"
     }
   ]
 }
