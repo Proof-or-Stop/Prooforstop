@@ -136,6 +136,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a96e6b3b9ce8ee839ea31a51548705457f95ccf59fa10e3295433c431a753647"
+    },
+    {
+      "id": "B-a745:RP-006",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round 3: independently reproduced the F-010 fix rather than trusting the resolution text. From the story worktree AND from the main checkout (/Users/jek/Documents/GitHub/Prooforstop), node dist/cli.js validation_plan --storyId=B-a745 --tier=fast --json now produces BYTE-IDENTICAL full reports: selectionDigest f0c3030cab1f30d02440367e6b4f5db72cac5320e8a9fd72439252174de5ab47, commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, unclassifiedInputs=19 both sides (python json.dumps(sort_keys=True) diff exit 0). Also reproduced from a THIRD, unrelated active worktree (.worktrees/B-9a49) targeting --storyId=B-a745: same digest, and B-9a49s own story files (index.json/process-events.jsonl/process-metrics.json) and its stale local copy of the B-a745 metadata dir were byte-unchanged (md5 before/after), so the fix reads the correct story tree without touching an unrelated cwds files. Read-only guarantee re-verified directly (inverse-question focus): ran validation_plan 3x with different tiers from the worktree, from main, and from a subdirectory of the worktree (packages/main/src/core) -- md5 of every file under .proof-or-stop/story/actives/B-a745/ unchanged in every case; git status shows zero new dirt attributable to validation_plan (the pre-existing B-49df dirty file in main predates this session and is unrelated). Failure-mode check: invoking from a non-git scratch directory and from an unrelated real git repo both fail with the same pre-existing, clearly-named story-not-found error (File not found: <cwd>/.proof-or-stop/story/actives/B-a745/index.json or docs/story/actives/...) -- this is generic StoryStore behavior that fires before gitCwd resolution is reached, not a new confusing failure mode from this fix; resolveGitCwd itself fails safe to projectRoot on any resolver error (verified by reading story-signed-workspace-resolution.ts:195-211), which is the same choke-point already used by 8 sibling handlers. F-011 comment fix verified directly in source: validation-command-identity.ts now states the accurate three outcomes (one match binds / zero matches is non-inventory and widens / two-or-more stops) where it previously said zero is a stop. Re-ran the full suite live: npm run test:validation-tier-planner -> PASS, 40+ cases including both F-010 regression fixtures (main-checkout-to-active-worktree and configured wrapper-root layout). Self-check on why round 2 (RP-002) missed this: the cross-cwd tree-identity property was never a stated userSees claim for CHK-005 and was not an explicit spec-declared boundary case in the Story 1 decisions doc (worktree overlay analysis there is scoped to Story 2, not to which cwd the read-only CLI itself is invoked from), and my round-2 adversarial check was narrowly scoped to CHK-005s own stated adversarial intent (write-side byte-identity), never extending to read-side cwd-independence since nothing prompted that specific angle. That is a real methodology gap -- checking claimed behavior against code is necessary but not sufficient for properties nobody claimed -- and I looked for but did not find a second instance of the same gap in this delta (the other candidate cwd-dependent read added by this fix, config/command-inventory resolution, is exercised by the same fixtures and reproduced live above). No blocking issues found this round.",
+      "createdAt": "2026-09-02T08:02:03.160Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-009",
+      "envelopeId": "590e29c22a4d9341586dd67a32c748576949050e7139240237d6457cabd493a7",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "93bcbee4552b1af9473f368d2f015255c0a73d5958a778ad882e49a565f00bb5"
     }
   ]
 }
