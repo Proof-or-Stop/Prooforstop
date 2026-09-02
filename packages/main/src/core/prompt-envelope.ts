@@ -144,6 +144,7 @@ type ReviewTriageAuthorityViolation =
   | 'unknown applicability used to route or unblock';
 
 const RETIRED_APPLICABILITY_ALIAS = /\bstale\s+or\s+not\s+reproduced\b/u;
+const DYNAMIC_FINDING_AUTHORITY = /(?:\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b|\b(?:execution\s+plan|plan|authority|runtime)\s+for\s+dynamic\s+finding\b)/u;
 
 type ReviewerTaskContextAuthoritySource = {
   location: string;
@@ -233,53 +234,73 @@ function hasAffirmativeConceptRelation(
   return false;
 }
 
+function hasConceptPair(text: string, left: RegExp, right: RegExp, maxSpan = 240): boolean {
+  return matchRanges(text, left).some(leftRange =>
+    matchRanges(text, right).some(rightRange => {
+      const start = Math.min(leftRange.start, rightRange.start);
+      const end = Math.max(leftRange.end, rightRange.end);
+      return end - start <= maxSpan;
+    }),
+  );
+}
+
+/**
+ * A controlled triage relationship is safe only when its polarity is explicit
+ * inside the complete local relationship. This is a positive grammar for
+ * prohibitions/invariants, not a blacklist of affirmative verbs.
+ */
+function controlledConceptPairIsExplicitlyNegative(
+  text: string,
+  left: RegExp,
+  right: RegExp,
+  maxSpan = 240,
+): boolean {
+  let sawPair = false;
+  for (const leftRange of matchRanges(text, left)) {
+    for (const rightRange of matchRanges(text, right)) {
+      const start = Math.min(leftRange.start, rightRange.start);
+      const end = Math.max(leftRange.end, rightRange.end);
+      if (end - start > maxSpan) continue;
+      sawPair = true;
+      const prefix = text.slice(Math.max(0, start - 160), start);
+      const boundary = Math.max(
+        prefix.lastIndexOf(' and '),
+        prefix.lastIndexOf(' but '),
+        prefix.lastIndexOf(' while '),
+        prefix.lastIndexOf(' although '),
+        prefix.lastIndexOf(' however '),
+        prefix.lastIndexOf(' yet '),
+        prefix.lastIndexOf(';'),
+      );
+      const localPrefix = prefix.slice(boundary + 1);
+      const firstRange = leftRange.start <= rightRange.start ? leftRange : rightRange;
+      const secondRange = leftRange.start <= rightRange.start ? rightRange : leftRange;
+      const relationship = text.slice(firstRange.end, secondRange.start);
+      const immediateSuffix = text.slice(end, Math.min(text.length, end + 48));
+      const negativeRelationship = /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[^.;]{0,120}\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(relationship)
+        || /^\s*(?:(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never|is\s+forbidden|is\s+prohibited)\b/u.test(immediateSuffix);
+      const negativeLead = /^(?:do\s+not\s+let|verify\s+(?:the\s+)?guidance\s+never\s+claims?\s+that)\b/u.test(localPrefix.trim())
+        || /^no\s+reviewer$/u.test(localPrefix.trim())
+        || /^neither\b.*\bnor$/u.test(localPrefix.trim())
+        || (/^neither$/u.test(localPrefix.trim()) && /\bnor\b/u.test(relationship));
+      if (!negativeRelationship && !negativeLead) return false;
+    }
+  }
+  return sawPair;
+}
+
 function hasDismissalApplicabilityAssertion(text: string): boolean {
   const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed|(?:closed|dismissed|archived)\s+finding|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|archiv(?:e|es|ed|ing)(?:\s+the)?\s+finding|closing|close\s+the\s+finding)\b/u;
   const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|the|current)\s+)?story\s+boundary|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
-  return hasAffirmativeConceptRelation(
-    text,
-    dismissal,
-    applicabilityOutcome,
-    /\b(?:(?:prove|establish|confirm|demonstrate|mean|make|classify|set|count|show|constitute|suffice|follow|result|render)\w*|be|is)\b/u,
-    220,
-  );
+  return hasConceptPair(text, dismissal, applicabilityOutcome, 220)
+    && !controlledConceptPairIsExplicitlyNegative(text, dismissal, applicabilityOutcome, 220);
 }
 
 function hasUnknownApplicabilityRoutingAssertion(text: string): boolean {
   const unknownApplicability = /\b(?:(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)\s+applicability|applicability\s+(?:is|remains|stays)?\s*(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)|applicability\s+(?:is|remains|stays|has)?\s*(?:not\s+yet|not\s+been)\s+(?:known|determined|assessed|evaluated))\b/u;
-  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|defer\s+with\s+proof|non\s+blocking|advisory|away\s+from\s+(?:this|the|current|the\s+current)\s+story|leave(?:s|ing)?\s+(?:(?:this|the|current|the\s+current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|unblock(?:s|ed)?)\b/u;
-  return hasAffirmativeConceptRelation(
-    text,
-    unknownApplicability,
-    routingOrGateRelief,
-    /\b(?:permit|allow|authorize|approve|enable|route|defer|leave|make|become|is|remove|clear|lift|bypass|waive|turn)\w*\b/u,
-    220,
-  );
-}
-
-function hasUnauthorizedDispositionCapability(
-  segment: string,
-  actor: RegExp,
-  action: RegExp,
-  disposition: RegExp,
-): boolean {
-  const dispositionRanges = matchRanges(segment, disposition);
-  for (const actorRange of matchRanges(segment, actor)) {
-    for (const actionRange of matchRanges(segment, action)) {
-      const actorActionDistance = Math.max(0, Math.max(actorRange.start, actionRange.start) - Math.min(actorRange.end, actionRange.end));
-      if (actorActionDistance > 72) continue;
-      const targetRange = dispositionRanges.find(range => Math.abs(range.start - actionRange.start) <= 180);
-      if (!targetRange) continue;
-      if (relationIsNegated(segment, actionRange, actorRange, targetRange)) continue;
-      const actorActionBridge = segment.slice(
-        Math.min(actorRange.end, actionRange.end),
-        Math.max(actorRange.start, actionRange.start),
-      );
-      if (/\b(?:unavailable|incapable|unable|neither|nor|without)\b/u.test(actorActionBridge)) continue;
-      return true;
-    }
-  }
-  return false;
+  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|defer\s+with\s+proof|non\s+blocking|advisory|away\s+from\s+(?:this|the|current|the\s+current)\s+story|leave(?:s|ing)?\s+(?:(?:this|the|current|the\s+current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|(?:removal|clearance)\s+of\s+(?:the\s+)?(?:review\s+)?blocker|(?:review\s+)?gate\s+relief|unblock(?:s|ed)?)\b/u;
+  return hasConceptPair(text, unknownApplicability, routingOrGateRelief, 220)
+    && !controlledConceptPairIsExplicitlyNegative(text, unknownApplicability, routingOrGateRelief, 220);
 }
 
 function isPureInterrogative(text: string): boolean {
@@ -298,6 +319,35 @@ function isExplicitFailClosedQuotedFixture(text: string): boolean {
     || /^(?:expected\s+(?:result|outcome)\s*:\s*)?(?:(?:semantic\s+)?(?:validation|guard|contract)\s+)?fail(?:s|ed|ing)?\s+closed[.!?]*$/u.test(expectedOutcome);
 }
 
+function isExplicitRejectedAuthorityStatement(text: string): boolean {
+  const normalized = normalizeTriageAuthorityText(text);
+  return /^reject\s+.+\s+as\s+an\s+invalid\s+(?:authority\s+)?statement[.!?]*$/u.test(normalized);
+}
+
+function isCanonicalTriageInventorySegment(segment: string): boolean {
+  return /^own\s+all\s+review\s+lane\s+behavior\s+and\s+prohibitions\s+in\s+one\s+canonical\s+agent\s+contract:\s+.+$/u.test(segment);
+}
+
+function isApprovedFutureDeferralBoundary(segment: string): boolean {
+  return /^(?:and\s+)?future\s+official\s+signed\s+defer\s+with\s+proof\s+guidance\s+limited\s+to\s+eligible\s+verified\s+applicable\s+low\s+medium\s+findings\s+while\s+mandatory\s+current\s+repair\s+cases\s+remain\s+blocking$/u.test(segment);
+}
+
+function isApprovedNegativeCapabilityInventory(segment: string): boolean {
+  return /^no\s+reviewer\s+repair\s+finding\s+dismiss\s+story\s+create\s+gap\s+log\s+severity\s+rewriting\s+or\s+unilateral\s+scope\s+expansion$/u.test(segment);
+}
+
+function isApprovedFailClosedOrEvidenceRouteFragment(segment: string): boolean {
+  return /^(?:fail\s+closed\s+unknown\s+applicability|evidence\s+backed\s+routing\s+with\s+owner)$/u.test(segment);
+}
+
+function isApprovedOwnerDispositionInvariant(segment: string): boolean {
+  return /^the\s+owner\s+returns\s+applicable\s+blockers\s+to\s+dev\s+routes\s+evidence\s+backed\s+non\s+applicable\s+work\s+without\s+unowned\s+high\s+critical\s+findings\s+fails\s+closed\s+when\s+an\s+otherwise\s+blocking\s+finding\s+has\s+unknown\s+applicability\s+and\s+treats\s+compatibility\s+dismissal\s+as\s+temporary\s+round\s+profile\s+handling\s+rather\s+than\s+applicability\s+proof$/u.test(segment);
+}
+
+function isApprovedIndependentAxesInvariant(segment: string): boolean {
+  return /^(?:inspect|verify|audit|check)\s+.+\b(?:evidence\s+state\s+)?severity\s+applicability\s+candidate\s+and\s+gate\s+impact\s+(?:are|remain)\s+independent\s+axes$/u.test(segment);
+}
+
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
   if (source.kind !== 'verificationIntent') return false;
   const normalized = normalizeTriageAuthorityText(source.text);
@@ -313,7 +363,8 @@ function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthori
   if (outcomeStart < 0) return false;
   const outcome = normalized.slice(outcomeStart);
   if (/\b(?:does|did|must|should|will|would|can|could)\s+not\b[^.;]{0,48}\b(?:reject|refuse|block|fail)\w*\b/u.test(outcome)) return false;
-  return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(outcome);
+  const boundedOutcome = outcome.replace(/[.!?]+\s+gap\s+log\s+remains\s+a\s+main\s+agent\s+or\s+human\s+archive\s+for\s+proof\s+or\s+stop\s+framework\s+gaps\s+never\s+a\s+general\s+product\s+defect\s+routing\s+or\s+backlog\s+shortcut[.!?]*$/u, '');
+  return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(boundedOutcome);
 }
 
 function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
@@ -330,7 +381,6 @@ function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
   const benignEvidenceContinuation = /^(?:then\s+)?(?:record|report|preserve|attach|capture|log)\s+(?:the\s+)?(?:comparison|invariant|verification|audit|check)\s+(?:result|results|evidence|receipt|receipts|output)(?:\s+(?:as|in|to)\s+(?:the\s+)?(?:(?:test|review|verification|audit)\s+)?(?:evidence|record|report|log))?$/u;
   if (!continuations.every(continuation => benignEvidenceContinuation.test(continuation))) return false;
 
-  const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
   const nominalChange = /\b(?:change|changes|update|updates)\b/u;
   const invariantPredicate = '(?:remain|remains|stay|stays|is|are|must\\s+remain)\\s+(?:completely\\s+)?(?:unchanged|unaltered|unmodified|identical)';
   const invariantCause = '(?:\\s+by\\s+(?:the\\s+)?(?:metadata|prompt|implementation|code)(?:\\s+only)?\\s+(?:registration|change|update))?';
@@ -341,7 +391,7 @@ function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
     'u',
   );
 
-  for (const authorityRange of matchRanges(statement, authority)) {
+  for (const authorityRange of matchRanges(statement, DYNAMIC_FINDING_AUTHORITY)) {
     for (const changeRange of matchRanges(statement, nominalChange)) {
       if (changeRange.start < authorityRange.end) continue;
       const lead = statement.slice(0, authorityRange.start);
@@ -359,8 +409,13 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
   segment: string,
   wholeSourceIsInvariantAssertion: boolean,
 ): boolean {
-  const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
-  for (const authorityRange of matchRanges(segment, authority)) {
+  const referenceOnly = new RegExp(
+    `^(?:(?:use|consult|follow)\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+as\\s+(?:the\\s+)?(?:governing\\s+reference|source\\s+of\\s+truth)\\s+for\\s+this\\s+story|read\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+before\\s+(?:implementing|reviewing)\\s+this\\s+story|this\\s+story\\s+depends\\s+on\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+and\\s+does\\s+not\\s+amend\\s+it)$`,
+    'u',
+  );
+  if (referenceOnly.test(segment)) return false;
+
+  for (const authorityRange of matchRanges(segment, DYNAMIC_FINDING_AUTHORITY)) {
     // Authority-bearing Task Context is fail-closed. A finite list of amendment
     // verbs is not a safe boundary: synonyms and reversed word order otherwise
     // become accidental authority. Admit only three complete positive grammars:
@@ -403,6 +458,7 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
 function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySource): ReviewTriageAuthorityViolation | null {
   if (isPureInterrogative(source.text)
     || isExplicitFailClosedQuotedFixture(source.text)
+    || isExplicitRejectedAuthorityStatement(source.text)
     || isNegativeMutationVerificationIntent(source)) return null;
   const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
   for (const segment of triageAuthoritySegments(source.text)) {
@@ -424,14 +480,17 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       }
     }
 
-    const deferral = /\b(?:defer\s+with\s+proof|deferral|finding\s+deferral\s+disposition)\b/u;
+    if (isCanonicalTriageInventorySegment(segment)
+      || isApprovedFutureDeferralBoundary(segment)
+      || isApprovedNegativeCapabilityInventory(segment)
+      || isApprovedFailClosedOrEvidenceRouteFragment(segment)
+      || isApprovedOwnerDispositionInvariant(segment)
+      || isApprovedIndependentAxesInvariant(segment)) continue;
+
+    const deferral = /\b(?:defer\s+with\s+proof|finding\s+deferral\s+disposition|deferral(?!\s+lineage))\b/u;
     const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
-    if (hasAffirmativeConceptRelation(
-      segment,
-      deferral,
-      collapsedOutcome,
-      /\b(?:is|as|mean|become|count|equal|qualify|serve|treat|classify|set|use|collapse|turn|make)\w*\b/u,
-    )) {
+    if (hasConceptPair(segment, deferral, collapsedOutcome)
+      && !controlledConceptPairIsExplicitlyNegative(segment, deferral, collapsedOutcome)) {
       return 'disposition collapsed into applicability';
     }
 
@@ -441,18 +500,14 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       && /\b(?:inspect|read|audit|verify|consume)\w*\b/u.test(segment)
       && /\bsigned\b/u.test(segment)
       && !/\b(?:mint|signs|signing|supply|supplies|supplying|approve|approves|approving|authorize|authorizes|authorizing|issue|issues|issuing|create|creates|creating|generate|generates|generating|fabricate|fabricates|fabricating)\b/u.test(segment);
-    const dispositionMinting = /\b(?:mint|sign|supply|approve|create|issue|generate|authorize|fabricate)\w*\b/u;
-    if (!signedDispositionInspection && hasUnauthorizedDispositionCapability(
-      segment,
-      unauthorizedActor,
-      dispositionMinting,
-      deferral,
-    )) {
+    if (!signedDispositionInspection
+      && hasConceptPair(segment, unauthorizedActor, deferral)
+      && !controlledConceptPairIsExplicitlyNegative(segment, unauthorizedActor, deferral)) {
       return 'unauthorized disposition minting';
     }
     const compatibilityAuthority = /\b(?:current\s+cli|compatibility\s+cli|compatibility\s+path)\b/u;
-    const futureCapability = /\b(?:implement|support|mint|sign|supply|create|issue|generate)\w*\b/u;
-    if (hasUnauthorizedDispositionCapability(segment, compatibilityAuthority, futureCapability, deferral)) {
+    if (hasConceptPair(segment, compatibilityAuthority, deferral)
+      && !controlledConceptPairIsExplicitlyNegative(segment, compatibilityAuthority, deferral)) {
       return 'unauthorized disposition minting';
     }
 
@@ -467,13 +522,23 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
         Math.max(0, Math.max(soleRange.start, severityRange.start) - Math.min(soleRange.end, severityRange.end)) <= 40,
       );
     });
-    if (soleQualifierBindsSeverity && hasAffirmativeConceptRelation(
-      segment,
-      severity,
-      storyResponsibility,
-      /\b(?:control|determine|decide|set|establish|make|define|assign|require|govern|follow|derive)\w*\b/u,
-    )) {
+    if (soleQualifierBindsSeverity
+      && hasConceptPair(segment, severity, storyResponsibility)
+      && !controlledConceptPairIsExplicitlyNegative(segment, severity, storyResponsibility)) {
       return 'severity used as sole ownership or scope authority';
+    }
+
+    const schemaOrGate = /\b(?:finding\s+schemas?|applicability\s+fields?|severity\s+fields?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?|blocking\s+predicates?|process\s+facts?)\b/u;
+    const storyAuthoredChange = /(?:^(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b|\bby\s+(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b)/u;
+    const schemaInvariant = wholeSourceIsInvariantAssertion
+      || /^(?:the\s+)?(?:finding\s+schemas?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?)\s+(?:remains?|stays?|is|are|must\s+remain)\s+(?:unchanged|unaltered|unmodified|identical)$/u.test(segment)
+      || /^do\s+not\s+(?:amend|change|modify|rewrite|override|replace|extend|update)\s+.+$/u.test(segment)
+      || /^no\s+.+\s+is\s+in\s+scope$/u.test(segment)
+      || /^assert\s+(?:the\s+)?change\s+introduces\s+no\s+.+$/u.test(segment);
+    if (hasConceptPair(segment, schemaOrGate, storyAuthoredChange)
+      && !schemaInvariant
+      && !controlledConceptPairIsExplicitlyNegative(segment, schemaOrGate, storyAuthoredChange)) {
+      return 'Dynamic Finding authority amendment asserted from Task Context';
     }
 
     if (hasDismissalApplicabilityAssertion(segment)) {
@@ -484,7 +549,14 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       return 'unknown applicability used to route or unblock';
     }
   }
-  const normalizedSource = normalizeTriageAuthorityText(source.text);
+  const normalizedSource = triageAuthoritySegments(source.text)
+    .filter(segment => !isCanonicalTriageInventorySegment(segment)
+      && !isApprovedFutureDeferralBoundary(segment)
+      && !isApprovedNegativeCapabilityInventory(segment)
+      && !isApprovedFailClosedOrEvidenceRouteFragment(segment)
+      && !isApprovedOwnerDispositionInvariant(segment)
+      && !isApprovedIndependentAxesInvariant(segment))
+    .join(' ');
   if (hasDismissalApplicabilityAssertion(normalizedSource)) {
     return 'dismissal used as applicability proof';
   }
