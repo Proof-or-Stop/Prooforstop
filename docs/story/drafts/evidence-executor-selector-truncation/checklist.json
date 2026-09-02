@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Match the selector over the full command output and store a bounded head-plus-tail receipt",
+      "context": "RED: a fixture command prints 13000 chars of filler then its selector line and exits 0; verification_evidence_add refuses it today. GREEN: selectorMatched computed on the full output, receipt.outputTail bounded but tail-preserving, outputDigest over the full output; the fixture is accepted and a genuinely absent selector is still refused.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
