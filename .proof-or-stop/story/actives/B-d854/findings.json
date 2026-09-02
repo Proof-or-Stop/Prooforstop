@@ -763,6 +763,27 @@
       ],
       "signatureTag": "missing|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-035",
+      "desc": "authority-partition-incomplete: docs/audits/AGENTS-current-version-audit.md A12 claims that PLAN acceptance uses zero blockers, but its sole authority packages/main/src/handlers/story-review.ts:698 only computes blockerCount; the actual zero-blocker gate is packages/main/src/core/machine.ts:1345 and is absent from the 98-entry partition. A13 claims quick-path story_review optionality, but its sole authority packages/main/src/core/machine.ts:753 only rejects disabled quickPath; the runtime branch that actually skips the story_review record gate is packages/main/src/core/machine.ts:1326-1330 and is absent. Repro: node tests/AGENTS.verify.mjs --authority-inventory reports only those incomplete A12/A13 tuples, while node tests/AGENTS.verify.mjs --authority-policy and --final still pass. Because CHK-001 requires every current-behavior conclusion to carry complete authoritative line evidence, this is a high acceptance blocker despite 26/26 GREEN and 196/196 mutation success.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:16:20.571Z",
+      "reviewRound": "2026-09-02T08:08:06.830Z",
+      "reviewRunId": "B-d854:RR-026",
+      "_hash": "cd8f5519c3a385c52e00a54da5505cd77f124a0ad6337696c01384534b06162d",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|md|authority-partition-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
