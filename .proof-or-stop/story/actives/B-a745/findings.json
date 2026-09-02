@@ -477,6 +477,23 @@
       ],
       "signatureTag": "adversarial|ts|registered-story-owner",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-023",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r3.] Codex (MAJOR as filed): 'Provisional command IDs remain dependent on checkout location. ValidationCommand accepts absolute cwd values, but commandCwdRelative computes their identity component with path.relative(projectRoot, absolute). The result changes when the same checkout is reached through a symlink alias, resides at a different directory depth, or uses another drive. That value feeds both the provisional ID and commandSetDigest, contradicting the promised host-portable stable identity.' OWNER VERIFICATION from source, pasted: resolveValidationCommandCwd returns command.cwd unchanged when isAbsolute(command.cwd), else resolve(projectRoot, cwd), else projectRoot; commandCwdRelative then takes relative(projectRoot, absolute). For a RELATIVE declared cwd this round-trips to the literal and is location-independent; for an ABSOLUTE declared cwd the identity component becomes a function of where the checkout lives, and for a symlink-aliased projectRoot it can differ from the literal. Scope note: this repository's proof-or-stop.config.json declares no cwd on any of its 121 commands (0 with cwd, 0 absolute), so there is no instance here; the defect is in the stated guarantee, the same class as F-017 (an EFFECTIVE value leaking into the DECLARED-intent tuple), so it is downgraded to medium but fixed in scope for consistency of the identity contract. Fix, mirroring the F-017 split: the portable tuple hashes the DECLARED cwd literal, posix-normalized, with absent meaning '.', and never resolves it; the complete runtime tuple keeps the resolved absolute cwd. An absolute declared cwd is inherently location-bound by the config author's choice, so additionally emit an inventory warning naming any command whose declared cwd is absolute. Fixtures: same relative cwd from two different projectRoot locations (and a symlinked alias of one) yields identical provisional id and commandSetDigest; an absolute declared cwd yields the warning and an id equal to hashing the literal.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T09:13:32.991Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "333ed90c70732fe26c52011f5571b2628085ce4987df8c37243b0d1845beed88",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "adversarial|ts|registered-story-owner",
+      "signatureTagSource": "auto"
     }
   ]
 }
