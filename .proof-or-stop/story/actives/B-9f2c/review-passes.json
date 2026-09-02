@@ -229,6 +229,33 @@
         "scanEscalationReason": null
       },
       "_hash": "e3816738f4e6afa0d2a2c35ff285a996cec992ddc67c90f9311268a7cdeb64e8"
+    },
+    {
+      "id": "B-9f2c:RP-008",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-review after two file-set-changing commits. All 22 must-priority verificationIntent entries across CHK-001..CHK-005 hold mechanical verificationEvidence with result=pass, receipt.exitCode=0, and matching selectors (re-confirmed by direct read of checklist.json); no entry was demoted to a non-mechanical attestation. storyFilesHash on those entries differs from current HEAD, but is unrelated whole-story-metadata drift: diffed each of the 10 distinct evidence-subject files (packages/graph/{scripts/build-web.mjs,src/io/http.ts,src/shells/web/{app.js,dossier.js},README.md}, CLAUDE.md, lattice.config.json, package.json, packages/main/dist/cli.js, packages/main/src/tasks/graph-story-flag-smoke.ts) between the evidence's bound headHash (0b7b72bb13) and current HEAD (1eeaa21b6e); none changed. The only non-.proof-or-stop file that changed in that window is packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (the security fingerprint re-pin for handlers/graph.ts, e3d27511...->a8f949b8...), which is not a subject of any of the 22 evidence entries. That guard-file change correctly carries no new verificationIntent: it is not new feature behavior of this story, it is a repo-wide dynamic-code-loader security guard reacting to CHK-003's --story edit to graph.ts. I independently re-verified the re-approval is sound rather than trusting the acknowledgement prose: (1) ran node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js directly against current HEAD -> PASS builds=810 exit 0, mechanically proving the new fingerprint a8f949b8... matches the current file; (2) diffed packages/main/src/handlers/graph.ts between main and HEAD and confirmed the five loader call sites (createRequire x3, await import x1, plus the throw-on-old-runtime comment) are structurally identical, only shifted by the +144-line --story addition, and grep -c for eval(/new Function( is equal on both sides, so the dynamic-code surface claim in scope-contract.json's acknowledgement is not merely asserted but reproducible. Existing guard-smoke-passing is sufficient coverage for a re-pin of this kind (whole-file structural fingerprint guard, not new functional intent) -- no gap. F-001 (CHK-002:adversarial:0, resolved accepted_risk) re-checked: its text states the d3-hard-failure clause is void on this branch and the load-order clause is genuinely evidenced. Independently reconfirmed both claims: grep -n 'd3 is missing' packages/graph/scripts/build-web.mjs finds nothing on this branch, and git log --all for that file shows only B-3e16 and this story's own CHK-002 commit -- no such branch ever existed here to preserve. The load-order evidence (CHK-002:adversarial:0's actual verificationEvidence entry) is a real command with disclosed scope: its note explicitly states the d3 clause is void rather than silently claiming full intent coverage, and the load-order half is proven by a command whose selector (DOSSIER_CONCATENATED_AFTER_APP_JS_OK, exit 0) cannot pass vacuously. Resolving F-001 as accepted_risk did not drop a real coverage obligation because the obligation the intent exists to protect (load order) has a real receipt; the void clause was never coverable. Working tree verified clean (git status --short empty) before and after all read-only reproductions; no tracked file was modified, created or deleted, and no commit or stash was made during this review.",
+      "createdAt": "2026-09-02T13:18:50.314Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-010",
+      "envelopeId": "7ca68b60145805faee4a82b4c3c33b5a338f59e42b4d69b2170f7cd98207a87b",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7af4b99f52f2d451063e951c6816f744a09ee55001f9b0992b96ba1f731c38c9"
     }
   ]
 }
