@@ -6627,9 +6627,9 @@
       "epochId": "B-5a15:RI-062",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-02T10:34:38.494Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-09-02T12:31:40.534Z",
-      "updatedAt": "2026-09-02T12:31:40.534Z",
+      "updatedAt": "2026-09-02T12:51:18.322Z",
       "cutoff": {
         "headHash": "da531482768f49fdbbac196f86889f67834c0d0a",
         "materialHash": "297fba66e1273b7ebff74ddae6bfef9d221e0fa0525f163e3ed06a771cd237ee",
@@ -6647,7 +6647,43 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "cd99a5382b3fccfe69e495e12a32aef794011ddbeb6e99a948737d8d6532776e"
+      "invalidation": {
+        "detectedAt": "2026-09-02T12:51:18.322Z",
+        "oldMaterialHash": "297fba66e1273b7ebff74ddae6bfef9d221e0fa0525f163e3ed06a771cd237ee",
+        "currentMaterialHash": "c1570c000ba7c077501a923230c23efb557226bf9ded6058cfb5fece3dd98e7d",
+        "oldStoryFilesHash": "948a22bcd5fa1b877346519fd890c4df9363e2efb95d098f29cb591972e71f4b",
+        "currentStoryFilesHash": "5ac10523917ebdc901cbe763cb1460633da3fc6bb092ebc6018cd360eb6d38d0",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION"
+      },
+      "terminalRunSequenceBoundary": 857,
+      "_hash": "6538a61d96c226ddea44f78ca9ef19c1c27550d0603a61058ed859f814d15662"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-063",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-02T12:52:02.751Z",
+      "updatedAt": "2026-09-02T12:52:02.751Z",
+      "cutoff": {
+        "headHash": "ee62c64804e9ad14b9fbb7ac8d4e31555ab475d6",
+        "materialHash": "c1570c000ba7c077501a923230c23efb557226bf9ded6058cfb5fece3dd98e7d",
+        "storyFilesHash": "5ac10523917ebdc901cbe763cb1460633da3fc6bb092ebc6018cd360eb6d38d0"
+      },
+      "scopeDigest": "29fda5061a17650241d69c6ce72920242e642440f1e89284f4a347d3f689329f",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 857,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "0265b8d58b7ff5d386155241adf7af09abfb12c6b3d340ff5a6894814069f1c8"
     }
   ],
   "receipts": [
