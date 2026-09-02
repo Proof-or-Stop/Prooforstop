@@ -769,6 +769,8 @@ function seedOf(input: StoryRelevanceInput, kind: string, value: string) {
   return input.seeds.find((seed) => seed.kind === kind && seed.value === value);
 }
 
+console.log(`${MARKER}: running CHK-003 Story input collector cases`);
+
 // ---------------------------------------------------------------------------
 // (17) POSITIVE — every input kind in the spec's table is collected, and every
 //      seed records where it came from.
