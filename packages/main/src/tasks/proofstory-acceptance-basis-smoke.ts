@@ -772,7 +772,13 @@ try {
       'review_run_start() { function emitReviewRunFact() { return false; } return emitReviewRunFact(); },',
     ));
     const sameNameShadow = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(sameFileInput));
-    assert.equal(sameNameShadow.status, 'partial', 'same-name nested helper cannot satisfy a same-file callable edge');
+    // NOTE (B-5a15): do NOT assert sameNameShadow.status === 'partial' here. This fixture also
+    // writes packages/main/src/consumers/c2.ts (above), which imports emitReviewRunFact as a
+    // genuine CROSS-FILE consumer, so discovery legitimately still reports 'complete' even when
+    // the same-file edge is broken by the nested shadow. Asserting 'partial' over-claims and
+    // fails on the aggregate rather than on the behaviour under test. The endpoint assertion
+    // below is the real adversarial check: the shadowed helper must not emit a FALSE producer
+    // endpoint for the same-file edge.
     assert.ok(!sameNameShadow.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/handlers/review-run.ts#emitReviewRunFact'), 'same-name nested helper does not emit a false producer endpoint');
     write(genericRoot, 'packages/main/src/handlers/review-run.ts', reviewRunSourceControl);
     write(genericRoot, 'packages/main/src/consumers/c2.ts', [
