@@ -1251,16 +1251,14 @@ group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', 
 //               (the validate.commands reader) whose first argument does not
 //               start with `<ws var>.`.
 //   workspace-rooted -- a caller with none of the three read kinds remaining
-//               (vacuously so when it performs no such read at all);
+//               (printed with a `no ... read at all` note when vacuous);
 //               otherwise `reads ctx.root: <story|checklist|config>`.
 //   Destructured `const { store } = resolveStoryWorkspace(...)` is NOT
 //   recognised as a ws var (its reads stay flagged: the safe direction).
 //
-// RED: `scanResolverSource` below is the pre-CHK-004 hand method -- a
-// file-level grep that treats every file containing the token as a caller,
-// every line containing the token as a call line, and classifies nothing.
-// The cases fail against it on purpose; GREEN replaces it with the masked
-// scanner described above.
+// RED committed these cases against the pre-CHK-004 hand method (a file-level
+// grep: every file containing the token a caller, every token line a call
+// line, nothing classified); GREEN replaced it with the masked scanner below.
 // ---------------------------------------------------------------------------
 
 type RootReadKind = 'story' | 'checklist' | 'config';
@@ -1274,6 +1272,8 @@ type ResolverScan = {
   /** Lines with a code-region `resolveGitCwd(` that no import binds (a second resolver would show up here). */
   unboundCallLines: number[];
   workspaceRooted: boolean;
+  /** Reads that went through a resolveStoryWorkspace() result (so `workspace-rooted` is not vacuous). */
+  workspaceReads: number;
   remainingReads: RootRead[];
 };
 type ResolverCaller = ResolverScan & { file: string };
@@ -1305,10 +1305,232 @@ function sortedUnique(values: number[]): number[] {
   return [...new Set(values)].sort((a, b) => a - b);
 }
 
-// RED implementation (the pre-CHK-004 hand method) -- replaced in GREEN.
+// Region classification -- a single forward pass over the source that marks
+// every character as code or as one of the masked region kinds. Newlines are
+// kept in every region so line numbers survive masking. Regex literals are
+// recognised by the standard previous-token heuristic (a `/` after `(`, `,`,
+// `=`, `:`, `[`, `!`, `&`, `|`, `?`, `{`, `}`, `;`, an operator, the start of
+// the file, or a keyword such as `return` / `typeof` starts a regex; after an
+// identifier, a number, `)` or `]` it is division). No TypeScript compiler
+// API: the handlers are plain enough for a line scanner and the probe case
+// pins the tricky shapes.
+const REGION_CODE = 0;
+const REGION_LINE_COMMENT = 1;
+const REGION_BLOCK_COMMENT = 2;
+const REGION_STRING = 3;
+const REGION_TEMPLATE = 4;
+const REGION_REGEX = 5;
+
+const REGEX_PREV_CHARS = new Set(['(', ',', '=', ':', '[', '!', '&', '|', '?', '{', '}', ';', '+', '-', '*', '%', '<', '>', '~', '^']);
+const REGEX_PREV_WORDS = new Set(['return', 'typeof', 'instanceof', 'in', 'of', 'new', 'delete', 'void', 'throw', 'case', 'do', 'else', 'yield', 'await']);
+const WORD_CHAR_RE = /[\w$]/;
+
+function classifyRegions(source: string): Uint8Array {
+  const n = source.length;
+  const kinds = new Uint8Array(n);
+  const mark = (from: number, to: number, kind: number): void => { for (let k = from; k < to && k < n; k += 1) kinds[k] = kind; };
+  let i = 0;
+  let mode: 'code' | 'template' = 'code';
+  // Brace depth of each open `${ ... }` expression (innermost last).
+  const templateStack: number[] = [];
+  let prevChar = '';
+  let word = '';
+  let rawPrevIsWord = false;
+  const regexAllowed = (): boolean => {
+    if (prevChar === '') return true;
+    if (REGEX_PREV_CHARS.has(prevChar)) return true;
+    if (WORD_CHAR_RE.test(prevChar)) return REGEX_PREV_WORDS.has(word);
+    return false;
+  };
+  while (i < n) {
+    const ch = source[i]!;
+    const next = source[i + 1];
+    if (mode === 'template') {
+      if (ch === '\\') { mark(i, i + 2, REGION_TEMPLATE); i += 2; continue; }
+      if (ch === '`') { mark(i, i + 1, REGION_TEMPLATE); i += 1; mode = 'code'; prevChar = '`'; rawPrevIsWord = false; continue; }
+      if (ch === '$' && next === '{') { mark(i, i + 2, REGION_TEMPLATE); i += 2; templateStack.push(0); mode = 'code'; prevChar = '{'; rawPrevIsWord = false; continue; }
+      mark(i, i + 1, REGION_TEMPLATE); i += 1; continue;
+    }
+    if (ch === '/' && next === '/') {
+      const end = source.indexOf('\n', i);
+      const stop = end < 0 ? n : end;
+      mark(i, stop, REGION_LINE_COMMENT); i = stop; continue;
+    }
+    if (ch === '/' && next === '*') {
+      const end = source.indexOf('*/', i + 2);
+      const stop = end < 0 ? n : end + 2;
+      mark(i, stop, REGION_BLOCK_COMMENT); i = stop; continue;
+    }
+    if (ch === "'" || ch === '"') {
+      let j = i + 1;
+      while (j < n && source[j] !== ch && source[j] !== '\n') { if (source[j] === '\\') j += 1; j += 1; }
+      const stop = j < n && source[j] === ch ? j + 1 : j;
+      mark(i, stop, REGION_STRING); i = stop; prevChar = ch; rawPrevIsWord = false; continue;
+    }
+    if (ch === '`') { mark(i, i + 1, REGION_TEMPLATE); i += 1; mode = 'template'; continue; }
+    if (ch === '/' && regexAllowed()) {
+      let j = i + 1;
+      let inClass = false;
+      while (j < n && source[j] !== '\n') {
+        const c = source[j]!;
+        if (c === '\\') { j += 2; continue; }
+        if (c === '[') inClass = true;
+        else if (c === ']') inClass = false;
+        else if (c === '/' && !inClass) break;
+        j += 1;
+      }
+      if (j < n && source[j] === '/') j += 1;
+      while (j < n && /[a-z]/i.test(source[j]!)) j += 1;
+      mark(i, j, REGION_REGEX); i = j; prevChar = ')'; rawPrevIsWord = false; continue;
+    }
+    kinds[i] = REGION_CODE;
+    if (templateStack.length) {
+      const top = templateStack.length - 1;
+      if (ch === '{') templateStack[top] += 1;
+      else if (ch === '}') {
+        if (templateStack[top] === 0) { templateStack.pop(); kinds[i] = REGION_TEMPLATE; i += 1; mode = 'template'; continue; }
+        templateStack[top] -= 1;
+      }
+    }
+    if (WORD_CHAR_RE.test(ch)) {
+      word = rawPrevIsWord ? word + ch : ch;
+      rawPrevIsWord = true;
+      prevChar = ch;
+    } else {
+      rawPrevIsWord = false;
+      if (!/\s/.test(ch)) prevChar = ch;
+    }
+    i += 1;
+  }
+  return kinds;
+}
+
+/** The source with every non-code character (except newlines) replaced by a space. */
+function maskNonCode(source: string, kinds: Uint8Array): string {
+  let out = '';
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i]!;
+    out += kinds[i] === REGION_CODE || ch === '\n' ? ch : ' ';
+  }
+  return out;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Local bindings of the resolver: named (possibly aliased) imports and namespace imports from core/story-signed-workspace-resolution. */
+function resolverBindings(source: string, kinds: Uint8Array): { named: string[]; namespaces: string[] } {
+  const named: string[] = [];
+  const namespaces: string[] = [];
+  const importRe = /\bimport\s+(type\s+)?([^'"]*?)\s*from\s*['"]([^'"]+)['"]/g;
+  for (let match = importRe.exec(source); match; match = importRe.exec(source)) {
+    if (kinds[match.index] !== REGION_CODE) continue;
+    if (match[1]) continue;
+    if (!RESOLVER_MODULE_RE.test(match[3]!)) continue;
+    const clause = match[2]!;
+    const namespace = /\*\s*as\s+([\w$]+)/.exec(clause);
+    if (namespace) namespaces.push(namespace[1]!);
+    const braces = /\{([^}]*)\}/.exec(clause);
+    if (!braces) continue;
+    for (const raw of braces[1]!.split(',')) {
+      const spec = raw.trim();
+      if (!spec || spec.startsWith('type ')) continue;
+      const parsed = /^([\w$]+)(?:\s+as\s+([\w$]+))?$/.exec(spec);
+      if (parsed && parsed[1] === RESOLVER_TOKEN) named.push(parsed[2] ?? parsed[1]!);
+    }
+  }
+  return { named, namespaces };
+}
+
+function precededByFunctionKeyword(code: string, index: number): boolean {
+  return /\bfunction\s*$/.test(code.slice(Math.max(0, index - 20), index));
+}
+
+function callLinesOf(code: string, pattern: RegExp): number[] {
+  const lines: number[] = [];
+  for (let match = pattern.exec(code); match; match = pattern.exec(code)) {
+    const at = match.index + match[1]!.length;
+    if (precededByFunctionKeyword(code, at)) continue;
+    lines.push(lineOf(code, at));
+  }
+  return sortedUnique(lines);
+}
+
+/** Text of the first argument of the call whose `(` sits at `openIndex` (balanced parens). */
+function firstArgumentAt(code: string, openIndex: number): string {
+  let depth = 0;
+  for (let i = openIndex; i < code.length; i += 1) {
+    const ch = code[i]!;
+    if (ch === '(') depth += 1;
+    else if (ch === ')') { depth -= 1; if (depth === 0) return code.slice(openIndex + 1, i).split(',')[0]!.trim(); }
+    else if (ch === ',' && depth === 1) return code.slice(openIndex + 1, i).trim();
+  }
+  return code.slice(openIndex + 1).trim();
+}
+
+function rootReadsOf(code: string): { reads: RootRead[]; workspaceReads: number } {
+  const wsVars = new Set<string>();
+  const wsRe = /(?:^|[^\w$.])([\w$]+)\s*=\s*resolveStoryWorkspace\s*\(/g;
+  for (let match = wsRe.exec(code); match; match = wsRe.exec(code)) wsVars.add(match[1]!);
+  const fromWorkspace = (expr: string): boolean => {
+    const head = /^([\w$]+)\s*[?!]?\./.exec(expr);
+    return Boolean(head && wsVars.has(head[1]!));
+  };
+  const reads: RootRead[] = [];
+  let workspaceReads = 0;
+  const storeRe = /([\w$]+(?:\s*[?!]?\.\s*[\w$]+)*)\s*[?!]?\.\s*(readStory|readChecklist)\s*\(/g;
+  for (let match = storeRe.exec(code); match; match = storeRe.exec(code)) {
+    const receiver = match[1]!.replace(/\s+|[?!]/g, '');
+    if (/^([\w$]+)\.store$/.test(receiver) && wsVars.has(receiver.split('.')[0]!)) { workspaceReads += 1; continue; }
+    reads.push({ kind: match[2] === 'readStory' ? 'story' : 'checklist', via: `${receiver}.${match[2]}`, line: lineOf(code, match.index) });
+  }
+  const storeCtorRe = /\bnew\s+StoryStore\s*\(/g;
+  for (let match = storeCtorRe.exec(code); match; match = storeCtorRe.exec(code)) reads.push({ kind: 'story', via: 'new StoryStore', line: lineOf(code, match.index) });
+  const configRe = /(^|[^\w$.])(loadConfig|configuredValidationCommands)\s*\(/g;
+  for (let match = configRe.exec(code); match; match = configRe.exec(code)) {
+    const at = match.index + match[1]!.length;
+    if (precededByFunctionKeyword(code, at)) continue;
+    const open = code.indexOf('(', at);
+    if (fromWorkspace(firstArgumentAt(code, open))) { workspaceReads += 1; continue; }
+    reads.push({ kind: 'config', via: match[2]!, line: lineOf(code, at) });
+  }
+  const seen = new Set<string>();
+  const unique = reads
+    .filter((read) => { const key = `${read.via}@${read.line}`; if (seen.has(key)) return false; seen.add(key); return true; })
+    .sort((a, b) => a.line - b.line || a.via.localeCompare(b.via));
+  return { reads: unique, workspaceReads };
+}
+
 function scanResolverSource(source: string): ResolverScan {
-  const callLines = source.split('\n').flatMap((line, index) => (line.includes(RESOLVER_TOKEN) ? [index + 1] : []));
-  return { hasToken: callLines.length > 0, callLines, nonCodeMentionLines: [], unboundCallLines: [], workspaceRooted: true, remainingReads: [] };
+  const tokenRe = new RegExp(`(^|[^\\w$])${RESOLVER_TOKEN}(?![\\w$])`, 'g');
+  const hasToken = tokenRe.test(source);
+  if (!hasToken) return { hasToken: false, callLines: [], nonCodeMentionLines: [], unboundCallLines: [], workspaceRooted: true, workspaceReads: 0, remainingReads: [] };
+  const kinds = classifyRegions(source);
+  const code = maskNonCode(source, kinds);
+  const bindings = resolverBindings(source, kinds);
+  const callLines: number[] = [];
+  for (const local of bindings.named) callLines.push(...callLinesOf(code, new RegExp(`(^|[^\\w$.])${escapeRegExp(local)}\\s*\\(`, 'g')));
+  for (const ns of bindings.namespaces) callLines.push(...callLinesOf(code, new RegExp(`(^|[^\\w$.])${escapeRegExp(ns)}\\s*\\.\\s*${RESOLVER_TOKEN}\\s*\\(`, 'g')));
+  const unboundCallLines = bindings.named.includes(RESOLVER_TOKEN)
+    ? []
+    : callLinesOf(code, new RegExp(`(^|[^\\w$.])${RESOLVER_TOKEN}\\s*\\(`, 'g'));
+  const mentionLines: number[] = [];
+  tokenRe.lastIndex = 0;
+  for (let match = tokenRe.exec(source); match; match = tokenRe.exec(source)) {
+    const at = match.index + match[1]!.length;
+    if (kinds[at] !== REGION_CODE) mentionLines.push(lineOf(source, at));
+  }
+  const { reads: remainingReads, workspaceReads } = rootReadsOf(code);
+  return {
+    hasToken: true,
+    callLines: sortedUnique(callLines),
+    nonCodeMentionLines: sortedUnique(mentionLines),
+    unboundCallLines,
+    workspaceRooted: remainingReads.length === 0,
+    workspaceReads,
+    remainingReads,
+  };
 }
 
 function auditResolverCallSites(handlersDir: string): ResolverAudit {
@@ -1333,7 +1555,7 @@ function describeReads(reads: RootRead[]): string {
 }
 
 function classificationOf(caller: ResolverScan): string {
-  if (caller.workspaceRooted) return 'workspace-rooted';
+  if (caller.workspaceRooted) return caller.workspaceReads > 0 ? 'workspace-rooted' : 'workspace-rooted (no story/checklist/config read at all)';
   const kinds = (['story', 'checklist', 'config'] as RootReadKind[]).filter((kind) => caller.remainingReads.some((read) => read.kind === kind));
   return `reads ctx.root: ${kinds.join(', ')}`;
 }
@@ -1492,6 +1714,7 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       assert.deepEqual(scan.nonCodeMentionLines, SCANNER_PROBE_MENTION_LINES, 'non-code mention lines');
       assert.deepEqual(scan.unboundCallLines, [], 'a foreign-object `.resolveGitCwd(` is not an unbound call');
       assert.equal(scan.workspaceRooted, false);
+      assert.equal(scan.workspaceReads, 3, 'the three L11 reads through the ws var are counted as workspace-rooted');
       assert.ok(scan.remainingReads.every((read) => read.line === SCANNER_PROBE_READ_LINE), `no workspace-rooted read (L11) is flagged: ${JSON.stringify(scan.remainingReads)}`);
       assert.deepEqual(
         scan.remainingReads.map((read) => `${read.kind}:${read.via}`).sort(),
