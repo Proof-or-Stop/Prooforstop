@@ -13703,6 +13703,30 @@
         "scanEscalationReason": null
       },
       "_hash": "44c42e246ce662d746af8f3a434acaee4c6b4fa2ad61757f36c71dd7561bb87c"
+    },
+    {
+      "id": "B-5a15:RP-289",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Fast re-confirmation of PASS after the comment-only F-364 fix (single substantive commit c6000f1d40 since RP-287/RR-871). Scope: (1) git show c6000f1d40 --stat + full +/- diff — 1 file, 6 insertions/4 deletions, EVERY changed line is a // comment; no executable statement, assertion, or pin literal moved; the false item 4 is genuinely DELETED, not reworded. (2) Registry lockstep on THREE divergences verified in BOTH coupled copies: retired-authority-vocabulary-guard-smoke.ts:379-397 says 'THREE real divergences' with the F-364 deletion rationale, and scripts/verify-process-fact-contract.mjs:2015-2027 carries the same F-361 enumeration plus the F-363 'NOT a divergence' line; grep for 'four real diverg'/'four divergen' and for the deleted 'checklist-policy row' returns ZERO hits across packages/main/src and scripts. (3) Inlined measurements independently re-measured on BOTH branches with direct per-path grep -c (no glob, per the zsh --include abort hazard that exits 0 on abort): core/closeout-trust.ts refresh_stale = 1 HEAD / 1 main; tasks/closeout-trust-smoke.ts refresh_stale = 4 HEAD / 4 main with 0 hits in its own main...HEAD diff — so the note's '4 on BOTH branches / absent from this file's diff' is correct and correctly scoped to the pinned smoke file; git diff main...HEAD --stat on core/closeout-trust.ts = 1 file changed, 1 insertion, matching the 'ONLY divergence in that file' claim. (4) All three enumerated divergences confirmed genuinely NEW on HEAD: topology_critic_receipt_set 2 HEAD / 0 main plus topology-critic-receipt.json registry row 1 HEAD / 0 main; deriveCertificationDomainInputHashes 2/0; acquireOwnerLease 2/0. Compat surface unchanged and correctly stated PER FILE: core/closeout-trust.ts isExactLegacyLocalOnlyDeliveryClaims 2/2; closeout-trust-smoke.ts createLegacyLocalOnlyDeliveryClaims 2/2 and ZERO isExactLegacyLocalOnlyDeliveryClaims. (5) Both guards run WITHOUT a pipe (redirect + echo exit), TRUE exit 0 each: scripts/verify-process-fact-contract.mjs -> 0 ('Process fact contract verified'); packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js -> 0 ('retired authority vocabulary guard PASS builds=815 cacheHits=2 fullAnalysis=1309 astCandidates=508 reachability=34'). No blocker: comment-only commit, no new concept residue, and the false-attribution defect class of F-361/F-363/F-364 is now absent from both coupled registries. F-351/F-355 remain open by design (DEV-only PR_AUTHORITY_INADMISSIBLE selector repair); no re-adjudication of dispositioned or earlier-round findings.",
+      "createdAt": "2026-09-02T14:00:05.688Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-880",
+      "envelopeId": "9ad3819fea5161e54822efa9d60e2087f427f48cc7a7f9ccfe9f421237c98c4e",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "669879e0a379a42febfe72e17c84013fee5b43e9988313feef9aa0d26b7b867f"
     }
   ]
 }
