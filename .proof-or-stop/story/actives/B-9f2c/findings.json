@@ -66,6 +66,24 @@
       "resolvedAt": "2026-09-02T14:44:30.455Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-004",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:196-200 still says 'the six tasks run through TWO separately-maintained mechanisms, the same split the \"Test-surface placement\" section above describes' -- but the F-002 fix (commit 527de168c1) rewrote that section to describe THREE membership authorities (validate.commands, test:serial-reference, RESOURCE_POLICY), not two. This paragraph was not updated in the same fix, so the doc now cross-references its own earlier section with a framing that section no longer has, and the claim is also inaccurate on its own terms: test:process-fact-contract (one of the six tasks this paragraph is about) IS registered in RESOURCE_POLICY (packages/main/src/tasks/full-suite-runner.ts:180), so it participates in all three authorities, not 'only through test:serial-reference' as implied by the two-mechanism framing. This is exactly the kind of stale cross-reference the CLAUDE.md global preference on fanning out corrections warns about: fixing one occurrence of a wrong fact while leaving a second occurrence in the same file. Severity medium: this is process-fact documentation drift within a decisions doc that CHK-005's relatedDocs cites as the trap-prevention source, so a future story reading only this later paragraph could re-inherit the same two-authority misunderstanding that already caused three prior incidents (B-cdf6, B-49ed, B-9f2c CHK-005).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T14:53:40.640Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-019",
+      "_hash": "d5a9f75f4bf2f11b9ef228d179ec7ec884c319cc4294847c354b03a3e4b5253d",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
