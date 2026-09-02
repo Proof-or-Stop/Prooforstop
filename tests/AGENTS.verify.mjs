@@ -718,12 +718,12 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   // requiring every later assertion and the authoritative final exit code.
   runtimeChecks();
   unicodeChecks();
+  semanticChecks();
   auditDocumentChecks();
   auditCitationMutationChecks();
   externalReviewArtifactChecks();
   runCommandLedger();
   structuralChecks();
-  semanticChecks();
   rowSemanticMutationChecks();
   completenessChecks();
   managedBlockChecks();
