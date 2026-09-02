@@ -2038,9 +2038,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T03:02:37.696Z",
-      "endTime": null,
+      "endTime": "2026-09-02T03:02:38.469Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "f4f7cc5f5a3cc20498d057a4609ae805ce7b53088b3441d38aa20c65f2491f7a",
         "storyFilesHash": "bddedfc12828de479b91463864cc30975d1ef8a6b4d92ce85820d67608c78477",
@@ -2245,6 +2245,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin final closure of the separately reviewed canonical adapter-root verifier repair."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:38.469Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All three adapter-root intents have passing tool-executed receipts; the bounded repair is committed."
     }
   ]
 }
