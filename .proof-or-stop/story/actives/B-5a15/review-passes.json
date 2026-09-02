@@ -14269,6 +14269,46 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "e14bee619d7278f22967093cb4dc5fdb050a007801d3ce7b72672412d403a46a"
+    },
+    {
+      "id": "B-5a15:RP-307",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the U-03 CausalEvidence DAG implementation for subjective code quality (lint assumed green). No new any/unchecked-cast escapes introduced -- verifier.ts any usages are all pre-existing, confirmed via diff grep (zero '+.*: any' or '+.*as any' hits in the verifier.ts diff). No shell/fn.ts I/O isolation violations; this is CLI-only core plumbing with no shells layer. Handler Encoding Convention: no new user-facing Zod .min/.max/.enum/.regex constrained fields were added by this story; the existing commandTimeoutMs/commandTimeoutReason double validation via resolveEvidenceCommandTimeout is unchanged and still runs on every path. New CausalEvidence dependency-injection fields added to enforceAndStampEvidence's deps object (storyId, projectRoot, metadataRoot, receiptStore, preflightFacts, batch) are internal wiring built from already-validated args.storyId and trusted ctx, not new caller-facing constrained inputs. All 4 new/changed test files pass: causal-evidence.test.mjs 21/21, causal-evidence-concurrency.test.mjs 3/3, checklist-causal-preflight-batch.test.mjs PASS, verifier-causal-preflight.test.mjs 2/2. New gate-consumed facts (runtime:causal_execution_key_gate, runtime:causal_receipt_import_gate, runtime:causal_dependency_preflight_metrics_gate) are correctly registered in both process-fact-levels.ts and process-fact-registry.ts per CHK-005. materialHash:exclude is correctly registered for the new causal-evidence runtime artifact directory in runtime-artifact-registry.ts. The one out-of-scope acceptance-blocking fix (verify-core-package-rename.mjs maxBuffer 64MB on execFileSync git ls-files) is a minimal one-line change with a clear explanatory comment, correctly scoped per defect-triage rules. Traced exported symbols with zero external callers (hasCausalDependencyDecisionIdentityBinding, causalDependencyExecutionInputs, createCausalDependencyRerunEvidence): confirmed hasCausalDependencyDecisionIdentityBinding is load-bearing as an internal self-reference used twice within causal-evidence.ts; the other two are exercised by the test suite. None are dead code. Verified CHK-002's canonical-import revalidation genuinely re-probes current lease/index/capability facts via commitCanonicalCausalEvidence and buildCausalCommitSnapshot rather than trusting only stored receipt inputs, which is what the stale finding F-150 originally flagged as missing. Verified CHK-003's certification domain nodes are real: CERTIFICATION_DOMAIN_DEPENDENCIES declares documented per-domain edges with F-325, F-334, F-336, F-337 and F-338 bug-fix comments explaining each edge's rationale, addressing what stale findings F-151 and F-312 originally flagged as nodes-equals-empty-array stubs. Sampled the story's 227 open findings: only B-5a15:F-366 (concept reviewer) is bound to the current review round 2026-09-02T21:18:15.582Z, and it is correctly triaged as an out-of-scope, deferred ENOBUFS issue in validate-concept.ts that is not blocking. The other 226 open findings are bound to review rounds from 2026-08-20 through 2026-09-01; on sampling multiple clusters including the 89-item 2026-08-22 cluster and the 2026-08-25 cluster, each sampled finding's exact complaint (nodes-equals-empty-array, missing index-lease revalidation at import, PR_ARTIFACT_TAMPERED, AT_TOPOLOGY_CRITIC_RECEIPT_INVALID) is demonstrably fixed in current code and independently confirmed live: pre_review_check_read and acceptance_topology_check both currently report PASS and complete at HEAD. These 226 are stale bookkeeping debt from a heavily-iterated story that were never formally finding_resolve'd after being fixed by later commits, rather than live defects in the current integrated diff; this is a housekeeping item for the main agent's finding_list triage, not a quality-lane blocker. No blocking quality issues found in the integrated B-5a15 change.",
+      "createdAt": "2026-09-02T21:38:18.559Z",
+      "reviewRound": "2026-09-02T21:18:15.582Z",
+      "reviewRunId": "B-5a15:RR-900",
+      "envelopeId": "9642899eca361aa4c26cbbce71d17773b25ea1ab4d295d233590d4f35566bd04",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "7d99ddde7cf9b9d62e33527c8b76626bfd077437196e60bc46dce5deada24ece"
     }
   ]
 }
