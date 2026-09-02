@@ -653,10 +653,26 @@
       "phase": "DEV",
       "headHash": "8eb0799d21698b8cf0c17593478c177e87f89cae",
       "materialHash": "7155737f853b8064ae7533b69068adbb4e625d8bc985e578df34091eac09f0df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "New regression smoke created by the F-473 fix (commit 8532bbdc36): it proves the validation runtime tracer child_process wrappers stay transparent to util.promisify (the defect that aborted done_required_validate npm test 0/58), including a negative control against the pre-fix tracer. The file accompanies the in-scope tracer repair and is required so this defect class stays mechanically covered by the root full suite.",
+      "timestamp": "2026-09-02T04:21:52.102Z",
+      "paths": [
+        "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5e3abea465e2f46f49b46cbd0a5cd7915c3372d5",
+      "materialHash": "61ae4c339f66eb6b5cf3d28348395cb512f6a8ead7a46ceca012dce6e0e63ddb"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-09-01T14:06:10.303Z",
+  "updatedAt": "2026-09-02T04:21:52.102Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -764,6 +780,7 @@
     "packages/main/package-lock.json": "packages/main/package-lock.json",
     "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
     "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
-    "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts": "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts"
+    "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts": "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts",
+    "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
   }
 }
