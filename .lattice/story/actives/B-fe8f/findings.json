@@ -16,8 +16,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
       "ledgerCommitReceiptId": "lrc_mtip46ga_164g_214745e421594c278e475bc4ecfd90c7",
-      "resolvedReason": "Production registry now exposes finding_runtime_evidence_run and finding_runtime_evidence_verify through the delivered handler surface; current Story3 smoke passes both real_cli_run_adapter and real_cli_verify_adapter selectors.",
       "resolvedAt": "2026-09-01T22:17:33.078Z",
+      "resolvedReason": "Production registry now exposes finding_runtime_evidence_run and finding_runtime_evidence_verify through the delivered handler surface; current Story3 smoke passes both real_cli_run_adapter and real_cli_verify_adapter selectors.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -37,8 +37,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtipaotb_kg0_53fa6b7f7c484625a1ac9bd14a0c9440",
       "ledgerCommitReceiptId": "lrc_mtipaotb_kg0_5cd6d3a815d74e1cb82e487be305c03f",
-      "resolvedReason": "Finding display and durable identities no longer derive uniqueness from mutable array length; fenced ledger append proves 100 concurrent unique rows and collision-free record IDs on the current HEAD.",
       "resolvedAt": "2026-09-01T23:24:49.136Z",
+      "resolvedReason": "Finding display and durable identities no longer derive uniqueness from mutable array length; fenced ledger append proves 100 concurrent unique rows and collision-free record IDs on the current HEAD.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -63,8 +63,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiut0hu_8tw_c65885b440e44dc6a41950ee53806eef",
       "ledgerCommitReceiptId": "lrc_mtiut0hu_8tw_9944e2b00d1f4144a891ca2d8e46482a",
-      "resolvedReason": "The findings projection now folds signed append-only finding_lifecycle_transition records, so terminal state is preserved and the original add row cannot resurrect a resolved finding; current lifecycle projection smoke passes.",
       "resolvedAt": "2026-09-01T23:24:50.792Z",
+      "resolvedReason": "The findings projection now folds signed append-only finding_lifecycle_transition records, so terminal state is preserved and the original add row cannot resurrect a resolved finding; current lifecycle projection smoke passes.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -84,8 +84,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe",
       "ledgerCommitReceiptId": "lrc_mtiuvk55_1e94_00fad2d8f5234a4d860d772bf6a628d0",
-      "resolvedReason": "finding_resolve, accepted-risk, and supersession mutations append signed fenced finding_lifecycle_transition records before projection; sequential lifecycle mutation and crash recovery selectors pass.",
       "resolvedAt": "2026-09-01T23:24:52.456Z",
+      "resolvedReason": "finding_resolve, accepted-risk, and supersession mutations append signed fenced finding_lifecycle_transition records before projection; sequential lifecycle mutation and crash recovery selectors pass.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -105,8 +105,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092",
       "ledgerCommitReceiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1",
-      "resolvedReason": "Dependency release requires the prerequisite Story to be canonically DONE on main and its story branch ancestry merged; lifecycle_dependency_gate passes for B-03b7 and B-e6d9.",
       "resolvedAt": "2026-09-01T23:24:54.199Z",
+      "resolvedReason": "Dependency release requires the prerequisite Story to be canonically DONE on main and its story branch ancestry merged; lifecycle_dependency_gate passes for B-03b7 and B-e6d9.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -126,8 +126,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv160i_in5_83e25d5f910440a1b58bea79b5598dc9",
       "ledgerCommitReceiptId": "lrc_mtiv160i_in5_8845956e46d24b789b8889defcb3ba96",
-      "resolvedReason": "Commit a050de7 makes legacy receipt migration idempotent by validating existing signed exact-byte bindings and creating bindings only for uncovered receipt digests; sequential real resolutions=2, bindingRecords=1, exactBytes=true, conflict=0 and signed query pass.",
       "resolvedAt": "2026-09-01T23:24:55.775Z",
+      "resolvedReason": "Commit a050de7 makes legacy receipt migration idempotent by validating existing signed exact-byte bindings and creating bindings only for uncovered receipt digests; sequential real resolutions=2, bindingRecords=1, exactBytes=true, conflict=0 and signed query pass.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -152,8 +152,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv3wdj_11y9_5341237aeeed415483169f076fc70617",
       "ledgerCommitReceiptId": "lrc_mtiv3wdj_11y9_e5f37013353744ef942fec4c2143ab3e",
-      "resolvedReason": "Proposal validation verifies the structural proposal-to-current-receipt chain and fails closed on substitution or missing links; the current proposal-chain adversarial matrix passes.",
       "resolvedAt": "2026-09-01T23:24:57.560Z",
+      "resolvedReason": "Proposal validation verifies the structural proposal-to-current-receipt chain and fails closed on substitution or missing links; the current proposal-chain adversarial matrix passes.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -178,8 +178,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8",
       "ledgerCommitReceiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda",
-      "resolvedReason": "Runtime receipt trust resolves keys through the repository-owned independent runtime key registry instead of trusting same-process environment material; independent-process trust and tamper checks pass.",
       "resolvedAt": "2026-09-01T23:24:59.188Z",
+      "resolvedReason": "Runtime receipt trust resolves keys through the repository-owned independent runtime key registry instead of trusting same-process environment material; independent-process trust and tamper checks pass.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -204,8 +204,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147",
       "ledgerCommitReceiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba",
-      "resolvedReason": "The canonical build mutex spans the complete build, execution, and publish window, removing the prior check-then-use gap; concurrent build/runtime smoke reports zero unsafe overlaps.",
       "resolvedAt": "2026-09-01T23:25:01.185Z",
+      "resolvedReason": "The canonical build mutex spans the complete build, execution, and publish window, removing the prior check-then-use gap; concurrent build/runtime smoke reports zero unsafe overlaps.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -230,8 +230,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv4ssj_1hm9_a243a3c39f574cb7a9874fe13df550e7",
       "ledgerCommitReceiptId": "lrc_mtiv4ssj_1hm9_d76b1990e65940a1a558d7babd3358ac",
-      "resolvedReason": "Idempotent finding_add replay reuses the original semantic row and process-event identity without emitting a duplicate process event; replay smoke reports zero new rows/events.",
       "resolvedAt": "2026-09-01T23:25:03.426Z",
+      "resolvedReason": "Idempotent finding_add replay reuses the original semantic row and process-event identity without emitting a duplicate process event; replay smoke reports zero new rows/events.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -255,8 +255,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv53g2_1iq4_510131c8bf1e496c85f4c1e215e8a446",
       "ledgerCommitReceiptId": "lrc_mtiv53g2_1iq4_76e17cdf54894b65a7282680be81d091",
-      "resolvedReason": "Artifact blob verification pins file identity with O_NOFOLLOW plus fd dev/inode/realpath checks and refuses swaps; runtime.toctou_mutation passes with receiptsIssued=0.",
       "resolvedAt": "2026-09-01T23:25:05.574Z",
+      "resolvedReason": "Artifact blob verification pins file identity with O_NOFOLLOW plus fd dev/inode/realpath checks and refuses swaps; runtime.toctou_mutation passes with receiptsIssued=0.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -280,8 +280,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv6rbr_1lwa_f7afd26842bc45d5b8fb313dbee466a8",
       "ledgerCommitReceiptId": "lrc_mtiv6rbr_1lwa_964b9f1d34f047ac923697fb9f03bd77",
-      "resolvedReason": "The RED verifier loads immutable historical blob 1b913dab2f52e904afc1b7b1870a3a98be0739bc, proves baseline 0cb578 import failure and current import success, and rejects arbitrary-cwd substitution; all 13 RED receipts are fresh.",
       "resolvedAt": "2026-09-01T23:25:07.454Z",
+      "resolvedReason": "The RED verifier loads immutable historical blob 1b913dab2f52e904afc1b7b1870a3a98be0739bc, proves baseline 0cb578 import failure and current import success, and rejects arbitrary-cwd substitution; all 13 RED receipts are fresh.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -307,8 +307,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv7c28_1n9y_f961afdff6964bb392de4bc239958c7d",
       "ledgerCommitReceiptId": "lrc_mtiv7c28_1n9y_4cabfe5ded1d4d0bb52ad12add7863ba",
-      "resolvedReason": "The publishable lab package is canonically @proof-or-stop/lab, bundled/local-linked for clean external install, and clean-pack/global-entrypoint checks pass without registry fetch at version 0.3.271.",
       "resolvedAt": "2026-09-01T23:25:09.240Z",
+      "resolvedReason": "The publishable lab package is canonically @proof-or-stop/lab, bundled/local-linked for clean external install, and clean-pack/global-entrypoint checks pass without registry fetch at version 0.3.271.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -317,7 +317,7 @@
       "desc": "CHK-001:happy:2 still lacks the executable receipt explicitly required by resolved F-012. .lattice/story/actives/B-fe8f/checklist.json records this must intent as kind=docs_check, mechanical=false, with no receipt/exitCode/selectorMatched, while F-012 resolvedReason claims all 13 RED receipts are fresh. Independent current execution of `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 0 and prints `red.production_unchanged: PASS`, so the test exists but its result is not bound to this intent. This leaves only 70/71 mechanical current receipts and makes the strong resolution claim false. Record this selector through the mechanical verification path and require exitCode=0/selectorMatched=true; retain the immutable historical RED binding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-09-01T23:31:21.519Z",
@@ -331,7 +331,11 @@
       "signatureTag": "missing|mjs|happy-still-lacks",
       "signatureTagSource": "auto",
       "recordId": "lr_mtjawsof_1pg4_c46e4fcd68c341c2b7af4ed97a45ce36",
-      "ledgerCommitReceiptId": "lrc_mtjawsof_1pg4_8a0ca16e2c59455fa7981a40de8bd1df"
+      "ledgerCommitReceiptId": "lrc_mtjawsof_1pg4_8a0ca16e2c59455fa7981a40de8bd1df",
+      "resolvedAt": "2026-09-02T00:55:08.839Z",
+      "resolvedReason": "PLAN correction changed only CHK-001:happy:2 type from docs to logic without changing its pinned command or selector; canonical verification_run now records mechanical=true, exitCode=0, selectorMatched=true for red.production_unchanged: PASS and preserves the immutable historical RED binding.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-015",
