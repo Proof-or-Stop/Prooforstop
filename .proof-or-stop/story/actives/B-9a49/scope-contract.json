@@ -103,10 +103,46 @@
         "assertReviewTaskContextAuthority",
         "buildPromptEnvelope"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required compatibility fallout from merging the approved canonical proof-or-stop role namespace and atomically migrating this in-flight Story from the retired .lattice state directory; these paths preserve the already-reviewed Agent behavior and Story evidence without expanding Dynamic Finding runtime scope.",
+      "timestamp": "2026-09-02T01:37:15.247Z",
+      "paths": [
+        ".claude/agents/proof-or-stop-implementer.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+        "packages/main/templates/agents/proof-or-stop-implementer.md",
+        ".lattice/story/actives/B-9a49/background.md",
+        ".lattice/story/actives/B-9a49/checklist.json",
+        ".lattice/story/actives/B-9a49/execution-boundary.json",
+        ".lattice/story/actives/B-9a49/index.json",
+        ".lattice/story/actives/B-9a49/init-check.json",
+        ".lattice/story/actives/B-9a49/process-events.jsonl",
+        ".lattice/story/actives/B-9a49/scope-boundary.json",
+        ".lattice/story/actives/B-9a49/scope-freeze-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/proof-or-stop-implementer.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+        "packages/main/templates/agents/proof-or-stop-implementer.md",
+        ".lattice/story/actives/B-9a49/background.md",
+        ".lattice/story/actives/B-9a49/checklist.json",
+        ".lattice/story/actives/B-9a49/execution-boundary.json",
+        ".lattice/story/actives/B-9a49/index.json",
+        ".lattice/story/actives/B-9a49/init-check.json",
+        ".lattice/story/actives/B-9a49/process-events.jsonl",
+        ".lattice/story/actives/B-9a49/scope-boundary.json",
+        ".lattice/story/actives/B-9a49/scope-freeze-check.json"
+      ],
+      "affectedPathCount": 11,
+      "phase": "DEV",
+      "headHash": "bbbe1da1fbe3f438d627eb637544a13f6c6fd3ad",
+      "materialHash": "e05894a0652072f25a151aaa38e662ff4ebd498b08f9a94653aa29e589aec5d3"
     }
   ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-01T11:47:09.498Z",
+  "updatedAt": "2026-09-02T01:37:15.247Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -148,6 +184,17 @@
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
     "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
-    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts"
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    ".claude/agents/proof-or-stop-implementer.md": ".claude/agents/proof-or-stop-implementer.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-implementer.md": ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-implementer.md": "packages/main/templates/agents/proof-or-stop-implementer.md",
+    ".lattice/story/actives/B-9a49/background.md": ".lattice/story/actives/B-9a49/background.md",
+    ".lattice/story/actives/B-9a49/checklist.json": ".lattice/story/actives/B-9a49/checklist.json",
+    ".lattice/story/actives/B-9a49/execution-boundary.json": ".lattice/story/actives/B-9a49/execution-boundary.json",
+    ".lattice/story/actives/B-9a49/index.json": ".lattice/story/actives/B-9a49/index.json",
+    ".lattice/story/actives/B-9a49/init-check.json": ".lattice/story/actives/B-9a49/init-check.json",
+    ".lattice/story/actives/B-9a49/process-events.jsonl": ".lattice/story/actives/B-9a49/process-events.jsonl",
+    ".lattice/story/actives/B-9a49/scope-boundary.json": ".lattice/story/actives/B-9a49/scope-boundary.json",
+    ".lattice/story/actives/B-9a49/scope-freeze-check.json": ".lattice/story/actives/B-9a49/scope-freeze-check.json"
   }
 }
