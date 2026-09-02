@@ -130,6 +130,45 @@
         "scanEscalationReason": null
       },
       "_hash": "e3b342cde72bf0bef5adb18f1f4126c597d4418d6772ed3bb56bb9798b7233d9"
+    },
+    {
+      "id": "B-d854:RP-005",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: verified all 10 must verificationIntent entries against 10 fresh evidence records (8 mechanical and 2 docs), actual receipt outputTail selectors, independent 26/26 RED and GREEN runs, 104 authority entries with 208 citation mutations, six source semantic mutations, Unicode scans, and Claude/Agy artifact bindings; no gaps or waivers.",
+      "createdAt": "2026-09-02T08:48:38.426Z",
+      "reviewRound": "2026-09-02T08:41:59.853Z",
+      "reviewRunId": "B-d854:RR-029",
+      "envelopeId": "c36518323bf0c0fe15b51c9a9d284beac5fc9c65daadcfecae588d089ecbc335",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "5618d3fb52a54f1200a7eebe426ee2096e7369a75403bfb237fb39289cb080b6"
     }
   ]
 }
