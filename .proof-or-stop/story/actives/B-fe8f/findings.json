@@ -426,7 +426,7 @@
       "desc": "quality-cleanup: packages/main/src/core/finding-runtime-evidence.ts:10 exports FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT and packages/main/src/handlers/finding-runtime-evidence.ts:24 exports FINDING_RUNTIME_EVIDENCE_COMMANDS, but neither constant is imported or referenced anywhere else in the repo (grep across packages/main src/tests/scripts finds zero consumers) — dead code, not used to enforce or document any live contract check.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T08:20:41.612Z",
@@ -440,7 +440,11 @@
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto",
       "recordId": "lr_mtjttix9_l9j_595cfd05035d4985a56b88b0eeaccfd8",
-      "ledgerCommitReceiptId": "lrc_mtjttix9_l9j_c2d0dfc7bb1645e484a70519f720ce52"
+      "ledgerCommitReceiptId": "lrc_mtjttix9_l9j_c2d0dfc7bb1645e484a70519f720ce52",
+      "resolvedAt": "2026-09-02T08:44:47.200Z",
+      "resolvedReason": "Fixed: packages/main/src/handlers/finding-ledger.ts now derives the runtime ledger operation name from FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation (four former string literals), and finding-ledger-runtime-smoke.ts consumes FINDING_RUNTIME_EVIDENCE_COMMANDS and the adapter contract as live checks: facade handler keys, canonical registry membership, contract run/verify command names, the persisted runtime receipt operation, and the artifact realpath binding key must all agree. Verified: smoke cases registry.runtime_facade_boundary and runtime.append_runtime_receipt_replay now print adapterContract=true and the full smoke exits 0 (85 PASS lines).",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
