@@ -13608,6 +13608,40 @@
         "scanEscalationReason": null
       },
       "_hash": "b0d4e4a7ec8285fbdfffb2dc3a38993f06f68f93e290b11c42ba38864799abce"
+    },
+    {
+      "id": "B-5a15:RP-286",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review PASS (RI-064 wave 1). Closed the F-362 read gap: read packages/main/src/tasks/certification-window-smoke.ts (1107 lines) IN FULL, including the +36-line F-142 CHK-003 causal-selectivity block at :931-965. JUDGEMENT: the block PROVES CHK-003 causal selectivity. It drives the REAL production handler (certification_window_begin/status -> currentCertificationIdentity -> buildCertificationDecision -> refreshCertificationWindowLineage -> detectCertificationWindowMaterialDrift), not a stub; only the inventory admit APIs are mocked, which is orthogonal to causal selectivity. The ADMITTED-vs-INVALIDATED discrimination is REAL and cannot both-pass for an unrelated reason: I empirically reproduced the git topology in a scratch repo and confirmed the unrelated merge of unrelated.txt DOES move whole-tree materialHash (evidence-freshness.ts:401 git ls-tree -r) while merge-base-scoped storyFilesHash (evidence-freshness.ts:376) stays byte-identical, whereas the story commit to src/app.ts moves storyFilesHash. The two branches therefore take genuinely DIFFERENT code paths in causal-evidence.ts:1252-1266: unrelated hits materialDrift && storyFilesMatch -> advisory + storyFilesHashAdvisory=true -> allowSpecializedUnrelatedDrift at certification-window.ts:826 downgrades materialHash drift to advisory -> ADMITTED; story-owned hits storyFilesDrift -> strict + gateAdmissible=false -> drift at certification-window.ts:797 -> INVALIDATED. The affected.size>0 rerun guard precedes both, so a story commit cannot slip through. A regression WOULD fail the test: assertStatusSurface anchors ^State: <X>$ with an exact-one State:/Next: line count, so collapsing either verdict into the other fails immediately. Assertions are correctly positioned: all 56 emitIntentMarker sites follow their assertions, and the CHK-004:happy:2/:3 markers at :2515-2522 are deliberately gated behind the bootstrap escape hatch AND placed after the strict assertions. No coverage weakening in the other three flagged files: flow-stability-smoke.ts widens a refusal regex but each branch keeps STRICTER assertions (commandExecutions=0 / evidenceWrites=0 plus readTestEvidence===null); validate-progress-heartbeat-smoke.ts and done-required-validation-smoke.ts now derive real causal input hashes behind assert.ok guards instead of relying on a default. STANDING CHECKS. (a) Structure: 5 items / 53 intents / 53 unique intentRefs / 0 duplicates / 0 orphans; exactly 1 explicit intent id (CHK-001:edge:oversized-output-probe) with 52 positional fallbacks per core/verification.ts:24 intentRef() = intent?.id || itemId:lane:index - the FALLBACK reading is confirmed correct, and reading it as verbatim intent.id would manufacture 52 phantom orphans; 22 lane-declared must, 51 effective must. (b) Receipts uniformly stale, NOT corrupted: 53/53 mechanical:true, 53/53 receipt.exitCode===0, 53/53 receipt.selectorMatched===true, 53 DISTINCT outputDigests and 53 distinct executionKeys (each earned in its own execution, not one run cloned), all on ONE storyFilesHash af9bbe506973de208e0e2490dca821e78b966f32b226fee71c2a27003fa92d85. No split and no lost receipt: the 53 distinct headHashes are the auto-commit walk, not an acceptance-binding split. (c) Zero fakery: 0 waivers, 0 nonMechanicalReason, 0 result=fail (53/53 pass), 0 timeoutOverride. (d) CHK-002 lanes 2/3/4 = 9 intents with 9 evidence; consumer verification_evidence_batch_add is the registered handler beginning at handlers/checklist.ts:2445 (my measured figure, correcting :2444); commitCanonicalCausalEvidence at handlers/checklist.ts:1607 is still a NON-EXPORTED local const (no export of that symbol exists). (e) Pinned command: 53 unique selectors on 1 pinned command map to 53 real distinct emitIntentMarker sites (56 sites total; the 3 extras are non-planned bonus markers and no intentRef is emitted twice); every site is positioned AFTER its assertions; a fresh run of the pinned command emits EXACTLY 51 of the 53 selectors. (f) F-351/F-355/F-359 CONFIRMED still open and unrepaired: the 2 absent selectors are exactly CHK-004:happy:2 (acceptance_topology_check reports current complete structural PASS) and CHK-004:happy:3 (pre_review_check_read reports current admissible executable PASS); fresh suite is 21 tests / 19 pass / 2 fail; both failures share one root cause at the TWO sites recorded in F-359 - test at :2469 failing at :2506, and test at :2643 failing at :2684. MATERIAL STATUS UPDATE for the DEV repair: the live pre_review_check_read code set has SHIFTED since last round and PR_AUTHORITY_INADMISSIBLE is NO LONGER the primary code. It now reports FAIL code=PR_ARTIFACT_TAMPERED with Codes: PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_AUTHORITY_INADMISSIBLE (mode observe, blocking=false, authority=inadmissible). PR_AUTHORITY_INADMISSIBLE appears NOWHERE in causal-evidence.test.mjs, so neither the exact-join allowlists (:2502-2504 and :2667-2671) nor the per-code fallback lists (:2677-2681) admit the live set; the repair must widen BOTH sites, and the acceptance criterion remains 21/0 with ALL 53 selectors. Not re-filing F-351/F-355/F-359/F-362, nor the known pre-existing standalone failure of certification-window-smoke.ts bisected to merge commit a2e4e92631. Expected-not-defect confirmed: all acceptance artifacts stale, AR_REPORT_STALE, acceptance_topology_check staleness codes.",
+      "createdAt": "2026-09-02T13:29:43.180Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-866",
+      "envelopeId": "bb63e6190e982d7d79899d17ed6f31ae4bbc52f8c52769666387c4514c36c0f3",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "1f1dfed102b7bf4800f88765fa54a67855d167e364bb5a69e4c45b95f70b888d"
     }
   ]
 }
