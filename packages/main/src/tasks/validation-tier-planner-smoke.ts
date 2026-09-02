@@ -608,14 +608,50 @@ testCase('a legacy string matching exactly one command records legacy-exact and 
   assert.equal(digest, universe.entries.find((entry) => entry.label === 'test')!.normalizedTupleDigest);
 });
 
-testCase('a legacy string matching nothing stops as pinned_command_missing with no plan', () => {
+// ---------------------------------------------------------------------------
+// (11b) B-a745 F-001 — THE PIN-OUTCOME SPLIT, BY WHAT THE EVIDENCE CLAIMED.
+//
+//   * Evidence carrying an explicit `commandId` asserts an identity in the
+//     inventory's OWN namespace. An absent identity means that assertion is
+//     broken, and the fail-closed matrix row "Explicit command pin does not
+//     resolve" applies unchanged: STOP.
+//   * Evidence carrying only a legacy free-form `command` string never asserted
+//     an inventory identity at all. In a real repository most recorded evidence
+//     pins a test binary or a one-off script that is legitimately not a member
+//     of `validate.commands`. That is a NON-INVENTORY evidence command: it is
+//     classified, listed, and widens to repository-full, and it can never be a
+//     basis for pruning. Nothing is omitted on its account, so fail-closed is
+//     preserved in the only sense that matters — no command is left out.
+// ---------------------------------------------------------------------------
+testCase('a legacy string matching nothing is a non-inventory evidence command, not a stop', () => {
   const result = resolvePin(
     [command({ label: 'test', command: 'npm', args: ['test'] })],
     { command: 'npm run build' },
   );
-  assert.equal(result.status, 'stop');
-  assert.equal(result.status === 'stop' && result.reason, 'pinned_command_missing');
-  assert.deepEqual(result.status === 'stop' && result.candidateIds, []);
+  assert.equal(result.status, 'non-inventory', 'a free-form string was never an inventory-identity assertion');
+  assert.equal(result.status === 'non-inventory' && result.reason, 'pinned_command_non_inventory');
+  assert.ok(
+    result.status === 'non-inventory' && !/no longer exists|re-record/i.test(result.message),
+    'the message must name the real situation, not send an operator to re-record a command that is not stale',
+  );
+});
+
+testCase('an explicit unresolvable commandId still stops while an unresolvable legacy string does not', () => {
+  const commands = [command({ label: 'test', command: 'npm', args: ['test'], id: 'test-suite' })];
+
+  const byId = resolvePin(commands, { commandId: 'test-suite-renamed' });
+  assert.equal(byId.status, 'stop', 'an id absent from the inventory namespace stays fail-closed');
+  assert.equal(byId.status === 'stop' && byId.reason, 'pinned_command_missing');
+  assert.deepEqual(byId.status === 'stop' && byId.candidateIds, []);
+
+  const byString = resolvePin(commands, { command: 'npm run build' });
+  assert.notEqual(byString.status, 'stop', 'a free-form string that names nothing is not an identity failure');
+
+  // The split changes nothing about a legacy string that DOES resolve.
+  const bound = resolvePin(commands, { command: 'npm test' });
+  assert.equal(bound.status, 'resolved');
+  assert.equal(bound.status === 'resolved' && bound.commandId, 'test-suite');
+  assert.equal(bound.status === 'resolved' && bound.pinResolution, 'legacy-exact');
 });
 
 testCase('evidence pinning nothing at all stops as pinned_command_missing', () => {
@@ -1341,8 +1377,8 @@ testCase('verification intent is carried as reason context and produces no comma
   }
 });
 
-testCase('an unresolvable evidence pin is a classified stop, not a silently dropped seed', () => {
-  const input = collect({
+testCase('an unresolvable evidence pin is classified by what it claimed, not silently dropped', () => {
+  const legacy = collect({
     checklist: {
       items: [
         checklistItem({
@@ -1354,9 +1390,34 @@ testCase('an unresolvable evidence pin is a classified stop, not a silently drop
       ],
     },
   });
-  assert.deepEqual(input.pinnedCommands, []);
-  assert.ok(input.escalations.some((entry) => entry.code === 'pinned_command_missing'));
-  assert.ok(input.unclassifiedInputs.some((entry) => entry.kind === 'evidence-pin'));
+  assert.deepEqual(legacy.pinnedCommands, []);
+  assert.ok(legacy.escalations.some((entry) => entry.code === 'pinned_command_non_inventory'));
+  assert.ok(!legacy.escalations.some((entry) => entry.code === 'pinned_command_missing'));
+  assert.ok(legacy.unclassifiedInputs.some((entry) => entry.kind === 'evidence-pin'));
+  assert.deepEqual(legacy.commandSeedEdges, [], 'a non-inventory pin may never seed a command');
+
+  const declared = collect({
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationEvidence: [
+            {
+              intentRef: 'CHK-001:happy:0',
+              kind: 'integration_test',
+              commandId: 'gone-suite',
+              command: 'npm run gone',
+              result: 'pass',
+              note: 'fixture evidence',
+            },
+          ],
+        }),
+      ],
+    },
+  });
+  assert.deepEqual(declared.pinnedCommands, []);
+  assert.ok(declared.escalations.some((entry) => entry.code === 'pinned_command_missing'));
+  assert.deepEqual(declared.commandSeedEdges, []);
 });
 
 // ---------------------------------------------------------------------------
@@ -1614,14 +1675,21 @@ testCase('an unclassified material input escalates AND is listed', () => {
   assert.equal(listed[0].kind, 'material-path');
 });
 
-testCase('an unresolvable pin collected upstream becomes a classified stop, never a plan', () => {
+testCase('an unresolvable explicit commandId collected upstream becomes a classified stop, never a plan', () => {
   const result = planFor('story-fast', {
     checklist: {
       items: [
         checklistItem({
           id: 'CHK-001',
           verificationEvidence: [
-            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run gone', result: 'pass', note: 'fixture evidence' },
+            {
+              intentRef: 'CHK-001:happy:0',
+              kind: 'integration_test',
+              commandId: 'gone-suite',
+              command: 'npm run gone',
+              result: 'pass',
+              note: 'fixture evidence',
+            },
           ],
         }),
       ],
@@ -1634,6 +1702,44 @@ testCase('an unresolvable pin collected upstream becomes a classified stop, neve
 });
 
 // ---------------------------------------------------------------------------
+// (29b) B-a745 F-001 — a NON-INVENTORY legacy pin widens; it never stops and it
+//       never prunes. Written so the outcome is checked on both halves: the plan
+//       must exist AND it must still select the complete universe, because the
+//       whole justification for not stopping is that nothing is omitted.
+// ---------------------------------------------------------------------------
+testCase('a non-inventory legacy pin plans repository-full instead of stopping, and seeds no command', () => {
+  const overrides = {
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run gone', result: 'pass', note: 'fixture evidence' },
+          ],
+        }),
+      ],
+    },
+  };
+  const input = planInput(overrides);
+  assert.deepEqual(input.commandSeedEdges, [], 'a non-inventory pin adds no command-to-seed edge');
+
+  const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+  assert.equal(result.status, 'plan', 'a free-form pin naming a non-inventory command must not stop the plan');
+  if (result.status !== 'plan') return;
+  assert.equal(result.effectiveTier, 'repository-full');
+  assert.ok(
+    reasonCodes(result).includes('pinned_command_non_inventory'),
+    'the classification must reach the operator as a glossed escalation reason',
+  );
+  assert.deepEqual(
+    result.selectedUnitIds,
+    result.universe.map((unit) => unit.id),
+    'nothing may be omitted on a non-inventory pin account: that is why it is allowed not to stop',
+  );
+  assert.ok(result.selectedUnitIds.length > 0);
+});
+
+// ---------------------------------------------------------------------------
 // (30) EXHAUSTIVE BRANCH COVERAGE (load-bearing).
 //      `story-fast` and `story-intermediate` are never returned as an EFFECTIVE
 //      tier. This is proven by sweeping the resolver's whole input space, not by
@@ -1643,7 +1749,7 @@ testCase('no input in the resolver space yields a reduced effective tier', () =>
   const observedStatuses = new Set<string>();
   const observedReasons = new Set<string>();
   let combinations = 0;
-  const unresolvablePin = [
+  const nonInventoryPin = [
     checklistItem({
       id: 'CHK-001',
       verificationEvidence: [
@@ -1651,11 +1757,31 @@ testCase('no input in the resolver space yields a reduced effective tier', () =>
       ],
     }),
   ];
+  const unresolvableIdPin = [
+    checklistItem({
+      id: 'CHK-001',
+      verificationEvidence: [
+        {
+          intentRef: 'CHK-001:happy:0',
+          kind: 'integration_test',
+          commandId: 'gone-suite',
+          command: 'npm run gone',
+          result: 'pass',
+          note: 'fixture evidence',
+        },
+      ],
+    }),
+  ];
+  const pinKinds = {
+    none: [] as ChecklistItem[],
+    'legacy-non-inventory': nonInventoryPin,
+    'unresolvable-id': unresolvableIdPin,
+  };
 
   for (const requestedTier of VALIDATION_TIERS) {
     for (const sourceKind of SOURCE_KINDS) {
       for (const changedFilesReadable of [true, false]) {
-        for (const withPin of [true, false]) {
+        for (const pinKind of Object.keys(pinKinds) as Array<keyof typeof pinKinds>) {
           for (const emptyUniverse of [true, false]) {
             combinations += 1;
             const result = planFor(requestedTier, {
@@ -1663,7 +1789,7 @@ testCase('no input in the resolver space yields a reduced effective tier', () =>
                 sourceKind,
                 commands: sourceKind === 'no-validator' || emptyUniverse ? [] : RELEVANCE_COMMANDS,
               },
-              checklist: { items: withPin ? unresolvablePin : [] },
+              checklist: { items: pinKinds[pinKind] },
               readers: {
                 changedFileStatuses: changedFilesReadable
                   ? statusReader({ 'src/core/foo.ts': 'M' })
@@ -1692,9 +1818,15 @@ testCase('no input in the resolver space yields a reduced effective tier', () =>
     }
   }
 
-  assert.equal(combinations, 96, 'the sweep must cover the full cartesian product');
+  assert.equal(combinations, 144, 'the sweep must cover the full cartesian product');
   assert.deepEqual([...observedStatuses].sort(), ['no-tier-pass', 'plan', 'stop']);
-  for (const expected of ['impact_index_unusable', 'command_exclusion_unproven', 'changed_files_unavailable', 'source_kind_atomic']) {
+  for (const expected of [
+    'impact_index_unusable',
+    'command_exclusion_unproven',
+    'changed_files_unavailable',
+    'source_kind_atomic',
+    'pinned_command_non_inventory',
+  ]) {
     assert.ok(observedReasons.has(expected), `the sweep never exercised ${expected}`);
   }
 });
@@ -2385,7 +2517,9 @@ const DONEWHEN_COVERAGE: Array<{ item: string; doneWhen: string; cases: string[]
   { item: 'CHK-002', doneWhen: 'exact-id, legacy-exact, missing and ambiguous paths each have a fixture', cases: [
     'an exact commandId match resolves and is recorded as a declared-id resolution',
     'a legacy string matching exactly one command records legacy-exact and the normalized-tuple digest',
-    'a legacy string matching nothing stops as pinned_command_missing with no plan',
+    'an unknown commandId stops as pinned_command_missing and produces no binding',
+    'an explicit unresolvable commandId still stops while an unresolvable legacy string does not',
+    'a legacy string matching nothing is a non-inventory evidence command, not a stop',
     'two commands with identical normalized tuples stop as pinned_command_ambiguous listing every candidate',
   ] },
   { item: 'CHK-002', doneWhen: 'a label difference alone does not break an otherwise ambiguous tie', cases: [
