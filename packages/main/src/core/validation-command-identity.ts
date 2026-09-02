@@ -548,9 +548,18 @@ export function resolveValidationCommandPin(args: {
   const targetDigest = completeValidationCommandTupleDigest(target);
   const matches = args.universe.entries.filter((entry) => entry.normalizedTupleDigest === targetDigest);
 
-  // 3. Exactly one match binds. 4. Zero is a stop. 5. Two or more is a stop
-  //    listing EVERY candidate — labels and array order can never break the tie,
-  //    because neither is an input to the comparison above.
+  // Three outcomes, decided by the digest comparison alone (labels and array
+  // order are never inputs, so neither can break a tie):
+  //   3. Exactly one match BINDS (`resolved`, pinResolution `legacy-exact`).
+  //   4. Zero matches is NOT a stop: it is `non-inventory`. The string is a real
+  //      command that simply is not a member of this project's validation
+  //      inventory, so it binds to nothing, narrows nothing, and the planner
+  //      widens to the full repository set. This is the B-a745 F-001 decision
+  //      (the widening matrix stops only an EXPLICIT unresolvable commandId;
+  //      the spec's resolver step that read "zero is a stop" was superseded and
+  //      is filed with the spec owner B-ccf4 to reconcile).
+  //   5. Two or more matches is a stop (`pinned_command_ambiguous`) listing
+  //      EVERY candidate.
   if (matches.length === 1) {
     return {
       status: 'resolved',
