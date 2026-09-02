@@ -269,6 +269,26 @@
         "scanEscalationReason": null
       },
       "_hash": "c4328d0da346a90ad021b6a096ba5b42b8d40559fcf1163ec4bab0df545a66be"
+    },
+    {
+      "id": "B-fe8f:RP-010",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 7 quality re-review. Only material change since RP-005 (per review_incremental_context) is commit 4b9eab2b5f in packages/main/src/tasks/finding-ledger-runtime-smoke.ts: assertVersionSync's green.version_sync PASS log line reverts to the literal pinned token installedCli=true (required by the CHK-006:happy:5 pinned selector) and appends a new installedState=<bumped|main-checkout-pending-merge> diagnostic suffix. Confirmed the underlying assertion is byte-unchanged: assert.ok(installedVersion === expected || installedVersion === previous, ...) is identical before/after; only the console.log template changed, and installedCli=true is a truthful restatement of that same assertion (not a fabricated claim) while installedState still communicates which of the two legitimate versions was observed. Byte-verified dist without mutating the worktree: git archive HEAD into an external scratch copy, symlinked the worktree's existing node_modules (read-only) into that copy, built there, and diff -rq against the worktree's packages/main/dist showed zero differences end-to-end. Ran node packages/main/dist/tasks/finding-ledger-runtime-smoke.js directly (read-only, no rebuild in place) and confirmed the live line reads exactly: green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=main-checkout-pending-merge, plus the full green.story3_matrix: PASS / Finding ledger integrity: PASS / Runtime evidence integrity: PASS. git status remained clean after the run (no stray writes). No blocking finding; the fix is genuine and narrowly scoped to restoring the pinned selector token without weakening the assertion.",
+      "createdAt": "2026-09-02T12:20:56.602Z",
+      "reviewRound": "2026-09-02T12:16:39.339Z",
+      "reviewRunId": "B-fe8f:RR-024",
+      "envelopeId": "5f79e71ec6fcf64b76e23c1a4faebc4942b4341b07b4d04bb7cc68c76d2937ad",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5de70c15ee1cd9333e4f254447bccc3520e885d5ef369362eeba37c400d64a95"
     }
   ]
 }
