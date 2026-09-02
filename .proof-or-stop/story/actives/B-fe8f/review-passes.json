@@ -116,6 +116,37 @@
         "scanEscalationReason": null
       },
       "_hash": "495a7e7e7facac0e862646f6939005f4013b26082755fac83f387d132be6975d"
+    },
+    {
+      "id": "B-fe8f:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round-6 re-review after main merge + identity cutover. All 71 must-priority verificationIntents across CHK-001..CHK-006 map to verificationEvidence with result=pass, no waivers/fails. Both pinned commands (red-bfe8f-ledger-runtime-integrity.mjs, finding-ledger-runtime-smoke.js) independently re-executed live in this session and pass (RED exit 0; smoke 85 PASS lines exit 0). Audited F-013 remedy (assertCleanPackInstall still discriminates a broken publishable package via real npm pack/offline-install/exact-dependency/CLI-execution assertions) and the new assertVersionSync worktree-aware installedCli branch (fc45b02966) which is a truthful fix, not a coverage weakening: it only loosens the ambient global-CLI check (verified empirically installed CLI is genuinely main-checkout 0.3.270 pre-merge) while F-013s actual remedy, the strict clean-pack CLI version assertion, remains unchanged. Confirmed F-017 (finding.lifecycle_mirror_shadow_refused) and F-018 (ledger.idempotency_digest_relabel_refused) each have committed assert.equal/assert.throws checks tied to the actual fix code (store.ts readFindings ledger-authoritative projection; finding-ledger.ts isExactSignedReplayBinding signed exactRequestDigest check) that would fail if those fixes were reverted.",
+      "createdAt": "2026-09-02T08:22:53.607Z",
+      "reviewRound": "2026-09-02T08:08:26.916Z",
+      "reviewRunId": "B-fe8f:RR-018",
+      "envelopeId": "1dfe861b010a5b4d15ec7d1105cbf466cfdf8be0cbcc58479bbd69679bcd2e88",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9832ab219d6a7f878d3fb751c330c461ff250b819861f6bc2f44b871354429eb"
     }
   ]
 }
