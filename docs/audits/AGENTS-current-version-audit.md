@@ -12,7 +12,9 @@ verifier.
 - Final SHA-256: `fa8df6daa294a3610f26ade2576e5312478cd9503fe1975d3000157854f0dc15`
 - Baseline structural inventory digest: `be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d`
 - Final structural inventory digest: `ae2a5830f98a3073fbea26eae23a1ca8e1518ebb0e9b1fdef6a44a1a95a839e7`
-- Final normative-sentence digest: `5650ef93ae56c99e10d0c804328cb8cdb8d6ec7c05ddddbe5796e2c37dcb85dc`
+- Final complete-prose digest: `8cc430cfe5e2750bc37dfcd8b9206f8a5c42a31fe712d8f027836858403cdfaf`
+- Immutable reviewed AGENTS SHA-256 in the verifier:
+  `fa8df6daa294a3610f26ade2576e5312478cd9503fe1975d3000157854f0dc15`
 
 Run one row with `node tests/AGENTS.verify.mjs --baseline --row=A01` or
 `node tests/AGENTS.verify.mjs --final --row=A01`. Baseline rows deliberately
@@ -20,36 +22,81 @@ print RED and exit 1. Final rows print GREEN and exit 0. Run all final proof,
 including command, structure, semantic, runtime, Unicode, and managed-template
 checks, with `node tests/AGENTS.verify.mjs --final`.
 
+## Independent Claude CLI and Agy CLI provenance
+
+These two external audits were read-only discovery inputs. They did not replace
+the local source, built command catalog, per-command help, state machine, or gate
+behavior: repository-local implementation remains the behavior authority. Raw
+vendor findings were reconciled by the Story owner against local executable
+evidence, so raw counts and supportable counts are intentionally reported
+separately.
+
+- Claude: `/opt/homebrew/bin/claude`, Claude Code 2.1.258, model
+  `claude-opus-5`, session `3a540dc1-9ecd-45af-bafb-78845401177b`. The exact
+  transcript is
+  `/Users/jek/.claude/projects/-Users-jek-Documents-GitHub-Prooforstop--worktrees-B-d854/3a540dc1-9ecd-45af-bafb-78845401177b.jsonl`,
+  SHA-256
+  `1cd25e48b697df884252a65b08c9eda602e4ce5bd4f6b3ec537899588030b0f7`.
+  Its first record contains the exact prompt: read-only, claim-by-claim coverage
+  of the entire root guide; repository-local 0.3.270 CLI/source/help, lifecycle,
+  gates, prompts/assets, config, examples, paths, versions, and translation were
+  in scope. It inventoried 34/34 sections and 262 material claims. Its raw vendor
+  verdict contained 33 raw FAIL findings (2 critical, 8 high, 12 medium, 11 low).
+  Owner reconciliation retained 26 supportable findings, rejected or weakened
+  5, and treated 2 as conditional. The transcript is machine-local and not
+  repository-portable; its exact path plus content hash makes the available copy
+  reproducible and tamper-evident.
+- Agy: `/Users/jek/.local/bin/agy`, Agy CLI 1.1.23, conversation
+  `f48bd033-f9a7-4198-8ad2-638be9d122ff`. The exact invocation was
+  `agy --print "$(cat /tmp/B-d854-agy-agents-audit-prompt.txt)" --mode plan --sandbox --dangerously-skip-permissions --output-format json --print-timeout 10m`;
+  it returned `SUCCESS` in 465.638154 seconds. The prompt SHA-256 was
+  `6e022d8eebd7235a521f3a764e13ccf107ad8bdd889f0dfac5177624e35c121a`
+  and required the same exhaustive read-only current-version, command, lifecycle,
+  gate, adapter, and English/encoding audit. Exact captured JSON stdout is stored
+  at ordinal 953 of
+  `/Users/jek/.codex/sessions/2026/09/01/rollout-2026-09-01T23-50-54-01a05f2b-162b-7c42-b1c4-9ca08a0d6957.jsonl`.
+  The immutable captured stdout is 38,164 bytes with SHA-256
+  `b4e930f908b5723acdfc7c24538c5081baeaf05fc50aac03a986f1018cd7f7ed`.
+  Agy returned 13 raw findings; owner reconciliation retained 11 supportable.
+  The containing Codex transcript can continue growing, so its whole-file hash is
+  deliberately not the identity; ordinal, byte length, and captured-string hash
+  identify the immutable output. Availability is machine-local.
+
 ## Claim-by-claim audit
 
-| ID | Original baseline location and claim | RED command, salient output, exit | Authoritative source with exact lines | Final AGENTS section and claim | GREEN command, salient output, exit |
-|---|---|---|---|---|---|
-| A01 | `219a567^:AGENTS.md:1-14`: the managed marker wrapped the large local guide instead of the current global-thin template. | `node tests/AGENTS.verify.mjs --baseline --row=A01` -> `ROW A01 RED`; exit 1. | `packages/main/src/init-assets.ts:111-125`, `AGENTS_MD_GLOBAL_THIN_TEMPLATE`. | `Proof-or-Stop`: exact managed block, extended English guidance outside the markers. | `node tests/AGENTS.verify.mjs --final --row=A01` -> `ROW A01 GREEN`; exit 0. |
-| A02 | `219a567^:AGENTS.md:25`: prohibited direct access under the obsolete `docs/story/` path. | Baseline row A02 -> RED; exit 1; stale path matched. | `proof-or-stop.config.json:7`, current `storyDir`. | `Working rules`: state path is `.proof-or-stop/story/actives`; mutations use CLI. | Final row A02 -> GREEN; exit 0. |
-| A03 | `219a567^:AGENTS.md:26`: referenced a user-value section that did not exist. | Baseline row A03 -> RED; exit 1; dangling reference matched. | `packages/main/src/cli/command-catalog.ts:440-471`, current `userSees` and checklist contract. | `Working rules`: engineering and product completion are stated directly, without a dangling section. | Final row A03 -> GREEN; exit 0. |
-| A04 | `219a567^:AGENTS.md:17`: claimed the global CLI had only core commands and auxiliary commands needed bootstrap. | Baseline row A04 -> RED; exit 1; obsolete core-only claim matched. | `packages/main/src/cli/command-catalog.ts:1327-1334`, registered `aux_doc_list`; repository-local help also lists the auxiliary family. | `Working rules`: registered repository-local `aux_*` commands are available. | Final row A04 -> GREEN; exit 0. |
-| A05 | `219a567^:AGENTS.md:237-243`: Story creation example omitted the required four-section background. | Baseline row A05 -> RED; exit 1; incomplete example matched. | `packages/main/src/cli/command-catalog.ts:298` and `packages/main/src/handlers/story-create.ts:752-840`. | `Story creation and INIT` plus `Preserved current command examples`: background names, bounds, trigger identity, and a schema-valid example. | Final row A05 -> GREEN; exit 0. |
-| A06 | `219a567^:AGENTS.md:237`: said a checklist-bearing Story stopped in PLAN. | Baseline row A06 -> RED; exit 1; stale PLAN claim matched. | `packages/main/src/handlers/story-create.ts:1124-1125`, normal creation stops in INIT. | `Story creation and INIT`: creation conservatively stops in INIT. | Final row A06 -> GREEN; exit 0. |
-| A07 | `219a567^:AGENTS.md:243` and `:106-114`: contradictory worktree timing included a PLAN-to-DEV creation claim. | Baseline row A07 -> RED; exit 1; contradictory timing condition held. | `packages/main/src/core/lifecycle-registry.ts:142-161`, INIT to INIT_CHECK effect and PLAN cwd gate. | `INIT_CHECK and worktrees`: INIT to INIT_CHECK creates the worktree; entering PLAN enforces cwd. | Final row A07 -> GREEN; exit 0. |
-| A08 | `219a567^:AGENTS.md:142-145`: said owner lease, takeover UX, and session rendering were not implemented. | Baseline row A08 -> RED; exit 1; unimplemented claim matched. | `packages/main/src/cli-engine.ts:531` and `:1412-1446`, takeover fields and lease gate. | `Session ownership and write coordination`: implemented lease plus stale/forced takeover boundaries. | Final row A08 -> GREEN; exit 0. |
-| A09 | `219a567^:AGENTS.md:79-89`: described INIT_CHECK as automatic CLI work without both reviewers or six artifacts. | Baseline row A09 -> RED; exit 1; automatic-only table matched. | `packages/main/src/core/init-check-gate.ts:59-118` and `packages/main/src/core/lifecycle-registry.ts:142-149`. | `Story creation and INIT`: both independent reviewers, all six artifacts, `init_preflight`, and controlled `init_check_repair` fallback. | Final row A09 -> GREEN; exit 0. |
-| A10 | `219a567^:AGENTS.md:252-254,438-473,559`: runnable examples used removed conversational test-intent mutations. | Baseline row A10 -> RED; exit 1; retired identifiers matched. | `packages/main/src/cli/command-catalog.ts:421-424`, current handoff command; the removed mutations are absent from `MAIN_TOOLS`. | `Codex, Claude, and subagent assets`: current verification-intent flow; retired mutations are unavailable and not runnable. | Final row A10 -> GREEN; exit 0. |
-| A11 | `219a567^:AGENTS.md:484`: required total issue count to be zero. | Baseline row A11 -> RED; exit 1; zero-total criterion matched. | `packages/main/src/handlers/story-review.ts:635-706`, advisories remain issues while `blockerCount` is computed separately. | `PLAN artifacts and gate`: `blockerCount` is zero; advisories may remain. | Final row A11 -> GREEN; exit 0. |
-| A12 | `219a567^:AGENTS.md:73-75`: named a quick skip without its bounded eligibility or remaining gates. | Baseline row A12 -> RED; exit 1; unbounded quick wording matched. | `packages/main/src/core/machine.ts:753-757` and `:1275-1348`, quick-path and gate checks. | `PLAN artifacts and gate`: optional only when CLI-eligible; scope, intent, ownership, memory, and policy still apply. | Final row A12 -> GREEN; exit 0. |
-| A13 | `219a567^:AGENTS.md:237,297-311`: described checklist creation as title and context only. | Baseline row A13 -> RED; exit 1; narrow-field claim matched. | `packages/main/src/cli/command-catalog.ts:245-298` and `:440-471`. | `Story creation and INIT` and `PLAN artifacts and gate`: current `relatedDocs`, `userSees`, `excludes`, files, and intent fields. | Final row A13 -> GREEN; exit 0. |
-| A14 | `219a567^:AGENTS.md:569-572`: instructed agents to fix all nearby and infrastructure defects in the current Story. | Baseline row A14 -> RED; exit 1; unbounded-scope wording matched. | User rule recorded on 2026-09-02 for B-d854; this is the controlling scope instruction. | `Defect triage and bounded scope`: blocking/high defects now; evidenced medium/low nonblockers deferred with ownership. | Final row A14 -> GREEN; exit 0. |
-| A15 | `219a567^:AGENTS.md:63`: required every pass to point at the latest lane run. | Baseline row A15 -> RED; exit 1; latest-only pass claim matched. | `packages/main/src/core/review-run.ts:1444-1461`, non-latest current-round fresh PASS is allowed; findings retain latest-run rejection. | `Two-layer process-fact contract`: exact PASS/finding nuance. | Final row A15 -> GREEN; exit 0. |
-| A16 | `219a567^:AGENTS.md:260-263`: showed caller-authored executable evidence through `checklist_update`. | Baseline row A16 -> RED; exit 1; raw evidence pattern matched. | `packages/main/src/handlers/checklist.ts:574-619` and `:1774-1879`, tool-owned execution and receipt path. | `DEV and checklist discipline`: immutable command/selector pin, actual execution, derived result, and receipt. | Final row A16 -> GREEN; exit 0. |
-| A17 | `219a567^:AGENTS.md:207-222`: described prompt files and Bash without current dispatch target cardinality. | Baseline row A17 -> RED; exit 1; current dispatch claim absent. | `packages/main/src/core/agent-dispatch-registry.ts:45-115`. | `REVIEW and independent agents`: `dispatch` validates registered role and story/item/finding/cluster target. | Final row A17 -> GREEN; exit 0. |
-| A18 | `219a567^:AGENTS.md:207-222`: treated materialized local prompt files as the primary current model. | Baseline row A18 -> RED; exit 1; old prompt-path model matched. | `packages/main/src/handlers/agent-prompt.ts:5-12` and `packages/main/src/init-assets.ts:228`. | `REVIEW and independent agents`: `agent_prompt` returns canonical registry render and body-free reviewer bootstrap. | Final row A18 -> GREEN; exit 0. |
-| A19 | `219a567^:AGENTS.md:79-89,161-169`: named coverage review but omitted current read-only reviewer launch planning. | Baseline row A19 -> RED; exit 1; current planner absent. | `packages/main/src/handlers/reviewer-batch.ts:32-40,141-165`. | `REVIEW and independent agents`: `reviewer_batch` is read-only and launches/writes nothing. | Final row A19 -> GREEN; exit 0. |
-| A20 | `219a567^:AGENTS.md:161-169`: human/agent balance prose omitted current cross-host quorum prerequisites and drift behavior. | Baseline row A20 -> RED; exit 1; quorum claim absent. | `packages/main/src/cli/command-catalog.ts:3080-3096` and `packages/main/src/core/command-policy.ts:516`. | `REVIEW and independent agents`: status first, current passes required, valid standing quorum and prompt-envelope distinction. | Final row A20 -> GREEN; exit 0. |
-| A21 | `219a567^:AGENTS.md:70-160`: lifecycle prose mixed current, legacy, and incomplete gates. | Baseline row A21 -> RED; exit 1; the verifier treats the old unqualified lifecycle as RED. | `packages/main/src/core/lifecycle-registry.ts:142-230`, including DEV to REVIEW and REVIEW to TEST. | `Story lifecycle`: complete current phase table and phase-specific gate responsibilities. | Final row A21 -> GREEN; exit 0. |
-| A22 | `219a567^:AGENTS.md:93-98,133-134`: treated porcelain dirtiness as one class and deferred metadata handling to a placeholder. | Baseline row A22 -> RED; exit 1; unclassified dirty rule matched. | `packages/main/src/handlers/done-prepare.ts:1157-1175,1844-1952,2253-2416`. | `Git cleanliness and drift classification`: consumer-specific material, Story, and metadata classifications. | Final row A22 -> GREEN; exit 0. |
-| A23 | `219a567^:AGENTS.md:122`: required a manual patch bump after every runtime Story. | Baseline row A23 -> RED; exit 1; manual-bump instruction matched. | `packages/main/src/core/version-bump.ts:351-390`, DONE post-merge auto-bump and skip path. | `TEST and DONE`: DONE effect auto-bumps watched inputs and skips documentation-only work. | Final row A23 -> GREEN; exit 0. |
-| A24 | `219a567^:AGENTS.md:133-134`: retained `B-9dfb once merged` as an unresolved future placeholder. | Baseline row A24 -> RED; exit 1; placeholder matched. | `packages/main/src/handlers/done-prepare.ts:287-300,2253-2416`, current clean-tree handling. | `Git cleanliness and drift classification`: current commands classify dirtiness; no future placeholder remains. | Final row A24 -> GREEN; exit 0. |
-| A25 | `219a567^:AGENTS.md:388-394`: documented only two options or a one-option cons exception. | Baseline row A25 -> RED; exit 1; complete current empty-options exception absent. | `packages/main/src/handlers/decision.ts:53-69`, `options: []` rationale floor and one-option exclusion rule. | `PLAN artifacts and gate`: both current exceptions are stated exactly. | Final row A25 -> GREEN; exit 0. |
-| A26 | `219a567^:AGENTS.md:276-280,493-565`: legacy runner examples omitted real-run confirmation and subagent guidance used old prompt conventions. | Baseline row A26 -> RED; exit 1; unsafe/old combination matched. | `packages/main/src/cli/command-catalog.ts:886-892`, `packages/main/src/core/command-policy.ts:243`, and current agent registry. | `Legacy fixture compatibility` plus `Codex, Claude, and subagent assets`: `--dryRun`, explicit `--confirm`, and host-orchestrated current agents. | Final row A26 -> GREEN; exit 0. |
+`M01` through `M24` are the original 24 major issues in their original order;
+`L01` and `L02` are the two separately reported low-priority issues. Exactly one
+mechanical row owns each source issue. A row may use multiple conjunctive stale
+predicates, but no source issue is split or merged merely to reach a row count.
+
+| ID | Source issue | Original baseline location and exact defect | RED command, salient output, exit | Authoritative source | Final AGENTS correction | GREEN command, salient output, exit |
+|---|---|---|---|---|---|---|
+| A01 | M01 | `:1-14`: managed marker wrapped the obsolete large guide. | `--baseline --row=A01` -> `ROW A01 RED sourceIssue=M01`; exit 1; obsolete managed heading matched. | `packages/main/src/init-assets.ts:111-125` | Exact current global-thin block; repository additions are outside it. | `--final --row=A01` -> GREEN; exit 0. |
+| A02 | M02 | `:26`: prohibited the obsolete `docs/story/` path. | Row A02 RED; exact obsolete target matched; exit 1. | `proof-or-stop.config.json:7` | `.proof-or-stop/story/actives`; writes/mutations use CLI, bounded reviewer reads are explicit. | Row A02 GREEN; exit 0. |
+| A03 | M03 | `:27`: dangling user-value acceptance section reference. | Row A03 RED; reference matched; exit 1. | `command-catalog.ts:440-471` | Product completion rule is stated directly with `userSees`. | Row A03 GREEN; exit 0. |
+| A04 | M04 | `:18,295`: global CLI described as core-only and aux as bootstrap-only. | Row A04 RED; core-only predicate matched; exit 1. | `command-catalog.ts:1327-1334` plus local help | Registered repository-local aux commands are current. | Row A04 GREEN; exit 0. |
+| A05 | M05 | `:237-238`: `story_create` example lacks required four-section background. | Row A05 RED; incomplete invocation present and background absent; exit 1. | `story-create.ts:752-840` | Four named sections, per-section/total bounds, trigger identity, schema-valid example. | Row A05 GREEN; exit 0. |
+| A06 | M06 | `:238`: checklist `title`/`context` values are CJK although authoring rejects CJK before persistence. | Row A06 RED; exact CJK payload pair matched; exit 1. | `story-create.ts:744-750` | English authoring requirement plus all-English example. | Row A06 GREEN; exit 0. |
+| A07 | M07 | `:237`: checklist-bearing creation said it stops in PLAN. | Row A07 RED; exact stale PLAN comment matched; exit 1. | `story-create.ts:1124-1125` | Creation conservatively stops in INIT. | Row A07 GREEN; exit 0. |
+| A08 | M08 | `:243`: PLAN to DEV said to create the worktree. | Row A08 RED; exact transition claim matched; exit 1. | `lifecycle-registry.ts:142-161` | INIT to INIT_CHECK creates it; PLAN begins cwd enforcement. | Row A08 GREEN; exit 0. |
+| A09 | M09 | `:84`: INIT_CHECK described as automatic CLI work, omitting reviewers and six artifacts. | Row A09 RED; exact table cell matched; exit 1. | `init-check-gate.ts:59-118` | Both reviewers, six artifacts, preflight and bounded repair are stated. | Row A09 GREEN; exit 0. |
+| A10 | M10 | `:144`: owner lease/takeover/session rendering called unimplemented. | Row A10 RED; unimplemented predicate matched; exit 1. | `cli-engine.ts:531,1412-1446` | Implemented ownership and takeover boundaries. | Row A10 GREEN; exit 0. |
+| A11 | M11 | `:253,443,457,461`: retired `testintent_record`/`testintent_resume` are runnable. | Row A11 RED; retired identifier matched; exit 1. | `command-catalog.ts:421-424` | Current handoff/verification-intent flow; retired mutations unavailable. | Row A11 GREEN; exit 0. |
+| A12 | M12 | `:484`: PLAN acceptance requires `issueCount=0`. | Row A12 RED; exact criterion matched; exit 1. | `story-review.ts:635-706` | `blockerCount` zero; advisories may remain. | Row A12 GREEN; exit 0. |
+| A13 | M13 | `:484`: `story_review` stated as unconditional. | Row A13 RED; exact mandatory sentence matched; exit 1. | `machine.ts:753-757,1275-1348` | Quick channel can make adversarial review optional only when eligible. | Row A13 GREEN; exit 0. |
+| A14 | M14 | `:484-490`: PLAN-to-DEV guide lists only intent review and omits scope evidence/current gates. | Row A14 RED; old checklist present and `scope-check.json` absent; exit 1. | `machine.ts` PLAN gate and scope-check consumer | Signed independent scope evidence plus current prerequisites. | Row A14 GREEN; exit 0. |
+| A15 | M15 | `:237,309`: main agent fields limited to title/context/relatedDocs. | Row A15 RED; exact limitation matched; exit 1. | `command-catalog.ts:245-298,440-471` | Current `userSees`, `excludes`, files, intent and related fields. | Row A15 GREEN; exit 0. |
+| A16 | M16 | `:571-572`: ordered all nearby/infrastructure defects into the current Story. | Row A16 RED; both unbounded predicates matched; exit 1. | User-approved B-d854 scope rule | Critical/high/blockers now; evidenced nonblocking medium/low deferral. | Row A16 GREEN; exit 0. |
+| A17 | M17 | `:63`: every PASS/finding required the latest lane run. | Row A17 RED; latest-run predicate matched; exit 1. | `review-run.ts:1444-1461` | Fresh current-round PASS may be non-latest; finding remains latest-only. | Row A17 GREEN; exit 0. |
+| A18 | M18 | `:263`: caller-authored executable evidence through `checklist_update`. | Row A18 RED; exact raw evidence form matched; exit 1. | `checklist.ts:574-619,1774-1879` | Pinned execution, derived outcome, tool-owned receipt. | Row A18 GREEN; exit 0. |
+| A19 | M19 | `:207-221`: legacy Bash/prompt model omitted dispatch, agent prompt, roster/batch, lane opt-in/quorum surfaces. | Row A19 RED; legacy model present and all four current entrypoints absent; exit 1. | `agent-dispatch-registry.ts:45-115`, reviewer/quorum handlers | Current dispatch, canonical prompt, read-only batch, signed lanes/quorum. | Row A19 GREEN; exit 0. |
+| A20 | M20 | `:79-160`: DEV/REVIEW/TEST/DONE gate description was materially incomplete. | Row A20 RED; old TEST account present while the current acceptance-topology and delivery-check entrypoints are absent; exit 1. | `machine.ts` transition consumers | Full current Story lifecycle and gate prerequisites, including ProofStory, topology, delivery/summary/freshness. | Row A20 GREEN; exit 0. |
+| A21 | M21 | `:95-98,133-134`: any porcelain dirtiness was treated as one blocker while metadata-only handling was deferred to a future placeholder. | Row A21 RED; universal commit-first rule and exact metadata-only future placeholder both present; exit 1. | `done-prepare.ts:1157-1175,1844-1952` | Consumer-specific material/Story/metadata drift classification. | Row A21 GREEN; exit 0. |
+| A22 | M22 | `:122`: required manual patch bump after merge. | Row A22 RED; manual-bump predicate matched; exit 1. | `version-bump.ts:351-390` | DONE effect auto-bumps watched inputs; doc-only skips. | Row A22 GREEN; exit 0. |
+| A23 | M23 | `:134`: unresolved `B-9dfb once merged` placeholder. | Row A23 RED; exact placeholder matched; exit 1. | `done-prepare.ts` clean-tree handling | Current classification; never bypass `cleanTree`. | Row A23 GREEN; exit 0. |
+| A24 | M24 | `:390`: decision options documented only as two or one. | Row A24 RED; old rule present and empty-options exit absent; exit 1. | `decision.ts:53-69` | Current `options: []` rationale path and one-option exclusion path. | Row A24 GREEN; exit 0. |
+| A25 | L01 | `:278`: destructive `test_auto` shown bare, without confirmation. | Row A25 RED; exact bare command present and confirmed form absent; exit 1. | `command-catalog.ts:886-892` | Preview with `--dryRun`; every real run requires `--confirm`. | Row A25 GREEN; exit 0. |
+| A26 | L02 | `:207-219,564`: legacy materialized Markdown/frontmatter reviewer prompt is taught as current. | Row A26 RED; prompt directory, `test-case-reviewer`, and `model: sonnet` all matched; exit 1. | `agent-prompt.ts:5-12`, current registry | Canonical `agent_prompt`, body-free bootstrap, host orchestration; legacy names only aliases. | Row A26 GREEN; exit 0. |
 
 ## Structural translation accounting
 
@@ -98,7 +145,7 @@ stable because they come from the bound git object.
 - baseline table rows: 41; final table rows: 21
 - baseline blockquotes: 11; final blockquotes: 0. Every baseline blockquote was
   either ordinary explanatory prose or the stale future placeholder accounted in
-  A24; current content is rendered as normal prose.
+  A23; current content is rendered as normal prose.
 - baseline fence languages: `bash=5`, `json=7`, `markdown=1`, `plain=19`
 - final fence languages: `bash=7`, `json=2`, `plain=12`, `text=3`
 - HTML markers remain the current start/end pair.
@@ -112,17 +159,25 @@ counts cannot hide a technical-token substitution.
 
 ## Semantic and command mutation proof
 
-The normative digest binds every prose sentence containing `must`, `must not`,
-`never`, `only`, `current`, `legacy`, `advisory`, `blocking`, `phase`, `actor`, or
-`authority`. The verifier must reject all four representative mutations:
+The complete-prose digest binds every non-code prose unit, not only sentences
+selected by a normative-keyword allowlist. The verifier rejects all five
+representative lifecycle/authority mutations:
 
 - remote push prohibition inverted to permission;
 - advisory status changed to mandatory blocking status;
 - current/legacy qualifier erased;
 - DEV-only implementation changed to every-phase permission.
+- missing INIT reviewer evidence changed from never auto-invented to automatically
+  invented.
+
+The separate immutable reviewed-file SHA closes the mutable-audit loophole. Two
+explicit probes refresh the in-memory audit SHA and still reject an ASCII Spanish
+substitution and deletion of an ordinary baseline-derived architecture sentence.
 
 The command case ledger extracts every exact lowercase `proof-or-stop` invocation
-from Bash fences and inline code. Each full argv/payload is executed read-only,
-validated by the built `MAIN_TOOLS` Zod schema, or explicitly classified as a
-conceptual template. The unknown-command sentinel and malformed
-`story_get --storyId` invocation must both exit nonzero.
+from Bash fences and inline code. Every real command, including conceptual
+`aux_diagnose` and `test_fixture` examples, must resolve through its real `--help`;
+payloads are additionally executed read-only or validated by the built
+`MAIN_TOOLS` Zod schema. Dedicated unavailable-command mutations for both
+conceptual examples, the unknown-command sentinel, and malformed
+`story_get --storyId` invocation must all be rejected.
