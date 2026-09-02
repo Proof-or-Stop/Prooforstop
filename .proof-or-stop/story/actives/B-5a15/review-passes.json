@@ -13964,6 +13964,38 @@
         "scanEscalationReason": null
       },
       "_hash": "169fb014cbe8d38c9d6dd9e3f0eb6361891c301c74752760e2dbf9cbd24f75cb"
+    },
+    {
+      "id": "B-5a15:RP-297",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology/completeness critic for RI-067 wave 1. Independently recomputed the raw finding set from the review-inventory-epoch.ts:327-396 predicate rather than trusting the dispatch: ZERO. The dispatch claim that all findings are resolved is FACTUALLY WRONG (219 findings still carry status=open), but the conclusion is right for a different reason I verified: every open finding is bound to a review run from an EARLIER round (2026-08-20..2026-08-25), and isEligibleBaselineFinding requires run.reviewRound===epoch.reviewRound, so none is baseline-eligible. Live baseline recompute equals the signed baselineFindingIds ([]), so no baseline mismatch. Coverage: material set is 41 source files (git diff -M 09ff92e51d..678ed33aa5 excluding .proof-or-stop story metadata), matching the RI-066 figure I recomputed rather than accepted. 33 of 41 are absent from every RI-067 lane manifest, which alone is not a gap because this is an incremental re-attestation: I verified the source-restricted diff 829ed82a6b..678ed33aa5 is genuinely EMPTY using a firing positive control (the same command over 09ff92e51d..678ed33aa5 reports 32 files / 4037 insertions), so an aborted-glob false zero is excluded. Cumulative read coverage over the entire story history shows all 41 material files were read FULLY at some point, with zero never-read and zero triage-only, so no material region is unreviewed. RI-066 is FINALIZED on a byte-identical cutoff (materialHash 9009f784e0 AND storyFilesHash 119929430a) with a genuine 3-lane PASS under three distinct promptIdentities. The previously-found gap file certification-window-smoke.ts is present at the cutoff and retains its CHK-003 markers. Acceptance re-measured from frozen artifacts: 5 items, 53 intents, 53 evidence rows, 53 distinct intentRefs, all mechanical=true exitCode=0 selectorMatched=true result=pass on the single storyFilesHash 119929430a with 53 distinct outputDigests and executionKeys; CHK-004:happy:2 and :3 both present and matched; pre-review-check status=pass with zero codes. Post-freeze commits touch only review bookkeeping (process-events, prompt-envelopes, review-runs/passes, review-inventory-epochs), not material. COMPLETE, no unreviewed region, no finding filed.",
+      "createdAt": "2026-09-02T15:59:39.412Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-889",
+      "envelopeId": "3d3ec06d9563d6b803b15d86f7fea91d02c099e11e89d441df958721f86b574f",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d84fe35e1d50a6c4f0b7103437162d80de989888e77e5b3db54c869bc2e1cda"
     }
   ]
 }
