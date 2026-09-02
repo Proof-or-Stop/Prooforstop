@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-001",
+      "storyId": "B-41c8",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-02T20:48:03.275Z",
+      "updatedAt": "2026-09-02T20:48:03.275Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "Inventory receipt is not on the current storyFilesHash lineage.",
+      "inventory": {
+        "epochId": "B-41c8:RIE-001",
+        "receiptId": "B-41c8:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "9c09141691efbb68e835e023f18a0a3d5a535b4ccdff617e43b4a11129f8e937"
+    }
+  ],
+  "receipts": []
+}
