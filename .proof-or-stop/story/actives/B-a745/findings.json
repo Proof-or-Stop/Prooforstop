@@ -372,7 +372,7 @@
       "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2.] Codex (MAJOR as filed): 'Dirty worktree changes are omitted from relevance inputs. The hash snapshot records materialDirtyFiles, but seed collection only consumes committed main..HEAD statuses, and storyRelevanceSelectionDigest also omits materialDirtyFiles. During normal DEV work, modified or untracked source files therefore disappear from unclassified inputs and do not change the selection digest, so the plan does not bind or explain the actual worktree state.' OWNER VERIFICATION: correct as a description of current behaviour -- grep shows neither validation-relevance-input.ts, validation-tier-planner.ts nor handlers/validation-plan.ts references materialDirtyFiles, and the reason table declares workspace_snapshot_changed with a gloss that is never emitted. TRIAGE: this is Rollout Story 2 by the governing spec's own text (line 718: 'Add current-HEAD plus staged/unstaged/untracked overlay projection, double-read race detection, and exclusion-proof completeness') and is named in this story's recorded excluded scope ('worktree overlay and double-read race detection'). In Story 1 it cannot omit a command because nothing is ever pruned. Stated plainly rather than hidden behind scope: the explain output is currently SILENT about dirty state, which is an honesty gap for an explain-only tool. Deferred to the committed repository draft docs/story/drafts/planner-worktree-overlay-seeds (created via story_draft on main, commit 3750570004) which carries the seeds, digest binding, workspace_snapshot_changed escalation and fixtures.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-02T08:24:33.401Z",
@@ -382,7 +382,9 @@
         "packages/main/src/core/validation-relevance-input.ts"
       ],
       "signatureTag": "missing|ts|registered-story-owner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Deferred to Rollout Story 2 with an in-repository artifact, not dismissed as wrong: the finding accurately describes current behaviour (no reference to materialDirtyFiles in collector, planner or handler; workspace_snapshot_changed is declared but never emitted). The governing spec assigns staged/unstaged/untracked overlay projection to Rollout Story 2 (line 718) and this story's recorded excluded scope names it; Story 1 never prunes, so the omission cannot drop a command. The honesty gap -- an explain-only planner silent about dirty state -- is acknowledged, not waved away, and is the first checklist item of the committed draft docs/story/drafts/planner-worktree-overlay-seeds (main commit 3750570004), listed by story_draft_list. Downgraded from MAJOR because no pruning is possible under any Story 1 path; if later evidence shows a Story 1 consumer acting on the digest as if it bound worktree state, pull it back immediately.",
+      "dismissedAt": "2026-09-02T08:24:50.731Z"
     }
   ]
 }
