@@ -1525,7 +1525,63 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       tamperedCarrier.records.find((candidate) => candidate.recordId === runtimeRecordId)!,
       queryTrust,
     ), false);
-    console.log('runtime.carrier_trust_chain: PASS callerResign=reject tamperedCarrier=reject zeroAuthority=true');
+    const missingSignedDigestLedger = structuredClone(persistedLedger) as typeof persistedLedger & {
+      receipts: Array<Record<string, unknown>>;
+    };
+    const missingSignedDigestCarrier = missingSignedDigestLedger.receipts.find((candidate) => (
+      (candidate.recordIds as string[]).includes(runtimeRecordId)
+    ))! as unknown as Record<string, unknown>;
+    const signedRuntimeCarrier = missingSignedDigestCarrier.findingLedgerReceipt as
+      ReturnType<typeof signFindingLedgerReceipt>;
+    const {
+      exactRequestDigest: _exactRequestDigest,
+      receiptHash: _receiptHash,
+      signature: _signature,
+      ...legacySignedRuntimeCarrier
+    } = signedRuntimeCarrier;
+    const resignedRuntimeCarrier = signFindingLedgerReceipt(legacySignedRuntimeCarrier, querySigner);
+    missingSignedDigestCarrier.findingLedgerReceipt = resignedRuntimeCarrier;
+    assert.equal(typeof missingSignedDigestCarrier.exactRequestDigest, 'string');
+    assert.equal(resignedRuntimeCarrier.exactRequestDigest, undefined);
+    assert.equal(verifyFindingLedgerReceipt(resignedRuntimeCarrier, queryTrust), true);
+    try {
+      writeFileSync(
+        store.findingLedgerPath(storyId),
+        `${JSON.stringify(missingSignedDigestLedger, null, 2)}\n`,
+      );
+      const legacyQueryOnly = runRuntimeCli(repositoryRoot, root, 'finding_ledger_query', { storyId }, signingEnv);
+      assert.equal(
+        legacyQueryOnly.status,
+        0,
+        `legacy-shaped signed receipt must remain queryable: ${legacyQueryOnly.stderr}\n${legacyQueryOnly.stdout}`,
+      );
+      const missingSignedDigestVerify = runRuntimeCli(
+        repositoryRoot,
+        root,
+        'finding_runtime_evidence_verify',
+        verifyArgs,
+        signingEnv,
+      );
+      assert.notEqual(
+        missingSignedDigestVerify.status,
+        0,
+        'runtime verify must refuse a current-key signed carrier without a signed exactRequestDigest',
+      );
+      assert.match(
+        `${missingSignedDigestVerify.stdout}\n${missingSignedDigestVerify.stderr}`,
+        /runtime receipt carrier trust chain is invalid/,
+      );
+      assert.equal(verifyRuntimeReceiptCarrier(
+        missingSignedDigestLedger,
+        storyId,
+        missingSignedDigestLedger.records.find((candidate) => candidate.recordId === runtimeRecordId)!,
+        queryTrust,
+      ), false);
+    } finally {
+      writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(persistedLedger, null, 2)}\n`);
+    }
+    console.log('runtime.carrier_signed_exact_request_digest: PASS verify=refused legacyQuery=accepted');
+    console.log('runtime.carrier_trust_chain: PASS callerResign=reject tamperedCarrier=reject missingSignedExactRequestDigest=reject zeroAuthority=true');
     let refusedQueries = 0;
     const expectRefusal = (candidate: typeof persistedLedger): void => {
       assert.throws(() => queryFindingLedger(candidate, storyId, querySigner));

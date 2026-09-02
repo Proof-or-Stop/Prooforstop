@@ -1367,8 +1367,8 @@ export function verifyRuntimeReceiptCarrier(
       || receipt.writerFenceToken !== carrier.writerFenceToken
       || receipt.committedAt !== carrier.committedAt
       || receipt.replayed !== false
-      || (receipt.exactRequestDigest !== undefined
-        && receipt.exactRequestDigest !== carrier.exactRequestDigest)
+      || typeof receipt.exactRequestDigest !== 'string'
+      || receipt.exactRequestDigest !== carrier.exactRequestDigest
       || !receipt.recordIds.includes(record.recordId)
       || receipt.priorLedgerDigest !== record.priorDigest
       || receipt.committedLedgerDigest !== canonicalHash(ledger.records.slice(0, recordIndex + 1))
