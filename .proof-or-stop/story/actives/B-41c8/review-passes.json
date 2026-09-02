@@ -171,6 +171,39 @@
         "scanEscalationReason": null
       },
       "_hash": "8008e0069a60c1d97138dd603709e81761eb514cb2d74b9a99b8cc0ea3ee1493"
+    },
+    {
+      "id": "B-41c8:RP-007",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 quality sweep. Verified F-013 mutation-tested; full diff read across core/handlers files; tsc clean.",
+      "createdAt": "2026-09-02T17:01:06.475Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "reviewRunId": "B-41c8:RR-017",
+      "envelopeId": "68d6f58650fb08e73773d60289b6e0cbdd482f51093594a170671d12f13def6d",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "beb90bb9e4d9e1408c020149c8d6114273dc4471bc13aaa61f998ecaee52e52a"
     }
   ]
 }
