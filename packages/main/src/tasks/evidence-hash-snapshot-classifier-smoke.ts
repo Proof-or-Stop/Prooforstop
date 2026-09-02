@@ -72,9 +72,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
+  EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON,
   EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS,
   EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
   captureEvidenceHashSnapshot,
+  checkEvidenceFreshnessForGit,
   classifyEvidenceHashSnapshot,
   tryCaptureEvidenceHashSnapshot,
   type EvidenceHashSnapshot,
@@ -440,6 +442,43 @@ try {
       assert.equal(brief.includes('\n## DONE pre-check\n'), false, 'the normal section is replaced by the disclosure, not printed alongside it');
       assert.ok(brief.includes('TEST phase, DONE pre-check unavailable: '), `next step must disclose the unavailable pre-check:\n${brief}`);
       assert.equal(brief.includes('--phase=DONE to complete the story'), false, 'DONE must not be recommended while the pre-check is unavailable');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+      resetConfigCache();
+    }
+  });
+
+  // ── evidence-freshness (F-001): readable HEAD + underivable materialHash ──
+  // B-83aa:F-001 — the `if (!materialBinding.complete)` fail-closed branch of
+  // checkEvidenceFreshnessForGit was never driven by a registered test: the red
+  // script's C2 only reaches the unborn/!currentHead branch and the dangling-head
+  // fixture above only drives session_brief. Reverting that branch to `if (false)`
+  // left both pinned suites green. This case calls the function directly on the
+  // dangling-head fixture (HEAD resolves, `git ls-tree` fails) with an evidence
+  // materialHash set, and pins the fail-closed result: fresh=false, the reason
+  // names materialHash, no currentMaterialHash, and the result is NOT the head
+  // comparison fall-through (the pre-fix behaviour, which would report the
+  // matching FAKE_HEAD as `evidence corresponds to current HEAD`).
+  testCase('evidence-freshness (FAIL CLOSED): readable HEAD + underivable materialHash -> checkEvidenceFreshnessForGit reports fresh=false naming materialHash, never the head-comparison fall-through', () => {
+    const { root } = danglingHeadRepo(STORY_ID);
+    try {
+      assert.throws(() => git(root, ['ls-tree', '-r', 'HEAD']), 'fixture sanity: `git ls-tree HEAD` must fail on the dangling sha');
+      const result = checkEvidenceFreshnessForGit(root, FAKE_HEAD, FAKE_MATERIAL, root);
+      assert.equal(result.fresh, false, `evidence bound to a materialHash that cannot be re-derived must not be fresh: ${result.reason}`);
+      assert.ok(/materialHash/.test(result.reason), `reason must name materialHash: ${result.reason}`);
+      assert.ok(result.reason.includes('(fail closed)'), `reason must be the explicit fail-closed line: ${result.reason}`);
+      assert.equal(result.currentMaterialHash, undefined, 'no current materialHash can exist when ls-tree fails');
+      assert.equal(result.currentHead, FAKE_HEAD, 'HEAD itself was readable, so the result carries it (this is NOT the unreadable-HEAD branch)');
+      assert.notEqual(result.reason, EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON, 'must not be misreported as the unreadable-HEAD branch');
+      assert.notEqual(result.reason, 'evidence corresponds to current HEAD', 'must not fall through to the head comparison (pre-fix behaviour)');
+      assert.equal(/metadata-only changes/.test(result.reason), false, 'must not fall through to the changed-files head comparison');
+      assert.deepEqual(result.changedFiles, []);
+      assert.deepEqual(result.materialFiles, []);
+      // Same fixture, evidence WITHOUT a materialHash: the material branch is not
+      // entered, so the head comparison legitimately applies and reports fresh.
+      const headOnly = checkEvidenceFreshnessForGit(root, FAKE_HEAD, undefined, root);
+      assert.equal(headOnly.fresh, true, `head-only evidence must still take the head comparison: ${headOnly.reason}`);
+      assert.equal(headOnly.reason, 'evidence corresponds to current HEAD');
     } finally {
       rmSync(root, { recursive: true, force: true });
       resetConfigCache();

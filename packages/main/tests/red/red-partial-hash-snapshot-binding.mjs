@@ -34,6 +34,11 @@
  *                        snapshot with materialHash but NO storyFilesHash;
  *                        buildDoneChecklist must disclose that storyFilesHash is
  *                        unavailable somewhere in its rows.
+ *   C7 dangling HEAD     (B-83aa:F-001) a `story/*` ref pointing at a sha absent
+ *                        from the object db: HEAD resolves but `git ls-tree`
+ *                        fails; checkEvidenceFreshnessForGit with an evidence
+ *                        materialHash must fail closed naming materialHash and
+ *                        must NOT fall through to the head comparison.
  *
  * Not driven here (recorded for the audit checklist): handlers/verifier.ts
  * evaluateStoryRoutineReuse (not exported) and handlers/session.ts DONE
@@ -110,6 +115,19 @@ function noMainRepo() {
   git(root, ['commit', '-m', 'base on trunk']);
   return root; // HEAD exists; `main` and `origin/main` do not
 }
+function danglingHeadRepo() {
+  const root = mkdtempSync(join(tmpdir(), 'red-partial-hash-dangling-'));
+  writeConfig(root);
+  writeFileSync(join(root, 'README.md'), '# dangling\n');
+  git(root, ['init', '-b', 'story/B-redhash']);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'base']);
+  // Loose branch ref rewritten to a sha absent from the object db: `git rev-parse HEAD`
+  // resolves, `git ls-tree HEAD` fails -> materialHash cannot be derived.
+  writeFileSync(join(root, '.git', 'refs', 'heads', 'story', 'B-redhash'), `${FAKE_HEAD}\n`);
+  assert.equal(git(root, ['rev-parse', 'HEAD']).trim(), FAKE_HEAD);
+  return root;
+}
 const observations = [];
 function observe(site, text) { observations.push(`${site}: ${text}`); console.log(`OBSERVED ${site}: ${text}`); }
 const failures = [];
@@ -184,6 +202,22 @@ try {
   expect('C6 a snapshot with materialHash but no storyFilesHash must be disclosed by at least one DONE row', () => {
     assert.ok(disclosed.length > 0, `no DONE row discloses that storyFilesHash could not be derived (evidence recorded storyFilesHash=${FAKE_STORY_FILES.slice(0, 8)}...)`);
   });
+
+  // C7 checkEvidenceFreshnessForGit with readable HEAD but underivable materialHash (B-83aa:F-001)
+  const dangling = danglingHeadRepo();
+  try {
+    const fr7 = freshness.checkEvidenceFreshnessForGit(dangling, FAKE_HEAD, FAKE_MATERIAL, dangling);
+    observe('C7 checkEvidenceFreshnessForGit(dangling HEAD, evidence bound to materialHash)', `fresh=${fr7.fresh} currentHead=${fr7.currentHead ?? '<absent>'} currentMaterialHash=${fr7.currentMaterialHash ?? '<absent>'} reason=${JSON.stringify(fr7.reason)}`);
+    expect('C7 evidence bound to a materialHash that cannot be re-derived must fail closed naming materialHash, not fall through to head comparison', () => {
+      assert.equal(fr7.fresh, false, `fresh=true with reason ${JSON.stringify(fr7.reason)}: an underivable materialHash fell through to the head comparison`);
+      assert.match(fr7.reason, /materialHash/, `reason does not name materialHash: ${fr7.reason}`);
+      assert.equal(fr7.currentMaterialHash, undefined);
+      assert.notEqual(fr7.reason, 'evidence corresponds to current HEAD');
+      assert.doesNotMatch(fr7.reason, /metadata-only changes/);
+    });
+  } finally {
+    rmSync(dangling, { recursive: true, force: true });
+  }
 } finally {
   rmSync(unborn, { recursive: true, force: true });
   rmSync(nomain, { recursive: true, force: true });
