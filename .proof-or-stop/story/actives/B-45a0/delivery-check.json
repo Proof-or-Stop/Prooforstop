@@ -1,114 +1,88 @@
 {
   "storyId": "B-45a0",
-  "checkedAt": "2026-08-24T20:10:12.774Z",
-  "headHash": "7bd1c4402f2283627161ac922ea877191e8ee8a9",
-  "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
-  "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521",
-  "reviewRound": "2026-08-24T18:41:13.386Z",
-  "agentId": "lattice-review-delivery",
+  "checkedAt": "2026-09-02T10:06:01.856Z",
+  "headHash": "508865d725a7c05f0e63eef1f4f29b78d884227b",
+  "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+  "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+  "reviewRound": "2026-09-02T07:46:34.931Z",
+  "agentId": "",
   "docsPromises": [
     {
       "docPath": "docs/CLI.md#story-aware-dynamic-validation",
-      "promise": "The CLI documents off, observe, shadow, and enforce-low-risk modes, Story authority requirements, fail-closed fallback, and inspectable dynamic artifacts.",
-      "status": "verified",
-      "verifiedBy": "source grep and focused verifier probes",
-      "evidence": "docs/CLI.md is backed by dynamic-mode handling in packages/main/src/handlers/verifier.ts, the typed command catalog, and dynamic-validation runtime artifacts."
+      "promise": "proof-or-stop validate --story=B-xxxx --dynamic-mode=<mode> documents off/observe/shadow/enforce-low-risk modes, requires --story for non-off modes, and points to operations/characterization docs for the full triage/rollback contract.",
+      "verifiedBy": "diff/grep + source inspection",
+      "evidence": "New section in docs/CLI.md (this diff) matches AcceptanceRolloutMode/AcceptanceTopologyGateMode literal unions in packages/main/src/core/acceptance-rollout.ts:40 and acceptance-topology.ts:54, and dynamic-mode handling exists in packages/main/src/handlers/verifier.ts."
     },
     {
-      "docPath": "docs/requirements/NAV.md#dynamic-validation",
-      "promise": "The requirements navigation exposes the normative plan, current-main characterization, operations runbook, and enforcement evidence records.",
-      "status": "verified",
-      "verifiedBy": "diff and file existence inspection",
-      "evidence": "NAV entries resolve to all four changed dynamic-validation decision records in docs/requirements/decisions."
-    },
-    {
-      "docPath": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
-      "promise": "The enforcement evidence record defines historical replay, FI-1 through FI-5, paired performance, current digests, receipt envelopes, and the non-authoritative default wrapper boundary.",
-      "status": "verified",
-      "verifiedBy": "diff/source inspection and mutation probe",
-      "evidence": "scripts/run-dynamic-validation-replay.mjs and packages/main/src/tasks/story-aware-validation-historical-replay.ts implement the replay and fault-injection evidence shape; the mutation probe reports 30 replay classes and FI-1 through FI-5."
-    },
-    {
-      "docPath": "docs/requirements/decisions/dynamic-validation-operations.md",
-      "promise": "The operations runbook defines typed mode configuration, catalog policy, DYN-5 registry and adapter receipts, artifact inspection, fail-closed triage, and non-destructive rollback.",
-      "status": "verified",
-      "verifiedBy": "source inspection and production/mutation probes",
-      "evidence": "Configuration, selection, receipt, revocation, runtime-trace, shard-adapter, and rollback paths are present in packages/main/src/core and packages/main/src/tasks; production smoke reports shard receipts and authority fallback PASS."
+      "docPath": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md / dynamic-validation-operations.md",
+      "promise": "Historical replay, FI-1..FI-5 fault injection, and non-destructive rollback evidence exist and can be independently re-verified.",
+      "verifiedBy": "direct execution",
+      "evidence": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold printed 'historical replay artifact admission PASS', 'historical replay assurance PASS', 'historical replay discovery threshold PASS', 'historical replay threshold PASS', 'fault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation', 'safe recovery and rollback PASS'. Independently re-run, not read from prior artifacts."
     },
     {
       "docPath": "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
-      "promise": "The characterization record binds the current 112-command inventory, explicit policy tuple, source closure, dual-revision graph, selection, receipt, and escalation boundaries.",
-      "status": "verified",
-      "verifiedBy": "inventory/catalog verifier and source inspection",
-      "evidence": "node scripts/verify-validation-inventory.mjs reports inventory coverage PASS and current-main inventory 112; node scripts/verify-validation-catalog.mjs reports catalog PASS."
+      "promise": "The compiled catalog is 112 commands, with 58 whole-repository/full-only rows and 54 static-and-traced rows, and 'policySource=explicit for all 112 entries'.",
+      "verifiedBy": "direct execution + config inspection",
+      "evidence": "node scripts/verify-validation-inventory.mjs prints 'current-main inventory: 116' at the current HEAD this story's own done-required-evidence.json is bound to (materialHash 037af3a5...). Direct inspection of proof-or-stop.config.json shows 116 total commands: 58 whole-repository + 54 static-and-traced + 4 commands (npm --prefix packages/graph run check, cli-surface-smoke.js, command-ownership-contract.js, verify-orphan-surface.mjs) that carry NO closurePolicy/assurance/riskTier at all, i.e. policySource=default, contradicting the doc's claim of 112/112 explicit. These 4 commands are pre-existing (not touched by this diff) but the doc's math (58+54=112) omits them entirely rather than accounting for them as policySource=default as its own text says it should. This is a genuine doc-vs-live-catalog mismatch on a decision record introduced in this diff, though it does not appear to weaken the DYN-3 fail-closed gate itself (mutation smoke 'mandatory full escalation PASS' still holds)."
     },
     {
       "docPath": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
-      "promise": "The repository preserves the approved layered dynamic-validation design with an integrity-bound source digest and executable section selectors.",
-      "status": "verified",
-      "verifiedBy": "node scripts/verify-story-aware-validation-plan.mjs",
-      "evidence": "story-aware validation plan integrity PASS; bytes 79541; sha256 db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a; selectors 14/14."
+      "promise": "Plan integrity is preserved with an executable selector-based verifier (14/14 selectors) and an approved SHA-256 digest.",
+      "verifiedBy": "direct execution",
+      "evidence": "node scripts/verify-story-aware-validation-plan.mjs printed 'story-aware validation plan integrity PASS', 'selectors: 14/14', bytes 80447, matching approved digest."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md#dynamic-validation",
+      "promise": "Requirements navigation resolves to the four dynamic-validation decision records touched by this story.",
+      "verifiedBy": "diff/file existence inspection",
+      "evidence": "All four files (dynamic-validation-enforcement-evidence.md, dynamic-validation-operations.md, story-aware-dynamic-validation-current-main-characterization.md, story-aware-dynamic-validation-execution-plan.md) exist in the diff and on disk."
+    },
+    {
+      "docPath": "packages/main/src/core/validation-runtime-tracer.cjs (F-473 fix)",
+      "promise": "child_process wrapper functions (spawn/exec/execFile/fork etc.) preserve util.promisify.custom so promisified callers of traced commands still resolve {stdout, stderr} instead of silently falling back to the generic promisify shape.",
+      "verifiedBy": "source inspection + direct execution",
+      "evidence": "validation-runtime-tracer.cjs:135-157 explicitly copies property descriptors and re-defines util.promisify.custom with a tracing shim. node packages/main/dist/tasks/validation-runtime-tracer-transparency-smoke.js exited 0 with 'validation runtime tracer promisify transparency smoke PASS' (independently re-run, not read from stored evidence)."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node scripts/verify-story-aware-validation-plan.mjs exited 0: plan integrity PASS, bytes 79541, approved SHA-256, selectors 14/14."
+      "transcript": "node scripts/verify-story-aware-validation-plan.mjs (re-run) exited 0: plan integrity PASS, selectors 14/14, bytes 80447, approved SHA-256 match."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node scripts/verify-validation-inventory.mjs exited 0: inventory coverage PASS; current-main inventory 112."
-    },
-    {
-      "featureId": "CHK-003",
-      "transcript": "story-aware-validation-smoke exited 0: change-manifest, dual-revision impact, closure, selection, and receipt smoke passed."
+      "transcript": "node scripts/verify-validation-inventory.mjs (re-run) exited 0: inventory coverage PASS; current-main inventory 116 (see docsPromises entry for characterization-doc mismatch)."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "node scripts/verify-validation-catalog.mjs exited 0: validation catalog PASS; catalog commands 2."
+      "transcript": "node scripts/verify-validation-catalog.mjs (re-run) exited 0: validation catalog PASS; catalog commands 2."
     },
     {
-      "featureId": "CHK-005",
-      "transcript": "story-aware-validation-smoke exited 0 with signed selection totals and singleton-union checks passing."
+      "featureId": "CHK-003, CHK-005, CHK-006, CHK-007",
+      "transcript": "node packages/main/dist/tasks/story-aware-validation-smoke.js (re-run) exited 0: 'story-aware-validation smoke passed' covering change-manifest, dual-revision impact, closure, selection, and receipt reuse."
     },
     {
-      "featureId": "CHK-006",
-      "transcript": "story-aware-validation-mutation-smoke exited 0: observe/full equivalence, isolated observe telemetry, and observer mutation rejection passed."
+      "featureId": "CHK-006, CHK-007, CHK-008, CHK-009, CHK-011",
+      "transcript": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js (re-run) exited 0 with 27 assertion lines including 'observe/full equivalence PASS', 'admissible per-command reuse PASS', 'shadow/full oracle equivalent', 'low-risk dynamic TEST PASS', 'mandatory full escalation PASS', 'safe recovery and rollback PASS', 'replay classes: 30', 'FI-1..FI-5' all present."
     },
     {
-      "featureId": "CHK-007",
-      "transcript": "story-aware-validation-smoke and mutation smoke exited 0: admissible receipt reuse, forged/stale receipt rejection, and fail-closed escalation passed."
+      "featureId": "CHK-009, CHK-013",
+      "transcript": "FAILED on independent re-run: node packages/main/dist/tasks/story-aware-validation-production-smoke.js exits with AssertionError 'registered adapter must emit one receipt per review-pass and quorum shard' (actual 0, expected 7). Reproduced twice via compiled JS (node) and independently via source (bun packages/main/src/tasks/story-aware-validation-production-smoke.ts), both fail identically. This smoke is auto-discovered by test:all/test:legacy (discoverSmokes globs *-smoke.js in packages/main/dist/tasks) but is NOT present in .proof-or-stop/story/actives/B-45a0/done-required-evidence.json's receipt list, so it did not gate DONE-required validation. This exact gap (production DYN-5 shard/quorum wiring emitting no durable per-case receipts) is already tracked as open, unresolved, high-severity findings B-45a0:F-003, F-007, F-008 (created 2026-08-21, still status=open as of the 2026-09-02 review round), which independently corroborate the reproduction. CHK-013's checklist verificationEvidence is pinned only to story-aware-validation-smoke.js/mutation-smoke.js (pure in-memory helpers per F-008), not to this production path, so the checklist's own must-evidence does not cover the failing surface -- but the story's summary.json and prior stale delivery-check both cited production-smoke output text ('gate-owned authority fallback PASS') as evidence for CHK-009, which is not reproducible at current HEAD."
     },
     {
-      "featureId": "CHK-008",
-      "transcript": "story-aware-validation-mutation-smoke exited 0: shadow/full oracle equivalent, discrepancy reporting, and false-negative detection passed."
+      "featureId": "CHK-014",
+      "transcript": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 (re-run): Status pass, Basis status complete, Structural pass yes, Blocking no. pre_review_check_read (re-run): PASS, codes none. acceptance_rollout_report_read (re-run): PASS, quorum=full-3x2. acceptance_rollout_check (re-run): mode=enforce; status=pass; blocking=false; receipt=current; quorum=full-3x2. Independently read acceptance-rollout-report.json metrics: matchedPairCount=6, mislabeled3x1Count=0, falsePassCount=0, falseBlockCount=0, omissionDetectionRate=1 -- confirms genuine full 3 rounds x 2 hosts (codex-cli + claude-cli), not degraded 3x1. Code inspection of acceptance-rollout.ts:890-958 confirms mode only gates the 'blocking' field (observe/warn always non-blocking, enforce blocks iff diagnostics non-empty), with identical status/diagnostics computation across modes, and quorum classification is derived mechanically from mislabeled3x1Count===0, not asserted."
     },
     {
-      "featureId": "CHK-009",
-      "transcript": "story-aware-validation-production-smoke exited 0: gate-owned authority fallback PASS and gate-owned authority PASS."
-    },
-    {
-      "featureId": "CHK-010",
-      "transcript": "story-aware-validation-mutation-smoke exited 0: operations mutation rejected; focused production path persisted inspectable shard artifacts."
-    },
-    {
-      "featureId": "CHK-011",
-      "transcript": "story-aware-validation-mutation-smoke exited 0: replay classes 30, FI-1 catalog-id through FI-5 selection-escalation, mutation guards, and complete ledger checks passed. The standalone validation-protocol wrapper probe is environment-blocked when no executable global CLI is available."
-    },
-    {
-      "featureId": "CHK-012",
-      "transcript": "story-aware-validation-smoke and mutation smoke exited 0: weighted scheduling, resource exclusivity, drain barriers, and serial/optimized equivalence checks passed."
-    },
-    {
-      "featureId": "CHK-013",
-      "transcript": "story-aware-validation-production-smoke exited 0: production path PASS, production shard receipts PASS, gate-owned authority fallback PASS, and gate-owned authority PASS; the probe verified seven persisted shard receipts, sentinel observations, valid receipts, and zero residue."
+      "featureId": "DONE-required-evidence",
+      "transcript": ".proof-or-stop/story/actives/B-45a0/done-required-evidence.json: status=PASS, materialHash=037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844 matches current story materialHash referenced in the spawn prompt and in process-events.jsonl's latest validation_terminal/phase_transition/host_verdict entries. summary_get confirms summary.json exists with acceptanceVerdict=accepted."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All six changed documentation promises are backed by source inspection and current focused probes. Core selection, receipt, closure, scheduling, mutation, authority, and seven-shard production paths passed; the broader validation-protocol smoke has an environment-only generated-wrapper failure because this host has no executable capable global CLI, so that boundary is not claimed as passed."
+    "summary": "Most of the program (replay/fault-injection evidence, plan/inventory/catalog verifiers, observe/shadow/DYN-3 mutation smokes, tracer promisify fix, Wave-4 acceptance topology/pre-review/rollout gates with genuine full 3x2 quorum) is independently reproducible and verified at current HEAD. However two concrete delivery gaps were found on independent re-verification, not merely read from stored evidence: (1) story-aware-validation-production-smoke.js, which is auto-discovered by test:all/test:legacy but absent from done-required-evidence.json's receipts, fails deterministically with 0 of 7 expected shard receipts -- corroborated by three still-open high-severity findings (F-003/F-007/F-008) describing exactly this DYN-5 production-wiring gap; (2) the current-main-characterization decision doc claims a 112-command catalog with 100% explicit policy coverage, but the live catalog at this story's own bound HEAD has 116 commands, 4 of which have no policy tuple at all (policySource=default), which is a doc-vs-catalog inconsistency the doc's own text says should not happen silently."
   },
-  "_hash": "6c07969e8d18d993e3937fafa3df4d7d66a860e0383e8ea54b16456a8bd3646e"
+  "_hash": "09ca2fdcecf97615431f2a1c9eee95170a3a0776b6a5b5b625ed3683de4f363d"
 }
