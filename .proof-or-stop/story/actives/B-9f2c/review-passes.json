@@ -520,6 +520,33 @@
         "scanEscalationReason": null
       },
       "_hash": "468a1167684cb820c6ef44131c61dadb67ff06bf34fdbc85258566fadf60c966"
+    },
+    {
+      "id": "B-9f2c:RP-018",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed (re-earned round after certification-window invalidation, no material change since RP-016/RR-023). Verified all 22 must-priority verificationIntent entries across CHK-001..CHK-005 have valid non-stale mechanical evidence at pinned headHash=ecead84965 (result=pass, exitCode=0, mechanical=true, no nonMechanicalReason, no demotion to attestation-only). Confirmed via git diff --stat 2ca5c90dba..b94e53243b that every commit since my prior pass RR-023 touches only .proof-or-stop/story/actives/B-9f2c/* metadata (receipts re-signed with fresh headHash/materialHash/executedAt, same commands, same result=pass) -- zero changes to any packages/graph or packages/main source/test file, so materialHash for all pinned receipts is unchanged and none are stale. Cross-checked the earlier merge 11a91fbabf (ancestor of the ecead84965 pin) against each CHK item's files block: it touched full-suite-runner.ts, command-catalog.ts, lattice.config.json and package.json, all of which are exactly what F-003/F-002/F-004 already reviewed and resolved in the prior round (commit f4e9acdd21 fixed the RESOURCE_POLICY registration referenced by F-003, predating the ecead84965 pin) -- no unreviewed overlap. Independently re-verified: grep confirms test:graph-story-flag-smoke is still registered in all three membership authorities (lattice.config.json validate.commands, package.json scripts + test:serial-reference, full-suite-runner.ts RESOURCE_POLICY) at current HEAD. Re-read F-003 (medium, accepted_risk): concur with its disposition -- the two available fixes (reword frozen verificationIntent; attach a supplementary probe on the same intentRef) are both correctly refused by design (checklist.ts:1482 frozen-intent rejection, checklist.ts:790 [receipt_command_mismatch] immutable-pin rejection), and the residual risk is independently backstopped because npm test is a doneRequiredCommands entry that fails closed at module load if the RESOURCE_POLICY entry is removed -- confirmed structurally, not just asserted, and consistent with the delivery-check.json closingSelfCheck's independent reproduction of the same finding. story test-evidence.json (validate --story=B-9f2c --json, timestamp 2026-09-02T16:15:52.810Z, result=PASS) shows verificationCoverage total=22 required=22 covered=22 missingRequired=0, corroborating the per-intent checklist read. Reference full npm test run (59/59, 609.9s, zero failures) is consistent with this. No new findings. readManifest: background.md, plan.md, checklist.json (all 5 items' verificationIntent/verificationEvidence), findings.json (F-001..F-004), review-runs.json, test-evidence.json, delivery-check.json, certification-window.json, git log/diff 2ca5c90dba..b94e53243b and git show --stat 11a91fbabf.",
+      "createdAt": "2026-09-02T16:37:19.989Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-027",
+      "envelopeId": "e000b31e5f8e1f4a3c5201f82db691882e1e10f0556be789b95f2094c17ca741",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/certification-window.json",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/delivery-check.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/review-runs.json",
+          ".proof-or-stop/story/actives/B-9f2c/test-evidence.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b346841a98d82d95c68df6c94960659a5ac2356ff8e95fd0dac3ce2b59a8f038"
     }
   ]
 }
