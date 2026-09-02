@@ -556,7 +556,11 @@
           {
             "desc": "both CLAUDE.md and packages/graph/README.md document the --story flag",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs');const a=fs.readFileSync('CLAUDE.md','utf8');const b=fs.readFileSync('packages/graph/README.md','utf8');const ok=a.includes('--story=<id>')&&a.includes('--story=B-xxxx')&&b.includes('--story=B-xxxx');console.log(ok?'DOCS_STORY_FLAG_BOTH':'FAIL claude='+a.includes('--story=<id>')+' readme='+b.includes('--story=B-xxxx'));process.exit(ok?0:1)\"",
+              "selector": "DOCS_STORY_FLAG_BOTH"
+            }
           },
           {
             "desc": "the README endpoint table lists the /story/<id> route",
@@ -586,7 +590,30 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "node -e \"const fs=require('fs');const a=fs.readFileSync('CLAUDE.md','utf8');const b=fs.readFileSync('packages/graph/README.md','utf8');const ok=a.includes('--story=<id>')&&a.includes('--story=B-xxxx')&&b.includes('--story=B-xxxx');console.log(ok?'DOCS_STORY_FLAG_BOTH':'FAIL claude='+a.includes('--story=<id>')+' readme='+b.includes('--story=B-xxxx'));process.exit(ok?0:1)\"",
+          "result": "pass",
+          "note": "Asserts BOTH docs document the flag in one command, so removing it from either file fails the check. CLAUDE.md must carry both the flag-table row (--story=<id>) and the usage example (--story=B-xxxx); README must carry the command form.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d4a9b772626c23fc7e834c21908e9335857c1651863cc314b524fb5a7662190f",
+            "outputTail": "DOCS_STORY_FLAG_BOTH\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:05:34.619Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "061c1e0571669d90fc3426ec4126e74212202df6",
+          "materialHash": "4809fbe4c985a1e819039da620e67fc0ebac011dccf9f1667bff6ef7a872d019",
+          "storyFilesHash": "99495d7143b937b087032ec3be79d5a088e963650870ff223ca2d1362712d11a",
+          "timestamp": "2026-09-02T09:05:34.820Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
