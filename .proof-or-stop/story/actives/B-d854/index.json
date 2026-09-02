@@ -4,7 +4,7 @@
   "title": "Audit the root AGENTS.md against the current Proof-or-Stop version and translate it fully into English",
   "description": "Verify every current-behavior claim in root AGENTS.md against authoritative current repository sources and runtime surfaces, preserve auditable evidence, then translate the entire document into English without changing commands, schemas, identifiers, or normative meaning.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "AGENTS prompt",
@@ -13,7 +13,7 @@
   ],
   "createdAt": "2026-09-01T22:53:09.910Z",
   "startedAt": "2026-09-01T22:53:09.910Z",
-  "endedAt": null,
+  "endedAt": "2026-09-02T18:38:43.682Z",
   "events": [
     {
       "phase": "INIT",
@@ -365,12 +365,16 @@
       "user": "Harmonynet",
       "sessionId": "sess-e4086def0ea57f3b413200c3770aadb9",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-02T18:38:43.682Z",
+      "branch": "story/B-d854",
+      "user": "Harmonynet",
+      "sessionId": "sess-e4086def0ea57f3b413200c3770aadb9",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d854",
-    "branch": "story/B-d854",
-    "createdAt": "2026-09-01T22:57:49.216Z"
-  },
   "currentReviewRound": "2026-09-02T16:28:06.672Z"
 }
