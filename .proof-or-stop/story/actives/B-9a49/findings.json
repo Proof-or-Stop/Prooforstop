@@ -1314,6 +1314,25 @@
       "resolvedAt": "2026-09-02T08:56:13.854Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-059",
+      "desc": "packages/main/src/core/prompt-envelope.ts:427-492 — HIGH: the Dynamic Finding amendment detector is now fail-closed, but the adjacent deferral, minting, severity, dismissal, and unknown-applicability guards still default-allow unlisted affirmative relation verbs. A direct production-dist assembleFullPromptEnvelope probe accepted all six equivalent unsafe claims: `A finding_dismiss receipt certifies the issue as out_of_scope.`, `FindingDeferralDisposition embodies an applicability verdict.`, `Reviewers bestow defer_with_proof on the Finding.`, `Story ownership is dictated exclusively by criticality.`, `Pending applicability licenses routing away from this Story.`, and `Unknown applicability greenlights removal of the REVIEW blocker.` The same probe rejected new Dynamic Finding authority synonyms across all five active REVIEW roles and admitted seven explicit safe controls, proving the remaining bypass is channel-specific rather than an assembly failure. Existing full-context, registry, and measurement smokes all still PASS, so packages/main/src/tasks/prompt-full-context-envelope-smoke.ts lacks discriminating default-deny synonym coverage for these required CHK-001/CHK-004 authority channels.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T09:00:19.190Z",
+      "reviewRound": "2026-09-02T08:55:56.905Z",
+      "reviewRunId": "B-9a49:RR-091",
+      "_hash": "938af25c932923bc415462105fa1cb6b8776908b2254f22352f4186068c023aa",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "task-context-authority-synonym-default-allow",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
