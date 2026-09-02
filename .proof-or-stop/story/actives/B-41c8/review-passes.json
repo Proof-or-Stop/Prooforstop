@@ -55,6 +55,29 @@
         "scanEscalationReason": null
       },
       "_hash": "8401f9d99ccc950fdb1184a28ab951334b0e5b1814af888a02d5f69762b69106"
+    },
+    {
+      "id": "B-41c8:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed (round 3): all 15 verificationIntent entries across CHK-001..CHK-004 have verificationEvidence with mechanical receipts (exitCode 0, selectorMatched true, result pass); no fail/missing must-intent. Verified round-2 F-010/F-008/F-011 resolutions via commit diffs plus mutation on a temp dist copy (reverting the call-line column and the store-typed regex both reproduce FAIL on the exact pinned assertion) and by checking out RED commit b7051a0e69 in a detached temp worktree, building, and reproducing 39/40 FAIL. F-009 is a threshold/format-only change with no RED by design, a reasonable judgment call. Two F-011/F-008 case names were shortened in 220075ce20 for stdout headroom but assertion bodies unchanged, confirmed via diff and mutation, no vacuous pass. No test-coverage-lane finding remains open (F-012 is proof-or-stop-review-concept, out of lane).",
+      "createdAt": "2026-09-02T16:38:55.960Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-013",
+      "envelopeId": "f0acfc15a5d2ff4976d3924e192ee6a17cd55fb8dd7751d7ecbf27bdb69ae5b8",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad9ecfc4431b201ead2d2da29a68a221c181fa176791bd1317fbf2813014f951"
     }
   ]
 }
