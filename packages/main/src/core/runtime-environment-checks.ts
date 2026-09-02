@@ -546,8 +546,8 @@ function inspectGlobalCoreExecutable(packageRoot: string): GlobalCoreExecutableF
   const bin = pkg.bin;
   const binRel = typeof bin === 'string'
     ? bin
-    : bin && typeof bin === 'object' && typeof bin['proof-or-stop'] === 'string'
-      ? bin['proof-or-stop']
+    : bin && typeof bin === 'object' && typeof bin[CANONICAL_ROOT_PACKAGE_NAME] === 'string'
+      ? bin[CANONICAL_ROOT_PACKAGE_NAME]
       : null;
   if (!binRel) return unverifiable;
   const binTarget = resolve(packageRoot, binRel);

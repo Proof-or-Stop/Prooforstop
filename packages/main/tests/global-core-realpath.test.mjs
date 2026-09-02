@@ -5,6 +5,9 @@
 // warns with the exact `chmod +x` / `npm link` remediation for a non-executable
 // target or a realpath inside a `.worktrees/` checkout, and stays informational
 // (pass) when no global install exists.
+// B-e256 F-002: a declared bin target that is absent (ENOENT) or is not a
+// regular file (a directory) is the distinct "rebuild" remediation
+// (`npm --prefix <realpath> run build`), never a `chmod +x`.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -20,19 +23,32 @@ function git(cwd, ...args) {
 }
 
 // Writes a realistic core package (package.json `bin` -> dist/cli.js) so the
-// executable-bit facts are exercised; `binMode` controls the target's mode.
-function writeCorePackage(coreRoot, { binMode = 0o755 } = {}) {
+// executable-bit facts are exercised; `binMode` controls the target's mode and
+// `binTarget` its shape: 'file' (default), 'absent' (declared but never
+// emitted) or 'directory' (declared path exists but is not a regular file).
+function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file' } = {}) {
   mkdirSync(join(coreRoot, 'dist'), { recursive: true });
   writeFileSync(join(coreRoot, 'package.json'), JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0', bin: { 'proof-or-stop': 'dist/cli.js' } }) + '\n');
   const bin = join(coreRoot, 'dist', 'cli.js');
+  if (binTarget === 'absent') {
+    // keep dist/ non-empty so git tracks the directory without the bin target
+    writeFileSync(join(coreRoot, 'dist', 'index.js'), 'export {};\n');
+    return bin;
+  }
+  if (binTarget === 'directory') {
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(join(bin, 'index.js'), 'export {};\n');
+    chmodSync(bin, binMode);
+    return bin;
+  }
   writeFileSync(bin, '#!/usr/bin/env node\n');
   chmodSync(bin, binMode);
   return bin;
 }
 
-function makeRepoWithWorktree(base, { binMode = 0o755, worktreeDir } = {}) {
+function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', worktreeDir } = {}) {
   const repo = join(base, 'repo');
-  writeCorePackage(join(repo, 'packages', 'main'), { binMode });
+  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget });
   git(repo, 'init', '-b', 'main');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '.');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-m', 'init');
@@ -193,6 +209,60 @@ function runChecks(base, corePackageRoot, globalRoot) {
     const noRoot = runChecks(join(base, 'noroot'), join(worktree, 'packages', 'main'), null);
     assert.equal(noRoot.globalCoreRealpath.status, 'pass');
     assert.equal(noRoot.globalCoreRealpath.actual.installed, false);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 7. B-e256 F-002: canonical realpath but the declared bin target does not
+//    exist (ENOENT: dist was never emitted / was wiped) -> warning row with the
+//    distinct `npm --prefix <realpath> run build` rebuild remediation, not chmod.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-absent-bin-warn-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { binTarget: 'absent' });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const expectedBin = join(canonical, 'dist', 'cli.js');
+    const rebuild = `npm --prefix ${canonical} run build`;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'absent bin target must never pass silently');
+    assert.equal(actual.executable, false);
+    assert.equal(actual.binMode, null, 'an absent target has no mode to report');
+    assert.equal(actual.binTarget, expectedBin);
+    assert.equal(actual.remediation, rebuild);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`global bin target ${expectedBin} does not exist; rebuild: ${rebuild}`), `warning must carry the exact rebuild command, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /chmod \+x/, 'a missing target is a rebuild problem, not a mode problem');
+    assert.doesNotMatch(warnings, /resolves to/, 'canonical realpath must not be reported as drift');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 8. B-e256 F-002: the declared bin target path exists but is a directory
+//    (not a regular file) -> same rebuild remediation; the mode is still
+//    reported so the row explains what was found there.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-dir-bin-warn-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { binTarget: 'directory' });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const expectedBin = join(canonical, 'dist', 'cli.js');
+    const rebuild = `npm --prefix ${canonical} run build`;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a directory at the bin target must never pass silently');
+    assert.equal(actual.executable, false);
+    assert.equal(actual.binMode, '0755', 'the mode of the non-file entry is still reported');
+    assert.equal(actual.binTarget, expectedBin);
+    assert.equal(actual.remediation, rebuild);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`global bin target ${expectedBin} does not exist; rebuild: ${rebuild}`), `warning must carry the exact rebuild command, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /chmod \+x/, 'a non-file target is a rebuild problem, not a mode problem');
+    assert.doesNotMatch(warnings, /resolves to/, 'canonical realpath must not be reported as drift');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
