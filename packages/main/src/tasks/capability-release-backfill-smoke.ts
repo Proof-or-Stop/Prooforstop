@@ -21,7 +21,7 @@
  *   the real PBP-882/B-785e shape):
  *     - dry-run reports the candidate as eligible with plan='record-then-bind' and the
  *       PCR it WOULD record (id/version derived from the artifact release's paths);
- *     - apply RECORDS the capability release into .lattice/capability-releases.jsonl
+ *     - apply RECORDS the capability release into .proof-or-stop/capability-releases.jsonl
  *       (git add -f + commit — verified tracked), THEN binds the candidate;
  *     - re-run is idempotent (PCR now exists, candidate bound → 0 eligible);
  *     - status/usage invariants hold and no outcome is written.
@@ -356,7 +356,7 @@ try {
     const capabilityLedgerRel = `${PROOF_OR_STOP_STATE_DIR}/capability-releases.jsonl`;
     const tracked = git(rootB, ['ls-files', '--', capabilityLedgerRel]);
     assert.equal(tracked, capabilityLedgerRel, 'capability ledger is tracked');
-    const status = git(rootB, ['status', '--porcelain', '--', '.lattice/capability-releases.jsonl']);
+    const status = git(rootB, ['status', '--porcelain', '--', '.proof-or-stop/capability-releases.jsonl']);
     assert.equal(status, '', 'capability ledger has no uncommitted changes (was committed)');
 
     // No outcome row was written by the record-then-bind path.

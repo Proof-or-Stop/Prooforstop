@@ -51,10 +51,10 @@ function runConcurrentInitCheck(projectRoot, storyId) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-init-check-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-check-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -67,8 +67,8 @@ function createTempProject() {
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# temp project\n');
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proofOrStop@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   return dir;
@@ -117,7 +117,7 @@ function recordInitCheck(projectRoot, storyId) {
   run(projectRoot, 'init_check_set', {
     storyId,
     issues: [],
-    agentId: 'lattice-review-story-init',
+    agentId: 'proof-or-stop-review-story-init',
   });
   run(projectRoot, 'init_check_set', {
     storyId,
@@ -313,12 +313,12 @@ function verifyDryRunDoesNotMutate() {
 // B-4e06 CHK-003: wrapper-root project — metadata root is NOT a git repo; the
 // real repo is a configured gitRoot subdir, and story metadata lives inside it.
 function createWrapperRootProject({ gitRootName = 'repo', initGit = true } = {}) {
-  const wrapper = mkdtempSync(join(tmpdir(), 'lattice-wrapper-'));
+  const wrapper = mkdtempSync(join(tmpdir(), 'proof-or-stop-wrapper-'));
   const repo = join(wrapper, gitRootName);
   const storyDirRel = `${gitRootName}/docs/story/actives`;
   mkdirSync(join(wrapper, storyDirRel), { recursive: true });
   mkdirSync(join(wrapper, gitRootName, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(wrapper, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(wrapper, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: storyDirRel,
@@ -330,8 +330,8 @@ function createWrapperRootProject({ gitRootName = 'repo', initGit = true } = {})
     writeFileSync(join(repo, '.gitignore'), '.worktrees/\n');
     writeFileSync(join(repo, 'README.md'), '# wrapper repo\n');
     execFileSync('git', ['init', '-b', 'main'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
-    execFileSync('git', ['config', 'user.name', 'Lattice Test'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
-    execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['config', 'user.name', 'ProofOrStop Test'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['config', 'user.email', 'proofOrStop@example.com'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
     execFileSync('git', ['add', '.'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
     execFileSync('git', ['commit', '-m', 'init'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
   }
@@ -388,7 +388,7 @@ function verifyInvalidGitRootFailsClosed() {
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'invalid gitRoot regression case' }],
     }));
-    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
     run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
     setupInitCheckGates(wrapper, storyId);
 

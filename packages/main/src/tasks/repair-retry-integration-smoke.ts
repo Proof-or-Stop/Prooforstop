@@ -21,7 +21,7 @@ import type { BoundedProviderExecutor, ProviderExecResult } from '../providers/t
 
 type JsonObject = Record<string, any>;
 
-const root = '/tmp/lattice-repair-retry-integration-smoke';
+const root = '/tmp/proof-or-stop-repair-retry-integration-smoke';
 
 const store = {
   readStory: () => ({ phase: 'DEV' } as JsonObject),

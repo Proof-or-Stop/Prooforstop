@@ -53,7 +53,7 @@ const sleeper = (label, key) => ({
   command: process.execPath,
   args: ['-e', `setTimeout(() => process.exit(0), ${SLEEP_MS})`],
   timeoutMs: 60_000,
-  resources: [{ class: 'fixed-path', key: `.lattice/runtime/red-b7dff-probe-${key}`, access: 'exclusive' }],
+  resources: [{ class: 'fixed-path', key: `.proof-or-stop/runtime/red-b7dff-probe-${key}`, access: 'exclusive' }],
 });
 
 const plan = {

@@ -91,7 +91,7 @@ const ALLOWLIST_FILES: readonly string[] = [
 const ALLOWLIST_PATH_SUBSTRINGS: readonly string[] = [
   '/legacy', // legacy snapshots — frozen, not part of the English surface
   '/archive', // archived material — frozen
-  '/.lattice-codex/', // Codex adapter scratch / review artifacts
+  '/.proof-or-stop-codex/', // Codex adapter scratch / review artifacts
   '/node_modules/', // dependencies
   '/dist/', // build output (mirrors src; src is the source of truth)
 ];

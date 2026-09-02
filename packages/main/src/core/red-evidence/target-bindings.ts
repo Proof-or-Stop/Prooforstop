@@ -9,7 +9,7 @@
 //   - run-time adapterId / testCaseRef validation — that belongs to the runner.
 //   - any chain append/read or gate rewiring.
 //
-// Storage: .lattice/story/actives/<id>/red-target-bindings.json, schema
+// Storage: .proof-or-stop/story/actives/<id>/red-target-bindings.json, schema
 //   `proofstory.red_target_bindings.v1`:
 //     { schemaVersion, storyId,
 //       bindings: [ { acceptanceTargetRef, adapterId, testCaseRef, createdAt } ],
@@ -147,7 +147,7 @@ export interface ReadCommittedTargetBindingsArgs {
   gitCwd: string;
   /** Committed ref (commit sha / branch / tag) whose tree the binding is read from. */
   ref: string;
-  /** Repo-relative path, e.g. `.lattice/story/actives/<id>/red-target-bindings.json`. */
+  /** Repo-relative path, e.g. `.proof-or-stop/story/actives/<id>/red-target-bindings.json`. */
   relPath: string;
 }
 

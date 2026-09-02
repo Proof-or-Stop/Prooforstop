@@ -23,6 +23,7 @@ import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifec
 import { resolveStorySignedWorkspace, type StorySignedWorkspaceResolutionSource } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/owner-session.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import type { ProofOrStopExtensionRuntime } from '../core/extension-runtime.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -36,6 +37,8 @@ export interface HandlerContext {
   autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
   /** Test seam for DONE / done_recover post-merge package build execution. Production uses npm. */
   doneMainBuildRunner?: import('./done-effects.js').DoneMainBuildRunner;
+  /** Core-owned capabilities available to optional published CLI extensions. */
+  extensionRuntime?: ProofOrStopExtensionRuntime;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };
@@ -57,7 +60,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   return event;
 }
 
-/** PLAN ~ TEST phases must execute lattice commands inside the worktree */
+/** PLAN ~ TEST phases must execute proof-or-stop commands inside the worktree */
 export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(CWD_GATED_LIFECYCLE_PHASES);
 
 /**
@@ -153,7 +156,7 @@ function assertPathInsideWorktree(storyId: string, cwd: string, expectedAbsPath:
   const normalizedExpected = canonicalPath(expectedAbsPath);
   if (normalizedCwd !== normalizedExpected && !normalizedCwd.startsWith(normalizedExpected + '/') && !normalizedCwd.startsWith(normalizedExpected + '\\')) {
     throw new Error(
-      `Story ${storyId} must execute lattice commands inside the worktree\n` +
+      `Story ${storyId} must execute proof-or-stop commands inside the worktree\n` +
       `Expected cwd: ${normalizedExpected}\n` +
       `Current cwd: ${cwd}\n` +
       `→ cd ${normalizedExpected}`

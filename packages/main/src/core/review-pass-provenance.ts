@@ -11,7 +11,7 @@
  *     write means subagent-or-self, which are NOT mechanically distinguishable
  *     (EXP-001 under B-e71f).
  *   - enforce mode is opt-in via `reviewPassProvenance.mode: "enforce"` in
- *     lattice.config.json (same in-file gate-mode section pattern as
+ *     proof-or-stop.config.json (same in-file gate-mode section pattern as
  *     proofAdmissibility / reproFirstPreflight / candidateSpecRouting) for hosts
  *     with genuine per-thread session separation (e.g. Codex multi-thread). It
  *     rejects the write with an error naming both ids; nothing is persisted.

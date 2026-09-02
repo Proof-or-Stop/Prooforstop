@@ -26,12 +26,12 @@ const HOSTS = ['codex-cli', 'claude-cli'];
 const ARMS = ['legacy', 'modular'];
 const REPETITIONS = 3;
 const SAMPLE_ROLE = Object.freeze({
-  'clean-pass-01': 'lattice-review-story-init',
-  'clean-pass-02': 'lattice-review-scope-plan',
-  'critical-01': 'lattice-implementer',
-  'critical-02': 'lattice-evaluator',
-  'closeout-01': 'lattice-review-delivery',
-  'closeout-02': 'lattice-implementer',
+  'clean-pass-01': 'proof-or-stop-review-story-init',
+  'clean-pass-02': 'proof-or-stop-review-scope-plan',
+  'critical-01': 'proof-or-stop-implementer',
+  'critical-02': 'proof-or-stop-evaluator',
+  'closeout-01': 'proof-or-stop-review-delivery',
+  'closeout-02': 'proof-or-stop-implementer',
 });
 const TOOLS = Object.freeze(['Read', 'Grep', 'Glob', 'Bash']);
 const ORDER = Object.freeze([
@@ -122,9 +122,9 @@ async function producePromptThroughAgentPrompt(cell, sample) {
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'proofbound-story6-live-handler-'));
   const storyId = `EXP-${sample.id}`;
   try {
-    await writeFile(path.join(fixtureRoot, 'lattice.config.json'), `${JSON.stringify({
+    await writeFile(path.join(fixtureRoot, 'proof-or-stop.config.json'), `${JSON.stringify({
       scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+      storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
       promptEnvelope: {
         version: 'proofbound.prompt-envelope-rollout.v1',
         roles: { [cell.roleId]: 'legacy-full-context' },

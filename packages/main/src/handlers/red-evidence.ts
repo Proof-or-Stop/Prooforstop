@@ -19,7 +19,7 @@
  *     recording it as RED evidence. The throw is NOT verdict-free everywhere:
  *     the CLI catch path in cli-engine.ts passes `e.message` into `writeLog`,
  *     so under either activity-log bypass the full tagged report is stored in
- *     the `.lattice/activity.jsonl` row's `error` field, and a CONFIGURED and
+ *     the `.proof-or-stop/activity.jsonl` row's `error` field, and a CONFIGURED and
  *     MATCHING `onError` hook runs on that same path (that call site has no
  *     read-only predicate; MATCHING because `resolveHookCommands` in
  *     `core/hooks.ts` resolves an exact stage-map key plus `*` and nothing
@@ -246,7 +246,7 @@ function readCommittedBindingForTarget(
         'note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of ' +
         'exhaustiveness. It is thrown, so a CONFIGURED and MATCHING onError hook does run — MATCHING means the hooks ' +
         'map carries an exact red_evidence_envelope_check key or a * key, and a map with neither runs no command at ' +
-        'all — and the CLI may record this text in the error field of a .lattice/activity.jsonl row.',
+        'all — and the CLI may record this text in the error field of a .proof-or-stop/activity.jsonl row.',
     );
   }
   if (!file) return null;
@@ -407,8 +407,8 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      *      and its surrounding diagnostics are class-wide and belong to a
      *      separate change.
      *   2. ONE ACTIVITY ROW MAY BE APPENDED. The shared CLI entrypoint still
-     *      appends one generic session row to `.lattice/activity.jsonl` when
-     *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
+     *      appends one generic session row to `.proof-or-stop/activity.jsonl` when
+     *      `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
      *      mode) or while the story carries an uncooled stale warning — see the
      *      `red_evidence_envelope_check` note in `cli/activity-policy.ts`, which
      *      names both paths. That file is NOT outside this repository's artifact
@@ -421,14 +421,14 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      *      resolves session identity via `getSessionIdentity`
      *      (`core/owner-session.ts`); under the generated-token adapter mode that
      *      path reaches `readOrCreateOwnerSessionToken`, creating or refreshing a
-     *      file under `.lattice/runtime/owner-session-tokens/` — registered
+     *      file under `.proof-or-stop/runtime/owner-session-tokens/` — registered
      *      SEPARATELY in `core/runtime-artifact-registry.ts` as the
      *      `owner-session-token-store` artifact.
      *   4. THE HEALTH LOG. When activity or hook persistence FAILS,
      *      `reportHealthIssue` (`core/health.ts`) appends one JSONL row to the
-     *      health log — `~/.lattice/health.jsonl` by default, which is outside
+     *      health log — `~/.proof-or-stop/health.jsonl` by default, which is outside
      *      the project tree. Only the DEFAULT is: `getHealthPath` returns
-     *      `LATTICE_HEALTH_PATH` verbatim when set, with no containment check,
+     *      `PROOF_OR_STOP_HEALTH_PATH` verbatim when set, with no containment check,
      *      so an override can name a path inside the story directory. The note
      *      in `cli/activity-policy.ts` states what that does and does not do to
      *      the scope sentence.
@@ -484,7 +484,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         throw new Error(
           `red_evidence_envelope_check: the red-evidence policy does not resolve, so no envelope can be validated (fail-closed):\n${policyResult.diagnostics
             .map((diagnostic) => `  - ${diagnostic.message}`)
-            .join('\n')}\nSet these under the "redEvidence" block in lattice.config.json at the project root; run \`proof-or-stop doctor\` to see the resolved red-evidence policy.`,
+            .join('\n')}\nSet these under the "redEvidence" block in proof-or-stop.config.json at the project root; run \`proof-or-stop doctor\` to see the resolved red-evidence policy.`,
         );
       }
 
@@ -538,7 +538,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         `Diagnostics: ${result.diagnostics.length}`,
         ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
         'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness. Fix the envelope before spending a run.',
-        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts prints it TWICE on this path — once as a failure diagnostic BEFORE any CONFIGURED and MATCHING onError hook runs, and once again AFTER those hooks have been awaited — so the copy in front of you may or may not postdate them. MATCHING means the hooks map carries an exact red_evidence_envelope_check key or a * key; a map with neither runs no command at all. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .lattice/activity.jsonl row.',
+        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts prints it TWICE on this path — once as a failure diagnostic BEFORE any CONFIGURED and MATCHING onError hook runs, and once again AFTER those hooks have been awaited — so the copy in front of you may or may not postdate them. MATCHING means the hooks map carries an exact red_evidence_envelope_check key or a * key; a map with neither runs no command at all. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .proof-or-stop/activity.jsonl row.',
       ].join('\n');
       throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },

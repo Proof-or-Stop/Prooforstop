@@ -3,14 +3,14 @@
  *
  * `learning_scan` is the missing writer that activates the Phase 1.5 advisory
  * review hints. The hint loader (`core/experience-hint-loader.ts`) reads
- * `.lattice/learning/finding-signals.json`, but until now no command WROTE that
+ * `.proof-or-stop/learning/finding-signals.json`, but until now no command WROTE that
  * cache, so the advisory hints could never fire. This handler closes the loop:
  *
  *   • It derives finding-signals THROUGH the store read ports
  *     (`deriveFindingSignalsFromStore`) — never by parsing findings.json — and
  *     PERSISTS the result by passing `projectRoot`, which writes the cache via the
  *     learning-store's atomic `writeFindingSignals`.
- *   • The cache lives under `.lattice/learning/`, which is materialHash-EXCLUDED
+ *   • The cache lives under `.proof-or-stop/learning/`, which is materialHash-EXCLUDED
  *     (the `experience-layer-learning-cache` runtime-artifact-registry prefix), so
  *     writing it never makes evidence stale and never enters any gate's material
  *     hash.
@@ -39,12 +39,12 @@ export function createLearningScanHandlers(ctx: HandlerContext) {
     /**
      * Derive and PERSIST the advisory finding-signals cache that powers the
      * Phase 1.5 review experience hints. Reads findings through the store read
-     * ports; the ONLY write is `.lattice/learning/finding-signals.json` (a
+     * ports; the ONLY write is `.proof-or-stop/learning/finding-signals.json` (a
      * materialHash-excluded advisory cache). Files no findings, touches no gate.
      */
     learning_scan(args: LearningScanArgs = {}): string {
       // HandlerContext exposes the repo root as `root` — the same field the
-      // signature-registry / playbook writers use to address `.lattice/learning/`.
+      // signature-registry / playbook writers use to address `.proof-or-stop/learning/`.
       // Persisting against the actual store root (NOT a caller-supplied path)
       // guarantees the hint loader finds the cache where it reads it.
       const projectRoot = ctx.root ?? process.cwd();

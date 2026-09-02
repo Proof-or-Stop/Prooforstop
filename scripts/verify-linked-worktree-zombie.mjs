@@ -19,11 +19,11 @@ function git(cwd, args) {
   }).trim();
 }
 
-const temp = mkdtempSync(join(tmpdir(), 'lattice-zombie-linked-'));
+const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-zombie-linked-'));
 
 try {
   mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });
-  writeFileSync(join(temp, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(temp, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -35,8 +35,8 @@ try {
   }, null, 2));
 
   git(temp, ['init']);
-  git(temp, ['config', 'user.name', 'Lattice Test']);
-  git(temp, ['config', 'user.email', 'lattice@example.com']);
+  git(temp, ['config', 'user.name', 'ProofOrStop Test']);
+  git(temp, ['config', 'user.email', 'proofOrStop@example.com']);
   writeFileSync(join(temp, '.gitignore'), 'node_modules\n');
   git(temp, ['add', '.']);
   git(temp, ['commit', '-m', 'init']);

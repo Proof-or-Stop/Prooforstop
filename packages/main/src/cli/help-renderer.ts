@@ -16,7 +16,7 @@ import { getCommandPolicy, type CommandPolicy } from '../core/command-policy.js'
 import {
   detectProofOrStopBrand,
   formatProofOrStopProductLine,
-} from '../core/lattice-brand.js';
+} from '../core/proof-or-stop-brand.js';
 import { sessionBriefFooter } from '../cli-prompts.js';
 import type { ToolDef } from './main-tools.js';
 
@@ -31,6 +31,7 @@ export type HelpOutputOptions = {
   stream?: { write(chunk: string): unknown };
   includeFooter?: boolean;
   ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback;
+  invocation?: string;
 };
 
 export type GlobalHelpOptions = {
@@ -125,7 +126,7 @@ export function normalizeHelpText(text: string | undefined): string {
  *   operator-safety prose. Help derives the surfaced contract from those live
  *   inputs so we do not create a second supportsDryRun registry.
  * @changes
- *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in lattice <command> --help
+ *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in proofOrStop <command> --help
  *   - [CHK-002] Keep dry-run truth derived from schema/policy instead of speculative metadata
  * @test dangerous-command-guardrails
  */
@@ -167,8 +168,9 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
   const includeFooter = options.includeFooter !== false;
   const policy = getCommandPolicy(tool.name);
   const dryRunLine = dryRunHelpLine(tool, policy);
+  const invocation = options.invocation ?? tool.name;
 
-  out(`\n  ${brand.usageBin} ${tool.name} — ${tool.description}\n`);
+  out(`\n  ${brand.usageBin} ${invocation} — ${tool.description}\n`);
   out(`  ${formatProofOrStopProductLine(brand)}\n`);
 
   // If longHelp exists for a core command, print the full prompt first.
@@ -180,7 +182,7 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
   const entries = Object.entries(tool.schema).filter(([, type]) => !isHiddenHelpEntry(type));
   if (entries.length === 0) {
     out('  No arguments\n');
-    out(`  Usage: ${brand.usageBin} ${tool.name}`);
+    out(`  Usage: ${brand.usageBin} ${invocation}`);
     if (dryRunLine) out(dryRunLine);
     const ownerBlock = options.ownerLeaseHelpBlock(tool.name);
     if (ownerBlock) out(ownerBlock);
@@ -208,7 +210,7 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
-  out(`\n  Usage: ${brand.usageBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  out(`\n  Usage: ${brand.usageBin} ${invocation} ${[...reqParts, ...optParts].join(' ')}`);
   out('  (* = required)');
   if (dryRunLine) out(dryRunLine);
   const ownerBlock = options.ownerLeaseHelpBlock(tool.name);
@@ -262,7 +264,7 @@ export function printHelp(options: GlobalHelpOptions) {
     check: 'Check',
     release: 'Release',
     host: 'Host',
-    lattice: 'Proof-or-Stop',
+    proofOrStop: 'Proof-or-Stop',
     rollout: 'Proof-or-Stop',
     authority: 'Authority',
     conduit: 'Conduit',

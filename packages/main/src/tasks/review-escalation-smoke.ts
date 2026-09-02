@@ -99,7 +99,7 @@ function finding(id: string, overrides: Partial<Finding> = {}): Finding {
     severity: 'medium',
     category: 'missing',
     status: 'open',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     createdAt: '2026-06-13T10:05:00.000Z',
     reviewRound: ROUND_1,
     ...overrides,
@@ -226,10 +226,10 @@ function explicitHighRiskPolicy(materialHash: string, overrides: Partial<Process
     requires3x2: true,
     policyVersion: 'M8.explicit-high-risk-policy.v1',
     riskClass: 'process-fact',
-    sourcePolicyRef: 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M8',
+    sourcePolicyRef: 'docs/requirements/decisions/proof-or-stop-strengthening-roadmap-execution-plan.md#M8',
     rolloutStage: 'enforced',
     degradedFallbackAllowed: true,
-    issuer: 'lattice-policy-smoke',
+    issuer: 'proof-or-stop-policy-smoke',
     issuedAt: '2026-06-13T12:15:00.000Z',
     materialHash,
     authorityDone: false,
@@ -323,7 +323,7 @@ try {
         json: true,
       }) as any;
       assert.equal(verdict.storyFilesHash, storyFilesHash);
-      write(commandRoot, '.gitignore', '.lattice/autopilot-verdicts/\n');
+      write(commandRoot, '.gitignore', '.proof-or-stop/autopilot-verdicts/\n');
       git(commandRoot, ['add', '-A']);
       git(commandRoot, ['commit', '-m', 'commit legacy verdict fixture']);
 
@@ -508,7 +508,7 @@ try {
     const previousCwd = process.cwd();
     try {
       mkdirSync(gitRoot, { recursive: true });
-      write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo', scanRoot: 'repo/packages/main', rootDir: 'src', storyDir: '.lattice/story/actives' }, null, 2));
+      write(metadataRoot, 'proof-or-stop.config.json', JSON.stringify({ gitRoot: 'repo', scanRoot: 'repo/packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives' }, null, 2));
       write(gitRoot, 'packages/main/src/story.ts', 'export const wrapper = true;\n');
       git(gitRoot, ['init']);
       git(gitRoot, ['config', 'user.email', 'smoke@example.invalid']);
@@ -641,7 +641,7 @@ try {
     const report = evaluateReviewEscalation({
       projectRoot: root,
       story: story(),
-      findings: [finding('001'), finding('002', { agent: 'lattice-review-concept', evidenceState: 'verified' })],
+      findings: [finding('001'), finding('002', { agent: 'proof-or-stop-review-concept', evidenceState: 'verified' })],
       processEvents: fullQuorum(fresh),
     });
     assert.equal(report.required, true);

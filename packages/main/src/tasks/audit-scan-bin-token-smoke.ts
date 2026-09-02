@@ -1,9 +1,9 @@
 /**
  * audit-scan-bin-token-smoke — B-cdf6 CHK-005 regression guard against the docs-drift extractor
- * going VACUOUSLY BLIND after the `lattice` -> `proof-or-stop` bin rename.
+ * going VACUOUSLY BLIND after the `proof-or-stop` -> `proof-or-stop` bin rename.
  *
  * The bug this pins: `scanCommandDrift` / `scanFlagDrift` used to extract documented commands with
- * a single hardcoded literal (`/\blattice\s+(...)/g`). Once the active docs were rewritten to read
+ * a single hardcoded literal (`/\bproofOrStop\s+(...)/g`). Once the active docs were rewritten to read
  * `proof-or-stop <cmd>`, that regex matched NOTHING — the loop body never executed, the scan
  * returned zero drifts, and the gate reported a PASS. A doc could then reference a nonexistent
  * command forever undetected, defeating the exact drift class the scanner exists to catch. A
@@ -13,11 +13,10 @@
  *
  * Coverage:
  *   1. happy       — a bogus `proof-or-stop no_such_command` reference IS reported as drift
- *   2. happy       — the deprecated `lattice no_such_command` alias is STILL reported as drift
- *   3. happy       — mixed-token docs report BOTH, so the transition period stays covered
- *   4. happy       — a real command with a real flag produces no drift (no false positive)
- *   5. edge        — flag drift is caught under the renamed bin token too
- *   6. adversarial — the ORIGINAL vacuous-pass scenario: renamed-bin doc, bogus command, zero
+ *   2. happy       — multiple canonical command references are all reported
+ *   3. happy       — a real command with a real flag produces no drift (no false positive)
+ *   4. edge        — flag drift is caught under the renamed bin token too
+ *   5. adversarial — the ORIGINAL vacuous-pass scenario: renamed-bin doc, bogus command, zero
  *                    drift would mean blindness. Asserts drift IS reported.
  *   7. adversarial — an empty extraction is mechanically distinguishable from a clean scan
  *                    (`extractedCommands` is empty ONLY when nothing was extracted)
@@ -34,7 +33,7 @@ import {
   scanCommandDrift,
   scanFlagDrift,
 } from '../core/audit-scan.js';
-import { PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN } from '../core/lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from '../core/proof-or-stop-brand.js';
 
 /** Stub help runner: `validate` is the only registered command; everything else exits non-zero. */
 const runHelp = (cmd: string) => (cmd === 'validate'
@@ -64,36 +63,22 @@ function fence(...body: string[]): string {
 }
 
 // ---------------------------------------------------------------------------
-// 2. happy — the DEPRECATED alias still works, so pre-rename docs stay covered
-// ---------------------------------------------------------------------------
-{
-  const md = fence(`${PROOF_OR_STOP_DEPRECATED_BIN} ${BOGUS}`);
-  const r = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
-  const hit = r.drifts.find(d => d.symbol === `${PROOF_OR_STOP_DEPRECATED_BIN} ${BOGUS}`);
-  assert.ok(
-    hit,
-    `REGRESSION: the deprecated \`${PROOF_OR_STOP_DEPRECATED_BIN}\` bin token lost coverage — dropping it would blind the scan on every not-yet-migrated doc`,
-  );
-  console.log(`  test2 ok: ${PROOF_OR_STOP_DEPRECATED_BIN} ${BOGUS} -> drift`);
-}
-
-// ---------------------------------------------------------------------------
-// 3. happy — MIXED-token docs report both (the whole point of teaching both tokens)
+// 2. happy — multiple canonical commands are all reported
 // ---------------------------------------------------------------------------
 {
   const md = fence(
     `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`,
-    `${PROOF_OR_STOP_DEPRECATED_BIN} another_missing_cmd`,
+    `${PROOF_OR_STOP_PRIMARY_BIN} another_missing_cmd`,
   );
   const r = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
   const symbols = r.drifts.map(d => d.symbol).sort();
   assert.deepEqual(
     symbols,
-    [`${PROOF_OR_STOP_DEPRECATED_BIN} another_missing_cmd`, `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`].sort(),
-    'a doc mixing both bin tokens must report drift for BOTH',
+    [`${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`, `${PROOF_OR_STOP_PRIMARY_BIN} another_missing_cmd`].sort(),
+    'multiple canonical command references must each report drift',
   );
   assert.equal(r.extractedCommands.length, 2, 'both commands counted as extracted');
-  console.log('  test3 ok: mixed-token doc reports both drifts');
+  console.log('  test2 ok: multiple canonical commands report all drifts');
 }
 
 // ---------------------------------------------------------------------------

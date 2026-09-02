@@ -1,5 +1,5 @@
 /**
- * @lattice/lab 公共入口
+ * @proof-or-stop/lab 公共入口
  */
 export { register } from './register.js';
 export { createLabToolDefs } from './tool-defs.js';

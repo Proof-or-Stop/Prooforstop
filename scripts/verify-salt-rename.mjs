@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * fbca-salt-rename-check.mjs — proves the 8 koala-* → lattice-* salt rename
+ * fbca-salt-rename-check.mjs — proves the 8 koala-* → proof-or-stop-* salt rename
  * is consistent across the product runtime source + scripts.
  *
  * For each of the 8 salts: assert
  *   git grep -c 'koala-<salt>'   in packages/** + scripts/**  === 0   (old gone)
- *   git grep -c 'lattice-<salt>' in packages/** + scripts/**  >= 1     (new present)
+ *   git grep -c 'proof-or-stop-<salt>' in packages/** + scripts/**  >= 1     (new present)
  * Exit 0 = consistent rename; exit 1 = any inconsistency.
  */
 import { execFileSync } from 'node:child_process';
@@ -53,11 +53,11 @@ function grepCount(pat) {
 let failed = false;
 for (const salt of SALTS) {
   const oldHits = grepCount(`koala-${salt}`);
-  const newHits = grepCount(`lattice-${salt}`);
+  const newHits = grepCount(`proof-or-stop-${salt}`);
   const ok = oldHits === 0 && newHits >= 1;
   if (!ok) failed = true;
   console.log(
-    `${ok ? 'OK  ' : 'FAIL'} salt ${salt}: koala-=${oldHits} (want 0), lattice-=${newHits} (want >=1)`,
+    `${ok ? 'OK  ' : 'FAIL'} salt ${salt}: koala-=${oldHits} (want 0), proof-or-stop-=${newHits} (want >=1)`,
   );
 }
 
@@ -65,5 +65,5 @@ if (failed) {
   console.error('\nFAIL salt-rename: at least one salt is not consistently renamed.');
   process.exit(1);
 }
-console.log(`\nPASS salt-rename: all ${SALTS.length} salts renamed koala-* -> lattice-* (old gone, new present).`);
+console.log(`\nPASS salt-rename: all ${SALTS.length} salts renamed koala-* -> proof-or-stop-* (old gone, new present).`);
 process.exit(0);

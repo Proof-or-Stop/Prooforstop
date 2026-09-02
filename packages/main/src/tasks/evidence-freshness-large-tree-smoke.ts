@@ -25,17 +25,17 @@ function git(cwd: string, args: string[], options: { maxBuffer?: number } = {}):
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2) + '\n');
 }
 
 function createLargeTreeRepo(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-material-large-tree-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-material-large-tree-'));
   writeConfig(root);
   const dir = join(root, 'packages/main/src/large-tree-regression');
   mkdirSync(dir, { recursive: true });

@@ -39,7 +39,7 @@
  *   7. The pure attributor itself, including a control proving it does not
  *      report ambiguity when there is none.
  *   8. HANDLER WIRING (B-7dff F-006) — the same scenario driven through the REAL
- *      `lattice validate --story=... --json` CLI, asserted on the PERSISTED
+ *      `proof-or-stop validate --story=... --json` CLI, asserted on the PERSISTED
  *      test-evidence.json. Section 6 proves the summariser honours the flag when
  *      it is handed one; it cannot prove anybody hands it one. It did not:
  *      `externalResult()` in handlers/verifier.ts is a field whitelist and
@@ -209,7 +209,7 @@ function handshakeCommand({ syncDir: dir, self, peers, writes = null, observes =
 /**
  * A complete Proofbound project fixture (git repo + config + REVIEW-phase story)
  * whose configured `validate.commands` are the two handshake probes above, then
- * ONE real `lattice validate --story=... --json` run against it. Returns the
+ * ONE real `proof-or-stop validate --story=... --json` run against it. Returns the
  * handler's own JSON result and the test-evidence.json the handler persisted.
  */
 function runStoryValidateFixture(name, { dirty }) {
@@ -232,11 +232,11 @@ function runStoryValidateFixture(name, { dirty }) {
     }),
   ];
   const git = (...args) => execFileSync('git', args, { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
-  writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n');
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
     validate: { commands },
@@ -271,7 +271,7 @@ function runStoryValidateFixture(name, { dirty }) {
     startTime: now,
     endTime: now,
   }] });
-  git('add', '.lattice');
+  git('add', '.proof-or-stop');
   git('commit', '-m', 'seed story metadata');
 
   const run = spawnSync(process.execPath, [cliPath, 'validate', `--story=${storyId}`, '--json'], {
@@ -279,19 +279,19 @@ function runStoryValidateFixture(name, { dirty }) {
     encoding: 'utf8',
     env: {
       ...process.env,
-      LATTICE_PROJECT_ROOT: root,
-      LATTICE_SESSION_ID: `b7dff-${name}`,
-      LATTICE_ACTIVITY_SOURCE: 'codex',
-      LATTICE_VALIDATE_JOBS: '2',
+      PROOF_OR_STOP_PROJECT_ROOT: root,
+      PROOF_OR_STOP_SESSION_ID: `b7dff-${name}`,
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_VALIDATE_JOBS: '2',
     },
   });
   const transcript = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;
   const jsonLine = (run.stdout ?? '').split('\n').filter((line) => line.trimStart().startsWith('{')).at(-1);
   assert.ok(jsonLine, `validate --json printed no JSON result:\n${transcript}`);
   const handler = JSON.parse(jsonLine);
-  assert.notEqual(handler.provider, 'lattice-verifier-executed-persistence',
+  assert.notEqual(handler.provider, 'proof-or-stop-verifier-executed-persistence',
     `evidence persistence failed, so this fixture proves nothing about the wrap:\n${transcript}`);
-  const evidencePath = join(root, `.lattice/story/actives/${storyId}/test-evidence.json`);
+  const evidencePath = join(root, `.proof-or-stop/story/actives/${storyId}/test-evidence.json`);
   assert.ok(existsSync(evidencePath), `handler persisted no test-evidence.json:\n${transcript}`);
   return { root, sync, handler, evidence: JSON.parse(readFileSync(evidencePath, 'utf8')), transcript };
 }

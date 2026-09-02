@@ -45,7 +45,7 @@ export interface ValidationCommandResult {
     paths: string[];
     /**
      * Task B-4b22: when false, the dirty-gate-policy classified every
-     * polluted path into a passing category (lattice_metadata / runtime_artifact
+     * polluted path into a passing category (proof_or_stop_metadata / runtime_artifact
      * / declared_artifact) and audit lines were written. The execute plan
      * still records the pollution for visibility but does NOT flip allPass.
      * Undefined for legacy callers — treated as `true` (blocking) by
@@ -190,7 +190,7 @@ export interface RoutineValidationIdentityCommand {
 }
 
 export interface RoutineValidationIdentity {
-  schema: 'lattice.routine-validation-identity';
+  schema: 'proofOrStop.routine-validation-identity';
   version: 1;
   digest: string;
   source: {
@@ -213,7 +213,7 @@ export interface RoutineValidationIdentity {
 }
 
 export interface RoutineValidationCommandExecution {
-  schema: 'lattice.routine-validation-command-execution';
+  schema: 'proofOrStop.routine-validation-command-execution';
   version: 1;
   status: 'PASS' | 'FAIL';
   complete: boolean;
@@ -271,7 +271,7 @@ export interface DoneRequiredCommandReceipt {
 }
 
 export interface DoneRequiredEvidenceData {
-  schema: 'lattice.done-required-evidence';
+  schema: 'proofOrStop.done-required-evidence';
   version: 1;
   storyId: string;
   status: DoneRequiredEvidenceStatus;

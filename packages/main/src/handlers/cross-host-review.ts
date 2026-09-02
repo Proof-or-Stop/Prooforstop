@@ -15,7 +15,7 @@ import {
   currentStoryFilesHash,
   GIT_TREE_OUTPUT_MAX_BUFFER,
 } from '../core/evidence-freshness.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { Finding } from '../core/adversarial-review.js';
 import { FINDING_SEVERITIES } from '../core/adversarial-review.js';
@@ -53,13 +53,13 @@ export const CROSS_HOST_REVIEW_HEAD_DRIFT = 'cross_host_review_head_drift' as co
  * which hashes the COMMITTED tree (`git ls-tree HEAD`). Codex reviews a detached
  * snapshot of that committed tree, so the live worktree must not contain material
  * source edits that are outside the captured commit. Throwing here guarantees the
- * operator's source state is exactly the captured HEAD tree (modulo `.lattice/`
+ * operator's source state is exactly the captured HEAD tree (modulo `.proof-or-stop/`
  * metadata Codex never reads), so the bound materialHash is HONEST. This matches
  * the repo's "commit before review" discipline.
  *
- * `.lattice/` EXCLUSION: the story's own Lattice metadata dir churns constantly
+ * `.proof-or-stop/` EXCLUSION: the story's own ProofOrStop metadata dir churns constantly
  * DURING a story (activity log, locks, the story's own test-evidence/checklist),
- * and Codex reviews SOURCE, not story bookkeeping — so any path under `.lattice/`
+ * and Codex reviews SOURCE, not story bookkeeping — so any path under `.proof-or-stop/`
  * is dropped from the material set. Everything else that git reports (tracked
  * modifications + untracked files via `--untracked-files=all`) counts as material
  * drift.
@@ -76,7 +76,7 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
   try {
     // No full-output trim(): it would strip the first porcelain row's leading
     // status space (" M path" -> "M path"), shifting the fixed-width path
-    // offset so the first row's `.lattice/...` path reads as "lattice/..." and
+    // offset so the first row's `.proof-or-stop/...` path reads as "proofOrStop/..." and
     // false-blocks the preflight on metadata-only dirt.
     raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
       cwd: gitCwd,
@@ -94,7 +94,7 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
   }
   const rows = raw.split('\n').map(line => line.trimEnd()).filter(Boolean);
   if (rows.length === 0) return;
-  const latticePrefix = `${PROOF_OR_STOP_DIR}/`; // e.g. ".lattice/"
+  const proofOrStopPrefix = `${PROOF_OR_STOP_DIR}/`; // e.g. ".proof-or-stop/"
   const material: string[] = [];
   for (const line of rows) {
     if (line.length < 4) continue;
@@ -106,9 +106,9 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
     for (const path of paths) {
       const normalized = path.replace(/\\/g, '/');
       if (!normalized) continue;
-      // Drop the story's own Lattice metadata dir — Codex reviews source, not
-      // story bookkeeping, and `.lattice/` churns constantly during a story.
-      if (normalized === PROOF_OR_STOP_DIR || normalized.startsWith(latticePrefix)) continue;
+      // Drop the story's own ProofOrStop metadata dir — Codex reviews source, not
+      // story bookkeeping, and `.proof-or-stop/` churns constantly during a story.
+      if (normalized === PROOF_OR_STOP_DIR || normalized.startsWith(proofOrStopPrefix)) continue;
       material.push(normalized);
     }
   }
@@ -119,7 +119,7 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
       + `versus HEAD (${sample}${material.length > 5 ? ', …' : ''}). Codex reviews a detached snapshot of HEAD, and the `
       + `recorded verdict binds to that HEAD materialHash (the committed tree), so uncommitted source state would make the `
       + `operator-facing review result misleading. Commit or stash the source changes before cross_host_review (commit-before-review), or `
-      + `exclude only .lattice/ metadata. Refusing to spawn the codex review subprocess (fail-closed).`,
+      + `exclude only .proof-or-stop/ metadata. Refusing to spawn the codex review subprocess (fail-closed).`,
     );
   }
 }
@@ -239,7 +239,7 @@ export type CrossHostReviewArgs = {
   /**
    * F-004: the review-only dispatch policy that authorizes and constrains the
    * codex review subprocess. Either a named policy (loaded from
-   * .lattice/dispatch-policies/<name>.json) or an inline DispatchPolicy object —
+   * .proof-or-stop/dispatch-policies/<name>.json) or an inline DispatchPolicy object —
    * both are accepted by checkDispatchPolicy. REQUIRED: the handler fails closed
    * (no codex spawn) when it is missing or unauthorized.
    */
@@ -350,7 +350,7 @@ function assertReviewHeadStillCurrent(gitCwd: string, expectedHeadHash: string):
 }
 
 function createCleanHeadReviewWorktree(gitCwd: string, headHash: string): { worktree: string; cleanup: () => void } {
-  const parent = mkdtempSync(join(tmpdir(), 'lattice-xhr-review-'));
+  const parent = mkdtempSync(join(tmpdir(), 'proof-or-stop-xhr-review-'));
   const worktree = join(parent, 'worktree');
   try {
     execFileSync('git', ['worktree', 'add', '--detach', worktree, headHash], {
@@ -651,7 +651,7 @@ function appendHostVerdictEvents(ctx: HandlerContext, storyId: string, ...verdic
   const events = verdicts.filter(verdict => verdict.storyId).map(hostVerdictProcessEvent);
   if (events.length === 0) return;
   // B-d877 R4 (codex #3): pass the RELOCATED append lock dir (the same gitignored
-  // shared `.lattice/locks/process-events/` path StoryStore.appendProcessEvent
+  // shared `.proof-or-stop/locks/process-events/` path StoryStore.appendProcessEvent
   // uses). Previously this site omitted lockDir, so the append lock was created
   // inside the git-tracked story dir and a transient holder.json could dirty the
   // tree / fail the clean-tree gate.
@@ -766,7 +766,7 @@ export function createCrossHostReviewHandlers(
       // codex spawn if the worktree has uncommitted MATERIAL (source) drift versus
       // HEAD. The recorded verdict binds to the HEAD materialHash (the committed
       // tree), so Codex must review a clean HEAD snapshot and the live worktree
-      // must still be source-clean before we record the verdict. `.lattice/`
+      // must still be source-clean before we record the verdict. `.proof-or-stop/`
       // metadata is excluded (Codex never reads story bookkeeping, and it churns
       // constantly).
       assertMaterialCleanForReview(gitCwd);
@@ -792,7 +792,7 @@ export function createCrossHostReviewHandlers(
             // B-70e9 CHK-003: make the codex review spawn visible in the usage ledger.
             // NOTE: `env` here is the UNREDACTED process env for LEDGER GATING — it is
             // deliberately NOT the redacted subprocess env above (which drops
-            // LATTICE_USAGE_LEDGER), so a ledger enabled in the parent is honored.
+            // PROOF_OR_STOP_USAGE_LEDGER), so a ledger enabled in the parent is honored.
             usageLedger: {
               root: ctx.root,
               recordedAt: new Date().toISOString(),

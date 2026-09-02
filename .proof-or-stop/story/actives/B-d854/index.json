@@ -1,0 +1,42 @@
+{
+  "storyId": "B-d854",
+  "name": "audit-and-translate-root-agents-prompt",
+  "title": "Audit the root AGENTS.md against the current Proof-or-Stop version and translate it fully into English",
+  "description": "Verify every current-behavior claim in root AGENTS.md against authoritative current repository sources and runtime surfaces, preserve auditable evidence, then translate the entire document into English without changing commands, schemas, identifiers, or normative meaning.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "AGENTS prompt",
+    "English translation",
+    "current-version consistency"
+  ],
+  "createdAt": "2026-09-01T22:53:09.910Z",
+  "startedAt": "2026-09-01T22:53:09.910Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-01T22:53:10.876Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-b6857c9415dea5c2f48378a24ef03aff",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-01T22:57:51.928Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-b6857c9415dea5c2f48378a24ef03aff",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d854",
+    "branch": "story/B-d854",
+    "createdAt": "2026-09-01T22:57:49.216Z"
+  }
+}

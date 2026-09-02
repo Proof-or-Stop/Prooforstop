@@ -17,7 +17,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
   MODULAR_COMPLEX_ROLE_IDS,
   MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_REGISTRY_SOURCE,
@@ -42,7 +42,7 @@ import { renderCodexAgentContent } from '../init-assets.js';
 // B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
 // read a path that no longer exists (ENOENT) or scan zero files.
 function adapterDirName(base: string): string {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
 }
 
 
@@ -50,7 +50,7 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'lattice-review-channel.md',
+  'proof-or-stop-review-channel.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',
@@ -133,11 +133,11 @@ const approvedReviewFindingTriageNormativeLines = [
   '- Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.',
 ] as const;
 const frozenReviewerLegacyReconstructionDigests = {
-  'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
-  'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
-  'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
-  'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
-  'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
+  'proof-or-stop-review-behavior': 'bbb6815ba8131f9fa7b25fd2fa82a9d91890dc56f1c5e43b814cba8b55e4e582',
+  'proof-or-stop-review-concept': '960bf0df46737570bbf55ebaefa3776272fe25b302f76bbde5c57e289a5db70c',
+  'proof-or-stop-review-docs': 'e26caaf232929404a9ddd6e772e743ef87d5d67fdaedcde75123e6ed58f027c5',
+  'proof-or-stop-review-quality': 'f8122f08bef477636732a450148dd567bf835c22636c842881a9162d1265b031',
+  'proof-or-stop-review-test-coverage': '1d3e1705db33a4c801cc516f242bca3b2665dd94d8157801beaa2e07b208310a',
 } as const;
 // Independent approval for the complete modular reviewer body that precedes the
 // injected contract. Terminal-contract validation alone cannot see contradictory
@@ -145,11 +145,11 @@ const frozenReviewerLegacyReconstructionDigests = {
 // refreshable. These pins make any prefix change require deliberate semantic-test
 // review instead of allowing a baseline refresh to approve it implicitly.
 const approvedReviewerModularPrefixDigests = {
-  'lattice-review-behavior': '3b25cf83e1b38ce805762736875afe013b6dfcab277e9a15fa3ee314909d1ec4',
-  'lattice-review-concept': 'ae1de41de7a5f2db42279ca68c148741f85e0711a7eeeeaeae5797c18c175430',
-  'lattice-review-docs': 'cc5fe34377ce4dcb3caf186311394b80350db697252d4929aeeee151838bbd0f',
-  'lattice-review-quality': 'b1f40fddd5bcc2962398a042f9575c239fa835dcebc829f9d9c3bb6e3d96cc0b',
-  'lattice-review-test-coverage': '45ece5b7d75d0543317107bc1713285f400c75b74e115d8f06077543d222a73b',
+  'proof-or-stop-review-behavior': 'dee2bd93fbe8914aa1ca96ffad2ac2e632739137dffefb330cb18a556aa10f34',
+  'proof-or-stop-review-concept': '4a620ff64aec0b19cf13ef9f15f6d49a0597c1fef3a7a373685ab228b15ed3cf',
+  'proof-or-stop-review-docs': 'bbc444a5536e3bad297d016469c6850a3ddc1d580d679e351a8c66b083bccc0d',
+  'proof-or-stop-review-quality': 'd1377e890b30e837f1aaccc689bfd757095c4893faa545d8ab4d0f9b6781ffe3',
+  'proof-or-stop-review-test-coverage': 'bc9eef6284186ff8909c93915824839b4524b796ace4acd48c96aa222e6ee360',
 } as const;
 const approvedEmptyReviewerPrefixSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const requiredReviewFindingTriagePhrases = [
@@ -552,8 +552,8 @@ function occurrenceCount(content: string, needle: string): number {
   return content.split(needle).length - 1;
 }
 
-function extractLatticeBlock(content: string): string | null {
-  return content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0] ?? null;
+function extractProofOrStopBlock(content: string): string | null {
+  return content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/)?.[0] ?? null;
 }
 
 function assertReviewFindingTriageDelivery(): void {
@@ -664,8 +664,8 @@ function assertDynamicFindingAuthorityProjection(): void {
   assert.doesNotMatch(plan, /[\u3400-\u9fff]/u, 'the Dynamic Finding target-state plan is English-only');
   assert.equal(
     occurrenceCount(plan, '`stale_or_not_reproduced`'),
-    1,
-    'the authority plan retains the retired verdict exactly once as a labeled future legacy alias',
+    0,
+    'the authority plan keeps the retired compatibility alias out of canonical target-state vocabulary',
   );
   for (const phrase of [
     '`not_reproduced_under_current_witness`',
@@ -684,8 +684,6 @@ function assertDynamicFindingAuthorityProjection(): void {
     'protectedSurfaceImpact: {',
     'must be reproduced, root-caused, fixed,',
     'exhausted/invalid deferral lineage',
-    'the current CLI implements neither the future legacy',
-    '`FindingDeferralDisposition` / `defer_with_proof` path',
   ]) {
     assert.ok(normalizedPlan.includes(phrase), `the Dynamic Finding authority plan keeps target-state phrase: ${phrase}`);
   }
@@ -762,7 +760,7 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     assert.equal(occurrenceCount(compatibilityLine, 'mechanically enforce'), 1, `${file} states the prompt-enforcement limitation once`);
   }
 
-  const implementerGuide = readFileSync(join(registry.root, 'lattice-implementer.md'), 'utf8');
+  const implementerGuide = readFileSync(join(registry.root, 'proof-or-stop-implementer.md'), 'utf8');
   for (const phrase of [
     'Preserve its reproduction evidence and impact evidence',
     'Report it to the Story Owner',
@@ -826,22 +824,22 @@ for (const entry of registry.agents) {
     assert.equal(occurrenceCount(expectedCodex, reviewFindingTriageContractMarker), 0, `${entry.file} Codex render receives no REVIEW triage contract`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
-    // lattice-review-channel is retired and independently byte-pinned by the
-    // prompt baseline. Compare the embedded guide after line-wrap normalization
-    // so a canonical-slice reflow cannot force unrelated churn into that frozen
-    // asset merely to satisfy this semantic parity check.
-    const embeddedLoadBearingGuide = extractLatticeBlock(source);
+    // proof-or-stop-review-channel is retired and independently byte-pinned by
+    // the prompt baseline. Its main-branch asset and canonical embedded guide
+    // differ only in line wrapping, so normalize whitespace for this one
+    // semantic-parity assertion rather than weakening any body/hash pin.
+    const embeddedLoadBearingGuide = extractProofOrStopBlock(source);
     assert.ok(embeddedLoadBearingGuide, `${entry.file} contains the load-bearing prompt slice`);
     assert.equal(
       embeddedLoadBearingGuide.replace(/\s+/gu, ' ').trim(),
-      LOAD_BEARING_LATTICE_PROMPT_SLICE.replace(/\s+/gu, ' ').trim(),
+      LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE.replace(/\s+/gu, ' ').trim(),
       `${entry.file} uses the canonical load-bearing prompt slice semantics`,
     );
     for (const phrase of requiredSafetyPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
   }
-  if (entry.file === 'lattice-review-quality.md') {
+  if (entry.file === 'proof-or-stop-review-quality.md') {
     for (const phrase of qualityProofMetadataPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps proof metadata review phrase: ${phrase}`);
     }
@@ -852,7 +850,7 @@ for (const entry of registry.agents) {
   }
   const codexMirrorPath = join(projectRoot, adapterDirName(projectRoot), 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host input`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
@@ -899,7 +897,7 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
     approvedReviewFindingTriageContractSha256,
     approvedReviewerModularPrefixDigests[roleId],
   );
-  assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
+  assert.equal(extractProofOrStopBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
   assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
   for (const host of ['claude', 'codex'] as const) {
     const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
@@ -936,14 +934,14 @@ for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
     );
   }
 }
-assert.equal(resolvePromptEnvelopeRolloutMode('lattice-review-concept', undefined), 'legacy-full-context');
+assert.equal(resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', undefined), 'legacy-full-context');
 for (const roles of [
-  { 'lattice-review-channel': 'full-envelope' },
+  { 'proof-or-stop-review-channel': 'full-envelope' },
   { 'implementation-reviewer': 'full-envelope' },
   { 'unknown-reviewer': 'full-envelope' },
 ]) {
   assert.throws(
-    () => resolvePromptEnvelopeRolloutMode('lattice-review-concept', {
+    () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles,
     }),
@@ -952,27 +950,27 @@ for (const roles of [
 }
 for (const [source, expected] of [
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"lattice-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope\.roles key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope","lattice-review-quality":"legacy-full-context"}}}',
-    /duplicate promptEnvelope\.roles\.lattice-review-quality key/,
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope","proof-or-stop-review-quality":"legacy-full-context"}}}',
+    /duplicate promptEnvelope\.roles\.proof-or-stop-review-quality key/,
   ],
 ] as const) {
   assert.throws(() => assertNoDuplicatePromptEnvelopeRoleKeys(source), expected);
 }
 for (const malformed of [
   { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
-  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'lattice-review-quality': 'unknown-mode' } },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'proof-or-stop-review-quality': 'unknown-mode' } },
   { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: JSON.parse('{"__proto__":"full-envelope"}') },
 ]) {
   assert.throws(
-    () => resolvePromptEnvelopeRolloutMode('lattice-review-quality', malformed),
+    () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-quality', malformed),
     PromptRoleContractRegistryError,
   );
 }

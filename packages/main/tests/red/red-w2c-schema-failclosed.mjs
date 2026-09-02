@@ -89,7 +89,7 @@ const v3 = {
   seq: 2, priorRecordDigest: 'sha256:deadbeef', supersedes: 'RED-x',
   storyId: 'B-fc', acceptanceTargetRef: 'M1',
   recoversRecordId: 'RED-x', referencedRecordDigest: 'sha256:deadbeef', linkKind: 'quarantines',
-  reason: 'flaky', approvedBy: 'lattice-implementer@sess-x', operationKey: 'sha256:key', createdAt: NOW,
+  reason: 'flaky', approvedBy: 'proof-or-stop-implementer@sess-x', operationKey: 'sha256:key', createdAt: NOW,
 };
 
 const root = join(process.env.TMPDIR || '/tmp', `red-w2c-failclosed-${process.pid}`);

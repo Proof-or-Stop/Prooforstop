@@ -80,10 +80,10 @@ function normalizeHostRenderSource(value: unknown): ReviewerHostRenderSource | n
 function globalHostRenderSource(projectRoot: string): ReviewerHostRenderSource | null {
   // B-cc10 CHK-004: probe every accepted state-dir x manifest-filename spelling
   // (canonical first) instead of two pinned literals, so this host-render-source
-  // probe follows the rename. `.Lattice` stays an explicit case variant.
+  // probe follows the rename. `.proof-or-stop` stays an explicit case variant.
   const probes = [
     ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
-    ...MANIFEST_FILENAMES.map(file => join('.Lattice', file)),
+    ...MANIFEST_FILENAMES.map(file => join('.proof-or-stop', file)),
   ].filter((value, index, all) => all.indexOf(value) === index);
   for (const relPath of probes) {
     const manifest = readJsonRecord(join(projectRoot, relPath));
@@ -115,7 +115,7 @@ function reviewerHostRenderSource(
     if (globalSource === 'package-registry') return globalSource;
     if (codexSource === 'full-asset') return codexSource;
     if (
-      codexManifest?.adapterOwner === 'lattice'
+      codexManifest?.adapterOwner === 'proof-or-stop'
       && codexManifest.adapterKind === 'codex'
       && codexManifest.promptMode === undefined
     ) {
@@ -235,30 +235,30 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
   'implementation-reviewer': {
     ...commonPolicy,
     status: COMPATIBILITY,
-    replacementAgentType: 'lattice-review-quality',
-    migrationHint: 'Use lattice-review-quality first and lattice-review-behavior for behavioral coverage; this compatibility prompt creates no REVIEW lane.',
+    replacementAgentType: 'proof-or-stop-review-quality',
+    migrationHint: 'Use proof-or-stop-review-quality first and proof-or-stop-review-behavior for behavioral coverage; this compatibility prompt creates no REVIEW lane.',
     defaultDispatch: false,
     responsibility: 'Legacy combined implementation review.',
     allowedCommandIds: [],
     requiredOutputIds: ['migration-guidance'],
   },
-  'lattice-evaluator': {
+  'proof-or-stop-evaluator': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Evaluate Lattice outcomes from project evidence.',
+    responsibility: 'Evaluate ProofOrStop outcomes from project evidence.',
     allowedCommandIds: [],
     requiredOutputIds: ['evaluation-report'],
   },
-  'lattice-evaluator-cli': {
+  'proof-or-stop-evaluator-cli': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Evaluate Lattice outcomes through the CLI surface.',
+    responsibility: 'Evaluate ProofOrStop outcomes through the CLI surface.',
     allowedCommandIds: [],
     requiredOutputIds: ['evaluation-report'],
   },
-  'lattice-implementer': {
+  'proof-or-stop-implementer': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
@@ -266,7 +266,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['checklist_update', 'finding_resolve'],
     requiredOutputIds: ['implementation-commit', 'verification-evidence'],
   },
-  'lattice-review-behavior': {
+  'proof-or-stop-review-behavior': {
     ...commonPolicy,
     requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
@@ -275,7 +275,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
-  'lattice-review-channel': {
+  'proof-or-stop-review-channel': {
     ...commonPolicy,
     status: 'retired',
     defaultDispatch: false,
@@ -283,7 +283,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: [],
     requiredOutputIds: ['retirement-guidance'],
   },
-  'lattice-review-concept': {
+  'proof-or-stop-review-concept': {
     ...commonPolicy,
     requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
@@ -292,7 +292,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
-  'lattice-review-delivery': {
+  'proof-or-stop-review-delivery': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
@@ -300,7 +300,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['delivery_check_set'],
     requiredOutputIds: ['delivery-check'],
   },
-  'lattice-review-docs': {
+  'proof-or-stop-review-docs': {
     ...commonPolicy,
     requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
@@ -309,7 +309,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
-  'lattice-review-quality': {
+  'proof-or-stop-review-quality': {
     ...commonPolicy,
     requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
@@ -318,7 +318,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
-  'lattice-review-scope-plan': {
+  'proof-or-stop-review-scope-plan': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
@@ -326,7 +326,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['scope_check_save', 'topology_exclusion_approval_set'],
     requiredOutputIds: ['scope-check'],
   },
-  'lattice-review-topology-critic': {
+  'proof-or-stop-review-topology-critic': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
@@ -334,7 +334,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check'],
     requiredOutputIds: ['topology-critic-receipt'],
   },
-  'lattice-review-story-init': {
+  'proof-or-stop-review-story-init': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
@@ -342,7 +342,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['init_check_set'],
     requiredOutputIds: ['init-check'],
   },
-  'lattice-review-test-coverage': {
+  'proof-or-stop-review-test-coverage': {
     ...commonPolicy,
     requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
@@ -515,8 +515,8 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
       );
     }
   }
-  if (byId.get('lattice-review-channel')?.status !== 'retired' || byId.get('lattice-review-channel')?.defaultDispatch !== false) {
-    throw new PromptRoleContractRegistryError('lattice-review-channel must be retired and non-default');
+  if (byId.get('proof-or-stop-review-channel')?.status !== 'retired' || byId.get('proof-or-stop-review-channel')?.defaultDispatch !== false) {
+    throw new PromptRoleContractRegistryError('proof-or-stop-review-channel must be retired and non-default');
   }
   if (byId.get('product-reviewer')?.status !== 'active') throw new PromptRoleContractRegistryError('product-reviewer must remain active');
   for (const roleId of ['implementation-reviewer', 'test-intent', 'test-case-reviewer']) {

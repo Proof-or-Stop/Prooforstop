@@ -10,7 +10,7 @@ import {
   runRuntimeEnvironmentChecks,
 } from '../core/runtime-environment-checks.js';
 
-function renderLatticeManagedAssetCheck(result: ReturnType<typeof runManagedAssetCheck>): string {
+function renderProofOrStopManagedAssetCheck(result: ReturnType<typeof runManagedAssetCheck>): string {
   // core renderManagedAssetCheck already emits Proof-or-Stop-branded output; no legacy rewrite needed.
   return renderManagedAssetCheck(result);
 }
@@ -24,7 +24,7 @@ export function createCheckHandlers(ctx: HandlerContext) {
       if (args.json) return { runtimeMode, ...result };
       const rendered = [
         renderRuntimeFootprintSummary(runtimeMode, managedAssetNextAction(result)),
-        renderLatticeManagedAssetCheck(result),
+        renderProofOrStopManagedAssetCheck(result),
       ].join('\n\n');
       if (!result.ok) throw new Error(rendered);
       return rendered;

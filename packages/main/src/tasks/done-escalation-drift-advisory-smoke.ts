@@ -77,7 +77,7 @@ const CONFIG = JSON.stringify(
   {
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
@@ -93,7 +93,7 @@ const CONFIG = JSON.stringify(
  */
 function makeRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'done-escalation-drift-'));
-  write(root, 'lattice.config.json', CONFIG);
+  write(root, 'proof-or-stop.config.json', CONFIG);
   write(root, 'README.md', 'done escalation drift advisory smoke\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);

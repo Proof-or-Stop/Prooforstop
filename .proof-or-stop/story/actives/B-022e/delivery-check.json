@@ -1,0 +1,89 @@
+{
+  "storyId": "B-022e",
+  "checkedAt": "2026-09-01T20:53:51.755Z",
+  "headHash": "72dae8bc8e07c77650723e77b40cceebb78f2745",
+  "materialHash": "544685a87c4b1cd7bbcf5eff8d57fb26153cc01a1d3f4f0ca4b99f6fc2fda542",
+  "storyFilesHash": "7eb9a55816f61625ed18bf01385d086ef645751fffccf8ce818324a9fcc05513",
+  "reviewRound": "2026-09-01T20:45:42.374Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Current product identity and install/CLI guidance use Proof-or-Stop and proof-or-stop only; retired Lattice names are not presented as active entrypoints.",
+      "status": "verified",
+      "verifiedBy": "identity-cutover verifier plus current full delivery audit",
+      "evidence": "Round 33 local review basis; active identity verifier and root suite passed."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "The documented CLI reports Proof-or-Stop 0.3.270 and exposes canonical help and nested Lab commands.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke transcript and packed/entrypoint regressions",
+      "evidence": "Fresh transcript records successful Proof-or-Stop 0.3.270 invocation; global Lab and entrypoint coverage is current."
+    },
+    {
+      "docPath": "AGENTS.md",
+      "promise": "Lifecycle/config guidance uses the canonical .proof-or-stop story directory and Proof-or-Stop CLI flow.",
+      "status": "verified",
+      "verifiedBy": "identity current-guidance regression and delivery audit",
+      "evidence": "Current-guidance verifier rejects active docs/story/actives and direct StoryStore instructions."
+    },
+    {
+      "docPath": "CLAUDE.md",
+      "promise": "PLAN guidance uses plan_get/plan_set and does not instruct direct StoryStore file writes or claim that no CLI exists.",
+      "status": "verified",
+      "verifiedBy": "identity current-guidance regression and delivery audit",
+      "evidence": "Composition-smuggling and exact-context negative tests pass in the current 59/59 root suite."
+    },
+    {
+      "docPath": "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+      "promise": "The canonical proof-or-stop-review-story-init agent uses story_get, checklist_get, and init_check_set only for StoryStore interaction.",
+      "status": "verified",
+      "verifiedBy": "prompt baseline, generated mirror, assembled payload, and identity regressions",
+      "evidence": "Source template, Claude mirror, Codex mirror, and assembled prompt surfaces are covered; retired paths/direct writes fail closed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+      "promise": "Active identities are canonical while exact historical, migration-input, compatibility, signature, and provenance bytes remain narrowly preserved.",
+      "status": "verified",
+      "verifiedBy": "identity self-test, migration-contract, core-package-rename, and exact manifest pins",
+      "evidence": "Round 32/33 audits and the exclusive 59/59 root suite include all four full-suite convergence fixes."
+    },
+    {
+      "docPath": "package.json",
+      "promise": "Root/Core ship as 0.3.270 while Utils remains 0.3.268 with Core ^0.3.268 and Lab remains 0.3.65 with Core ^0.3.65.",
+      "status": "verified",
+      "verifiedBy": "version-bump and clean packed-consumer tests",
+      "evidence": "Current CHK-008 evidence is fresh and routine validation passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-004",
+      "transcript": "Fresh local live-smoke exited successfully and reported Proof-or-Stop 0.3.270 through the canonical current-worktree entrypoint."
+    },
+    {
+      "featureId": "CHK-003/CHK-007",
+      "transcript": "Packed clean-consumer, canonical Core/Lab/Utils resolution, nested Lab entrypoint, legacy package negatives, and extension dispatch coverage passed in the current verification basis."
+    },
+    {
+      "featureId": "CHK-005/CHK-006",
+      "transcript": "Canonical proof-or-stop-review-story-init and complete active role/prompt identity surfaces passed; retired lattice roles/paths and direct StoryStore instructions are negative-only or exact frozen history."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Latest routine validation passed all 120 configured commands with 29/29 fresh verification evidence; exclusive root npm test passed 59/59 with retries=0; current local assurance is full 3 rounds x 2 hosts."
+    },
+    {
+      "featureId": "Codex adapter",
+      "transcript": "Fresh verify_codex completed with 7/8 checks and one explicitly advisory result; no blocking adapter failure was reported."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All user-visible identity, package, CLI, story-init, prompt, documentation, version, packed-consumer, migration, historical-integrity, validation, and local-review promises are delivered. This is local delivery assurance only: it does not claim Authority, production readiness, Wave4 rollout, or DONE closeout, and stale DONE-required/summary artifacts remain host-owned convergence work."
+  },
+  "_hash": "bb50bc938dd8244174a1dadc6128beff579c5fd820caad0d892aeb6012d616b7"
+}

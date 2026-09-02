@@ -124,7 +124,7 @@ function coverageStatusWithMaterialHash(afterPath: string): string {
 }
 
 function mkdtempRoot(): string {
-  return mkdtempSync(join(tmpdir(), 'lattice-freshness-'));
+  return mkdtempSync(join(tmpdir(), 'proof-or-stop-freshness-'));
 }
 
 function assertEvidenceHashSnapshotReusePreflight(): void {
@@ -132,10 +132,10 @@ function assertEvidenceHashSnapshotReusePreflight(): void {
   try {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -240,7 +240,7 @@ function assertProductionCallSitesThreadEvidenceHashSnapshot(): void {
 assertProductionCallSitesThreadEvidenceHashSnapshot();
 
 const metadataOnly = [
-  '.lattice/story/actives/B-smoke/checklist.json',
+  '.proof-or-stop/story/actives/B-smoke/checklist.json',
   'docs/story/actives/B-smoke/findings.json',
   'Docs/story/actives/B-smoke/checklist.json',
   'Docs/story/actives/B-smoke/process-events.jsonl',
@@ -249,7 +249,7 @@ const metadataOnly = [
 ];
 
 const runtimeMetadata = [
-  '.lattice/activity.jsonl',
+  '.proof-or-stop/activity.jsonl',
   'docs/story/activity.jsonl',
 ];
 
@@ -258,7 +258,7 @@ const material = [
   'packages/main/tests/fixtures/story.json',
   'packages/main/package.json',
   'package-lock.json',
-  'lattice.config.json',
+  'proof-or-stop.config.json',
   'docs/requirements/decisions/ADR-001.md',
 ];
 
@@ -291,7 +291,7 @@ for (const path of material) {
     commit(root, 'base');
     const materialHash = currentMaterialHash(root);
     assert.ok(materialHash, 'material hash should be available in git repo');
-    write(root, '.lattice/story/actives/B-smoke/summary.json', '{}\n');
+    write(root, '.proof-or-stop/story/actives/B-smoke/summary.json', '{}\n');
     commit(root, 'metadata only');
     assert.equal(
       checkEvidenceFreshnessForGit(root, 'missing-head-for-rebase-like-case', materialHash).fresh,
@@ -480,10 +480,10 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
   const root = mkdtempRoot();
   try {
     git(root, ['init']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -558,10 +558,10 @@ function assertStaleEvidenceHintCrossSurface(): void {
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -669,7 +669,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
     //     Use a fake result that mimics `proof-or-stop validate --story=B-a2f1 --json` returning
     //     allPass=false + verificationCoverage with stale entries.
     const fakeValidateJson = JSON.stringify({
-      provider: 'lattice-verifier',
+      provider: 'proof-or-stop-verifier',
       allPass: false,
       verificationCoverage: {
         total: 1,
@@ -759,7 +759,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     3,
     `RECOVER_EVIDENCE_ALLOWED_CATEGORIES must contain exactly 3 entries; found ${RECOVER_EVIDENCE_ALLOWED_CATEGORIES.size} — adding new DIRTY_WORKTREE_CATEGORIES must NOT silently pass through recover_evidence (preMortem #1).`,
   );
-  for (const expected of ['lattice_metadata_changes', 'runtime_artifact_changes', 'declared_artifact_changes'] as const) {
+  for (const expected of ['proof_or_stop_metadata_changes', 'runtime_artifact_changes', 'declared_artifact_changes'] as const) {
     assert.ok(
       RECOVER_EVIDENCE_ALLOWED_CATEGORIES.has(expected),
       `RECOVER_EVIDENCE_ALLOWED_CATEGORIES must contain ${expected}`,
@@ -773,10 +773,10 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
       git(root, ['init']);
       git(root, ['config', 'user.email', 'smoke@example.test']);
       git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-      write(root, 'lattice.config.json', JSON.stringify({
+      write(root, 'proof-or-stop.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
       }, null, 2));
       write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -961,12 +961,12 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2));
@@ -1146,7 +1146,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
 
     // ── 6. Surface #3: proof-or-stop validate (via decorateResult hint) ──────────
     const fakeValidateJson = JSON.stringify({
-      provider: 'lattice-verifier',
+      provider: 'proof-or-stop-verifier',
       allPass: false,
       verificationCoverage: {
         total: 1,
@@ -1239,12 +1239,12 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     git(root2, ['init']);
     git(root2, ['config', 'user.email', 'smoke@example.test']);
     git(root2, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root2, 'lattice.config.json', JSON.stringify({
+    write(root2, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2));
@@ -1348,21 +1348,21 @@ await assertSimulatedMainMergeRegression();
 
 // ── B-edca: test-evidence.json is metadata-only; custom storyDir exclusion ──
 {
-  // (1) .lattice/story/actives/B-smoke/test-evidence.json is metadata-only and
+  // (1) .proof-or-stop/story/actives/B-smoke/test-evidence.json is metadata-only and
   //     keeps material-hash evidence fresh.
-  const path1 = '.lattice/story/actives/B-smoke/test-evidence.json';
+  const path1 = '.proof-or-stop/story/actives/B-smoke/test-evidence.json';
   assert.equal(isMaterialExcludedPath(path1), true, `${path1} should be metadata`);
   assert.equal(materialFreshAfterChanging(path1), true, `${path1} should keep material-hash evidence fresh`);
 
   // (2) custom configured storyDir: workflow/stories/B-smoke/test-evidence.json
-  //     is metadata when lattice.config.json sets storyDir to workflow/stories.
+  //     is metadata when proof-or-stop.config.json sets storyDir to workflow/stories.
   //     workflow/notes.md must NOT be excluded (parent dir is not storyDir).
   {
     const root = mkdtempRoot();
     try {
       git(root, ['init']);
       resetConfigCache();
-      write(root, 'lattice.config.json', JSON.stringify({ storyDir: 'workflow/stories' }, null, 2));
+      write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: 'workflow/stories' }, null, 2));
       write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
       const base = commit(root, 'base');
       const materialHash = currentMaterialHash(root);

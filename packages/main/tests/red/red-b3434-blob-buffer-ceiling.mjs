@@ -38,12 +38,10 @@ import * as metadata from '../../dist/core/done-prepare-generated-metadata.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
-const hasProjectConfig = root =>
-  existsSync(join(root, 'proof-or-stop.config.json')) || existsSync(join(root, 'lattice.config.json'));
-while (!hasProjectConfig(repoRoot) && repoRoot !== dirname(repoRoot)) {
+while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && repoRoot !== dirname(repoRoot)) {
   repoRoot = dirname(repoRoot);
 }
-assert.ok(hasProjectConfig(repoRoot), 'could not locate repo root (proof-or-stop.config.json or legacy lattice.config.json)');
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')), 'could not locate repo root (proof-or-stop.config.json)');
 
 const NODE_DEFAULT_MAX_BUFFER = 1024 * 1024; // 1,048,576 — the ceiling that caused the defect
 const READ_BUFFER = 256 * 1024 * 1024; // this test's own reads must never be the thing that fails

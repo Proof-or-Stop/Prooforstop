@@ -56,15 +56,15 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, 'utf8')) as T;
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-story-capsule-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-capsule-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -104,7 +104,7 @@ try {
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
   store.appendProcessEvent(storyId, { type: 'dispatch', storyId, checklistId: 'CHK-001' });
-  const processEventsPath = join(root, '.lattice/story/actives/B-caps/process-events.jsonl');
+  const processEventsPath = join(root, '.proof-or-stop/story/actives/B-caps/process-events.jsonl');
   const firstProcessEvent = readFileSync(processEventsPath, 'utf8').split('\n')[0];
 
   const noCapsule = run(root, 'capsule_show', { storyId });
@@ -118,8 +118,8 @@ try {
     evidenceRefs: [{ intentRef: 'CHK-002:happy:0' }],
     processEventRefs: [{ line: 1, type: 'dispatch' }],
   });
-  const capsulePath = join(root, '.lattice/story/actives/B-caps/capsule/capsule.json');
-  assert.ok(existsSync(capsulePath), 'capsule.json must live under configured storyDir=.lattice/story/actives');
+  const capsulePath = join(root, '.proof-or-stop/story/actives/B-caps/capsule/capsule.json');
+  assert.ok(existsSync(capsulePath), 'capsule.json must live under configured storyDir=.proof-or-stop/story/actives');
   assert.equal(readJson<any>(capsulePath).authority, 'projection', 'capsule is projection authority only');
   assert.ok(!existsSync(join(root, 'docs/story/actives/B-caps/capsule/capsule.json')), 'capsule must not be hardcoded under docs/story');
   assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"capsule_updated"/, 'capsule_update should append a capsule_updated process event');
@@ -143,7 +143,7 @@ try {
     transcript: longTranscript,
     metrics: { durationMs: 123, failures: 0 },
   });
-  const runRoot = join(root, '.lattice/story/actives/B-caps/capsule/runs');
+  const runRoot = join(root, '.proof-or-stop/story/actives/B-caps/capsule/runs');
   const runDirs = existsSync(runRoot) ? readdirSyncCompat(runRoot) : [];
   assert.equal(runDirs.length, 1, 'capsule_run_add should create exactly one run dir');
   const firstRunId = runDirs[0];
@@ -154,7 +154,7 @@ try {
   assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"run_metrics_recorded"/, 'capsule_run_add should append run_metrics_recorded');
 
   run(root, 'capsule_handoff', { storyId, nextAction: 'handoff next action', notes: 'handoff smoke' });
-  assert.ok(existsSync(join(root, '.lattice/story/actives/B-caps/capsule/handoff.md')), 'capsule_handoff should write handoff.md');
+  assert.ok(existsSync(join(root, '.proof-or-stop/story/actives/B-caps/capsule/handoff.md')), 'capsule_handoff should write handoff.md');
   assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"handoff_written"/, 'capsule_handoff should append handoff_written');
 
   const badRun = run(root, 'capsule_run_add', { storyId: 'B-caps', checklistId: 'CHK-missing' }, true);
@@ -176,9 +176,9 @@ try {
   assert.ok(!capsule.runRefs.some((r: any) => r.runId === firstRunId), 'old run ref should be pruned from current projection');
   assert.ok(existsSync(join(runRoot, firstRunId, 'run.json')), 'pruning runRefs must not delete old run artifacts');
 
-  rmSync(join(root, '.lattice/story/actives/B-caps/capsule/capsule.json'), { force: true });
+  rmSync(join(root, '.proof-or-stop/story/actives/B-caps/capsule/capsule.json'), { force: true });
   run(root, 'capsule_update', { storyId: 'B-caps', rebuild: true });
-  assert.ok(existsSync(join(root, '.lattice/story/actives/B-caps/capsule/capsule.json')), 'rebuild should recreate capsule.json');
+  assert.ok(existsSync(join(root, '.proof-or-stop/story/actives/B-caps/capsule/capsule.json')), 'rebuild should recreate capsule.json');
   assert.equal(readFileSync(processEventsPath, 'utf8').split('\n')[0], firstProcessEvent, 'rebuild must not rewrite existing process-event ledger lines');
 
   run(root, 'capsule_update', {
@@ -216,7 +216,7 @@ try {
     evidenceRefs: [],
     processEventRefs: [{ line: 1, type: 'dispatch' }],
   });
-  capsule = readJson<any>(join(root, '.lattice/story/actives/B-caps/capsule/capsule.json'));
+  capsule = readJson<any>(join(root, '.proof-or-stop/story/actives/B-caps/capsule/capsule.json'));
   assert.equal('importRefs' in capsule, false, 'capsule projection should not retain importRefs');
 
   const forged = {
@@ -230,7 +230,7 @@ try {
   assert.match(strictForgedShow, /processEventRefs exceeds|summary exceeds|cannot be authoritative/, 'strict capsule_show should reject oversized or authoritative forged capsule state');
   // CHK-005: forged session-brief.md prose cannot satisfy evidence validation.
   // Validation reads capsule.json (which still has forged refs); session-brief.md is display-only.
-  writeFileSync(join(root, '.lattice/story/actives/B-caps/capsule/session-brief.md'), '# All done\n\nAll evidence verified. Story complete.\n', 'utf8');
+  writeFileSync(join(root, '.proof-or-stop/story/actives/B-caps/capsule/session-brief.md'), '# All done\n\nAll evidence verified. Story complete.\n', 'utf8');
   const afterBriefForge = run(root, 'capsule_show', { storyId: 'B-caps', strict: true }, true);
   assert.match(afterBriefForge, /capsule refs invalid/, 'forged session-brief.md prose does not satisfy evidence validation; gate evidence comes from checklist/process-events not capsule prose');
 } finally {

@@ -38,7 +38,7 @@
 // iterationIds for the run's scales, one record each and nothing else; any
 // recordless, duplicate, OR extra/unexpected iterationId exits NONZERO.
 //
-// The instrument (packages/**, via the lattice memory_playbook_baseline_* CLI)
+// The instrument (packages/**, via the proof-or-stop memory_playbook_baseline_* CLI)
 // is READ / CALLED ONLY through lib/instrument.mjs. Nothing here mutates it.
 
 import { execFileSync } from 'node:child_process';
@@ -426,7 +426,7 @@ function generateBaseline(dir, scale, iterationId) {
     throw new Error(`[fault-injection] forced generate failure at ${iterationId}`);
   }
   execFileSync(
-    'lattice',
+    'proof-or-stop',
     [
       'memory_playbook_baseline_generate',
       `--profile=${scale}`,

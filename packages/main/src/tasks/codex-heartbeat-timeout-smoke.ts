@@ -159,7 +159,7 @@ interface Scenario {
 
 function writeFakeGlobalCli(dir: string, body: string): void {
   mkdirSync(dir, { recursive: true });
-  for (const bin of ['proof-or-stop', 'lattice']) {
+  for (const bin of ['proof-or-stop', 'proof-or-stop']) {
     const path = join(dir, bin);
     writeFileSync(path, `#!/bin/sh\n${body}\n`, 'utf-8');
     chmodSync(path, 0o755);
@@ -216,8 +216,8 @@ function makeFixtureProject(): string {
   const dir = mkdtempSync(join(tmpdir(), 'codex-heartbeat-timeout-smoke-'));
   // Minimal adapter surface: the heartbeat check we exercise runs regardless of the
   // earlier asset checks' verdicts, and we only assert on the heartbeat check itself.
-  mkdirSync(join(dir, '.lattice'), { recursive: true });
-  writeFileSync(join(dir, '.lattice', 'activity.jsonl'), '', 'utf-8');
+  mkdirSync(join(dir, '.proof-or-stop'), { recursive: true });
+  writeFileSync(join(dir, '.proof-or-stop', 'activity.jsonl'), '', 'utf-8');
   return dir;
 }
 

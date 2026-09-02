@@ -2,7 +2,7 @@
 /**
  * B-1b28: smoke suite for the LLM usage ledger DEFAULT-ON flip.
  *
- * The ledger writer is now active by default; LATTICE_USAGE_LEDGER=0 is the
+ * The ledger writer is now active by default; PROOF_OR_STOP_USAGE_LEDGER=0 is the
  * explicit escape hatch that restores the legacy default-off no-op behavior.
  * The legacy retired-brand env alias was removed (B-b837); a stale
  * retired-brand-prefixed value is silently ignored. This smoke proves the
@@ -12,7 +12,7 @@
  *     ('0'/'false'/'off'/'no'/'') read as OFF; the truthy strings
  *     ('1'/'true'/'on'/'yes', trimmed/case-insensitive) read as ON; a stale
  *     legacy alias env is ignored; the flag is re-read every call (not memoized).
- *   - CHK-002 escape hatch (=0 guard-inert): with LATTICE_USAGE_LEDGER=0
+ *   - CHK-002 escape hatch (=0 guard-inert): with PROOF_OR_STOP_USAGE_LEDGER=0
  *     the whole pipeline is a strict no-op — appendUsageRecord writes nothing and
  *     creates no file/dir, recordDispatchPreflight returns null, recordDispatchFinal
  *     writes nothing, recordBudgetBlock is inert (no block) even with a budget set,
@@ -22,7 +22,7 @@
  *   - CHK-003 default-on safety: with the env UNSET, isUsageLedgerEnabled() is true,
  *     appendUsageRecord WRITES, a parse failure still yields raw text (the B-0f7c
  *     fallback), a thrown ledger op does NOT propagate to the dispatch caller, and
- *     NO budget block occurs when LATTICE_HARD_BUDGET_TOKENS is unset.
+ *     NO budget block occurs when PROOF_OR_STOP_HARD_BUDGET_TOKENS is unset.
  *   - STATIC: the whole core/usage-ledger module still imports ZERO other Proof-or-Stop
  *     modules (only ./ siblings + node: builtins).
  *
@@ -37,7 +37,7 @@ import { appendFileSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmS
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 
-import { buildClaudeSpawnArgs } from '../core/lattice-dispatch.js';
+import { buildClaudeSpawnArgs } from '../core/proof-or-stop-dispatch.js';
 import {
   isUsageLedgerEnabled,
   parseClaudeCliOutput,
@@ -55,7 +55,7 @@ let passed = 0;
 const failures: string[] = [];
 
 // The legacy ledger-alias env var (formerly the retired-brand-prefixed name) was
-// removed (B-b837). Only LATTICE_USAGE_LEDGER is read now; any other env var —
+// removed (B-b837). Only PROOF_OR_STOP_USAGE_LEDGER is read now; any other env var —
 // including a user's stale legacy alias — must be silently ignored. We exercise
 // that with a representative stale legacy-shaped key built at runtime so the test
 // stays free of the retired brand token.
@@ -92,7 +92,7 @@ function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
   return {
     storyId: 'B-1b28',
     phase: 'dispatch',
-    agentType: 'lattice-dispatch:claude-code',
+    agentType: 'proof-or-stop-dispatch:claude-code',
     model: 'claude-code',
     ...over,
   };
@@ -173,29 +173,29 @@ try {
   });
 
   check('CHK-001 truthy strings read as ON (1/true/on/yes)', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1' }), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'true' }), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'on' }), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'yes' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '1' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'true' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'on' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'yes' }), true);
   });
 
   check('CHK-001 falsy strings read as OFF (0/false/off/no/empty)', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'false' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'off' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'no' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '0' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'false' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'off' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'no' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '' }), false);
   });
 
   check('CHK-001 trimmed + case-insensitive parsing', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: ' 1 ' }), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: ' FALSE ' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'ON' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: ' 1 ' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: ' FALSE ' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'ON' }), true);
   });
 
   check('CHK-001 unrecognized values read as OFF (2/enabled)', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '2' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'enabled' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '2' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'enabled' }), false);
   });
 
   check('B-b837 adversarial: legacy ledger alias is ignored (default-ON preserved)', () => {
@@ -204,34 +204,34 @@ try {
     assert.equal(isUsageLedgerEnabled({ [STALE_LEDGER_ALIAS]: '0' }), true);
   });
 
-  check('B-b837 adversarial: only LATTICE_ controls the ledger; a stale alias alongside is ignored', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0', [STALE_LEDGER_ALIAS]: '1' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1', [STALE_LEDGER_ALIAS]: '0' }), true);
+  check('B-b837 adversarial: only PROOF_OR_STOP_ controls the ledger; a stale alias alongside is ignored', () => {
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '0', [STALE_LEDGER_ALIAS]: '1' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '1', [STALE_LEDGER_ALIAS]: '0' }), true);
   });
 
   check('CHK-001 re-read every call (not memoized): 0 -> unset -> 1 toggles live', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '0' }), false);
     assert.equal(isUsageLedgerEnabled({}), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '1' }), true);
   });
 
   // ======================================================================
   // CHK-002: escape hatch (=0) restores ledger no-op behavior
   // ======================================================================
-  const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+  const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
   check('CHK-002 =0 => isUsageLedgerEnabled false', () => {
     assert.equal(isUsageLedgerEnabled(OFF), false);
   });
 
-  check('CHK-002 =0 => appendUsageRecord strict no-op (10x, no file, no .lattice dir)', () => {
+  check('CHK-002 =0 => appendUsageRecord strict no-op (10x, no file, no .proof-or-stop dir)', () => {
     const sub = freshRoot();
     for (let i = 0; i < 10; i += 1) {
       const res = appendUsageRecord(sub, validRecord(), { env: OFF });
       assert.equal(res.written, false);
     }
     assert.equal(existsSync(resolveLedgerPath(sub)), false, '=0 must create no ledger file');
-    assert.equal(existsSync(join(sub, '.lattice')), false, '=0 must create no .lattice directory');
+    assert.equal(existsSync(join(sub, '.proof-or-stop')), false, '=0 must create no .proof-or-stop directory');
   });
 
   check('CHK-002 =0 => appendUsageRecord with real data still writes nothing', () => {
@@ -259,15 +259,15 @@ try {
   });
 
   check('CHK-002 =0 => resolveHardBudget(no budget env) null; shouldBlockDispatch(false,...) inert', () => {
-    assert.equal(resolveHardBudget({ LATTICE_USAGE_LEDGER: '0' }), null);
-    const d = shouldBlockDispatch(false, { LATTICE_HARD_BUDGET_TOKENS: '1000' }, 999);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_USAGE_LEDGER: '0' }), null);
+    const d = shouldBlockDispatch(false, { PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1000' }, 999);
     assert.equal(d.block, false);
     assert.equal(d.budget, null);
   });
 
   check('CHK-002 =0 + budget set => recordBudgetBlock inert (no block, no write)', () => {
     const sub = freshRoot();
-    const env = { LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const decision = recordBudgetBlock(sub, ctx(), null, 'a prompt clearly over a one-token budget', opts(env));
     assert.equal(decision.blocked, false, 'OFF means no block even with a budget configured');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'the whole pipeline leaves zero filesystem trace');
@@ -275,13 +275,13 @@ try {
 
   check('CHK-002 =0 => full pipeline (append + preflight + final + budget) leaves zero trace', () => {
     const sub = freshRoot();
-    const env = { LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     appendUsageRecord(sub, validRecord(), { env });
     const handle = recordDispatchPreflight(sub, ctx(), 'p', opts(env));
     recordDispatchFinal(sub, ctx(), null, null, { input_tokens: 1, output_tokens: 1 }, 'claude-code', opts(env));
     recordBudgetBlock(sub, ctx(), handle, 'p', opts(env));
     assert.equal(handle, null, 'preflight is a no-op when OFF');
-    assert.equal(existsSync(join(sub, '.lattice', 'usage')), false, 'no usage directory created');
+    assert.equal(existsSync(join(sub, '.proof-or-stop', 'usage')), false, 'no usage directory created');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file created');
   });
 
@@ -301,7 +301,7 @@ try {
   // CHK-003: default-on (env UNSET) behavior + safety
   // ======================================================================
   check('CHK-003 UNSET env => appendUsageRecord WRITES one JSONL line', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       // No `env` override -> appendUsageRecord falls back to process.env (UNSET = ON).
       const res = appendUsageRecord(sub, validRecord());
@@ -315,7 +315,7 @@ try {
   });
 
   check('CHK-003 UNSET env => recordDispatchPreflight returns an active handle + 1 estimate line', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const handle = recordDispatchPreflight(sub, ctx(), 'Hello world prompt', {
         recordedAt: '2026-06-16T00:00:00.000Z',
@@ -331,7 +331,7 @@ try {
   });
 
   check('CHK-003 UNSET env => recordDispatchFinal supersedes the estimate (provider final, seq 2)', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       const handle = recordDispatchPreflight(sub, ctx(), 'p', baseOpts);
@@ -390,7 +390,7 @@ try {
   });
 
   check('CHK-003 UNSET env => a thrown ledger op does NOT propagate (preflight returns null on corrupt ledger)', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       // Seed a valid record, then corrupt the last line so the next chain read throws
@@ -410,7 +410,7 @@ try {
   });
 
   check('CHK-003 UNSET env => recordDispatchFinal swallows a corrupt-ledger error (returns appended:false status, no throw)', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       recordDispatchPreflight(sub, ctx(), 'p', baseOpts);
@@ -427,9 +427,9 @@ try {
     });
   });
 
-  check('CHK-003 UNSET env + NO LATTICE_HARD_BUDGET_TOKENS => no budget block', () => {
+  check('CHK-003 UNSET env + NO PROOF_OR_STOP_HARD_BUDGET_TOKENS => no budget block', () => {
     withProcessEnv(
-      { LATTICE_USAGE_LEDGER: undefined, LATTICE_HARD_BUDGET_TOKENS: undefined },
+      { PROOF_OR_STOP_USAGE_LEDGER: undefined, PROOF_OR_STOP_HARD_BUDGET_TOKENS: undefined },
       () => {
         const sub = freshRoot();
         assert.equal(resolveHardBudget(undefined), null, 'default-on does NOT auto-enable a budget');

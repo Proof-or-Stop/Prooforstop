@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add stable validation command identity and a normalized command-set digest",
+      "context": "Plan sections 'Stable command identity' and Story 1 exit. ValidationCommand (packages/main/src/core/validation-types.ts) has label/command/args/cwd/env/optional/timeoutMs/resources but no id. Add an optional declared `id`, a deterministic provisional id derived from the normalized executable tuple for legacy commands, duplicate-id rejection, and a commandSetDigest over the normalized inventory. Identity must never be inferred from array index, and existing `focus` tags must be kept for compatibility but excluded from relevance computation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add the canonical legacy pin resolver with missing and ambiguous stops",
+      "context": "Plan section 'Canonical legacy pin resolver'. Resolve a checklist verification-evidence pin to exactly one command id: exact commandId match first, else normalize the legacy free-form command string with the SAME executable/argv normalization the routine identity uses and compare the complete normalized tuple (command, args, resolved cwd, shell, relevant environment). Exactly one match records pinResolution=legacy-exact plus the normalized-tuple digest; zero matches stop with pinned_command_missing; more than one stops with pinned_command_ambiguous. Labels and array order must never break a tie, and historical evidence is never rewritten in place.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add the Story input collector producing a normalized StoryRelevanceInput",
+      "context": "Plan section 'Story input contract'. Collect Story identity/phase, base/HEAD/material/story-files hashes, rename-aware changed paths via changedFilesBetweenRenameAware or changedFileStatusesBetweenRenameAware (packages/main/src/core/evidence-freshness.ts), checklist files.modify/create/test and evidence command pins (see packages/main/src/handlers/delivery-context-pack.ts for existing collection semantics), risk signals, and the routine source kind plus execution inventory. Deleted files and both sides of a rename stay seeds; Story metadata and registered runtime artifacts are not material seeds; a failure to read the changed-file set must escalate rather than read as 'no changes'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add language-neutral planner types and the fail-closed widening matrix",
+      "context": "Plan sections 'Terminology and invariants', 'Selection algorithm' steps 1, 2 and 5, and 'Fail-closed widening matrix'. Define the tier names story-fast / story-intermediate / repository-full, the subset invariant, the reason-code enum from the matrix, and the resolver that maps a StoryRelevanceInput plus a requested tier to an effective tier with escalation reasons. In this Story the resolver ALWAYS returns effective repository-full or a classified stop; it performs no pruning and an empty selection is never a PASS. Source kinds fallback / validate-file stay atomic and no-validator preserves the existing skip/warn.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add the read-only validation_plan CLI with --explain and --json",
+      "context": "Plan section 'Proposed CLI and UX'. Register `proof-or-stop validation_plan --storyId=B-xxxx --tier=fast|intermediate|full` with --explain and --json in the command catalog. Output must show requested and effective tier, selected versus full count derived at runtime, inclusion reasons grouped by command, unclassified inputs, escalation reason codes, estimated duration and basis, whether the run is final authority (fast/intermediate: no), and the artifact path/digest when one is written. The command writes no evidence, executes no validation command, and changes no gate. Note the plan's `--focus` / `--tier` mutual-rejection rule applies to the future `validate --tier` command in Rollout Story 4, not to `validation_plan`; do NOT implement that rejection here.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add the Story 1 fixture suite and wire it into the canonical test inventory",
+      "context": "Plan 'Acceptance matrix' rows reachable in Story 1 plus its Story 1 exit line. Cover: provisional and declared identity, duplicate-id rejection, index-independence, digest change on inventory change, pin resolution with zero/duplicate/shell-vs-argv/cwd/env variants and a label rename whose id survives, collector seeds for rename and delete and unreadable diff, every fail-closed reason code reachable in this Story, all four source kinds, schema round-trip, and the read-only CLI. Each behavior lands RED first. Register the suite in the canonical membership authority (root test:serial-reference plus its RESOURCE_POLICY mapping) rather than a discovery manifest.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

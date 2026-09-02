@@ -18,8 +18,8 @@ import assert from 'node:assert/strict';
 import { enforceRetiredRootGuard } from '../cli/ownership-gate.js';
 import type { ProofOrStopConfig } from '../core/config.js';
 
-const retiredRoot = '/tmp/lattice-retired-root';
-const canonicalRoot = '/tmp/lattice-canonical-root';
+const retiredRoot = '/tmp/proof-or-stop-retired-root';
+const canonicalRoot = '/tmp/proof-or-stop-canonical-root';
 const activeStory = { storyId: 'B-bcd4', phase: 'DEV' };
 
 const retiredConfig: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'> = {

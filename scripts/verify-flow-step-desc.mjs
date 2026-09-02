@@ -8,7 +8,7 @@ import ts from '../packages/main/node_modules/typescript/lib/typescript.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = join(scriptDir, '..', 'packages', 'main');
-const temp = mkdtempSync(join(tmpdir(), 'lattice-flow-desc-'));
+const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-desc-'));
 
 function emit(relPath) {
   const srcPath = join(root, 'src', relPath);

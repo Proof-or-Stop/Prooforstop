@@ -11,7 +11,7 @@ index 6290568..babda35 100644
  tools:
    - Read
    - Bash
-@@ -47,11 +47,20 @@ lattice testintent_check '{"storyId":"<STORY_ID>"}'
+@@ -47,11 +47,20 @@ proof-or-stop testintent_check '{"storyId":"<STORY_ID>"}'
  
  查看历史 results 作为上下文（了解之前审过什么、主 agent 回复了什么）。
  
@@ -25,7 +25,7 @@ index 6290568..babda35 100644
 +
 +正确反应:
 +1. 优先反思：5 轮还没共识说明 testIntent 描述本身或 checklist 拆解可能有问题
-+2. 实在需要继续：让人类调 lattice testintent_resume 显式开新段（必须 human:true + reason ≥ 5 字符）
++2. 实在需要继续：让人类调 proof-or-stop testintent_resume 显式开新段（必须 human:true + reason ≥ 5 字符）
 +
 +你（reviewer）和主 agent 都不能自己调 testintent_resume——CLI 会拒绝 human:false。
  ```

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-022e",
+  "records": [
+    {
+      "id": "RED-20260830222000",
+      "trigger": "CHK-002 committed identity-cutover verifier fails before production migration",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "cb1499d4b77ea6a41ca597df150f7c0705d66b23",
+      "baselineMaterialHash": "493030c7946dab4ab87da6118d09d283417caa55d794a2b59345a7a54250662e",
+      "observedFailure": "FAIL identity-cutover: active legacy identities remain; all nine active identity classes reported while exact frozen provenance rows and self-test remained valid",
+      "failingCommand": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "expectedGreenCommand": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "regression_to_green",
+        "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs"
+      },
+      "note": "Self-test PASS: node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test. Policy commit 1dab23ae is an ancestor of this RED commit.",
+      "createdAt": "2026-08-30T22:20:00.623Z"
+    }
+  ],
+  "createdAt": "2026-08-30T22:20:00.623Z",
+  "updatedAt": "2026-08-30T22:20:00.623Z"
+}

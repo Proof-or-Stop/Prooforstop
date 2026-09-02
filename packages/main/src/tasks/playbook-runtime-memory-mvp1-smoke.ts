@@ -69,10 +69,10 @@ function git(cwd: string, args: string[]): string {
 
 function mkRoot(prefix = 'pb-memory-mvp1-'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -190,7 +190,7 @@ async function run(): Promise<void> {
   try {
     const globalMemoryDir = mkdtempSync(join(tmpdir(), 'pb-memory-global-'));
     roots.push(globalMemoryDir);
-    process.env.LATTICE_GLOBAL_MEMORY_DIR = globalMemoryDir;
+    process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = globalMemoryDir;
 
     check('command metadata: playbook_activate is supported audit-only metadata, not gate evidence', () => {
       assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'playbook_activate'), 'MAIN_TOOLS includes playbook_activate');
@@ -398,7 +398,7 @@ async function run(): Promise<void> {
     check('session_brief: corrupt advisory memory/playbooks do not crash the brief', () => {
       const { root, ctx } = mkGitStoryRoot('B-corrupt'); roots.push(root);
       process.chdir(root);
-      write(root, '.lattice/dev-memory/experience.jsonl', '{not-json\n');
+      write(root, '.proof-or-stop/dev-memory/experience.jsonl', '{not-json\n');
       mkdirSync(dirname(resolvePlaybooksPath(root)), { recursive: true });
       writeFileSync(resolvePlaybooksPath(root), '{not-json\n', 'utf-8');
       assert.doesNotThrow(() => createSessionHandlers(ctx).session_brief({}));

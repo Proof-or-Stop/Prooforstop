@@ -49,7 +49,7 @@
 //
 // WRITE BOUNDARY: the tool writes EXACTLY two files (live-readout.json,
 // live-readout.md), both under --out (default: the experiment evidence root
-// <root>/.lattice/experiments/experience-ablation/<experimentId>, plan
+// <root>/.proof-or-stop/experiments/experience-ablation/<experimentId>, plan
 // section 12). Nothing outside --out is created or modified, and this module
 // imports nothing from packages/main — the CLI spawn is the only contact.
 //
@@ -515,7 +515,7 @@ export function generateLiveReadout({ root, experimentId, outDir, effectivenessJ
   if (typeof generatedAt === 'string' && !/^\d{4}-\d{2}-\d{2}T[0-9:.+Z-]+$/.test(generatedAt)) {
     fail(`--generatedAt must be an ISO 8601 timestamp (got ${JSON.stringify(generatedAt)})`);
   }
-  const evidenceRoot = join(root, '.lattice', 'experiments', 'experience-ablation', experimentId);
+  const evidenceRoot = join(root, '.proof-or-stop', 'experiments', 'experience-ablation', experimentId);
   const scorePath = join(evidenceRoot, 'score-records.jsonl');
   if (!existsSync(scorePath)) {
     fail(`missing required pilot artifact score-records.jsonl at ${scorePath} — run the M6 pilot campaign (run-pilot.mjs) or point --root/--experimentId at the evidence root`);

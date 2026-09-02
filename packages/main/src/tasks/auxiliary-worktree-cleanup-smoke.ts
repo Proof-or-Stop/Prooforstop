@@ -33,18 +33,18 @@ function initRepo(prefix: string): string {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'auxiliary worktree cleanup smoke\n');
@@ -73,7 +73,7 @@ function story(storyId: string): StoryInfo {
 }
 
 function commitStories(root: string): void {
-  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['add', '.proof-or-stop/story/actives']);
   git(root, ['commit', '-m', 'add smoke story metadata']);
 }
 
@@ -96,7 +96,7 @@ async function runProofOrStop(root: string, command: string, args: Record<string
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -121,7 +121,7 @@ async function runProofOrStopExpectFail(root: string, command: string, args: Rec
 }
 
 async function assertStoryReconcileCleansPatchEquivalentAuxiliaryWorktree(): Promise<void> {
-  const root = initRepo('lattice-aux-clean-safe-');
+  const root = initRepo('proof-or-stop-aux-clean-safe-');
   try {
     const storyId = 'B-auxsafe';
     const store = new StoryStore(root);
@@ -150,7 +150,7 @@ async function assertStoryReconcileCleansPatchEquivalentAuxiliaryWorktree(): Pro
 }
 
 async function assertStoryReconcilePreservesMissingAndDirtyAuxiliaryWorktrees(): Promise<void> {
-  const root = initRepo('lattice-aux-clean-unsafe-');
+  const root = initRepo('proof-or-stop-aux-clean-unsafe-');
   try {
     const missingId = 'B-auxmiss';
     const dirtyId = 'B-auxdirty';
@@ -184,7 +184,7 @@ async function assertStoryReconcilePreservesMissingAndDirtyAuxiliaryWorktrees():
 }
 
 async function assertStoryReconcileCleansDetachedPatchEquivalentWorktree(): Promise<void> {
-  const root = initRepo('lattice-aux-clean-detached-');
+  const root = initRepo('proof-or-stop-aux-clean-detached-');
   try {
     const storyId = 'B-auxdet';
     const store = new StoryStore(root);
@@ -210,7 +210,7 @@ async function assertStoryReconcileCleansDetachedPatchEquivalentWorktree(): Prom
 }
 
 async function assertStoryReconcileRepairRequiresMainWriteLock(): Promise<void> {
-  const root = initRepo('lattice-aux-clean-lock-');
+  const root = initRepo('proof-or-stop-aux-clean-lock-');
   const lock = acquireMainWriteLock(root, { label: 'smoke held lock' });
   try {
     const storyId = 'B-auxlock';

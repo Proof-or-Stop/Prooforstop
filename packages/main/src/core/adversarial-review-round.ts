@@ -89,7 +89,7 @@ export interface ConfirmedLaneGroup {
  * the per-lane grouping of confirmed lens findings (needed to derive the §4.2
  * per-lane ledger ops without re-running verification), and the UNIQUE set of
  * lanes that actually RAN in this round (first-seen order, deduped — two lenses
- * share lattice-review-behavior). ranLanes is what a clean round records PASSes
+ * share proof-or-stop-review-behavior). ranLanes is what a clean round records PASSes
  * over (§4.1/§5): every participating lane ends a converged round with a PASS,
  * not just lanes that happened to surface a confirmed finding.
  */

@@ -101,12 +101,12 @@ function requireBoolean(obj, key, where) {
   return v;
 }
 
-/** DEFAULT S12 production learning root: <repoRoot>/.lattice/learning, where
+/** DEFAULT S12 production learning root: <repoRoot>/.proof-or-stop/learning, where
  * repoRoot is derived from this module's location (a pure path computation —
  * experiments/experience-ablation/ is two levels below the repo root). */
 export function defaultProductionLearningRoot() {
   const here = dirname(fileURLToPath(import.meta.url));
-  return normalize(join(here, '..', '..', '.lattice', 'learning'));
+  return normalize(join(here, '..', '..', '.proof-or-stop', 'learning'));
 }
 
 /** Parse the run-scoped activity.jsonl slice into event objects. */

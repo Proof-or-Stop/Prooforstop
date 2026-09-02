@@ -7,13 +7,13 @@
  * `validate.commands`) measures a SYNTHETIC 6-command fixture. That is deliberate — it is
  * itself part of the plan, so it must stay in seconds — but it means the numbers it prints
  * describe the fixture, not the workload the story's speedup claim is about. This file is
- * the missing half: a repeatable command that measures the SAME plan `lattice validate`
+ * the missing half: a repeatable command that measures the SAME plan `proof-or-stop validate`
  * actually runs, at jobs=1 and at jobs=N, on the tree it is invoked from.
  *
- * NOT PART OF `lattice validate`
+ * NOT PART OF `proof-or-stop validate`
  * ------------------------------
  * This is an ON-DEMAND benchmark. It is deliberately NOT registered in
- * `lattice.config.json` → `validate.commands`, and it must not be: it executes the whole
+ * `proof-or-stop.config.json` → `validate.commands`, and it must not be: it executes the whole
  * configured plan TWICE, which costs tens of minutes per invocation, and registering it
  * would make validate recursive (validate running a command that runs validate's own plan
  * twice) and enormous. It produces NO gate evidence and NO receipt of its own; it prints a
@@ -29,7 +29,7 @@
  *    handler uses, so this cannot drift into measuring a different command list.
  *  - Both modes run through the real `executeValidationPlan`, spawning the real child
  *    processes, in one process on one host, back to back.
- *  - `jobs` is passed EXPLICITLY for both modes, so an ambient `LATTICE_VALIDATE_JOBS`
+ *  - `jobs` is passed EXPLICITLY for both modes, so an ambient `PROOF_OR_STOP_VALIDATE_JOBS`
  *    cannot quietly make "serial" and "parallel" the same run.
  *  - The plan's `declared` / `exclusiveByDefault` (fail-closed barrier) counts are printed
  *    for the tree that was measured, because a speedup number is meaningless without the
@@ -205,7 +205,7 @@ if (hasFlag('help')) {
     '  --plan-only       classify the configured plan and exit without executing anything.',
     '  --help            this text.',
     '',
-    'NOT registered in lattice.config.json validate.commands, and must not be: it runs the whole',
+    'NOT registered in proof-or-stop.config.json validate.commands, and must not be: it runs the whole',
     'plan twice (tens of minutes) and would make validate recursive. It produces no gate evidence.',
   ].join('\n'));
   process.exit(0);
@@ -235,13 +235,13 @@ const barrierCount = entries.filter((entry) => entry.exclusiveByDefault).length;
 const declaredCount = entries.length - barrierCount;
 const classification = `commands=${entries.length} declared=${declaredCount} exclusiveByDefault=${barrierCount}`;
 
-console.log('validate-parallel-benchmark: ON-DEMAND benchmark. NOT part of `lattice validate`:');
-console.log('  it is deliberately NOT registered in lattice.config.json validate.commands (it runs the');
+console.log('validate-parallel-benchmark: ON-DEMAND benchmark. NOT part of `proof-or-stop validate`:');
+console.log('  it is deliberately NOT registered in proof-or-stop.config.json validate.commands (it runs the');
 console.log('  whole plan twice, tens of minutes, and would make validate recursive), and it produces');
 console.log('  NO gate evidence and no receipt — it prints a measurement.');
 console.log(`  projectRoot=${repoRoot}`);
 console.log(`  ${describeTree()}`);
-console.log(`  plan: ${classification} (source: lattice.config.json validate.commands)`);
+console.log(`  plan: ${classification} (source: proof-or-stop.config.json validate.commands)`);
 console.log(`  modes: jobs=1 vs jobs=${parallelJobs}, order=${order}`);
 
 if (planOnly) {

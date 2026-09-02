@@ -71,7 +71,7 @@ function check(label: string, fn: () => void): void {
   }
 }
 
-const LEDGER_ENV = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const LEDGER_ENV = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 
 function freshCorrelation(over: Partial<RecordCorrelation> = {}): RecordCorrelation {
   return {

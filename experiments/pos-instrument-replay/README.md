@@ -3,7 +3,7 @@
 M0 of the proof-or-stop replay & tamper campaign (story B-9e44). This directory
 produces a **frozen protocol** (`protocol.json`) that the later milestones
 (M1–M4) execute against. The instrument under test is the playbook-runtime
-memory baseline, exercised **only** through the `lattice
+memory baseline, exercised **only** through the `proof-or-stop
 memory_playbook_baseline_generate` / `..._verify` CLI. Nothing here modifies the
 instrument (`packages/**`); it is read/called only.
 

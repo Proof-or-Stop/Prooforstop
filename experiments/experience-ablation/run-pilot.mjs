@@ -26,8 +26,8 @@
 //      reference-good/, reference-bad/) are NEVER copied.
 //   1b. FROZEN-SNAPSHOT MATERIALIZATION (CHK-005, plan sections 4/12/14): the
 //      --memorySnapshotDir content (snapshot-builder.mjs output, a mirror of
-//      the `.lattice/` subtree) is copied byte-identically into
-//      <workspace>/.lattice/ on BOTH arms, then sha256-verified against the
+//      the `.proof-or-stop/` subtree) is copied byte-identically into
+//      <workspace>/.proof-or-stop/ on BOTH arms, then sha256-verified against the
 //      frozen protocol.json memorySnapshotHash BEFORE host execution and
 //      re-verified unchanged AFTER the run (either mismatch aborts the cell,
 //      fail closed, no run.json). Verification hashes exactly the snapshot's
@@ -38,19 +38,19 @@
 //   2. STORE-ISOLATION ASSERTION (before any host execution): spawn the real
 //      CLI `node <snapshotCli> observability_snapshot --json` with cwd = the
 //      isolated workspace and assert its resolvedLearningRoot equals
-//      <workspace>/.lattice/learning inside the isolated root (empirically:
+//      <workspace>/.proof-or-stop/learning inside the isolated root (empirically:
 //      the CLI resolves the learning root through git, so a workspace nested
 //      in any git checkout escapes to that git root — plan section 12; this is
 //      why mkdtemp non-git roots are mandatory). Any mismatch aborts the cell
 //      AND the campaign (fail closed) with no run.json written. The probe env
-//      strips LATTICE_PROJECT_ROOT (it would redirect resolution) and the
+//      strips PROOF_OR_STOP_PROJECT_ROOT (it would redirect resolution) and the
 //      experiment vars (the read-only probe is not part of the experiment).
 //   2b. EXPERIENCE-DELIVERY PRELUDE (CHK-005): spawn the real gated entrypoint
 //      `node <snapshotCli> session_brief` with cwd = the isolated workspace
 //      and the SAME experiment env the host receives, so the runtime memory
 //      pack is computed AND logged (experience_pack_surfaced) on BOTH arms via
 //      the production M3 mechanism (experience-pack-surface.ts render gate).
-//      The prelude's activity events land in <workspace>/.lattice/
+//      The prelude's activity events land in <workspace>/.proof-or-stop/
 //      activity.jsonl and are therefore part of the captured run slice. The
 //      rendered "## Memory Runtime Preflight" section is prepended to the
 //      host prompt ONLY when the entrypoint rendered it (treatment); the
@@ -62,20 +62,20 @@
 //      {workspace} {promptFile} {isolatedRoot}; shell-expanded with cwd = the
 //      isolated workspace). {promptFile} resolves to the composed host prompt
 //      (host-prompt.md), NOT the raw prompt.md (they are byte-identical on
-//      control). The child env carries LATTICE_EXPERIMENT_ID +
-//      LATTICE_EXPERIMENT_ARM (the M3 arm-switch contract) plus
-//      LATTICE_GLOBAL_MEMORY_DIR pinned to an empty dir inside the isolated
-//      root (without it the operator's real ~/.lattice/dev-memory global
+//      control). The child env carries PROOF_OR_STOP_EXPERIMENT_ID +
+//      PROOF_OR_STOP_EXPERIMENT_ARM (the M3 arm-switch contract) plus
+//      PROOF_OR_STOP_GLOBAL_MEMORY_DIR pinned to an empty dir inside the isolated
+//      root (without it the operator's real ~/.proof-or-stop/dev-memory global
 //      store leaks into the pack — verified empirically — breaking the memory
-//      freeze), and never carries LATTICE_PROJECT_ROOT. Default template is a
+//      freeze), and never carries PROOF_OR_STOP_PROJECT_ROOT. Default template is a
 //      Claude CLI non-interactive form; tests/selfchecks MUST pass a stub
 //      --hostCmd (never a real host).
 //   4. Capture the run-scoped activity slice: everything the run appended
-//      under the isolated root's .lattice/activity.jsonl files (empirically
-//      the M3 events land at <workspace>/.lattice/activity.jsonl because the
+//      under the isolated root's .proof-or-stop/activity.jsonl files (empirically
+//      the M3 events land at <workspace>/.proof-or-stop/activity.jsonl because the
 //      CLI resolves its project root to the host cwd in a non-git isolated
 //      root; the isolated root itself is also checked in case the host ran
-//      lattice from the parent dir). Copy the post-run workspace verbatim,
+//      proof-or-stop from the parent dir). Copy the post-run workspace verbatim,
 //      plus host-prompt.md and prelude-transcript.log as audit artifacts.
 //   5. Write run.json LAST (atomic tmp+rename; it is the terminal marker)
 //      with every RUN-RECORD.md required field:
@@ -112,7 +112,7 @@
 //   counts + leakage-audit status) WITHOUT executing anything and exits 0.
 //
 // The runner itself writes only under <experimentRoot> (runs/, progress
-// jsonl) and the mkdtemp scratch roots; it NEVER writes any .lattice/learning
+// jsonl) and the mkdtemp scratch roots; it NEVER writes any .proof-or-stop/learning
 // store, and the pre-run assertion mechanically prevents host lifecycle
 // writes from reaching the shared production store (score.mjs additionally
 // voids any record whose storeRoot resolves into the production root).
@@ -319,26 +319,26 @@ export function appendProgress(expRoot, row) {
   appendFileSync(join(expRoot, PROGRESS_FILENAME), JSON.stringify({ ts: new Date().toISOString(), ...row }) + '\n');
 }
 
-/** Child env base: never leak LATTICE_PROJECT_ROOT or stale experiment vars. */
+/** Child env base: never leak PROOF_OR_STOP_PROJECT_ROOT or stale experiment vars. */
 function childEnvBase() {
   const env = { ...process.env };
-  delete env.LATTICE_PROJECT_ROOT; // would redirect the child's root resolution outside the isolated root
-  delete env.LATTICE_EXPERIMENT_ID;
-  delete env.LATTICE_EXPERIMENT_ARM;
-  delete env.LATTICE_GLOBAL_MEMORY_DIR; // per-cell value is set explicitly; an inherited one would leak
+  delete env.PROOF_OR_STOP_PROJECT_ROOT; // would redirect the child's root resolution outside the isolated root
+  delete env.PROOF_OR_STOP_EXPERIMENT_ID;
+  delete env.PROOF_OR_STOP_EXPERIMENT_ARM;
+  delete env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR; // per-cell value is set explicitly; an inherited one would leak
   return env;
 }
 
 /**
  * Store-isolation assertion (plan section 12), BEFORE host execution: the
  * real CLI's observability_snapshot resolvedLearningRoot for the isolated
- * workspace cwd must equal <workspace>/.lattice/learning. Read-only spawn.
+ * workspace cwd must equal <workspace>/.proof-or-stop/learning. Read-only spawn.
  */
 export function assertIsolatedLearningRoot({ hostCwd, snapshotCli }) {
   if (!existsSync(snapshotCli)) {
     fail(`isolation probe CLI missing: ${snapshotCli} — build it first (npm --prefix packages/main run build) or pass --snapshotCli`);
   }
-  const expected = normalize(join(hostCwd, '.lattice', 'learning'));
+  const expected = normalize(join(hostCwd, '.proof-or-stop', 'learning'));
   const res = spawnSync('node', [snapshotCli, 'observability_snapshot', '--json'], {
     cwd: hostCwd, env: childEnvBase(), encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 120_000,
   });
@@ -400,12 +400,12 @@ export function hashSnapshotFileSet(baseDir, relPaths) {
 }
 
 /**
- * Verify the materialized snapshot copy under <hostCwd>/.lattice still hashes
+ * Verify the materialized snapshot copy under <hostCwd>/.proof-or-stop still hashes
  * to the frozen protocol memorySnapshotHash. `when` names the phase for the
  * one-line abort message ('BEFORE host execution' / 'AFTER the run').
  */
 export function verifyMaterializedSnapshot({ hostCwd, relPaths, expectedHash, when }) {
-  const actual = hashSnapshotFileSet(join(hostCwd, '.lattice'), relPaths);
+  const actual = hashSnapshotFileSet(join(hostCwd, '.proof-or-stop'), relPaths);
   if (actual !== expectedHash) {
     fail(`memory snapshot verification failed ${when}: materialized store hash ${actual} != frozen protocol.json memorySnapshotHash ${expectedHash} — the frozen store was mutated; aborting cell (fail closed, no run.json)`);
   }
@@ -455,7 +455,7 @@ export function runExperiencePrelude({ hostCwd, snapshotCli, hostEnv, experiment
   }
   // Both arms MUST have logged the experience_pack_surfaced event with a
   // non-empty topHitIds (the measurement backbone; scorer surfacedMemoryIds).
-  const activityPath = join(hostCwd, '.lattice', 'activity.jsonl');
+  const activityPath = join(hostCwd, '.proof-or-stop', 'activity.jsonl');
   let surfacedEvent = null;
   if (existsSync(activityPath)) {
     for (const line of readFileSync(activityPath, 'utf8').split('\n')) {
@@ -488,7 +488,7 @@ export function renderHostCmd(template, { workspace, promptFile, isolatedRoot })
 function collectActivitySlice(isolatedRoot, hostCwd) {
   let text = '';
   for (const base of [hostCwd, isolatedRoot]) {
-    const p = join(base, '.lattice', 'activity.jsonl');
+    const p = join(base, '.proof-or-stop', 'activity.jsonl');
     if (existsSync(p)) text += readFileSync(p, 'utf8');
   }
   return text;
@@ -524,7 +524,7 @@ function runCell(cell, cfg) {
 
     // CHK-005 1b: materialize the frozen snapshot byte-identically into the
     // isolated root's learning path (BOTH arms), then verify BEFORE the host.
-    cpSync(cfg.memorySnapshotDir, join(hostCwd, '.lattice'), { recursive: true });
+    cpSync(cfg.memorySnapshotDir, join(hostCwd, '.proof-or-stop'), { recursive: true });
     verifyMaterializedSnapshot({
       hostCwd, relPaths: cfg.snapshotRelPaths,
       expectedHash: cfg.memorySnapshotHash, when: 'BEFORE host execution',
@@ -537,9 +537,9 @@ function runCell(cell, cfg) {
 
     const hostEnv = {
       ...childEnvBase(),
-      LATTICE_EXPERIMENT_ID: experimentId,
-      LATTICE_EXPERIMENT_ARM: cell.arm,
-      LATTICE_GLOBAL_MEMORY_DIR: globalMemoryDir,
+      PROOF_OR_STOP_EXPERIMENT_ID: experimentId,
+      PROOF_OR_STOP_EXPERIMENT_ARM: cell.arm,
+      PROOF_OR_STOP_GLOBAL_MEMORY_DIR: globalMemoryDir,
     };
 
     // CHK-005 2b: experience-delivery prelude through the production gated

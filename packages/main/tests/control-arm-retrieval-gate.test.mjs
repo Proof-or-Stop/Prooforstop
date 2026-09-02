@@ -42,8 +42,8 @@ const {
 const { enforceExperimentArmRetrievalGate } = await import(join(distRoot, 'cli-engine.js'));
 const { resetExperimentArmWarnLatch } = await import(join(distRoot, 'core/experiment-arm.js'));
 
-const ENV_ID = 'LATTICE_EXPERIMENT_ID';
-const ENV_ARM = 'LATTICE_EXPERIMENT_ARM';
+const ENV_ID = 'PROOF_OR_STOP_EXPERIMENT_ID';
+const ENV_ARM = 'PROOF_OR_STOP_EXPERIMENT_ARM';
 const savedId = process.env[ENV_ID];
 const savedArm = process.env[ENV_ARM];
 
@@ -56,7 +56,7 @@ function setArmEnv(id, arm) {
 }
 
 function readViolations(root) {
-  const logPath = join(root, '.lattice', 'activity.jsonl');
+  const logPath = join(root, '.proof-or-stop', 'activity.jsonl');
   if (!existsSync(logPath)) return [];
   return readFileSync(logPath, 'utf-8')
     .split('\n')
@@ -118,7 +118,7 @@ check('sentinels: recall marked; story_list / memory_benchmark_run / unknown not
 
 // ── 2-4. Gate behavior against a temp root ──────────────────────────────────
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-control-arm-gate-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-control-arm-gate-'));
 try {
   check('control arm: marked command refused, error names experimentId, event appended BEFORE throw', () => {
     setArmEnv('exp-gate-test-1', 'control');

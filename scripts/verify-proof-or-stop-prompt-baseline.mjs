@@ -46,28 +46,28 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * body. EXPECTED_ROLE_COUNT (17) is unchanged and still asserted.
  *
  * B-cdf6 CHK-005: 15 of the 17 templateHash values were RE-APPROVED after the
- * `lattice` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
+ * `proof-or-stop` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
  * templates. This is a repin to new correct content addresses, not a relaxation: the manifest
  * still binds each role to one exact body hash, so any unapproved prompt edit still fails. Audit
  * performed before repinning: `git diff main...HEAD -- packages/main/templates/agents/` contains
  * no changed line that mentions neither brand token (i.e. every diff line is a brand-token swap),
- * and the two roles whose hashes did NOT move (implementation-reviewer, lattice-review-topology-critic)
+ * and the two roles whose hashes did NOT move (implementation-reviewer, proof-or-stop-review-topology-critic)
  * are exactly the templates the rename did not touch.
  *
  * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
- * (lattice-evaluator, lattice-implementer, lattice-review-delivery,
- * lattice-review-scope-plan, lattice-review-story-init). CHK-005 repinned only what the
+ * (proof-or-stop-evaluator, proof-or-stop-implementer, proof-or-stop-review-delivery,
+ * proof-or-stop-review-scope-plan, proof-or-stop-review-story-init). CHK-005 repinned only what the
  * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
  * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
- * `core/prompt-registry.ts` (`LOAD_BEARING_LATTICE_PROMPT_SLICE` and
- * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `lattice <cmd>` to every spawned
+ * `core/prompt-registry.ts` (`LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE` and
+ * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `proofOrStop <cmd>` to every spawned
  * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
  * EXPECTED_ROLE_COUNT stays 17 and every role stays bound to one exact hash — a repin to
  * verified new content addresses, never a relaxation. Audited before repinning: normalizing
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
  *
- * B-9a49: re-approved the lattice-implementer body after adding its bounded
+ * B-9a49: re-approved the proof-or-stop-implementer body after adding its bounded
  * out-of-item Finding handoff rule, and the five active modular REVIEW bodies
  * after appending the canonical Finding triage contract in both rollout modes.
  * The reviewer source templates and their frozen legacy reconstruction hashes
@@ -87,6 +87,13 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * future signed defer-with-proof disposition boundary. The source templates and
  * frozen legacy reconstructions remain unchanged. Focused RED/GREEN mutations
  * reject obsolete and inverse semantics even after deliberate digest repinning.
+ * F-040/F-041 follow-up: the five reviewer bodies preserve the independent
+ * claimed-lineage floor, the downstream closure-only mandatory-repair floor,
+ * and the exact lineage-release verdict allowlist after the identity cutover.
+ * B-022e F-056 re-approved only proof-or-stop-review-story-init after replacing
+ * its live direct StoryStore reads/writes with background_get, story_get,
+ * checklist_get, and init_check_set. The CLI-only surface invariant below binds
+ * the source template, both generated mirrors, and the assembled registry body.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -94,60 +101,60 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
     templateHash: 'fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd',
   },
   {
-    role: 'lattice-evaluator-cli',
-    templateHash: '9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e',
+    role: 'proof-or-stop-evaluator-cli',
+    templateHash: '21689fb84c56357320f92972ac66f02c578bb67f1089f0f8890b547880e8c4e6',
   },
   {
-    role: 'lattice-evaluator',
-    templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
+    role: 'proof-or-stop-evaluator',
+    templateHash: 'acde1b784011d08d144700cc879511963fc70d374d66354fad7182a21c8e645e',
   },
   {
-    role: 'lattice-implementer',
-    templateHash: '7ed67ae4392ba7f9cf1cb0b9b562db90220cd62b5fe419db9c8aec5b13c9b53c',
+    role: 'proof-or-stop-implementer',
+    templateHash: '028d733d3d2832e182d1b9a5921e49f9ec583e73e8ae25f132c011fcf1f20012',
   },
   {
-    role: 'lattice-review-behavior',
-    templateHash: '6b2232989f3312a2dce841974752a36e4737d890ca5e97b89fae8aaf477ec586',
+    role: 'proof-or-stop-review-behavior',
+    templateHash: '061c0589009f7ee96045d4a63abff42314ec44e8cd48e03a8ee0270c688be782',
   },
   {
-    role: 'lattice-review-channel',
-    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
+    role: 'proof-or-stop-review-channel',
+    templateHash: 'bb8246f924215fe6bcc9b2e1c7ad6c7cc9c6e44e9f7a72619c7ec7f667b9131b',
   },
   {
-    role: 'lattice-review-concept',
-    templateHash: '9c27f947aa280271a1f79c7d3fa519e3f0383183e613a1a1635ba9cd56073c1f',
+    role: 'proof-or-stop-review-concept',
+    templateHash: '0dcdbd52fd2d5a26f2e630157552339b37c387dd9166701a54fa6883455343db',
   },
   {
-    role: 'lattice-review-delivery',
-    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
+    role: 'proof-or-stop-review-delivery',
+    templateHash: 'caa813c1f1bc6ed54a8d7d48b0bfda8f0492cf922656f2227ae600ee7a9d8d16',
   },
   {
-    role: 'lattice-review-docs',
-    templateHash: 'cb0588c6f2d4b6b4daa152b17f09cd4aa435104db8ef5678524c9f5b6c492c62',
+    role: 'proof-or-stop-review-docs',
+    templateHash: 'b957c8d3611067f178c752205cb92892f052c66cc65c59a27e596c757afa4a15',
   },
   {
-    role: 'lattice-review-quality',
-    templateHash: '0adcddad80e944b27e1d6b36e0175af242914e862477a8210908e8107bef46cb',
+    role: 'proof-or-stop-review-quality',
+    templateHash: '02ae741802a14d91bd45255840d3bc311d39a23cb066408cb2b15225bd9143d4',
   },
   {
-    role: 'lattice-review-scope-plan',
-    templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
+    role: 'proof-or-stop-review-scope-plan',
+    templateHash: '935913dfd492de56bb1b2d5b2507a2ae6b714e59f6c067e6c94a9e54755b75cd',
   },
   {
-    role: 'lattice-review-story-init',
-    templateHash: 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
+    role: 'proof-or-stop-review-story-init',
+    templateHash: 'c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432',
   },
   {
-    role: 'lattice-review-test-coverage',
-    templateHash: '0fe68ba0b0d6ee45edad9999801289b5612c05305894c8e29e004ec6fbd27830',
+    role: 'proof-or-stop-review-test-coverage',
+    templateHash: 'cf423a512d006a962bb2627a90e5230ae1c6a479b8154ca0a4c98de6f8a199bf',
   },
   {
-    role: 'lattice-review-topology-critic',
-    templateHash: '7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35',
+    role: 'proof-or-stop-review-topology-critic',
+    templateHash: '6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3',
   },
   {
     role: 'product-reviewer',
-    templateHash: 'e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a',
+    templateHash: 'f160fd39f77f4461b830e914617090d51e2026ef970e2103cb9cb273b2a19705',
   },
   {
     role: 'test-case-reviewer',
@@ -159,11 +166,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['lattice-review-behavior', 'eeb1822c737d97c77f5d85b34ed950432bb7f9f523cf310b7e0db1bb97aac471', '19cf8e457c5ae93b887018cea139349b1694dcbe5c15fcb976e9ec0ae35f587c', '6d38fd23c7cf3e6d1e38f82f207424cc2ff1ade6cf73fc0fd717e021fa03cef8', 'b3af380f9a31222e279e53354930e81010ddcd9ceebc04f33e9cb614bff2ac02', '1743ef1277e320ae5112f04979848c6d2d469dbb384148be1a89ae7ba4b9e005', 'c07b820a1d4f83c6885ad7740f6f30e6a5566f0cc6b354667773d25620fadc13', 'ca42257a686f868c4d5c314dc59e63b0562c7333280ecf8bba9e3f448707e367', '5e74eacb9215eac7a1cd4d6d8aca049f3e5a1ad20bcad226837b1b4a381ea53b'],
-  ['lattice-review-concept', 'd7a92045a62511b5fb4da6039fa3c9c93f114cdfea3bb232cce2c29c6f69d8f8', '83079f87f5d244f52daad322fecc64bf5ce58e69600d2e739ec2e3083a46ff55', 'cff3cd40370116851a06870eadefd12d01c1b1c8e69feb220ecc7534138f702e', '5d34d1b2900efd54791b4624828622549d5dbe8ac9b45e50c929a174c0dcc12b', 'd8a681c951b42443e4707398ef8d8e5f6746a96af7a8e300fac096ccd73c8f9b', '3011f29727cccd82b7b785126ec64c6990453b4119a4812077617ca081281284', 'bab16c00b6cc865cf13ed74939559c93559cb1c1afd6f456464b0e3abf63ac53', 'fc9eff21f18acdebb70d27466025da725d2699e132702d08172575b21faa456d'],
-  ['lattice-review-docs', '20c545f97ace5691a8bda8abef4ef69685da64ab75866b0ccc8e3fc0b08e646e', '0b56018b3cc9dba0a52854bfcdedec7096504a865e43d0fb72dad86770574135', 'd2ca10730a1c4793a34a383a618cf46ba76194ab23ac696151af842bff7b7503', '0741379e06da6cc6dbc962d269d129500ccd3c888236b946f5ac9afddc258b12', '447be48c1765dd6d7328e2056cfd33a9829d4ad02e21a3a93e4bc587142849e4', 'bff0bbf40a4d1e01fc9ec4c484ab2d0af9a44a31020a7ff5cc3773645b72cae8', '95942adba5fe298886270ba01ec1d292ff89b9bc55a1163296bff8fe28fe2459', '6e0fc2f710ab743030b66e51fc225e319b46d9af08514099405e8f2de19bb4fd'],
-  ['lattice-review-quality', '2903aec109e0086a52b979aea22a4fe779ab999a5ec81a187960e32c5479925f', '6f5f4de45b2ec52cc142dc8c4e2909975b9bcd462b8c58f2ccdcbcd192bd30cf', 'f41b197af6143de82548fcacd693e3a5ec0b681995ff1a3aa6f21af262cd8441', '186a078e2319699aa683accb264337de24ede462b859fa0f6966cdf8f5af8097', 'b000652de2f8aaf708094759b7c858724df04c07a3d08a27caa9e12bc6707168', 'a413434623ffd7db0a9d03e34e2895101dba6617a06b139cd1d7cbfc1e42d3b4', 'cf73b1359f654f2a14be3ad779e43820c83e6e137d2d2b69603eafe3c35ba3b8', '37287bf2fd60341cf0414b3a423ee94a409ecf269cc8ca1194ccdbc0538b9a4d'],
-  ['lattice-review-test-coverage', '79f2226df33aa271ebb5bef7371408f6c70f3ecb9ad85d46a4e7910471889143', '5e3a5cf195d3334e751f1bd28d3a5f27b95d01f137e45b54f5a3ba788887fbd9', 'b9c9ad8d02a7a7aed17c867e0f6780fa003fbf2d4015dfb403dd0512f0a28603', 'c52461207d256a36ada51fe6e0412230d1ad726d678bdd3f4c2416fe8683f4f3', 'bf877535bea54e6a8c6a1670dcd25f79c19d8894e6600a9f0f2da2b5714efb1a', '5d0ed1082f1dcb8356b30eca967d292c6017378a7645a1fec200cb78108fd595', '43c6f34cbd375d424e306cbfb1240b4aa37abd084505dfc1d3c9fa362e700d03', 'a9b7af8817c2ee814169f58a2a6018dc50e00bb25c9bd4f7e8541f514c0a7cb9'],
+  ['proof-or-stop-review-behavior', 'bd2ff3346054f2f0f84b4d314d50f50520fa5267b76baf31dad5583adb5c3b45', '061c0589009f7ee96045d4a63abff42314ec44e8cd48e03a8ee0270c688be782', '2ba770838c177aa99106da93a5c35abd5a378649b9bf952bbb3fca365c405f7c', '4ff50d8786de4e39c38422dd2df7f9625cd742d5417db7b7e3ca610f8db4bd18', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a'],
+  ['proof-or-stop-review-concept', '5fa682086baa7aef7b5b952625d3efc6d2985183b33e4cccde388adad5922da6', '0dcdbd52fd2d5a26f2e630157552339b37c387dd9166701a54fa6883455343db', '662a3bd15d165ce5231ca99d1a9f1d837267c779286937b190edfa6e5d313a70', 'ea1fadcd10784e1df65769142ef8ef4e61565e9670703c836a2208954e2e6333', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e'],
+  ['proof-or-stop-review-docs', '19be7966d1ea12ec7cc16f0b78dabef3b1f98df6cf3d55a08679de06d924ee3e', 'b957c8d3611067f178c752205cb92892f052c66cc65c59a27e596c757afa4a15', '2f953f81bdb37182f2b62c5af7505e55b4bc49630362dad169c93dca998ab8ba', '21e139ce14fe68cc0e5b53b4d04c3ab009ea3773c2b69cfbdc390cacc6c3246f', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea'],
+  ['proof-or-stop-review-quality', 'b96790f15ccc7e8772122ba2eb2ee8ad2320cca724368b0e058eb5b0fb6a98f9', '02ae741802a14d91bd45255840d3bc311d39a23cb066408cb2b15225bd9143d4', '9dfa73bfc2f10e3d8e849c481b59c83a38ce20d0def78d88156697ce7a40698b', '934b12c25362750707300bbb087b3d0ee5d6de7b8586c520e3ff3b26df84d7a7', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304'],
+  ['proof-or-stop-review-test-coverage', 'b26cee4f1b0a1110049b881b074bf705972b07a54eaa67c9c3a02287bf6d60e0', 'cf423a512d006a962bb2627a90e5230ae1c6a479b8154ca0a4c98de6f8a199bf', '3aa40c0b90355343edce8cf30a7e71b3056e6a7f385b3c7b7041b963a695e088', '28ccc08c3fd0264f86c5288e370ca6c0f565cfcd2e53002aeddcdb85efdefd69', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,
@@ -208,69 +215,24 @@ const ROLE_MATRIX_COMMANDS_CONTRACT = {
 };
 const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
   'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
-const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
-const DIRECT_STORY_WRITE_ALLOWLIST = [
-  {
-    role: 'lattice-review-story-init',
-    excerpt: STORY_INIT_SELF_CHECK_WRITE,
-    reason: 'Current INIT anti-self-exemption sidecar pending CLI migration.',
-  },
-];
+const RETIRED_STORY_INIT_DIRECT_READ = '3. `docs/story/actives/<storyId>/background.md` (full text)';
+const RETIRED_STORY_INIT_DIRECT_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
+const DIRECT_STORY_WRITE_ALLOWLIST = [];
 const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
-    role: 'lattice-review-channel',
+    role: 'proof-or-stop-review-channel',
     classification: 'process-event-evidence-reference',
     excerpt: 'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{"type":"dispatch","checklistId":"CHK-xxx",...}`; once the worker finishes, it may append `{"type":"subagent_result","checklistId":"CHK-xxx","success":true,...}`.',
   },
   {
-    role: 'lattice-review-channel',
+    role: 'proof-or-stop-review-channel',
     classification: 'process-event-evidence-reference',
     excerpt: 'grep \'"type":"dispatch"\' docs/story/actives/B-xxx/process-events.jsonl | grep -oE \'"checklistId":"CHK-[0-9]+"\' | sort -u',
   },
   {
-    role: 'lattice-review-channel',
+    role: 'proof-or-stop-review-channel',
     classification: 'process-event-evidence-reference',
     excerpt: '- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '3. `docs/story/actives/<storyId>/background.md` (full text)',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'other',
-    excerpt: '- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'direct-read',
-    excerpt: '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'direct-read',
-    excerpt: '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'direct-read',
-    excerpt: '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
-  },
-  {
-    role: 'lattice-review-story-init',
-    classification: 'direct-read',
-    excerpt: 'cat docs/story/actives/<storyId>/init-self-check.json',
   },
   {
     role: 'product-reviewer',
@@ -279,7 +241,23 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   },
 ];
 const DIRECT_STORY_POLICY_RULE =
-  'The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted diagnostically; every other docs/story reference is reported as unsafe.';
+  'The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references and strict whole-instruction negative/CLI policy forms are accepted diagnostically; no active direct StoryStore write is allowed, and every other docs/story reference is reported as unsafe.';
+const STORY_INIT_PROMPT_SURFACES = [
+  'packages/main/templates/agents/proof-or-stop-review-story-init.md',
+  '.claude/agents/proof-or-stop-review-story-init.md',
+  '.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md',
+];
+const STORY_INIT_REQUIRED_CLI_COMMANDS = [
+  'proof-or-stop background_get',
+  'proof-or-stop story_get',
+  'proof-or-stop checklist_get',
+  'proof-or-stop init_check_set',
+];
+const STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS = [
+  'docs/story/actives',
+  '.proof-or-stop/story/actives',
+  'init-self-check.json',
+];
 const STORY_INSTRUCTION_CONTEXT_RADIUS = 2;
 const DIRECT_STORY_SAFE_NEGATIVE_ACTIONS = Object.freeze([
   'read',
@@ -333,15 +311,15 @@ const LEGACY_VOCABULARY_ENFORCED_STATUSES = LEGACY_VOCABULARY_KNOWN_STATUSES.fil
 );
 const LEGACY_VOCABULARY_CONTEXT_ALLOWLIST = [
   {
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     term: 'testIntent',
     excerpt: '2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)',
     reason: 'Current concept-deletion example explicitly demonstrates that testIntent was deleted.',
   },
   {
-    role: 'lattice-review-test-coverage',
+    role: 'proof-or-stop-review-test-coverage',
     term: 'TEST_CASE_REVIEW',
-    excerpt: 'You are `lattice-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.',
+    excerpt: 'You are `proof-or-stop-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.',
     reason: 'Current coverage reviewer explicitly identifies TEST_CASE_REVIEW as the old replaced phase.',
   },
 ];
@@ -363,19 +341,19 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'duplicates behavior and quality',
     notes: 'Not in current review-run lanes; planned to fold into behavior and quality.',
   },
-  'lattice-evaluator-cli': {
+  'proof-or-stop-evaluator-cli': {
     status: 'optional',
     phase: 'TEST optional',
     purpose: 'CLI/core evaluator for user-facing command behavior.',
-    commands: 'bridge state/reset/events/event/replay API via curl; cat .lattice-serve.json; optional CLI shell spawn.',
-    directFileAccess: 'Reads .lattice-serve.json for CLI shell connection info; otherwise uses CLI shell/bridge output and performs no direct story writes.',
+    commands: 'bridge state/reset/events/event/replay API via curl; cat .proof-or-stop-serve.json; optional CLI shell spawn.',
+    directFileAccess: 'Reads .proof-or-stop-serve.json for CLI shell connection info; otherwise uses CLI shell/bridge output and performs no direct story writes.',
     inputs: 'Task, expected CLI behavior, command output.',
     outputs: 'Evaluator JSON transcript.',
     capabilities: 'CLI exercise; usability scoring; observed-output assessment.',
     overlapCategory: 'overlaps behavior and delivery',
     notes: 'Advisory unless persisted through a structured evaluator evidence path.',
   },
-  'lattice-evaluator': {
+  'proof-or-stop-evaluator': {
     status: 'optional',
     phase: 'TEST optional',
     purpose: 'Browser/product evaluator for UI-facing behavior.',
@@ -387,19 +365,19 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps behavior and product',
     notes: 'Advisory unless a policy consumes saved evaluator evidence.',
   },
-  'lattice-implementer': {
+  'proof-or-stop-implementer': {
     status: 'active',
     phase: 'DEV',
     purpose: 'Implementation worker that edits code, verifies locally, and updates checklist evidence.',
     commands: 'checklist_update; validate; optional serve; aux_scan; aux_detail; local lint/build/unit tests; git add; git commit.',
-    directFileAccess: 'Reads and edits source/docs in workspace; story metadata through Lattice CLI only.',
+    directFileAccess: 'Reads and edits source/docs in workspace; story metadata through ProofOrStop CLI only.',
     inputs: 'Story, checklist, source files, focused docs.',
     outputs: 'Code changes, commits, checklist status updates, and brief return summary.',
     capabilities: 'Code editing; focused tests; checklist status recording; commit preparation.',
     overlapCategory: 'DEV owner',
     notes: 'Does not own review, test phase advancement, or DONE closure.',
   },
-  'lattice-review-behavior': {
+  'proof-or-stop-review-behavior': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews promised user-visible behavior, edge cases, and userSees mismatch.',
@@ -411,7 +389,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'shares spec checks with scope and docs',
     notes: 'Should consume scope artifacts instead of repeating broad PLAN scans.',
   },
-  'lattice-review-channel': {
+  'proof-or-stop-review-channel': {
     status: 'retired-cli-only',
     phase: 'REVIEW legacy',
     purpose: 'Legacy reviewer for normal-channel dispatch evidence.',
@@ -423,19 +401,19 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'duplicates channel CLI gate',
     notes: 'Plan marks this as retired in favor of validate channel checks.',
   },
-  'lattice-review-concept': {
+  'proof-or-stop-review-concept': {
     status: 'conditional',
     phase: 'REVIEW',
     purpose: 'Reviews concept deletion, rename, and terminology residue.',
     commands: 'git diff; grep; review_run_start; finding_add; review_pass_set.',
-    directFileAccess: 'Reads diff/source/docs references; reviewer evidence through Lattice CLI.',
+    directFileAccess: 'Reads diff/source/docs references; reviewer evidence through ProofOrStop CLI.',
     inputs: 'Diff, renamed terms, deleted concepts, docs/code references.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Residue scan; concept consistency; rename completeness.',
     overlapCategory: 'overlaps docs and quality cleanup',
     notes: 'Route only when rename, removal, or concept-retirement triggers exist.',
   },
-  'lattice-review-delivery': {
+  'proof-or-stop-review-delivery': {
     status: 'active',
     phase: 'TEST/DONE',
     purpose: 'Reviews final delivery claims, docs promises, real machine tests, and closeout.',
@@ -447,72 +425,72 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps docs and product',
     notes: 'Fresh-context review independently derives docs promises and real-machine test coverage; it does not consume prior docs review, other reviewer results, or test-evidence.json.',
   },
-  'lattice-review-docs': {
+  'proof-or-stop-review-docs': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews code/documentation drift around changed public behavior.',
     commands: 'git diff; grep; review_run_start; finding_add; review_pass_set.',
-    directFileAccess: 'Reads changed docs/source; reviewer evidence through Lattice CLI.',
+    directFileAccess: 'Reads changed docs/source; reviewer evidence through ProofOrStop CLI.',
     inputs: 'Diff, docs, command examples, config/schema changes.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Doc-code drift review; command example review; schema documentation review.',
     overlapCategory: 'single REVIEW docs owner',
     notes: 'Owns REVIEW doc drift and docs-promised-code-missing checks.',
   },
-  'lattice-review-quality': {
+  'proof-or-stop-review-quality': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.',
     commands: 'git diff; review_run_start; finding_add; review_pass_set.',
-    directFileAccess: 'Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.',
+    directFileAccess: 'Reads source/tests/proof metadata; reviewer evidence through ProofOrStop CLI.',
     inputs: 'Diff, source code, tests, proof metadata.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Code quality; dead-code scan; type-safety review; maintainability review.',
     overlapCategory: 'overlaps implementation-reviewer',
     notes: 'Target owner for implementation-reviewer maintainability checks.',
   },
-  'lattice-review-scope-plan': {
+  'proof-or-stop-review-scope-plan': {
     status: 'active',
     phase: 'PLAN',
     purpose: 'Reviews story/checklist scope against source-of-truth requirements.',
     commands: 'config; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; scope_check_save.',
-    directFileAccess: 'Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.',
+    directFileAccess: 'Reads candidate docs and CLI-provided story/checklist context; scope evidence through ProofOrStop CLI.',
     inputs: 'Story, checklist, candidate requirement docs, risk signals.',
     outputs: 'scope_check_save artifact.',
     capabilities: 'Scope coverage; orphan requirement detection; candidate spec review.',
     overlapCategory: 'PLAN scope owner',
     notes: 'Should avoid default full decisions-directory scans without escalation.',
   },
-  'lattice-review-story-init': {
+  'proof-or-stop-review-story-init': {
     status: 'active',
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
-    commands: 'Read/Grep story inputs; init_check_set; cat/echo/Edit init-self-check.json.',
-    directFileAccess: 'Grandfathered direct docs/story reads plus init-self-check cat/echo/Edit write wording.',
+    commands: 'background_get; story_get; checklist_get; init_check_set.',
+    directFileAccess: 'Reads story metadata only through Proof-or-Stop CLI; reads CLAUDE.md, package docs, templates, and source for bounded factual verification.',
     inputs: 'Story background, index fields, checklist title/context.',
-    outputs: 'init_check_set issues/pass plus init-self-check audit file wording.',
+    outputs: 'init_check_set issues/pass plus a textual CLAUDE.md self-check.',
     capabilities: 'Fresh-context intake review; story clarity; risk sanity check.',
     overlapCategory: 'overlaps scope-plan on checklist sanity',
-    notes: 'Baseline includes grandfathered direct story-file reads and init-self-check write wording.',
+    notes: 'No direct StoryStore read or write is permitted.',
   },
-  'lattice-review-topology-critic': {
+  'proof-or-stop-review-topology-critic': {
     status: 'active',
     phase: 'PLAN/DEV/REVIEW',
     purpose: 'Independently reviews acceptance topology completeness and signs a current critic receipt.',
     commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check.',
-    directFileAccess: 'Reads current source, topology, basis, and scope artifacts; writes only through registered Lattice receipt commands.',
+    directFileAccess: 'Reads current source, topology, basis, and scope artifacts; writes only through registered ProofOrStop receipt commands.',
     inputs: 'Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.',
     outputs: 'Signed topology-critic receipt with pass or request_changes verdict.',
     capabilities: 'Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.',
     overlapCategory: 'independent acceptance-topology authority critic',
     notes: 'Cannot override partial or unsupported discovery and cannot approve its own exclusions.',
   },
-  'lattice-review-test-coverage': {
+  'proof-or-stop-review-test-coverage': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews verificationIntent to verificationEvidence coverage.',
     commands: 'validate; review_run_start; finding_add; review_pass_set.',
-    directFileAccess: 'Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.',
+    directFileAccess: 'Reads checklist/evidence through ProofOrStop CLI; reviewer evidence through ProofOrStop CLI.',
     inputs: 'Checklist verificationIntent and verificationEvidence.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Coverage completeness; missing/stale evidence detection.',
@@ -540,7 +518,7 @@ const ROLE_MATRIX_DEFAULTS = {
     inputs: 'Legacy testIntent and fixture JSON.',
     outputs: 'testintent_record results and testintent_check status.',
     capabilities: 'Legacy fixture coverage review.',
-    overlapCategory: 'replaced by current lattice-review-test-coverage; target proof-or-stop-review-test-coverage',
+    overlapCategory: 'replaced by current proof-or-stop-review-test-coverage; target proof-or-stop-review-test-coverage',
     notes: 'Legacy-only prompt tied to old TEST_CASE_REVIEW phase.',
   },
   'test-intent': {
@@ -548,7 +526,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'PLAN legacy',
     purpose: 'Legacy checklist split reviewer and testIntent writer.',
     commands: 'checklist_update.',
-    directFileAccess: 'Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.',
+    directFileAccess: 'Reads story/checklist through ProofOrStop CLI; writes legacy checklist updates through ProofOrStop CLI.',
     inputs: 'Story and checklist.',
     outputs: 'Legacy testIntent or null intent updates.',
     capabilities: 'Checklist split review; legacy acceptance-intent writing.',
@@ -560,22 +538,22 @@ const ROLE_MATRIX_DEFAULTS = {
 const DIRECT_STORY_CLASSIFIER_PROBES = [
   {
     name: 'negative direct read/write policy reminder',
-    role: 'lattice-review-quality',
-    excerpt: '- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`.',
+    role: 'proof-or-stop-review-quality',
+    excerpt: '- Story operations must use ProofOrStop CLI commands. Do not directly read or write story metadata under `docs/story/`.',
     classification: 'policy-reminder',
     grandfathered: false,
   },
   {
     name: 'negative direct read/edit prohibited reminder',
-    role: 'lattice-implementer',
-    excerpt: '- Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Lattice CLI',
+    role: 'proof-or-stop-implementer',
+    excerpt: '- Directly Read/Edit JSON files under `docs/story/`: all story changes go through the ProofOrStop CLI',
     classification: 'policy-reminder',
     grandfathered: false,
   },
   {
     name: 'negative copy policy reminder',
-    role: 'lattice-review-quality',
-    excerpt: 'Do not copy or move files into docs/story; use Lattice CLI commands instead.',
+    role: 'proof-or-stop-review-quality',
+    excerpt: 'Do not copy or move files into docs/story; use ProofOrStop CLI commands instead.',
     classification: 'policy-reminder',
     grandfathered: false,
   },
@@ -586,21 +564,21 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
   // name for not-yet-migrated prompt text.
   {
     name: 'negative direct read/write policy reminder (renamed brand)',
-    role: 'lattice-review-quality',
+    role: 'proof-or-stop-review-quality',
     excerpt: '- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`.',
     classification: 'policy-reminder',
     grandfathered: false,
   },
   {
     name: 'negative direct read/edit prohibited reminder (renamed brand)',
-    role: 'lattice-implementer',
+    role: 'proof-or-stop-implementer',
     excerpt: '- Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Proof-or-Stop CLI',
     classification: 'policy-reminder',
     grandfathered: false,
   },
   {
     name: 'negative copy policy reminder (renamed brand)',
-    role: 'lattice-review-quality',
+    role: 'proof-or-stop-review-quality',
     excerpt: 'Do not copy or move files into docs/story; use Proof-or-Stop CLI commands instead.',
     classification: 'policy-reminder',
     grandfathered: false,
@@ -609,294 +587,294 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
   // name bless a story-metadata instruction. This stays classified as an unregistered write.
   {
     name: 'unknown brand CLI prefix cannot bless a story write (renamed-brand widening guard)',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Use the Bogus-Brand CLI for docs/story/actives/B-1234/index.json; then use Edit to update it.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'mixed negative reminder and positive write instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not directly edit docs/story metadata; however, use Edit to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'same-clause prohibition followed by apply_patch instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not edit docs/story/actives/B-1234/index.json and then use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'apply_patch command targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: "apply_patch <<'PATCH' # target docs/story/actives/B-1234/index.json",
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'apply_patch add file header',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: '*** Add File: docs/story/actives/B-1234/new.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'apply_patch update file header',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: '*** Update File: docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'apply_patch delete file header',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: '*** Delete File: docs/story/actives/B-1234/obsolete.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'actionable directly read/edit instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Directly Read/Edit docs/story/actives/B-1234/index.json to update the answer field.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'edit tool instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Use the Edit tool to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'write tool instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Use Write to create docs/story/actives/B-1234/init-self-check.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'tee write instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'printf "{}" | tee docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'sed in-place write instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: "sed -i '' 's/a/b/' docs/story/actives/B-1234/index.json",
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'conditional echo redirection write',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'If available, echo "{}" > docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'cp command targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'cp source.json docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'copy instruction targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Copy source.json to docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'mv command targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'mv source.json docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'move instruction targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Move source.json to docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'install command targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'install -m 0644 source.json docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'rsync command targeting story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'rsync -a source.json docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'unknown mutation mechanism fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Mutate docs/story/actives/B-1234/index.json with the project-specific metadata transformer.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'unknown directive-shaped metadata tool fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Use the project-specific metadata transformer on docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'generic output flag targeting story metadata is a direct write',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Run metadata-transformer --output docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'avoid clause cannot bless apply_patch after and instead',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Avoid editing docs/story/actives/B-1234/index.json and instead use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'prohibition cannot bless apply_patch after then',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not edit docs/story/actives/B-1234/index.json then use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'negative reminder cannot bless apply_patch exception after story target',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not edit docs/story/actives/B-1234/index.json unless use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'negative reminder cannot bless apply_patch exception before story target',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not edit files unless use apply_patch on docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
     name: 'unknown negative action cannot bless unknown second action',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not touch docs/story/actives/B-1234/index.json unless frobnicate docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'process directive with unknown transformer fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Process docs/story/actives/B-1234/index.json with the metadata transformer.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'unknown metadata tool using for target fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Use the metadata transformer for docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'conditional unknown metadata tool fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'If needed, use the metadata transformer on docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'read-only prefix cannot bless unknown second action',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Inspect docs/story/actives/B-1234/index.json, then frobnicate it.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
-    name: 'Lattice CLI prefix cannot bless unknown second action',
-    role: 'lattice-review-docs',
-    excerpt: 'Use the Lattice CLI for docs/story/actives/B-1234/index.json; then frobnicate it.',
+    name: 'ProofOrStop CLI prefix cannot bless unknown second action',
+    role: 'proof-or-stop-review-docs',
+    excerpt: 'Use the ProofOrStop CLI for docs/story/actives/B-1234/index.json; then frobnicate it.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'output directive fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Output generated metadata to docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'repeated story path separator is canonicalized diagnostically',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Output generated metadata to docs//story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'story path dot segment is canonicalized diagnostically',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Output generated metadata to docs/./story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'mixed-case story path is extracted case-insensitively',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'never preserve is not a safe negative',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Never preserve docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'do not retain is not a safe negative',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not retain docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'do not omit is not a safe negative',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Do not omit docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
   },
   {
     name: 'never remove is an actionable inversion',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     excerpt: 'Never remove docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
   },
   {
-    name: 'exact current story-init write is grandfathered',
-    role: 'lattice-review-story-init',
-    excerpt: STORY_INIT_SELF_CHECK_WRITE,
+    name: 'retired story-init sidecar write fails closed',
+    role: 'proof-or-stop-review-story-init',
+    excerpt: RETIRED_STORY_INIT_DIRECT_WRITE,
     classification: 'direct-write',
-    grandfathered: true,
+    grandfathered: false,
   },
   {
     name: 'unregistered read-only story reference fails closed',
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     excerpt: '`docs/story/actives/<storyId>/index.json` — read only the `title` field.',
     classification: 'unclassified-actionable',
     grandfathered: false,
@@ -906,7 +884,7 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
 const DIRECT_STORY_SCANNER_PROBES = [
   {
     name: 'repeated separator path is found by the real scanner',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Output generated metadata to docs//story/actives/B-1234/index.json',
     line: 1,
     references: ['docs/story/actives/B-1234/index.json'],
@@ -915,7 +893,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'dot-segment path is found by the real scanner',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Output generated metadata to docs/./story/actives/B-1234/index.json',
     line: 1,
     references: ['docs/story/actives/B-1234/index.json'],
@@ -924,7 +902,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'mixed-case path is found by the real scanner',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json',
     line: 1,
     references: ['docs/story/actives/B-1234/index.json'],
@@ -933,7 +911,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'shell continuation inside story path is canonicalized by the real scanner',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Output generated metadata to docs/\\\nstory/actives/B-1234/index.json',
     line: 1,
     references: ['docs/story/actives/B-1234/index.json'],
@@ -942,7 +920,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'continued cp destination is scanned as one instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'cp source.json \\\n  docs/story/actives/B-1234/index.json',
     line: 1,
     classification: 'direct-write',
@@ -950,7 +928,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'natural copy destination continuation is scanned as one instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Copy source.json to\ndocs/story/actives/B-1234/index.json',
     line: 1,
     classification: 'direct-write',
@@ -958,7 +936,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'copy into destination continuation is scanned as one instruction',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Copy source.json\ninto docs/story/actives/B-1234/index.json',
     line: 1,
     classification: 'direct-write',
@@ -966,7 +944,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'unknown metadata tool target continuation fails closed',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Use the metadata transformer on\ndocs/story/actives/B-1234/index.json',
     line: 1,
     classification: 'unclassified-actionable',
@@ -974,7 +952,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'against target continuation fails closed without connector allowlist',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Use the metadata transformer\nagainst docs/story/actives/B-1234/index.json',
     line: 1,
     classification: 'unclassified-actionable',
@@ -982,7 +960,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'across target continuation fails closed without connector allowlist',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Run the metadata transformer\nacross docs/story/actives/B-1234/index.json',
     line: 1,
     classification: 'unclassified-actionable',
@@ -990,7 +968,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'colon target context is scanned bidirectionally',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Use the metadata transformer:\ndocs/story/actives/B-1234/index.json',
     line: 1,
     excerpt: 'Use the metadata transformer: docs/story/actives/B-1234/index.json',
@@ -999,7 +977,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'bullet target context is scanned bidirectionally',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'Use the metadata transformer\n- docs/story/actives/B-1234/index.json',
     line: 1,
     excerpt: 'Use the metadata transformer - docs/story/actives/B-1234/index.json',
@@ -1008,7 +986,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'path-first following action is scanned bidirectionally',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: 'docs/story/actives/B-1234/index.json\nFrobnicate it.',
     line: 1,
     excerpt: 'docs/story/actives/B-1234/index.json Frobnicate it.',
@@ -1017,7 +995,7 @@ const DIRECT_STORY_SCANNER_PROBES = [
   },
   {
     name: 'sentence-ended path-first action is scanned bidirectionally',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     content: '`docs/story/actives/B-1234/index.json`.\nFrobnicate it.',
     line: 1,
     excerpt: '`docs/story/actives/B-1234/index.json`. Frobnicate it.',
@@ -1230,14 +1208,14 @@ const LEGACY_VOCABULARY_ALLOWED_PROBES = [
   },
   {
     name: 'registered concept deletion context remains allowed',
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     status: 'conditional',
     content: LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt,
     policyStatus: 'allowed-registered-context',
   },
   {
     name: 'registered coverage replacement context remains allowed',
-    role: 'lattice-review-test-coverage',
+    role: 'proof-or-stop-review-test-coverage',
     status: 'active',
     content: LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[1].excerpt,
     policyStatus: 'allowed-registered-context',
@@ -1247,105 +1225,105 @@ const LEGACY_VOCABULARY_ALLOWED_PROBES = [
 const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
   {
     name: 'repeated story path separator',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to docs//story/actives/B-1234/index.json.',
   },
   {
     name: 'story path dot segment',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to docs/./story/actives/B-1234/index.json.',
   },
   {
     name: 'shell continuation inside story path',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to docs/\\\nstory/actives/B-1234/index.json.',
   },
   {
     name: 'mixed-case story path',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json.',
   },
   {
     name: 'unregistered read-only story reference',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: '`docs/story/actives/<storyId>/index.json` - read only the `title` field.',
   },
   {
     name: 'never preserve story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Never preserve docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'do not retain story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not retain docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'do not omit story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not omit docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'never remove story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Never remove docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'registered reference followed across a blank line',
-    role: 'lattice-review-story-init',
-    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\nFrobnicate it.`,
+    role: 'proof-or-stop-review-story-init',
+    addition: `${RETIRED_STORY_INIT_DIRECT_READ}\n\nFrobnicate it.`,
   },
   {
     name: 'registered reference followed across heading and list boundaries',
-    role: 'lattice-review-story-init',
-    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\n## Next\n\n- Frobnicate it.`,
+    role: 'proof-or-stop-review-story-init',
+    addition: `${RETIRED_STORY_INIT_DIRECT_READ}\n\n## Next\n\n- Frobnicate it.`,
   },
   {
     name: 'action prepended across a blank line to a registered reference',
-    role: 'lattice-review-story-init',
-    addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}`,
+    role: 'proof-or-stop-review-story-init',
+    addition: `Frobnicate it.\n\n${RETIRED_STORY_INIT_DIRECT_READ}`,
   },
 ];
 
 const PROMPT_POLICY_LEGACY_COLLECTION_PROBES = [
   {
     name: 'safe negative followed by pronoun action via semicolon',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent; attach it to each new story.',
   },
   {
     name: 'safe negative followed by pronoun action via period',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent. Attach it to each new story.',
   },
   {
     name: 'safe negative followed by pronoun action via newline',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent.\nAttach it to each new story.',
   },
   {
     name: 'safe negative followed by pronoun action across a blank line',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent.\n\nAttach it to each new story.',
   },
   {
     name: 'registered context followed by pronoun action via newline',
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     addition: `${LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt}\nAttach it to each new story.`,
   },
   {
     name: 'registered context followed by pronoun action across a blank line',
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     addition: `${LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt}\n\nAttach it to each new story.`,
   },
   {
     name: 'never preserve legacy vocabulary',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Never preserve testIntent for new stories.',
   },
   {
     name: 'do not retain legacy vocabulary',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not retain testIntent for new stories.',
   },
 ];
@@ -1595,14 +1573,14 @@ function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurren
       ...policy,
     };
   }
-  if (role === 'lattice-review-test-coverage') {
+  if (role === 'proof-or-stop-review-test-coverage') {
     return {
       classification: 'legacy-value-reference',
       note: 'Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.',
       ...policy,
     };
   }
-  if (role === 'lattice-review-concept') {
+  if (role === 'proof-or-stop-review-concept') {
     return {
       classification: 'legacy-example',
       note: 'Example of concept deletion terminology, not an active testIntent instruction.',
@@ -1795,7 +1773,7 @@ function isStrictNegativeStorySegment(segment) {
 /**
  * The product name a CLI-mediation reminder may use.
  *
- * B-cdf6 CHK-005: these classifier regexes used to hardcode `lattice cli`. After the rename, a
+ * B-cdf6 CHK-005: these classifier regexes used to hardcode `proof-or-stop cli`. After the rename, a
  * prompt line reading "Story operations must use Proof-or-Stop CLI commands" stopped matching, so
  * a PROHIBITION REMINDER was misclassified as an unregistered `direct-write` instruction — a false
  * positive that blocked baseline collection while claiming a policy violation that did not exist.
@@ -1803,7 +1781,7 @@ function isStrictNegativeStorySegment(segment) {
  * pure "route story ops through the CLI" clause and nothing else); it does not admit any new
  * action verb, path, or instruction shape.
  */
-const CLI_BRAND_NAME_SOURCE = String.raw`(?:lattice|proof-or-stop)\s+cli`;
+const CLI_BRAND_NAME_SOURCE = String.raw`(?:proofOrStop|proof-or-stop)\s+cli`;
 
 function isStrictCliMediatedStorySegment(segment) {
   const directive = normalizeStoryPolicySegment(segment);
@@ -2146,7 +2124,29 @@ async function collectCurrentPromptState() {
   return collectPromptStateFromSource();
 }
 
+function assertStoryInitCliOnlyPromptSurfaces(roleEntries) {
+  const assembled = roleEntries.find(entry => entry.role === 'proof-or-stop-review-story-init');
+  if (!assembled) throw new Error('missing assembled proof-or-stop-review-story-init prompt');
+  const surfaces = [
+    ...STORY_INIT_PROMPT_SURFACES.map(path => ({ path, content: readFileSync(join(ROOT, path), 'utf8') })),
+    { path: 'assembled:proof-or-stop-review-story-init', content: assembled.content },
+  ];
+  const errors = [];
+  for (const surface of surfaces) {
+    for (const command of STORY_INIT_REQUIRED_CLI_COMMANDS) {
+      if (!surface.content.includes(command)) errors.push(`${surface.path}: missing ${command}`);
+    }
+    for (const fragment of STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS) {
+      if (surface.content.includes(fragment)) errors.push(`${surface.path}: forbidden active fragment ${fragment}`);
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`story-init CLI-only prompt policy failed:\n- ${errors.join('\n- ')}`);
+  }
+}
+
 function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
+  assertStoryInitCliOnlyPromptSurfaces(roleEntries);
   assertApprovedPromptPolicyManifest(roleEntries);
 
   const roleMatrix = roleEntries.map(entry => {
@@ -3033,7 +3033,7 @@ function verifyDirectStoryWritePolicy(findings, label, failures) {
 function verifyDirectStoryClassifierProbes(failures) {
   requireEqual(
     DIRECT_STORY_WRITE_ALLOWLIST.length,
-    1,
+    0,
     'direct story-write explicit allow entry count',
     failures,
   );
@@ -3293,16 +3293,16 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
 
 function verifyRoleMatrixSnapshotDriftProbe(current, failures) {
   const mutatedBaseline = structuredClone(current);
-  const row = mutatedBaseline.roleMatrix.find(candidate => candidate.role === 'lattice-review-behavior');
+  const row = mutatedBaseline.roleMatrix.find(candidate => candidate.role === 'proof-or-stop-review-behavior');
   if (!row) {
-    failures.push('role matrix snapshot drift probe: lattice-review-behavior row missing');
+    failures.push('role matrix snapshot drift probe: proof-or-stop-review-behavior row missing');
     return;
   }
   row.commands = `${row.commands} snapshot-drift-sentinel`;
 
   const driftFailures = [];
   verifyMatrix(current, mutatedBaseline, driftFailures);
-  if (!driftFailures.some(failure => failure.includes('roleMatrix lattice-review-behavior.commands'))) {
+  if (!driftFailures.some(failure => failure.includes('roleMatrix proof-or-stop-review-behavior.commands'))) {
     failures.push(
       `role matrix snapshot drift probe: JSON field drift was not rejected; got ${JSON.stringify(driftFailures)}`,
     );
@@ -3483,7 +3483,8 @@ async function verifyBaseline() {
   console.log('INFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies');
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
   console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
-  console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write');
+  console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics allow no active StoryStore writes');
+  console.log('PASS proof-or-stop prompt baseline: story-init source, Claude mirror, Codex mirror, and assembled prompt are CLI-only');
   console.log(`PASS proof-or-stop prompt baseline: deterministic ${EXPECTED_ROLE_COUNT}-role PromptMeasurementRecord sidecar verified without refresh authority`);
 }
 

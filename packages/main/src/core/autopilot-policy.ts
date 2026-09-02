@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export const AUTOPILOT_POLICY_SCHEMA_VERSION = 'lattice.autopilot_policy.v1' as const;
 export const AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION = 'lattice.autopilot_policy_check.v1' as const;
@@ -559,7 +559,7 @@ export function getAutopilotPolicy(root: string, policy: string): AutopilotPolic
 
   const filePath = autopilotPolicyPath(root, name);
   if (!existsSync(filePath)) {
-    throw new Error(`autopilot policy not found: ${name} (expected at .lattice/autopilot-policies/${name}.json)`);
+    throw new Error(`autopilot policy not found: ${name} (expected at .proof-or-stop/autopilot-policies/${name}.json)`);
   }
   return normalizeAutopilotPolicyRecord(JSON.parse(readFileSync(filePath, 'utf8')));
 }
@@ -585,7 +585,7 @@ export function checkAutopilotPolicy(
     if (!existsSync(filePath)) {
       return refusedResult(
         policyName,
-        [`policy not found: ${policyName} (no file at .lattice/autopilot-policies/${policyName}.json)`],
+        [`policy not found: ${policyName} (no file at .proof-or-stop/autopilot-policies/${policyName}.json)`],
         `Create the policy first with autopilot_policy_create --policy=${policyName}`,
       );
     }

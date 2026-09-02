@@ -22,7 +22,7 @@ that reviewers should approve before implementation begins.
   `docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md`.
 - Do not touch `docs/story/` or `packages/main/tests/fixtures/`.
 - Do not remove legacy `lattice` compatibility semantics as part of translation.
-- Do not hide compatibility terms such as `LATTICE_*`, `lattice.config.json`, or
+- Do not hide compatibility terms such as `LATTICE_*`, `proof-or-stop.config.json`, or
   legacy alias documentation when they are still runtime facts.
 
 ## Audit Snapshot
@@ -60,7 +60,7 @@ Allowed exceptions:
 - Tests that intentionally verify backward compatibility with older Chinese
   output during the migration window.
 - Legacy runtime names that are not language text, such as `LATTICE_*`,
-  `lattice.config.json`, and `proof-or-stop` as a compatibility alias.
+  `proof-or-stop.config.json`, and `proof-or-stop` as a compatibility alias.
 
 ## English Glossary
 
@@ -658,7 +658,7 @@ M221	529	schema	用户确认允许做的范围条目	Scope entries the user conf
 M222	530	schema	用户确认排除/不做的范围条目	Scope entries the user confirmed as excluded or not to be done.	review-draft
 M223	531	schema	必须为 true：确认这是用户确认过的 INIT scope 边界	Must be true: confirms this is the user-confirmed INIT scope boundary.	review-draft
 M224	532	schema	确认说明或来源摘录	Confirmation note or source excerpt.	review-draft
-M225	533	schema	记录者；默认 LATTICE_AGENT/USER/main-agent	Recorded by; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
+M225	533	schema	记录者；默认 PROOF_OR_STOP_AGENT/USER/main-agent	Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.	review-draft
 M226	535	command-description	INIT 阶段保存执行边界（命令/tool/path allow/block），供 INIT_CHECK anti-expansion gate 消费	Save INIT execution boundaries (command/tool/path allow/block) for the gate	review-draft
 M227	537	schema	允许执行或验证的命令模式	Allowed command patterns for execution or verification.	review-draft
 M228	538	schema	明确禁止的命令模式（alias: excludedCommands）	Explicitly blocked command patterns (alias: excludedCommands).	review-draft
@@ -669,34 +669,34 @@ M232	542	schema	允许访问的相对路径；拒绝 absolute / .. traversal	All
 M233	543	schema	明确禁止访问的相对路径；拒绝 absolute / .. traversal	Explicitly blocked relative paths; rejects absolute paths and .. traversal.	review-draft
 M234	544	schema	明确禁止访问的相对路径	Explicitly blocked relative paths.	review-draft
 M235	545	schema	执行边界补充说明	Additional execution-boundary notes.	review-draft
-M236	546	schema	记录者；默认 LATTICE_AGENT/USER/main-agent	Recorded by; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
+M236	546	schema	记录者；默认 PROOF_OR_STOP_AGENT/USER/main-agent	Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.	review-draft
 M237	548	command-description	INIT 阶段写入 scope freeze check 结果；accepted extension decision 会让旧 freeze evidence stale	Write the INIT scope freeze check result (accepted extensions stale old freeze)	review-draft
 M238	550	schema	可选断言；不能覆盖 core evaluateScopeFreeze 的结果	Optional assertion; cannot override the core evaluateScopeFreeze result.	review-draft
 M239	551	schema	冻结检查说明；也可作为 repeated-discard mitigation 文本	Freeze-check note; can also serve as repeated-discard mitigation text.	review-draft
 M240	552	schema	重复 discarded direction 的缓解说明	Mitigation note for repeated discarded direction.	review-draft
-M241	553	schema	记录者；默认 LATTICE_AGENT/USER/main-agent	Recorded by; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
+M241	553	schema	记录者；默认 PROOF_OR_STOP_AGENT/USER/main-agent	Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.	review-draft
 M242	555	command-description	INIT reviewer 提出 scope extension proposal（只记录 proposal，不接受 scope，不改 checklist）	Propose a scope extension as the INIT reviewer (proposal only)	review-draft
 M243	557	schema	扩展提案叙述；不能作为 accepted scope 生效	Extension proposal narrative; cannot take effect as accepted scope.	review-draft
 M244	558	schema	为什么 reviewer 认为需要扩展	Why the reviewer thinks an extension is needed.	review-draft
-M245	559	schema	提出者；默认 LATTICE_AGENT/USER/main-agent	Proposer; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
+M245	559	schema	提出者；默认 PROOF_OR_STOP_AGENT/USER/main-agent	Proposer; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.	review-draft
 M246	560	schema	可选关联 finding / issue id	Optional related finding or issue ID.	review-draft
 M247	561	schema	可选证据引用	Optional evidence references.	review-draft
 M248	563	command-description	INIT 阶段显式接受/拒绝 scope extension proposal；accepted 会让旧 freeze evidence stale	Accept/reject a scope extension proposal in INIT (accepted stales old freeze)	review-draft
 M249	565	schema	scope_extension_proposal 返回的 proposal id	Proposal ID returned by scope_extension_proposal.	review-draft
 M250	566	schema	显式裁决	Explicit decision.	review-draft
 M251	567	schema	裁决理由	Decision reason.	review-draft
-M252	568	schema	裁决者；默认 LATTICE_AGENT/USER/main-agent	Decider; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
+M252	568	schema	裁决者；默认 PROOF_OR_STOP_AGENT/USER/main-agent	Decider; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.	review-draft
 M253	570	command-description	记录一次轻量 review（DEV 阶段每完成一批 item 后调用）	Record one lightweight review (called after each batch of DEV items completes)	review-draft
 M254	572	schema	本次 review 覆盖的 checklist item ID 列表	Checklist item IDs covered by this review.	review-draft
 M255	573	schema	review 备注	Review note.	review-draft
 M256	575	command-description	启动一次当前 REVIEW round 的 reviewer run，并写入 signed review-runs.json	Start a reviewer run for the current REVIEW round; write signed review-runs.json	review-draft
-M257	577	schema	reviewer agent id（如 lattice-review-quality；默认 LATTICE_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.	review-draft
+M257	577	schema	reviewer agent id（如 proof-or-stop-review-quality；默认 PROOF_OR_STOP_AGENT）	Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.	review-draft
 M258	585	schema	显式 reviewer lane；与 agent 同义，传一个即可	Explicit reviewer lane; synonym for agent, provide only one.	review-draft
 M259	586	schema	reviewer 实际收到的 prompt 文本；若提供会自动计算 promptHash	Prompt text actually received by the reviewer; promptHash is computed automatically when provided.	review-draft
 M260	587	schema	reviewer prompt 的 sha256；若同时传 prompt，必须与 prompt 实际哈希一致	SHA-256 of the reviewer prompt; if prompt is also provided, it must match the actual prompt hash.	review-draft
 M261	588	schema	scope-protected story：reviewer 本轮检查的 verification intent refs（计入 scope binding，可选）	Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.	review-draft
 M262	590	command-description	记录 reviewer 已审查且无 blocking finding 的通过凭证	Record a reviewer pass credential (reviewer checked, found no blocking findings)	review-draft
-M263	592	schema	reviewer agent id（如 lattice-review-quality；默认 LATTICE_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.	review-draft
+M263	592	schema	reviewer agent id（如 proof-or-stop-review-quality；默认 PROOF_OR_STOP_AGENT）	Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.	review-draft
 M264	593	schema	当前 reviewer run id（先调用 review_run_start 获取）	Current reviewer run ID; call review_run_start first.	review-draft
 M265	594	schema	审查范围与无 blocker 理由（≥10 字符）	Review scope and reason there is no blocker (at least 10 characters).	review-draft
 M266	596	command-description	记录 REVIEW reflection loop 开始事件（recording-only，不执行 host/rollback）	Record REVIEW reflection loop start (recording only; no host or rollback)	review-draft
@@ -704,7 +704,7 @@ M267	598	schema	可选 loop id；缺省由 handler 生成	Optional loop ID; defa
 M268	599	schema	可选 REVIEW round；缺省使用 story.currentReviewRound	Optional REVIEW round; defaults to story.currentReviewRound.	review-draft
 M269	600	schema	触发 loop 的结构化来源	Structured source that triggered the loop.	review-draft
 M270	601	schema	人工 rollback 所需引用；只记录，不执行	References required for manual rollback; recorded only, not executed.	review-draft
-M271	602	schema	记录者；默认 LATTICE_AGENT/USER/main	Recorded by; defaults to LATTICE_AGENT/USER/main.	review-draft
+M271	602	schema	记录者；默认 PROOF_OR_STOP_AGENT/USER/main	Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main.	review-draft
 M272	603	schema	输出 JSON	Emit JSON.	review-draft
 M273	604	schema	输出格式	Output format.	review-draft
 M274	606	command-description	记录 REVIEW reflection loop 迭代（recording-only，不执行 host/rollback/handoff）	Record a REVIEW reflection iteration (recording only; no host/rollback/handoff)	review-draft
@@ -718,7 +718,7 @@ M281	614	schema	本轮成本/证据/命令记录	Cost, evidence, and command rec
 M282	615	schema	本轮最终决策	Final decision for this iteration.	review-draft
 M283	616	schema	最终决策理由	Final decision reason.	review-draft
 M284	617	schema	下一步建议；只记录，不执行	Suggested next action; recorded only, not executed.	review-draft
-M285	618	schema	记录者；默认 LATTICE_AGENT/USER/main	Recorded by; defaults to LATTICE_AGENT/USER/main.	review-draft
+M285	618	schema	记录者；默认 PROOF_OR_STOP_AGENT/USER/main	Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main.	review-draft
 M286	619	schema	输出 JSON	Emit JSON.	review-draft
 M287	620	schema	输出格式	Output format.	review-draft
 M288	622	command-description	读取 REVIEW reflection loop 状态（read-only）	Read REVIEW reflection loop status (read-only)	review-draft
@@ -734,7 +734,7 @@ M297	634	schema	关闭时 material hash	Material hash at close time.	review-draf
 M298	635	schema	已解决证据引用	Resolved evidence references.	review-draft
 M299	636	schema	替代证据引用	Superseding evidence references.	review-draft
 M300	637	schema	关闭原因	Close reason.	review-draft
-M301	638	schema	记录者；默认 LATTICE_AGENT/USER/main	Recorded by; defaults to LATTICE_AGENT/USER/main.	review-draft
+M301	638	schema	记录者；默认 PROOF_OR_STOP_AGENT/USER/main	Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main.	review-draft
 M302	639	schema	输出 JSON	Emit JSON.	review-draft
 M303	640	schema	输出格式	Output format.	review-draft
 M304	642	command-description	显示 REVIEW reflection loop 记录策略（read-only）	Show REVIEW reflection loop recording policy (read-only)	review-draft
@@ -890,7 +890,7 @@ M453	1490	schema	同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISM
 M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Proof-or-Stop 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Proof-or-Stop templates; equivalent to --apply.	review-draft
 M455	1492	schema	输出 STALE_LOCAL_EDIT 的结构化人工审查摘要	Output structured manual review summary for STALE_LOCAL_EDIT.	review-draft
 M456	1493	schema	覆盖自动检测的 init profile	Override auto-detected init profile.	review-draft
-M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .lattice-codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.	review-draft
+M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .proof-or-stop-codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .proof-or-stop-codex/agents, thin=use prompt registry.	review-draft
 M458	1497	comment	Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)	Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).	review-draft
 M459	1498	command-description	框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）	Framework self-audit: scan CLAUDE.md drift, write audit finding plus report.md	review-draft
 M460	1499	schema	扫 CLAUDE.md / packages/main/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）	Scan CLI command/flag/path drift in CLAUDE.md and packages/main/CLAUDE.md (current MVP only mode).	review-draft
@@ -910,7 +910,7 @@ M473	1514	schema	来源溯源：分析说明	Source trace: analysis note.	review
 M474	1516	schema	证据状态：默认 suspected；verified 仅当提供结构化 evidence，否则强制降回 suspected	Evidence state: default suspected; verified is allowed only when structured evidence is provided, otherwise it is forced back to suspected.	review-draft
 M475	1517	schema	suspected 时的怀疑理由（可选，缺省自动兜底）	Suspicion reason for suspected state (optional; automatic fallback if omitted).	review-draft
 M476	1518	schema	关联文件路径	Related file paths.	review-draft
-M477	1519	schema	调用者身份（审计字段，默认从 LATTICE_AGENT 读）	Caller identity (audit field, defaults from LATTICE_AGENT).	review-draft
+M477	1519	schema	调用者身份（审计字段，默认从 PROOF_OR_STOP_AGENT 读）	Caller identity (audit field, defaults from PROOF_OR_STOP_AGENT).	review-draft
 M478	1522	comment	Verifier (Proof-or-Stop 内建代码验证)	Verifier (Proof-or-Stop built-in code verification).	review-draft
 M479	1523	command-description	运行项目验证（静态 + 逻辑 + 集成测试）	Run project verification (static, logic, and integration tests)	review-draft
 M480	1524	schema	含真机测试（--full 或 --full=PvE 按名称过滤）	Include real-machine tests (--full or --full=PvE to filter by name).	review-draft
@@ -934,13 +934,13 @@ M497	1545	command-description	调 evaluator agent 对 browser 应用打分（功
 M498	1547	schema	proof-or-stop serve 端口（默认 3456）	proof-or-stop serve port (default: 3456).	review-draft
 M499	1549	command-description	保存 evaluator 打分结果到 eval-evidence.json	Save evaluator scoring result to eval-evidence.json	review-draft
 M500	1551	schema	evaluator 输出的 JSON 字符串	JSON string output by evaluator.	review-draft
-M501	1554	comment	Finding (lattice-reviewer 发现项)	Finding (lattice-reviewer finding).	review-draft
-M502	1555	command-description	添加 finding（lattice-reviewer 发现项）	Add a finding (lattice-reviewer finding)	review-draft
+M501	1554	comment	Finding (proof-or-stop-reviewer 发现项)	Finding (proof-or-stop-reviewer finding).	review-draft
+M502	1555	command-description	添加 finding（proof-or-stop-reviewer 发现项）	Add a finding (proof-or-stop-reviewer finding)	review-draft
 M503	1557	schema	发现描述	Finding description.	review-draft
 M504	1558	schema	严重程度	Severity.	review-draft
 M505	1568	schema	分类（legacy category 会归一为 missing）	Category (legacy category is normalized to missing).	review-draft
-M506	1569	schema	调用者身份（可选，默认从 LATTICE_AGENT 环境变量读）	Caller identity (optional, defaults from LATTICE_AGENT environment variable).	review-draft
-M507	1570	schema	lattice-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）	Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).	review-draft
+M506	1569	schema	调用者身份（可选，默认从 PROOF_OR_STOP_AGENT 环境变量读）	Caller identity (optional, defaults from PROOF_OR_STOP_AGENT environment variable).	review-draft
+M507	1570	schema	proof-or-stop-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）	Current proof-or-stop-review-* reviewer run ID (call review_run_start first; main finding may omit this).	review-draft
 M508	1571	schema	关联文件路径（用于 reviewer finding cluster 与溯源）	Related file paths (for reviewer finding clustering and traceability).	review-draft
 M509	1572	comment	B-3fad CHK-001: 证据状态轴。省略时默认 verified（REVIEW 阶段 reviewer finding，保持现有 gate 行为）。	B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.	review-draft
 M510	1573	comment	suspected 必须带 uncertaintyReason；disproven 必须带 disprovenEvidence.summary（runtime 同标准校验）。	suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary (runtime applies the same standard validation).	review-draft
@@ -975,7 +975,7 @@ M538	1619	schema	issue 严重度	Issue severity.	review-draft
 M539	1620	schema	desc 必填且 ≥ 1 字符 / issue 具体描述（reviewer 主观判断需具体）	desc is required and must be at least 1 character / Issue details (reviewer subjective judgment must be specific).	review-draft
 M540	1621	schema	Reviewer 提出的 issue 列表；critical/high 会阻塞 INIT_CHECK，允许空数组	List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.	review-draft
 M541	1622	schema	Reviewer 自报 agent 名；product-reviewer 必须传 product-reviewer	Reviewer self-reported agent name; product-reviewer must pass product-reviewer.	review-draft
-M542	1623	schema	Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 lattice-review-story-init	Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass lattice-review-story-init.	review-draft
+M542	1623	schema	Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 proof-or-stop-review-story-init	Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass proof-or-stop-review-story-init.	review-draft
 M543	1630	command-description	受控 fallback：无法 spawn INIT reviewer 时显式、可审计地生成签名 init-check.json（默认禁用，需 acknowledge + fallbackReason）	Create an audited INIT reviewer fallback attestation	review-draft
 M544	1632	schema	fallbackReason 必须 ≥ 30 字符 / 为什么 INIT reviewer 无法运行 + 你人工核查了什么（durable 审计 attestation）	fallbackReason must be at least 30 characters / Why INIT reviewer cannot run plus what you manually checked (durable audit attestation).	review-draft
 M545	1633	schema	必须显式传 true：确认你在刻意顶替独立 INIT reviewer 做 attestation	Must explicitly pass true: confirms you are intentionally substituting for independent INIT reviewer attestation.	review-draft
@@ -987,7 +987,7 @@ M550	1639	schema	desc 必填且 ≥ 1 字符 / issue 具体描述	desc is requir
 M551	1640	schema	可选：人工 attestation 提出的 issue；high/critical 仍会阻塞 INIT_CHECK	Optional issues raised by manual attestation; high/critical still block INIT_CHECK.	review-draft
 M552	1641	schema	可选：操作者标识；缺省取 git user.name	Optional actor identifier; defaults to git user.name.	review-draft
 M553	1645	comment	TEST→DONE 硬门槛产物。签名域：storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound。	TEST to DONE hard-gate artifact. Signature domain: storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound.	review-draft
-M554	1646	command-description	保存 delivery check 结果（由 lattice-review-delivery reviewer 调用）	Save delivery check results (called by lattice-review-delivery reviewer)	review-draft
+M554	1646	command-description	保存 delivery check 结果（由 proof-or-stop-review-delivery reviewer 调用）	Save delivery check results (called by proof-or-stop-review-delivery reviewer)	review-draft
 M555	1649	schema	文档路径	Document path.	review-draft
 M556	1650	schema	文档中的承诺描述	Promise described in the document.	review-draft
 M557	1651	schema	可选状态；met/verified 视为已验证，waived 需 waiverReason	Optional status; met/verified are treated as verified, waived requires waiverReason.	review-draft
@@ -1025,18 +1025,18 @@ M588	1713	schema	resolution 必填且 ≥ 20 字符（书面消解，防自我�
 M589	1714	schema	resolution 的证据指针（decisions/ 路径或 checklist item id），默认 []	Evidence pointers for resolution (decisions/ path or checklist item ID), default [].	review-draft
 M590	1718	command-description	生成标准 implementer prompt 字符串（主 agent 派发 CHK-xxx 用）	Generate a standard implementer prompt string (main agent dispatches CHK-xxx)	review-draft
 M591	1720	schema	Checklist item ID（如 CHK-001）	Checklist item ID, for example CHK-001.	review-draft
-M592	1721	schema	subagent 类型（如 lattice-implementer / lattice-review-channel）；CHK-008 will expand matrix	subagent type, for example lattice-implementer / lattice-review-channel; CHK-008 will expand matrix.	review-draft
+M592	1721	schema	subagent 类型（如 proof-or-stop-implementer / proof-or-stop-review-channel）；CHK-008 will expand matrix	subagent type, for example proof-or-stop-implementer / proof-or-stop-review-channel; CHK-008 will expand matrix.	review-draft
 M593	1724	comment	Finding dispatch (B-45ed CHK-010: reviewer-finding 修复 prompt generator，与 story_dispatch 同构)	Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch).	review-draft
 M594	1725	comment	B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `proof-or-stop dispatch`	B-9d95 CHK-004: deprecated alias; first stdout line prints a deprecation warning and recommends proof-or-stop dispatch.	review-draft
 M595	1726	command-description	[deprecated: 请改用 proof-or-stop dispatch] 生成标准 reviewer-finding 修复 prompt 字符串	[deprecated: use proof-or-stop dispatch] Generate reviewer-finding repair prompt	review-draft
 M596	1728	schema	Finding ID（如 F-001 或 B-xxx:F-001 完整形式）	Finding ID, for example F-001 or the full B-xxx:F-xxx form.	review-draft
-M597	1729	schema	subagent 类型（如 lattice-implementer / lattice-review-channel）；复用 CHK-008 分级矩阵	subagent type, for example lattice-implementer / lattice-review-channel; reuses the CHK-008 grading matrix.	review-draft
+M597	1729	schema	subagent 类型（如 proof-or-stop-implementer / proof-or-stop-review-channel）；复用 CHK-008 分级矩阵	subagent type, for example proof-or-stop-implementer / proof-or-stop-review-channel; reuses the CHK-008 grading matrix.	review-draft
 M598	1732	comment	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `proof-or-stop dispatch`，全阶段开放)	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into proof-or-stop dispatch, available in all phases).	review-draft
 M599	1733	command-description	统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）	Dispatch a subagent prompt for one item, finding, or cluster	review-draft
 M600	1735	schema	Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个	Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.	review-draft
 M601	1736	schema	Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥	Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.	review-draft
 M602	1737	schema	Cluster ID（CL-xxx）；与 itemId / findingId 互斥	Cluster ID (CL-xxx); mutually exclusive with itemId/findingId.	review-draft
-M603	1738	schema	subagent 类型；INIT reviewer 可只传 lattice-review-story-init，其他场景与 itemId/findingId/clusterId 搭配	subagent type; INIT reviewer may pass only lattice-review-story-init, other cases pair it with itemId/findingId/clusterId.	review-draft
+M603	1738	schema	subagent 类型；INIT reviewer 可只传 proof-or-stop-review-story-init，其他场景与 itemId/findingId/clusterId 搭配	subagent type; INIT reviewer may pass only proof-or-stop-review-story-init, other cases pair it with itemId/findingId/clusterId.	review-draft
 M604	1741	comment	Background CLI 三件套 (B-45ed CHK-007: background.md set/append/get)	Background CLI trio (B-45ed CHK-007: background.md set/append/get).	review-draft
 M605	1742	command-description	全量写入 background.md（四段式格式校验，复用 CHK-006 validator）	Write the full background.md (four-section check, reuses CHK-006 validator)	review-draft
 M606	1744	schema	background.md 完整内容（四段式）	Complete background.md content (four-section format).	review-draft
@@ -1063,7 +1063,7 @@ M626	2127	schema	触发场景（≥5 字符）	Trigger scenario (at least 5 char
 M627	2128	schema	可复用的教训（≥10 字符）	Reusable lesson (at least 10 characters).	review-draft
 M628	2129	schema	如何在下次会话中调出这条经验（≥5 字符）	How to retrieve this lesson in a later session (at least 5 characters).	review-draft
 M629	2130	schema	关键词标签（逗号分隔字符串或数组）	Keyword tags, as a comma-separated string or array.	review-draft
-M630	2131	schema	来源 agent（默认 lattice-implementer）	Source agent (default: lattice-implementer).	review-draft
+M630	2131	schema	来源 agent（默认 proof-or-stop-implementer）	Source agent (default: proof-or-stop-implementer).	review-draft
 M631	2132	schema	来源 story ID	Source story ID.	review-draft
 M632	2133	schema	证据引用（文件路径/commit sha）	Evidence references (file paths or commit SHAs).	review-draft
 M633	2135	command-description	列出 dev-memory 经验条目	List dev-memory lessons	review-draft
@@ -1085,7 +1085,7 @@ M648	2152	schema	行数预算（默认 60）	Line budget (default: 60).	review-d
 M649	2153	schema	JSON 格式输出	JSON output format.	review-draft
 M650	2155	command-description	结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）	Finish the dev-memory session	review-draft
 M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Proof-or-Stop 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proof-or-Stop sessions.	review-draft
-M652	2157	schema	story 目录根路径（默认 <root>/.lattice/story/actives；legacy .lattice/story/actives 仍可读）	Story directory root path (default <root>/.lattice/story/actives; legacy .lattice/story/actives remains readable).	review-draft
+M652	2157	schema	story 目录根路径（默认 <root>/.proof-or-stop/story/actives；legacy .proof-or-stop/story/actives 仍可读）	Story directory root path (default <root>/.proof-or-stop/story/actives; legacy .proof-or-stop/story/actives remains readable).	review-draft
 M653	2158	schema	可选：相关性过滤词	Optional relevance filter query.	review-draft
 M654	2159	schema	无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选	When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.	review-draft
 M655	2161	command-description	会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase）	Start a dev-memory session wrapper	review-draft
@@ -1144,7 +1144,7 @@ M707	2526	comment	测试入口：接受 JSON 描述的 schema（"string"|"number
 M708	2567	comment	下一个参数不是 flag → 当作 value	Next argument is not a flag, so treat it as the value.	review-draft
 M709	2577	comment	key=value (无 -- 前缀，兼容旧格式)	key=value without -- prefix, compatible with legacy format.	review-draft
 M710	2583	comment	忽略无法识别的 positional 参数	Ignore unrecognized positional arguments.	review-draft
-M711	2646	comment	向上查找项目配置（lattice.config.json 优先，lattice.config.json 兜底）确定项目根	Walk upward to find project config (prefer lattice.config.json, fall back to lattice.config.json) and determine project root.	review-draft
+M711	2646	comment	向上查找项目配置（proof-or-stop.config.json 优先，proof-or-stop.config.json 兜底）确定项目根	Walk upward to find project config (prefer proof-or-stop.config.json, fall back to proof-or-stop.config.json) and determine project root.	review-draft
 M712	2867	comment	Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy	Runtime enum re-validation (CLAUDE.md Handler coding convention): a missing policy	review-draft
 M713	2943	comment	"Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or	Handler coding convention: the flag counts as set ONLY for a real boolean true or	review-draft
 M714	3354	comment	runCli — Proof-or-Stop CLI 运行时入口	runCli: Proof-or-Stop CLI runtime entry point.	review-draft
@@ -1168,11 +1168,11 @@ M731	3549	comment	JSON body 格式（兼容旧用法）	JSON body format (compat
 M732	3552	cli-output	JSON 解析失败: ${(e as Error).message}\n输入: ${rawArgs[0]}	JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}	review-draft
 M733	3557	comment	flag 格式解析	Flag-format parsing.	review-draft
 M734	3617	comment	心跳：默认 5 分钟无输出 = 卡死；15 分钟绝对保底。	Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.	review-draft
-M735	3618	comment	可通过 LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS 覆盖，	Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,	review-draft
+M735	3618	comment	可通过 PROOF_OR_STOP_IDLE_TIMEOUT_MS / PROOF_OR_STOP_MAX_TIMEOUT_MS 覆盖，	Can be overridden with PROOF_OR_STOP_IDLE_TIMEOUT_MS / PROOF_OR_STOP_MAX_TIMEOUT_MS,	review-draft
 M736	3619	comment	真机 smoke 的单轮 LLM 调用偶尔 > 2 分钟（text-adventure 卸载等非确定性 case）。	A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).	review-draft
 M737	3630	cli-output	${cmd} 超过 10 分钟，强制退出	${cmd} exceeded 10 minutes; forcing exit	review-draft
 M738	3634	cli-output	${cmd} 卡死：${IDLE_TIMEOUT / 1000} 秒无输出，强制退出	${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; forcing exit	review-draft
-M739	3640	comment	统一日志：写入 .lattice/activity.jsonl（双源模块，legacy 路径只读兼容）	Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).	review-draft
+M739	3640	comment	统一日志：写入 .proof-or-stop/activity.jsonl（双源模块，legacy 路径只读兼容）	Unified logging: write to .proof-or-stop/activity.jsonl (dual-source module, legacy path is read-compatible only).	review-draft
 M740	3641	comment	写入失败属于 PERSIST 类（audit 不完整 → 事后无法回溯），改为 reportHealthIssue	Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.	review-draft
 M741	3642	comment	staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）	staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).	review-draft
 M742	3774	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
@@ -1246,7 +1246,7 @@ Known tests likely to change:
 
 - `packages/main/src/tasks/cli-json-stdout-contract-smoke.ts`
 - `packages/main/src/tasks/validation-protocol-smoke.ts`
-- `packages/main/src/tasks/lattice-cli-migration-smoke.ts`
+- `packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts`
 - any future English-surface smoke added for this migration
 
 Test assertions should accept English output as the canonical result. Temporary

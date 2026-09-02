@@ -19,7 +19,7 @@
  *   (b) correct per-lane classification (current / scope-changed / no-receipt /
  *       blocking).
  *   (c) each needs-run lane carries the correct Agent-spawn launchInstruction
- *       (matches /^Agent\(\{ subagent_type: "lattice-review-<lane>"/, contains the
+ *       (matches /^Agent\(\{ subagent_type: "proof-or-stop-review-<lane>"/, contains the
  *       storyId, and never the dispatch CLI form); the current-pass lane carries
  *       launchInstruction=null.
  *   (d) gate.blockedBy reflects the missing passes + the blocking finding, and
@@ -74,11 +74,11 @@ function write(root: string, path: string, content: string): void {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n',
@@ -184,9 +184,9 @@ function createFixture(): {
   store: StoryStore;
   ctx: HandlerContext;
 } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-reviewer-batch-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-reviewer-batch-'));
   writeConfig(root);
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
   write(root, 'src/concept.ts', 'export const concept = 1;\n');
   write(root, 'src/quality.ts', 'export const quality = 1;\n');
   write(root, 'src/testcov.ts', 'export const testcov = 1;\n');
@@ -212,17 +212,17 @@ function createFixture(): {
   // quality: prior pass bound to baseSha → src/quality.ts changed since → scope-changed.
   // test-coverage: no pass → no-receipt.
   // behavior: critical open finding → blocking (no pass needed; blocking wins).
-  const conceptRun = runFor('RR-concept', 'lattice-review-concept', headSha);
-  const qualityRun = runFor('RR-quality', 'lattice-review-quality', baseSha);
+  const conceptRun = runFor('RR-concept', 'proof-or-stop-review-concept', headSha);
+  const qualityRun = runFor('RR-quality', 'proof-or-stop-review-quality', baseSha);
   store.writeReviewRuns(STORY_ID, { runs: [conceptRun, qualityRun] });
   store.writeReviewPasses(STORY_ID, {
     passes: [
-      signedPass('RP-concept', 'lattice-review-concept', ts(3), 'RR-concept'),
-      signedPass('RP-quality', 'lattice-review-quality', ts(4), 'RR-quality'),
+      signedPass('RP-concept', 'proof-or-stop-review-concept', ts(3), 'RR-concept'),
+      signedPass('RP-quality', 'proof-or-stop-review-quality', ts(4), 'RR-quality'),
     ],
   });
   store.writeFindings(STORY_ID, {
-    findings: [signedBlockingFinding(`${STORY_ID}:F-1`, 'lattice-review-behavior', ts(5))],
+    findings: [signedBlockingFinding(`${STORY_ID}:F-1`, 'proof-or-stop-review-behavior', ts(5))],
   });
 
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -258,7 +258,7 @@ function assertAgentLaunchInstruction(instruction: string | null, lane: string):
   const value = instruction!;
   assert.match(
     value,
-    new RegExp(`^Agent\\(\\{ subagent_type: "lattice-review-${lane}"`),
+    new RegExp(`^Agent\\(\\{ subagent_type: "proof-or-stop-review-${lane}"`),
     `${lane}: launch instruction is the canonical Agent-spawn form`,
   );
   assert.ok(value.includes(STORY_ID), `${lane}: launch instruction names the storyId`);

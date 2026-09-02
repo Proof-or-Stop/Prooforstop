@@ -43,7 +43,7 @@ import { STATE_DIR_NAMES } from './brand-paths.js';
 // --- Policy view + defensive normalization -----------------------------------
 
 export interface WorktreePolicyView {
-  resolver: 'lattice.story.resolve';
+  resolver: 'proofOrStop.story.resolve';
   requiresAuthoritativeWorktree: boolean;
   allowWorktreeRepair: boolean;
   allowedPathRoots: string[];
@@ -60,7 +60,7 @@ export interface WorktreePolicyView {
  * story/fixture JSON globs forbidden.
  */
 export const DEFAULT_FAIL_CLOSED_WORKTREE_POLICY: WorktreePolicyView = {
-  resolver: 'lattice.story.resolve',
+  resolver: 'proofOrStop.story.resolve',
   requiresAuthoritativeWorktree: true,
   allowWorktreeRepair: false,
   allowedPathRoots: [],
@@ -91,7 +91,7 @@ export function resolveWorktreePolicy(jobPlan: JobPlan): WorktreePolicyView {
   const d = DEFAULT_FAIL_CLOSED_WORKTREE_POLICY;
   const forbidden = stringArray(raw.forbiddenPathGlobs);
   return {
-    resolver: 'lattice.story.resolve',
+    resolver: 'proofOrStop.story.resolve',
     requiresAuthoritativeWorktree: raw.requiresAuthoritativeWorktree !== false,
     allowWorktreeRepair: raw.allowWorktreeRepair === true,
     allowedPathRoots: stringArray(raw.allowedPathRoots),
@@ -125,7 +125,7 @@ export interface WorktreeResolution {
 
 /**
  * Resolve the authoritative story worktree cwd. This mirrors the read-only
- * `lattice story resolve` contract (story.worktree.path resolved against root,
+ * `proof-or-stop story resolve` contract (story.worktree.path resolved against root,
  * falling back to the project root) so the executor and the operator command agree
  * on where provider work runs.
  */
@@ -360,7 +360,7 @@ export function evaluateWorktreePreflight(input: WorktreePreflightInput): Worktr
       reason: 'authoritative_worktree_unresolved',
       summary: {
         ...baseSummary,
-        resolverContract: 'lattice.story.resolve',
+        resolverContract: 'proofOrStop.story.resolve',
         resolved: resolution.resolved,
         note: resolution.resolved
           ? 'authority mode requires an authoritative story worktree; create it via proof-or-stop story_advance --phase=INIT_CHECK'
@@ -460,7 +460,7 @@ export interface WorktreeStopSummary {
 }
 
 const WORKTREE_NEXT_ACTION: Record<WorktreeStopReason, string> = {
-  authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (lattice story resolve / proof-or-stop story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
+  authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (proof-or-stop story resolve / proof-or-stop story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
   git_status_evidence_unavailable: 'Run the executor inside the story git worktree so git status evidence can be captured before mutating steps.',
   dirty_worktree: 'Commit, stash, or resolve the pending worktree changes (unrelated dirty changes are preserved, not discarded), then rerun.',
   forbidden_path_glob: 'Stop editing story/fixture JSON or other forbidden paths directly; route those changes through Proof-or-Stop commands.',

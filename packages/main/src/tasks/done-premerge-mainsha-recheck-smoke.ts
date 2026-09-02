@@ -11,7 +11,7 @@
  * sha.
  *
  * This smoke drives a REAL story_advance DONE end-to-end (black box: it shells
- * out to the built lattice CLI in an ISOLATED temp git repo with a linked story
+ * out to the built proofOrStop CLI in an ISOLATED temp git repo with a linked story
  * worktree, exactly like done-preflight-smoke) and proves both paths:
  *
  *   ABORT PATH — an external advance to main happens between the pre-check sync
@@ -33,7 +33,7 @@
  *     the story branch deleted. Proves the re-check does not regress the common
  *     DONE path.
  *
- * Isolated: temp git root + temp HOME + temp lattice locks, no global-lock
+ * Isolated: temp git root + temp HOME + temp proof-or-stop locks, no global-lock
  * contention, no repo pollution. Exits non-zero on any failed assertion with a
  * clear message. Prints a final `✓ ... smoke passed (N checks)` line.
  */
@@ -93,16 +93,16 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-/** Run the built lattice CLI from `cwd`, returning stdout (throws on non-zero). */
-function runLatticeFromCwd(
+/** Run the built proofOrStop CLI from `cwd`, returning stdout (throws on non-zero). */
+function runProofOrStopFromCwd(
   cwd: string,
   command: string,
   args: Record<string, unknown>,
   envOverride: Record<string, string | undefined> = {},
 ): string {
   const env: Record<string, string | undefined> = { ...process.env };
-  delete env.LATTICE_PROJECT_ROOT;
-  const legacyAuthorityEnvPrefix = 'LATTICE_' + 'AUTHORITY_';
+  delete env.PROOF_OR_STOP_PROJECT_ROOT;
+  const legacyAuthorityEnvPrefix = 'PROOF_OR_STOP_' + 'AUTHORITY_';
   for (const key of Object.keys(env)) {
     if (key.startsWith(legacyAuthorityEnvPrefix)) delete env[key];
   }
@@ -126,7 +126,7 @@ function runProofOrStopExpectFail(
   envOverride: Record<string, string | undefined> = {},
 ): string {
   try {
-    runLatticeFromCwd(cwd, command, args, envOverride);
+    runProofOrStopFromCwd(cwd, command, args, envOverride);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -170,7 +170,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     headHash,
     materialHash,
     reviewRound: '',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -198,11 +198,11 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
  * Returns the worktree path (the cwd that drives story_advance DONE) and root.
  */
 function buildDoneReadyStoryWithLinkedWorktree(storyId: string): { root: string; worktreePath: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-premerge-recheck-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-premerge-recheck-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
@@ -280,7 +280,7 @@ function installExternalAdvanceGitShim(mainRepoRoot: string): { shimDir: string;
   const realGit = execFileSync('which', ['git'], { encoding: 'utf-8' }).trim();
   assert.ok(realGit && existsSync(realGit), `smoke requires a resolvable real git (got "${realGit}")`);
 
-  const shimDir = mkdtempSync(join(tmpdir(), 'lattice-premerge-gitshim-'));
+  const shimDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-premerge-gitshim-'));
   const markerPath = join(shimDir, 'advanced.marker');
   const shimPath = join(shimDir, 'git');
 
@@ -410,7 +410,7 @@ function assertUnchangedMainStillCompletesDone(): void {
   const storyId = 'B-premerge-happy';
   const { root, worktreePath } = buildDoneReadyStoryWithLinkedWorktree(storyId);
   try {
-    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
 
     check(
       'happy: CLI reports advanced to DONE',

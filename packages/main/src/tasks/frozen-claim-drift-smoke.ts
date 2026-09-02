@@ -237,7 +237,7 @@ import type { ChecklistItem, FrozenClaimSnapshot } from '../core/types.js';
 // PLACEHOLDER for CHK-004 to extend:
 //   - CHK-004 assert the advisory is NON-blocking (changes no gate verdict) + add the
 //     whitespace-only userSees edit → NO drift false-positive guard case, and register
-//     this smoke in lattice.config.json validate.commands + package.json scripts.
+//     this smoke in proof-or-stop.config.json validate.commands + package.json scripts.
 // Do NOT delete this marker; append the new blocks above the final PASS line.
 // ─────────────────────────────────────────────────────────────────────────────
 

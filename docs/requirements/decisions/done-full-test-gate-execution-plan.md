@@ -8,7 +8,7 @@ Important caveat: this proves a gate coverage gap, not that current main `npm te
 
 ## Current Evidence Anchors
 
-- `lattice.config.json` defines 8 entries under `validate.commands` at `validate.commands[0..7]`.
+- `proof-or-stop.config.json` defines 8 entries under `validate.commands` at `validate.commands[0..7]`.
 - Root `package.json` defines `scripts.test` as the resource-aware full-suite runner. Canonical membership is independently derived from `test:serial-reference-prefix` plus `test:serial-reference`; the current authority contains 47 members and bidirectional inventory validation rejects missing, duplicate, stale-policy, or later unclassified members.
 - `packages/main/src/handlers/verifier.ts` reads configured `validate.command` / `validate.commands` first. When configured commands exist, fallback discovery is skipped, so the fallback `npm test` path is not used for this repository.
 - `packages/main/src/handlers/phase-gates.ts` runs `proof-or-stop validate --story=<storyId> --json` when entering TEST and writes the result to `test-evidence.json`.
@@ -25,7 +25,7 @@ The original B-3321 story was documentation-only. Subsequent implementation stor
 
 Add a dedicated DONE/release-required validation profile, or an equivalent `doneRequiredCommands` configuration surface, with fresh hash-bound evidence consumed by DONE. Do not simply append `npm test` to ordinary `validate.commands`.
 
-Implementation boundary after B-ac25: the local DONE-required surface is `doneRequiredCommands` / `validationProfiles.done` plus `done_required_validate --storyId=<id>`, which writes `.lattice/story/actives/<storyId>/done-required-evidence.json`. The DONE oracle consumes this in a separate `done-required-validation` row. Missing policy remains advisory/non-blocking for external projects and must not be described as full-suite assurance.
+Implementation boundary after B-ac25: the local DONE-required surface is `doneRequiredCommands` / `validationProfiles.done` plus `done_required_validate --storyId=<id>`, which writes `.proof-or-stop/story/actives/<storyId>/done-required-evidence.json`. The DONE oracle consumes this in a separate `done-required-validation` row. Missing policy remains advisory/non-blocking for external projects and must not be described as full-suite assurance.
 
 Execution-capacity boundary: `proof-or-stop done_required_validate`, every `proof-or-stop validate` mode, and derived host-verdict binding share one capacity lease under the resolved workspace git-common-dir, not a metadata wrapper. Expected Git identity failure—including an unresolved configured no-story `gitRoot`—stops before callback entry rather than splitting the lock. Contenders wait asynchronously with `waiting for workspace validation capacity` holder/heartbeat progress and then continue automatically; story-scoped runs acquire capacity before the per-story evidence lock. Both capacity and story-lock reentrancy require the current acquisition token, preventing a detached context from an earlier owner from borrowing a later holder's identical path. Complete identity is prepared before atomic queue publication. The capacity classifier never reclaims on age, unknown ownership, or malformed metadata alone. Mechanically stale ownership is isolated by atomically renaming its never-reused UUID ticket to a unique quarantine and deleting only that quarantine, so stale-A cleanup cannot delete live successor-B. Owner release and queued-waiter abort/deadline cleanup retry exact-ticket isolation. Persistent failure attempts a best-effort released marker on that unique ticket; marker success allows mechanical recovery after filesystem repair, while marker failure remains fail-closed until repair. A successful callback reports release failure. An original callback, abort, or deadline error remains primary and the secondary cleanup failure is not separately surfaced. Direct `proof-or-stop validate` enters the structured watchdog only to propagate abort/deadline into the capacity wait and clean its waiter ticket; it keeps the pre-existing `validate` result classification and exit contract. `structuredDoneResult` and the DONE-result classifier remain exclusive to `done_prepare` / `done_required_validate`. Derived host-verdict binding has no public cancellation arguments and continues to rely on its CLI host timeout as the outer boundary. A bare `npm test` / direct full-suite command remains outside this lease and must not be launched concurrently with either official command. This coordination adds no timeout, inventory, receipt, freshness, or gate-policy exception.
 
@@ -82,7 +82,7 @@ Default behavior for projects without a DONE-required policy:
 - The advisory row must not block by default.
 - Documentation must explain how projects opt into a blocking full-suite policy.
 
-Self-host behavior for Orchestrate/Lattice:
+Self-host behavior for Orchestrate/Proof-or-Stop:
 
 - Configure a fresh package build plus the root full `npm test` chain, or a semantically equivalent full-suite command whose receipt proves current `packages/main/dist` output, as DONE-required.
 - Missing, failing, or stale DONE-required evidence blocks local DONE.
@@ -94,7 +94,7 @@ This avoids imposing Orchestrate-specific cost on every Proof-or-Stop user while
 
 The implementation persists a separate evidence artifact from ordinary `test-evidence.json`:
 
-- `.lattice/story/actives/<storyId>/done-required-evidence.json`
+- `.proof-or-stop/story/actives/<storyId>/done-required-evidence.json`
 
 Each required command receipt should include:
 
@@ -155,7 +155,7 @@ Data requirements:
 - Output digest stores enough identity to compare logs without storing unbounded output.
 - Overall status is PASS only when every required command PASSes.
 - Evidence binds to `headHash`, `materialHash`, and `storyFilesHash`.
-- For Orchestrate/Lattice self-host, evidence must prove `packages/main/dist` freshness for the same material before root `npm test`, either by an explicit `npm --prefix packages/main run build` command receipt or by an equivalent root `pretest` / build receipt.
+- For Orchestrate/Proof-or-Stop self-host, evidence must prove `packages/main/dist` freshness for the same material before root `npm test`, either by an explicit `npm --prefix packages/main run build` command receipt or by an equivalent root `pretest` / build receipt.
 - Freshness checks produce an explicit stale reason, for example `head-changed`, `material-hash-mismatch`, `story-files-hash-mismatch`, `policy-hash-mismatch`, `command-set-changed`, or `artifact-missing`.
 - The evidence records the effective policy/profile so a later config change cannot reuse an older receipt silently.
 
@@ -253,7 +253,7 @@ Exit criteria:
 
 ### M4. Self-Host Config
 
-- Configure Orchestrate/Lattice self-host policy to require `npm --prefix packages/main run build` plus root `npm test`, with `requiresBuildProof: "packages-main-build"` on the root test command, or an equivalent full-suite command with a same-material build receipt.
+- Configure Orchestrate/Proof-or-Stop self-host policy to require `npm --prefix packages/main run build` plus root `npm test`, with `requiresBuildProof: "packages-main-build"` on the root test command, or an equivalent full-suite command with a same-material build receipt.
 - Pick a timeout high enough for the current root chain.
 - Document the command cost and when to run it.
 
@@ -374,7 +374,7 @@ Review requirements:
 ## Non-Goals
 
 - Do not implement the runtime gate in B-3321.
-- Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`, or runtime TypeScript in B-3321.
+- Do not modify root `package.json`, `proof-or-stop.config.json`, `.githooks/pre-push`, or runtime TypeScript in B-3321.
 - Do not append root `npm test` to normal `validate.commands` as the final solution.
 - Do not force root full-suite execution on external projects that have not opted in.
 - Do not make the pre-push hook depend on Proof-or-Stop CLI as a hidden requirement.
@@ -403,7 +403,7 @@ Stop implementation and return to design review if any of these occur:
 
 DONE-required execution and reuse use one bounded contract:
 
-- The DONE-required phase budget is the safe sum of effective sequential command timeouts plus bounded grace. A phase-specific override wins the global phase override, which wins the derived budget. The direct `done_required_validate` CLI max covers that derived phase; the `done_prepare` CLI max covers routine validation plus every enabled closeout phase. An explicit `LATTICE_MAX_TIMEOUT_MS` remains authoritative. Each effective command timeout is capped at Node's maximum legal timer delay before arming the real timer, so a huge configured value cannot overflow into an immediate timeout. Structured `failed` / `timed_out` / `blocked` results remain parseable on stdout and exit nonzero; routine `done_prepare` idle/max aborts use the same terminal timeout shape and release child processes, timers, and locks for an immediate rerun.
+- The DONE-required phase budget is the safe sum of effective sequential command timeouts plus bounded grace. A phase-specific override wins the global phase override, which wins the derived budget. The direct `done_required_validate` CLI max covers that derived phase; the `done_prepare` CLI max covers routine validation plus every enabled closeout phase. An explicit `PROOF_OR_STOP_MAX_TIMEOUT_MS` remains authoritative. Each effective command timeout is capped at Node's maximum legal timer delay before arming the real timer, so a huge configured value cannot overflow into an immediate timeout. Structured `failed` / `timed_out` / `blocked` results remain parseable on stdout and exit nonzero; routine `done_prepare` idle/max aborts use the same terminal timeout shape and release child processes, timers, and locks for an immediate rerun.
 - `done_prepare` defaults `reuseFreshDoneRequired=true`, independently of post-closeout `reuseFreshValidation`. Reuse requires the canonical DONE-required evaluator to pass and evidence HEAD to equal current HEAD, or be its ancestor with every path touched by every intervening commit classified as trusted story metadata (including modify-then-revert history). HEAD must remain unchanged across evaluation. Any code, config, non-metadata, non-ancestor, unreadable evidence/lineage, or concurrent HEAD movement refuses reuse.
 - `validate:false` means `disposition=skipped_explicitly` and `result=not_run`; it neither executes nor reuses nor manufactures evidence, while reporting `existingEvidenceBasis=fresh|stale|missing`. Executed and reused paths report `disposition`, `result`, `refusalReasons`, and any `timeoutLayer` in human and JSON output.
 - Progress and heartbeat output uses stderr/the logging side channel, never JSON stdout. Reporter failures are diagnostic-only. Heartbeats refresh idle liveness only; command, phase, idle, and absolute max deadlines, child-tree termination, lock release, and timer cleanup remain independent.

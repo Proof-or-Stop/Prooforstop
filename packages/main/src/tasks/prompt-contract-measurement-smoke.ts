@@ -383,11 +383,11 @@ validateDispatchUsageObservation({
 const packageRoleIds = readPromptRegistry().agents.map(entry => entry.agentId).sort();
 const roleById = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
 const defectTriageReviewerRoleIds = [
-  'lattice-review-behavior',
-  'lattice-review-concept',
-  'lattice-review-docs',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
 ] as const;
 const rolesDeclaringDefectTriageCheck = PROMPT_ROLE_CONTRACTS
   .filter(contract => contract.requiredCheckIds.includes('defect-triage-and-routing-check'))
@@ -428,14 +428,14 @@ assert.deepEqual(
 );
 assert.deepEqual(
   PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'retired').map(contract => contract.roleId),
-  ['lattice-review-channel'],
+  ['proof-or-stop-review-channel'],
 );
 for (const contract of PROMPT_ROLE_CONTRACTS.filter(contract => contract.status !== 'active')) {
   assert.equal(contract.defaultDispatch, false);
 }
 assert.equal(roleById.get('product-reviewer')?.status, 'active');
-assert.equal(roleById.get('implementation-reviewer')?.replacementAgentType, 'lattice-review-quality');
-assert.match(roleById.get('implementation-reviewer')?.migrationHint ?? '', /lattice-review-behavior/);
+assert.equal(roleById.get('implementation-reviewer')?.replacementAgentType, 'proof-or-stop-review-quality');
+assert.match(roleById.get('implementation-reviewer')?.migrationHint ?? '', /proof-or-stop-review-behavior/);
 assert.equal(roleById.get('test-intent')?.replacementAgentType, 'verification-intent');
 assert.equal(roleById.get('test-case-reviewer')?.replacementAgentType, 'verification-intent');
 assert.equal(Object.isFrozen(PROMPT_ROLE_CONTRACTS), true);
@@ -507,8 +507,8 @@ assert.equal(resolveAgentDispatchType('test-intent').canonicalType, 'verificatio
 assert.equal(resolveAgentDispatchType('test-case-reviewer').canonicalType, 'verification-intent');
 assert.equal(resolveAgentDispatchType('product-reviewer').entry.allowedPhases[0], 'INIT');
 assert.throws(
-  () => resolveAgentDispatchType('lattice-review-channel'),
-  /retired agentType "lattice-review-channel"/,
+  () => resolveAgentDispatchType('proof-or-stop-review-channel'),
+  /retired agentType "proof-or-stop-review-channel"/,
   'retired prompt remains readable in the prompt registry but cannot be newly dispatched',
 );
 assert.equal(AGENT_DISPATCH_REGISTRY.some(entry => String(entry.canonicalName) === 'implementation-reviewer'), false);
@@ -542,7 +542,7 @@ rejects(
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'lattice-review-channel'
+    contract.roleId === 'proof-or-stop-review-channel'
       ? { ...contract, defaultDispatch: true }
       : contract
   ), packageRoleIds),
@@ -551,14 +551,14 @@ rejects(
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
     contract.roleId === 'test-intent'
-      ? { ...contract, replacementAgentType: 'lattice-review-quality' }
+      ? { ...contract, replacementAgentType: 'proof-or-stop-review-quality' }
       : contract
   ), packageRoleIds),
   /frozen role policy/,
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'lattice-evaluator'
+    contract.roleId === 'proof-or-stop-evaluator'
       ? { ...contract, defaultDispatch: false }
       : contract
   ), packageRoleIds),
@@ -566,7 +566,7 @@ rejects(
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'lattice-evaluator'
+    contract.roleId === 'proof-or-stop-evaluator'
       ? { ...contract, responsibility: 'Mutated responsibility.' }
       : contract
   ), packageRoleIds),
@@ -574,7 +574,7 @@ rejects(
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'lattice-evaluator'
+    contract.roleId === 'proof-or-stop-evaluator'
       ? { ...contract, requiredCheckIds: [...contract.requiredCheckIds, 'mutated-check'] }
       : contract
   ), packageRoleIds),
@@ -582,7 +582,7 @@ rejects(
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'lattice-evaluator'
+    contract.roleId === 'proof-or-stop-evaluator'
       ? { ...contract, semanticDigest: 'b'.repeat(64) }
       : contract
   ), packageRoleIds),
@@ -591,7 +591,7 @@ rejects(
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
     contract.roleId === 'implementation-reviewer'
-      ? { ...contract, migrationHint: 'Use only lattice-review-quality.' }
+      ? { ...contract, migrationHint: 'Use only proof-or-stop-review-quality.' }
       : contract
   ), packageRoleIds),
   /frozen role policy/,

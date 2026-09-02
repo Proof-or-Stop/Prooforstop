@@ -3,7 +3,7 @@
  *
  * Maps an Anthropic Messages API usage object into a B-253e `LedgerUsage`,
  * implementing the Anthropic row of "Multi-Provider Normalization" in
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * Native four-field mapping (Anthropic reports all four natively):
  *   input_tokens               -> canonical.input        (uncached remainder)

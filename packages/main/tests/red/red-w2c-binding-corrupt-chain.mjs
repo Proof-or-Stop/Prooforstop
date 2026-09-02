@@ -74,7 +74,7 @@ try {
   const bindingsBefore = JSON.stringify(store.readRedTargetBindings(storyId));
 
   assert.throws(
-    () => bindingSet({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'lattice-implementer' }),
+    () => bindingSet({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'proof-or-stop-implementer' }),
     /corrupt-chain|no unique head/i,
     'binding_set rejects a corrupt non-empty chain (does not treat a null head as empty/settable)',
   );

@@ -103,7 +103,7 @@ export function commitInitCheckMetadataAndMergeMain(root: string, store: StorySt
       .filter((path) => !isPathUnderAny(path, [storyRel]));
     if (preexistingStagedOutOfBounds.length > 0) {
       // Refuse before staging storyRel so a user's unrelated index entries are
-      // neither committed nor accompanied by new Lattice-staged paths.
+      // neither committed nor accompanied by new ProofOrStop-staged paths.
       throw new Error(
         `INIT_CHECK metadata commit refused out-of-bounds staged paths:\n${preexistingStagedOutOfBounds.join('\n')}`,
       );

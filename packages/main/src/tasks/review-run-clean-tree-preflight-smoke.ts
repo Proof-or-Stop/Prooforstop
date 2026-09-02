@@ -18,7 +18,7 @@
  *   (a) uncommitted MATERIAL-SOURCE change  -> review_run_start REFUSES, no run recorded
  *   (b) uncommitted FIXTURE change          -> REFUSES (fixtures are blocking)
  *   (c) clean tree                          -> PROCEEDS + records the run
- *   (d) only .lattice metadata dirty        -> PROCEEDS (non-blocking category)
+ *   (d) only .proof-or-stop metadata dirty        -> PROCEEDS (non-blocking category)
  *   (e) refusal message names the offending material-source file
  *   (f) PARITY: isBlockingDirty(classifyGitStatusRows(...)) gives the SAME blocked
  *       verdict the DONE gate's evaluateDirtyGitStatus would for an identical git status
@@ -89,7 +89,7 @@ function runProofOrStopRaw(
   return new Promise((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: cwd },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: cwd },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -134,7 +134,7 @@ function writeReviewStory(store: StoryStore, storyId: string): void {
   store.writeChecklist(storyId, checklist);
 }
 
-/** Initialize a clean git repo + lattice project + a committed REVIEW story on a
+/** Initialize a clean git repo + proof-or-stop project + a committed REVIEW story on a
  * story/<id> branch. Returns the repo root. Working tree is CLEAN on return. */
 function initReviewRepo(prefix: string, storyId: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
@@ -142,10 +142,10 @@ function initReviewRepo(prefix: string, storyId: string): string {
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     fixturesDir: 'tests/fixtures',
     worktreeDir: '.worktrees',
@@ -153,9 +153,9 @@ function initReviewRepo(prefix: string, storyId: string): string {
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'review-run clean-tree preflight smoke\n');
@@ -188,10 +188,10 @@ function initEmptyHeadDirtyReviewRepo(prefix: string, storyId: string): string {
     '-m', 'empty material base',
   ]);
   git(root, ['checkout', '-b', `story/${storyId}`]);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     fixturesDir: 'tests/fixtures',
     worktreeDir: '.worktrees',
@@ -219,11 +219,11 @@ function reviewRunCount(root: string, storyId: string): number {
 // ════════════════════════════════════════════════════════════════════════════
 async function assertDirtyPreflightBeatsMissingMaterialSnapshot(): Promise<void> {
   const storyId = 'B-ord';
-  const root = initEmptyHeadDirtyReviewRepo('lattice-rrclean-ordering-', storyId);
+  const root = initEmptyHeadDirtyReviewRepo('proof-or-stop-rrclean-ordering-', storyId);
   try {
     const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       prompt: 'inspect diff',
     });
     const combined = result.stdout + result.stderr;
@@ -244,14 +244,14 @@ async function assertDirtyPreflightBeatsMissingMaterialSnapshot(): Promise<void>
 // ════════════════════════════════════════════════════════════════════════════
 async function assertMaterialSourceDirtyRefuses(): Promise<void> {
   const storyId = 'B-mat';
-  const root = initReviewRepo('lattice-rrclean-material-', storyId);
+  const root = initReviewRepo('proof-or-stop-rrclean-material-', storyId);
   try {
     // Uncommitted material-source change under the configured rootDir.
     write(root, 'packages/main/src/foo.ts', 'export const drift = true;\n');
 
     const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       prompt: 'inspect diff',
     });
     const combined = result.stdout + result.stderr;
@@ -272,14 +272,14 @@ async function assertMaterialSourceDirtyRefuses(): Promise<void> {
 // ════════════════════════════════════════════════════════════════════════════
 async function assertFixtureDirtyRefuses(): Promise<void> {
   const storyId = 'B-fix';
-  const root = initReviewRepo('lattice-rrclean-fixture-', storyId);
+  const root = initReviewRepo('proof-or-stop-rrclean-fixture-', storyId);
   try {
     // Uncommitted change under the configured fixturesDir.
     write(root, 'tests/fixtures/sample.json', '{"drift":true}\n');
 
     const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       prompt: 'inspect diff',
     });
     const combined = result.stdout + result.stderr;
@@ -298,11 +298,11 @@ async function assertFixtureDirtyRefuses(): Promise<void> {
 // ════════════════════════════════════════════════════════════════════════════
 async function assertCleanTreeProceeds(): Promise<void> {
   const storyId = 'B-cln';
-  const root = initReviewRepo('lattice-rrclean-clean-', storyId);
+  const root = initReviewRepo('proof-or-stop-rrclean-clean-', storyId);
   try {
     const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       prompt: 'inspect diff',
     });
     const combined = result.stdout + result.stderr;
@@ -316,19 +316,19 @@ async function assertCleanTreeProceeds(): Promise<void> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// (d) only .lattice metadata dirty -> PROCEEDS (non-blocking category)
+// (d) only .proof-or-stop metadata dirty -> PROCEEDS (non-blocking category)
 // ════════════════════════════════════════════════════════════════════════════
 async function assertMetadataOnlyDirtyProceeds(): Promise<void> {
   const storyId = 'B-meta';
-  const root = initReviewRepo('lattice-rrclean-metadata-', storyId);
+  const root = initReviewRepo('proof-or-stop-rrclean-metadata-', storyId);
   try {
-    // Dirty ONLY lattice-owned story metadata (a non-blocking category). Use a
+    // Dirty ONLY proof-or-stop-owned story metadata (a non-blocking category). Use a
     // throwaway file under the story dir — NOT the story's own index.json (that
     // is the story record itself; corrupting it would break the phase check
     // BEFORE the preflight, which is not what this case is exercising).
-    write(root, `.lattice/story/actives/${storyId}/scratch.json`, JSON.stringify({ touched: true }) + '\n');
+    write(root, `.proof-or-stop/story/actives/${storyId}/scratch.json`, JSON.stringify({ touched: true }) + '\n');
 
-    // Pre-condition: classify confirms ONLY the non-blocking lattice_metadata
+    // Pre-condition: classify confirms ONLY the non-blocking proof_or_stop_metadata
     // category is dirty (no blocking categories) — so PROCEEDS is meaningful.
     const store = new StoryStore(root);
     const status = readGitStatusLines(root);
@@ -337,12 +337,12 @@ async function assertMetadataOnlyDirtyProceeds(): Promise<void> {
       status.ok ? status.lines : [],
       classifierOptionsForCheck(loadConfig(root), storyId, store, root),
     );
-    assert.equal(classification.groups.lattice_metadata_changes.length > 0, true, 'pre-condition: metadata must be dirty');
+    assert.equal(classification.groups.proof_or_stop_metadata_changes.length > 0, true, 'pre-condition: metadata must be dirty');
     assert.equal(isBlockingDirty(classification).blocked, false, 'pre-condition: metadata-only dirt must be non-blocking');
 
     const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       prompt: 'inspect diff',
     });
     const combined = result.stdout + result.stderr;
@@ -361,17 +361,17 @@ async function assertMetadataOnlyDirtyProceeds(): Promise<void> {
 // ════════════════════════════════════════════════════════════════════════════
 function assertParityAndDoneRegression(): void {
   const storyId = 'B-par';
-  const root = initReviewRepo('lattice-rrclean-parity-', storyId);
+  const root = initReviewRepo('proof-or-stop-rrclean-parity-', storyId);
   try {
     const store = new StoryStore(root);
     const config = loadConfig(root);
     const options = classifierOptionsForCheck(config, storyId, store, root);
 
     // A representative mixed dirty status: one blocking material-source change,
-    // one blocking fixture change, one non-blocking lattice-metadata change.
+    // one blocking fixture change, one non-blocking proof-or-stop-metadata change.
     const sampleStatuses: { label: string; lines: string[]; expectBlocked: boolean }[] = [
       { label: 'clean', lines: [], expectBlocked: false },
-      { label: 'metadata-only', lines: [` M .lattice/story/actives/${storyId}/index.json`], expectBlocked: false },
+      { label: 'metadata-only', lines: [` M .proof-or-stop/story/actives/${storyId}/index.json`], expectBlocked: false },
       { label: 'material-source', lines: [' M packages/main/src/foo.ts'], expectBlocked: true },
       { label: 'fixture', lines: ['?? tests/fixtures/sample.json'], expectBlocked: true },
       { label: 'unexpected', lines: ['?? random/path/thing.bin'], expectBlocked: true },
@@ -380,7 +380,7 @@ function assertParityAndDoneRegression(): void {
         lines: [
           ' M packages/main/src/foo.ts',
           '?? tests/fixtures/sample.json',
-          ` M .lattice/story/actives/${storyId}/index.json`,
+          ` M .proof-or-stop/story/actives/${storyId}/index.json`,
         ],
         expectBlocked: true,
       },
@@ -436,7 +436,7 @@ function assertParityAndDoneRegression(): void {
 //     Unit-level proof on the shared read (the handler proceeds when !status.ok).
 // ════════════════════════════════════════════════════════════════════════════
 function assertFailOpenOnUnreadableStatus(): void {
-  const nonRepo = mkdtempSync(join(tmpdir(), 'lattice-rrclean-failopen-'));
+  const nonRepo = mkdtempSync(join(tmpdir(), 'proof-or-stop-rrclean-failopen-'));
   try {
     const status = readGitStatusLines(nonRepo);
     assert.equal(status.ok, false, '(h) readGitStatusLines on a non-git dir must report ok=false');

@@ -48,7 +48,7 @@ import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-worksp
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
-process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+process.env.PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS = '0';
 
 const FATAL_RE = /fatal: not a git repository/i;
 
@@ -65,13 +65,13 @@ function initGitRepo(dir: string): void {
 }
 
 /**
- * lattice.config.json. `storyDir` is given relative to the metadataRoot; a
+ * proof-or-stop.config.json. `storyDir` is given relative to the metadataRoot; a
  * configured `gitRoot` subdir is written when provided (wrapper-root layout).
  */
 function writeConfig(metadataRoot: string, opts: { storyDir: string; gitRoot?: string }): void {
   const cfg: Record<string, unknown> = { storyDir: opts.storyDir };
   if (opts.gitRoot !== undefined) cfg.gitRoot = opts.gitRoot;
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), JSON.stringify(cfg, null, 2));
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), JSON.stringify(cfg, null, 2));
 }
 
 /** Write a minimal active-story index.json under <root>/<storyDirRel>/<id>. */
@@ -149,8 +149,8 @@ try {
     git(wrapperGit, ['add', 'seed.txt']);
     git(wrapperGit, ['commit', '-m', 'initial']);
     // storyDir lives INSIDE the gitRoot (lifecycle requirement); gitRoot=subdir.
-    writeConfig(wrapper, { storyDir: 'repo/.lattice/story/actives', gitRoot: 'repo' });
-    writeStoryIndex(wrapper, 'repo/.lattice/story/actives', 'B-wrap');
+    writeConfig(wrapper, { storyDir: 'repo/.proof-or-stop/story/actives', gitRoot: 'repo' });
+    writeStoryIndex(wrapper, 'repo/.proof-or-stop/story/actives', 'B-wrap');
 
     const resolved = realpathSync(resolveDoctorGitCwd(wrapper));
     assert.equal(
@@ -180,8 +180,8 @@ try {
     writeFileSync(join(plain, 'seed.txt'), 'seed\n');
     git(plain, ['add', 'seed.txt']);
     git(plain, ['commit', '-m', 'initial']);
-    writeConfig(plain, { storyDir: '.lattice/story/actives' });
-    writeStoryIndex(plain, '.lattice/story/actives', 'B-plain');
+    writeConfig(plain, { storyDir: '.proof-or-stop/story/actives' });
+    writeStoryIndex(plain, '.proof-or-stop/story/actives', 'B-plain');
 
     assert.equal(
       realpathSync(resolveDoctorGitCwd(plain)),
@@ -195,7 +195,7 @@ try {
   {
     const noGit = join(base, 'no-git');
     mkdirSync(noGit, { recursive: true });
-    writeConfig(noGit, { storyDir: '.lattice/story/actives' });
+    writeConfig(noGit, { storyDir: '.proof-or-stop/story/actives' });
 
     assert.equal(
       evaluateStoryDirConfigInsideGitRoot({ metadataRoot: noGit }).gitRootAbs,

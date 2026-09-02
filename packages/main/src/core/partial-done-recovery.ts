@@ -31,7 +31,7 @@ function git(gitCwd: string, args: string[]): string {
 // Porcelain status reads must NOT use git(): its full-output trim() strips the
 // first porcelain row's leading status space (" M path" -> "M path"), shifting
 // the fixed-width path offset so statusLinePath() corrupts the first path
-// (".lattice/x" -> "lattice/x") and volatile-artifact filtering misfires.
+// (".proof-or-stop/x" -> "proofOrStop/x") and volatile-artifact filtering misfires.
 function gitRaw(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
     cwd: gitCwd,

@@ -910,7 +910,7 @@ function listTypeScriptFiles(root: string): string[] {
 function selfTest(): void {
   const filesystemCases: Array<[string, string]> = [
     ['mkdirSync', `mkdirSync(process.env.TEST_TARGET)`],
-    ['writeFileSync', `const readyFile = process.env.LATTICE_SMOKE_READY; const alias = readyFile; writeFileSync(alias, 'x')`],
+    ['writeFileSync', `const readyFile = process.env.PROOF_OR_STOP_SMOKE_READY; const alias = readyFile; writeFileSync(alias, 'x')`],
     ['rmSync', `const { TEST_REMOVE: target } = process.env; rmSync(target)`],
     ['renameSync', `const from = process.env.SMOKE_FROM; const to = process.env.SMOKE_TO; renameSync(from, to)`],
     ['writeFile forwarded', `function persist(target: string) { writeFile(target, 'x', () => {}) } const selected = process.env.TEST_FILE; persist(selected)`],
@@ -1112,8 +1112,8 @@ function main(): void {
   // B-cc10: read whichever config filename exists. This hardcoded the deprecated name
   // and threw ENOENT after the rename, failing the whole guard on a migrated repo.
   const configRel = CONFIG_FILENAMES.find((name) => existsSync(join(repoRoot, name))) ?? CONFIG_FILENAMES[0];
-  const latticeConfig = readFileSync(join(repoRoot, configRel), 'utf8');
-  assert.match(latticeConfig, /packages\/main\/dist\/tasks\/production-test-seam-guard\.js/, 'routine validate must run the production seam guard');
+  const proofOrStopConfig = readFileSync(join(repoRoot, configRel), 'utf8');
+  assert.match(proofOrStopConfig, /packages\/main\/dist\/tasks\/production-test-seam-guard\.js/, 'routine validate must run the production seam guard');
   const scanRoots = [join(repoRoot, 'packages/main/src/core'), join(repoRoot, 'packages/main/src/handlers')];
   const files = scanRoots.flatMap(listTypeScriptFiles);
   assert.ok(files.length > 0, 'production seam guard must scan core and handlers');

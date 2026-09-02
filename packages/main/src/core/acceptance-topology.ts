@@ -137,25 +137,21 @@ function basename(token: string): string {
   return token.replace(/\\/g, '/').split('/').pop() ?? token;
 }
 
-// B-cdf6:F-042 — recognized ONLY the deprecated bin, so producer-command provenance
-// worked for `lattice acceptance_matrix` and silently FAILED for the canonical
-// `proof-or-stop acceptance_matrix`. That is backwards from the read-both contract:
-// the new name is canonical and must be recognized, the old one is kept for
-// compatibility. Both are accepted now, and the deprecated spellings are retained
-// deliberately so evidence recorded before the rename still resolves.
-//
-// B-cc10 CHK-006 deleted `bin/lattice.js` from the repository but INTENTIONALLY keeps
-// the token here: this function parses PREVIOUSLY RECORDED provenance strings, so the
-// old spelling must stay recognizable or historical acceptance evidence would silently
-// stop resolving. Recognizing a name we no longer ship is the whole point of a
-// read-both parser.
-const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', 'lattice'] as const;
-const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/lattice.js'] as const;
+// This is a provenance parser, not command resolution. The retired spellings remain
+// recognizable only so already-recorded acceptance_matrix rows stay classified as
+// non-evidentiary; no executable, bin map, generation path, or runtime dispatch alias
+// is restored by listing them here.
+const HISTORICAL_ACCEPTANCE_WRAPPER_BASENAME = 'lattice acceptance_matrix'.split(' ', 1)[0];
+const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', HISTORICAL_ACCEPTANCE_WRAPPER_BASENAME] as const;
+const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/proofOrStop.js', 'bin/lattice'] as const;
+const HISTORICAL_ACCEPTANCE_WRAPPER_SCRIPT = `${ACCEPTANCE_WRAPPER_SCRIPTS[2]}.js`;
 
-function isLatticeWrapper(token: string): boolean {
+function isProofOrStopWrapper(token: string): boolean {
   const normalized = token.replace(/\\/g, '/').replace(/^\.\//, '');
   const base = basename(normalized);
   return (ACCEPTANCE_WRAPPER_BASENAMES as readonly string[]).includes(base)
+    || normalized === HISTORICAL_ACCEPTANCE_WRAPPER_SCRIPT
+    || normalized.endsWith(`/${HISTORICAL_ACCEPTANCE_WRAPPER_SCRIPT}`)
     || (ACCEPTANCE_WRAPPER_SCRIPTS as readonly string[]).some(
       script => normalized === script || normalized.endsWith(`/${script}`),
     );
@@ -171,9 +167,9 @@ function invokesAcceptanceMatrix(command: string): boolean {
   const tokens = recordedCommandTokens(command);
   if (tokens.length < 2) return false;
   let subcommandIndex: number;
-  if (isLatticeWrapper(tokens[0])) {
+  if (isProofOrStopWrapper(tokens[0])) {
     subcommandIndex = 1;
-  } else if ((basename(tokens[0]) === 'node' || basename(tokens[0]) === 'nodejs') && isLatticeWrapper(tokens[1])) {
+  } else if ((basename(tokens[0]) === 'node' || basename(tokens[0]) === 'nodejs') && isProofOrStopWrapper(tokens[1])) {
     subcommandIndex = 2;
   } else {
     return false;

@@ -6,7 +6,7 @@
  *
  *   metadataRoot/              <- not a git repo; Proof-or-Stop metadata/assets live here
  *     proof-or-stop.config.json  <- { gitRoot: "repo" }
- *     .proof-or-stop/Lattice.md      <- managed asset path base
+ *     .proof-or-stop/Proof-or-Stop.md      <- managed asset path base
  *     repo/                    <- configured gitRoot subdir
  *
  * The contract is deliberately split:
@@ -78,7 +78,7 @@ function assertGuidanceImmediatelyAfterSummary(text: string, label: string): voi
   );
 }
 
-const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-assets-wrapper-root-'));
+const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-assets-wrapper-root-'));
 const gitRoot = join(metadataRoot, 'repo');
 
 try {
@@ -100,10 +100,10 @@ try {
   const config = readJson(metadataRoot, PROOF_OR_STOP_CONFIG_FILENAME);
   writeFileSync(configPath, `${JSON.stringify({ ...config, gitRoot: 'repo' }, null, 2)}\n`);
 
-  rmSync(join(metadataRoot, PROOF_OR_STOP_STATE_DIR, 'Lattice.md'), { force: true });
+  rmSync(join(metadataRoot, PROOF_OR_STOP_STATE_DIR, 'Proof-or-Stop.md'), { force: true });
   mkdirSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR), { recursive: true });
   const gitRootSentinel = 'git-root sentinel: managed assets must not write here\n';
-  writeFileSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR, 'Lattice.md'), gitRootSentinel);
+  writeFileSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR, 'Proof-or-Stop.md'), gitRootSentinel);
 
   const canonicalGitRoot = realpathSync(gitRoot);
   const checkJson = JSON.parse(runCli(metadataRoot, ['check', '--json']));
@@ -118,7 +118,7 @@ try {
   // story); assert the canonical path rather than the pre-rename literal.
   assert.equal(checkJson.manifestPath, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'manifestPath remains assetRoot-relative');
   assert.ok(
-    checkJson.items.some((item: any) => item.relPath === PROOF_OR_STOP_STATE_DIR + '/Lattice.md' && item.status === 'MISSING'),
+    checkJson.items.some((item: any) => item.relPath === PROOF_OR_STOP_STATE_DIR + '/Proof-or-Stop.md' && item.status === 'MISSING'),
     'check should evaluate relPath under metadataRoot/assetRoot, not gitRoot',
   );
 
@@ -140,7 +140,7 @@ try {
   const applyJson = JSON.parse(runCli(metadataRoot, ['check', '--apply', '--json']));
   assert.equal(applyJson.ok, true, 'check --apply should repair safe metadata-root drift');
   assert.ok(
-    applyJson.applied.includes(PROOF_OR_STOP_STATE_DIR + '/Lattice.md'),
+    applyJson.applied.includes(PROOF_OR_STOP_STATE_DIR + '/Proof-or-Stop.md'),
     'applied paths should remain assetRoot-relative',
   );
   assert.equal(applyJson.metadataRoot, canonicalMetadataRoot, 'apply JSON metadataRoot');
@@ -148,11 +148,11 @@ try {
   assert.equal(applyJson.gitRoot, canonicalGitRoot, 'apply JSON gitRoot');
   assert.equal(applyJson.pathsRelativeTo, 'assetRoot', 'apply JSON pathsRelativeTo');
   assert.equal(applyJson.assetRootGitRootSplit, true, 'apply JSON split flag');
-  assertExists(metadataRoot, PROOF_OR_STOP_STATE_DIR + '/Lattice.md', 'metadataRoot managed Proof-or-Stop guide');
+  assertExists(metadataRoot, PROOF_OR_STOP_STATE_DIR + '/Proof-or-Stop.md', 'metadataRoot managed Proof-or-Stop guide');
   assertExists(metadataRoot, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'metadataRoot managed manifest');
   assertMissing(gitRoot, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'gitRoot managed manifest');
   assert.equal(
-    readFileSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR, 'Lattice.md'), 'utf8'),
+    readFileSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR, 'Proof-or-Stop.md'), 'utf8'),
     gitRootSentinel,
     'check --apply should not write managed assets under configured gitRoot',
   );

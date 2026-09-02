@@ -19,7 +19,7 @@ const artifacts = [
   '/tmp/b9812-final-v3-stress20.log', '/tmp/b9812-final-v3-stress20.exit', '/tmp/b9812-final-v3-stress20.timing',
   '/tmp/b9812-final-v3-injected-fixtures.log', '/tmp/b9812-final-v3-injected-fixtures.exit',
   '/tmp/b9812-final-v3-fixed-port-os.json',
-  '.lattice/story/actives/B-9812/done-required-evidence.json',
+  '.proof-or-stop/story/actives/B-9812/done-required-evidence.json',
   'scripts/verify-full-suite-contract.mjs',
   'scripts/verify-full-suite-selector.mjs',
 ];
@@ -33,7 +33,7 @@ const identity = () => ({
   head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   material: execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' }),
 });
-const METADATA_PREFIX = '.lattice/story/actives/B-9812/';
+const METADATA_PREFIX = '.proof-or-stop/story/actives/B-9812/';
 const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'test-evidence.json', 'checklist.json', 'findings.json', 'gate-failure-counts.json', 'process-events.jsonl', 'index.json', 'process-metrics.json', 'prompt-envelopes.json', 'review-runs.json', 'review-passes.json', 'delivery-check.json', 'stall-adjudication.json', 'scope-contract.json']);
 export const captureHeadIsAdmissible = (receiptHead, currentHead, cwd = root) => {
   try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd, stdio: 'ignore' }); }

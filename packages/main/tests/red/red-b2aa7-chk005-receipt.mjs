@@ -49,7 +49,7 @@ const PRE_FIX_COMMIT = '3826486e80342e12370e869408be08c82ba4dbd5';
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 
 // ── Fail-closed marker ledger ───────────────────────────────────────────────
-// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// `proof-or-stop validate` grades a command by its EXIT CODE alone. Printing a marker
 // only when a check holds is what makes the pinned selectors meaningful, but on
 // its own it makes this file a crash-detector when run by validate: a regression
 // would print fewer markers and STILL exit 0. Every marker below is therefore
@@ -261,7 +261,7 @@ const rowResults = MALFORMED.map(([label, record]) => {
 // holds ZERO records and none of the injected ids ever reached it.
 // B-cc10: the runtime writes story artifacts under the CANONICAL state dir, so read back
 // from whichever spelling exists rather than pinning the deprecated one.
-const storyActivesRel = ['.proof-or-stop/story/actives', '.lattice/story/actives']
+const storyActivesRel = ['.proof-or-stop/story/actives', '.proof-or-stop/story/actives']
   .find((rel) => existsSync(join(root, rel, storyId, 'red-evidence.json'))) ?? '.proof-or-stop/story/actives';
 const onDisk = readFileSync(join(root, storyActivesRel, storyId, 'red-evidence.json'), 'utf8');
 const bypassedReadBoundary =

@@ -35,7 +35,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 
 import {
   buildClaudeSpawnArgs,
-} from '../core/lattice-dispatch.js';
+} from '../core/proof-or-stop-dispatch.js';
 import {
   parseClaudeCliOutput,
   recordDispatchFinal,
@@ -62,10 +62,10 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
   }
 }
 
-const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const ON = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 // Ledger is default-ON, so OFF must be the EXPLICIT escape hatch, not an empty
 // env (an empty/unset env now reads as ON).
-const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-dispatch-'));
 
@@ -73,7 +73,7 @@ function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
   return {
     storyId: 'S-test',
     phase: 'dispatch',
-    agentType: 'lattice-dispatch:claude-code',
+    agentType: 'proof-or-stop-dispatch:claude-code',
     model: 'claude-code',
     ...over,
   };
@@ -429,12 +429,12 @@ async function main(): Promise<void> {
     assert.ok(records.length >= 1);
   });
 
-  await check('CHK-001 adversarial: flag OFF -> null, no file, no .lattice/usage dir', () => {
+  await check('CHK-001 adversarial: flag OFF -> null, no file, no .proof-or-stop/usage dir', () => {
     const sub = freshRoot();
     const handle = recordDispatchPreflight(sub, ctx(), 'p', opts(OFF));
     assert.equal(handle, null);
     assert.equal(existsSync(resolveLedgerPath(sub)), false);
-    assert.equal(existsSync(join(sub, '.lattice', 'usage')), false);
+    assert.equal(existsSync(join(sub, '.proof-or-stop', 'usage')), false);
   });
 
   await check('CHK-001 adversarial: two concurrent preflights -> distinct correlations', () => {
@@ -479,7 +479,7 @@ async function main(): Promise<void> {
   await check('CHK-004 edge: env "false"/"0"/"off" all read as OFF (no file)', () => {
     for (const val of ['false', '0', 'off', 'no', '']) {
       const sub = freshRoot();
-      const handle = recordDispatchPreflight(sub, ctx(), 'p', { ...opts(OFF), env: { LATTICE_USAGE_LEDGER: val } });
+      const handle = recordDispatchPreflight(sub, ctx(), 'p', { ...opts(OFF), env: { PROOF_OR_STOP_USAGE_LEDGER: val } });
       assert.equal(handle, null, `env value "${val}" must read as OFF`);
       assert.equal(existsSync(resolveLedgerPath(sub)), false);
     }
@@ -678,9 +678,9 @@ async function main(): Promise<void> {
     }
   });
 
-  await check('STATIC lattice-dispatch.ts imports usage-ledger ONLY via dispatch-usage.js', () => {
+  await check('STATIC proof-or-stop-dispatch.ts imports usage-ledger ONLY via dispatch-usage.js', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-    const src = readFileSync(join(repoRoot, 'packages', 'main', 'src', 'core', 'lattice-dispatch.ts'), 'utf8');
+    const src = readFileSync(join(repoRoot, 'packages', 'main', 'src', 'core', 'proof-or-stop-dispatch.ts'), 'utf8');
     const importRe = /from\s+['"]([^'"]+)['"]/g;
     const usageLedgerSpecs: string[] = [];
     let m: RegExpExecArray | null;
@@ -690,7 +690,7 @@ async function main(): Promise<void> {
     assert.deepEqual(
       usageLedgerSpecs,
       ['./usage-ledger/dispatch-usage.js'],
-      `lattice-dispatch must import usage-ledger ONLY through dispatch-usage.js; got: ${usageLedgerSpecs.join(', ')}`,
+      `proof-or-stop-dispatch must import usage-ledger ONLY through dispatch-usage.js; got: ${usageLedgerSpecs.join(', ')}`,
     );
   });
 

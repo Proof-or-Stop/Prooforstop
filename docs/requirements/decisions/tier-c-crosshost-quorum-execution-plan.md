@@ -111,7 +111,7 @@ Objective: actually collect host B's signed verdict, no server.
 - A `dispatch_verify`-style path: send the same materialHash-bound change to host B (Codex CLI),
   capture its signed verdict from the dispatch result, merge into the quorum store.
 - materialHash handshake: both hosts review the identical tree state before either submits.
-Files: `lattice-dispatch.ts`, `quorum-submit.ts`.
+Files: `proof-or-stop-dispatch.ts`, `quorum-submit.ts`.
 Acceptance: one command drives host B and returns a verifiable signed verdict bound to the same
 materialHash as host A's; freshness check passes for both.
 Repro-first RED: a verdict over a drifted/different materialHash must be rejected at merge. SPIKE:
@@ -141,7 +141,7 @@ Objective: promote Tier-C in the paper once earned.
 - `tab:tier` Tier-C row `\gat` → `\ver` with the powered rate (after M4) — or a "mechanism shown"
   softening after M3 only.
 - Update abstract/conclusion; relax the prohibited-wording guard ONLY for the earned claim.
-Files: `lattice-Paper/paper/main.tex`.
+Historical external paper files: `lattice-Paper/paper/main.tex`.
 
 ## 3. Dependencies & sequence
 M0 → M1 (crypto-deferred cross-host review) → M2 → M3 → (stop / decide) → M-crypto → M4 → M5.

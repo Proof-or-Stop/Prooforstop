@@ -3,7 +3,7 @@
  * B-521d smoke: read-only playbook_promotion_observe.
  *
  * Runs in OS temp projects. Empty-store observation must not create
- * `.lattice/learning` or any other `.lattice` directory.
+ * `.proof-or-stop/learning` or any other `.proof-or-stop` directory.
  */
 
 import assert from 'node:assert/strict';
@@ -60,10 +60,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b521d-playbook-observe-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -191,7 +191,7 @@ try {
   check('empty store is read-only and supports relative since', () => {
     const root = mkProject(); roots.push(root);
     const ctx = mkCtx(root);
-    assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project starts with no .lattice dir');
+    assert.equal(existsSync(join(root, '.proof-or-stop')), false, 'fresh project starts with no .proof-or-stop dir');
     const report = observe(ctx);
     assert.equal(report.candidateGenerated.currentCandidates, 0);
     assert.equal(report.candidateGenerated.count, 0);
@@ -201,11 +201,11 @@ try {
     assert.equal(report.recommendationHandling.actionableCount, 0);
     assert.equal(report.authority, 'non_authoritative');
     assert.equal(report.gateEvidence, false);
-    assert.equal(existsSync(join(root, '.lattice')), false, 'observe creates no .lattice dir on empty store');
+    assert.equal(existsSync(join(root, '.proof-or-stop')), false, 'observe creates no .proof-or-stop dir on empty store');
     const relative = observe(ctx, { since: '14d' });
     assert.equal(relative.since.mode, 'relative');
     assert.equal(relative.since.input, '14d');
-    assert.equal(existsSync(join(root, '.lattice')), false, 'relative observe also creates no files');
+    assert.equal(existsSync(join(root, '.proof-or-stop')), false, 'relative observe also creates no files');
   });
 
   check('synthetic candidate generation is current candidate existence only', () => {

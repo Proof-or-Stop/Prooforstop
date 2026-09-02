@@ -23,7 +23,7 @@ The per-project Experience Layer on the Orchestrate (Proof-or-Stop CLI) main bra
 - Cross-project / multi-repository learning aggregation
 - Claiming the saturation-inflated rising recurrence curve (Spearman rho ~ +0.7) as a learning result
 - Persisting degraded mechanical signatures into the live base (the backfill used LLM-assigned semantic signatures, evidence-first)
-- Duplicating the raw evidence (CSVs, figures, scripts) into the repo -- they remain referenced in Work/lattice-Paper/
+- Duplicating the raw evidence (CSVs, figures, scripts) into the repo -- historical evidence remains referenced in Work/lattice-Paper/
 
 ## Options Considered
 
@@ -54,7 +54,7 @@ Cons:
 
 ## Chosen Approach
 
-Six Proof-or-Stop stories (each INIT->DONE, full review, audit fields excluded from gates, advisory-only): B-a2e3 read-only learning_validate (anchorFiles + revalidate leaf; valid-rate/drift instrument); B-4eb6 phase 3.1 learning_scan (derives+persists .lattice/learning/finding-signals.json, activating the Phase 1.5 hint loop); B-5d48 phase 3.2 signatureTag auto-candidate + provenance at finding_add (audit-only, excluded from finding _hash); B-06b3 phase 3.3 deterministic per-story A/B hintMode with shadow-gated hint display (event fires on both arms; hints stay out of resolveReviewPromptHash); B-c06a phase 3.4 read-only learning_effectiveness (predictive value + ON/OFF arm readout with a conservative N gate). Then an evidence-first offline phase-3.5 backfill (LLM-assigned area|failureMode signatures over 695 findings, 164 classes, leakage-free) re-ran the learning curve; then signature_backfill (B-17a9) persisted 656 real signatures into the live findings (commit 2750aadef) with every finding _hash byte-identical.
+Six Proof-or-Stop stories (each INIT->DONE, full review, audit fields excluded from gates, advisory-only): B-a2e3 read-only learning_validate (anchorFiles + revalidate leaf; valid-rate/drift instrument); B-4eb6 phase 3.1 learning_scan (derives+persists .proof-or-stop/learning/finding-signals.json, activating the Phase 1.5 hint loop); B-5d48 phase 3.2 signatureTag auto-candidate + provenance at finding_add (audit-only, excluded from finding _hash); B-06b3 phase 3.3 deterministic per-story A/B hintMode with shadow-gated hint display (event fires on both arms; hints stay out of resolveReviewPromptHash); B-c06a phase 3.4 read-only learning_effectiveness (predictive value + ON/OFF arm readout with a conservative N gate). Then an evidence-first offline phase-3.5 backfill (LLM-assigned area|failureMode signatures over 695 findings, 164 classes, leakage-free) re-ran the learning curve; then signature_backfill (B-17a9) persisted 656 real signatures into the live findings (commit 2750aadef) with every finding _hash byte-identical.
 
 ## Operational Rules
 

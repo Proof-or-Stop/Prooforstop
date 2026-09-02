@@ -2,7 +2,7 @@
  * B-253e CHK-006: informational summary reader for the LLM usage ledger.
  *
  * Implements the "Derived Totals" identity and the summary selection rules from
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md
  * ("Call and Attempt Correlation Semantics", "Derived Totals", Status and
  * diagnostics touchpoint).
  *

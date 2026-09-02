@@ -87,10 +87,10 @@ capability.
   `proof-or-stop validate --story=<storyId> --json`,
   `proof-or-stop verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
   followed by the same command without `--dryRun` after rerunning listed
-  evidence commands, and `node bin/lattice.js autopilot_review_submit ... --materialDigest=<current-materialHash>`
+  evidence commands, and `node bin/proof-or-stop.js autopilot_review_submit ... --materialDigest=<current-materialHash>`
   for fresh local host verdicts.
 - The degraded-single-host writer guidance emits one executable worktree-local
-  `node bin/lattice.js autopilot_review_submit` command per required round; it
+  `node bin/proof-or-stop.js autopilot_review_submit` command per required round; it
   does not rely on a global `proof-or-stop` runtime that may resolve an older main
   build. Each command uses explicit `--deriveBindings`, a real local
   hostname/session identity, and the current material/story-files hashes. The
