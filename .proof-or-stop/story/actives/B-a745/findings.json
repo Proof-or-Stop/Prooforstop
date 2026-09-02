@@ -29,7 +29,7 @@
       "desc": "validation-plan.ts renderValidationPlanText(): the mechanical acceptance receipt for CHK-005:happy:0 (the flagship claim, checklist_get storyId=B-a745) proves this bug was captured and marked pass anyway. That evidences receipt.outputTail is a real captured run of `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast` and it literally contains `status: stop` / `pinned_command_missing` / `selected: 0 of 0` -- the exact opposite of the claim under test (\"prints requested and effective tier ... selected: <n> of <n> commands\") -- yet the record is `result: pass`, `selectorMatched: true`. Cause: the pinned selector for this evidence (verificationIntent CHK-005:happy:0.verification.selector) is the single string `finalAuthority: no`. renderValidationPlanText (validation-plan.ts lines 401-408) prints `finalAuthority: no` unconditionally in EVERY status branch (plan/stop/no-tier-pass), so this selector can never fail to match regardless of whether the command actually reached the plan path it is supposed to demonstrate. The mechanical evidence system (which the framework relies on precisely so a `pass` cannot be faked) gave a false positive for the story own headline acceptance criterion, on the story own real repository, using the story own real evidence pipeline -- masking finding F-001 from anyone trusting the receipt instead of reading its outputTail.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T03:03:48.020Z",
@@ -41,7 +41,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "adversarial|ts|validation-plan-rendervalidationplantext",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Two-part response, and the honest answer is that one part could not be fully fixed. FIXED: the renderer now guarantees a discriminating, machine-selectable status line, and a committed fixture asserts that the plan and stop renderings differ on it and that no single literal appears in both a successful and a failing render (commits dd7bd9cb13 RED / d681784e06 GREEN). NOT FIXED, and stated plainly: the receipt for CHK-005:happy:0 remains pinned to the original non-discriminating selector 'finalAuthority: no'. Verification pins are immutable by design (B-ec67); verification_evidence_add refused the re-pin, and verification_intent_repair only backfills missing intents. So the selector that caused the false positive cannot be corrected in place. What was done instead: verification_run re-executed the pinned command, and the refreshed receipt now captures a genuine plan render rather than the stop output it previously carried, so the receipt is truthful about the current state. What is NOT claimed: that this receipt would catch a regression to the stop path -- it would not, because its selector still matches both. The discrimination is proven by the committed fixture instead, which is a stronger and more durable guarantee than a selector on one receipt. The framework-level consequences (an immutable pin makes a badly chosen selector permanently uncorrectable, and receipts do not persist the selector text so the weakness is not auditable from the receipt) are outside this Story and are recorded separately for their own Story.",
+      "resolvedAt": "2026-09-02T03:32:05.491Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-a745:F-003",
