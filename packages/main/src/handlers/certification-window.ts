@@ -8,10 +8,13 @@ import { loadConfig } from '../core/config.js';
 import {
   currentGitHead,
   currentMaterialHash,
-  currentStoryFileHashEntries,
   currentStoryFilesHash,
   EMPTY_STORY_FILES_HASH,
 } from '../core/evidence-freshness.js';
+// B-5a15 main-merge: main replaced currentStoryFileHashEntries with the exported
+// resolveStoryChangedFiles (same signature + identical isMaterialExcludedPath filtering);
+// blobId is the field main uses where our helper returned objectId.
+import { resolveStoryChangedFiles } from '../core/story-aware-validation.js';
 import {
   CAUSAL_DEPENDENCY_DOMAINS,
   causalDigest,
@@ -150,15 +153,16 @@ export function deriveCertificationDomainInputHashes(
   ref = 'HEAD',
   metadataRoot: string = gitCwd,
 ): Record<string, string> | undefined {
-  const entries = currentStoryFileHashEntries(gitCwd, ref, metadataRoot);
-  if (!entries) return undefined;
+  let entries;
+  try { entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot); }
+  catch { return undefined; }
   const byDomain = new Map<CausalDependencyDomain, string[]>(
     CAUSAL_DEPENDENCY_DOMAINS.map(domain => [domain, []]),
   );
   for (const entry of entries) {
     const domain = certificationDomainForPath(entry.path);
     if (!domain) return undefined;
-    byDomain.get(domain)!.push(`${entry.path}\0${entry.objectId || '<deleted>'}`);
+    byDomain.get(domain)!.push(`${entry.path}\0${entry.blobId || '<deleted>'}`);
   }
   return Object.fromEntries(CAUSAL_DEPENDENCY_DOMAINS.map(domain => [
     `certification:${domain}`,

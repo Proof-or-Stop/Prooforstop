@@ -1574,6 +1574,10 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewText.includes('proof executable provenance invalid')
       && preReviewText.includes('exactKindsAndSources')
       && preReviewText.includes('preReviewExecutableProvenanceIsCurrent')
+      && preReviewText.includes('criticReceiptDigestForPreReviewSemanticComparison')
+      && preReviewText.includes("return mode === 'enforce' ? currentDigest : signedDigest")
+      && read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts').includes('--critic-digest-renewal-contract-only')
+      && processRegistryText.includes('Non-enforcing semantic readback retains the signed artifact critic-receipt digest')
       && read('packages/main/src/core/pre-review-live-proof.ts').includes('assemblePreReviewCaseRecords')
       && read('packages/main/src/core/pre-review-live-proof.ts').includes('extra assertion IDs')
       && read('scripts/run-proofstory-pre-review-live-proof.mjs').includes("['--prefix', 'packages/main', 'run', 'build']")
@@ -2008,15 +2012,14 @@ function assertCloseoutTrustBoundary() {
     'pinned executable source structural fingerprint drift',
     'review executable structure before updating the pinned fingerprint',
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
-    // B-5a15: lockstep repin on the main merge; re-approval basis recorded beside
-    // PINNED_EXECUTABLE_SOURCE_FINGERPRINTS in retired-authority-vocabulary-guard-smoke.ts.
-    '2cd4cdfbab8102397e96c78cacc73c428eab4217f6c504601c5ea61a3c58d683',
+    // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
+    // permits only receipt-bound verification_evidence_refresh_stale writes.
+    'bd6f5790b3c33daebfbb04bd184bb210c0589b3acdfb9d7a1c02f7262985bf99',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
-    // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
-    // B-5a15: lockstep after the closeout smoke seeded its verifier owner lease, then
-    // repinned again on the main merge (same coupled basis).
-    '91acb08fc51d06688762d3844c6ad37189de47ca23b599a111422098eee9ccc8',
+    // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
+    // noncanonical-writer retention regression checks, and with B-1e1f's
+    // persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
+    '32bd2e64768f6a866822ceaf54dd6a8c8ca61dff00f4028e251d000f1d2771cf',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -7609,6 +7612,48 @@ function assertParentRoadmapTotalityRuntime() {
   }
 }
 
+// DYN-1..DYN-5 runtime facts are gate-consumed process facts, not descriptive
+// documentation.  Keep a source-level contract here so deleting the level or
+// weakening its registry semantics cannot make dynamic validation appear
+// authoritative while the production registry silently loses its evidence.
+function assertStoryAwareDynamicValidationRuntime() {
+  const levelText = read('packages/main/src/core/process-fact-levels.ts');
+  const registryText = read('packages/main/src/core/process-fact-registry.ts');
+  const facts = [
+    'runtime:story_aware_dynamic_selection_manifest',
+    'runtime:story_aware_dynamic_closure_receipt',
+    'runtime:story_aware_dynamic_shard_aggregate',
+    'runtime:story_aware_dynamic_authority_gate',
+  ];
+  const levels = parseProcessFactLevelRegistry();
+  for (const fact of facts) {
+    assert(levelText.includes(`name: '${fact}'`), `process-fact-levels: dynamic fact missing: ${fact}`);
+    assert(registryText.includes(`'${fact}':`), `process-fact-registry: dynamic fact missing: ${fact}`);
+    const level = levels.find((entry) => entry.name === fact);
+    assert(level?.level === 'L4', `process-fact-levels: dynamic fact must remain L4: ${fact}`);
+    assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
+  }
+  for (const token of ['signed-artifact', 'schema-contract', 'gate-evidence']) {
+    assert(registryText.includes(`'runtime:story_aware_dynamic_selection_manifest':`) && registryText.includes(`'runtime:story_aware_dynamic_authority_gate':`), 'process-fact-registry: dynamic fact semantic map must remain present');
+    assert(registryText.includes(token), `process-fact-registry: dynamic semantic map missing ${token}`);
+  }
+  for (const fact of [
+    'runtime:story_aware_dynamic_selection_manifest',
+    'runtime:story_aware_dynamic_closure_receipt',
+    'runtime:story_aware_dynamic_shard_aggregate',
+  ]) {
+    const line = registryText.split('\n').find((candidate) => candidate.includes(`'${fact}':`)) || '';
+    assert(line.includes("'workspace-binding'"), `process-fact-registry: ${fact} must retain Git-rooted provenance binding`);
+  }
+  const signingText = read('packages/main/src/core/validation-artifact-signing.ts');
+  const validationText = read('packages/main/src/core/story-aware-validation.ts');
+  assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
+  assert(signingText.includes('ed25519:${VALIDATION_ARTIFACT_SIGNING_KEY_ID}:'), 'dynamic validation provenance must retain its Ed25519 signature prefix');
+  assert(signingText.includes('git-common-dir') && signingText.includes("flag: 'wx'"), 'dynamic validation provenance key must remain Git-common-metadata-rooted and creation-race-safe');
+  assert(validationText.includes('signValidationArtifact(value)') && validationText.includes('verifyValidationArtifact(value, signature)'), 'dynamic validation artifacts must delegate signing and verification to the trusted signer');
+  assert(read('packages/main/src/handlers/story-aware-validation.ts').includes('originalOracle'), 'DYN-5 aggregate must retain complete-plan oracle equivalence evidence');
+}
+
 function assertPromptMeasurementObservationBoundary() {
   const command = 'prompt_measurement_report';
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
@@ -8435,6 +8480,7 @@ await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
+assertStoryAwareDynamicValidationRuntime();
 assertPromptMeasurementObservationBoundary();
 printProcessFactLevelRegistrySummary();
 

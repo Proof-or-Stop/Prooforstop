@@ -357,15 +357,11 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
 
 const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
-  // B-5a15: repinned when main was merged into this branch. The merged file carries
-  // both sides, so its digest matched neither parent's pin. Re-approval basis, checked
-  // before repinning rather than after: the approved legacy-compat surface is unchanged
-  // — isExactLegacyLocalOnlyDeliveryClaims still appears exactly twice (import at :20,
-  // guarded call at :290) and the LegacyLocalOnlyDeliveryClaims type exactly twice
-  // (import at :21, field at :279). No compat call, argument, or shape was added,
-  // removed, or rewritten; the digest moved solely because this algorithm fingerprints
-  // the whole enclosing file.
-  ['packages/main/src/core/closeout-trust.ts', '2cd4cdfbab8102397e96c78cacc73c428eab4217f6c504601c5ea61a3c58d683'],
+  // B-45a0 F-419: repinned after adding a receipt-bound checklist policy for
+  // the one canonical stale-evidence refresh writer. Compatibility symbols and
+  // their approved call shapes remain independently checked above. Repinned
+  // again when main's proof-or-stop rename merged into that same file.
+  ['packages/main/src/core/closeout-trust.ts', '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
@@ -378,12 +374,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
-  // B-5a15: repinned after the closeout smoke seeded its verifier owner lease;
-  // approved compatibility call shapes and occurrence counts remain unchanged.
-  // B-5a15: repinned again on the same main merge, same basis:
-  // createLegacyLocalOnlyDeliveryClaims still appears exactly twice (import at :63,
-  // call at :223) with the approved closeout-smoke-delivery-claims shape unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '91acb08fc51d06688762d3844c6ad37189de47ca23b599a111422098eee9ccc8'],
+  // B-45a0 F-421: repinned with executable checks that canonical checklist
+  // refresh lineage retains review while checklist_update remains rejected.
+  // Repinned again for main's B-1e1f persistSyntheticAdmittedWindowForTest.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this

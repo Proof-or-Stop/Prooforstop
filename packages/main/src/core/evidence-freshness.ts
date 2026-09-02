@@ -4,11 +4,6 @@ import { resolve as resolvePath } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
 import {
-  evaluateCausalDependencies,
-  type CausalDependencyDecision,
-  type CausalDependencyNode,
-} from './causal-evidence.js';
-import {
   PROOF_OR_STOP_STORY_DIR,
   PROOF_OR_STOP_STORY_DIR_NAMES,
   LEGACY_DOCS_STORY_DIR,
@@ -18,12 +13,15 @@ import {
   isEvidenceHashSnapshotSchema,
   type EvidenceHashSnapshotSchema,
 } from './artifact-schema.js';
+import { resolveStoryChangedFiles, resolveStoryMergeBase } from './story-aware-validation.js';
+import { isMaterialExcludedPath, isStoryMetadataPath } from './material-path-policy.js';
+export { isMaterialExcludedPath, isStoryMetadataPath };
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
 // B-d243 (host-2 soundness fix): the value currentStoryFilesHash returns for an
 // EMPTY story-owned diff (HEAD == main, or the story already resolved on main).
-// `changedStoryFilesBetween` then yields zero entries, so the hash is
+// The shared changed-file resolver then yields zero entries, so the hash is
 // sha256(''). This is NOT undefined — it is a real digest that vouches for
 // NOTHING. Treating it as a positive signal would let a delivery-check signed on
 // main (empty diff) re-match later under whole-tree drift while HEAD stays empty,
@@ -44,24 +42,6 @@ export type EvidenceFreshness = {
 };
 
 export const EVIDENCE_FRESHNESS_CLASSIFIER_VERSION = 'proofbound.evidence-freshness-classifier.v1';
-
-/**
- * Explicit opt-in adapter for specialized causal consumers. The established
- * hash reader above remains authoritative for ordinary REVIEW/TEST/DONE and
- * DONE-required callers; this helper never changes that strict fallback.
- */
-export function evaluateCausalEvidenceFreshness(args: {
-  nodes: readonly CausalDependencyNode[];
-  currentInputHashes: Record<string, string>;
-  previousMaterialHash?: string;
-  currentMaterialHash?: string;
-  previousStoryFilesHash?: string;
-  currentStoryFilesHash?: string;
-  doneRequired?: boolean;
-  rerunNodeIds?: string[];
-}): CausalDependencyDecision {
-  return evaluateCausalDependencies(args);
-}
 
 export type EvidenceFreshnessClassification =
   | 'CURRENT_MATERIAL'
@@ -165,48 +145,6 @@ const GIT_EXEC_OPTS = {
   stdio: ['pipe', 'pipe', 'pipe'] as ['pipe', 'pipe', 'pipe'],
   maxBuffer: 1024 * 1024 * 1024,
 };
-
-/**
- * Prefixes whose paths are story METADATA and therefore EXCLUDED from
- * `storyFilesHash`.
- *
- * B-cc10 CHK-002: derived from `PROOF_OR_STOP_STORY_DIR_NAMES` (every accepted
- * state-dir spelling) rather than from the canonical name alone. The exclusion
- * must hold on BOTH sides of the state-directory rename: under the canonical name
- * so it follows the move, and under the deprecated name so archives that have not
- * been moved yet do not silently start entering the digest. Hardcoding either
- * spelling here would reintroduce the exact hazard this list guards — nothing
- * would throw, the hashes would just change meaning.
- */
-const DEFAULT_STORY_METADATA_PREFIXES = [
-  ...PROOF_OR_STOP_STORY_DIR_NAMES.map(dir => `${dir.replace(/\/actives$/, '')}/`),
-  `${LEGACY_DOCS_STORY_DIR.replace(/\/actives$/, '')}/`,
-  'docs/framework-audit/',
-].filter((value, index, all) => all.indexOf(value) === index);
-
-export function isStoryMetadataPath(path: string, projectRoot?: string): boolean {
-  const normalized = path.replace(/\\/g, '/').toLowerCase();
-  const prefixes = [...DEFAULT_STORY_METADATA_PREFIXES];
-  if (projectRoot) {
-    try {
-      const cfg = loadConfig(projectRoot);
-      const storyDir = cfg.storyDir?.replace(/\\/g, '/').toLowerCase();
-      if (storyDir) {
-        const storyDirPrefix = storyDir.endsWith('/') ? storyDir : storyDir + '/';
-        if (!prefixes.some(p => p === storyDirPrefix || storyDirPrefix.startsWith(p))) {
-          prefixes.push(storyDirPrefix);
-        }
-      }
-    } catch {
-      // config load failure → fall back to defaults
-    }
-  }
-  return prefixes.some(prefix => normalized.startsWith(prefix));
-}
-
-export function isMaterialExcludedPath(path: string, projectRoot?: string): boolean {
-  return isStoryMetadataPath(path, projectRoot) || isMaterialExcludedRuntimeArtifactPath(path);
-}
 
 /**
  * B-6666 CHK-002: the parameter IS the resolved git invocation cwd
@@ -435,114 +373,12 @@ export function changedFileStatusesBetweenRenameAware(
   return Object.fromEntries(Object.entries(statuses).sort(([left], [right]) => left.localeCompare(right)));
 }
 
-function mergeBaseWithMain(gitCwd: string, ref = 'HEAD'): string | undefined {
-  const mainCandidates = ['main', 'origin/main'];
-  for (const candidate of mainCandidates) {
-    try {
-      const base = execFileSync('git', ['merge-base', candidate, ref], {
-        cwd: gitCwd,
-        ...GIT_EXEC_OPTS,
-      }).trim();
-      if (base) return base;
-    } catch {
-      // Try the next conventional main ref.
-    }
-  }
-  return undefined;
-}
-
-function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHead = 'HEAD'): Array<{ path: string; deleted: boolean }> {
-  const raw = execFileSync('git', ['diff', '--name-status', '-M', `${fromHead}..${toHead}`], {
-    cwd: gitCwd,
-    ...GIT_EXEC_OPTS,
-  }).trim();
-  const files = new Map<string, { path: string; deleted: boolean }>();
-  for (const line of raw.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const cols = trimmed.split('\t').map(c => c.trim()).filter(Boolean);
-    if (cols.length < 2) continue;
-    const status = cols[0];
-    const add = (path: string, deleted: boolean) => {
-      const existing = files.get(path);
-      files.set(path, { path, deleted: existing ? existing.deleted && deleted : deleted });
-    };
-    if ((status.startsWith('R') || status.startsWith('C')) && cols.length >= 3) {
-      add(cols[1], true);
-      add(cols[2], status.startsWith('D'));
-    } else {
-      add(cols[cols.length - 1], status.startsWith('D'));
-    }
-  }
-  // B-5a15 F-334: BYTE order, never localeCompare. This ordering is authoritative
-  // for storyFilesHash, which binds review passes, causal receipts, delivery/init/scope
-  // checks and the DONE gate. localeCompare folds case, treats '-'/'_' as punctuation,
-  // and is ICU/locale dependent -- LC_ALL=sv_SE and en_US sort the same paths
-  // differently -- so two machines could derive a different storyFilesHash for an
-  // identical tree and spuriously invalidate every signed artifact.
-  return [...files.values()].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
-}
-
-export interface StoryFileHashEntry {
-  path: string;
-  objectId?: string;
-}
-
-/**
- * Return the story-owned file/object pairs used by currentStoryFilesHash.
- * Consumers that need a declared dependency domain can partition this same
- * canonical input without inventing a second notion of story-owned material.
- */
-export function currentStoryFileHashEntries(
-  gitCwd: string,
-  ref = 'HEAD',
-  metadataRoot: string = gitCwd,
-): StoryFileHashEntry[] | undefined {
-  try {
-    const base = mergeBaseWithMain(gitCwd, ref);
-    if (!base) return undefined;
-    const objectIds = objectIdsAtRef(gitCwd, ref);
-    return changedStoryFilesBetween(gitCwd, base, ref)
-      .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
-      .map(entry => ({
-        path: entry.path,
-        ...(entry.deleted ? {} : { objectId: objectIds.get(entry.path) }),
-      }))
-      // B-5a15 F-334: byte order, matching currentStoryFilesHash's hash material.
-      // See the ordering note on changedStoryFilesBetween above.
-      .sort((left, right) => (left.path < right.path ? -1 : left.path > right.path ? 1 : 0));
-  } catch {
-    return undefined;
-  }
-}
-
-function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
-  const out = new Map<string, string>();
-  try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    });
-    for (const entry of raw.split('\0')) {
-      if (!entry) continue;
-      const tab = entry.indexOf('\t');
-      if (tab < 0) continue;
-      const meta = entry.slice(0, tab);
-      const filePath = entry.slice(tab + 1);
-      const objectId = meta.trim().split(/\s+/)[2];
-      if (filePath && objectId) out.set(filePath, objectId);
-    }
-  } catch {
-    return out;
-  }
-  return out;
-}
-
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const storyFileEntries = currentStoryFileHashEntries(gitCwd, ref, metadataRoot);
-    if (!storyFileEntries) return undefined;
-    const entries = storyFileEntries.map(entry => `${entry.path}\0${entry.objectId || '<deleted>'}`);
+    if (!resolveStoryMergeBase(gitCwd, ref)) return undefined;
+    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot)
+      .map(entry => entry.path + '\0' + (entry.blobId || '<deleted>'))
+      .sort();
     return createHash('sha256').update(entries.join('\0')).digest('hex');
   } catch {
     return undefined;
