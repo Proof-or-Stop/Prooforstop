@@ -114,7 +114,7 @@
       "desc": "packages/main/src/core/validation-tier-planner.ts:298 VALIDATION_STOP_REASON_CODES is exported but has zero references anywhere else in packages/main/src (not even within its own file beyond the definition, and not used by validation-plan.ts, the smoke suite, or any consumer). The actual stop-vs-widen branching in the resolver (lines 501/530) is done by direct status:stop returns, not by consulting this derived list. Low-severity dead exported symbol left behind by CHK-004; either wire it into an actual consumer (e.g. surface stop-only codes distinctly in validation_plan output) or remove the export.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T03:05:17.786Z",
@@ -125,7 +125,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by wiring it in rather than deleting it (commits e1ca26fcdc RED / c94c88cbdb GREEN). The implementer's judgement, which I accept: VALIDATION_STOP_REASON_CODES ought to be load-bearing, because firstStopEscalation was branching on a hand-written pair of code names while VALIDATION_WIDENING_REASONS already declared the same fact via outcome: 'stop' -- a duplicated fact, and F-001 had just changed which pin codes stop, so that is exactly where the next drift would have landed. isValidationStopReasonCode is now the single membership test, and assertStopReason guards both stop returns so a stop can never carry a reason the table calls a widening. The fixture drives the resolver by enumerating the table, so a row whose outcome changes is honoured with no edit to the resolver. Reference count went from 0 to 14. Deleting a dead export would have removed the symptom and left the duplicated fact in place.",
+      "resolvedAt": "2026-09-02T03:32:07.328Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a745:F-007",
