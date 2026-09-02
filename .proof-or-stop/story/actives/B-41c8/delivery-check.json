@@ -1,0 +1,66 @@
+{
+  "storyId": "B-41c8",
+  "checkedAt": "2026-09-02T20:47:25.125Z",
+  "headHash": "733fdf951d18031a8749677c7c2487fefacea153",
+  "materialHash": "9439d1d83462c40842638957163c90cf01a3c3f9337571e1ac27df1c6cfbb9cd",
+  "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+  "reviewRound": "2026-09-02T17:48:38.951Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/dev/test-coverage.md (relatedDocs, CHK-001)",
+      "promise": "The rename-aware diff reader (core/evidence-freshness.ts) parses git diff --name-status -M -z NUL-delimited output and throws on any record it cannot parse instead of skipping it.",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/evidence-freshness.ts introduces parseNameStatusRecords (NUL split, throws with the raw record via fail()) and readNameStatusRecords (git diff --name-status -M -z); changedFilesBetweenRenameAware, changedFileStatusesBetweenRenameAware and (new) exported changedStoryFilesBetween all delegate to it, replacing the old tab-column parser that used cols.length<2 -> continue (silent skip). Verified no source file wraps these three readers in catch { return [] } (grep of packages/main/src/core/evidence-freshness.ts and its callers in review-incremental-context.ts / validation-relevance-input.ts / validation-tier-planner-smoke.ts)."
+    },
+    {
+      "docPath": "CLAUDE.md#handler-encoding-conventions (relatedDocs, CHK-002)",
+      "promise": "done-required-validation.ts delegates its command-string parse to the canonical parseLegacyValidationCommandString instead of keeping a private SHELL_META_RE / splitShellWords / commandFromString copy.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows SHELL_META_RE, splitShellWords and commandFromString deleted from packages/main/src/core/done-required-validation.ts; parseDoneRequiredCommandString now calls parseLegacyValidationCommandString (imported from ./validation-command-identity.js) and only reshapes the result. `grep -n splitShellWords packages/main/src/core/done-required-validation.ts` prints nothing after the change."
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md (relatedDocs, CHK-003)",
+      "promise": "One shared story-workspace resolver (core/story-workspace.ts) with a phase-terminal guard replaces the four separate resolution implementations in story-query.ts, session.ts, local-assurance-story-projection.ts and validation-plan.ts; validation_plan is now guarded so a DONE/DISCARDED story is never planned from a linked worktree.",
+      "verifiedBy": "diff/read + real-machine cross-checkout run",
+      "evidence": "New packages/main/src/core/story-workspace.ts exports resolveStoryWorkspace (gitCwd via resolveGitCwd, workspace-rooted StoryStore + config, terminalPhaseGuard option, no state-dir literal). story-query.ts readStoryProjection, session.ts (listActiveWorktrees/readStoryFromLinkedWorktree deleted, brief now calls resolveStoryWorkspace per story), local-assurance-story-projection.ts (collectLinkedStoryWorktrees/readWorktreePhase deleted) and validation-plan.ts (local resolveStoryWorkspace helper deleted, now imports the shared one with terminalPhaseGuard:true, closing B-a745 F-014) all delegate. Cross-checkout proof: `node .../packages/main/dist/cli.js validation_plan --storyId=B-41c8 --tier=fast --json` run from /Users/jek/Documents/GitHub/Prooforstop and from /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-41c8 both produced selectionDigest e5af0382afcb33289b1c71dd3e3e750d0fffa17ef38f8d91aa4491a6da655336 (byte-identical)."
+    },
+    {
+      "docPath": "story checklist CHK-004 userSees / package.json,proof-or-stop.config.json,full-suite-runner.ts registration",
+      "promise": "A committed call-site audit (single-owner-extraction-smoke.ts) enumerates resolveGitCwd call sites in handlers, classifies workspace-rooted vs ctx.root-reading, and the suite is registered in package.json test:serial-reference, full-suite-runner RESOURCE_POLICY and proof-or-stop.config.json validate.commands.",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "git diff shows test:single-owner-extraction added to package.json scripts and appended to the end of the test:serial-reference chain; full-suite-runner.ts RESOURCE_POLICY gets a new repoRead('test:single-owner-extraction') entry with rationale comment; proof-or-stop.config.json validate.commands gets a new entry running node packages/main/dist/tasks/single-owner-extraction-smoke.js. `npm run test:single-owner-extraction` output printed a block headed 'resolveGitCwd call sites' listing callers / comment-only mentions (validate-channel.ts) / flagged callers (28 of 28), matching the promised audit."
+    },
+    {
+      "docPath": "No CLAUDE.md / docs/ project documentation was modified by this diff",
+      "promise": "N/A — verification that no doc-code drift was introduced: `git diff main...HEAD --name-only` contains zero *.md files other than the story's own metadata plan.md (.proof-or-stop/story/actives/B-41c8/plan.md, which is story metadata, not project documentation).",
+      "verifiedBy": "diff/grep",
+      "evidence": "`git diff main...HEAD --name-only | grep -i '\\.md$'` returns only .proof-or-stop/story/actives/B-41c8/plan.md; CLAUDE.md and docs/**/*.md are untouched by this story, consistent with the concept lane's prior conclusion that no docs promise was implied."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/single-owner-extraction-smoke.js -> final two lines: '40/40 cases passed' / 'single-owner-extraction-smoke: PASS'. Covers: rename of paths with a space / non-ASCII / quote character surviving both sides through both reader functions, materialHash/storyFilesHash byte-identical to the old tab-parser reference over a plain-path fixture, deleted-path and copy (C100) records, unresolvable-ref still throws with no catch{return []} around the three readers, and a malformed NUL record throws naming the raw record."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/single-owner-extraction-smoke.js (same run) -> PASS. Covers: structural check that done-required-validation.ts defines no private parser and imports the canonical one; a committed 24-entry corpus (metacharacters, quoted args with embedded spaces, escaped quotes, empty/whitespace, unterminated quote, trailing backslash) pinned against parseLegacyValidationCommandString; the DONE-required executor path and handlers/verifier.ts (configuredValidationCommands) produce the identical {shell,command,args} tuple for every corpus entry via a real temp proof-or-stop.config.json."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/single-owner-extraction-smoke.js (same run) -> PASS, plus a separate real-machine cross-checkout run: `node /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-41c8/packages/main/dist/cli.js validation_plan --storyId=B-41c8 --tier=fast --json` executed both from /Users/jek/Documents/GitHub/Prooforstop and from the worktree; both printed selectionDigest e5af0382afcb33289b1c71dd3e3e750d0fffa17ef38f8d91aa4491a6da655336 (identical). Smoke covers: structural delegation of all four implementations, phase-terminal guard refusing a DONE story with a residual worktree (rootReason=terminal-phase), per-caller worktree-vs-main-checkout identity including the validation_plan digest case, and a wrapper-root fixture."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run test:single-owner-extraction -> final line 'single-owner-extraction-smoke: PASS'; full stdout of this run includes a block headed 'resolveGitCwd call sites' enumerating callers (story-create.ts, story-review.ts, transition-effects.ts, transition-orchestrator.ts, verifier.ts, etc.) with call lines and classification (workspace-rooted vs reads ctx.root: story|checklist|config), comment-only mentions (done-effects.ts, validate-channel.ts, validate-concept.ts, validation-plan.ts), 'flagged callers (reads ctx.root): 28 of 28', and 'registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY ..., and in proof-or-stop.config.json validate.commands'. `grep -n single-owner-extraction package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` independently confirms the three registrations in the diff."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All four checklist items are delivered in the diff and independently re-verified: NUL-delimited rename-aware parsing with throw-on-malformed-record, the canonical legacy command parser now owns done-required-validation.ts's string parse (private copy deleted), one story-workspace resolver replaces four implementations with a proven byte-identical selectionDigest across the main checkout and the worktree, and the resolveGitCwd call-site audit is registered in all three required inventories. Re-ran all four requested real-machine commands myself (not trusting prior PASS records): single-owner-extraction-smoke.js (40/40, PASS), npm run test:single-owner-extraction (PASS), validation-tier-planner-smoke.js (PASS), and the cross-checkout validation_plan comparison (digests match). No TODO/FIXME/HACK markers in the non-test diff. No CLAUDE.md or docs/ files were touched by this story, so there is no doc-code drift to check beyond the story's own relatedDocs (which point at pre-existing documents, not new promises). All 15 review findings across 5 rounds are resolved or dismissed with verified evidenceState (finding_list), and the deferred follow-up scope (migrate-resolvegitcwd-callers-to-workspace, for the 28 flagged ctx.root-reading callers this story deliberately does not migrate) exists as a real repository draft."
+  },
+  "_hash": "c6e68792fdaede9b84fd088bbef2ae3b093b5b492b5f7278a9dfcae1c7b25580"
+}
