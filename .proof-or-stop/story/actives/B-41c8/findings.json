@@ -217,7 +217,7 @@
       "desc": "concept-cleanup: packages/main/src/tasks/validation-tier-planner-smoke.ts:404 comment cites '(commit b11dd0fb02)' as the CHK-004 audit commit, but branch history for B-41c8 was rewritten after this comment was written, so b11dd0fb02 is no longer an ancestor of HEAD (git merge-base --is-ancestor b11dd0fb02 HEAD exits 1); the equivalent commit on the current branch line is f214cd6f83 (identical message). The cited hash is a dangling object subject to eventual gc, and the comment is a permanent maintained source doc, so a future reader running git show b11dd0fb02 gets a false confirmation now and a bad-object error later.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T16:36:20.471Z",
@@ -225,14 +225,15 @@
       "reviewRunId": "B-41c8:RR-011",
       "_hash": "ce66cb8ce02f599fb6fe513fe552e4b0860097a83bc140d8869992d5313532db",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-012@ce41a44"
     },
     {
       "id": "B-41c8:F-013",
       "desc": "quality-mutation: packages/main/src/tasks/single-owner-extraction-smoke.ts:1536 contextNames() regex `HandlerContext(?:\\[\\s*(?:'store'|\"store\")\\s*\\])?(?![\\w$<\\[])` has a `\"store\"` (double-quote) alternative that is exercised by zero tests: GENERIC_LOCAL_PROBE_LINES (L1808-1818) only writes `HandlerContext['store']` with single quotes, and a full grep of packages/main/src/handlers for `HandlerContext[\"store\"]` returns zero hits (23 real call sites all use single quotes). Confirmed by mutation on a temp copy of the built dist smoke: narrowing the alternation to `(?:'store')` only (dropping the double-quote branch, keeping the already-tested single-quote handling) still produces 40/40 PASS with no case failing, including the F-011 adversarial case. This is dead/unverified complexity added in the F-011 GREEN commit (220075ce20) without a RED case proving it necessary, in a story whose own stated discipline is RED-first (background.md: \"RED first\"). Recommend either adding a RED probe line using double-quoted `HandlerContext[\"store\"]` to GENERIC_LOCAL_PROBE_LINES, or dropping the `\"store\"` alternative from the regex since the real codebase never emits it.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T16:41:27.490Z",
@@ -243,7 +244,8 @@
         "packages/main/src/tasks/single-owner-extraction-smoke.ts"
       ],
       "signatureTag": "missing|ts|quality-mutation-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-013@2d12aa7"
     }
   ]
 }
