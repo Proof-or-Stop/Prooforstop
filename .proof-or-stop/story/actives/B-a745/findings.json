@@ -267,6 +267,24 @@
       ],
       "signatureTag": "missing|ts|validation-tier-planner",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-013",
+      "desc": "F-011 resolution prose and the permanent code comment it produced (validation-command-identity.ts:558-559, commit 233415b3ac) both assert \"filed with the spec owner B-ccf4 to reconcile\" for the resolver-vs-widening-matrix zero-match contradiction. I could find no artifact anywhere that constitutes such a filing: (1) gap_log was never called this story (activity.jsonl has exactly one gap_log invocation, my own --help probe just now); (2) B-META-framework-audit has zero references to story-relevance-dynamic-validation-tiers or pinned_command_missing; (3) B-ccf4's own story data has no reference to B-a745; (4) git log --all has no commit referencing this contradiction against B-ccf4; (5) B-a745's own plan.md/understanding.json/decision.json never mention filing anything with B-ccf4, only that the spec file lives on that branch. This is now the THIRD unverified/incorrect specific claim from the same owner in this story (after F-008's wrong number copied without verification and F-009's BRE/ERE transcription slip), and unlike those two it was not self-caught -- it is baked into a permanent source comment that will mislead any future reader (including B-ccf4's own owner) into believing a tracked reconciliation item exists when none does. Separately, the \"self-contradiction\" characterization is defensible but understates the weight of evidence: the story's own approved CHK-002:edge:0 (\"a legacy pin string that normalizes to no configured command stops with pinned_command_missing\") and the spec's acceptance-matrix invariant \"every pin resolves or selection stops\" (line 407) both independently align with Codex's \"stop\" reading; only a narrow reading of the matrix row's word \"Explicit\" supports the implementation's \"widen\" reading. The circularity argument (CHK-005:happy:0 pins the acceptance command itself) is the more honest justification for the F-001 reversal than \"spec self-contradiction\" alone. Recommend: either actually gap_log this to B-META-framework-audit (or file a concrete cross-story artifact against B-ccf4) and correct the comment/resolution text to stop claiming a filing that does not exist, or reword both to state plainly that no reconciliation artifact has been filed yet.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T08:04:22.059Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-010",
+      "_hash": "eacc66b8b6bb64b3f782386e2e95b43e71a701a612d5c3bbcdf9a04890fdc20d",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts:558-559"
+      ],
+      "signatureTag": "missing|ts:558-559|resolution-prose-permanent",
+      "signatureTagSource": "auto"
     }
   ]
 }
