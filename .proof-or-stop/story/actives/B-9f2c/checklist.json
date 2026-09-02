@@ -326,9 +326,9 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "userSees": "proof-or-stop graph --story=B-9999 --no-open exits non-zero printing 'graph: B-9999 is not a story in this repository', while --story on a real id prints 'graph serving http://localhost:8731/story/<id>'",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-09-02T08:55:19.826Z",
       "verificationIntent": {
         "happy": [
           {
@@ -530,7 +530,14 @@
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:55:01.572Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d04c18c982ea10a54f03ee8e735884ac951d07553c6504d3966476d641a23511",
+        "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
+        "headHash": "945de7bb987f9be8541f0c29dc0e5e015454356a",
+        "attestedAt": "2026-09-02T08:55:20.016Z",
+        "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981"
+      }
     },
     {
       "id": "CHK-004",
