@@ -134,6 +134,19 @@
           "materialHash": "79368687e3103d54831c07dd74789855e3f1c7e60e5951dba9c32beb357812c8",
           "storyFilesHash": "311108a4b33efff6e8057a039e666b7acfd057ed20a2e41289f96710c21d6a64",
           "timestamp": "2026-09-02T16:16:00.673Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "scripts/build-main-with-binding.mjs",
+          "result": "pass",
+          "note": "Implementer transcript (2026-09-02, worktree B-e256): build #1 with dist absent performed a real emit in 12.5s and left -rwxr-xr-x@ 1 jek staff 1933 Sep 2 16:29 packages/main/dist/cli.js; build #2 took the content-bound fast path in 0.58s with the mode unchanged; PASS red-1734-content-binding (its real rebuilds left cli.js 0755). Mode bits are not part of the build binding digest.",
+          "mechanical": false,
+          "nonMechanicalReason": "A real rebuild plus fast-path skip takes the workspace validation/build lock and 10+ seconds and mutates the gitignored dist, so it is recorded from the implementer transcript rather than pinned as a receipt command.",
+          "headHash": "175f80a16ea4acbb772373461ae602035b2c4481",
+          "materialHash": "79368687e3103d54831c07dd74789855e3f1c7e60e5951dba9c32beb357812c8",
+          "storyFilesHash": "311108a4b33efff6e8057a039e666b7acfd057ed20a2e41289f96710c21d6a64",
+          "timestamp": "2026-09-02T16:16:02.035Z"
         }
       ]
     },
