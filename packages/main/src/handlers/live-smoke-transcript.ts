@@ -44,7 +44,11 @@ import { evaluateLiveSmokeTranscriptValue } from '../core/live-smoke-transcript-
 
 const READINESS_TARGET = 'DONE' as const;
 const CAPTURE_BUFFER_MAX = 16 * 1024 * 1024;
-const STDOUT_MAX = 4000;
+// Pre-review executable proof is emitted as one JSON line and can legitimately
+// exceed the old 4k display cap once the compressed case-record payload grows.
+// Keep a bounded capture while preserving complete structured proof lines for
+// the verifier-owned parser.
+const STDOUT_MAX = 64 * 1024;
 const STDERR_MAX = 2000;
 const TRANSCRIPT_ARTIFACT = 'evidence/live-smoke-transcript.json';
 

@@ -1,0 +1,806 @@
+{
+  "storyId": "B-45a0",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/NAV.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/core/validation-types.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "docs/CLI.md",
+    "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/review-pass-provenance-smoke.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+    "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+    "packages/main/src/core/story-change-resolver.ts",
+    "packages/main/src/core/dual-revision-impact-graph.ts",
+    "packages/main/src/core/validation-catalog.ts",
+    "packages/main/src/core/validation-closure-certificate.ts",
+    "packages/main/src/core/validation-runtime-tracer.ts",
+    "scripts/verify-validation-catalog.mjs",
+    "packages/main/src/core/dynamic-validation-selection.ts",
+    "packages/main/src/core/validation-selection-manifest.ts",
+    "packages/main/src/core/dynamic-validation-observer.ts",
+    "packages/main/src/core/validation-command-receipt.ts",
+    "packages/main/src/core/validation-baseline-epoch.ts",
+    "packages/main/src/core/validation-revocation-ledger.ts",
+    "packages/main/src/core/validation-build-proof.ts",
+    "packages/main/src/core/dynamic-validation-shadow.ts",
+    "packages/main/src/core/dynamic-validation-enforcement.ts",
+    "packages/main/src/core/dynamic-validation-report.ts",
+    "docs/requirements/decisions/dynamic-validation-operations.md",
+    "scripts/run-dynamic-validation-replay.mjs",
+    "scripts/run-dynamic-validation-fault-injection.mjs",
+    "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+    "packages/main/src/core/dynamic-validation-scheduling.ts",
+    "packages/main/src/tasks/quorum-submit-shards.ts",
+    "packages/main/src/tasks/review-pass-shards.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+    "packages/main/tests/validate-resource-claims.test.mjs",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "packages/main/tests/validate-plan-scheduling.test.mjs",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/review-pass-provenance-smoke.ts"
+  ],
+  "protectedFiles": [
+    ".proof-or-stop/story/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "explicitExcludes": [
+    "packages/main/dist/**",
+    "packages/main/src/.worktrees/**"
+  ],
+  "scopeChangeReason": "Re-attest the declared source boundary after adding the checklist-declared validation module facades.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to complete the documented dynamic-validation contract: the handler executes the layered path, evidence-freshness shares canonical story-file hashing, the policy helper prevents import cycles, the integrity script verifies the imported source plan, and NAV publishes the source-of-truth document.",
+      "timestamp": "2026-08-21T08:01:08.174Z",
+      "paths": [
+        "docs/requirements/NAV.md",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/material-path-policy.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "scripts/verify-story-aware-validation-plan.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/NAV.md",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/material-path-policy.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "scripts/verify-story-aware-validation-plan.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "2f36fe2b4912d8ad6eb2e85279b92139b7c2195e",
+      "materialHash": "555951c8b40ade287175773fa890890340814180d0cba4c15794ff6391727b95",
+      "anchors": [
+        "DYN_1",
+        "DYN_2",
+        "DYN_3",
+        "DYN_4",
+        "DYN_5",
+        "source_plan_integrity"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These executable adapters are required to satisfy the frozen checklist verifier pins for inventory, catalog closure, replay, fault injection, selection, receipts, authority, operations, and the complete mutation matrix; each delegates to real story-aware validation assertions.",
+      "timestamp": "2026-08-21T08:11:49.269Z",
+      "paths": [
+        "scripts/run-dynamic-validation-audit.mjs",
+        "scripts/run-dynamic-validation-fault-injection.mjs",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "scripts/verify-validation-catalog.mjs",
+        "scripts/verify-validation-inventory.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/run-dynamic-validation-audit.mjs",
+        "scripts/run-dynamic-validation-fault-injection.mjs",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "scripts/verify-validation-catalog.mjs",
+        "scripts/verify-validation-inventory.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "cf84e7d5ed25d0d377110543cd3054a976331288",
+      "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd",
+      "anchors": [
+        "DYN_1",
+        "DYN_2",
+        "DYN_3",
+        "DYN_4",
+        "DYN_5",
+        "mutation_audit"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to keep the dynamic validation implementation, canonical config mirror, runtime binding, process-fact contract, and operator documentation consistent with the approved story.",
+      "timestamp": "2026-08-22T07:15:05.864Z",
+      "paths": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "proof-or-stop.config.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "proof-or-stop.config.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "05f6a2d2067eae1876dd4f42370bee630cd12982",
+      "materialHash": "fd1e805be1f61f2b14bdb967b9abd5931d79e7f2d8ae2f116dea4105e041e140",
+      "anchors": [
+        "story_aware_validation",
+        "DYN_3",
+        "DYN_5",
+        "process_fact_registry"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The review retention registry must recognize signed topology critic artifacts so the required inventory critic can close without treating its own evidence as untrusted.",
+      "timestamp": "2026-08-23T10:36:01.131Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "c81bd68101da49dc068290f9f1f3cc7a03c9c77a",
+      "materialHash": "02bf71452432190de8ce0ae66682fb409f383fab4bba07ffe810170b115ccf12"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These committed paths are required by the approved dynamic-validation implementation, its registered CLI facts, production smoke adapters, replay and mutation evidence, and the package runtime boundary.",
+      "timestamp": "2026-08-23T12:16:30.811Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts"
+      ],
+      "affectedPathCount": 12,
+      "phase": "DEV",
+      "headHash": "826fd4761089c2df900da4dc338c79f228ae17e4",
+      "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+      "anchors": [
+        "DYN_1",
+        "DYN_2",
+        "DYN_3",
+        "DYN_4",
+        "DYN_5"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to prove the declared resolver-to-graph acceptance edge, preserve complete pre-review executable output, and validate current-head mutation and transcript evidence.",
+      "timestamp": "2026-08-23T18:51:30.085Z",
+      "paths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "bb4adb728131df66c0e4ff3015320fabd031f5ce",
+      "materialHash": "068aa4c202853efb5b39deb1fccbd1b07adef6a62bf247fc70ddb691370cb67a",
+      "anchors": [
+        "acceptance_coverage_basis",
+        "bounded_endpoint_discovery",
+        "pre_review_executable_proof",
+        "live_transcript_capture"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The bounded incremental-review overflow fix is required to fail safely into full review context when historical findings exceed the bounded basis.",
+      "timestamp": "2026-08-24T13:39:13.234Z",
+      "paths": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2e1b5a9ebc077d4c77808cb46a2bee31610f496d",
+      "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
+      "anchors": [
+        "review_incremental_basis_overflow",
+        "full_context_reviewer_escalation"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The heartbeat smoke fixture readiness timeout is required to validate the production watchdog under the repository full-suite load.",
+      "timestamp": "2026-08-24T18:13:56.625Z",
+      "paths": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "fbb728a4cc1c83f222a03b096f118cb27f9223d2",
+      "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This focused smoke fixture must seed the checklist required for the configured validation-failure path; the change is a necessary test-contract correction for this story.",
+      "timestamp": "2026-08-25T04:59:01.222Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6d1c5b7a98fed2bc6dc4a8ae27e596e7585f2bb0",
+      "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+      "anchors": [
+        "flow_stability_smoke",
+        "runValidateGate"
+      ]
+    },
+    {
+      "actor": "human",
+      "reason": "This task seeds the checklist required to exercise the configured validation-failure gate.",
+      "timestamp": "2026-08-25T08:27:05.053Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5d194bc275acf7368a9c4bc21e0bb6371ce7e3f7",
+      "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c"
+    },
+    {
+      "actor": "human-approved-main-agent",
+      "reason": "This smoke task seeds the checklist required to exercise the configured validation-failure gate.",
+      "timestamp": "2026-08-25T11:27:27.586Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "887fb9df4592f3c2b6dbb7d431896e02e145360b",
+      "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These files are necessary to execute the approved validation-failure gate, bound the real heavy suite runtime, and satisfy the replay Git cwd contract.",
+      "timestamp": "2026-08-25T15:24:06.898Z",
+      "paths": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "67b130ee34217fc865ec9942282e00dffd9ac535",
+      "materialHash": "682943649653907552c9c1ec2902f8ee625672c5dd25ee930f570d2b1a120d9e"
+    },
+    {
+      "actor": "human",
+      "reason": "This task seeds the checklist required to exercise the configured validation-failure gate.",
+      "timestamp": "2026-08-25T17:27:56.671Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f1b5e6cc14ddc6e18d67de996d7ef23b8536eac8",
+      "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1"
+    },
+    {
+      "actor": "human-approved-main-agent",
+      "reason": "These paths are necessary to make pre-review validation and tool-executed evidence fail closed for the documented layered validation program.",
+      "timestamp": "2026-08-27T16:08:09.550Z",
+      "paths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "8b5b19d268865c49f7cfd837f39a04e2c43c112a",
+      "materialHash": "e02316bb6009f79d80d8a9ab1e5e3e8cc84fc1ea6fd3d7aae8be8b06107a5ff7",
+      "anchors": [
+        "pre_review_executable_proof",
+        "tool_executed_evidence",
+        "verification_evidence_refresh"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Correct the published evidence timeout cap so operator guidance matches the six-hour enforcement boundary used by the historical replay assurance campaign.",
+      "timestamp": "2026-08-28T06:04:08.636Z",
+      "paths": [
+        "CLAUDE.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "CLAUDE.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9391afe8368a92e986ea67e9a180fa03bd9c3824",
+      "materialHash": "37f6332c3a05a892f036d5ee9da3e1c01777da250177dfacf9865aa4849bed74",
+      "anchors": [
+        "verification_evidence_refresh",
+        "historical_replay_assurance"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These six files implement and verify the required dynamic-validation replay admission, signed evidence, and acceptance-topology guarantees in the approved execution plan.",
+      "timestamp": "2026-08-28T19:17:54.789Z",
+      "paths": [
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/validation-artifact-signing.ts",
+        "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/validation-artifact-signing.ts",
+        "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "b88f8323f40598df611f132a81a2513f7a2c8d88",
+      "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required compact signed-run recovery for host-safe independent review completion.",
+      "timestamp": "2026-08-29T07:29:44.903Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "REVIEW",
+      "headHash": "f30254d002d17a7e6508de9904e52e0ea70185d1",
+      "materialHash": "c5175be3b0459c832622dd5b057c96c9b32128575f38eb35b0373c34f3603e24",
+      "anchors": [
+        "review_run_list",
+        "reviewInventoryHandlerSmoke"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The user authorized this minimal recovery-gate fix because fresh session identities require force takeover and the frozen Story cannot otherwise resume.",
+      "timestamp": "2026-08-29T17:27:28.606Z",
+      "paths": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "ca37e5166abba9c39b236545499a2586e5b990bc",
+      "materialHash": "e51e3cca220f461d5054ffb7ffd7aaef3c2d1505fe37a3708cd7621a934101a0"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These lifecycle paths are required to repair the signed canonical evidence-refresh review-retention defect and document its fail-closed boundary.",
+      "timestamp": "2026-08-30T12:41:11.772Z",
+      "paths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "b1ad6a80e5191edadf687364e0fd5e3575678524",
+      "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
+      "anchors": [
+        "closeoutTrust.classifyCurrentCloseoutArtifactForReviewRetention",
+        "checklist.verificationEvidenceRefreshStale"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The broader regression suite requires intentional repinning of its structural guard after the reviewed closeout-retention source and smoke changes.",
+      "timestamp": "2026-08-30T12:45:58.360Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b1ad6a80e5191edadf687364e0fd5e3575678524",
+      "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
+      "anchors": [
+        "retiredAuthorityVocabulary.pinnedExecutableSourceFingerprints"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "AGENTS.md is the Codex-host mirror of CLAUDE.md, which is already acknowledged in this contract. It carries the same two additions: the Rule 10 basis-before-pre_review_check ordering constraint that docs finding F-435/F-438 showed was documented nowhere, and the four-step defect triage discipline the user asked for. Leaving the mirror stale would recreate exactly the doc-drift F-438 reported, since a Codex-host agent reads this file rather than CLAUDE.md.",
+      "timestamp": "2026-08-31T10:44:58.283Z",
+      "paths": [
+        "AGENTS.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
+      "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This is the truth source for the acceptance-topology and pre-review gates that F-435/F-438 found under-documented. Section 9 gained Rule 10, recording the ordering hazard that regenerating the coverage basis after pre_review_check silently invalidates a genuine PASS, and a later commit corrected a Rule 9 versus Rule 3 citation error that F-445 caught. Both are documentation of behaviour this story exercised; the file is the canonical place for it.",
+      "timestamp": "2026-08-31T10:45:12.792Z",
+      "paths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
+      "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fixed a genuine framework defect that blocked this story: the no-OPEN-epoch finalize path wrote reviewInventoryDigest(cutoff) into scopeDigest while consumeReviewInventoryReceipt compares reviewInventoryAcceptanceSubjectDigestForStore, two different digest domains, so every receipt that path minted was permanently unconsumable and no story needing REVIEW to DEV remediation could advance. Measured before and after: stored 1b0e8855 recomputed exactly as the cutoff digest, and after the fix it stores 0375089c matching the live subject digest.",
+      "timestamp": "2026-08-31T10:45:13.460Z",
+      "paths": [
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
+      "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to unblock this story's own REVIEW-to-TEST gate, not a scope expansion. That guard runs as configured validate command 112; it hashes the whole repository before and after a graph scan and fails on any byte change, deliberately including gitignored paths. But when it executes as one of proof-or-stop validate's own commands, the surrounding validate run concurrently writes one trace file per executed command into .proof-or-stop/runtime/validation-traces/, so the validator's writes were attributed to the graph scan and failed the gate. Measured: a probe writing three files there during a scan produced UNEXPECTED_PROJECT_WRITE naming exactly those files; after the one-line PRUNED regex addition the same probe passes while a canary one level up at .proof-or-stop/runtime/canary-probe.txt is still caught and named, so detection is narrowed rather than weakened. The exclusion is not new policy: packages/main/src/handlers/story-aware-validation.ts:725 already drops the identical path from command residue, and packages/main/src/core/runtime-artifact-registry.ts already registers the entire runtime/ prefix as materialHash exclude. The change is one regex alternation plus explanatory comment, no logic touched, and all four reviewer lanes audited it in epoch RI-111 (RP-514 concept, RP-515 test-coverage, RP-516 docs, RP-517 quality, the last adversarially testing seven regex boundary cases and independently reproducing the probe).",
+      "timestamp": "2026-08-31T22:18:10.725Z",
+      "paths": [
+        "packages/graph/scripts/verify-no-project-writes.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/graph/scripts/verify-no-project-writes.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "b487d38b5cb70fe6ada9e7cf886cdd7c15b6b9d2",
+      "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CLAUDE.md version discipline requires a CLI patch bump before merging a story that changes runtime behavior; B-45a0 changes 78 source files. These three carry the version pins (both lockfile self-version entries and LATTICE_CLI_VERSION) that must move together with package.json from 0.3.272 to 0.3.273.",
+      "timestamp": "2026-09-01T14:05:59.139Z",
+      "paths": [
+        "package-lock.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package-lock.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "8eb0799d21698b8cf0c17593478c177e87f89cae",
+      "materialHash": "7155737f853b8064ae7533b69068adbb4e625d8bc985e578df34091eac09f0df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Merging main (B-5a88) regressed this story's own CHK-014 acceptance surface: strict semantic mode keyed on sourceRef shape rather than on whether a row borrows a canonical record, so the live-proof chain went from exitCode=0 to a hard abort. Repairing an acceptance-blocking defect in the current story is required by the defect-triage rule; the smoke file is the regression control proving the borrow path still fails closed.",
+      "timestamp": "2026-09-01T14:06:10.303Z",
+      "paths": [
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "8eb0799d21698b8cf0c17593478c177e87f89cae",
+      "materialHash": "7155737f853b8064ae7533b69068adbb4e625d8bc985e578df34091eac09f0df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "New regression smoke created by the F-473 fix (commit 8532bbdc36): it proves the validation runtime tracer child_process wrappers stay transparent to util.promisify (the defect that aborted done_required_validate npm test 0/58), including a negative control against the pre-fix tracer. The file accompanies the in-scope tracer repair and is required so this defect class stays mechanically covered by the root full suite.",
+      "timestamp": "2026-09-02T04:21:52.102Z",
+      "paths": [
+        "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5e3abea465e2f46f49b46cbd0a5cd7915c3372d5",
+      "materialHash": "61ae4c339f66eb6b5cf3d28348395cb512f6a8ead7a46ceca012dce6e0e63ddb"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Framework-owned dev-memory bookkeeping written by the DONE-gate-required closeout commands, not story implementation: dev_memory_capture appended the F-473 tracer-transparency lesson to experience.jsonl, and dev_memory_finish_decision wrote finish-decisions/B-45a0.json (decision=captured), both mandatory prerequisites for the DONE gate. Neither is replay input nor product code; the path-classification gap that lets these appear as out-of-scope material is already recorded as a deferred follow-up on B-45a0:F-475.",
+      "timestamp": "2026-09-02T07:12:34.914Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0c8e6d0a88cf0d908679a92eaa95e5a97dd6f196",
+      "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844"
+    }
+  ],
+  "createdAt": "2026-08-21T07:07:34.430Z",
+  "updatedAt": "2026-09-02T07:12:34.914Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/NAV.md": "docs/requirements/NAV.md",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/handlers/scope-check.ts": "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts": "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts",
+    "docs/CLI.md": "docs/CLI.md",
+    "packages/main/src/core/keyed-scheduler.ts": "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/review-pass-provenance-smoke.ts": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+    "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md": "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+    "packages/main/src/core/story-change-resolver.ts": "packages/main/src/core/story-change-resolver.ts",
+    "packages/main/src/core/dual-revision-impact-graph.ts": "packages/main/src/core/dual-revision-impact-graph.ts",
+    "packages/main/src/core/validation-catalog.ts": "packages/main/src/core/validation-catalog.ts",
+    "packages/main/src/core/validation-closure-certificate.ts": "packages/main/src/core/validation-closure-certificate.ts",
+    "packages/main/src/core/validation-runtime-tracer.ts": "packages/main/src/core/validation-runtime-tracer.ts",
+    "scripts/verify-validation-catalog.mjs": "scripts/verify-validation-catalog.mjs",
+    "packages/main/src/core/dynamic-validation-selection.ts": "packages/main/src/core/dynamic-validation-selection.ts",
+    "packages/main/src/core/validation-selection-manifest.ts": "packages/main/src/core/validation-selection-manifest.ts",
+    "packages/main/src/core/dynamic-validation-observer.ts": "packages/main/src/core/dynamic-validation-observer.ts",
+    "packages/main/src/core/validation-command-receipt.ts": "packages/main/src/core/validation-command-receipt.ts",
+    "packages/main/src/core/validation-baseline-epoch.ts": "packages/main/src/core/validation-baseline-epoch.ts",
+    "packages/main/src/core/validation-revocation-ledger.ts": "packages/main/src/core/validation-revocation-ledger.ts",
+    "packages/main/src/core/validation-build-proof.ts": "packages/main/src/core/validation-build-proof.ts",
+    "packages/main/src/core/dynamic-validation-shadow.ts": "packages/main/src/core/dynamic-validation-shadow.ts",
+    "packages/main/src/core/dynamic-validation-enforcement.ts": "packages/main/src/core/dynamic-validation-enforcement.ts",
+    "packages/main/src/core/dynamic-validation-report.ts": "packages/main/src/core/dynamic-validation-report.ts",
+    "docs/requirements/decisions/dynamic-validation-operations.md": "docs/requirements/decisions/dynamic-validation-operations.md",
+    "scripts/run-dynamic-validation-replay.mjs": "scripts/run-dynamic-validation-replay.mjs",
+    "scripts/run-dynamic-validation-fault-injection.mjs": "scripts/run-dynamic-validation-fault-injection.mjs",
+    "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+    "packages/main/src/core/dynamic-validation-scheduling.ts": "packages/main/src/core/dynamic-validation-scheduling.ts",
+    "packages/main/src/tasks/quorum-submit-shards.ts": "packages/main/src/tasks/quorum-submit-shards.ts",
+    "packages/main/src/tasks/review-pass-shards.ts": "packages/main/src/tasks/review-pass-shards.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts": "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/story-files-hash-batch-smoke.ts": "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "packages/main/src/tasks/validate-focused-full-layering-smoke.ts": "packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+    "packages/main/tests/validate-resource-claims.test.mjs": "packages/main/tests/validate-resource-claims.test.mjs",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "packages/main/tests/validate-plan-scheduling.test.mjs": "packages/main/tests/validate-plan-scheduling.test.mjs",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/story-aware-validation.ts": "packages/main/src/core/story-aware-validation.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-case-adapter.mjs": "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+    "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+    "packages/main/src/tasks/story-aware-validation-domain-cases.json": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+    "packages/main/src/tasks/story-aware-validation-historical-replay.ts": "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+    "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts": "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-production-smoke.ts": "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-smoke.ts": "packages/main/src/tasks/story-aware-validation-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/historical-replay-artifact.ts": "packages/main/src/core/historical-replay-artifact.ts",
+    "packages/main/src/core/topology-critic-receipt.ts": "packages/main/src/core/topology-critic-receipt.ts",
+    "packages/main/src/core/validation-artifact-signing.ts": "packages/main/src/core/validation-artifact-signing.ts",
+    "packages/main/src/tasks/historical-replay-artifact-smoke.ts": "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts": "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md": "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "AGENTS.md": "AGENTS.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/graph/scripts/verify-no-project-writes.mjs": "packages/graph/scripts/verify-no-project-writes.mjs",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts": "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts",
+    "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
+    ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json": ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json"
+  }
+}
