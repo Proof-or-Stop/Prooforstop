@@ -451,6 +451,26 @@
         "scanEscalationReason": null
       },
       "_hash": "af6c534f368859b22f1a745b026bdd5db6664c433af6f4a409615602cc9d90c2"
+    },
+    {
+      "id": "B-fe8f:RP-018",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-dispatch of round 9 (RR-028/RP-015 was rejected by the REVIEW->TEST gate: Prompt Envelope went stale because story-metadata commits landed between dispatch and pass). No new material since round-8 RP-012 (which covered commit 7827dae774) or round-9 RP-015 -- verification already stands: git diff dd45caa2ea..HEAD --stat -- packages scripts bin proof-or-stop.config.json package.json shows exactly one file changed (retired-authority-vocabulary-guard-smoke.ts, 3 insertions/4 deletions, = 7827dae774, already reviewed); git log --oneline 7827dae774..HEAD shows only proof-or-stop: record B-fe8f ... story-metadata commits, no production-path commits; full git diff main...HEAD added-line scan for lattice/LATTICE_/.lattice tokens outside .proof-or-stop/story/actives/B-fe8f/* remains zero hits (all 436 hits confined to historical story-metadata audit artifacts). No blocking or advisory findings. Did not run the full smoke, full validate, or touch packages/main/dist this round, per standing instruction; recorded immediately after a fresh dispatch+review_run_start with no intervening metadata-writing commands, per gate remediation guidance.",
+      "createdAt": "2026-09-02T20:05:30.938Z",
+      "reviewRound": "2026-09-02T20:00:12.918Z",
+      "reviewRunId": "B-fe8f:RR-036",
+      "envelopeId": "57147967ce74726f0b53d1499667a3f203d54aa44f642844dfbc79237fc48451",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "af7bfcbaec70f9e72c1257a90bf4cd9033aaf72eb0414d6d88b48f1f7da4ab3a"
     }
   ]
 }
