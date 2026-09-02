@@ -363,7 +363,7 @@
       "desc": "F-004 lifecycle Authority is not closed: StoryStore.readFindings in packages/main/src/core/store.ts:484-549 consumes finding_lifecycle_transition rows after only core readLedger/validateEnvelope, but validateEnvelope in packages/main/src/core/finding-ledger.ts:289-340 verifies structural hashes/raw receipts and never requires or verifies the signed findingLedgerReceipt. A temp StoryStore repro appended a high/open finding and an unsigned raw append_finding_lifecycle_transition through appendFindingLedgerTransaction; readFindings projected status=resolved with transitionReceiptSigned=false. Because storyMachine/guard-utils consume this projection, unsigned persistence bytes can suppress a REVIEW blocker despite process-fact-registry declaring the transition L4 signed terminal authority. Make the gate projection fail closed unless the carrier receipt is signed/trusted, exact-operation/current-chain bound, and covers the transition/source CAS; add unsigned, bad-signature, and tampered-transition gate regressions in addition to the existing sequential replay test.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T23:34:42.158Z",
@@ -373,7 +373,11 @@
       "signatureTag": "adversarial|unknown|lifecycle-authority-closed",
       "signatureTagSource": "auto",
       "recordId": "lr_mtjb13hr_g2a_5f0a03a804ed460f91b3523511e81cac",
-      "ledgerCommitReceiptId": "lrc_mtjb13hr_g2a_d25a06ff56274bb1a20b17816cbe9c87"
+      "ledgerCommitReceiptId": "lrc_mtjb13hr_g2a_d25a06ff56274bb1a20b17816cbe9c87",
+      "resolvedAt": "2026-09-02T00:55:12.027Z",
+      "resolvedReason": "Commit 6278c7a2277692b2c4a8e0fbc0a347be6a8c9d5e requires exact signed lifecycle authority with current key, chain, operation, record coverage, and source CAS; current smoke proves unsigned=open, badSignature=open, altered=open, signed=resolved, exactCas=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
