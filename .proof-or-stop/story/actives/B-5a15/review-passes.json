@@ -14021,6 +14021,29 @@
         "scanEscalationReason": null
       },
       "_hash": "fa33b06937090a5708ce7b2b0481725a2c17e8e504a4c6e91815ef19743c39a3"
+    },
+    {
+      "id": "B-5a15:RP-299",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality audit for RI-068 (head abff9db275 source-frozen; the b8f4c60 head shown by review_run_start is this cycle's own metadata auto-commit, storyFilesHash ae77de8 unchanged). Named checks, all TRUE exit codes captured via $? on a redirected run rather than through a pipe: (1) validate-resource-claims.test.mjs TRUE exit 0, printing verbatim 'validate-resource-claims: PASS (34 assertions)' with node:test reporting tests 1 / pass 1 / fail 0 (the 34 is the harness's own assertion tally, not a node:test counter); its VI-OK rows include CONFIGURED-PLAN-CLASSIFIED at 116 commands / 99 declared / 17 exclusive by fail-closed default and CHK005-AUDITED-BARRIERS-HELD holding 10 audited repo-shared writers undeclared, with the collision probe proven to bite. (2) red-b49d4-registration-derivation.mjs TRUE exit 0, printing verbatim '0 RED / 26 GREEN of 26 rows (18759ms in child processes)'; BLOCK E rows confirm REAL_CONFIG_BYTE_UNMODIFIED, PROBES_CLEANED_UP and REPO_TREE_NEVER_WRITTEN_TO with identical before/after listing digests. (3) tsc --noEmit TRUE exit 0 for ALL THREE packages independently: packages/main, packages/graph, packages/utils. F-365 REPAIR JUDGEMENT -- the repair is CORRECT and the kept assertion IS load-bearing; I verified rather than accepted both halves. Deleting the aggregate assert.equal(sameNameShadow.status,'partial') is right because the asserted value was simply false: instrumenting the dist copy to print the real value yields 'PROBE sameNameShadow.status=complete', which is exactly what the fixture implies -- line 731 writes packages/main/src/consumers/c2.ts importing emitReviewRunFact as consumeReviewRun, a genuine CROSS-FILE consumer established BEFORE the shadow scenario at :774, so breaking only the same-file callable edge legitimately leaves discovery complete. Deletion is also preferable to rewriting the assertion to 'complete': the aggregate would then merely re-assert the fixture's own unrelated cross-file consumer instead of the shadow behaviour under test, adding a brittle coupling with no adversarial value. The retained endpoint assertion at :782 is load-bearing, CONFIRMED by inversion rather than argued: removing the leading '!' in a scratch dist copy makes the suite exit 1 with AssertionError 'same-name nested helper does not emit a false producer endpoint', versus TRUE exit 0 unmodified -- so the check genuinely discriminates and would catch a regression where the shadowed nested helper emits a FALSE producer endpoint. Both experiments were run by swapping only a scratch copy into the dist path and restoring immediately; the restored dist is byte-identical by sha256 in both cases (verified YES twice) and git status over packages/main/src, packages/main/tests, scripts and docs is empty, so no source or build artifact was mutated. The inline NOTE (B-5a15) left in place of the deleted assertion correctly records why the aggregate must not be reasserted, which preserves the reasoning against a future well-intentioned re-add; without it the deletion would read as an unexplained weakening. This also restores reachability of the endpoint check, which the throwing aggregate assertion had masked -- the same defect shape as F-351. No blocker, no new finding. Known and expected, deliberately NOT filed: pre_review_check_read PR_ARTIFACT_TAMPERED (seal bound to the pre-F-365 hash; resealing is DEV-only work for the remediation pass consuming this epoch).",
+      "createdAt": "2026-09-02T16:59:18.766Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-892",
+      "envelopeId": "cef86f8e91b928dde2948ca0d4d0d8062c62a219d1f227de33cd510d9de15dde",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4542d41ac8f2695ecf865ec8ebb0f30601086344215cf8916d8857352730fdeb"
     }
   ]
 }
