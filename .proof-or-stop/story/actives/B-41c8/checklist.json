@@ -27,31 +27,51 @@
           {
             "desc": "A rename of a path containing a space, a non-ASCII character, or a quote character yields both the old and the new path from changedFileStatusesBetweenRenameAware and changedFilesBetweenRenameAware.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] rename of a path with a quote reports both sides through both reader functions"
+            }
           },
           {
             "desc": "materialHash and storyFilesHash computed with the new reader are byte-identical to the old reader over a fixture repository containing no quoted paths.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas"
+            }
           }
         ],
         "edge": [
           {
             "desc": "A deleted path remains reported, and a copy reports both sides, under NUL-delimited parsing.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] a copy record (C100) reports both sides through all three readers"
+            }
           },
           {
             "desc": "An unresolvable ref still throws, and a fixture asserts that no caller in packages/main/src catches that throw and returns an empty array.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "An unparseable diff row raises an error naming the row rather than being skipped; a fixture that injects a malformed row asserts the raise.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it"
+            }
           }
         ]
       },
@@ -61,7 +81,114 @@
         "headHash": "bb1814bec32b788063dc26acdc7d51dad77384b4",
         "attestedAt": "2026-09-02T13:58:16.306Z",
         "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Smoke cases for space, non-ASCII and quote renames each assert both sides come back from changedFilesBetweenRenameAware and changedFileStatusesBetweenRenameAware; the quote case selector is the strictest of the three printed lines.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "05c262849bdb8694c2c142b2bf1282d90b33d09e07c33955721a7ebdfbf11dd1",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n12/12 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T13:59:25.707Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "696096791cb1b90b12e0c8dc1d31487c7191fd72",
+          "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1",
+          "storyFilesHash": "1720671a78e11774123a5e3574d8c425654a2559968b2f94796fd19e46dd25c8",
+          "timestamp": "2026-09-02T13:59:36.649Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "The smoke computes both hashes over a plain-path fixture repository with the new reader and with a local tab-parser reference and asserts equality.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "05c262849bdb8694c2c142b2bf1282d90b33d09e07c33955721a7ebdfbf11dd1",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n12/12 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T13:59:28.339Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "696096791cb1b90b12e0c8dc1d31487c7191fd72",
+          "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1",
+          "storyFilesHash": "1720671a78e11774123a5e3574d8c425654a2559968b2f94796fd19e46dd25c8",
+          "timestamp": "2026-09-02T13:59:36.649Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Deleted-path and copy cases are separate smoke lines; the copy line is the selector, the deleted-path line precedes it in the same run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "05c262849bdb8694c2c142b2bf1282d90b33d09e07c33955721a7ebdfbf11dd1",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n12/12 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T13:59:30.944Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "696096791cb1b90b12e0c8dc1d31487c7191fd72",
+          "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1",
+          "storyFilesHash": "1720671a78e11774123a5e3574d8c425654a2559968b2f94796fd19e46dd25c8",
+          "timestamp": "2026-09-02T13:59:36.649Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Unresolvable ref still throws (own smoke line) and the structural case greps packages/main/src for catch-and-return-empty around the three readers.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "05c262849bdb8694c2c142b2bf1282d90b33d09e07c33955721a7ebdfbf11dd1",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n12/12 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T13:59:33.640Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "696096791cb1b90b12e0c8dc1d31487c7191fd72",
+          "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1",
+          "storyFilesHash": "1720671a78e11774123a5e3574d8c425654a2559968b2f94796fd19e46dd25c8",
+          "timestamp": "2026-09-02T13:59:36.649Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "A PATH-stubbed git emits a malformed NUL record; all three readers throw with the raw fields in the message.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "05c262849bdb8694c2c142b2bf1282d90b33d09e07c33955721a7ebdfbf11dd1",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n12/12 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T13:59:36.480Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "696096791cb1b90b12e0c8dc1d31487c7191fd72",
+          "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1",
+          "storyFilesHash": "1720671a78e11774123a5e3574d8c425654a2559968b2f94796fd19e46dd25c8",
+          "timestamp": "2026-09-02T13:59:36.649Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
