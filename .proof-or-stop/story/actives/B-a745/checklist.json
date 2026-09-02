@@ -80,9 +80,9 @@
       "id": "CHK-002",
       "title": "Add the canonical legacy pin resolver with missing and ambiguous stops",
       "context": "Plan section 'Canonical legacy pin resolver'. Resolve a checklist verification-evidence pin to exactly one command id: exact commandId match first, else normalize the legacy free-form command string with the SAME executable/argv normalization the routine identity uses and compare the complete normalized tuple (command, args, resolved cwd, shell, relevant environment). Exactly one match records pinResolution=legacy-exact plus the normalized-tuple digest; zero matches stop with pinned_command_missing; more than one stops with pinned_command_ambiguous. Labels and array order must never break a tie, and historical evidence is never rewritten in place.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T01:37:35.991Z",
-      "endTime": null,
+      "endTime": "2026-09-02T01:46:55.766Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#canonical-legacy-pin-resolver"
       ],
@@ -129,6 +129,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "2f9a5fa35cbcdfa76d26e062b326501f11b7b43be0d8e9b8d09cbc8019ce7c02",
+        "storyFilesHash": "233c391f6df274fbd2930159cca3018ad6f2fdd0bac95dabf4257b37bdcde89c",
+        "headHash": "683c692d992586f95706bf11f708e7b3c1cf5c5d",
+        "attestedAt": "2026-09-02T01:46:55.933Z",
+        "materialHash": "48a55596bef9793e8b0a994ded112abe9d098e2bddb6d762bb3d6fb42110c42a"
       }
     },
     {
