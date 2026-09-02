@@ -471,6 +471,56 @@
         "scanEscalationReason": null
       },
       "_hash": "af7bfcbaec70f9e72c1257a90bf4cd9033aaf72eb0414d6d88b48f1f7da4ab3a"
+    },
+    {
+      "id": "B-fe8f:RP-019",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 11 concept review found no blocker. F-022 is closed: independent current-build reproduction shows a current-key-valid receipt with signed exactRequestDigest missing remains open, a current-key-valid receipt with a signed/raw exactRequestDigest mismatch remains open, generic legacy query-only compatibility remains accepted, and only the exact signed/raw match projects resolved. F-021 duplicate same-ID mirror collapse remains closed before and after terminal transition while distinct legacy IDs survive. The complete Story 3 smoke, process-fact verifier, 71/71 current mechanical evidence, protected query/non-authority boundary, clean package install, and relevant concept-residue scan all passed; remaining retired lattice tokens are historical decision text or explicit negative migration fixtures, and Story 3 names lab rename as a non-goal.",
+      "createdAt": "2026-09-02T23:06:04.734Z",
+      "reviewRound": "2026-09-02T21:49:26.453Z",
+      "reviewRunId": "B-fe8f:RR-038",
+      "envelopeId": "dd241002d5c9f62453101119acb79ec41969e22defa76d442162e3ba0e25e0a0",
+      "writerSessionId": "sess-5102ad1b3560d0df84ba703ef1394e20",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ef7f38ac4b43ff7271b76d2aee702f10fb60c07427e76552bd0e039f0e2e561"
     }
   ]
 }
