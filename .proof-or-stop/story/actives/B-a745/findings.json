@@ -581,6 +581,24 @@
       "resolvedAt": "2026-09-02T09:55:10.172Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-028",
+      "desc": "commit 7e1f1c42c8 (\"B-a745: drop the dead projectRoot parameter from buildValidationCommandInventory\") message asserts \"The real commandSetDigest is unchanged (eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661)\" without showing the command run and its literal output at write time. This is the same pattern F-013/F-019 named and F-023/F-027 fixed in findings.json prose (a specific checkable value asserted in a durable, permanent record -- here a git commit message, which cannot be edited after the fact -- without pasting the command and its actual output). The digest value itself is TRUE (independently re-verified in this worktree: `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest:` -> `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`), so this is a form defect like F-027, not a false fact -- but it is a sixth instance of the same rule violation (F-008, F-009, F-013, F-019, F-023-original/F-027 were the first five), this time in a commit message rather than findings.json, which the two adopted rules (check run in the story worktree + pasted; durable record cites only artifacts existing at write time) already cover by their own stated scope (\"any durable record\", not just findings.json).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T10:04:19.571Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-030",
+      "_hash": "623378db85e31e7d62d7870756b5f051de195f29719e5f46f3971bf3bd216133",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|commit-7e1f1c42c8-a745",
+      "signatureTagSource": "auto"
     }
   ]
 }
