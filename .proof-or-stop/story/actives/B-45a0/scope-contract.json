@@ -669,10 +669,28 @@
       "phase": "DEV",
       "headHash": "5e3abea465e2f46f49b46cbd0a5cd7915c3372d5",
       "materialHash": "61ae4c339f66eb6b5cf3d28348395cb512f6a8ead7a46ceca012dce6e0e63ddb"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Framework-owned dev-memory bookkeeping written by the DONE-gate-required closeout commands, not story implementation: dev_memory_capture appended the F-473 tracer-transparency lesson to experience.jsonl, and dev_memory_finish_decision wrote finish-decisions/B-45a0.json (decision=captured), both mandatory prerequisites for the DONE gate. Neither is replay input nor product code; the path-classification gap that lets these appear as out-of-scope material is already recorded as a deferred follow-up on B-45a0:F-475.",
+      "timestamp": "2026-09-02T07:12:34.914Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0c8e6d0a88cf0d908679a92eaa95e5a97dd6f196",
+      "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-09-02T04:21:52.102Z",
+  "updatedAt": "2026-09-02T07:12:34.914Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -781,6 +799,8 @@
     "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
     "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
     "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts": "packages/main/src/tasks/pre-review-semantic-binding-smoke.ts",
-    "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
+    "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
+    ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json": ".proof-or-stop/dev-memory/finish-decisions/B-45a0.json"
   }
 }
