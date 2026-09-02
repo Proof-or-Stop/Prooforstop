@@ -93,6 +93,43 @@
         "scanEscalationReason": null
       },
       "_hash": "3313c59c1cd6effb32b0b75fceac5ca38eeb836c33be824770656295de101d5c"
+    },
+    {
+      "id": "B-d854:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final current test-coverage review passed: all 10 must intents have fresh evidence (8 mechanical, 2 docs, zero gaps or waivers); all six unique pinned selectors are present in the real receipt output tails. The immutable historical VERSION_AND_REALPATH_DRIFT selector is explicitly bound to initial-audit versions and prior receipt digest while the same run separately reports current live REALPATH_DRIFT and rejects missing-context or historical-as-current mutations. Authority policy is 26 rows/98 entries/62 runtime, exhaustive mutation is 98 removals plus 98 irrelevant replacements (196 total), baseline is 26 RED exit 1, and final is 26 GREEN plus 46 unique command cases exit 0. No blocker remains.",
+      "createdAt": "2026-09-02T08:13:00.882Z",
+      "reviewRound": "2026-09-02T08:08:06.830Z",
+      "reviewRunId": "B-d854:RR-024",
+      "envelopeId": "ea6c41700dd4dc39a1e0983e2dacbe17a4ea37a73d5aa0f9708103d491706d98",
+      "writerSessionId": "sess-0ff8c137b3ad0756419dad8e1e46dd9f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/init-assets.ts",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3b342cde72bf0bef5adb18f1f4126c597d4418d6772ed3bb56bb9798b7233d9"
     }
   ]
 }
