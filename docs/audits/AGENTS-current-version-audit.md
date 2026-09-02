@@ -9,12 +9,12 @@ verifier.
 - Baseline git object: `219a567^:AGENTS.md`
 - Baseline SHA-256: `57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9`
 - Final file: `AGENTS.md`
-- Final SHA-256: `8cb5db2aa56e94de108fc255d3a2b7f3ddc353b608c6d3aee1bf6f273ffd6a42`
+- Final SHA-256: `e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26`
 - Baseline structural inventory digest: `be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d`
 - Final structural inventory digest: `3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908`
 - Final complete-prose digest: `636f02ccb9eea88f5d6ef456e7679001d204a2ef83629aaf9b28eccd0209ab68`
 - Immutable reviewed AGENTS SHA-256 in the verifier:
-  `8cb5db2aa56e94de108fc255d3a2b7f3ddc353b608c6d3aee1bf6f273ffd6a42`
+  `e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26`
 
 Run one row with `node tests/AGENTS.verify.mjs --baseline --row=A01` or
 `node tests/AGENTS.verify.mjs --final --row=A01`. Baseline rows deliberately

@@ -598,7 +598,7 @@ proof-or-stop gap_log '{"category":"missing","severity":"medium","evidence":"Doc
 # Legacy fixture maintenance; preview writes and replace conceptual identifiers
 proof-or-stop fixture_batch_add '{"fixturePath":"example","cases":[{"name":"example case","run_type":"cli","file":"core/machine","execute":"return true","expect":true}],"storyId":"B-xxxx","dryRun":true}'
 proof-or-stop test_story --storyId=B-xxxx
-proof-or-stop test_fixture --fixtureId=00000000-0000-4000-8000-000000000000
+proof-or-stop test_fixture --fixtureId=legacy-maintenance-fixture-id
 ```
 
 `aux_detail` inspects signatures and imports for files relative to `scanRoot`.

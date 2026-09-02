@@ -793,7 +793,7 @@ function inventory(text) {
 const EXPECTED_BASELINE_INVENTORY_DIGEST = 'be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d';
 const EXPECTED_FINAL_INVENTORY_DIGEST = '3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908';
 const EXPECTED_PROSE_DIGEST = '636f02ccb9eea88f5d6ef456e7679001d204a2ef83629aaf9b28eccd0209ab68';
-const EXPECTED_AGENTS_SHA = '8cb5db2aa56e94de108fc255d3a2b7f3ddc353b608c6d3aee1bf6f273ffd6a42';
+const EXPECTED_AGENTS_SHA = 'e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26';
 
 function inventoryDigest(text) {
   return sha256(JSON.stringify(inventory(text)));
