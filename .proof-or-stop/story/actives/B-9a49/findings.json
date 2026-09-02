@@ -1297,7 +1297,7 @@
       "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:836-858 and 1021-1053 verification-coverage gap (high): the unsafe/safe Task Context authority matrix, including the new F-055/F-056 lead and Claude bridge regressions plus F-057 punctuation controls, is executed only through the single `common` role proof-or-stop-review-quality. The later ACTIVE_MODULAR_REVIEWER_ROLE_IDS loop assembles all five roles but never injects an unsafe or safe authority statement. A production-dist mutation changing assertReviewerTaskContextAuthoritySafety from the modular-role predicate to `roleId !== proof-or-stop-review-quality` returned `prompt full-context envelope smoke: PASS` with exit 0, proving the suite does not detect complete loss of this guard from behavior, concept, docs, and test-coverage. This contradicts CHK-004:adversarial:task-context-authority-injection, which requires every complete assembled reviewer envelope to reject injected authority independently of refreshed digests. Production behavior is currently green; remediation is to execute representative unsafe and safe current-context assertions (including lead, bridge, and benign-continuation cases) for every ACTIVE_MODULAR_REVIEWER_ROLE_IDS role, and add a role-selective inverse mutation/RED proof so quality-only enforcement cannot pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T08:19:18.805Z",
@@ -1309,7 +1309,11 @@
         "packages/main/src/core/prompt-envelope.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in test-only commit ea983290541835f6cae7ad9cbe969de519f5ef45. RED changed production guard enforcement to quality-only and the old full-context smoke incorrectly passed; GREEN adds a bounded five-role matrix covering behavior, concept, docs, quality, and test-coverage with representative lead, bridge and continuation attacks plus live/Unicode safe controls, and the same mutation now fails at behavior. The exhaustive quality-by-surface matrix remains without quadratic duplication. Current 280bdb0 material also includes the subsequent fail-closed synonym/word-order hardening; build, full-context, 17-role registry, measurement/baseline, process/runtime, 60/60 receipts, pre-review and rollout pass, and protected Dynamic Finding paths remain unchanged.",
+      "resolvedAt": "2026-09-02T08:56:13.854Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
