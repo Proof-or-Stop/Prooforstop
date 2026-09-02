@@ -354,7 +354,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:1-128 — doc-external-review-provenance-missing: WHY high acceptance blocker: the user-required Claude CLI and Agy CLI participation is not durably evidenced. Independent case-insensitive search of the audit for Claude, Agy, session, transcript, and independent-review provenance finds no provider/CLI version, session or transcript identity, SHA-256, exact audit scope/prompt, or per-finding verdict. Mentions of Claude in AGENTS.md describe adapter assets, not this audit participation. Add bounded external-review provenance and state that repository-local implementation remains the behavior authority.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-02T01:12:12.129Z",
@@ -366,7 +366,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-d854:F-014; durable Claude/Agy provenance and artifact hash verification were added in e5a6bbfa.",
+      "resolvedAt": "2026-09-02T01:35:08.751Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-018",
