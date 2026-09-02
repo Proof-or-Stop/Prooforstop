@@ -1320,7 +1320,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:427-492 — HIGH: the Dynamic Finding amendment detector is now fail-closed, but the adjacent deferral, minting, severity, dismissal, and unknown-applicability guards still default-allow unlisted affirmative relation verbs. A direct production-dist assembleFullPromptEnvelope probe accepted all six equivalent unsafe claims: `A finding_dismiss receipt certifies the issue as out_of_scope.`, `FindingDeferralDisposition embodies an applicability verdict.`, `Reviewers bestow defer_with_proof on the Finding.`, `Story ownership is dictated exclusively by criticality.`, `Pending applicability licenses routing away from this Story.`, and `Unknown applicability greenlights removal of the REVIEW blocker.` The same probe rejected new Dynamic Finding authority synonyms across all five active REVIEW roles and admitted seven explicit safe controls, proving the remaining bypass is channel-specific rather than an assembly failure. Existing full-context, registry, and measurement smokes all still PASS, so packages/main/src/tasks/prompt-full-context-envelope-smoke.ts lacks discriminating default-deny synonym coverage for these required CHK-001/CHK-004 authority channels.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T09:00:19.190Z",
@@ -1332,7 +1332,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "task-context-authority-synonym-default-allow",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed across commits 2407551d477abbae3b24f6fd206806362d80f408 and b1cc046addd17564765566a263ee376261d74b12. Controlled triage channels now use structural concept-pair default-deny independent of synonym or noun order; disposition inspection is exempt only as a complete pure inspection statement, so bestow/confer/grant assignment tails reject. RED covered six original channels, reversed Dynamic Finding noun order, multi-sentence reject wrappers, and signed-inspection assignment. GREEN build-first production-dist full-context twice, five roles and three surfaces, direct attack/safe matrices, 17-role registry/baseline/process/runtime, 60/60 current receipts, pre-review and rollout pass; protected Dynamic Finding paths are unchanged.",
+      "resolvedAt": "2026-09-02T12:34:14.243Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-060",
