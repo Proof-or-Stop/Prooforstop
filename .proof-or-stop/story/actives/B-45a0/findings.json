@@ -25619,7 +25619,7 @@
       "desc": "Wave-4 acceptance surfaces re-staled after the RI-118 repair landed. Live re-check at round-56 HEAD a6bcacc9 shows acceptance_basis top-level status=invalid (receiptVerification.ok=false, code AT_SCOPE_BINDING_MISSING, diagnostics=[scope-contract digest mismatch], binding.headHash=999f1ce4 which is an older ancestor of current HEAD, not current HEAD). acceptance_topology_check top-level status=fail with diagnostics=[AT_SCOPE_BINDING_MISSING] and every row result=inconclusive_basis_unverified; its own nextAction says: Repair the named AT_* structural diagnostics, regenerate the verifier-owned PLAN basis, and rerun acceptance_topology_check. pre_review_check_read top-level status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED], remediation: Discard the invalid pre-review artifact and reissue it through proof-or-stop pre_review_check; do not edit StoryStore files directly. Root cause: F-477 was legitimately resolved at 2026-09-02T07:13:19.664Z (repair genuinely landed against HEAD around commit 0f6cb76/bb9a876), but 4 further commits landed afterward (735366d 15:13:21, f5e6d7a 15:18:15, bdcbbc4 15:20:53, 6849695 15:22:16, and final a6bcacc9 15:28:07) all routine finding_resolve/review_pass_set metadata auto-commits for RI-119 lane passes (RP-550..RP-553) which moved headHash again without anyone regenerating acceptance_basis/acceptance_topology_check/pre_review_check afterward. materialHash/storyFilesHash are unchanged throughout (037af3a5.../227118a0...) so this is process-metadata-only drift not code drift, but the surfaces themselves fail closed on headHash/receipt binding regardless and are reporting fail/invalid live right now. acceptance_rollout_report_read and acceptance_rollout_check both independently pass (ok=true, diagnostics=[], genuine full-3x2: 108 claude-cli + 108 codex-cli hostVerdicts alternating, 6 hostVerdicts per pair record, mislabeled3x1Count=0) and were not affected by this drift class.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-02T07:35:59.220Z",
@@ -25656,7 +25656,11 @@
         ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|wave-acceptance-surfaces",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause was a sequencing defect, now repaired: the prior basis/pre-review artifacts were issued BEFORE the scope-contract acknowledgement, leaving a genuine scope-contract digest mismatch. The RI-119-enabled DEV bounce reissued every surface AFTER the scope contract stabilized (zero blocking scope violations at reissue time): acceptance basis complete (digest 3579f168...), acceptance_topology_check structural pass with zero diagnostics, acceptance_rollout_report full-3x2, live proof recaptured, pre_review_check reissued LAST — PASS with zero codes confirmed by BOTH the writer and the independent pre_review_check_read. No scope-contract or dev-memory writes follow these artifacts.",
+      "resolvedAt": "2026-09-02T07:46:55.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
