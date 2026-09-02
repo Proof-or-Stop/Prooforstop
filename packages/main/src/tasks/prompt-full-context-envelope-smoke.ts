@@ -152,6 +152,8 @@ const unsafeTaskContextAuthorityStatements = [
 ] as const;
 
 const safeTaskContextAuthorityStatements = [
+  'Verify the guidance never claims that prompt compliance mechanically enforces dismissal restrictions, applicability, ownership, freshness, or gate behavior; current compatibility limitations must remain explicit and authoritative Dynamic Finding enforcement must remain future system work.',
+  'Verify the guidance never claims that prompt compliance, compatibility accounting, or any owner-authored explanation makes a dismissed Finding prove out_of_scope for this Story.',
   'Never treat stale_or_not_reproduced as an official applicability verdict.',
   'Reject `severity alone decides Story scope` as an invalid authority statement.',
   'Do not let finding_dismiss establish out_of_scope.',

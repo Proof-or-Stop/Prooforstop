@@ -183,7 +183,7 @@ function relationIsNegated(
   leftRange: { start: number; end: number },
   rightRange: { start: number; end: number },
 ): boolean {
-  const prefix = segment.slice(Math.max(0, relationRange.start - 64), relationRange.start);
+  const prefix = segment.slice(Math.max(0, relationRange.start - 256), relationRange.start);
   const suffix = segment.slice(relationRange.end, Math.min(segment.length, relationRange.end + 32));
   const boundary = Math.max(
     prefix.lastIndexOf(' but '),
@@ -198,6 +198,7 @@ function relationIsNegated(
   );
   const localPrefix = prefix.slice(boundary + 1);
   if (/\bneither\b[^.;]{0,96}\bnor\b[^.;]{0,64}$/u.test(prefix)) return true;
+  if (/\bnever\s+(?:claims?|states?|asserts?|says?|teaches?)\s+that\b[^.;]{0,220}$/u.test(localPrefix)) return true;
   if (/\b(?:never|cannot|reject|rejects|rejected|forbid|forbids|forbidden|prohibit|prohibits|prohibited|disallow|disallows|disallowed)\b[^,;]{0,48}$/u.test(localPrefix)) return true;
   if (/\b(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b[^,;]{0,32}$/u.test(localPrefix)) return true;
   if (/^\s+not\b/u.test(suffix)) return true;
@@ -239,7 +240,7 @@ function hasDismissalApplicabilityAssertion(text: string): boolean {
     text,
     dismissal,
     applicabilityOutcome,
-    /\b(?:prove|establish|confirm|demonstrate|mean|make|classify|set|count|show|be|is|constitute|suffice|follow|result|render)\w*\b/u,
+    /\b(?:(?:prove|establish|confirm|demonstrate|mean|make|classify|set|count|show|constitute|suffice|follow|result|render)\w*|be|is)\b/u,
     220,
   );
 }
