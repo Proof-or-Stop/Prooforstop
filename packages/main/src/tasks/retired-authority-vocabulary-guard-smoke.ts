@@ -378,12 +378,14 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // refresh lineage retains review while checklist_update remains rejected.
   // B-5a15 main-merge repin basis (F-361 correction). The prior note credited main's
   // persistSyntheticAdmittedWindowForTest, but that symbol ALREADY EXISTS on main
-  // (grep -c = 2), so it is not what moved this branch's pin. The four real divergences:
+  // (grep -c = 2), so it is not what moved this branch's pin. The THREE real divergences
+  // (F-364 correction: a fourth item was listed that credited an UNCHANGED pre-existing main
+  // row -- the same false-attribution class F-361 and F-363 each removed; deleted, not reworded):
   //  1. a NEW canonical writer 'topology_critic_receipt_set' (absent from main, grep -c = 0)
-  //     plus its 'topology-critic-receipt.json' closeout-evidence registry row;
+  //     plus its 'topology-critic-receipt.json' closeout-evidence registry row -- and note that
+  //     row is the ONLY main...HEAD divergence in core/closeout-trust.ts (1 file, 1 insertion);
   //  2. a deriveCertificationDomainInputHashes fixture with causalInputHashes threading;
-  //  3. an acquireOwnerLease seed for the verifier owner lease;
-  //  4. main's own checklist-policy row in core/closeout-trust.ts (that file's separate change).
+  //  3. an acquireOwnerLease seed for the verifier owner lease.
   // Approved compatibility surface is UNCHANGED, stated PER FILE (F-363 correction: the earlier
   // wording mis-scoped one count and credited an unchanged symbol):
   //   core/closeout-trust.ts      -> isExactLegacyLocalOnlyDeliveryClaims 2, LegacyLocalOnlyDeliveryClaims 2
