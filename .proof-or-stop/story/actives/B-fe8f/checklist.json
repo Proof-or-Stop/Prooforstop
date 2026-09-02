@@ -352,28 +352,23 @@
         },
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh current verification after F-014/F-015/F-016 remediation.",
-          "headHash": "d5f0aa117edf258c7b1b1760e5382527a74afeea",
-          "materialHash": "cd7b333358dde5573fbe3e1a729e8025c33d69ab7ee4f1c6fe5c629c450b371f",
-          "storyFilesHash": "8be777fd75cc1af58cf445440a1b820b3e63123f8b6f990918ee8ccc9dae8f75",
+          "note": "Fresh mechanical receipt after F-021 remediation",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T14:53:42.605Z",
-            "timeoutMs": 600000,
-            "timeoutOverride": {
-              "timeoutMs": 600000,
-              "defaultTimeoutMs": 270000,
-              "reason": "Story verifier includes immutable historical Git-blob checks and bounded integration setup."
-            }
+            "executedAt": "2026-09-02T20:29:58.776Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-09-02T16:44:48.016Z"
+          "headHash": "830859c5f106508a5e76caa07f3a973427157c01",
+          "materialHash": "bc43c817fe13a44b1a1e65d8c6f2c1caf23cf8ad141a066568bdd90a4b69d319",
+          "storyFilesHash": "f5b9ac81c6a21382d17dae24377c3624a7d1c0cb0894f6744f4bd129d151d876",
+          "timestamp": "2026-09-02T20:30:00.346Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
