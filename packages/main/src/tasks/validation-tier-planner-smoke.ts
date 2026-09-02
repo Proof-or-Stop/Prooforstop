@@ -1011,6 +1011,142 @@ testCase('a changed-file read failure is changed_files_unavailable, never an emp
   );
 });
 
+// ---------------------------------------------------------------------------
+// (20b) BOUNDED FAILURE DETAIL (load-bearing) — the operator-facing escalation
+//       `detail` must be a short human-readable CLASSIFICATION of why the read
+//       failed, never the subprocess's raw stderr. Running the real reader
+//       outside a git repository makes git print ~40 lines of `git diff --help`
+//       usage; embedding that verbatim destroys exactly the interpretability
+//       guarantee the glossed escalations exist to provide. The raw error stays
+//       available for diagnosis on `changedFiles.error`, but it must never reach
+//       the detail line.
+// ---------------------------------------------------------------------------
+// RED note: `reason` / `summary` do not exist on StoryRelevanceChangedFiles yet, so the
+// accessor casts. The GREEN commit replaces the cast target with the real union member,
+// which is what keeps a future field removal a COMPILE error and not just a runtime one.
+function unavailableChangedFiles(input: StoryRelevanceInput): { error: string; reason: string; summary: string } {
+  assert.equal(input.changedFiles.status, 'changed_files_unavailable');
+  return input.changedFiles as unknown as { error: string; reason: string; summary: string };
+}
+
+const GIT_USAGE_DUMP = [
+  'Command failed: git diff --name-status -M main..HEAD',
+  'warning: Not a git repository. Use --no-index to compare two paths outside a working tree',
+  'usage: git diff --no-index [<options>] <path> <path>',
+  '',
+  'Diff output format options',
+  '    -p, --patch           generate patch',
+  '    --raw                 generate the diff in raw format',
+  '    --numstat             machine friendly --stat',
+  '    --name-status         show only names and status of changed files',
+  '    --output-indicator-new <char>',
+  '                          specify the character to indicate a new line',
+  '',
+  'Diff rename options',
+  '    -M, --find-renames[=<n>]',
+  '                          detect renames',
+  '    --diff-filter=[(A|C|D|M|R|T|U|X|B)...[*]]',
+  '                          select files by diff type',
+  '    --output <file>       output to a specific file',
+].join('\n');
+
+testCase('an unreadable changed-file set escalates with a bounded classification, not a git usage dump', () => {
+  const failed = collect({
+    readers: {
+      changedFileStatuses: () => {
+        throw new Error(GIT_USAGE_DUMP);
+      },
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  });
+  assert.equal(failed.changedFiles.status, 'changed_files_unavailable');
+
+  const escalation = failed.escalations.find((entry) => entry.code === 'changed_files_unavailable');
+  assert.ok(escalation, 'a read failure must still escalate');
+  const detail = escalation!.detail;
+
+  assert.equal(detail.includes('\n'), false, `the operator-facing detail must be ONE line, got:\n${detail}`);
+  assert.ok(detail.length <= 300, `the detail must stay readable, got ${detail.length} characters`);
+  for (const leak of ['usage: git diff', '--diff-filter', '--output-indicator-new', '--numstat', '--find-renames']) {
+    assert.equal(detail.includes(leak), false, `the raw git usage text leaked into the detail: ${leak}`);
+  }
+  assert.match(detail, /not a git repository/i, 'the detail must CLASSIFY the failure in plain language');
+  assert.match(detail, /NOT the same as an empty diff|nothing is known/i, 'the detail must keep saying what the failure means');
+
+  // The raw error is preserved for diagnosis — bounding the detail must not
+  // destroy the underlying evidence.
+  const changed = unavailableChangedFiles(failed);
+  assert.ok(
+    changed.error.includes('usage: git diff'),
+    'the raw reader error must still be preserved on the structured result for diagnosis',
+  );
+
+  // The classification is a structured fact, not something re-derived from prose.
+  assert.equal(changed.reason, 'not-a-git-repository');
+  assert.equal(changed.summary.includes('\n'), false, 'the structured summary must itself be one line');
+});
+
+testCase('every changed-file failure classification stays one bounded sentence', () => {
+  const cases: Array<{ error: unknown; reason: string; match: RegExp }> = [
+    { error: new Error(GIT_USAGE_DUMP), reason: 'not-a-git-repository', match: /not a git repository/i },
+    {
+      error: new Error("Command failed: git diff --name-status -M main..HEAD\nfatal: bad revision 'main..HEAD'"),
+      reason: 'unknown-revision',
+      match: /revision/i,
+    },
+    {
+      error: Object.assign(new Error('spawn git ENOENT'), { code: 'ENOENT' }),
+      reason: 'git-unavailable',
+      match: /git executable/i,
+    },
+    { error: new Error(`boom ${'x'.repeat(4000)}`), reason: 'unknown', match: /boom/ },
+    { error: 'a bare string failure', reason: 'unknown', match: /bare string/ },
+  ];
+  for (const entry of cases) {
+    const failed = collect({
+      readers: {
+        changedFileStatuses: () => {
+          throw entry.error;
+        },
+        hashSnapshot: fixtureHashSnapshot,
+      },
+    });
+    const changed = unavailableChangedFiles(failed);
+    assert.equal(changed.reason, entry.reason, `misclassified: ${String(entry.error)}`);
+    assert.equal(changed.summary.includes('\n'), false, 'the summary must be one line');
+    assert.ok(changed.summary.length <= 200, `the summary must be bounded, got ${changed.summary.length}`);
+    assert.match(changed.summary, entry.match);
+    const detail = failed.escalations.find((item) => item.code === 'changed_files_unavailable')!.detail;
+    assert.equal(detail.includes('\n'), false, 'the detail must be one line');
+    assert.ok(detail.length <= 300, `the detail must be bounded, got ${detail.length}`);
+  }
+
+  // A reader that breaks its contract without throwing is classified too.
+  const nonObject = collect({
+    readers: { changedFileStatuses: (() => 'nope') as never, hashSnapshot: fixtureHashSnapshot },
+  });
+  assert.equal(unavailableChangedFiles(nonObject).reason, 'reader-contract-violation');
+});
+
+testCase('the REAL reader outside a git repository yields a bounded detail end to end', () => {
+  const outsideRepo = mkdtempSync(join(tmpdir(), 'proof-or-stop-not-a-repo-'));
+  temporaryRoots.push(outsideRepo);
+  const failed = collect({
+    projectRoot: outsideRepo,
+    gitCwd: outsideRepo,
+    readers: { changedFileStatuses: DEFAULT_STORY_RELEVANCE_READERS.changedFileStatuses, hashSnapshot: fixtureHashSnapshot },
+  });
+  assert.equal(
+    failed.changedFiles.status,
+    'changed_files_unavailable',
+    'the real reader must fail outside a repository rather than report a clean diff',
+  );
+  const detail = failed.escalations.find((entry) => entry.code === 'changed_files_unavailable')!.detail;
+  assert.equal(detail.includes('\n'), false, `the real-world detail must be ONE line, got:\n${detail}`);
+  assert.ok(detail.length <= 300, `the real-world detail must stay readable, got ${detail.length} characters`);
+  assert.equal(detail.includes('usage: git diff'), false, 'the real git usage dump must never reach the operator');
+});
+
 testCase('a hash snapshot failure is classified, not silently dropped', () => {
   const input = collect({
     readers: {
