@@ -1,0 +1,43 @@
+{
+  "storyId": "B-41c8",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/local-assurance-story-projection.ts",
+    "packages/main/src/handlers/validation-plan.ts",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+    "packages/main/src/core/story-workspace.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-02T13:36:08.585Z",
+  "updatedAt": "2026-09-02T13:36:08.585Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts": "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/local-assurance-story-projection.ts": "packages/main/src/core/local-assurance-story-projection.ts",
+    "packages/main/src/handlers/validation-plan.ts": "packages/main/src/handlers/validation-plan.ts",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+    "packages/main/src/core/story-workspace.ts": "packages/main/src/core/story-workspace.ts"
+  }
+}
