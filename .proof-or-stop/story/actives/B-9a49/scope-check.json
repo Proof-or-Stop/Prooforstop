@@ -1,6 +1,6 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-02T02:52:42.833Z",
+  "checkedAt": "2026-09-02T02:56:16.915Z",
   "features": [
     {
       "feature": "Deliver one canonical REVIEW Finding-triage contract to exactly the five active proof-or-stop REVIEW lanes.",
@@ -45,23 +45,23 @@
       "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
     },
     {
-      "feature": "Do not modify Dynamic Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, or protected runtime surfaces.",
+      "feature": "Do not modify Dynamic Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, acceptance topology, or other protected runtime surfaces.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Understanding, decision, CHK-001/CHK-003/CHK-004, and the scope contract explicitExcludes all preserve the runtime boundary.",
+      "excluded_by": "Current scope contract explicitExcludes and protectedFiles preserve the runtime and topology boundary.",
       "source": "scope_contract_show:B-9a49"
     },
     {
       "feature": "Keep the Dynamic Finding authority document unchanged and treat the proposal only as its subordinate Agent-side projection.",
       "covered_by": null,
-      "status": "drift",
-      "excluded_by": null,
-      "source": "scope_contract_show:B-9a49 acknowledgement[3]"
+      "status": "excluded",
+      "excluded_by": "The current scope contract explicitly protects and excludes the Dynamic Finding authority document; scopeChangeReason supersedes the old authority-migration interpretation without deleting history.",
+      "source": "scope_contract_show:B-9a49"
     },
     {
       "feature": "Include the executable proposal and REVIEW-only prompt-envelope authority guard in the canonical implementation scope.",
       "covered_by": "CHK-001/CHK-004",
-      "status": "drift",
+      "status": "covered",
       "excluded_by": null,
       "source": "scope_contract_show:B-9a49 allowedModify"
     },
@@ -88,8 +88,8 @@
     },
     {
       "feature": "Keep the executable plan aligned with the six-item canonical checklist, current proof-or-stop role identities, and current target-state verdict vocabulary.",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-001/CHK-002/CHK-003/CHK-004/CHK-005/CHK-006",
+      "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-9a49/plan.md"
     }
@@ -117,41 +117,13 @@
   },
   "summary": {
     "total": 13,
-    "covered": 9,
-    "excluded": 1,
-    "gaps": 1,
+    "covered": 11,
+    "excluded": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 2
+    "drift": 0
   },
   "reviewRound": "2026-09-02T02:22:09.054Z",
-  "_hash": "2d2d1e55a510c9567165756f41ddee7b04c42ca0f5820f62061b2d2122a23e6c",
-  "openQuestions": [
-    {
-      "id": "SQ-B9A49-PLAN-CANONICAL",
-      "q": "Will the Owner replace or update plan.md so it covers CHK-001 through CHK-006 and removes active lattice-implementer and stale_or_not_reproduced guidance before PLAN approval?",
-      "evidence": "plan_get returns only CHK-001 through CHK-004; CHK-002 still names lattice-implementer and CHK-001 still publishes stale_or_not_reproduced, while the current checklist and decision require canonical proof-or-stop identities and prohibit the retired verdict as active guidance.",
-      "sourcePointers": [
-        ".proof-or-stop/story/actives/B-9a49/plan.md",
-        "CHK-001",
-        "CHK-004",
-        "CHK-005",
-        "CHK-006"
-      ],
-      "resolution": "Resolved by commit 3c0bb48abe: plan.md now contains dedicated CHK-001 through CHK-006 sections, uses canonical Proof-or-Stop role identities, and treats retired verdict vocabulary as historical evidence or negative test input only, never as active authority.",
-      "resolvedAt": "2026-09-02T02:55:37.765Z"
-    },
-    {
-      "id": "SQ-B9A49-SCOPE-REBASELINE",
-      "q": "Will the Owner rebaseline the scope contract so the Dynamic Finding authority document is explicitly excluded, proposal and prompt-envelope are canonical allowed changes, and the obsolete authority-migration acknowledgement is no longer the active scope explanation?",
-      "evidence": "scope_contract_show acknowledgement[3] still says the Dynamic Finding decision document is the accepted authority migration, while current understanding/decision/checklist say the authority document remains unchanged. The canonical allowedModify set also omits the proposal and prompt-envelope even though both are current checklist/touchpoint surfaces.",
-      "sourcePointers": [
-        ".proof-or-stop/story/actives/B-9a49/scope-contract.json",
-        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
-        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
-        "packages/main/src/core/prompt-envelope.ts"
-      ],
-      "resolution": "Resolved by commit 3c0bb48abe: the scope contract now allows the English proposal and prompt-envelope guard as Agent-side implementation paths, explicitly protects and excludes the Dynamic Finding authority document and runtime surfaces, and records that this controlled replan supersedes the authority-migration interpretation in historical scope-ack:3 without deleting audit history.",
-      "resolvedAt": "2026-09-02T02:55:45.672Z"
-    }
-  ]
+  "_hash": "ce831eea90c7a8d439a2b6e8cef9284a32bd33d08be535151bd8b7a83b8cc154",
+  "openQuestions": []
 }
