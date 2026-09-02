@@ -224,6 +224,26 @@
         "scanEscalationReason": null
       },
       "_hash": "c2eb5ed6cb2018ce93d205be412fd9f2491a4517275716118d1cf4fa4d2f1e16"
+    },
+    {
+      "id": "B-fe8f:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review round 7 (incremental). One new material commit since RP-006: 4b9eab2b5f in packages/main/src/tasks/finding-ledger-runtime-smoke.ts, restoring the literal `installedCli=true` token on the green.version_sync PASS line and adding a new `installedState=<bumped|main-checkout-pending-merge>` token. No blocking findings; not rebuilt/rerun this round per instruction, verified statically. Checked: (1) The assert.ok(...) line immediately above (the actual pass/fail gate for the installed-binary check, accepting either the bumped expected version or the pre-merge previous version) is byte-unchanged in this commit -- only the trailing console.log template literal and a 2-line explanatory comment were touched. (2) The pinned CHK-006:happy:5 selector (read from checklist.json verificationIntent) is the literal string 'green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true' -- confirmed via git blame/log -S that this exact token was the ORIGINAL static (unconditional) value introduced in commit 1edacb2f32 when the assertion was still an exact-match-only check. The intermediate commit fc45b02966 (reviewed and approved in round 6/RP-006) changed the printed token to a derived `installedCli=${installedState}` (printing literally `installedCli=bumped` or `installedCli=main-checkout-pending-merge`), which does NOT contain the pinned selector substring `installedCli=true` and would have made CHK-006:happy:5 unmatchable whenever run pre-merge in a worktree (i.e. always, in this story's own verification context) -- a real selector-matching regression I did not catch as a distinct risk in round 6. 4b9eab2b5f correctly restores the exact pinned literal. (3) Inverse question addressed: printing installedCli=true while the installed binary is the pre-merge patch does not misstate what was verified. The token's operative meaning tracks the assertion it reports on, and that assertion (approved in round 6) legitimately accepts either the bumped or the immediate pre-merge version as valid pre-DONE-merge worktree state; installedCli=true therefore accurately means the installed-binary assertion held, not the retired stronger claim of an exact-version match. The added comment states this explicitly, and the same output line carries installedState=<bumped|main-checkout-pending-merge> immediately alongside it, so no information is lost or hidden -- a reader gets both the pass/fail token and the exact observed state on one line. Confirmed via grep that installedCli is not parsed as a structured field by any other code path in packages/main/src or dist (only consumed as a fixed-string selector substring match), so there is no downstream consumer that could be misled by the boolean-flag semantics. (4) No retired identity tokens introduced (git show 4b9eab2b5f | grep -i lattice on added lines -> zero hits). (5) No import added/removed in this diff, so no import-cycle risk. Did not rebuild packages/main/dist or run the compiled smoke this round, per explicit instruction; relied on the round-6 full smoke run (already verified PASS end-to-end against the pre-4b9eab2b5f code) plus this commit's trivial, narrowly-scoped diff (comment + one string template) to establish confidence without mutating build artifacts.",
+      "createdAt": "2026-09-02T12:19:14.578Z",
+      "reviewRound": "2026-09-02T12:16:39.339Z",
+      "reviewRunId": "B-fe8f:RR-023",
+      "envelopeId": "c01962d4a37cb9f67f249c7f6139a71b2a1a992d73d1cfe9c6cc22f123d637d0",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "352e055f50fcaa3c5fc7df92e91ed8ac1f56f7e08c0df90af573e0807b1ff297"
     }
   ]
 }
