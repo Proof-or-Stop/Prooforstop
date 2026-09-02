@@ -162,8 +162,13 @@ import {
 } from '../core/validation-tier-planner.js';
 import type { RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import {
+  VALIDATION_PLAN_OUTCOME_BEARING_LINE_PREFIXES,
+  VALIDATION_PLAN_STATUS_LINES,
   VALIDATION_PLAN_TIER_ALIASES,
+  assertValidationPlanStatusInvariant,
+  buildValidationPlanReport,
   createValidationPlanHandlers,
+  renderValidationPlanText,
   resolveValidationPlanRequest,
 } from '../handlers/validation-plan.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -2102,6 +2107,151 @@ testCase('a no-validator project reports no tier pass instead of an empty plan',
 });
 
 // ---------------------------------------------------------------------------
+// (33b) B-a745 F-002 — THE STATUS LINE IS THE DISCRIMINATOR, and it is the only
+//       thing a selector may key on to tell a produced plan from a refusal.
+//
+//       This case exists because a real recorded receipt for this Story's own
+//       flagship claim pinned the selector `finalAuthority: no`, which the
+//       renderer prints on EVERY branch. The command was stopping with
+//       `selected: 0 of 0`, the selector matched anyway, and the evidence was
+//       stamped `result: pass` while its own outputTail contained the failure.
+//
+//       `finalAuthority: no` is deliberately KEPT on every branch — a stop is
+//       not final authority either — so the fix is not to remove it but to
+//       guarantee a discriminating line exists and that no shared line can be
+//       mistaken for one.
+// ---------------------------------------------------------------------------
+testCase('a plan render and a stop render differ on the documented status discriminator', () => {
+  const stopItems = [
+    checklistItem({
+      id: 'CHK-001',
+      verificationEvidence: [
+        {
+          intentRef: 'CHK-001:happy:0',
+          kind: 'integration_test',
+          commandId: 'gone-suite',
+          command: 'npm run gone',
+          result: 'pass',
+          note: 'fixture evidence',
+        },
+      ],
+    }),
+  ];
+  const planText = planCli(planCliRoot().ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
+  const stopText = planCli(planCliRoot({ items: stopItems }).ctx)(
+    { storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true },
+  );
+
+  assert.equal(VALIDATION_PLAN_STATUS_LINES.plan, 'status: plan');
+  assert.equal(VALIDATION_PLAN_STATUS_LINES.stop, 'status: stop');
+
+  const planLines = planText.split('\n');
+  const stopLines = stopText.split('\n');
+  assert.ok(planLines.includes(VALIDATION_PLAN_STATUS_LINES.plan), 'a produced plan must print its own status line');
+  assert.ok(stopLines.includes(VALIDATION_PLAN_STATUS_LINES.stop), 'a stop must print its own status line');
+  // Substring, not line membership: a naive selector greps the whole output, so
+  // the other outcome's discriminator may not appear even inside prose.
+  assert.ok(!stopText.includes(VALIDATION_PLAN_STATUS_LINES.plan), 'no stop render may contain "status: plan"');
+  assert.ok(!planText.includes(VALIDATION_PLAN_STATUS_LINES.stop), 'no plan render may contain "status: stop"');
+
+  // Every line the two renders SHARE is non-discriminating BY CONSTRUCTION: no
+  // shared line may start with an outcome-bearing prefix. This is the mechanical
+  // form of "a selector must not be able to pick a line that matches both".
+  const shared = planLines.filter((line) => stopLines.includes(line));
+  for (const line of shared) {
+    for (const prefix of VALIDATION_PLAN_OUTCOME_BEARING_LINE_PREFIXES) {
+      assert.ok(
+        !line.startsWith(prefix),
+        `shared line ${JSON.stringify(line)} starts with the outcome-bearing prefix ${JSON.stringify(prefix)}, ` +
+        'so a selector could match it on a failing run',
+      );
+    }
+  }
+
+  // The exact selector that produced the false positive. It stays printed on
+  // every branch on purpose, which is precisely why it may never be reachable as
+  // the discriminator.
+  assert.ok(shared.includes('finalAuthority: no'), 'finalAuthority: no must keep printing on every branch');
+  assert.ok(
+    !Object.values(VALIDATION_PLAN_STATUS_LINES).includes('finalAuthority: no'),
+    'finalAuthority: no is not, and must never become, the status discriminator',
+  );
+});
+
+testCase('every planner outcome renders only its own status line, and a forged plan status is refused', () => {
+  const request = resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID, tier: 'fast' });
+  const outcomes: Array<{ label: string; overrides: Partial<StoryRelevanceInputArgs> }> = [
+    { label: 'plan', overrides: {} },
+    {
+      label: 'stop (unresolvable commandId)',
+      overrides: {
+        checklist: {
+          items: [
+            checklistItem({
+              id: 'CHK-001',
+              verificationEvidence: [
+                {
+                  intentRef: 'CHK-001:happy:0',
+                  kind: 'integration_test',
+                  commandId: 'gone-suite',
+                  command: 'npm run gone',
+                  result: 'pass',
+                  note: 'fixture evidence',
+                },
+              ],
+            }),
+          ],
+        },
+      },
+    },
+    { label: 'stop (empty universe)', overrides: { routine: { sourceKind: 'configured', commands: [] } } },
+    { label: 'no-tier-pass', overrides: { routine: { sourceKind: 'no-validator', commands: [] } } },
+  ];
+
+  const seen = new Set<string>();
+  for (const outcome of outcomes) {
+    const input = planInput(outcome.overrides);
+    const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+    const rendered = renderValidationPlanText(
+      buildValidationPlanReport({ request, storyPhase: 'DEV', input, result }),
+      true,
+    );
+    seen.add(result.status);
+    assert.ok(
+      rendered.split('\n').includes(VALIDATION_PLAN_STATUS_LINES[result.status]),
+      `${outcome.label} must render ${VALIDATION_PLAN_STATUS_LINES[result.status]}`,
+    );
+    for (const [status, line] of Object.entries(VALIDATION_PLAN_STATUS_LINES)) {
+      if (status === result.status) continue;
+      assert.ok(!rendered.includes(line), `${outcome.label} leaked another outcome's discriminator: ${line}`);
+    }
+  }
+  assert.deepEqual([...seen].sort(), ['no-tier-pass', 'plan', 'stop'], 'all three outcomes must be exercised');
+
+  // A report that CLAIMS a plan while carrying refusal-shaped facts is refused
+  // at the render boundary, so no stop branch can ever emit `status: plan`.
+  const planInputForForgery = planInput();
+  const planReport = buildValidationPlanReport({
+    request,
+    storyPhase: 'DEV',
+    input: planInputForForgery,
+    result: resolveValidationTierPlan({ input: planInputForForgery, requestedTier: 'story-fast' }),
+  });
+  assertValidationPlanStatusInvariant(planReport);
+  for (const forged of [
+    { ...planReport, counts: { selected: 0, total: 0 } },
+    { ...planReport, effectiveTier: null },
+    { ...planReport, executionMode: null },
+  ]) {
+    assert.throws(
+      () => renderValidationPlanText(forged, true),
+      /status: plan/,
+      'a refusal-shaped report claiming status: plan must be refused, not rendered',
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
 // (34) --json — one parseable object carrying the SAME facts.
 // ---------------------------------------------------------------------------
 testCase('validation_plan --json emits one parseable object carrying the same facts', () => {
@@ -2567,6 +2717,8 @@ const DONEWHEN_COVERAGE: Array<{ item: string; doneWhen: string; cases: string[]
 
   { item: 'CHK-005', doneWhen: 'human and --json outputs both carry every documented field including finalAuthority: no', cases: [
     'validation_plan --tier=fast prints every labelled field including finalAuthority: no',
+    'a plan render and a stop render differ on the documented status discriminator',
+    'every planner outcome renders only its own status line, and a forged plan status is refused',
     'the printed counts are derived at runtime, not written into the renderer',
     'duration history from prior signed validation artifacts reaches the report with its basis',
     'validation_plan --json emits one parseable object carrying the same facts',
