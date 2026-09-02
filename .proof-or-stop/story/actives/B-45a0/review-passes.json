@@ -25263,6 +25263,27 @@
       },
       "readDiagnostics": [],
       "_hash": "6dadec310eeca45d2f41c83e6667e6657bbafb5db0623582206bd91769404335"
+    },
+    {
+      "id": "B-45a0:RP-550",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "All 50 verification intents across CHK-001..CHK-014 (happy/edge/adversarial) have exactly one verificationEvidence record each; all 50 are mechanical (logic_test/integration_test) with tool-owned receipt blocks (exitCode=0, selectorMatched=true); zero waivers, zero non-pass results, zero missing intents. Round-55 findings F-475/F-476/F-478 remediated: 50/50 receipts refreshed, and CHK-011:happy:0 (executedAt 2026-09-02T07:04:39Z) plus CHK-014:happy:1 (executedAt 2026-09-02T07:04:59Z) re-earned via verification_run with fresh receipts, both post round-55 remediation and at/after bound head 735366d.",
+      "createdAt": "2026-09-02T07:18:11.735Z",
+      "reviewRound": "2026-09-02T07:12:41.727Z",
+      "reviewRunId": "B-45a0:RR-1214",
+      "envelopeId": "2669d81159534ae5d3907d963e583af3911a122a1533e1f9d1f0e1ea0eb698a6",
+      "writerSessionId": "sess-00bbb2b697a658c5815ad5869bd0125f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-45a0/background.md",
+          "docs/story/actives/B-45a0/checklist.json",
+          "docs/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a2a2994f429caf05298637659fb2c0d6f87be5568067fc67fbe0b4e04d57a73b"
     }
   ]
 }
