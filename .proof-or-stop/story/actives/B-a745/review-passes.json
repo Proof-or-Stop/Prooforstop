@@ -162,6 +162,31 @@
         "scanEscalationReason": null
       },
       "_hash": "93bcbee4552b1af9473f368d2f015255c0a73d5958a778ad882e49a565f00bb5"
+    },
+    {
+      "id": "B-a745:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 3 test-coverage re-review of the F-010/F-011 fix delta. All 34 must-priority verificationIntent entries remain mechanically covered (checklist_get), 33 receipts freshly bound to headHash de019c2284/current tip, one (CHK-002:edge:0) a permanent waiver correctly exempt from re-execution. Mechanically verified (checked out into isolated worktrees, built dist, ran the suite) that all three F-010 RED/GREEN commit pairs are genuine RED-before-GREEN: c7c449e6f2 (RED, 2 failing F-010 cases) -> e1f222abc6 (GREEN); d4d930c9d1 (RED, 1 failing) -> 326169897a (GREEN); e0baff1a65 (RED, 1 failing) -> de019c2284 (GREEN, PASS). Both Codex-requested regression cases are present and committed: main-checkout-to-active-worktree and configured wrapper-root, and the wrapper-root case explicitly asserts the story-branch change is visible and that changed_files_unavailable/hash_snapshot_unavailable are absent. F-011 is comment-only (no behaviour change), correctly has no dedicated new fixture; existing F-001 coverage already exercises the real non-inventory behaviour it documents. Filed B-a745:F-012 (medium, non-blocking): the suites own CHK-006 RED-before-GREEN acceptance guard only recognizes RED(CHK-nnn)/GREEN(CHK-nnn) commit subjects and silently ignores the RED(F-0xx)/GREEN(F-0xx) finding-fix commit family, so this discipline is currently unenforced by automation for finding-fix commits even though this delta happens to satisfy it. No blocking finding open for this lane.",
+      "createdAt": "2026-09-02T08:04:45.804Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-013",
+      "envelopeId": "70bd763d8d8b0a0e92d31dd2a205cfe4ca4482dd3b5d92cd940b59db35f16d51",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e9649a169ace7e103f5edd35b645af878e2134ac274f650aebef16ce3ec5bcd"
     }
   ]
 }
