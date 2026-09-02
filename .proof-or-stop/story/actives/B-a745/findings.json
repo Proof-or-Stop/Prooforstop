@@ -285,6 +285,24 @@
       ],
       "signatureTag": "missing|ts:558-559|resolution-prose-permanent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-014",
+      "desc": "validation-plan.ts:574-598 resolveStoryWorkspace(): the F-010 commit messages/comments claim this reads story metadata via \"the same projection story_get and session_brief already apply to active linked-worktree stories\" (story-query.ts:421 readStoryProjection / session.ts:931 readStoryFromLinkedWorktree). It is NOT the same code path, and it is not a byte-copy either -- it is a THIRD independent reimplementation of the fact \"resolve the StoryStore for wherever a story's git work actually lives\", alongside story-query.ts readStoryProjection (worktree found via listGitWorktrees(root) branch-scan, gated on phase!==DONE/DISCARDED), session.ts readStoryFromLinkedWorktree (worktree found via raw execSync(\"git worktree list\") branch-scan, same phase gate), and local-assurance-story-projection.ts collectLinkedStoryWorktrees (branch-scan + honors story.worktree.path binding, still no gitRoot config awareness). validation-plan.ts correctly reuses the shared resolveGitCwd/resolveStorySignedWorkspace chokepoint (~40 other call sites) for gitCwd, which IS the right DRY move and is genuinely superior (it honors story.worktree.path binding + configured gitRoot, unlike the other three). But resolveStoryWorkspace's own trigger (`resolve(gitCwd) !== resolve(root)`) has no phase-terminal guard, unlike story-query.ts/session.ts which both explicitly gate on phase !== DONE/DISCARDED before reading from a linked path -- so behavior CAN diverge for a DONE story whose worktree/gitRoot still resolves non-trivially. Given B-a745 F-010 exists specifically because two ad hoc worktree-discovery implementations already drifted from correctness, adding a fourth independently-maintained variant (even a better one) is the exact duplicated-fact risk CLAUDE.md flags (F-006 class). Recommend extracting a single shared helper (e.g. resolveStoryStoreForWorkspace(store, projectRoot, gitCwd, storyId)) that story-query.ts, session.ts, local-assurance-story-projection.ts and validation-plan.ts all call, so future correctness fixes (like this one) land once instead of needing four coordinated patches. Not blocking this diff (round 3, non-critical), but should be tracked.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:04:57.044Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-011",
+      "_hash": "384d1c702c257199bc7098a33648f5a997b7f9e2a7856cdef8a83968c94d320c",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "missing|ts|validation-plan-resolvestoryworkspace",
+      "signatureTagSource": "auto"
     }
   ]
 }
