@@ -1414,6 +1414,110 @@ testCase('a hash snapshot failure is classified, not silently dropped', () => {
 });
 
 // ---------------------------------------------------------------------------
+// (20d) EVERY OTHER FAILURE PROSE IS BOUNDED (B-a745 F-016, second and third
+//       sites). The same rule as the changed-file detail applies to the hash
+//       snapshot escalation and to the duration-history read failure that the
+//       report's `basis` line renders: raw error on the structured object only,
+//       one bounded line in the prose.
+// ---------------------------------------------------------------------------
+testCase('a hash snapshot failure escalates with a bounded one-line detail, never the raw dump', () => {
+  const input = planInput({
+    readers: {
+      changedFileStatuses: statusReader({}),
+      hashSnapshot: () => {
+        throw new Error(LONG_GIT_USAGE_DUMP);
+      },
+    },
+  });
+  assert.equal(input.hashes.status, 'hash_snapshot_unavailable');
+  assert.ok(
+    input.hashes.status === 'hash_snapshot_unavailable' && input.hashes.error.includes('--word-diff-regex'),
+    'the raw error must remain on the structured hashes object for diagnosis',
+  );
+  const escalation = input.escalations.find((entry) => entry.code === 'hash_snapshot_unavailable');
+  assert.ok(escalation, 'a hash snapshot failure must still escalate');
+  const detail = escalation!.detail;
+  assert.equal(detail.includes('\n'), false, `the hash snapshot detail must be ONE line, got:\n${detail}`);
+  assert.ok(detail.length <= 300, `the hash snapshot detail must be bounded, got ${detail.length} characters`);
+  assert.match(detail, /not a git repository/i, 'the detail must CLASSIFY the failure in plain language');
+  for (const line of LONG_GIT_USAGE_DUMP.split('\n').map((entry) => entry.trim()).filter((entry) => entry.length > 12)) {
+    assert.equal(detail.includes(line), false, `a raw git usage line leaked into the hash snapshot detail: ${line}`);
+  }
+
+  const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+  const request = resolveValidationPlanRequest({ storyId: 'B-a745', tier: 'fast' });
+  const rendered = renderValidationPlanText(
+    buildValidationPlanReport({ request, storyPhase: 'DEV', input, result }),
+    true,
+  );
+  assert.ok(rendered.split('\n').includes(VALIDATION_PLAN_STATUS_LINES[result.status]), 'the status line must remain a line of its own');
+  assert.equal(rendered.includes('usage: git diff'), false, 'the git usage dump must never reach the rendered output');
+});
+
+testCase('a duration-history read failure renders a bounded one-line basis, never the raw dump', () => {
+  const dump = ['Error: ENOENT: no such file or directory, open \'/repo/.proof-or-stop/validation/receipts.json\'']
+    .concat(Array.from({ length: 40 }, (_, index) => `    at frame${index} (/repo/node_modules/some-module/index.js:${index + 1}:1)`))
+    .join('\n');
+  const input = planInput({
+    durationHistory: {
+      read: () => {
+        throw new Error(dump);
+      },
+    },
+  });
+  assert.equal(input.durationHistory.status, 'unavailable');
+  assert.ok(
+    (input.durationHistory.readError ?? '').includes('at frame39'),
+    'the raw read error must remain on the structured duration history for diagnosis',
+  );
+  const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+  assert.equal(result.status, 'plan');
+  const request = resolveValidationPlanRequest({ storyId: 'B-a745', tier: 'fast' });
+  const report = buildValidationPlanReport({ request, storyPhase: 'DEV', input, result });
+  const basis = report.durationEstimate.basis;
+  assert.equal(basis.includes('\n'), false, `the duration basis must be ONE line, got:\n${basis}`);
+  assert.ok(basis.length <= 300, `the duration basis must be bounded, got ${basis.length} characters`);
+  assert.match(basis, /ENOENT|could not be read/i, 'the basis must still say what went wrong');
+  assert.equal(basis.includes('at frame'), false, 'a stack frame leaked into the duration basis');
+
+  const rendered = renderValidationPlanText(report, true);
+  const lines = rendered.split('\n');
+  assert.ok(lines.includes(VALIDATION_PLAN_STATUS_LINES.plan), 'the status line must remain a line of its own');
+  const basisLines = lines.filter((line) => line.startsWith('  basis: '));
+  assert.equal(basisLines.length, 1, 'exactly one basis line must be rendered');
+  assert.ok(basisLines[0].length <= 320, `the rendered basis line is not one bounded line: ${basisLines[0].length}`);
+  assert.equal(rendered.includes('at frame'), false, 'a stack frame leaked into the rendered output');
+});
+
+testCase('a malformed evidence pin is reported as one bounded unclassified-input line', () => {
+  const input = planInput({
+    checklist: {
+      items: [
+        checklistItem({
+          id: 'CHK-001',
+          verificationEvidence: [
+            {
+              intentRef: 'CHK-001:happy:0',
+              kind: 'integration_test',
+              // A non-string commandId beside a real command string: the pin is
+              // present, and the resolver's runtime re-validation rejects it.
+              commandId: 42 as never,
+              command: 'npm test',
+              result: 'pass',
+              note: 'fixture evidence with a malformed commandId',
+            },
+          ],
+        }),
+      ],
+    },
+  });
+  const malformed = input.unclassifiedInputs.find((entry) => entry.kind === 'evidence-pin' && /malformed pin/.test(entry.detail));
+  assert.ok(malformed, 'a non-string commandId must be reported as a malformed pin');
+  assert.equal(malformed!.detail.includes('\n'), false, 'the malformed-pin detail must be one line');
+  assert.ok(malformed!.detail.length <= 300, `the malformed-pin detail must be bounded, got ${malformed!.detail.length}`);
+});
+
+// ---------------------------------------------------------------------------
 // (21) DURATION HISTORY — collected from prior signed validation artifacts.
 //      Absent history is UNKNOWN-duration, never zero.
 // ---------------------------------------------------------------------------
