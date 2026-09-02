@@ -62,7 +62,43 @@
       "context": "core/done-required-validation.ts private SHELL_META_RE / splitShellWords / commandFromString around lines 40, 113, 276 versus parseLegacyValidationCommandString in core/validation-command-identity.ts. RED fixture: a shared set of tricky inputs (metacharacters, quoted arguments, embedded spaces) parsed through every call site must agree on shell-versus-argv; any intentional divergence becomes an explicit, named, tested difference.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "CLAUDE.md#handler-encoding-conventions"
+      ],
+      "userSees": "The smoke prints one line per parser case and ends `single-owner-extraction-smoke: PASS`; `grep -n splitShellWords packages/main/src/core/done-required-validation.ts` prints nothing, and a DONE-required command containing a quoted argument with an embedded space executes exactly as it did before the change.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done-required-validation.ts delegates its command-string parse to parseLegacyValidationCommandString and no private SHELL_META_RE, splitShellWords or commandFromString remains in it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A committed corpus of tricky inputs (metacharacters, quoted arguments, embedded spaces, empty string) produces identical shell-versus-argv results through every call site.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the DONE-required path needs any divergence from the routine parse, it is an explicit named function with its own fixture; a fixture asserts no unnamed divergence exists by diffing outputs over the corpus.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
