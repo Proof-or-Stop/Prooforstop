@@ -795,6 +795,9 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     .filter(line => /REVIEW Finding handling|Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
   assert.deepEqual(claudeTriageLines, ownerTriageLines, 'Claude and Codex Story Owner guidance is byte-identical');
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
+  const supersededSeverityFirstGuidance = /(?:Fix it in the current Story when it is critical or high severity|For a medium or low severity defect outside the direct acceptance scope|If later evidence raises the severity[\s\S]{0,160}re-escalate it into the current Story immediately)/u;
+  assert.doesNotMatch(ownerGuide, supersededSeverityFirstGuidance, 'AGENTS omits superseded severity-first triage guidance outside the canonical four-line contract');
+  assert.doesNotMatch(claudeGuide, supersededSeverityFirstGuidance, 'CLAUDE omits superseded severity-first triage guidance outside the canonical four-line contract');
   for (const [file, lines] of [['AGENTS.md', ownerTriageLines], ['CLAUDE.md', claudeTriageLines]] as const) {
     const compatibilityLine = lines.find(line => line.includes('**Compatibility boundary and dismissal**')) ?? '';
     assert.match(compatibilityLine, /Only the Owner may use current `finding_dismiss` as an audited round\/profile action when mechanical policy permits it;/u, `${file} keeps the Owner-only audited compatibility action`);

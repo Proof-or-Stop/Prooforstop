@@ -408,11 +408,11 @@ function isBoundedSignedDispositionInspection(segment: string): boolean {
 
 function isExplicitlyProhibitedDispositionAuthority(segment: string): boolean {
   const actor = '(?:reviewers?|review\\s+lanes?|agents?|story\\s+owners?)';
-  // Punctuation is removed by authority normalization, so accept a bounded
-  // coordinated action sequence. Clause starters, actor pronouns, conjunction
-  // pivots, and infinitive `to` are excluded structurally: a negated action
-  // cannot launder a later independent assignment clause or double negation.
-  const action = '(?!(?:and|or|to|from|before|after|until|then|they|he|she|it|this|that|reviewers?|agents?|owners?)\\b)[\\p{L}][\\p{L}\\p{N}_]*';
+  // A direct prohibition is safe only when negation binds a direct
+  // disposition-authority action. Control and timing verbs such as avoid,
+  // postpone, resist, delay, hesitate, or refuse cannot inherit that safety
+  // merely because a later complement names a grant action.
+  const action = '(?:mint(?:s|ed|ing)?|sign(?:s|ed|ing)?|suppl(?:y|ies|ied|ying)|bestow(?:s|ed|ing)?|confer(?:s|red|ring)?|grant(?:s|ed|ing)?|assign(?:s|ed|ing)?|attach(?:es|ed|ing)?|issue(?:s|d|ing)?|creat(?:e|es|ed|ing)|set(?:s|ting)?|giv(?:e|es|en|ing))';
   const actionList = `${action}(?:(?:\\s+or)?\\s+${action}){0,5}`;
   const disposition = '(?:defer\\s+with\\s+proof(?:\\s+disposition)?|finding\\s+deferral\\s+disposition)';
   const target = '(?:\\s+(?:on|to|for)\\s+(?:the\\s+)?finding)?';
@@ -426,7 +426,7 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
   for (let index = 0; index < segments.length - 1; index += 1) {
     if (!inspection.test(segments[index])) continue;
     const continuation = segments[index + 1];
-    const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+disposition|the\s+(?:[\p{L}]+\s+){0,2}disposition|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
+    const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt)|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
     const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
     if (!dispositionCoreference || !findingTarget) continue;
     if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
@@ -621,7 +621,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     }
 
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
-    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|sufficient\s+by\s+itself|enough\s+by\s+itself|sufficient\s+on\s+its\s+own|by\s+itself|on\s+its\s+own|sole\s+criterion|single\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|entirely|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|decisive\s+factor|determinative\s+control|sufficient\s+by\s+itself|enough\s+by\s+itself|sufficient\s+on\s+its\s+own|by\s+itself|on\s+its\s+own|sole\s+criterion|single\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
       const qualifier = segment.slice(soleRange.start, soleRange.end);
@@ -638,7 +638,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
         return severityBeforeQualifier
           ? (qualifier === 'no other factor'
               ? /^(?:and)?$/u.test(bridge)
-              : /^(?:(?:is|are|was|were|be|being|remains?|becomes?)(?:\s+the)?)?$/u.test(bridge))
+              : /^(?:(?:is|are|was|were|be|being|remains?|becomes?)(?:\s+the)?|has|have|had)?$/u.test(bridge))
           : /^(?:by|from|of|on)(?:\s+the)?$|^$/u.test(bridge);
       });
     });
