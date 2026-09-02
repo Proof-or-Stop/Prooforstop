@@ -482,31 +482,51 @@
           {
             "desc": "The collector carries verification intent through as human-readable reason context available to the explain output.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "verification intent is carried as reason context and produces no command-to-seed edge"
+            }
           }
         ],
         "edge": [
           {
             "desc": "A deleted file remains a seed, and a renamed file contributes both its old and its new path as seeds.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "a deleted path remains a seed and a rename contributes both old and new paths"
+            }
           },
           {
             "desc": "Story metadata paths and registered runtime artifacts are excluded from material seeds by the same canonical classifier used for material freshness, not by a local path list.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "story metadata and registered runtime artifacts are excluded by the canonical classifier"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "When the changed-file read fails, the collector reports changed_files_unavailable and an escalation rather than returning an empty seed set that would read as no changes.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "a changed-file read failure is changed_files_unavailable, never an empty seed set"
+            }
           },
           {
             "desc": "Duration history is estimate-only and verification intent is reason-context-only: a fixture mutates duration history and asserts the selected set is unchanged, and a fixture asserts verification intent alone produces no command-to-seed edge.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "mutating duration history leaves the selected set and the selection digest unchanged"
+            }
           }
         ]
       },
@@ -577,6 +597,106 @@
           "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca",
           "storyFilesHash": "e7d0ccd29e89dc73f9f822f08a060ad1d8ebfe5adf456c5825bd67cd95f5d5d2",
           "timestamp": "2026-09-02T02:53:23.547Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Verification intent is reason context only, per the spec's never-the-only-machine-mapping rule.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e05000daf224bec5ac03f448a0c80ab3cdc0e0547fffae02fa57d14ee259315b",
+            "outputTail": "ts are excluded by the canonical classifier\n  ok  a changed-file read failure is changed_files_unavailable, never an empty seed set\n  ok  an unreadable changed-file set escalates with a bounded classification, not a git usage dump\n  ok  every changed-file failure classification stays one bounded sentence\n  ok  the REAL reader outside a git repository yields a bounded detail end to end\n  ok  a hash snapshot failure is classified, not silently dropped\n  ok  duration history is collected and an absent history reports unknown-duration, never zero\n  ok  mutating duration history leaves the selected set and the selection digest unchanged\n  ok  verification intent is carried as reason context and produces no command-to-seed edge\n  ok  an unresolvable evidence pin is a classified stop, not a silently dropped seed\n  ok  the collector re-validates a schema-bypassing caller input\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  the tier vocabulary is exactly the three spec names, ordered by containment\n  ok  a tier selection that breaks the subset invariant is rejected\n  ok  every reason code carries a non-empty plain-language gloss, asserted by enumeration\n  ok  an unknown reason code has no gloss and is refused rather than glossed as empty\n  ok  the table covers every row of the spec fail-closed widening matrix\n  ok  a normal configured story plans repository-full over the complete universe\n  ok  no pruning exists: a story that changed nothing still selects the complete universe\n  ok  configured is the command-set path\n  ok  fallback reports source_kind_atomic and executes its atomic repository-full path\n  ok  validate-file reports source_kind_atomic and executes its atomic repository-full path\n  ok  no-validator preserves the existing skip/warn and produces NO tier pass\n  ok  an unclassified material input escalates AND is listed\n  ok  an unresolvable pin collected upstream becomes a classified stop, never a plan\n  ok  no input in the resolver space yields a reduced effective tier\n  ok  an empty universe stops as empty_selection_unclassified rather than passing empty\n  ok  the planner core rejects a schema-bypassing tier and a malformed input\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T02:53:25.122Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "27026776500e5d0f412b6c0189e0304d5079b722",
+          "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca",
+          "storyFilesHash": "e7d0ccd29e89dc73f9f822f08a060ad1d8ebfe5adf456c5825bd67cd95f5d5d2",
+          "timestamp": "2026-09-02T02:53:29.124Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Deleted paths and both rename sides remain seeds.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e05000daf224bec5ac03f448a0c80ab3cdc0e0547fffae02fa57d14ee259315b",
+            "outputTail": "ts are excluded by the canonical classifier\n  ok  a changed-file read failure is changed_files_unavailable, never an empty seed set\n  ok  an unreadable changed-file set escalates with a bounded classification, not a git usage dump\n  ok  every changed-file failure classification stays one bounded sentence\n  ok  the REAL reader outside a git repository yields a bounded detail end to end\n  ok  a hash snapshot failure is classified, not silently dropped\n  ok  duration history is collected and an absent history reports unknown-duration, never zero\n  ok  mutating duration history leaves the selected set and the selection digest unchanged\n  ok  verification intent is carried as reason context and produces no command-to-seed edge\n  ok  an unresolvable evidence pin is a classified stop, not a silently dropped seed\n  ok  the collector re-validates a schema-bypassing caller input\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  the tier vocabulary is exactly the three spec names, ordered by containment\n  ok  a tier selection that breaks the subset invariant is rejected\n  ok  every reason code carries a non-empty plain-language gloss, asserted by enumeration\n  ok  an unknown reason code has no gloss and is refused rather than glossed as empty\n  ok  the table covers every row of the spec fail-closed widening matrix\n  ok  a normal configured story plans repository-full over the complete universe\n  ok  no pruning exists: a story that changed nothing still selects the complete universe\n  ok  configured is the command-set path\n  ok  fallback reports source_kind_atomic and executes its atomic repository-full path\n  ok  validate-file reports source_kind_atomic and executes its atomic repository-full path\n  ok  no-validator preserves the existing skip/warn and produces NO tier pass\n  ok  an unclassified material input escalates AND is listed\n  ok  an unresolvable pin collected upstream becomes a classified stop, never a plan\n  ok  no input in the resolver space yields a reduced effective tier\n  ok  an empty universe stops as empty_selection_unclassified rather than passing empty\n  ok  the planner core rejects a schema-bypassing tier and a malformed input\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T02:53:26.107Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "27026776500e5d0f412b6c0189e0304d5079b722",
+          "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca",
+          "storyFilesHash": "e7d0ccd29e89dc73f9f822f08a060ad1d8ebfe5adf456c5825bd67cd95f5d5d2",
+          "timestamp": "2026-09-02T02:53:29.124Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Exclusion uses the canonical material classifier, not a local allowlist.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e05000daf224bec5ac03f448a0c80ab3cdc0e0547fffae02fa57d14ee259315b",
+            "outputTail": "ts are excluded by the canonical classifier\n  ok  a changed-file read failure is changed_files_unavailable, never an empty seed set\n  ok  an unreadable changed-file set escalates with a bounded classification, not a git usage dump\n  ok  every changed-file failure classification stays one bounded sentence\n  ok  the REAL reader outside a git repository yields a bounded detail end to end\n  ok  a hash snapshot failure is classified, not silently dropped\n  ok  duration history is collected and an absent history reports unknown-duration, never zero\n  ok  mutating duration history leaves the selected set and the selection digest unchanged\n  ok  verification intent is carried as reason context and produces no command-to-seed edge\n  ok  an unresolvable evidence pin is a classified stop, not a silently dropped seed\n  ok  the collector re-validates a schema-bypassing caller input\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  the tier vocabulary is exactly the three spec names, ordered by containment\n  ok  a tier selection that breaks the subset invariant is rejected\n  ok  every reason code carries a non-empty plain-language gloss, asserted by enumeration\n  ok  an unknown reason code has no gloss and is refused rather than glossed as empty\n  ok  the table covers every row of the spec fail-closed widening matrix\n  ok  a normal configured story plans repository-full over the complete universe\n  ok  no pruning exists: a story that changed nothing still selects the complete universe\n  ok  configured is the command-set path\n  ok  fallback reports source_kind_atomic and executes its atomic repository-full path\n  ok  validate-file reports source_kind_atomic and executes its atomic repository-full path\n  ok  no-validator preserves the existing skip/warn and produces NO tier pass\n  ok  an unclassified material input escalates AND is listed\n  ok  an unresolvable pin collected upstream becomes a classified stop, never a plan\n  ok  no input in the resolver space yields a reduced effective tier\n  ok  an empty universe stops as empty_selection_unclassified rather than passing empty\n  ok  the planner core rejects a schema-bypassing tier and a malformed input\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T02:53:27.095Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "27026776500e5d0f412b6c0189e0304d5079b722",
+          "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca",
+          "storyFilesHash": "e7d0ccd29e89dc73f9f822f08a060ad1d8ebfe5adf456c5825bd67cd95f5d5d2",
+          "timestamp": "2026-09-02T02:53:29.124Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Mutation-proven: a catch-and-return-empty implementation fails this case. The most important negative in the collector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e05000daf224bec5ac03f448a0c80ab3cdc0e0547fffae02fa57d14ee259315b",
+            "outputTail": "ts are excluded by the canonical classifier\n  ok  a changed-file read failure is changed_files_unavailable, never an empty seed set\n  ok  an unreadable changed-file set escalates with a bounded classification, not a git usage dump\n  ok  every changed-file failure classification stays one bounded sentence\n  ok  the REAL reader outside a git repository yields a bounded detail end to end\n  ok  a hash snapshot failure is classified, not silently dropped\n  ok  duration history is collected and an absent history reports unknown-duration, never zero\n  ok  mutating duration history leaves the selected set and the selection digest unchanged\n  ok  verification intent is carried as reason context and produces no command-to-seed edge\n  ok  an unresolvable evidence pin is a classified stop, not a silently dropped seed\n  ok  the collector re-validates a schema-bypassing caller input\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  the tier vocabulary is exactly the three spec names, ordered by containment\n  ok  a tier selection that breaks the subset invariant is rejected\n  ok  every reason code carries a non-empty plain-language gloss, asserted by enumeration\n  ok  an unknown reason code has no gloss and is refused rather than glossed as empty\n  ok  the table covers every row of the spec fail-closed widening matrix\n  ok  a normal configured story plans repository-full over the complete universe\n  ok  no pruning exists: a story that changed nothing still selects the complete universe\n  ok  configured is the command-set path\n  ok  fallback reports source_kind_atomic and executes its atomic repository-full path\n  ok  validate-file reports source_kind_atomic and executes its atomic repository-full path\n  ok  no-validator preserves the existing skip/warn and produces NO tier pass\n  ok  an unclassified material input escalates AND is listed\n  ok  an unresolvable pin collected upstream becomes a classified stop, never a plan\n  ok  no input in the resolver space yields a reduced effective tier\n  ok  an empty universe stops as empty_selection_unclassified rather than passing empty\n  ok  the planner core rejects a schema-bypassing tier and a malformed input\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T02:53:28.056Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "27026776500e5d0f412b6c0189e0304d5079b722",
+          "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca",
+          "storyFilesHash": "e7d0ccd29e89dc73f9f822f08a060ad1d8ebfe5adf456c5825bd67cd95f5d5d2",
+          "timestamp": "2026-09-02T02:53:29.124Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Mutation-proven estimate-only guard; the intent-no-edge half is the adjacent case in the same run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e05000daf224bec5ac03f448a0c80ab3cdc0e0547fffae02fa57d14ee259315b",
+            "outputTail": "ts are excluded by the canonical classifier\n  ok  a changed-file read failure is changed_files_unavailable, never an empty seed set\n  ok  an unreadable changed-file set escalates with a bounded classification, not a git usage dump\n  ok  every changed-file failure classification stays one bounded sentence\n  ok  the REAL reader outside a git repository yields a bounded detail end to end\n  ok  a hash snapshot failure is classified, not silently dropped\n  ok  duration history is collected and an absent history reports unknown-duration, never zero\n  ok  mutating duration history leaves the selected set and the selection digest unchanged\n  ok  verification intent is carried as reason context and produces no command-to-seed edge\n  ok  an unresolvable evidence pin is a classified stop, not a silently dropped seed\n  ok  the collector re-validates a schema-bypassing caller input\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  the tier vocabulary is exactly the three spec names, ordered by containment\n  ok  a tier selection that breaks the subset invariant is rejected\n  ok  every reason code carries a non-empty plain-language gloss, asserted by enumeration\n  ok  an unknown reason code has no gloss and is refused rather than glossed as empty\n  ok  the table covers every row of the spec fail-closed widening matrix\n  ok  a normal configured story plans repository-full over the complete universe\n  ok  no pruning exists: a story that changed nothing still selects the complete universe\n  ok  configured is the command-set path\n  ok  fallback reports source_kind_atomic and executes its atomic repository-full path\n  ok  validate-file reports source_kind_atomic and executes its atomic repository-full path\n  ok  no-validator preserves the existing skip/warn and produces NO tier pass\n  ok  an unclassified material input escalates AND is listed\n  ok  an unresolvable pin collected upstream becomes a classified stop, never a plan\n  ok  no input in the resolver space yields a reduced effective tier\n  ok  an empty universe stops as empty_selection_unclassified rather than passing empty\n  ok  the planner core rejects a schema-bypassing tier and a malformed input\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T02:53:29.024Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "27026776500e5d0f412b6c0189e0304d5079b722",
+          "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca",
+          "storyFilesHash": "e7d0ccd29e89dc73f9f822f08a060ad1d8ebfe5adf456c5825bd67cd95f5d5d2",
+          "timestamp": "2026-09-02T02:53:29.124Z"
         }
       ]
     },
