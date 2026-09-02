@@ -14066,6 +14066,40 @@
         "scanEscalationReason": null
       },
       "_hash": "eb077638af927f17ee690ec492cba849e320554b0477cda6bf713e2855bb3d00"
+    },
+    {
+      "id": "B-5a15:RP-301",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness critique of RI-068 wave 1 (cutoff verified in the epoch record as headHash abff9db275, materialHash b8406c77a2, storyFilesHash ae77de8125 -- matching the declared frozen cutoff; requiredLanes concept/quality/test-coverage; waves 0; initialRunSequenceBoundary 889). RAW FINDING SET RECOMPUTED INDEPENDENTLY from review-inventory-epoch.ts:327-396 rather than accepted: candidate runs are those with matching storyId/reviewRound/materialHash/storyFilesHash and sequence > 889, giving RR-890 and RR-891 (concept), RR-892 (quality), RR-893 (test-coverage); ZERO findings are bound to any candidate run, so the raw finding set is EMPTY -- I compute 0, agreeing with the stated expectation. Baseline is correctly empty: of 365 findings, 226 are status open, but filtering by isEligibleBaselineFinding's run.reviewRound === epoch.reviewRound condition yields exactly 0, so signed baselineFindingIds [] is right and listing any would be rejected at line 411; I therefore pass findingDispositions=[] and re-adjudicated none of the earlier-round findings. Lane terminal selection verified rather than assumed: RR-890 is an abandoned concept review_run_start carrying NO pass, and since evaluateReviewInventoryWave sorts lane runs by startedAt descending and selects the first row with a terminal, the concept terminal resolves to RR-891 (startedAt 16:51:13.863Z, pass recorded) and not RR-890 (16:50:40.976Z, no terminal); each of the three required lanes has exactly one terminal (RP-298 concept, RP-299 quality, RP-300 test-coverage). SUBSTANTIVE COMPLETENESS, the dimension validateReviewInventoryCriticReceipt does NOT check: I compared each lane's readManifest against the epoch's actual material rather than accepting the passes at face value. The material subject of this epoch is a single file -- git diff --name-only -M 678ed33aa5..abff9db275 over packages/main/src, packages/main/tests, packages/graph, packages/utils, scripts, docs and *.md yields exactly packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts (the F-365 assertion removal). That file appears in filesReadFully for BOTH lanes whose scope covers it (concept RR-891 and quality RR-892), so neither lane signed a verdict over unread material; test-coverage RR-893 legitimately reads the intent/evidence surfaces instead (checklist.json, core/verification.ts, causal-evidence.test.mjs) because its subject is coverage topology, not the diff. No lane declared a scanEscalationReason and none was warranted at a one-file material scope. The lane verdicts are also non-vacuous on substance: concept re-derived all three B-cdf6:F-057 pin divergences per path with HEAD-vs-main grep counts and ran both coupled guards to true exit 0; quality did not merely assert the F-365 repair was correct but measured it, instrumenting a scratch dist copy to show the deleted assertion's claimed value was false (actual sameNameShadow.status=complete) and inverting the retained endpoint guard to show it fails with its own named message, restoring the dist byte-identically both times; test-coverage reported the declared-selector count as 51 of 53 with the two absent refs named (CHK-004:happy:2 and :3) and the cause located at causal-evidence.test.mjs:2495, rather than rounding it to full coverage. Wave 4 rollout dimension: acceptance-rollout-report.json carries verdict pass with genuine 2 hosts (codex-cli AND claude-cli), mislabeled3x1Count=0 so no degraded 3x1 was accepted, 6 matched pairs, registeredSeedCount 3 = detectedSeedCount 3, falsePassCount 0, omissionDetectionRate 1, falseBlockRate 0, waiverDelta 0, inventoryShrankCount 0, empty diagnostics, and its observe-mode gate artifacts hold readOnly=true / evidentiary=false / authority=diagnostic_only, so status and diagnostics stay invariant and observe claims no blocking authority. Known and expected, correctly NOT filed by any lane: pre_review_check_read PR_ARTIFACT_TAMPERED, which is only the F-365 commit having moved the hash its seal binds; resealing is DEV-only work for the remediation pass that consumes this receipt. Judgement: COMPLETE. Zero raw findings, zero eligible baseline findings, three lane terminals each covering their material, and no unread-material or rubber-stamp gap.",
+      "createdAt": "2026-09-02T17:05:22.542Z",
+      "reviewRound": "2026-09-02T15:40:29.128Z",
+      "reviewRunId": "B-5a15:RR-894",
+      "envelopeId": "3d3c04fddee7ee49c903ab20af1b1d87cc00166e0ee6ce87f6088ac9de8a32dd",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ce931ffc1e35b3e5e47f0596608dbc074cde58b8032c2519279b550befff3d0"
     }
   ]
 }
