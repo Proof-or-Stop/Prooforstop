@@ -929,6 +929,21 @@
       ],
       "signatureTag": "edge|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-042",
+      "desc": "tests/AGENTS.verify.mjs:1004-1008 — acceptance blocker: runtimeChecks assumes the globally resolved /opt/homebrew/bin/proof-or-stop entrypoint is directly executable and hard-asserts spawn status 0. On the current host its target is mode 0644 and version 0.3.271; direct execution returns EACCES, spawnSync.status is null, and both `node tests/AGENTS.verify.mjs --runtime-policy` and `--receipt-window-policy` fail at line 1007. CHK-003:edge:1 requires global version/path drift to be reported as a distinct environment finding without substituting it for repository-local authority or treating unrelated host drift as AGENTS inconsistency. The current hard assertion instead prevents the final proof and the new receipt-window claim from being rerun. Handle unavailable/non-executable global runtime as an explicit environment classification while keeping the local 0.3.270 worktree CLI authoritative, or restore a mechanically verified executable global entrypoint before resubmission.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T12:36:24.282Z",
+      "reviewRound": "2026-09-02T12:31:17.695Z",
+      "reviewRunId": "B-d854:RR-035",
+      "_hash": "d2a0823bb8500f97aa0e3506d61eb6e51effcd193d216c5a4d46d0d4f34ab4a9",
+      "signatureTag": "edge|unknown|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
