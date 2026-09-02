@@ -515,12 +515,20 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|by\s+itself|on\s+its\s+own)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
-      const qualifier = segment.slice(soleRange.start, soleRange.end);
-      const qualifierPrefix = segment.slice(Math.max(0, soleRange.start - 24), soleRange.start);
-      if (qualifier === 'only' && /\b(?:append|read|review|documentation)\s+$/u.test(qualifierPrefix)) return false;
-      return matchRanges(segment, severity).some(severityRange =>
-        Math.max(0, Math.max(soleRange.start, severityRange.start) - Math.min(soleRange.end, severityRange.end)) <= 40,
-      );
+      return matchRanges(segment, severity).some(severityRange => {
+        const severityBeforeQualifier = severityRange.end <= soleRange.start;
+        const qualifierBeforeSeverity = soleRange.end <= severityRange.start;
+        if (!severityBeforeQualifier && !qualifierBeforeSeverity) return true;
+        const bridge = severityBeforeQualifier
+          ? segment.slice(severityRange.end, soleRange.start).trim()
+          : segment.slice(soleRange.end, severityRange.start).trim();
+        // The exclusivity token must grammatically qualify severity, not merely
+        // occur nearby. In particular, `only after applicable ... low/medium`
+        // is an applicability-timing boundary, not severity-only ownership.
+        return severityBeforeQualifier
+          ? /^(?:(?:is|are|was|were|be|being|remains?|becomes?)(?:\s+the)?)?$/u.test(bridge)
+          : /^(?:by|from|of|on)?$/u.test(bridge);
+      });
     });
     if (soleQualifierBindsSeverity
       && hasConceptPair(segment, severity, storyResponsibility)
