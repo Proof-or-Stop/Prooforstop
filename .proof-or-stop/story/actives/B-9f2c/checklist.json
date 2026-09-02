@@ -89,6 +89,14 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/graph/src/io/http.ts",
+          "packages/graph/scripts/build-web.mjs"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
