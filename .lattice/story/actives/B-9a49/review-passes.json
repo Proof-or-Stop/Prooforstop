@@ -633,6 +633,55 @@
       },
       "readDiagnostics": [],
       "_hash": "f3d55b54cd5f4c66e77fbb24b35ed05ce44e2557b945916c9be8c2ac7dfde28b"
+    },
+    {
+      "id": "B-9a49:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 16 test-coverage review passed on current material: 18/18 authority interaction mutations include digest-refreshed F-040 dual-floor and F-041 current-witness inverses across complete reviewer bodies; focused registry/full-context/measurement, 17-role approval/generated baseline, process/runtime contracts pass; all six checklist items map 60 must intents to exactly 59 fresh mechanical receipts plus one explicit permanent single-Story waiver; no open findings, no protected Dynamic Finding runtime diff, and the F-041 test change adds a forbidden pattern and mutation without weakening the existing inventories.",
+      "createdAt": "2026-09-02T00:27:49.678Z",
+      "reviewRound": "2026-09-02T00:23:58.905Z",
+      "reviewRunId": "B-9a49:RR-063",
+      "envelopeId": "4a9e2e1a77a23fffd1b1f892eb1983e8e1ed665e54860cc0b2130243f7f75318",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a4dc755d3215de514464603b91256230e218878d4dbf41afd996fd2caca3cb16"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ecc9fac0c25e77fbb6d4995c962a9b5813ad08333c36b46951c2b7f137d0e5e"
     }
   ]
 }
