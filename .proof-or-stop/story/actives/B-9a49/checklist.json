@@ -1627,9 +1627,9 @@
           "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T03:02:36.041Z",
-      "endTime": null,
+      "endTime": "2026-09-02T03:02:36.823Z",
       "verificationIntent": {
         "happy": [
           {
@@ -2227,6 +2227,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin final closure of the separately reviewed acceptance-basis infrastructure repair."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:36.823Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All eleven acceptance-basis intents have passing tool-executed receipts; the bounded repair is committed."
     }
   ]
 }
