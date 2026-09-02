@@ -269,7 +269,11 @@
           {
             "desc": "Independently extract all active CLI examples from the final AGENTS.md and smoke them through `node bin/proof-or-stop.js`, using real read-only invocations and an isolated disposable repository or registered-schema validation for mutations. Cross-check command names against `help --full`, require explicit historical labeling for every unavailable command, and add a known-invalid sentinel example that must fail the audit. The evidence must show all genuine active examples pass and the sentinel is rejected. WHY: a command checker that accepts both valid and invalid examples proves nothing.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\"),cp=require(\\\"child_process\\\");const s=fs.readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\"),n=new Set();for(const m of s.matchAll(/proof-or-stop\\\\s+([a-z][a-z0-9_-]*)(?:\\\\s+([a-z][a-z0-9_-]*))?/g)){const a=m[1],b=m[2];n.add(a===\\\"codex\\\"&&(b===\\\"verify\\\"||b===\\\"doctor\\\")?a+\\\" \\\"+b:a)}for(const x of n){if(x===\\\"help\\\")continue;const p=cp.spawnSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",...x.split(\\\" \\\"),\\\"--help\\\"],{encoding:\\\"utf8\\\"});if(p.status!==0)process.exit(1)}const q=cp.spawnSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",\\\"definitely_not_a_real_command\\\",\\\"--help\\\"],{encoding:\\\"utf8\\\"});if(q.status===0)process.exit(1);console.log(\\\"ACTIVE_COMMAND_AUDIT_PASS checked=\\\"+n.size+\\\" sentinelExit=\\\"+q.status)\"",
+              "selector": "ACTIVE_COMMAND_AUDIT_PASS"
+            }
           }
         ]
       },
@@ -333,6 +337,26 @@
           "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
           "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
           "timestamp": "2026-09-02T00:18:07.741Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const fs=require(\\\"fs\\\"),cp=require(\\\"child_process\\\");const s=fs.readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\"),n=new Set();for(const m of s.matchAll(/proof-or-stop\\\\s+([a-z][a-z0-9_-]*)(?:\\\\s+([a-z][a-z0-9_-]*))?/g)){const a=m[1],b=m[2];n.add(a===\\\"codex\\\"&&(b===\\\"verify\\\"||b===\\\"doctor\\\")?a+\\\" \\\"+b:a)}for(const x of n){if(x===\\\"help\\\")continue;const p=cp.spawnSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",...x.split(\\\" \\\"),\\\"--help\\\"],{encoding:\\\"utf8\\\"});if(p.status!==0)process.exit(1)}const q=cp.spawnSync(process.execPath,[\\\"bin/proof-or-stop.js\\\",\\\"definitely_not_a_real_command\\\",\\\"--help\\\"],{encoding:\\\"utf8\\\"});if(q.status===0)process.exit(1);console.log(\\\"ACTIVE_COMMAND_AUDIT_PASS checked=\\\"+n.size+\\\" sentinelExit=\\\"+q.status)\"",
+          "result": "pass",
+          "note": "Independent final extractor recognizes only the lowercase executable prefix, validates every active command/namespace through repository-local help, and proves the checker rejects an unsupported sentinel. The earlier case-insensitive false-positive run failed on brand prose and was not treated as green.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d25526549db9f0d01c4463468deff803160e1223154732982aa7a60cda45a142",
+            "outputTail": "ACTIVE_COMMAND_AUDIT_PASS checked=20 sentinelExit=1\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T00:18:53.796Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "52c663d39e84604b7ce2194b9615f0ffedc107c4",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:18:54.935Z"
         }
       ]
     }
