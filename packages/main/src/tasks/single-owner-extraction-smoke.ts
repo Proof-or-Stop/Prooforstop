@@ -371,7 +371,9 @@ const READER_NAMES = ['changedFilesBetweenRenameAware', 'changedFileStatusesBetw
 function functionBody(source: string, name: string): string {
   const start = source.indexOf(`function ${name}(`);
   assert.ok(start >= 0, `function ${name} not found in evidence-freshness.ts`);
-  const open = source.indexOf('{', start);
+  // The body brace is the first `{` that ends its line; a return type such as
+  // `Array<{ path: string; deleted: boolean }>` also contains `{` and must be skipped.
+  const open = source.indexOf('{\n', start);
   let depth = 0;
   for (let i = open; i < source.length; i += 1) {
     if (source[i] === '{') depth += 1;
@@ -538,9 +540,20 @@ group('CHK-001 rename-aware diff reader parses NUL-delimited output and fails lo
     name: 'no reader body catches, and no caller wraps these readers in catch { return [] }',
     run: () => {
       const readerSource = readFileSync(join(MAIN_SRC, 'core', 'evidence-freshness.ts'), 'utf-8');
+      // The readers may share ONE git invocation helper; follow that single
+      // level of delegation and hold the helper to the same rules.
+      const invokesNulDiff = (body: string): boolean => {
+        if (body.includes("'-z'")) return body.includes("'--name-status'") && body.includes("'-M'");
+        const delegate = body.match(/\b(\w+)\(gitCwd, fromHead, toHead\)/);
+        if (!delegate) return false;
+        const delegateBody = functionBody(readerSource, delegate[1]);
+        assert.ok(!/\bcatch\b/.test(delegateBody), `${delegate[1]} must not catch (it would hide a git failure as a shorter list)`);
+        return delegateBody.includes("'-z'") && delegateBody.includes("'--name-status'") && delegateBody.includes("'-M'");
+      };
       for (const name of READER_NAMES) {
-        assert.ok(!/\bcatch\b/.test(functionBody(readerSource, name)), `${name} must not catch (it would hide a git failure as a shorter list)`);
-        assert.ok(functionBody(readerSource, name).includes("'-z'"), `${name} must invoke git diff --name-status -M -z`);
+        const body = functionBody(readerSource, name);
+        assert.ok(!/\bcatch\b/.test(body), `${name} must not catch (it would hide a git failure as a shorter list)`);
+        assert.ok(invokesNulDiff(body), `${name} must invoke git diff --name-status -M -z (directly or through one shared helper)`);
       }
       const offenders: string[] = [];
       const tryCatchEmpty = /try\s*\{([\s\S]*?)\}\s*catch\s*(?:\([^)]*\))?\s*\{\s*return\s*\[\]\s*;?\s*\}/g;
