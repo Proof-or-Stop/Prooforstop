@@ -2,7 +2,7 @@
 
 > Full command reference for the Proof-or-Stop CLI (`proof-or-stop`). For what the project is and the problem it solves, see the [README](../README.md).
 
-Proof-or-Stop CLI 0.3.270 is the CLI-first product entry point for the Proof-or-Stop Story workflow. `proof-or-stop` is the canonical product command, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics.
+Proof-or-Stop CLI 0.3.271 is the CLI-first product entry point for the Proof-or-Stop Story workflow. `proof-or-stop` is the canonical product command, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics.
 
 This repository currently contains:
 

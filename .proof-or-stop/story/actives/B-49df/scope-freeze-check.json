@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-49df",
+  "checkedAt": "2026-09-02T07:52:16.037Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "6d2a28dbb3452114ead204940c44d4dd94975eeb6910614a5ed20a9410309d1f",
+  "executionBoundaryHash": "1e04eb2b244c16ca8adf907f80c986c333706211d5a9636a158913dd417252c3",
+  "freshnessHash": "4b6b46d730320db09c089cbdea2e7f840b148ae7d6f1b49cb592ebf74c055cf4",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "restoring any retired lattice CLI, package, Agent, environment, path, or config alias",
+    "rewriting historical Story artifacts or signatures",
+    "unrelated active Story implementation defects"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "restoring any retired lattice CLI, package, Agent, environment, path, or config alias",
+      "source": "scopeBoundary.excluded",
+      "text": "restoring any retired lattice CLI, package, Agent, environment, path, or config alias",
+      "excluded": true
+    },
+    {
+      "keyword": "rewriting historical Story artifacts or signatures",
+      "source": "scopeBoundary.excluded",
+      "text": "rewriting historical Story artifacts or signatures",
+      "excluded": true
+    },
+    {
+      "keyword": "unrelated active Story implementation defects",
+      "source": "scopeBoundary.excluded",
+      "text": "unrelated active Story implementation defects",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "6a8643f5818ddec5b23962edd2c8f5b06807eca52816f436e8995d64105c4e23"
+}

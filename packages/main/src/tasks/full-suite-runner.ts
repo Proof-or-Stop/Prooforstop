@@ -167,6 +167,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
   isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  // B-a745 CHK-006: the Story 1 fixture suite. Membership authority is the root
+  // test:serial-reference chain; this policy row is the SEPARATE mandatory mapping and
+  // its absence fails the whole suite closed as unknownPolicy rather than skipping the
+  // member. The suite only reads the repository and its own runner-owned temp roots --
+  // it spawns no CLI and holds no exclusive path, port or lock -- so repoRead is correct.
+  repoRead('test:validation-tier-planner'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);

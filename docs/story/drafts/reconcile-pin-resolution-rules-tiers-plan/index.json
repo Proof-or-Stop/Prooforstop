@@ -1,0 +1,15 @@
+{
+  "name": "reconcile-pin-resolution-rules-tiers-plan",
+  "title": "Reconcile the contradictory pin-resolution rules in the dynamic validation tiers plan",
+  "description": "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md (owned by story B-ccf4, currently only on branch story/B-ccf4) gives two different answers to whether an unresolvable verification-evidence pin must halt planning. Its fail-closed widening matrix row reads 'Explicit command pin does not resolve -> Stop', qualifying the stop with the word explicit. Its Canonical legacy pin resolver step 4 reads 'No match stops with pinned_command_missing' in the context of the LEGACY free-form string path, where the pin is precisely not explicit. Its Step 7 invariant 'every pin resolves or selection stops' also reads as unqualified. Story B-a745 implemented Rollout Story 1 and had to choose: an explicit commandId that does not resolve still stops with pinned_command_missing; a legacy free-form string that normalizes to nothing is classified pinned_command_non_inventory, escalates to repository-full, and does not stop. The strongest justification was not the wording tension but a concrete circularity: evidence for the planner's own happy path pinned the planner command itself, so under the unqualified reading the planner stopped BECAUSE evidence existed for it and no selector could ever observe a successful plan; and every real story pins test binaries that are not validation commands, so the unqualified reading stops on essentially every story. Fail-closed is preserved because nothing is ever pruned. An independent Codex host in cross-host review (B-a745 run B-a745-xhr-r1) read the unqualified sentences and filed the implementation as a MAJOR defect; B-a745's own frozen intent CHK-002:edge:0 also encodes the unqualified reading and carries a permanent supersession waiver. This story exists so the document's owner reconciles the two readings explicitly and the implementation is brought into line with the ratified text.",
+  "type": "chore",
+  "priority": "medium",
+  "keywords": [
+    "validation",
+    "tiers",
+    "pin-resolver",
+    "spec",
+    "decision-doc"
+  ],
+  "createdAt": "2026-09-02T08:08:02.662Z"
+}

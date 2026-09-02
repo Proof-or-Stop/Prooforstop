@@ -1,0 +1,169 @@
+{
+  "storyId": "B-a745",
+  "name": "validation-tier-planner-identity",
+  "title": "Add stable validation command identity and an explain-only Story-relevance validation planner",
+  "description": "Implements Rollout Story 1 of docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md (authored under Story B-ccf4). That file is not present on main; it currently exists on branch story/B-ccf4, which is verifiable with `git show main:docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md` failing while `git show story/B-ccf4:<same path>` succeeds.\n\nToday `proof-or-stop validate` either runs the whole configured command inventory or filters it by the static `focus` tag in `filterFocusedConfiguredCommands` (packages/main/src/handlers/verifier.ts). There is no Story-derived relevance, no stable per-command identity, and no way to explain why a command would be run. Adding more static focus tags would create a second hand-maintained test matrix that drifts.\n\nThis Story adds ONLY the foundation the plan calls Story 1: a stable command id plus a normalized command-set digest, a canonical legacy pin resolver, a Story input collector built on the existing rename-aware/freshness readers, language-neutral planner types with the fail-closed widening matrix, and a read-only `validation_plan` CLI that explains the plan. It performs NO relevance pruning: every request that would need an impact or exclusion decision reports effective tier repository-full or a classified stop. No lifecycle gate, no routine validation reuse rule, and no DONE-required evidence path changes. Static impact graph, worktree overlay projection, exclusion proofs, runner decomposition, tier execution, and shadow recall belong to Stories 2-4 and are explicitly out of scope.\n\nDevelopment follows RED then GREEN: each behavior lands as a failing fixture first, then the implementation that turns it green.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "validation",
+    "planner",
+    "command-identity",
+    "verifier",
+    "tiers"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "proof-or-stop validate"
+    }
+  ],
+  "createdAt": "2026-09-02T00:53:11.051Z",
+  "startedAt": "2026-09-02T00:53:11.051Z",
+  "endedAt": "2026-09-02T12:29:29.945Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T00:53:11.576Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-91be5e6cb499660ebcf306bf3ed5f262",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T00:58:11.370Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-91be5e6cb499660ebcf306bf3ed5f262",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-02T00:58:34.873Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T01:21:22.228Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T02:55:06.517Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-09-02T02:55:26.801Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T04:26:56.344Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T07:36:51.980Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T07:53:58.519Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-09-02T07:54:31.702Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T10:47:30.141Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T11:26:13.186Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T11:26:56.330Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-09-02T11:27:17.365Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T11:48:38.837Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-02T12:29:29.945Z",
+      "branch": "story/B-a745",
+      "user": "Harmonynet",
+      "sessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-09-02T11:26:56.330Z"
+}

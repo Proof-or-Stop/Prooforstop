@@ -1,0 +1,29 @@
+{
+  "storyId": "B-a745",
+  "checkedAt": "2026-09-02T00:57:46.010Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-09-02T00:56:43.893Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-005 validation_plan --explain output must be self-documenting: the reason codes (impact_index_unusable, changed_files_unavailable, etc.) and tier vocabulary (story-fast, story-intermediate, repository-full) will be opaque to an operator who has not read the execution plan document. The checklist context says to show escalation reason codes but does not require inline definitions or a help hint. Consider adding a brief human-readable gloss next to each reason code and a one-line note about where to read more. Without this, the explain output is technically correct but practically uninterpretable for a first-time user."
+        },
+        {
+          "severity": "low",
+          "desc": "The userSees field is missing from all six checklist items. Per CLAUDE.md checklist conventions, each item should specify the concrete text the user sees when the item is complete. This makes it harder for the delivery reviewer to judge whether the final CLI output actually closes the loop for the user."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-09-02T00:57:46.010Z",
+      "issues": []
+    }
+  ],
+  "_hash": "83d7fdb8a0f0563f324d9de993d5af17a778e5c46896ce306d76860a1f44cb87"
+}

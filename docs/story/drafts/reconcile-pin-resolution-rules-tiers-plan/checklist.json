@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide and record which reading of the unresolvable-pin rule is canonical, with rationale in the decision document",
+      "context": "Compare the widening matrix row, resolver step 4, and the Step 7 invariant; reconcile them to one reading and explain the self-referential deadlock case either way.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bring the Rollout Story 1 implementation and CHK-002:edge:0 wording into line with the ratified text",
+      "context": "If the qualified reading is ratified, update the code comment in validation-command-identity.ts to cite this decision instead of a tension; if the unqualified reading is ratified, revert pinned_command_non_inventory to a stop and document the deadlock escape.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
