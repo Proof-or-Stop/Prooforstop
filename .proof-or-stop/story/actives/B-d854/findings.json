@@ -258,6 +258,21 @@
       "_hash": "7fc5f5c062defb07fdd10b82a7a9cb110fa2f9bed551977db954ab02803b5813",
       "signatureTag": "adversarial|unknown|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-013",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:29-53 — WHY high acceptance blocker: the 26-row ledger is not a one-to-one proof of the previously enumerated 24 major plus 2 low-priority defects. In particular baseline AGENTS.md:238 supplied Chinese checklist payload text, while packages/main/src/handlers/story-create.ts:742-750 rejects CJK authoring fields before persistence; no audit row records that RED condition or its GREEN correction. Conversely A17-A20 split one orchestration cluster, and A26 bundles test_auto confirmation with old subagent-prompt guidance while its mechanical GREEN predicate in tests/AGENTS.verify.mjs checks only the explicit-confirm sentence. Thus row count 26 does not establish coverage of the exact reported 26-item set. Add a stable provenance mapping for every originally reported item, including a dedicated CJK-payload row and independently checked predicates for both low-priority items.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T01:08:21.220Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-005",
+      "_hash": "ade0dd0de95ab3100e58b84623d0b809c21aa15d3cd6c2b050a395bb41069e4d",
+      "signatureTag": "missing|unknown|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
