@@ -743,6 +743,26 @@
       ],
       "signatureTag": "missing|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-034",
+      "desc": "tests/AGENTS.verify.mjs:22-30,664-720 and docs/audits/AGENTS-current-version-audit.md:25-41 — WHY high acceptance evidence gap: the historical runtime proof is circular rather than mechanically bound to its claimed tool-owned receipt. INITIAL_RUNTIME_AUDIT hardcodes the old paths, versions, and digest; runtimeChecks only asserts that the audit prose contains those same constants and derives a marker from them. It never reads an immutable prior checklist git object or validates a historical receipt object. Changing the constants and matching audit prose to invented values would satisfy both runtime context mutations and final GREEN. Current checklist receipts have outputDigest 103eac123147..., while 8d66e8e... now appears in their outputTail only because this verifier prints its own hardcoded value; git show 48d08c6:.proof-or-stop/story/actives/B-d854/checklist.json does contain old receipts with outputDigest 8d66e8e..., but that immutable object/path is not referenced or consumed, and the retained old tail does not independently bind every claimed path/version. The current-vs-historical labels are separated, but the historical facts are not proven. Bind an exact immutable evidence object and mechanically parse/validate the receipt and the facts it actually retained, or narrow the audit prose to facts the durable receipt can demonstrate; add a mutation of the historical values/digest that fails without relying on duplicated constants.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T08:15:15.959Z",
+      "reviewRound": "2026-09-02T08:08:06.830Z",
+      "reviewRunId": "B-d854:RR-023",
+      "_hash": "43e1f2adf0fbaac04c2844a6b5947f7e04e7e71568ca722be060edf19a58a953",
+      "files": [
+        "tests/AGENTS.verify.mjs",
+        "docs/audits/AGENTS-current-version-audit.md",
+        ".proof-or-stop/story/actives/B-d854/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
