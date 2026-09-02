@@ -287,7 +287,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:1-128 — WHY high acceptance blocker: the user explicitly required Claude CLI and Agy CLI to participate in the independent consistency evaluation, but the durable audit contains no Claude/Agy session identity, transcript hash, command, verdict, or provenance at all (repository search for Claude, Agy, AGY, claude-cli, and the known session identifiers finds no independent-review record in this artifact). Host-only narrative at final handoff would not let a fresh reviewer reproduce or authenticate that requested participation. Add a bounded external-review evidence section binding provider/CLI version, session or transcript identity, SHA-256, exact audit prompt/scope, salient independently confirmed or rejected findings, and explain that repository-local implementation remains the behavior authority.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T01:08:30.962Z",
@@ -295,7 +295,11 @@
       "reviewRunId": "B-d854:RR-005",
       "_hash": "d76ec93c568511a53d80cfc704c4e76ef1ffbe93eb33492ed0de7cf722ab4481",
       "signatureTag": "missing|unknown|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The audit now records Claude Code 2.1.258 and Agy CLI 1.1.23 versions, full session/conversation IDs, transcript/captured-output paths, SHA-256 hashes, scope, raw verdicts and owner reconciliation. Owner final run verifies both local artifacts.",
+      "resolvedAt": "2026-09-02T01:35:05.249Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-015",
