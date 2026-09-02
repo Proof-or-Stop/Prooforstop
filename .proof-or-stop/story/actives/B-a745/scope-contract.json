@@ -36,9 +36,30 @@
     "packages/main/smoke-manifest.json"
   ],
   "scopeChangeReason": "B-a745 is Rollout Story 1 of the dynamic validation tiers plan and must not shrink any validation set or touch any lifecycle gate. The protected files are the gate and final-assurance owners this Story consumes but must never modify: the state machine and its guards, DONE-required validation, the shared freshness readers, and the delivery check. evidence-freshness.ts in particular is protected deliberately - the Story input collector must CONSUME its rename-aware readers, and any edit there would mean the collector re-derived changed files instead of reusing the single owner. The excluded paths are the plan document itself, which story B-ccf4 owns and which must not be copied into this branch, and the noncanonical smoke discovery manifests, which the test-runner consolidation plan forbids using as membership authority.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Registering ONE new read-only command (validation_plan, CHK-005) requires three cross-registries beyond the four files CHK-005 declared, and every one of them fails closed rather than defaulting, so the command is unusable without them. config.ts DEFAULT_PHASE_TOOLS: every phase refuses the command until it is listed. cli/activity-policy.ts READ_ONLY_COMMANDS: without the entry a command that is contractually read-only would write an activity heartbeat, which would contradict the read-only guarantee this Story ships and would break the store-equality fixture. process-fact-levels.ts: the lifecycle-registry-contract check fails with 'command validation_plan is in the registry command dimension but has no process-fact lifecycle level entry'; validation_plan is registered L0 because it consumes no gate evidence and produces none. These are not new capability and not scope growth: each is a single row naming the same command CHK-005 already declares, and none changes behaviour for any other command. The scope contract was written from plan.md's Files sections before this cross-registry requirement was known; it is recorded here rather than by silently widening the contract, so the extension stays auditable. No protected file was touched.",
+      "timestamp": "2026-09-02T02:54:55.246Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "29d251fcb922dccc633f41fe2d0a4a7a219f88e5",
+      "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca"
+    }
+  ],
   "createdAt": "2026-09-02T01:18:45.889Z",
-  "updatedAt": "2026-09-02T01:18:45.889Z",
+  "updatedAt": "2026-09-02T02:54:55.246Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -63,6 +84,9 @@
     "packages/main/src/handlers/delivery-check.ts": "packages/main/src/handlers/delivery-check.ts",
     "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md": "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
     "packages/main/src/smoke-manifest.json": "smoke-manifest.json",
-    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json"
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts"
   }
 }
