@@ -341,6 +341,32 @@
         "scanEscalationReason": null
       },
       "_hash": "406622576ba9cb3e5ee171d2f1ebc1a27a2279644297e7ee966083854af3ab8d"
+    },
+    {
+      "id": "B-fe8f:RP-013",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round-8 re-review of commit dd45caa2ea (fix(validate): register the B-fe8f RED harness and keep full validate green) at head 75713af. Per instruction, ran only fast targeted commands: no full smoke, no full validate, no dist mutation. Three-part diff reviewed: (1) proof-or-stop.config.json registers red-bfe8f-ledger-runtime-integrity.mjs in validate.commands (timeoutMs=180000, resources=[{class:git-common-dir,key:.,access:shared}]) -- confirmed by direct inspection this is the same shape as the other ~50 red-harness entries in that array (most share identical timeoutMs+resources shape). This registration is orthogonal to the CHK-001 verificationEvidence pin: checklist_get shows CHK-001s evidence command is unchanged (`node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs`, identical path/invocation to before), and evidence pinning is driven by checklist.json verification.command/selector via verification_evidence_add/refresh_stale, an entirely separate mechanism from validate.commands orchestration -- registering the same script by path in validate.commands does not touch the pin. (2) retired-authority-vocabulary-guard-smoke.ts bumps DYNAMIC_BINDING_BUILD_CEILING 808->811 for the 3 new Story-3 source files needing a dynamic binding build -- an unrelated global guard threshold, not story-scoped coverage. (3) core/finding-ledger.ts: gitCommonDir now returns undefined (was throwing) on git rev-parse failure, and findingLedgerKeyPath falls back to workspaceRoot/.proof-or-stop/keys/<key-file> for non-git workspaces. Coverage question 1 (is the fallback branch tested): YES, exercised by a committed test -- read packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts:assertFindingResolveAdvisory, which uses mkFindingProject() (mkdtempSync + writeConfig, NO git init call -- confirmed by direct source read, unlike the git-inited mkFixture()/DONE-door fixtures elsewhere in the same file) then calls finding_add/finding_resolve against it. Before this fix, gitCommonDir threw unconditionally on a non-git cwd (git rev-parse exits non-zero -> execFileSync throws), which would have propagated out of finding_add uncaught and crashed this exact smoke fixture -- so the existing assertions (Finding ... created regex match, then a successful finding_resolve) are genuine regression coverage for -- did-not-crash-and-produced-a-valid-signed-ledger-entry -- not decorative. However this is INDIRECT/behavioral coverage: no test asserts the literal fallback path (workspaceRoot/PROOF_OR_STOP_DIR/keys/FINDING_LEDGER_KEY_FILE) or calls the (unexported) gitCommonDir/findingLedgerKeyPath directly. Judged sufficient and non-blocking: the create-if-missing/read key I/O in findingLedgerSignerFromWorkspace is pre-existing shared logic (unchanged by this commit, already exercised by the git-repo path elsewhere), the only new logic is the try/catch + one path.join fallback expression, the exact resulting directory is an internal implementation detail with no documented contract, and the existing test would fail loudly (crash) if the try/catch regressed. Coverage question 2 (does validate.commands registration change the CHK-001 pin): NO -- verified read-only above, same command string, independent mechanism. Verified read-only via checklist_get (no write commands) that all 71 verificationEvidence records across CHK-001..CHK-006 have mechanical=true and result=pass, and all 71 share one uniform binding: headHash=dd45caa2ea97c16cd22ebf522c5d34dadeec0d82 (exactly the reviewed commit), materialHash=9cbfbe65767c96e02c387f0ef15062a25c498976220ce4d1cfd5d838ed7caba7, storyFilesHash=e43dcdd1304c8466b2dbd5a738e206690b7383bc63e5225eca8ecbed09153620 -- matches the coordinators refresh-commit-5ab9bdb185 claim. Live fast-targeted check only: reran the pinned RED command directly (packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs, ~1s) -- exit 0, all 12 PASS lines. Did not run the full finding-ledger-runtime-smoke.js, did not run proof-or-stop validate, did not touch/rebuild packages/main/dist. No blocking finding.",
+      "createdAt": "2026-09-02T14:50:36.041Z",
+      "reviewRound": "2026-09-02T14:44:47.278Z",
+      "reviewRunId": "B-fe8f:RR-026",
+      "envelopeId": "588f1b07abe6cf7f80f2270139a0d6a527c447a0629e0ba145a7c9b03fd33e6e",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f699c58da94e4a9c5def4655787fbce9341e8c84cb21708a0d849d42366078ac"
     }
   ]
 }
