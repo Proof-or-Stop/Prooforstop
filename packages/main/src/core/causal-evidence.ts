@@ -29,7 +29,6 @@ export const CAUSAL_PREFLIGHT_SCHEMA = 'proofbound.causal-evidence-preflight.v1'
 export const CAUSAL_DEPENDENCY_SCHEMA = 'proofbound.causal-dependency-decision.v1' as const;
 export const CAUSAL_RECEIPT_DIRECTORY = 'causal-evidence/receipts';
 export const CAUSAL_RECEIPT_INDEX_FILE = 'causal-evidence/index.json';
-export const CAUSAL_AUTHORITY_SCHEMA = 'proofbound.causal-evidence-authority.v1' as const;
 export const CAUSAL_AUTHORITY_KEY_FILE = 'lattice-causal-evidence-authority-v1.key';
 export const CAUSAL_OUTPUT_TAIL_CHARS = 4_000;
 export const CAUSAL_MAX_OUTPUT_CHARS = 12_000;

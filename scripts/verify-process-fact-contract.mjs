@@ -2014,12 +2014,12 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
-    'bd6f5790b3c33daebfbb04bd184bb210c0589b3acdfb9d7a1c02f7262985bf99',
+    '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
     // persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
-    '32bd2e64768f6a866822ceaf54dd6a8c8ca61dff00f4028e251d000f1d2771cf',
+    '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
