@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-09-02T14:32:02.953Z",
+  "cutoffAt": "2026-09-02T14:33:36.840Z",
   "planBasisDigest": "sha256:529d58a98b226837f1ceceb27a81ebfb86588bbbb12c050e2b458dc1b6a5a389",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -818,7 +818,15 @@
   "scopeContractDigest": "sha256:d85dacff5489d763350af3ba1bd956352f2ba82c64f570afad7d215cbb765e2a",
   "storyFilesHash": "119929430a0b6d05323c950cfac4ade2bd496f8ba6627ae541ee893cf8de5cdf",
   "closureFilesHash": "sha256:a7076d821c53345774847918ccf6429452210c600ef363700c0085b57fa27df1",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c5b5ada74eab27b05494bfb4d385828bb313888773f086538ace07b00360b896"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5a15",
@@ -995,7 +1003,7 @@
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-02T14:32:02.953Z",
+  "issuedAt": "2026-09-02T14:33:36.840Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "7XWQMJDZo6OQfed6ZLwiAvVxlF0AnJTN8r+dyiKRitMLfS7EhrIKNfkietcimNRqnaYjci7D6NmCNNRF7fHjCg=="
+  "signature": "2tDHr9l7YfTgOyvj5J26p4I/Fq79C4cOG98DF1g+kvxh9ExMfoxXOLRs4Oe/zwP/XjJER++MXByG+c5tUNGqDg=="
 }
