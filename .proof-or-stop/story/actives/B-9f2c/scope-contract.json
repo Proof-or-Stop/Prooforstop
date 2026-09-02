@@ -76,10 +76,28 @@
       "phase": "REVIEW",
       "headHash": "ec34728a8a851e9aed91ebc6b29b2e86960cec12",
       "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Not scope creep: these are the framework's own dev-memory artifacts, written by the mandatory pre-DONE step. The DONE gate refuses the story with [missing_dev_memory_finish_decision] until dev_memory_finish_decision is recorded, and recording decision=captured requires the captured entries to exist first. Both files are therefore produced by running the gate's own required command, not by discretionary edits: experience.jsonl gained two lessons from this story (f40abd2, that registering a test task needs three fail-closed membership authorities rather than two, since omitting the RESOURCE_POLICY entry aborts the whole root suite; and 394c115, that signed artifacts auto-commit and re-stale one another so every mutation must be batched before the tree is frozen and verdicts earned), and finish-decisions/B-9f2c.json is the decision record itself. No product code or documentation is affected.",
+      "timestamp": "2026-09-02T17:26:53.281Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "f398c9aee9b17f971d8ba5011bdade0f16814936",
+      "materialHash": "ccfdb13e69090a5d5e57c98bc0a8f9ec78a0cefc7934f21eee8c024a2107c714"
     }
   ],
   "createdAt": "2026-09-02T08:28:24.942Z",
-  "updatedAt": "2026-09-02T15:00:55.818Z",
+  "updatedAt": "2026-09-02T17:26:53.281Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -101,6 +119,8 @@
     "packages/main/dist": "packages/main/dist",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
-    "docs/requirements/decisions/graph-command-migration.md": "docs/requirements/decisions/graph-command-migration.md"
+    "docs/requirements/decisions/graph-command-migration.md": "docs/requirements/decisions/graph-command-migration.md",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
+    ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json": ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json"
   }
 }
