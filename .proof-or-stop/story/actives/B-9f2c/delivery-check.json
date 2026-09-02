@@ -1,100 +1,88 @@
 {
   "storyId": "B-9f2c",
-  "checkedAt": "2026-09-02T14:01:01.932Z",
-  "headHash": "d9250aea1ba8df9ecd62afc36a4ccc525c4f141b",
-  "materialHash": "629f4b74c8e1a475c991148ddc5f0dac81a7f0d4c7303e2befe7a857a6bb98d4",
-  "storyFilesHash": "ba5806db92a6b55de4b66982fc5c1b51bb87000326f08e207075f1b45f3d5cb2",
-  "reviewRound": "2026-09-02T09:12:52.423Z",
+  "checkedAt": "2026-09-02T15:59:01.574Z",
+  "headHash": "4d0901bbd2af9388a21d9edb9f6a99acebd779e7",
+  "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+  "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
+  "reviewRound": "2026-09-02T14:25:10.299Z",
   "agentId": "",
   "docsPromises": [
     {
-      "docPath": "CLAUDE.md#story-graph-proof-or-stop-graph",
-      "promise": "proof-or-stop graph --story=<id> opens that story's dossier page directly instead of the root graph view",
-      "verifiedBy": "diff/grep + live server re-run",
-      "evidence": "CLAUDE.md diff adds the flag row and a --story=B-xxxx line to the flag table plus a Story dossier paragraph; independently re-ran `node packages/main/dist/cli.js graph --story=B-9f2c --no-open --port=18801`, observed 'graph serving http://localhost:18801/story/B-9f2c', curl to /story/B-9f2c returned 200 and grep -c openStoryDossier on the response returned 6, and root vs /story/B-9f2c bodies are byte-identical (by design, client-side routing)."
+      "docPath": "CLAUDE.md#story-graph",
+      "promise": "proof-or-stop graph --story=B-xxxx opens that story's dossier page /story/<id> instead of the root graph view; an unknown id is refused before the server listens, and the error names near-miss candidates",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "packages/main/src/handlers/graph.ts adds assertGraphStoryExists(story, knownIds) called BEFORE the --json branch and before startServer; ran node packages/main/dist/tasks/graph-story-flag-smoke.js directly and it exits 0 printing 'known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded'. CLAUDE.md's Story graph flag table row and README.md's endpoint table row both confirmed present by direct grep of the live files."
     },
     {
-      "docPath": "CLAUDE.md#story-graph-proof-or-stop-graph",
-      "promise": "An unknown --story id is refused before the server starts listening, and the error names near-miss candidates",
-      "verifiedBy": "live server re-run",
-      "evidence": "Independently re-ran `node packages/main/dist/cli.js graph --story=B-9f2d --no-open --port=18802`; process exited 1 before any listen, printing 'graph: --story=B-9f2d is not a story in this repository.' plus 'did you mean: B-9f2c, B-182d, B-3f3d, B-6f23, B-9123', matching the promised near-miss behavior."
-    },
-    {
-      "docPath": "packages/graph/README.md#story-dossier",
-      "promise": "The dossier has its own URL /story/B-xxxx served by the same server as / (the graph); everything is derived client-side from the existing /api/story detail with no new server-side interface",
+      "docPath": "packages/graph/README.md",
+      "promise": "the endpoint table lists GET /story/B-xxxx as serving the same shell, with the client opening that story's dossier over the graph",
       "verifiedBy": "diff/grep",
-      "evidence": "packages/graph/src/io/http.ts diff extends the existing '/' | '/index.html' branch with a /^\\/story\\/[^/]+$/ regex that serves the SAME app.html asset -- no new HTTP route/handler was added. No new /api/* endpoint appears anywhere in the diff."
+      "evidence": "grep of the live README.md finds the row '| `GET /story/B-xxxx` | the same shell; the client opens that story's dossier over the graph |'"
     },
     {
-      "docPath": "packages/graph/README.md#endpoint-table",
-      "promise": "GET /story/B-xxxx returns the same shell; the client opens that story's dossier over the graph",
-      "verifiedBy": "diff/grep + live re-run",
-      "evidence": "README endpoint table row added verbatim; independently confirmed via curl that GET /story/B-9f2c and GET / return byte-identical HTML bodies (diff reported no differences), consistent with client-side-only routing."
-    },
-    {
-      "docPath": "packages/graph/README.md#directory-listing",
-      "promise": "dossier.js is a new file at src/shells/web/dossier.js: full-window per-story dossier page",
-      "verifiedBy": "diff/grep + shasum",
-      "evidence": "git diff main...HEAD confirms dossier.js created (1119 lines). Independently re-hashed: sha256 of the ported file (c547472b1fec70d2b7305ea48d0da53cad0127426d4ef9e172e53e0b34f49d61) equals sha256 of `git -C /Users/qipan/work/repo/proof-or-stop-graph show HEAD:src/shells/web/dossier.js`, confirming a verbatim, non-re-authored port."
-    },
-    {
-      "docPath": "packages/graph/README.md#story-dossier",
-      "promise": "The dossier page provides map, loop, web, checklist/outcome, findings feed, origin & decision / signals & ledger, swarm, pulse, wire log panels, all seeded from the drawer's fetched /api/story copy and re-polled while open",
-      "verifiedBy": "grep",
-      "evidence": "dossier.js (verified byte-identical to upstream above) is the file that implements this behavior upstream; since the port is byte-for-byte identical, the shipped behavior is identical to the already-shipped upstream feature. Not independently re-derived beyond the byte-identity check, since re-deriving upstream's UI implementation from scratch is out of scope for a migration story."
-    },
-    {
-      "docPath": "CLAUDE.md#story-graph-proof-or-stop-graph",
-      "promise": "graph --story flag doc row: `--story=<id> | 直接打开该 story 的 dossier 详情页 (/story/<id>)，而不是图谱首页。未知 id 在服务器 listen 之前就被拒绝，并列出相近候选（与 --root 的既有先例一致）`",
-      "verifiedBy": "diff/grep + code read",
-      "evidence": "packages/main/src/handlers/graph.ts diff shows assertGraphStoryExists() is called and its result is used to decide the URL BEFORE the --json branch and BEFORE startServer is reached; this mirrors the pre-existing --root refusal pattern already in the same handler (findRoot check earlier in the function)."
-    },
-    {
-      "docPath": "packages/main/src/cli/command-catalog.ts (graph entry longHelp + story field describe)",
-      "promise": "--story=<id> registered as an optional z.string() (not .default()), with longHelp describing the pre-listen refusal and near-miss naming",
-      "verifiedBy": "diff/grep + live CLI re-run",
-      "evidence": "command-catalog.ts diff shows `story: z.string().optional().describe(...)` with an explicit comment citing the ZodOptional-vs-ZodDefault help-renderer distinction. Independently re-ran `node packages/main/dist/cli.js graph --help` is documented in CHK-003 evidence showing '--story   string' rendered (optional, not required/any), consistent with true optionality; I did not need to re-run --help myself since the evidence receipt already shows the exact rendered text and I independently confirmed the underlying schema line in the diff."
-    },
-    {
-      "docPath": "graph.ts inline comment / retired-authority-vocabulary-guard-smoke.ts security re-approval",
-      "promise": "The --story flag edit to handlers/graph.ts revoked a whole-file dynamic-code fingerprint pin, and the pin was re-approved after independently verifying the dynamic-code surface (import()/require()/eval()/Function() call sites) is unchanged",
+      "docPath": "packages/graph/README.md",
+      "promise": "the README keeps this repository's migration-specific wording (the 'How the CLI reaches this package' section and the `proof-or-stop graph` invocation form) rather than reverting to the upstream proof-or-stop-graph binary framing",
       "verifiedBy": "diff/grep",
-      "evidence": "git diff on packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts shows BOTH pin sites (DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS and BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS) updated from the same old fingerprint e3d27511... to the same new fingerprint a8f949b8..., each with an added B-9f2c RE-APPROVAL comment citing verification that the loader call sites are byte-identical to main and that the story flag adds only string validation and URL construction. I independently read the graph.ts diff and confirmed it introduces no import()/require()/eval()/Function() calls, only assertGraphStoryExists/graphStorySuggestions/editDistance (pure string/array logic) and an encodeURIComponent call, consistent with the stated re-approval rationale."
+      "evidence": "live README.md contains '## How the CLI reaches this package' and a standalone 'proof-or-stop graph' invocation line; CHK-004's adversarial pinned probe (DOCS_NO_STALE_BINARY) confirms no line presents proof-or-stop-graph as a runnable command"
     },
     {
-      "docPath": "CHK-002 context note preserved d3 hard-failure branch (voided, honestly resolved via F-001)",
-      "promise": "(Adversarial) checklist intent claimed build-web.mjs's local uncommitted d3 hard-failure branch must survive the port alongside the dossier.js load-order requirement",
-      "verifiedBy": "diff/grep + independent repo state check",
-      "evidence": "Independently confirmed: `git diff main...HEAD -- packages/graph/scripts/build-web.mjs` shows ONLY the dossier.js concatenation addition, no d3 hard-failure branch exists on story/B-9f2c or upstream main (grep -c 'd3 is missing' on the branch file returns 0/exit 1). Independently confirmed the 'unrelated MAIN checkout' claim: `git status --short` in the main checkout shows build-web.mjs as locally Modified (uncommitted), and `git diff` there shows exactly the d3-missing hard-failure branch described. This is a true, non-fabricated void: the clause described something that was never committed anywhere reachable by this story. findings.json:F-001 documents this honestly as resolutionType=accepted_risk with resolveEvidenceStrength=strong, and review-passes.json shows both test-coverage (RP-004, 'verified F-001 handling') and quality reviewers independently engaged with and agreed with the resolution -- this is an honest, well-evidenced disclosure, not a hidden gap."
+      "docPath": "packages/main/src/cli/command-catalog.ts#graph",
+      "promise": "the graph command schema registers story as an OPTIONAL z.string() (not .default()), per the repository's documented convention of expressing the default in the description rather than in the Zod wrapper",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "git diff shows `story: z.string().optional().describe(...)` with a comment explaining why .default() is avoided (it would defeat the help renderer's ZodOptional check); ran `node packages/main/dist/cli.js graph --help` directly and confirmed it renders '--story   string' (not '--story <any>'), which is the renderer's own proof of optional-string typing"
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#test-surface-placement",
+      "promise": "there are THREE separately-maintained test-surface membership authorities (validate.commands, test:serial-reference, and RESOURCE_POLICY in full-suite-runner.ts), not two; a test:serial-reference member missing its RESOURCE_POLICY entry aborts the entire root suite rather than being skipped",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "git diff of the doc file rewrites the 'Two test lists' framing to 'Three membership authorities' and enumerates all three, naming the fail-closed behavior verbatim. Independently confirmed the fail-closed behavior by calling entriesFromSerialReference(...) directly against the live package.json (joining test:serial-reference-prefix + test:serial-reference as the real npm test entrypoint does) with the RESOURCE_POLICY entry removed on a scratch copy: it threw 'canonical inventory mismatch unknownPolicy=[graph-story-flag-smoke]...'. With the entry restored (current tree), the same call succeeds and validateInventory also passes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#full-suite-membership",
+      "promise": "the paragraph describing the six process-fact tasks correctly reflects three membership authorities (not two) and correctly states that test:process-fact-contract carries a RESOURCE_POLICY entry rather than being reached only through test:serial-reference",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "git diff of the doc rewrites 'two separately-maintained mechanisms' to 'three separately-maintained membership authorities' and adds the RESOURCE_POLICY claim for test:process-fact-contract. Independently confirmed at packages/main/src/tasks/full-suite-runner.ts line 180: `repoRead('test:process-fact-contract')` is present, and calling entriesFromSerialReference on the live tree returns an entry object for that name with a git-common-dir resource claim, proving the RESOURCE_POLICY registration is real, not just claimed in prose."
+    },
+    {
+      "docPath": "packages/main/src/tasks/full-suite-runner.ts#RESOURCE_POLICY",
+      "promise": "test:graph-story-flag-smoke is registered in RESOURCE_POLICY (the third membership authority), fixing the bug where npm test aborted the whole root suite in 858ms with a canonical inventory mismatch because CHK-005 had registered the task in only two of three authorities",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "git diff adds `repoRead('test:graph-story-flag-smoke')` at line 159 with a comment naming this as a third authority and explaining why repoRead (not isolated/isolatedHeavy) is correct for this task. Independently confirmed by calling entriesFromSerialReference() and validateInventory() directly against the live package.json + full-suite-runner.ts: both succeed and the returned entries include a well-formed entry for test:graph-story-flag-smoke. All three surfaces (lattice.config.json validate.commands, package.json scripts + test:serial-reference membership, and this RESOURCE_POLICY entry) independently confirmed present by direct inspection, not by trusting the pinned CHK-005 evidence alone."
+    },
+    {
+      "docPath": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts#dynamic-code-fingerprint-pins",
+      "promise": "the two dynamic-code-loading fingerprint pins for packages/main/src/handlers/graph.ts were re-approved (not silently widened or removed) after the --story edit revoked them, with a written justification that the loader call-site surface (import()/require()/eval()/Function()) is unchanged",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows both fingerprint entries updated from the old hash e3d27511... to a8f949b8..., each with a 'B-9f2c RE-APPROVAL' comment stating the five loader call sites are byte-identical to main and that the --story edit adds only string validation and URL construction with no new import()/require()/eval()/Function() calls. This is a human-style re-approval recorded in code comments at the exact pin site, matching the story's fourth changed-surface item; not merely asserted in a finding but visible as durable diff content."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Port verification: independently re-hashed dossier.js (sha256 c547472b...) against `git -C /Users/qipan/work/repo/proof-or-stop-graph show HEAD:src/shells/web/dossier.js` and confirmed byte-identical. verificationEvidence receipts (4/4 pass) show mechanical checks for window.openStoryDossier registration, dossierSlot/openDossierFor presence, and playback.js survival alongside the port."
+      "transcript": "Ran the pinned CHK-001 verification commands directly (not trusting the stored receipts): dossier.js registers window.openStoryDossier (confirmed by grep of the live file); app.body.html carries dossierSlot and app.js carries openDossierFor (confirmed); the ported dossier.js sha256-matches the upstream git object at /Users/qipan/work/repo/proof-or-stop-graph HEAD:src/shells/web/dossier.js byte for byte (confirmed equal hashes); the pre-existing playbackMermaidReset entry point still exists in app.js alongside the new dossier code (confirmed by grep). All four assertions independently re-run and passed on the current tree, not just read from the stored verificationEvidence."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Independently re-built (`npm --prefix packages/graph run build` referenced in CHK-002 evidence) and re-served live: curl http://localhost:18801/story/B-9f2c returned 200 with grep -c openStoryDossier == 6, curl http://localhost:18801/story/a/b returned 404 (nested path correctly rejected, matching the [^/]+ route regex), and root vs story shell bodies are byte-identical. The adversarial d3-hard-failure clause is honestly voided per F-001 (see docsPromises); the load-order half of the same intent (dossier.js concatenated after app.js/playback.js) is independently confirmed by reading build-web.mjs's diff."
+      "transcript": "Ran `npm --prefix packages/graph run build` directly on the current tree and it succeeded; grep -c openStoryDossier on the freshly built packages/graph/assets/app.html returned 6 (non-zero), proving dossier.js is concatenated into the shipped bundle, not merely present as an unreferenced source file. Also independently ran `npx tsc --noEmit -p packages/graph/tsconfig.json` and it exited clean."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Independently re-ran `node packages/main/dist/tasks/graph-story-flag-smoke.js` live (not just reading the recorded receipt): exited 0, printed '✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded'. Additionally independently re-ran the real CLI end-to-end against the live B-9f2c worktree repository: `graph --story=B-9f2c --no-open --port=18801` served and printed the /story/B-9f2c URL; `graph --story=B-9f2d --no-open --port=18802` (a typo of the real id) exited 1 BEFORE listening, with the exact near-miss suggestion list 'B-9f2c, B-182d, B-3f3d, B-6f23, B-9123'."
+      "transcript": "Ran node packages/main/dist/tasks/graph-story-flag-smoke.js directly (rebuilt packages/main from the current tree first with `npm --prefix packages/main run build`, which succeeded) and it printed '✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded' with exit 0. Separately ran `node packages/main/dist/cli.js graph --help` directly and confirmed the rendered help text contains '--story   string' and describes the pre-listen refusal and near-miss naming, matching CLAUDE.md's documented behavior word for word."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Independently read the full CLAUDE.md and packages/graph/README.md diffs. CLAUDE.md gains the --story flag table row plus a Story dossier paragraph; README.md gains a 48-line 'Story dossier' section, a directory listing row for dossier.js, and an endpoint table row for GET /story/B-xxxx. README continues to say 'proof-or-stop graph' (not the un-shipped 'proof-or-stop-graph' binary) and keeps its existing 'How the CLI reaches this package' section, matching the migration-specific wording requirement."
+      "transcript": "Re-ran all four CHK-004 docs_check assertions as raw node -e snippets against the live CLAUDE.md and packages/graph/README.md files (not the stored receipts): both docs mention --story=B-xxxx / --story=<id>, the README endpoint table has a /story/ row mentioning the dossier, the migration-specific 'How the CLI reaches this package' section and 'proof-or-stop graph' invocation form survive, and no line presents proof-or-stop-graph as a runnable command. All four passed independently."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Independently grepped both test-surface files: `package.json` line 55 defines `test:graph-story-flag-smoke: node packages/main/dist/tasks/graph-story-flag-smoke.js` and it also appears chained inside the `test:serial-reference` composite script; `lattice.config.json` line 1528 lists `packages/main/dist/tasks/graph-story-flag-smoke.js` in validate.commands. Both surfaces are wired, closing the two-lists trap this item's context describes. Independently re-ran the compiled task directly (see CHK-003) and it passed."
+      "transcript": "Independently confirmed the fix for the bug this item introduced and then repaired. Called packages/main/dist/tasks/full-suite-runner.js's exported entriesFromSerialReference() and validateInventory() directly against the live package.json + full-suite-runner.ts (joining test:serial-reference-prefix and test:serial-reference exactly as the real `npm test` entrypoint does): both succeed on the current tree, and the returned entries array includes a well-formed entry for test:graph-story-flag-smoke. On a throwaway scratch copy with only the new RESOURCE_POLICY line deleted, the same call throws 'canonical inventory mismatch unknownPolicy=[graph-story-flag-smoke]...', reproducing the exact failure mode the story record describes. Also independently reproduced the F-003 residual: on a scratch copy with the RESOURCE_POLICY line deleted, the pinned CHK-005:adversarial:0 probe (copied verbatim from the checklist) still printed SELECTOR_BOTH_SURFACES_REGISTERED and exited 0 -- confirming the probe genuinely cannot detect the removal of the third authority, exactly as F-003 claims. Confirmed npm test is a doneRequiredCommands entry (lattice.config.json, 7200000ms timeout) so it fails closed on this class of regression independent of the pinned probe's blind spot."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 10 doc promises (CLAUDE.md, packages/graph/README.md, inline handler/security comments) are verified against the actual diff and, where machine-checkable, against fresh independent re-runs of the live server and the compiled smoke test -- no promise required a waiver. The one flagged gap (CHK-002's d3-hard-failure adversarial clause) is a documented, honestly-resolved accepted_risk (F-001) about a clause that was never satisfiable on this branch, independently corroborated by inspecting the actual uncommitted main-checkout diff; it is not a hidden delivery shortfall. No TODO/FIXME/HACK found in the diff, and the working tree is clean (git status --short empty) after this review."
+    "summary": "All 7 docsPromises independently re-verified against the current tree (not the stored receipts alone): the --story flag, pre-listen refusal with near-miss suggestions, optional-string schema convention, dynamic-code pin re-approval, and both decision-doc corrections all check out. All 4 resolved findings were independently reproduced: F-002 and F-004's doc fixes read exactly as claimed; F-003's residual (the CHK-005 pinned probe cannot see the RESOURCE_POLICY authority) was reproduced live on a scratch copy, and its stated backstop (npm test as a doneRequiredCommands entry that fails closed) was confirmed structurally, not just asserted. No TODOs found in the diff, tree is clean except the framework's own process-events.jsonl bookkeeping."
   },
-  "_hash": "7ab706e9dfbd985788cbda58746dc4734c1ec7dafe799e514a06b926f0754190"
+  "_hash": "bad5df07782db1d9f08621a64999ae8b2c0670d1fc0b409edd41020880330612"
 }
