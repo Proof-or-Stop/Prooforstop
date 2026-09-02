@@ -576,8 +576,10 @@ export function resolveValidationCommandPin(args: {
   //      inventory, so it binds to nothing, narrows nothing, and the planner
   //      widens to the full repository set. This is the B-a745 F-001 decision
   //      (the widening matrix stops only an EXPLICIT unresolvable commandId;
-  //      the spec's resolver step that read "zero is a stop" was superseded and
-  //      is filed with the spec owner B-ccf4 to reconcile).
+  //      the spec's resolver step that read "zero is a stop" was superseded;
+  //      that reconciliation is recorded as the repository draft
+  //      docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan for the
+  //      document's owner (B-ccf4) to reconcile).
   //   5. Two or more matches is a stop (`pinned_command_ambiguous`) listing
   //      EVERY candidate.
   if (matches.length === 1) {
