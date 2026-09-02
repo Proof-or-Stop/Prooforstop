@@ -337,7 +337,7 @@
       "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2 (--json output preserved at the owner's scratchpad codex-xhr-r2-raw-output.txt).] Codex (MAJOR as filed): 'Planner re-exposes unbounded raw git errors. The collector deliberately creates a bounded single-line reason and summary while retaining raw stderr only for diagnosis, but the planner interpolates changedFiles.error directly into an operator-facing escalation. A git failure can therefore emit a multiline, potentially very large payload, corrupt the line-oriented status output, and defeat the bounded-output protection already implemented upstream.' OWNER VERIFICATION: validation-tier-planner.ts:627 reads `not be read (${input.changedFiles.error}); this is not an empty diff...` while validation-relevance-input.ts exposes bounded `reason` (line ~140) and `summary` (line ~142) precisely so operator prose never carries raw stderr; the CHK-006 Part 2 fix bounded the COLLECTOR detail and its fixture asserts the collector, so the planner path was never covered. This is a regression of the acceptance-surface interpretability guarantee this story ships (the explain output), hence fixed in scope despite medium severity. Fix: render changedFiles.reason/summary or reuse the collector's bounded escalation detail, never .error, and add an end-to-end planner/render fixture using a long multiline git usage error.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-02T08:23:49.836Z",
@@ -347,7 +347,11 @@
         "packages/main/src/core/validation-tier-planner.ts"
       ],
       "signatureTag": "edge|ts|registered-story-owner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at the reported site and at three sibling sites of the same class, all RED-first (207d6f1adc/28188ef373 for validation-tier-planner.ts:627, then 48048697fa/03df6da9fb for the siblings). The planner now renders the collector's bounded reason and one-line summary for changed_files_unavailable, never changedFiles.error; the raw error stays on the structured object for diagnosis. The implementer's grep of the three planner-side files for error interpolation found three further sites, all bounded under this finding: hash_snapshot_unavailable detail in validation-relevance-input.ts (now the same git-failure classification summary, raw kept on hashes.error, bounded hashes.summary added); collectDurationHistory readError, whose raw text reached validation-plan.ts:336 'basis' -- previously unreported by any reviewer -- now rendered via a new readSummary; and the malformed-evidence-pin unclassified detail, bounded defensively via a shared boundedFailureSummary helper. Fixtures: a 40-line multiline git usage dump driven through the planner and renderer yields a one-line escalation detail with the summary and none of the dump, and the status output stays line-oriented; equivalent cases for the hash-snapshot and duration-basis paths. Why fixed in scope at medium severity: the explain output is this story's acceptance surface, and the CHK-006 Part 2 fix had bounded only the collector, leaving every downstream interpolation uncovered -- the independent Codex host caught the gap that the collector-only fixture had made invisible.",
+      "resolvedAt": "2026-09-02T08:38:34.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a745:F-017",
