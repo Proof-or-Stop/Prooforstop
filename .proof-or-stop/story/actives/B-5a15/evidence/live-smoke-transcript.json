@@ -2,20 +2,20 @@
   "storyId": "B-5a15",
   "expected": "\"The terminal prints `CausalEvidence: intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate=82%` and 58 selector verdicts, including explicit `selectorMismatch` where applicable.\"",
   "actual": {
-    "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof --story=B-5a15",
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
     "exitCode": null,
     "stdout": "",
-    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+    "stderr": "[capture error] command exceeded 123000ms timeout; process group terminated"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-09-02T20:48:09.339Z",
+  "capturedAtIso": "2026-09-02T20:51:28.108Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "e92fd8b53f3d730d3315e8fc8d85f5d936b1a9df",
+  "headHash": "780f2e5e80a6fd5a437a2a2a92f69fac4f5f369d",
   "materialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03"
 }
