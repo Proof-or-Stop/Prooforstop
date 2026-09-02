@@ -316,6 +316,31 @@
         "scanEscalationReason": null
       },
       "_hash": "c74277d7187b1d782410539c20bfa69963cbbe155db5c1fe0b160b86ca36e734"
+    },
+    {
+      "id": "B-9f2c:RP-011",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-signature round: since prior pass RP-010 only one non-metadata commit landed (527de168c1), a markdown-only doc fix to graph-command-migration.md's Test-surface placement section resolving F-002; no source file changed. Verified the rewritten section factually against full-suite-runner.ts: exactly three membership authorities, entriesFromSerialReference fails closed before job scheduling, and the quoted error string matches the real throw verbatim. Re-confirmed test:graph-story-flag-smoke spelled identically across all four registration sites, no dangling references. No concept deletion/replacement this round. No blocker found.",
+      "createdAt": "2026-09-02T14:48:01.226Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-018",
+      "envelopeId": "30e5ec62f90f34d6e30952cb5199e2b6106f0dfd99fa003ebc3aef6aaccc22ee",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27096e7a0ac332fbd57d950379c49fe86f6354d9ef4f571ecf9a9a7d9db9b627"
     }
   ]
 }
