@@ -22,7 +22,7 @@ Recorded observation during this PLAN (2026-09-02): running `understanding_set` 
 **DoneWhen**:
 - `changedFilesBetweenRenameAware`, `changedFileStatusesBetweenRenameAware` and `changedStoryFilesBetween` invoke `git diff --name-status -M -z` and parse NUL-separated records (status, then one path, or two paths for R/C statuses)
 - A record that does not fit that shape throws an Error whose message contains the raw record; no row is skipped
-- A fixture repository built in a temp dir renames `a b.txt`, `日本.txt` and `q"uote.txt`; all three renames report both sides through both reader functions
+- A fixture repository built in a temp dir renames `a b.txt`, a file whose name is two Japanese-script characters (non-ASCII, so git C-quotes it), and `q"uote.txt`; all three renames report both sides through both reader functions
 - Deleted paths still appear; copies report both sides
 - `materialHash` and `storyFilesHash` over a fixture repository with only plain paths are byte-identical before and after the change (the fixture keeps the old tab parser as a local reference implementation for the comparison)
 - The unresolvable-ref contract is unchanged (still throws) and a case greps `packages/main/src` for `catch` blocks that return `[]` around these three functions and asserts none exist
