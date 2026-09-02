@@ -1063,7 +1063,7 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-02T03:02:34.353Z",
       "endTime": "2026-09-02T03:02:35.143Z",
       "userSees": "A failing pre-implementation contract test becomes green after the change, and digest/adapter verification confirms the published English Agent prompts are fresh and compatible.",
@@ -2254,6 +2254,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "All three adapter-root intents have passing tool-executed receipts; the bounded repair is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:10:46.440Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for the verified Round 19 acceptance blocker: the REVIEW Task Context guard rejects the safe negative CHK-002 verification sentence, so reviewers cannot mint signed run IDs."
     }
   ]
 }
