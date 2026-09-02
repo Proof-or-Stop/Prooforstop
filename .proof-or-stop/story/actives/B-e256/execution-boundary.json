@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e256",
+  "allowedCommands": [
+    "node packages/main/tests/global-core-realpath.test.mjs",
+    "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
+    "npm --prefix packages/main run build",
+    "proof-or-stop doctor",
+    "proof-or-stop validate",
+    "proof-or-stop validate --lint"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "packages/main/package.json",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/tests/global-core-realpath.test.mjs",
+    "packages/main/tests/red/",
+    "proof-or-stop.config.json",
+    "scripts/build-main-with-binding.mjs",
+    "scripts/build-utils-with-binding.mjs",
+    "scripts/promote-dist.mjs"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "npm install -g",
+    "npm link",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Implementer works in the story worktree only; never touches the host global install.",
+  "createdAt": "2026-09-02T15:05:15.755Z",
+  "updatedAt": "2026-09-02T15:05:15.755Z",
+  "_hash": "3487e9148b7bbf49ae16bdba4026b525d11f087aae7600cf76f955a0cd0ee015"
+}

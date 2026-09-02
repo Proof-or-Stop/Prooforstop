@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inventory every clone-local HMAC key consumer and record what each verifier does when the key is missing or regenerated",
+      "context": "Key files: packages/main/src/core/acceptance-basis-receipt.ts (KEY_FILE), acceptance-rollout.ts (ROLLOUT_KEY_FILE, readOrCreatePrivateKey, registeredPublicKey), pre-review-check.ts (KEY_FILE), and the finding-ledger key proof-or-stop-finding-ledger-v1.key created 2026-09-01. All use writeFileSync flag 'wx' with randomBytes, so a re-clone silently creates a new key.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add an explicit key-epoch or re-anchor marker for those ledgers, reusing the B-8d60 gap_log_chain_reanchor design where the ledger is append-only",
+      "context": "B-8d60 decision.json option C-frozen-legacy-plus-reanchor: legacy records stay byte-frozen and structurally verified, key loss is declared in a signed epoch-boundary record, verifiers report a distinct reason instead of silently passing or failing. Refuse the marker when structural checks fail.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Doctor reports records that predate the current key with an actionable hint",
+      "context": "proof-or-stop doctor has no check for keyed-ledger key age today (grep for 'gap-log' or 'provenance' in packages/main/src/handlers/doctor.ts returns nothing before B-8d60). Extend the B-8d60 gap-log-ledger doctor check to the sibling ledgers.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
