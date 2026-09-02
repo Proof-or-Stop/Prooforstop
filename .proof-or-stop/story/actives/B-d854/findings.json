@@ -307,6 +307,27 @@
       ],
       "signatureTag": "adversarial|md|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-016",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:25-52 and tests/AGENTS.verify.mjs:30-57 — doc-provenance-mapping-gap: WHY high acceptance blocker: the ledger count is not a one-to-one mapping of the requested original 24 major plus 2 low-priority issues. Baseline AGENTS.md:238 contains Chinese authoring payload values, while packages/main/src/handlers/story-create.ts:744-750 rejects CJK authoring before persistence, yet no audit row or verifier predicate records that distinct RED/GREEN correction. Meanwhile A17-A20 split one orchestration cluster, and A26 combines both low-priority issues but mechanically checks only test_auto confirmation. Add stable original-item IDs, a dedicated CJK-payload row, and independently enforced predicates for each low-priority item; do not infer exact coverage from row count.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-02T01:12:03.532Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-008",
+      "_hash": "0e89edf5b2ae5710dc588ce784401a28c05d47c07cfc3b678a079332e02e2a2c",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs",
+        "AGENTS.md",
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "signatureTag": "missing|md|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
