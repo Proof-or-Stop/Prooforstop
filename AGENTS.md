@@ -136,9 +136,13 @@ free-form text such as "checks passed" as evidence.
 - A REVIEW reviewer calls `review_run_start` before recording a pass or finding.
   Gates verify that the `reviewRunId` belongs to the correct lane and current
   round, has a valid signature, and is fresh for the applicable hashes.
-- The latest valid pass for a lane is the credential consumed by the gate. An
-  older pass does not override a later scope change, stale run, or still-open
-  blocking finding. A new pass must follow a new current reviewer run.
+- A signed PASS from the current review round may remain valid when it is bound
+  to a non-latest run on that lane, provided its material freshness and scope
+  checks still pass. This deliberately avoids invalidating sound PASS evidence
+  after a concurrent or retried `review_run_start`. The latest-run rejection is
+  retained for findings, so an older open finding cannot be hidden by a newer
+  pass on the same lane. No pass overrides material or scope drift, an invalid
+  binding, or a still-open blocking finding.
 - Finding categories are narrowed by both the CLI schema and runtime. Known
   legacy categories may normalize to `missing`; they do not create new current
   categories.
@@ -186,6 +190,18 @@ background has four Markdown sections named `Trigger Event`, `Key Insights`,
 concrete Story/finding/checklist/commit/date identifier. Write these sections in
 English in this repository. Creation conservatively stops in INIT; it does not
 silently skip INIT or create the worktree.
+
+INIT to INIT_CHECK requires independent records from both
+`proof-or-stop-review-story-init` and `product-reviewer`; each reviewer persists
+its result through `init_check_set`. The gate consumes six facts/artifacts:
+`init-check.json`, `scope-boundary.json`, `execution-boundary.json`,
+`scope-freeze-check.json`, `scope-extension-proposals.json`, and
+`scope-discard-digest.json`. Use the read-only `init_preflight` command to inspect
+every prerequisite and its repair hint. The CLI does not automatically invent
+missing reviewer evidence. Only when the independent INIT reviewers cannot be
+spawned may an authorized operator use the explicit, acknowledged
+`init_check_repair` fallback with a substantive fallback reason; otherwise run
+both reviewers and repair the underlying scope artifact reported by the gate.
 
 The checklist accepted at creation time is not limited to title and context.
 Current fields include `title`, `context`, `relatedDocs`, `userSees`, `excludes`,
@@ -356,8 +372,6 @@ standing quorum can survive unrelated main drift when `storyFilesHash` is
 unchanged and will reject a duplicate submission. Prompt-envelope freshness is
 a separate binding and may still require lane re-attestation. Never fabricate a
 second host identity or treat dispatch output as a host receipt.
-
-### Finding evidence states and deferral
 
 `Finding.evidenceState` is `suspected`, `verified`, or `disproven`.
 
