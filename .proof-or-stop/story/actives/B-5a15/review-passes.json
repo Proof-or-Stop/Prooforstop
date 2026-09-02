@@ -13261,6 +13261,42 @@
         "scanEscalationReason": null
       },
       "_hash": "2b1341161cb2c1277290e97ab769476d8b0306e766706da18fcd6412837afba2"
+    },
+    {
+      "id": "B-5a15:RP-277",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane PASS on epoch RI-060 (cutoff 0dd3167744, HEAD 6bc88d7d89). MATERIAL DIFF vs prior round c7b06fa9ff: exactly two files, proof-or-stop.config.json + lattice.config.json; zero product source, zero test files (git diff --name-status c7b06fa9ff HEAD yields only those two plus three .proof-or-stop/story/actives/B-5a15 metadata files). The change is removal of the resources key from validate.commands[112] (npm --prefix packages/graph run check), identical in both files; the validate blocks of the two configs are byte-identical to each other by JSON.stringify compare, so the deprecated mirror did not drift (the files differ only in pre-existing brand-name fields outside validate). FORM VERIFIED, not just effect: validation-executor.ts:1655-1666 maps an empty or undefined claim list to a single exclusive barrier with exclusiveByDefault true, whereas a declared list becomes shared-barrier-plus-claims; validate-resource-claims.test.mjs:246-247 requires a declared entry to be a SHARED barrier with resources.length greater than 1, so setting access exclusive on the single declared claim would have violated that invariant. Removing the key is therefore the correct expression of exclusivity. Mechanically confirmed by resolving the real config: entry 112 resolves to exclusiveByDefault true with resources of one fixed-path validate-plan-barrier claim at access exclusive; the plan resolves to 116 commands, 100 declared, 16 exclusive-by-default, and 112 now joins the same barrier class as commands 75, 110 and 111. ValidationCommand.resources is optional at validation-types.ts:31 and the resolver uses (declared ?? []), so key removal is type-correct; tsc --noEmit -p packages/main exits 0. GUARDS MEASURED ON THIS TREE: validate-resource-claims.test.mjs gives PASS with 34 assertions, and it is itself config command 107 while the derivation guard is command 75, i.e. exactly the two the first attempt broke; red-b49d4-registration-derivation.mjs gives 0 RED / 26 GREEN of 26 rows, whose REAL_CONFIG_BYTE_UNMODIFIED row reports git status --porcelain for proof-or-stop.config.json as empty, confirming the change had to be committed rather than left in the working tree. NO CORRECTNESS PROBLEM with the exclusivity tradeoff: the probe detects writes via a before/after content digest around its own driver subprocess, so serialization removes only FOREIGN mutations from the measured window while leaving the graph app writes it is asserting about fully inside it; the fix eliminates a false-positive class without creating any false-negative class. The user-accepted parallelism loss is a throughput cost, not a correctness defect, so I raise no finding on it. HARNESS ARTIFACT, deliberately NOT filed as a defect: the probe fails intermittently when run standalone in this worktree right now, 3 of 5 attempts. Diagnosed to root cause rather than assumed. A per-path digest diff using the probe's own listing rule showed the only mutating paths are .proof-or-stop/activity.jsonl and docs/story/actives/B-5a15/activity.jsonl, both gitignored and both inside the probe's deliberate ignored-path pass. Positive control established: both files change with NO probe running at all during a 20 second idle window, and an external session sess-7bbaadb06fb0a9416987e7e33d0a6a1e appended 73 rows in 5 minutes to this same worktree while my own pinned session appended 1. The writer is concurrent CLI and host-hook activity, not the graph app and not this fix; verify-no-project-writes.mjs is untouched by this commit and by the whole branch (git diff main...HEAD over that path is empty), so the cross-session sensitivity is pre-existing, unclaimed by any B-5a15 checklist item, and non-blocking given validate reports 0 failures across 116 commands. Per the defect-triage rules it is recorded here as durable evidence and deferred rather than scope-crept; a follow-up would need to narrow the probe's snapshot scope to exclude activity.jsonl heartbeat paths or take a writer lease, which is a probe redesign outside this story. FOUR PRIOR FIXES SPOT-CHECKED INTACT: F-339 handlers/checklist.ts:617-619 priorHoldsIdentity branches on prior.mechanical === false; F-334 evidence-freshness.ts:483 and :513 both use byte-order path comparison instead of localeCompare; F-336/F-337 handlers/certification-window.ts:119-126 integration domain includes review-subject; F-338 core/certification-window.ts:809-817 passes the mapped dependencyGraphDigest and currentInputHashesDigest rather than raw current. ROLE CHECK ITEMS: dead code not applicable (JSON-only diff, removed key is the sole change); type safety covered by the optionality and tsc checks above; I/O shell isolation not applicable (no shell files in diff); closing self-check for promised-but-undelivered found no doc changes in the material diff at all, so there is no new doc promise surface to cross-check. Known state honored and not re-filed: causal-evidence 19/21 with pre_review_check being DEV-only, 53 stale-bound verificationEvidence rows, certification-window-smoke pre-existing failure, causal-evidence.ts:1096 localeCompare reachable but not fireable. Retracted F-345/F-346 not acted on. No new findings.",
+      "createdAt": "2026-09-02T09:09:38.499Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "reviewRunId": "B-5a15:RR-839",
+      "envelopeId": "51e20611c9794ee9a12d8d67f9f0056c10c02f1731b117af2317b33880ff137c",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/activity.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "docs/story/actives/B-5a15/activity.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2bdab4f32b33d56c78cd598edec41f4a72ae38e49d7895cc35b0f71301a8783e"
     }
   ]
 }
