@@ -401,8 +401,10 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // buildValidationCommandInventory) and say in the commit what moved it. The
 // case still guards what it was written for: no declared cwd and no
 // absolute-cwd warning. History: B-a745 pinned eba363ed...; B-41c8 CHK-004
-// (commit b11dd0fb02) added the single-owner-extraction-smoke entry, moving
-// it to 791165cf... (B-41c8 F-006).
+// (the item that registered single-owner-extraction-smoke in validate.commands)
+// added that entry, moving it to 791165cf... (B-41c8 F-006). Name the story and
+// item here, never a commit hash: a branch rewrite orphans the hash and a later
+// `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
