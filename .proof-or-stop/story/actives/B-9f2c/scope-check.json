@@ -1,258 +1,209 @@
 {
   "storyId": "B-9f2c",
-  "checkedAt": "2026-09-02T08:22:02.101Z",
+  "checkedAt": "2026-09-02T08:26:55.625Z",
   "features": [
     {
-      "feature": "Port upstream dossier.js (src/shells/web/dossier.js) verbatim into packages/graph",
+      "feature": "Port dossier.js verbatim (byte-identical) from upstream into packages/graph/src/shells/web",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Apply upstream app.css diff (585 lines dossier styling incl. .sidrow, .dsrcover)",
+      "feature": "Apply upstream diffs to app.css, app.body.html (dossierSlot span) and app.js (drawer dossier button, relationsOf/openDossierFor/dossierPath routing, popstate listener, boot-time deep-link cover)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Apply upstream app.body.html diff (dossierSlot span in drawer header)",
+      "feature": "Preserve pre-existing app.js entry points (e.g. playback) so the port does not delete existing behavior",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Apply upstream app.js diff: drawer dossier button",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Apply upstream app.js diff: relationsOf helper (ego-graph neighbourhood)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Apply upstream app.js diff: openDossierFor routing helper",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Apply upstream app.js diff: dossierPath helper",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Apply upstream app.js diff: popstate listener for back/forward dossier navigation",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Apply upstream app.js diff: boot-time deep-link cover (prevents graph-page flash on /story/<id>)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Preserve pre-existing app.js entry points (e.g. playback) undamaged by the port",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Dossier panels: lifecycle loop, finding map (circle packing/hulls), ego-graph, checklist/outcome, origin/decision, signals, dispatch swarm, opened-vs-settled pulse, wire log (from 4c3bde0)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:none (upstream commit 4c3bde0, subsumed by verbatim dossier.js port)"
-    },
-    {
-      "feature": "Findings feed panel: chronological list, latest first, row expansion, live-poll flash (from upstream 7ecad9a)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Date-prefixed wire-log lines (from upstream a0b14da)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Title wrapping, pinned close button, empty states polish (from upstream 1536588)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Serve /story/<id> the same app.html as / and /index.html in io/http.ts",
+      "feature": "Serve /story/<id> in io/http.ts matching the same app.html as / and /index.html, with nested paths like /story/a/b excluded",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "A nested path like /story/a/b must NOT match the dossier route",
+      "feature": "Concatenate dossier.js after playback.js in scripts/build-web.mjs so window.openStoryDossier is registered",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Concatenate dossier.js after playback.js in build-web.mjs (load-order contract for window.openStoryDossier)",
+      "feature": "Preserve the local uncommitted d3-missing hard-failure branch in scripts/build-web.mjs across the port",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Preserve the local uncommitted d3-missing hard-failure branch in build-web.mjs across the port",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Add optional --story=<id> flag to GraphArgs / graph command catalog entry, as optional z.string() with default documented in description (not .default())",
+      "feature": "Add optional --story=<id> flag to the graph command schema, default documented in description (not via .default())",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "--story on a known id opens/reports http://localhost:<port>/story/<id> instead of /",
+      "feature": "With --story set, handler opens/reports http://localhost:<port>/story/<id> (URL-encoded) instead of /",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Story id is URL-encoded (encodeURIComponent) when composing the opened URL",
+      "feature": "Without --story, reported URL is byte-for-byte unchanged from before this story",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Without --story the reported URL is unchanged (byte-for-byte) from pre-story behavior",
+      "feature": "An unresolvable/unknown --story id is refused BEFORE startServer is called, mirroring the existing --root precedent",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "An id that is not a story in the resolved repository is refused BEFORE startServer is called (no port bound)",
+      "feature": "Validation happens at the handler entry (not only in the Zod schema), so it cannot be bypassed by calling the handler directly",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Validation happens at handler entry (not only via Zod schema), so a direct handler call bypassing the schema is still rejected",
+      "feature": "Unknown-id error names near-miss candidate ids, validated against resolveStories(root).primary (no new export added)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Unknown-id error names near-miss candidate story ids",
+      "feature": "Extend the graph command's longHelp to document --story",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "--story validation reuses resolveStories(root).primary from the existing graph library surface (no new export)",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Extend the graph command's longHelp text to document --story",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "--json continues to work without requiring the browser client to be built, even with --story present",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Port upstream README dossier section into packages/graph/README.md, preserving this repo's proof-or-stop-graph vs proof-or-stop-graph wording divergence and the 'How the CLI reaches this package' section",
+      "feature": "Port the upstream README dossier section into packages/graph/README.md, preserving this repository's proof-or-stop graph header and How the CLI reaches this package section",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Add /story/<id> endpoint row to the README endpoint table",
+      "feature": "Add the /story/<id> endpoint row to the README endpoint table",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "README must not present proof-or-stop-graph as a runnable binary this repo ships",
+      "feature": "README must not present proof-or-stop-graph as a runnable binary this repository ships",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Update root CLAUDE.md Story graph section: list --story flag in its flag table and mention the dossier page",
+      "feature": "Update root CLAUDE.md Story graph section flag table to list --story and mention the dossier page",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Constraint: no new packages/main runtime-artifact-registry entry is needed for graph/--story (graph writes no discovery file into the inspected repo)",
+      "feature": "Test-surface placement: validate.commands and test:serial-reference are two separately-maintained lists, neither a subset of the other; a new smoke task must be registered in BOTH or it silently runs nowhere",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "New smoke task registered in lattice.config.json validate.commands as node packages/main/dist/tasks/<name>-smoke.js",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "New smoke task given an npm script alias in package.json and wired into test:serial-reference",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 1: packages/graph subpackage architecture with a thin packages/main handler (not merged into packages/main, not consumed as a published npm dependency)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Pre-existing architectural invariant from B-3e16 (Decision 4); this story adds no new filesystem write path, so the invariant is preserved by construction and needs no new checklist item, per understanding.json constraint list.",
-      "source": "decisions:graph-command-migration.md"
+      "excluded_by": "Pre-existing architecture decision from B-3e16; this story adds a flag and a page to the already-established packages/graph subpackage, it does not re-decide package placement",
+      "source": "decisions:decisions/graph-command-migration.md"
     },
     {
-      "feature": "Constraint: the graph command must stay read-only w.r.t. story state (no writes into the inspected repository)",
+      "feature": "Decision 2: vendored browser bundles are gitignored build output, reproduced by npm --prefix packages/graph run build, enforced by verify-assets-ignored",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Stated as a hard constraint in understanding.json rather than new work; --story only changes which URL is opened/reported, introducing no new write path, consistent with the existing read-only handler design.",
-      "source": "description"
+      "excluded_by": "Pre-existing B-3e16 mechanism this story does not touch; dossier.js is source, not a vendored bundle",
+      "source": "decisions:decisions/graph-command-migration.md"
     },
     {
-      "feature": "Node >=22.5 engines floor for packages/graph (node:sqlite) and the dynamic-import pattern in graph.ts",
+      "feature": "Decision 3: explicit Node >=22.5.0 engines floor on packages/graph for node:sqlite",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Pre-existing invariant from B-3e16 Decision 3 and Decision 5; this story's touchpoints (dossier.js, http.ts route, build-web.mjs, graph.ts --story flag) do not add new node:sqlite usage or change the import seam, so no new checklist coverage is required.",
-      "source": "decisions:graph-command-migration.md"
+      "excluded_by": "Pre-existing B-3e16 constraint; this story adds no new node:sqlite usage and does not change the engines field",
+      "source": "decisions:decisions/graph-command-migration.md"
     },
     {
-      "feature": "Recursive tsc gate / two separately-maintained test-surface lists (validate.commands vs test:serial-reference) must keep covering packages/graph and any new smoke task",
+      "feature": "Decision 4: index cache lives outside the inspected repository; graph command needs no runtime-artifact-registry entry",
       "covered_by": null,
-      "status": "gap",
+      "status": "excluded",
+      "excluded_by": "Pre-existing B-3e16 mechanism; the --story flag and dossier page write no new files into the inspected repository, so the no-registry-entry invariant is unaffected",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "scripts/verify-lattice-residue.mjs SRC_SCAN_ROOTS must name any new package or it stays unscanned",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not applicable: this story adds no new package. packages/graph/src is already present in SRC_SCAN_ROOTS (verified at scripts/verify-lattice-residue.mjs:262) from B-3e16, and all CHK-001..005 touchpoints live inside packages/graph, packages/main or root config, all already-scanned surfaces",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 5: the runtime dynamic import(...) of packages/graph from packages/main/src/handlers/graph.ts must stay dynamic, not converted to a static import",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This story only adds a Zod field and pre-listen validation to the existing handler; no checklist item proposes converting the dynamic import to static, and no touchpoint requires it",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Registering a new top-level command touches ~8-9 fail-closed surfaces (command-ownership-contract, command-catalog-smoke, cli-surface-smoke, verify-orphan-surface, lifecycle-registry-contract, test:process-fact-contract, process-fact-levels.ts, etc.)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not applicable: graph is an already-registered top-level command (command-catalog.ts:2100, from B-3e16). CHK-003 adds one optional field to its existing schema; it does not register a new command, so the new-command registration surface set is not triggered",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Recursive tsc gate (validate --lint and .githooks/pre-push) auto-discovers any tsconfig.json, including in new packages",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not applicable: no new package/tsconfig.json is added by this story; packages/graph's existing tsconfig.json is already covered by the recursive gate since B-3e16",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "The dossier is also reachable from a button in the graph drawer (understanding.json outcome)",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
-      "source": "decisions:graph-command-migration.md"
+      "source": "description"
     }
   ],
   "readManifest": {
@@ -397,14 +348,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 36,
-    "covered": 32,
-    "excluded": 3,
-    "gaps": 1,
+    "total": 29,
+    "covered": 21,
+    "excluded": 8,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "ecfab960598f3f4274c2d696b6a3956b885281cdc744637f1acff5a97b7a3af5",
+  "_hash": "18adddfe65caa2e212fe1d3b98c8a58636c75dd577a84fd972c9008292d99ee3",
   "openQuestions": []
 }
