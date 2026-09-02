@@ -163,6 +163,24 @@
       "resolvedAt": "2026-09-02T03:32:08.232Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-008",
+      "desc": "finding_resolve prose for F-006 (validation-tier-planner.ts, commit c94c88cbdb) states the dead export VALIDATION_STOP_REASON_CODES now has \"14 references across the core and the suite,\" but no plausible independent grep reproduces 14: exact-token VALIDATION_STOP_REASON_CODES=5 occurrences (incl. its own declaration), and the full derived-symbol family (VALIDATION_STOP_REASON_CODES + VALIDATION_STOP_REASON_CODE_SET + isValidationStopReasonCode + assertStopReason) totals 19 occurrences including 4 declarations, or 15 excluding declarations -- never 14 under any consistent counting rule I could construct. The QUALITATIVE claim this number supports (the export is genuinely load-bearing in production control flow via firstStopEscalation()/assertStopReason(), not merely referenced from the fixture) is independently verified true by reading validation-tier-planner.ts:488-600 -- so this is not a load-bearing overstatement, just an unreproducible precise metric asserted as fact in an audit-relevant resolution text.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:50:54.718Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-006",
+      "_hash": "95f295aca8ca8c7e97592ac6656ab696419cdf00ceb4024e869d8e36aec607db",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "missing|ts|finding-resolve-prose",
+      "signatureTagSource": "auto"
     }
   ]
 }
