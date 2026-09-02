@@ -34,6 +34,10 @@ const out = [
   // Playback viewer: animation + MP4/GIF export. Loaded last so app.js can
   // hand it a story; it self-registers on window and needs no bundler.
   '<script>', read('playback.js').trim(), '</script>',
+  // Story dossier: the full-window per-story page. Same contract as playback:
+  // loads after app.js (whose top-level helpers it reads from window) and
+  // self-registers window.openStoryDossier.
+  '<script>', read('dossier.js').trim(), '</script>',
   '</body></html>',
 ].join('\n');
 
