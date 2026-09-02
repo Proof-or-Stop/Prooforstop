@@ -975,6 +975,25 @@
       "resolvedAt": "2026-09-02T13:09:07.921Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d854:F-044",
+      "desc": "Unrelated bounded-scope gap (defer to follow-up Story): `node scripts/verify-proof-or-stop-identity-cutover.mjs` exits 1 in the current worktree with `frozen baseline legacy-provenance-01: suffix record AR-d0f7cec0f3ae1d7553d3fa07 contains unclassified retired identity tokens` and the analogous `legacy-provenance-02` / `PCR-29ffc786e972b2dcf1afff8` message. The failure is outside commit 354ffbd (which only edits AGENTS.md, its audit, and verifier hashes), was not a configured 120-command validation blocker, and originates in the append-only suffix provenance classifier at scripts/verify-proof-or-stop-identity-cutover.mjs:974-1042. Recommendation: create a follow-up Story to classify and pin those appended ledger records with exact rationale/digests, then rerun the identity-cutover verifier.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The failure is reproducible, but its owning appended ledger paths and intended retired-token provenance were not part of this narrow review, so causal ownership and remediation require a separate scoped Story.",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T14:13:45.414Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-048",
+      "_hash": "bb57b5684e11481764e6a839a8195f0b3c6fb92f8a765c63dc8e841bb09758b8",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs"
+      ],
+      "signatureTag": "edge|mjs|unrelated-bounded-scope",
+      "signatureTagSource": "auto"
     }
   ]
 }
