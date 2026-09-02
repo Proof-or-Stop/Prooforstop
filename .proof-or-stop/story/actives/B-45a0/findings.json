@@ -25396,6 +25396,42 @@
       "signatureTag": "adversarial|cjs|validation-runtime-tracer",
       "signatureTagSource": "auto",
       "resolvedBy": "B-45a0:F-473@8532bbd"
+    },
+    {
+      "id": "B-45a0:F-474",
+      "desc": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts (new, F-473 regression smoke) is not wired into any runner: no test:* npm script references it in package.json or packages/main/package.json, and packages/main/src/tasks/full-suite-runner.ts (which invokes smoke tasks via isolated(\"test:closeout-trust\") etc. by npm script name) has no entry for it either. The compiled dist/tasks/validation-runtime-tracer-transparency-smoke.js runs and PASSes when invoked manually (node packages/main/dist/tasks/validation-runtime-tracer-transparency-smoke.js), so the test itself is correct, but proof-or-stop validate / validate --full / npm test never execute it -- it provides zero regression protection against F-473 recurring despite being written specifically for that purpose.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T04:29:27.355Z",
+      "reviewRound": "2026-09-02T04:21:59.530Z",
+      "reviewRunId": "B-45a0:RR-1194",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ef491392222cf19d97bab930a5a700f3ca61a86376111dd21d8bb4cff1612860",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
