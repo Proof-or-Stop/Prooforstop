@@ -314,6 +314,33 @@
         "scanEscalationReason": null
       },
       "_hash": "711ac55c545d9985121ca4e428b508ee283c108485c80aeae24584ef4813d9a4"
+    },
+    {
+      "id": "B-fe8f:RP-012",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review round 8 (incremental, no code re-execution per instruction). Net material change since RP-008 (priorHeadHash 05e97db) spans commit dd45caa2ea plus a follow-up correction commit 7827dae774 (already part of current HEAD) touching the same 3 files: proof-or-stop.config.json, retired-authority-vocabulary-guard-smoke.ts, core/finding-ledger.ts. No blocking or advisory findings. (1) Ceiling comment math: the ORIGINAL dd45caa2ea comment claiming 'repo builds 389 -> 392' was already superseded/corrected by 7827dae774 before this review -- current HEAD's comment instead reads 'five Story-owned sources each add one graph build; two pre-existing spare slots absorb part of that increase, so the bounded ceiling rises by three from 808 to the measured total of 811.' Verified this replacement claim independently: `git diff main...HEAD --name-status` for packages/main/src/core/*.ts and packages/main/src/handlers/*.ts shows exactly 5 newly-added (status A) source files (core/finding-ledger.ts, core/finding-runtime-evidence.ts, core/runtime-evidence-receipt.ts, handlers/finding-ledger.ts, handlers/finding-runtime-evidence.ts) -- matching 'five Story-owned sources' exactly (the superseded comment undercounted at 'three files' by conflating same-basename core/handlers pairs). The stated ceiling delta (808->811, i.e. +3) is arithmetically consistent with a measured total of 811 (per coordinator-reported guard output) and the 'two pre-existing spare slots' framing (5 new - 2 absorbed headroom = 3 net increase needed, since ceiling only needs to rise from 808 to cover an 811 measured total, not by the full +5). Did not re-run the guard smoke this round per instruction; relied on git diff --name-status ground truth plus the coordinator-supplied measured value. (2) Key-path fallback vs FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST 'git-common-dir-current-key' / docs/requirements/decisions/dynamic-finding-system-execution-plan.md: no contradiction found. Grepped the execution-plan doc for git-common-dir/signing-key/non-git language -- zero hits; the doc makes no promise that key resolution is git-only. Read every keyFreshnessPolicyDigest consumption site in core/finding-ledger.ts, core/runtime-evidence-receipt.ts and handlers/finding-ledger.ts: the digest is a hardcoded, module-level constant (hash of {version:1, registry:'git-common-dir-current-key', rotation:...}) computed identically regardless of which code path resolved the key; it is used ONLY as an opaque producer/verifier equality check (receipt.keyFreshnessPolicyDigest !== trust.keyFreshnessPolicyDigest), never as a runtime assertion that the key actually came from git-common-dir. So the fallback does not break any functional guarantee the digest provides -- both git-backed and workspace-fallback keys carry the identical policy digest, and verification is unaffected. The registry label is a mild, purely-cosmetic naming staleness for the new non-git branch (which the code's own new doc-comment already explains plainly: 'A workspace that is not a git repository ... has no worktrees to share with, so its key is kept in the workspace's own Proof-or-Stop state dir instead of failing'), not a doc-promise-undelivered defect and not something CLAUDE.md/README/plan.md commits the codebase to. Also confirmed PROOF_OR_STOP_DIR (imported from core/proof-or-stop-paths.ts) resolves to the canonical .proof-or-stop state-dir constant, consistent with the B-022e identity cutover -- no reintroduced legacy path. (3) No retired identity tokens on added lines: `git diff 05e97dba...HEAD -- <the 3 changed files> | grep -i lattice` -> zero hits. (4) Cross-checked the commit-message justification for registering red-bfe8f-ledger-runtime-integrity.mjs: packages/main/tests/red/red-b49d4-harness-registration.mjs is a real, pre-existing RED test enforcing that every tests/red/*.mjs file is either registered in proof-or-stop.config.json validate.commands or explicitly excluded with a reason; red-bfe8f-ledger-runtime-integrity.mjs was neither, so the new validate.commands entry (using the same pre-existing 'git-common-dir' resource-contention class already used by 98 other entries) is a genuine, necessary fix, not a fabricated rationale. Did not touch packages/main/dist and did not run the full smoke or validate this round, per explicit instruction.",
+      "createdAt": "2026-09-02T14:50:33.123Z",
+      "reviewRound": "2026-09-02T14:44:47.278Z",
+      "reviewRunId": "B-fe8f:RR-027",
+      "envelopeId": "ce480629105e13c139de4be58fd2572b46bdc5062be41ab9e056bc94b226fbe9",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/proof-or-stop-paths.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/handlers/finding-ledger.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "406622576ba9cb3e5ee171d2f1ebc1a27a2279644297e7ee966083854af3ab8d"
     }
   ]
 }
