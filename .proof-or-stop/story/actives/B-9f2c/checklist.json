@@ -25,7 +25,11 @@
           {
             "desc": "app.body.html carries the dossierSlot span and app.js carries the openDossierFor routing helper",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs'); const b=fs.readFileSync('packages/graph/src/shells/web/app.body.html','utf8'); const a=fs.readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!b.includes('dossierSlot')) throw new Error('no dossierSlot'); if(!/function openDossierFor/.test(a)) throw new Error('no openDossierFor'); console.log('CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT');\"",
+              "selector": "CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT"
+            }
           }
         ],
         "edge": [
@@ -75,6 +79,27 @@
           "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-09-02T08:34:06.707Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/app.js",
+          "command": "node -e \"const fs=require('fs'); const b=fs.readFileSync('packages/graph/src/shells/web/app.body.html','utf8'); const a=fs.readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!b.includes('dossierSlot')) throw new Error('no dossierSlot'); if(!/function openDossierFor/.test(a)) throw new Error('no openDossierFor'); console.log('CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT');\"",
+          "result": "pass",
+          "note": "app.body.html carries the dossierSlot span in the drawer header and app.js carries the openDossierFor routing helper. Both legs must hold; the command throws on either one missing, so it cannot pass on a partial port.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0a4508be889c6b44388828256fffdde0cc6de913b001e899c84459ecfa3b48fe",
+            "outputTail": "CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:34:15.103Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "083fc49db681dd318ecd07681e39563eedd6f059",
+          "materialHash": "6f3e21ec79eca2d6c122819ac79bbae455f984a2f5beb7715f336a517911901c",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-02T08:34:15.284Z"
         }
       ]
     },
