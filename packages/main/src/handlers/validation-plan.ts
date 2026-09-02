@@ -61,7 +61,9 @@ import {
 import type { RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import type { SignedValidationDurationArtifact } from '../core/validation-relevance-input.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
+import { resolve } from 'node:path';
 import { loadConfig } from '../core/config.js';
+import { StoryStore } from '../core/store.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 export const VALIDATION_PLAN_CLI_SCHEMA = 'proofOrStop.validation-plan-cli.v1' as const;
@@ -569,6 +571,24 @@ export function renderValidationPlanText(report: ValidationPlanReport, explain: 
   return lines.join('\n');
 }
 
+/**
+ * B-a745 F-010: the StoryStore to READ the story's own metadata from. When the
+ * resolved git directory is a different checkout than the invocation root and it
+ * carries the story's metadata, that copy is authoritative for an active story;
+ * otherwise (same tree, or the tree has no readable copy) the invocation root's
+ * store is used. Read-only: the returned store is only ever read.
+ */
+function resolveStoryWorkspaceStore(store: StoryStore, root: string, gitCwd: string, storyId: string): StoryStore {
+  if (resolve(gitCwd) === resolve(root)) return store;
+  try {
+    const workspaceStore = new StoryStore(gitCwd);
+    workspaceStore.readStory(storyId);
+    return workspaceStore;
+  } catch {
+    return store;
+  }
+}
+
 export function createValidationPlanHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
   return {
@@ -580,24 +600,15 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
     }): string {
       const request = resolveValidationPlanRequest(rawArgs);
 
-      const story = store.readStory(request.storyId);
-      const checklist = store.readChecklist(request.storyId);
-      const routine = resolveRoutineValidationSourceForPlan(root);
-      const doneRequired = store.readDoneRequiredEvidence(request.storyId);
-      const artifacts: SignedValidationDurationArtifact[] = doneRequired
-        ? [doneRequired as unknown as SignedValidationDurationArtifact]
-        : [];
-
       // B-a745 F-010: diff and hash the STORY's tree, never the tree this
       // read-only command happens to be invoked from. validation_plan is allowed
       // from any cwd (main checkout, wrapper root, the worktree itself), so the
       // git working directory is resolved through the same choke-point the
       // sibling handlers use (verifier / done-prepare / red-evidence): the story's
       // bound or linked worktree, else the configured gitRoot, else the metadata
-      // root itself. The metadata root stays `root`: it is where the config and
-      // the story record live, and it is what classifies story-metadata paths.
-      // No cwd gate is added here on purpose; the command must simply look at
-      // the right tree.
+      // root itself. The metadata root stays `root`: it is where the config
+      // lives and it is what classifies story-metadata paths. No cwd gate is
+      // added here on purpose; the command must simply look at the right tree.
       const gitCwd = resolveGitCwd({
         store,
         storyId: request.storyId,
@@ -605,6 +616,22 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         projectRoot: root,
         config: loadConfig(root),
       });
+      // The story record and checklist evolve on the story branch (evidence pins,
+      // checklist progress), so when the story's tree is a different checkout
+      // that carries its own copy of the metadata, read THAT copy: main's
+      // committed copy is the stale INIT snapshot. Same projection story_get and
+      // session_brief already apply to active linked-worktree stories. A tree
+      // without the metadata (a wrapper-root layout keeps it outside git) falls
+      // back to the invocation root's store; nothing is written either way.
+      const storyStore = resolveStoryWorkspaceStore(store, root, gitCwd, request.storyId);
+
+      const story = storyStore.readStory(request.storyId);
+      const checklist = storyStore.readChecklist(request.storyId);
+      const routine = resolveRoutineValidationSourceForPlan(root);
+      const doneRequired = storyStore.readDoneRequiredEvidence(request.storyId);
+      const artifacts: SignedValidationDurationArtifact[] = doneRequired
+        ? [doneRequired as unknown as SignedValidationDurationArtifact]
+        : [];
 
       const input = collectStoryRelevanceInput({
         projectRoot: root,
