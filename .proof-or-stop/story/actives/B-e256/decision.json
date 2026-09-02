@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "The build pipeline owns the executable bit of what it emits; nothing outside the build should have to remember chmod.",
+    "A no-op when there is nothing to restore; never change dist content, only mode bits.",
+    "Doctor states realpath, version and mode as facts and prints the exact remediation, it never repairs the host itself.",
+    "One committed red test pins the property so the regression cannot return silently."
+  ],
+  "drivers": [
+    "Every real rebuild today breaks the global command with permission denied (RED run4-global-cli.txt).",
+    "npm link chmods once; tsc never sets exec bits; promotion is a rename so the new inode carries 0644.",
+    "The draft symptom of the link pointing into another worktree is only visible to an operator running doctor."
+  ],
+  "options": [
+    {
+      "name": "promote-restores-bits",
+      "pros": [
+        "Single place shared by main and utils builds",
+        "Proven by the GREEN candidate patch",
+        "No dependency on npm"
+      ],
+      "cons": [
+        "promote-dist.mjs gains a package.json read"
+      ]
+    },
+    {
+      "name": "postbuild-npm-script",
+      "pros": [
+        "Visible in package.json scripts"
+      ],
+      "cons": [
+        "Only runs when the npm script is the entry; direct node scripts/build-main-with-binding.mjs invocations (bin/bootstrap-runner.js) would still emit 0644"
+      ]
+    },
+    {
+      "name": "wrapper-only",
+      "pros": [
+        "Route every global call through bin/proof-or-stop.js which spawns node explicitly"
+      ],
+      "cons": [
+        "Does not fix the published bin target that npm link points at; changes the install story"
+      ]
+    }
+  ],
+  "chosen": "promote-restores-bits",
+  "rationale": "promote-restores-bits fixes the property at the only place every rebuild passes through, is already proven GREEN by the candidate patch, and keeps the crash-safe promotion untouched; the other options leave at least one real invocation path emitting a non-executable bin target.",
+  "preMortem": [
+    {
+      "scenario": "chmod changes the build binding digest or the content-bound skip check",
+      "trigger": "verifyBuildBinding fails right after a build because file mode is part of the digest",
+      "consequence": "Every build rebuilds twice or the fast path never skips",
+      "mitigation": "Check full-suite-build-binding.mjs digests content only; add a case to the red test that a second build verifies (skips) after the chmod"
+    },
+    {
+      "scenario": "Absent bin target on a first or partial build throws inside promoteDist",
+      "trigger": "fresh checkout builds with no dist/cli.js yet",
+      "consequence": "Build aborts after promotion",
+      "mitigation": "restoreBinExecutableBits swallows ENOENT per target and returns the restored list; a fixture proves the no-op path"
+    },
+    {
+      "scenario": "Doctor global-cli row false-alarms on machines without a global install",
+      "trigger": "no proof-or-stop on PATH or realpath outside any repo",
+      "consequence": "Noise in doctor output",
+      "mitigation": "Reuse checkGlobalCoreRealpath classification: absent global install stays informational, only a resolvable-but-wrong realpath or non-executable target warns"
+    }
+  ],
+  "timestamp": "2026-09-02T15:15:59.437Z"
+}

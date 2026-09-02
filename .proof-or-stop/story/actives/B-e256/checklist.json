@@ -17,6 +17,39 @@
         "test": [
           "packages/main/tests/red/red-global-cli-exec-bit.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After promoteDist promotes a staging tree whose bin target is 0644, the bin target listed in package.json is executable (mode has 0o111) and its content is unchanged",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "node packages/main/tests/red/red-global-cli-exec-bit.mjs (evidence pack copy until CHK-002 commits it) exits 0 with the GREEN summary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "promoteDist on a package whose bin target is absent (first build, partial fixture) completes without throwing and restores nothing",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A second build right after the chmod takes the content-bound fast path (verifyBuildBinding passes), proving mode bits are not part of the binding digest",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A package.json with no bin field, or an unreadable package.json, leaves promoteDist behaviour byte-identical to before (no throw, no chmod)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
