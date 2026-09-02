@@ -1184,6 +1184,21 @@
       "resolvedAt": "2026-09-02T04:14:40.215Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-053",
+      "desc": "packages/main/src/core/prompt-envelope.ts:333-352 pre-invariant authority laundering (high): F-051 now requires the text after the invariant predicate to be empty or a bounded `by ...` cause, but `invariantOutcomeMatch` may occur after arbitrary affirmative authority text, so the complete comparison outcome is still not invariant-only. Production-dist probes returned UNSAFE_ACCEPTED for (1) `Compare the Dynamic Finding runtime before and after this change: the Story adds a new applicability verdict and schema fields remain unchanged by the metadata-only registration.`, (2) the verbless `a new applicability verdict is now official and schema fields remain unchanged ...`, and (3) `Audit the Dynamic Finding authority across this implementation update and confirm that it recognizes a new official verdict while its contract remains unmodified.` This is independent of the repaired post-invariant tails and still lets signed Task Context amend Dynamic Finding authority. Validate the entire outcome grammar on both sides of the invariant predicate, not only invariantOutcomeTail, while preserving the exact live CHK-003/CHK-002 safe sentences; add these three clause-order mutations without relying on an unsafe-verb list.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T04:15:51.264Z",
+      "reviewRound": "2026-09-02T04:14:15.004Z",
+      "reviewRunId": "B-9a49:RR-079",
+      "_hash": "f56252e5ce25399977f7f162d7f1a6461b36ed6b06b8e5625d72073c39163e2d",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
