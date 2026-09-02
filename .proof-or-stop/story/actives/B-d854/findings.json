@@ -347,6 +347,25 @@
       ],
       "signatureTag": "missing|md|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-018",
+      "desc": "tests/AGENTS.verify.mjs:162 and tests/AGENTS.verify.mjs:196-199 classify aux_diagnose/test_fixture as conceptual without proving the command resolves or --help succeeds. Repro in a detached temp worktree: patch bin/proof-or-stop.js so aux_diagnose --help exits 1 (observed Unknown command: aux_diagnose), then run node tests/AGENTS.verify.mjs --final; it still exits 0 and prints CASE 29 PASS. This violates CHK-001:adversarial:0 and CHK-003:adversarial:0, which require every active command example to resolve and the checker to reject invalid commands.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T01:14:17.310Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-007",
+      "_hash": "1ee8b0ac4330a2a638ea99cd74f1747ce66d61d6f3efd072edfcde2dcad784d5",
+      "files": [
+        "tests/AGENTS.verify.mjs",
+        "AGENTS.md"
+      ],
+      "signatureTag": "adversarial|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
