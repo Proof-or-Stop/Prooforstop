@@ -375,20 +375,20 @@
           "kind": "integration_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh mechanical receipt after F-021 remediation",
+          "note": "Final fresh mechanical receipt after F-022 remediation",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T20:29:58.776Z",
+            "executedAt": "2026-09-02T21:51:09.279Z",
             "timeoutMs": 180000
           },
-          "headHash": "09477fae43433120eb663e39b8827b1a332ba42e",
-          "materialHash": "bc43c817fe13a44b1a1e65d8c6f2c1caf23cf8ad141a066568bdd90a4b69d319",
-          "storyFilesHash": "f5b9ac81c6a21382d17dae24377c3624a7d1c0cb0894f6744f4bd129d151d876",
-          "timestamp": "2026-09-02T20:29:58.939Z"
+          "headHash": "23f41177c6b6f9b0b590f1f42d195307a6afd167",
+          "materialHash": "9f088c978e3d61c8d66b1da344b0786ec4a24fb6a27c21986a4c8f6fb6620f69",
+          "storyFilesHash": "dfba4a294c0967d49151fa7a24a11cdac5da9271a57df29db1cfd6c434f2ea25",
+          "timestamp": "2026-09-02T21:51:09.502Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
