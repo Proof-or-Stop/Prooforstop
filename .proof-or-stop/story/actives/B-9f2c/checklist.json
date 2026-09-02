@@ -383,7 +383,11 @@
           {
             "desc": "the validation cannot be bypassed by calling the handler directly with an argument object that never passed through the Zod schema",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
           }
         ]
       },
@@ -504,6 +508,27 @@
           "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
           "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
           "timestamp": "2026-09-02T08:54:56.262Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) calls the real handler directly with story values Zod would never pass ('', '   ', null, 7, an object, an array, true) and asserts each is refused with the SPECIFIC diagnosis. No schema is involved on that path, so it exercises the handler-entry re-validation required by CLAUDE.md Handler encoding convention. Negative control run: weakening the entry check to a bare typeof test made the task exit 1 with 'handler entry must refuse \"\" with the right diagnosis'.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1abc6ebab431ed869aadec2a9dc96bfc4533d20598ba1733a06d4c4655dce41e",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-jvWuOY (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-jvWuOY (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-jvWuOY (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:55:01.411Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "df41ced52827a2c684f2f637d5cd65ed686c0a00",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:55:01.572Z"
         }
       ]
     },
