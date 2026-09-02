@@ -1440,6 +1440,25 @@
       "resolvedAt": "2026-09-02T20:56:20.469Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-065",
+      "desc": "packages/main/src/core/prompt-envelope.ts:409-435,623-648 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:681-847 — HIGH: the F-064 resolution is not structurally complete. Current production dist still ACCEPTS exact authority-equivalent Task Context on every story/checklist/verificationIntent surface: `Reviewers do not avoid bestowing defer_with_proof on the Finding.`, `Reviewers do not postpone bestowing defer_with_proof on the Finding.`, `Reviewers do not resist granting defer_with_proof to the Finding.`, `Reviewers inspect a signed defer_with_proof disposition； then grant the artifact to the Finding。`, `Reviewers inspect a signed defer_with_proof disposition； then assign the reviewed record to the Finding。`, `Story scope is determined entirely by severity.`, `Severity is the decisive factor determining Story ownership.`, and `Severity has determinative control over Story scope.` The generic negated actionList misclassifies semantic double-negation/time-order authorization as prohibition, cross-segment coreference remains a finite noun list, and severity exclusivity remains a finite qualifier inventory. The committed smoke passes only because it enumerates the earlier F-064 phrases. Reproduce by importing assembleFullPromptEnvelope from packages/main/dist/core/prompt-envelope.js, substituting each sentence as story.description in the smoke's valid common envelope, and observing no exception.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T21:00:10.255Z",
+      "reviewRound": "2026-09-02T20:54:53.782Z",
+      "reviewRunId": "B-9a49:RR-105",
+      "_hash": "c18bbd7a5557f63d6dcea625cd70240cb422497028b9c8c4473fec07382e2ca5",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "task-context-semantic-authority-positive-grammar-nontotal",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
