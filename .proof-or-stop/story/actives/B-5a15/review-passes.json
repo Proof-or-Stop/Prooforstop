@@ -14127,6 +14127,33 @@
         "scanEscalationReason": null
       },
       "_hash": "e5b898f9f629e015602206a30f587a1af8d49d85001dfb2b8db28ac12211667f"
+    },
+    {
+      "id": "B-5a15:RP-303",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality audit clean; no blocker. All measurements taken WITHOUT a pipe so exit codes are true. (1) validate-resource-claims.test.mjs: EXIT=0, node --test reports tests 1 / pass 1 / fail 0, and the suite's own counter prints 'validate-resource-claims: PASS (34 assertions)' — the claimed 34 is CONFIRMED from the suite's runtime counter, not inferred from the 9 static assert call sites (line 50 is an ok() helper wrapper with 27 call sites plus 9 direct assertions/increments). Its sub-checks all report VI-OK, including CONFIGURED-PLAN-CLASSIFIED (116 commands, 99 declared, 17 exclusive by fail-closed default) and CHK005-AUDITED-BARRIERS-HELD (10 audited repo-shared writers remain undeclared). (2) packages/main/tests/red/red-b49d4-registration-derivation.mjs: EXIT=0, final line '0 RED / 26 GREEN of 26 rows (18099ms in child processes)' — 0 RED / 26 GREEN CONFIRMED, and it verifies REPO_TREE_NEVER_WRITTEN_TO (listing digest 56f5cb89a19f1913 identical before/after, git status --porcelain unchanged), so the harness did not dirty the tree while this epoch is OPEN. (3) tsc --noEmit clean for ALL THREE packages: packages/main EXIT=0 zero output lines, packages/graph EXIT=0 zero output lines, packages/utils EXIT=0 zero output lines. (4) The F-365 repair is INTACT and correctly shaped in packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts: the aggregate assertion on sameNameShadow.status==='partial' is DELETED and replaced by a NOTE (B-5a15) at lines 775-781 explaining that the fixture also writes packages/main/src/consumers/c2.ts as a genuine cross-file consumer, so 'complete' is legitimate and asserting 'partial' would over-claim on the aggregate rather than the behaviour under test. The endpoint assertion is KEPT at line 782 (negated: the shadowed helper must NOT emit a false producer endpoint) and is demonstrably LOAD-BEARING because line 768 is its positive control on the same fixture — the same-file VALID edge asserts the endpoint IS emitted, so the pair proves the check can both fire and pass rather than being vacuous. (5) Type-safety spot check on the story's newly ADDED source files: packages/main/src/core/causal-evidence.ts, tasks/causal-evidence-smoke.ts and tasks/verifier-causal-preflight-smoke.ts each contain ZERO ': any' annotations and ZERO @ts-ignore/@ts-expect-error suppressions. (6) Method note, reported for honesty rather than as a defect: my first run of the basis smoke via 'npx tsx' on the src file exited 1 with MODULE_NOT_FOUND for packages/main/src/cli.js. That was MY wrong invocation, not a regression — proof-or-stop.config.json line 1904 registers the smoke as 'node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js', and in that registered dist form it exits 0 with 'ProofStory acceptance coverage basis Wave 1A smoke passed'. No file was edited and no git write was performed during this lane.",
+      "createdAt": "2026-09-02T18:42:49.104Z",
+      "reviewRound": "2026-09-02T18:29:32.646Z",
+      "reviewRunId": "B-5a15:RR-896",
+      "envelopeId": "cce727e8400727298d23feb12e21b40f809509a70f7852620bcd12437c853876",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3882552431e8301d2caaabd08867aa5ec631daab985f777e8eb30681ab72ea03"
     }
   ]
 }
