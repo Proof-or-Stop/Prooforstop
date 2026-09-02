@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-09-02T15:31:17.710Z",
+  "cutoffAt": "2026-09-02T15:32:41.845Z",
   "planBasisDigest": "sha256:529d58a98b226837f1ceceb27a81ebfb86588bbbb12c050e2b458dc1b6a5a389",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1107,6 +1107,20 @@
       "evidenceDigest": "sha256:e91cf9153e706b9e9a2c657c1c0c539ad7f50a13eae08a84b046633914442a70"
     },
     {
+      "intentRef": "CHK-004:happy:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 12,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:ae0acb2a5a20f833bc2f4603741e6026e3c919f04e0523029577ba0e2288e16f"
+    },
+    {
+      "intentRef": "CHK-004:happy:3",
+      "itemId": "CHK-004",
+      "evidenceIndex": 13,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:187998238c552d7fbaa3f9325f217c818e81def7e8b7862437d1f16b7e0346d0"
+    },
+    {
       "intentRef": "CHK-005:adversarial:0",
       "itemId": "CHK-005",
       "evidenceIndex": 7,
@@ -1348,11 +1362,9 @@
     ]
   },
   "criticReceiptDigest": "sha256:91922982a1f6a77df4804d9893eed19ee8948f87bae2eeecc33e46b5da4445ea",
-  "codes": [
-    "PR_EVIDENCE_STALE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-09-02T15:31:17.710Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-09-02T15:32:41.845Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "w+amcMNC55ya+A4C9/HExvUQcwU794911uOJW7SwiccVJWPYUmNZ5mzL5jY4FCmAPi2NeAZzyUZNps2/urahBw=="
+  "signature": "wMywZtegMj31jYK/WN4G8BBlt8eey7bD/0j0firoWE+eAIW6J8QVuiPcgmnllcMX2PLB+U89JPNXKogxet9MCg=="
 }
