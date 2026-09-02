@@ -20,9 +20,31 @@
     ".claude/**"
   ],
   "scopeChangeReason": "Add CHK-003:edge:1 to the existing AGENTS.md-only scope after independent verification-intent coverage was expanded to report local/global CLI drift separately.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These exact Markdown hunks implement the user-authorized full English translation and the 26 evidence-backed AGENTS.md consistency corrections; Markdown has no declaration anchors.",
+      "timestamp": "2026-09-02T00:20:10.844Z",
+      "paths": [
+        "AGENTS.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ff2ebde54af94af6fb7db6eafbf93ff3c72ce026",
+      "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+      "hunkDigests": [
+        "22a049ddb6bb327e727504972ea2218857ab06b5d52ba77ea61d65227d49b824",
+        "dd9a6e42a67c62d7432e73cfbcb2bf0c670ed9a888ecdd52dac57640db6aaf58",
+        "5e94a0d1471e5f1e08eaf1e2c4c65813e748824cd2c9e109eabd90c3e2d9df45"
+      ]
+    }
+  ],
   "createdAt": "2026-09-01T23:05:12.822Z",
-  "updatedAt": "2026-09-01T23:10:08.594Z",
+  "updatedAt": "2026-09-02T00:20:10.844Z",
   "fileRules": [
     {
       "path": "AGENTS.md",
