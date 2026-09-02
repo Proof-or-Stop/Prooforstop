@@ -1,0 +1,44 @@
+{
+  "storyId": "B-e256",
+  "mode": "shadow",
+  "allowedModify": [
+    "scripts/promote-dist.mjs",
+    "scripts/build-main-with-binding.mjs",
+    "scripts/build-utils-with-binding.mjs",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/tests/global-core-realpath.test.mjs",
+    "proof-or-stop.config.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+    "packages/main/tests/global-core-realpath.test.mjs"
+  ],
+  "protectedFiles": [
+    "scripts/build-lock.mjs",
+    "scripts/build-lock-target.mjs"
+  ],
+  "explicitExcludes": [],
+  "acknowledgements": [],
+  "createdAt": "2026-09-02T15:27:28.092Z",
+  "updatedAt": "2026-09-02T15:27:28.092Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "scripts/promote-dist.mjs": "scripts/promote-dist.mjs",
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/build-utils-with-binding.mjs": "scripts/build-utils-with-binding.mjs",
+    "packages/main/src/core/runtime-environment-checks.ts": "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/handlers/doctor.ts": "packages/main/src/handlers/doctor.ts",
+    "packages/main/tests/global-core-realpath.test.mjs": "packages/main/tests/global-core-realpath.test.mjs",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/tests/red/red-global-cli-exec-bit.mjs": "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs",
+    "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs"
+  }
+}

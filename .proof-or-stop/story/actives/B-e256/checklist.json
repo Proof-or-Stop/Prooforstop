@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Restore the executable bit on package.json bin targets when dist is promoted",
       "context": "Probe rp-mtk46lj8-90q9av, review rr-mtk4acx4-oqze5c. scripts/promote-dist.mjs promoteDist must chmod every bin target listed in <packageRoot>/package.json after renaming staging into dist (both the main and utils builds share promoteDist). green-4-promote-dist.patch in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/ is the proven candidate.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T15:28:47.993Z",
       "endTime": null,
       "userSees": "After npm --prefix packages/main run build re-emits dist, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version prints the version instead of permission denied",
       "files": {
