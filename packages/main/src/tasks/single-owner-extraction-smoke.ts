@@ -36,12 +36,18 @@
  *   with pinned expected tuples proves the DONE-required executor path,
  *   handlers/verifier.ts and the canonical parser agree on every entry, and a
  *   structural case fails if a private parser reappears.
+ *
+ * CHK-003 — one owner for story workspace resolution:
+ *   core/story-workspace.ts `resolveStoryWorkspace` returns gitCwd (from
+ *   resolveGitCwd), a workspace-rooted StoryStore, workspace-loaded config and
+ *   the source used; story-query.ts, session.ts,
+ *   local-assurance-story-projection.ts and validation-plan.ts delegate to it.
  */
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,7 +60,16 @@ import {
   currentStoryFilesHash,
   isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
-import { resetConfigCache } from '../core/config.js';
+import { loadConfig, resetConfigCache } from '../core/config.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { resolveLocalAssuranceStories } from '../core/local-assurance-story-projection.js';
+import { StoryStore } from '../core/store.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { createSessionHandlers } from '../handlers/session.js';
+import { createStoryQueryHandlers } from '../handlers/story-query.js';
+import { createValidationPlanHandlers } from '../handlers/validation-plan.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { configuredValidationCommands } from '../handlers/verifier.js';
 import { parseLegacyValidationCommandString } from '../core/validation-command-identity.js';
@@ -747,9 +762,485 @@ group('CHK-002 done-required command parse is owned by parseLegacyValidationComm
 ]);
 
 // ---------------------------------------------------------------------------
+// CHK-003 — one owner for story workspace resolution.
+//
+// Four implementations used to decide, each on its own, which tree a story's
+// git work / StoryStore / config live in: story-query.ts `readStoryProjection`
+// (+ `listLinkedStoryWorktrees`), session.ts `listActiveWorktrees` +
+// `readStoryFromLinkedWorktree`, local-assurance-story-projection.ts
+// `collectLinkedStoryWorktrees` (+ `readWorktreePhase`) and validation-plan.ts
+// `resolveStoryWorkspace` (B-a745 F-010). The first two applied the
+// phase-terminal guard (`phase !== 'DONE' && phase !== 'DISCARDED'`) before
+// reading a linked worktree; the last two did not, and none of the listing
+// variants honoured a configured wrapper-root `gitRoot` (the `git worktree
+// list` they ran in the non-git metadata root returned nothing).
+//
+// The RED cases below fail against that state: `core/story-workspace.ts` does
+// not exist, the structural case finds the four private implementations still
+// in place, and the wrapper-root fixture shows the local assurance projection
+// not finding the story worktree. GREEN adds the helper
+// (`resolveStoryWorkspace`) and migrates the four call sites onto it.
+//
+// Fixture shape (modelled on B-a745's F-010 cases): a metadata root holding
+// proof-or-stop.config.json and the story record (phase DEV, NO worktree
+// binding so the resolver has to find the linked story branch itself), a git
+// root (the metadata root on the plain layout, `repo/` below it with
+// `gitRoot: "repo"` on the wrapper layout) with one base commit, and a linked
+// worktree on `story/<id>` whose own commit advances the story (phase TEST, a
+// worktree-only validate.commands entry pinned by a worktree-only checklist
+// item) — so a read that lands in the wrong tree is visible as the wrong
+// phase, the wrong checklist and a different selectionDigest.
+// ---------------------------------------------------------------------------
+
+const WS_STORY_ID = 'B-c003';
+const WS_CHANGED_FILE = 'src/core/workspace-touched.ts';
+const WS_WORKTREE_COMMAND_ID = 'workspace-suite';
+const WS_STORY_BRANCH = `story/${WS_STORY_ID}`;
+const WS_FIXTURE_ROOTS: string[] = [];
+
+interface WorkspaceFixture {
+  metadataRoot: string;
+  gitRoot: string;
+  worktreePath: string;
+}
+
+function canonical(path: string): string {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
+}
+
+function writeFixtureFile(root: string, relPath: string, content: string): void {
+  const absolute = join(root, relPath);
+  mkdirSync(dirname(absolute), { recursive: true });
+  writeFileSync(absolute, content, 'utf-8');
+}
+
+function workspaceConfigJson(layout: 'plain' | 'wrapper-root', extraCommands: unknown[]): string {
+  return `${JSON.stringify({
+    storyDir: '.proof-or-stop/story/actives',
+    ...(layout === 'wrapper-root' ? { gitRoot: 'repo' } : {}),
+    validate: {
+      commands: [
+        { label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' },
+        ...extraCommands,
+      ],
+    },
+  }, null, 2)}\n`;
+}
+
+function workspaceStory(phase: StoryInfo['phase']): StoryInfo {
+  return {
+    storyId: WS_STORY_ID,
+    name: 'story-workspace-fixture',
+    title: 'One owner for story workspace resolution',
+    description: 'Fixture story whose work lives in a linked worktree.',
+    type: 'feature',
+    phase,
+    priority: 'high',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    startedAt: null,
+    endedAt: null,
+  };
+}
+
+function buildWorkspaceFixture(layout: 'plain' | 'wrapper-root'): WorkspaceFixture {
+  const metadataRoot = mkdtempSync(join(tmpdir(), `${MARKER}-workspace-${layout}-`));
+  WS_FIXTURE_ROOTS.push(metadataRoot);
+  const gitRoot = layout === 'wrapper-root' ? join(metadataRoot, 'repo') : metadataRoot;
+  mkdirSync(gitRoot, { recursive: true });
+
+  writeFixtureFile(metadataRoot, 'proof-or-stop.config.json', workspaceConfigJson(layout, []));
+  writeFixtureFile(gitRoot, '.gitignore', '.worktrees/\n');
+  writeFixtureFile(gitRoot, 'README.md', '# story workspace fixture\n');
+  writeFixtureFile(gitRoot, WS_CHANGED_FILE, 'export const touched = 0;\n');
+  git(gitRoot, ['init', '-q']);
+  git(gitRoot, ['checkout', '-q', '-B', 'main']);
+  git(gitRoot, ['add', '-A']);
+  git(gitRoot, ['commit', '-q', '-m', 'base']);
+
+  resetConfigCache();
+  const store = new StoryStore(metadataRoot);
+  store.writeStory(WS_STORY_ID, workspaceStory('DEV'));
+  store.writeChecklist(WS_STORY_ID, { items: [] });
+  if (layout === 'plain') {
+    git(gitRoot, ['add', '-A']);
+    git(gitRoot, ['commit', '-q', '-m', 'story metadata']);
+  }
+
+  const worktreePath = join(gitRoot, '.worktrees', WS_STORY_ID);
+  git(gitRoot, ['branch', WS_STORY_BRANCH]);
+  git(gitRoot, ['worktree', 'add', '-q', worktreePath, WS_STORY_BRANCH]);
+  writeFixtureFile(worktreePath, WS_CHANGED_FILE, 'export const touched = 1;\n');
+  if (layout === 'plain') {
+    // The story's metadata and command inventory evolve on the story branch:
+    // main's committed copies are the stale INIT snapshot.
+    writeFixtureFile(
+      worktreePath,
+      'proof-or-stop.config.json',
+      workspaceConfigJson(layout, [{ label: 'workspace', command: 'npm', args: ['run', 'workspace'], id: WS_WORKTREE_COMMAND_ID }]),
+    );
+    resetConfigCache();
+    const worktreeStore = new StoryStore(worktreePath);
+    worktreeStore.writeStory(WS_STORY_ID, workspaceStory('TEST'));
+    worktreeStore.writeChecklist(WS_STORY_ID, {
+      items: [
+        {
+          id: 'CHK-001',
+          title: 'Touch the workspace file',
+          context: 'worktree-only item',
+          status: 'done',
+          files: { modify: [WS_CHANGED_FILE], create: [], test: [] },
+          verificationEvidence: [
+            { intentRef: 'CHK-001:happy:0', kind: 'integration_test', command: 'npm run workspace', result: 'pass', note: 'worktree-only pin' },
+          ],
+        } as unknown as ChecklistData['items'][number],
+      ],
+    });
+  }
+  git(worktreePath, ['add', '-A']);
+  git(worktreePath, ['commit', '-q', '-m', 'story change']);
+  resetConfigCache();
+  return { metadataRoot, gitRoot, worktreePath };
+}
+
+/** The story is DONE on main and its worktree was merged and removed (the normal end of a story). */
+function markDoneAndRemoveWorktree(fixture: WorkspaceFixture): void {
+  resetConfigCache();
+  new StoryStore(fixture.metadataRoot).writeStory(WS_STORY_ID, workspaceStory('DONE'));
+  git(fixture.gitRoot, ['worktree', 'remove', '--force', fixture.worktreePath]);
+  git(fixture.gitRoot, ['branch', '-D', WS_STORY_BRANCH]);
+  resetConfigCache();
+}
+
+/** The story is DONE on main but a residual worktree still exists (terminal-worktree residue). */
+function markDoneKeepResidue(fixture: WorkspaceFixture): void {
+  resetConfigCache();
+  new StoryStore(fixture.metadataRoot).writeStory(WS_STORY_ID, workspaceStory('DONE'));
+  resetConfigCache();
+}
+
+function ctxAt(root: string): HandlerContext {
+  resetConfigCache();
+  return { store: new StoryStore(root), root, scanRoot: root } as HandlerContext;
+}
+
+function cleanupWorkspaceFixtures(): void {
+  for (const root of WS_FIXTURE_ROOTS.splice(0)) {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+type StoryWorkspaceResult = {
+  gitCwd: string;
+  store: StoryStore;
+  config: { validate?: { commands?: Array<{ id?: string }> } };
+  source: 'linked-worktree' | 'invocation-root';
+  rootReason: string | null;
+  worktreePath: string | null;
+  story: StoryInfo;
+  rootStory: StoryInfo;
+};
+type ResolveStoryWorkspaceFn = (
+  ctx: { store: StoryStore; root: string },
+  storyId: string,
+  options?: { terminalPhaseGuard?: boolean },
+) => StoryWorkspaceResult;
+
+/**
+ * The RED commit compiles against a tree that has no `core/story-workspace.ts`
+ * yet; resolving the module through a computed specifier keeps the smoke
+ * compiling while every case that needs the helper fails loudly.
+ */
+const WS_MODULE_SPECIFIER = '../core/story-workspace.js';
+const workspaceModule = await import(WS_MODULE_SPECIFIER).catch(() => null) as Record<string, unknown> | null;
+
+function resolveWorkspaceFn(): ResolveStoryWorkspaceFn {
+  const fn = workspaceModule?.resolveStoryWorkspace;
+  if (typeof fn !== 'function') {
+    throw new Error('core/story-workspace.ts does not export resolveStoryWorkspace');
+  }
+  return fn as ResolveStoryWorkspaceFn;
+}
+
+function planFromRoot(root: string): Record<string, any> {
+  const ctx = ctxAt(root);
+  return JSON.parse(createValidationPlanHandlers(ctx).validation_plan({ storyId: WS_STORY_ID, tier: 'fast', json: true })) as Record<string, any>;
+}
+
+function planUnitIds(report: Record<string, any>): string[] {
+  return (report.units as Array<{ id: string }>).map((unit) => unit.id).sort();
+}
+
+function storyListRow(root: string): Record<string, unknown> {
+  const listed = createStoryQueryHandlers(ctxAt(root)).story_list({ full: true }) as { stories: Array<Record<string, unknown>> };
+  const row = listed.stories.find((entry) => entry.storyId === WS_STORY_ID);
+  assert.ok(row, `story_list from ${root} must list ${WS_STORY_ID}`);
+  return row!;
+}
+
+function briefFromRoot(root: string): string {
+  return createSessionHandlers(ctxAt(root)).session_brief({});
+}
+
+function assuranceRow(root: string, activeOnly: boolean) {
+  resetConfigCache();
+  const projection = resolveLocalAssuranceStories(new StoryStore(root), root, { activeOnly, now: '2026-01-01T00:00:00.000Z' });
+  const row = projection.stories.find((entry) => entry.storyId === WS_STORY_ID);
+  assert.ok(row, `local assurance projection from ${root} must include ${WS_STORY_ID}`);
+  return row!;
+}
+
+const WS_HELPER_IMPORT_RE = /import\s*\{[^}]*\bresolveStoryWorkspace\b[^}]*\}\s*from\s*'(\.\.\/core|\.)\/story-workspace\.js'/;
+
+const WS_MIGRATED_SITES: Array<{ file: string; removed: string[] }> = [
+  {
+    file: 'handlers/story-query.ts',
+    removed: ['function listLinkedStoryWorktrees', 'new StoryStore(linkedPath)', "mainStory.phase !== 'DONE' &&"],
+  },
+  {
+    file: 'handlers/session.ts',
+    removed: ['function listActiveWorktrees', 'function readStoryFromLinkedWorktree', 'git worktree list --porcelain', 'new StoryStore(worktreePath)', 'new StoryStore(wt)'],
+  },
+  {
+    file: 'core/local-assurance-story-projection.ts',
+    removed: ['function collectLinkedStoryWorktrees', 'function readWorktreePhase', 'new StoryStore(', 'listGitWorktrees'],
+  },
+  {
+    file: 'handlers/validation-plan.ts',
+    removed: ['function resolveStoryWorkspace', 'new StoryStore(', 'loadConfig(', 'resolveGitCwd('],
+  },
+];
+
+group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', [
+  {
+    name: 'helper: from the main checkout an active story resolves to its linked worktree (gitCwd from resolveGitCwd, store and config rooted there, source=linked-worktree)',
+    run: () => {
+      const fixture = buildWorkspaceFixture('plain');
+      const ctx = ctxAt(fixture.metadataRoot);
+      const workspace = resolveWorkspaceFn()(ctx, WS_STORY_ID);
+      const expectedGitCwd = resolveGitCwd({
+        store: ctx.store,
+        storyId: WS_STORY_ID,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+        config: loadConfig(ctx.root),
+      });
+      assert.equal(workspace.gitCwd, expectedGitCwd, 'gitCwd must be exactly what resolveGitCwd returns');
+      assert.equal(canonical(workspace.gitCwd), canonical(fixture.worktreePath));
+      assert.equal(workspace.source, 'linked-worktree');
+      assert.equal(workspace.rootReason, null);
+      assert.equal(canonical(workspace.worktreePath ?? ''), canonical(fixture.worktreePath));
+      assert.equal(canonical(workspace.store.projectRoot), canonical(fixture.worktreePath), 'the store must be rooted at the linked worktree');
+      assert.equal(workspace.story.phase, 'TEST', 'the story must be read from the worktree copy');
+      assert.equal(workspace.rootStory.phase, 'DEV', 'rootStory must be the invocation root copy');
+      assert.ok(
+        (workspace.config.validate?.commands ?? []).some((command) => command.id === WS_WORKTREE_COMMAND_ID),
+        'config must be loaded from the linked worktree (it carries the worktree-only validate.commands entry)',
+      );
+    },
+  },
+  {
+    name: 'helper: from inside the story worktree the same story resolves to the same gitCwd with source=invocation-root (same tree)',
+    run: () => {
+      const fixture = buildWorkspaceFixture('plain');
+      const ctx = ctxAt(fixture.worktreePath);
+      const workspace = resolveWorkspaceFn()(ctx, WS_STORY_ID);
+      assert.equal(canonical(workspace.gitCwd), canonical(fixture.worktreePath));
+      assert.equal(workspace.source, 'invocation-root');
+      assert.equal(workspace.rootReason, 'same-tree');
+      assert.equal(workspace.store, ctx.store, 'same tree: the invocation store is the workspace store');
+      assert.equal(workspace.story.phase, 'TEST');
+      assert.equal(canonical(workspace.worktreePath ?? ''), canonical(fixture.worktreePath), 'the story worktree is still reported when we are inside it');
+    },
+  },
+  {
+    name: 'guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off',
+    run: () => {
+      const fixture = buildWorkspaceFixture('plain');
+      markDoneAndRemoveWorktree(fixture);
+      const ctx = ctxAt(fixture.metadataRoot);
+      for (const terminalPhaseGuard of [true, false]) {
+        const workspace = resolveWorkspaceFn()(ctx, WS_STORY_ID, { terminalPhaseGuard });
+        assert.equal(workspace.source, 'invocation-root', `terminalPhaseGuard=${terminalPhaseGuard}`);
+        assert.equal(canonical(workspace.gitCwd), canonical(fixture.metadataRoot), `terminalPhaseGuard=${terminalPhaseGuard}: gitCwd must be the invocation root`);
+        assert.equal(workspace.store, ctx.store, `terminalPhaseGuard=${terminalPhaseGuard}: store must be the invocation store`);
+        assert.equal(workspace.worktreePath, null, `terminalPhaseGuard=${terminalPhaseGuard}: no worktree may be reported`);
+        assert.equal(workspace.story.phase, 'DONE');
+      }
+    },
+  },
+  {
+    name: 'guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off',
+    run: () => {
+      const fixture = buildWorkspaceFixture('plain');
+      markDoneKeepResidue(fixture);
+      const ctx = ctxAt(fixture.metadataRoot);
+      const guarded = resolveWorkspaceFn()(ctx, WS_STORY_ID, { terminalPhaseGuard: true });
+      assert.equal(guarded.source, 'invocation-root');
+      assert.equal(guarded.rootReason, 'terminal-phase');
+      assert.equal(guarded.store, ctx.store);
+      assert.equal(guarded.story.phase, 'DONE');
+      assert.equal(guarded.worktreePath, null);
+      const byDefault = resolveWorkspaceFn()(ctx, WS_STORY_ID);
+      assert.equal(byDefault.rootReason, 'terminal-phase', 'the helper default must be the guarded behaviour');
+      const unguarded = resolveWorkspaceFn()(ctx, WS_STORY_ID, { terminalPhaseGuard: false });
+      assert.equal(unguarded.source, 'linked-worktree');
+      assert.equal(unguarded.story.phase, 'TEST');
+      assert.equal(canonical(unguarded.worktreePath ?? ''), canonical(fixture.worktreePath));
+    },
+  },
+  {
+    name: 'wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper',
+    run: () => {
+      const fixture = buildWorkspaceFixture('wrapper-root');
+      const ctx = ctxAt(fixture.metadataRoot);
+      const workspace = resolveWorkspaceFn()(ctx, WS_STORY_ID);
+      assert.equal(canonical(workspace.gitCwd), canonical(fixture.worktreePath), 'gitCwd must be the linked worktree under the configured gitRoot');
+      assert.equal(canonical(workspace.worktreePath ?? ''), canonical(fixture.worktreePath));
+      // The wrapper layout keeps the metadata outside git, so the worktree has no
+      // copy of the story: the store and config stay on the invocation root.
+      assert.equal(workspace.source, 'invocation-root');
+      assert.equal(workspace.rootReason, 'no-story-copy');
+      assert.equal(workspace.store, ctx.store);
+      assert.equal(workspace.story.phase, 'DEV');
+    },
+  },
+  {
+    name: 'structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore',
+    run: () => {
+      const source = readFileSync(join(MAIN_SRC, 'core', 'story-workspace.ts'), 'utf-8');
+      const retiredStateDir = ['.', 'lat', 'tice'].join('');
+      assert.equal(source.split(retiredStateDir).length - 1, 0, `retired state-dir spelling found in core/story-workspace.ts`);
+      assert.equal(source.split(`'${PROOF_OR_STOP_STATE_DIR}`).length - 1, 0, 'the canonical state-dir name must not be a literal either; it is derived via config -> proof-or-stop-paths -> brand-paths');
+      assert.ok(source.includes('storyDirPath('), 'the helper must take the story directory from StoryStore.storyDirPath');
+      assert.ok(source.includes('resolveGitCwd('), 'the helper must obtain gitCwd from resolveGitCwd');
+      assert.match(source, /export function resolveStoryWorkspace\(/);
+    },
+  },
+  {
+    name: 'structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed',
+    run: () => {
+      const failures: string[] = [];
+      for (const site of WS_MIGRATED_SITES) {
+        const source = readFileSync(join(MAIN_SRC, site.file), 'utf-8');
+        if (!WS_HELPER_IMPORT_RE.test(source)) failures.push(`${site.file}: does not import resolveStoryWorkspace from core/story-workspace.js`);
+        if (!source.includes('resolveStoryWorkspace(')) failures.push(`${site.file}: does not call resolveStoryWorkspace`);
+        for (const token of site.removed) {
+          if (source.includes(token)) failures.push(`${site.file}: still contains ${JSON.stringify(token)}`);
+        }
+      }
+      assert.deepEqual(failures, [], failures.join('\n'));
+    },
+  },
+  {
+    name: 'validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout',
+    run: () => {
+      const fixture = buildWorkspaceFixture('plain');
+      const fromWorktree = planFromRoot(fixture.worktreePath);
+      const fromMain = planFromRoot(fixture.metadataRoot);
+      assert.equal(fromWorktree.status, 'plan');
+      assert.ok(planUnitIds(fromWorktree).includes(WS_WORKTREE_COMMAND_ID), 'the worktree view must select from the story branch inventory');
+      assert.equal(fromMain.selectionDigest, fromWorktree.selectionDigest, 'selectionDigest must describe the story tree regardless of cwd');
+      assert.deepEqual(fromMain, fromWorktree, 'the whole report must be identical from both roots');
+    },
+  },
+  {
+    name: 'validation_plan: DONE-story reads are unchanged (merged-and-removed reads the invocation root; a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour)',
+    run: () => {
+      const removed = buildWorkspaceFixture('plain');
+      markDoneAndRemoveWorktree(removed);
+      const afterRemoval = planFromRoot(removed.metadataRoot);
+      assert.equal(afterRemoval.storyPhase ?? afterRemoval.phase ?? 'DONE', 'DONE');
+      assert.ok(!planUnitIds(afterRemoval).includes(WS_WORKTREE_COMMAND_ID), 'a removed worktree cannot be read: the plan must use the invocation root inventory');
+
+      const residue = buildWorkspaceFixture('plain');
+      markDoneKeepResidue(residue);
+      const withResidue = planFromRoot(residue.metadataRoot);
+      assert.ok(planUnitIds(withResidue).includes(WS_WORKTREE_COMMAND_ID), 'validation_plan keeps reading a residual DONE worktree (terminalPhaseGuard=false, its pre-CHK-003 behaviour)');
+    },
+  },
+  {
+    name: 'story_list: the projected phase and checklist are identical from the main checkout and from the story worktree, and a DONE story is read from main even with a residual worktree',
+    run: () => {
+      const fixture = buildWorkspaceFixture('plain');
+      const fromMain = storyListRow(fixture.metadataRoot);
+      const fromWorktree = storyListRow(fixture.worktreePath);
+      assert.equal(fromMain.phase, 'TEST');
+      assert.equal(fromMain.mainPhase, 'DEV', 'from main the row must carry the mirror phase');
+      assert.equal(fromMain.checklist, '1/1');
+      assert.equal(fromWorktree.phase, fromMain.phase);
+      assert.equal(fromWorktree.checklist, fromMain.checklist);
+
+      markDoneKeepResidue(fixture);
+      const done = storyListRow(fixture.metadataRoot);
+      assert.equal(done.phase, 'DONE', 'story_list keeps the phase-terminal guard: a DONE story is never projected from a residual worktree');
+      assert.equal(done.mainPhase, undefined);
+      assert.equal(done.checklist, '-', 'the checklist must come from main, not from the residual worktree');
+    },
+  },
+  {
+    // The wrapper-root layout is not asserted here: session_brief excludes a
+    // story that detectZombieStories (story-query.ts, not one of the four
+    // resolver implementations) flags, and on a wrapper root that detector
+    // lists worktrees from the non-git metadata root and so flags the fixture
+    // story as a zombie. The wrapper-root resolution is asserted on the helper
+    // and on the local assurance projection above/below.
+    name: 'session_brief: from the main checkout the active-story line carries authority:worktree and a cd hint; a DONE story with a residual worktree is not active',
+    run: () => {
+      const plain = buildWorkspaceFixture('plain');
+      const plainBrief = briefFromRoot(plain.metadataRoot);
+      assert.match(plainBrief, new RegExp(`${WS_STORY_ID} TEST \\(authority:worktree, mirror:DEV\\)`), `plain layout:\n${plainBrief}`);
+      assert.ok(plainBrief.includes(`→ cd ${canonical(plain.worktreePath)}`), `plain layout must show the cd hint:\n${plainBrief}`);
+
+      markDoneKeepResidue(plain);
+      const doneBrief = briefFromRoot(plain.metadataRoot);
+      assert.doesNotMatch(doneBrief, new RegExp(`${WS_STORY_ID} TEST`), `a DONE story must not be projected from its residual worktree:\n${doneBrief}`);
+      assert.match(doneBrief, /Lifecycle DONE: 1\/1/, `the DONE story must be counted from main:\n${doneBrief}`);
+    },
+  },
+  {
+    name: 'local assurance projection: rows agree from both roots, the wrapper-root layout resolves the worktree, and DONE-story reads are unchanged (residue still read, removed worktree falls back to main)',
+    run: () => {
+      const plain = buildWorkspaceFixture('plain');
+      const fromMain = assuranceRow(plain.metadataRoot, true);
+      const fromWorktree = assuranceRow(plain.worktreePath, true);
+      assert.equal(fromMain.stateSource, 'worktree');
+      assert.equal(fromMain.mirrorPhase, 'DEV');
+      assert.equal(fromMain.activePhase, 'TEST');
+      assert.equal(canonical(fromMain.worktreePath ?? ''), canonical(plain.worktreePath));
+      assert.equal(canonical(fromMain.activeCwd), canonical(plain.worktreePath));
+      for (const key of ['stateSource', 'activePhase', 'worktreePath', 'activeCwd'] as const) {
+        assert.deepEqual(fromWorktree[key], fromMain[key], `${key} must agree from both roots`);
+      }
+
+      const wrapper = buildWorkspaceFixture('wrapper-root');
+      const wrapperRow = assuranceRow(wrapper.metadataRoot, true);
+      assert.equal(wrapperRow.stateSource, 'worktree', 'the wrapper-root layout must resolve the linked worktree');
+      assert.equal(canonical(wrapperRow.worktreePath ?? ''), canonical(wrapper.worktreePath));
+
+      markDoneKeepResidue(plain);
+      const residueRow = assuranceRow(plain.metadataRoot, false);
+      assert.equal(residueRow.stateSource, 'worktree', 'the projection keeps reading a residual DONE worktree (its pre-CHK-003 unguarded behaviour)');
+      assert.equal(residueRow.activePhase, 'TEST');
+
+      const removed = buildWorkspaceFixture('plain');
+      markDoneAndRemoveWorktree(removed);
+      const removedRow = assuranceRow(removed.metadataRoot, false);
+      assert.equal(removedRow.stateSource, 'main');
+      assert.equal(removedRow.activePhase, 'DONE');
+      assert.equal(removedRow.worktreePath, null);
+    },
+  },
+]);
+
+// ---------------------------------------------------------------------------
 // Entry point.
 // ---------------------------------------------------------------------------
 
 const ok = runAll();
+cleanupWorkspaceFixtures();
 console.log(`${MARKER}: ${ok ? 'PASS' : 'FAIL'}`);
 if (!ok) process.exit(1);
