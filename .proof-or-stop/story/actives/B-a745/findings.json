@@ -93,6 +93,24 @@
       ],
       "signatureTag": "missing|json|incomplete-registration-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-006",
+      "desc": "packages/main/src/core/validation-tier-planner.ts:298 VALIDATION_STOP_REASON_CODES is exported but has zero references anywhere else in packages/main/src (not even within its own file beyond the definition, and not used by validation-plan.ts, the smoke suite, or any consumer). The actual stop-vs-widen branching in the resolver (lines 501/530) is done by direct status:stop returns, not by consulting this derived list. Low-severity dead exported symbol left behind by CHK-004; either wire it into an actual consumer (e.g. surface stop-only codes distinctly in validation_plan output) or remove the export.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T03:05:17.786Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-002",
+      "_hash": "418f75465c005493ff65f0d46381fb475c4b5cbbcca3df715ee8f32236813b2a",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
