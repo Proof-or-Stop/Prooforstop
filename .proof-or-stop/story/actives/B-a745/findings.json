@@ -366,6 +366,23 @@
       ],
       "signatureTag": "adversarial|ts|registered-story-owner",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-018",
+      "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host, cross_host_review run B-a745-xhr-r2.] Codex (MAJOR as filed): 'Dirty worktree changes are omitted from relevance inputs. The hash snapshot records materialDirtyFiles, but seed collection only consumes committed main..HEAD statuses, and storyRelevanceSelectionDigest also omits materialDirtyFiles. During normal DEV work, modified or untracked source files therefore disappear from unclassified inputs and do not change the selection digest, so the plan does not bind or explain the actual worktree state.' OWNER VERIFICATION: correct as a description of current behaviour -- grep shows neither validation-relevance-input.ts, validation-tier-planner.ts nor handlers/validation-plan.ts references materialDirtyFiles, and the reason table declares workspace_snapshot_changed with a gloss that is never emitted. TRIAGE: this is Rollout Story 2 by the governing spec's own text (line 718: 'Add current-HEAD plus staged/unstaged/untracked overlay projection, double-read race detection, and exclusion-proof completeness') and is named in this story's recorded excluded scope ('worktree overlay and double-read race detection'). In Story 1 it cannot omit a command because nothing is ever pruned. Stated plainly rather than hidden behind scope: the explain output is currently SILENT about dirty state, which is an honesty gap for an explain-only tool. Deferred to the committed repository draft docs/story/drafts/planner-worktree-overlay-seeds (created via story_draft on main, commit 3750570004) which carries the seeds, digest binding, workspace_snapshot_changed escalation and fixtures.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T08:24:33.401Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "_hash": "88707edf1ba93cd2bcc8f83004fbac3fed81da3a41f9aaca504e1d0c029463e1",
+      "files": [
+        "packages/main/src/core/validation-relevance-input.ts"
+      ],
+      "signatureTag": "missing|ts|registered-story-owner",
+      "signatureTagSource": "auto"
     }
   ]
 }
