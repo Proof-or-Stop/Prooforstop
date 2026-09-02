@@ -72,7 +72,7 @@ const AUDIT_ROWS = [
     present('finding command is required', /through `finding_add`/),
     present('quorum submission prerequisite is named', /`quorum_submit` only after every required current reviewer pass exists/),
   ]],
-  ['A20', 'M20', [present('old lifecycle table claims routine validate as TEST account', /\| \*\*TEST\*\* \| CLI \/ \u4e3b agent \| \u8dd1 routine `proof-or-stop validate`/u), absent('acceptance topology command is omitted', /acceptance_topology_check/), absent('delivery check command is omitted', /delivery_check_set/)], /all required verification intent, bugs, review evidence, ProofStory\nartifacts, acceptance topology, delivery\/summary checks, and freshness gates/, 'packages/main/src/core/machine.ts', /if \(!evaluateDevMemoryPreflightGate/],
+  ['A20', 'M20', [present('old lifecycle table claims routine validate as TEST account', /\| \*\*TEST\*\* \| CLI \/ \u4e3b agent \| \u8dd1 routine `proof-or-stop validate`/u), absent('acceptance topology command is omitted', /acceptance_topology_check/), absent('delivery check command is omitted', /delivery_check_set/)], /all required verification intent, bugs, review evidence, ProofStory\nartifacts, acceptance topology, delivery\/summary checks, and freshness gates/, 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/],
   ['A21', 'M21', [present('porcelain output is treated as one blocking class', /\u6709\u672a commit \u7684\u6539\u52a8\u65f6\u5148\u63d0\u4ea4\u518d\u63a8\u8fdb/u), present('the same guide defers metadata-only handling to a future placeholder', /metadata-only dirty handling[^\n]*B-9dfb once merged/i)], /Git cleanliness and drift classification/, 'packages/main/src/handlers/done-prepare.ts', /metadata-only|metadata only/],
   ['A22', 'M22', [present('manual CLI patch bump is required after merge', /\u5fc5\u987b\u628a CLI patch \u7248\u672c\u9012\u589e 1/u)], /DONE effect automatically\npatch-bumps/, 'packages/main/src/core/version-bump.ts', /bumpVersionOnDoneMerge/],
   ['A23', 'M23', [present('future B-9dfb placeholder remains', /B-9dfb once merged/)], /Do not manually bypass `cleanTree`/, 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/],
@@ -80,6 +80,74 @@ const AUDIT_ROWS = [
   ['A25', 'L01', [present('bare destructive test_auto example is runnable', /^proof-or-stop test_auto\s+# legacy/m), absent('bare test_auto has no confirm', /^proof-or-stop test_auto --confirm/m)], /every real run requires explicit `--confirm`/, 'packages/main/src/cli/command-catalog.ts', /real run needs confirm/],
   ['A26', 'L02', [present('legacy materialized prompt directory is primary', /\.proof-or-stop-codex\/agents\//), present('legacy reviewer role appears in prompt example', /name: test-case-reviewer/), present('legacy prompt model field appears', /model: sonnet/)], /`agent_prompt`\nprints the canonical package-registry prompt/, 'packages/main/src/handlers/agent-prompt.ts', /body-free/],
 ].map(([id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks = []]) => ({ id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks }));
+
+const authority = (label, path, pattern) => ({ label, path, pattern });
+
+// Complete authority contract for every durable row. Each entry owns one
+// material subclaim and resolves to the exact current line where its pattern
+// starts. The audit cell must equal this set: no missing, vague, stale, or
+// unreviewed extra citations are accepted.
+const AUTHORITY_BY_ROW = new Map([
+  ['A01', [authority('managed template', 'packages/main/src/init-assets.ts', /AGENTS_MD_GLOBAL_THIN_TEMPLATE/)]],
+  ['A02', [authority('Story directory', 'proof-or-stop.config.json', /"storyDir": "\.proof-or-stop\/story\/actives"/)]],
+  ['A03', [authority('user-visible result field', 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/)]],
+  ['A04', [authority('registered aux_doc_list command', 'packages/main/src/cli/command-catalog.ts', /name: 'aux_doc_list'/)]],
+  ['A05', [authority('four-section background validation', 'packages/main/src/handlers/story-create.ts', /four-section validation/)]],
+  ['A06', [authority('CJK authoring rejection', 'packages/main/src/handlers/story-create.ts', /refuse CJK in any author-provided field/)]],
+  ['A07', [authority('initial phase', 'packages/main/src/handlers/story-create.ts', /phase: 'INIT'/)]],
+  ['A08', [authority('worktree transition', 'packages/main/src/core/lifecycle-registry.ts', /createStoryWorktree|worktree/)]],
+  ['A09', [
+    authority('required INIT reviewers', 'packages/main/src/core/init-check-gate.ts', /REQUIRED_INIT_CHECK_AGENTS/),
+    authority('six-artifact read-only preflight', 'packages/main/src/cli/command-catalog.ts', /name: 'init_preflight'/),
+    authority('fallback requires reviewer-unavailable reason', 'packages/main/src/cli/command-catalog.ts', /fallbackReason: z\.string\(\)\.min\(30/),
+    authority('fallback requires acknowledgement', 'packages/main/src/cli/command-catalog.ts', /acknowledge: z\.boolean\(\)\.describe\('Must explicitly pass true/),
+  ]],
+  ['A10', [authority('owner takeover', 'packages/main/src/cli-engine.ts', /forceTakeover/)]],
+  ['A11', [authority('current intent handoff', 'packages/main/src/cli/command-catalog.ts', /name: 'testintent_handoff'/)]],
+  ['A12', [authority('blocking PLAN issues', 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/)]],
+  ['A13', [authority('quick review policy', 'packages/main/src/core/machine.ts', /quickPath\.enabled/)]],
+  ['A14', [
+    authority('signed scope artifact', 'packages/main/src/core/lifecycle-registry.ts', /scope-check\.json/),
+    authority('open-question gate', 'packages/main/src/handlers/story-review.ts', /Open Questions gate/),
+    authority('PLAN-to-DEV contract advisory', 'packages/main/src/handlers/phase-gates.ts', /PLAN.DEV scope contract advisory/),
+    authority('scope-contract gate fact', 'packages/main/src/core/process-fact-levels.ts', /name: 'scope_contract_set'/),
+  ]],
+  ['A15', [
+    authority('title context and relatedDocs', 'packages/main/src/cli/command-catalog.ts', /checklist: z\.array\(z\.object\(\{\n\s+title:[\s\S]*?relatedDocs:/),
+    authority('userSees', 'packages/main/src/cli/command-catalog.ts', /userSees: z\.string/),
+    authority('excludes', 'packages/main/src/cli/command-catalog.ts', /excludes: z\.array\(z\.string\(\)\)/),
+    authority('affected files', 'packages/main/src/cli/command-catalog.ts', /files: z\.object\(\{/),
+    authority('verification intent', 'packages/main/src/cli/command-catalog.ts', /verificationIntent: verificationIntentSchema/),
+  ]],
+  ['A16', [authority('bounded defect triage', 'AGENTS.md', /Defect triage and bounded scope/)]],
+  ['A17', [authority('non-latest valid pass', 'packages/main/src/core/review-run.ts', /RELAXED FOR PASSES only/)]],
+  ['A18', [authority('tool-owned verification receipt', 'packages/main/src/handlers/checklist.ts', /verification_evidence_add/)]],
+  ['A19', [
+    authority('dispatch role registry', 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName/),
+    authority('canonical agent prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
+    authority('computed reviewer roster', 'packages/main/src/handlers/reviewer-list.ts', /Output the opt-in reviewer roster/),
+    authority('read-only reviewer batch', 'packages/main/src/handlers/reviewer-batch.ts', /active\/required review lanes/),
+    authority('quorum pass prerequisite', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/),
+  ]],
+  ['A20', [
+    authority('verification intent evidence', 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/),
+    authority('bug completion', 'packages/main/src/core/machine.ts', /const openBugs = bugs\.bugs\.filter/),
+    authority('review verdict', 'packages/main/src/core/machine.ts', /const verdict = evaluateReviewVerdict/),
+    authority('ProofStory review gate', 'packages/main/src/handlers/phase-gates.ts', /const proofStoryMode = configuredProofStoryMode/),
+    authority('acceptance topology gate', 'packages/main/src/handlers/transition-orchestrator.ts', /const topology = evaluateAcceptanceTopologyForContext/),
+    authority('delivery freshness gate', 'packages/main/src/core/machine.ts', /delivery-check\.json signature and material freshness verification/),
+    authority('policy-aware summary gate', 'packages/main/src/core/done-oracle.ts', /summary\.json \(policy-aware/),
+  ]],
+  ['A21', [authority('metadata drift classification', 'packages/main/src/handlers/done-prepare.ts', /metadata-only|metadata only/)]],
+  ['A22', [authority('automatic version bump', 'packages/main/src/core/version-bump.ts', /bumpVersionOnDoneMerge/)]],
+  ['A23', [authority('clean-tree closeout', 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/)]],
+  ['A24', [authority('empty-options decision', 'packages/main/src/handlers/decision.ts', /args\.options\.length === 0/)]],
+  ['A25', [authority('test_auto confirmation', 'packages/main/src/cli/command-catalog.ts', /real run needs confirm/)]],
+  ['A26', [
+    authority('body-free prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
+    authority('thin prompt registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/),
+  ]],
+]);
 
 const FINAL_FORBIDDEN = new Map([
   ['A02', /docs\/story\//],
@@ -98,6 +166,11 @@ function lineOf(text, pattern) {
 
 function runAuditRows() {
   assert.equal(AUDIT_ROWS.length, 26, 'the durable audit must contain exactly 26 rows');
+  assert.deepEqual(
+    [...AUTHORITY_BY_ROW.keys()],
+    AUDIT_ROWS.map((row) => row.id),
+    'every durable row must have exactly one complete authority-contract entry in row order',
+  );
   assert.deepEqual(
     AUDIT_ROWS.map((row) => row.sourceIssue),
     [...Array.from({ length: 24 }, (_, index) => `M${String(index + 1).padStart(2, '0')}`), 'L01', 'L02'],
@@ -483,19 +556,52 @@ function auditRowCells(text, id) {
 
 function auditCitationPolicy(text) {
   for (const row of AUDIT_ROWS) {
+    const reject = (reason) => {
+      if (text === auditText) console.error(`AUDIT_CITATION_POLICY ${row.id} ${reason}`);
+      return false;
+    };
     const cells = auditRowCells(text, row.id);
-    if (!cells || cells.length !== 7 || cells[1] !== row.sourceIssue) return false;
+    if (!cells || cells.length !== 7 || cells[1] !== row.sourceIssue) return reject('row-shape-or-source-issue');
     const authorityCell = cells[4];
-    const refs = [...authorityCell.matchAll(/`([^`]+):(\d+(?:-\d+)?)`/g)];
-    if (refs.length === 0) return false;
-    const source = row.sourcePath === 'AGENTS.md' ? currentText : read(resolve(root, row.sourcePath));
-    const exactLine = lineOf(source, row.sourcePattern);
-    if (exactLine === 0 || !refs.some((match) => match[1] === row.sourcePath && match[2] === String(exactLine))) return false;
+    const refs = [...authorityCell.matchAll(/`([^`]+):(\d+)`/g)]
+      .map((match) => ({ path: match[1], line: Number(match[2]) }));
+    const expectedAuthorities = AUTHORITY_BY_ROW.get(row.id);
+    if (!expectedAuthorities || expectedAuthorities.length === 0) return reject('authority-contract-missing');
+    const expectedRefs = [];
+    for (const expected of expectedAuthorities) {
+      const absolute = resolve(root, expected.path);
+      if (!existsSync(absolute)) return reject(`expected-path-missing=${expected.path}`);
+      const source = read(absolute);
+      const exactLine = lineOf(source, expected.pattern);
+      if (exactLine === 0 || exactLine > source.split('\n').length) return reject(`expected-pattern-missing=${expected.label}`);
+      expectedRefs.push({ path: expected.path, line: exactLine });
+    }
+    // Preserve the original row's primary source binding as a cross-check on
+    // the complete subclaim model rather than silently replacing it.
+    const primarySource = row.sourcePath === 'AGENTS.md' ? currentText : read(resolve(root, row.sourcePath));
+    const primaryLine = lineOf(primarySource, row.sourcePattern);
+    if (!expectedRefs.some((ref) => ref.path === row.sourcePath && ref.line === primaryLine)) {
+      return reject(`primary=${row.sourcePath}:${primaryLine}-not-modeled`);
+    }
+    // Validate every parsed reference independently before set comparison.
+    for (const ref of refs) {
+      if (ref.path.startsWith('/') || ref.path.split('/').includes('..')) return reject(`unsafe-path=${ref.path}`);
+      const absolute = resolve(root, ref.path);
+      if (!existsSync(absolute)) return reject(`actual-path-missing=${ref.path}`);
+      const lineCount = read(absolute).split('\n').length;
+      if (!Number.isInteger(ref.line) || ref.line < 1 || ref.line > lineCount) return reject(`actual-line-out-of-range=${ref.path}:${ref.line}`);
+    }
+    const keys = refs.map((ref) => `${ref.path}:${ref.line}`);
+    const expectedKeys = expectedRefs.map((ref) => `${ref.path}:${ref.line}`);
+    if (new Set(keys).size !== keys.length) return reject('duplicate-reference');
+    if (keys.length !== expectedKeys.length || keys.some((key) => !expectedKeys.includes(key))) {
+      return reject(`actual=${JSON.stringify(keys)} expected=${JSON.stringify(expectedKeys)}`);
+    }
     const residue = authorityCell
-      .replace(/`[^`]+:\d+(?:-\d+)?`/g, '')
+      .replace(/`[^`]+:\d+`/g, '')
       .replace(/\band\b/g, '')
       .replace(/[\s,;]+/g, '');
-    if (residue.length > 0) return false;
+    if (residue.length > 0) return reject(`vague-residue=${JSON.stringify(residue)}`);
   }
   return true;
 }
@@ -508,7 +614,7 @@ function refreshDocumentHashes(text) {
 }
 
 function auditCitationMutationChecks() {
-  assert.ok(auditCitationPolicy(auditText), 'every audit row must contain only exact authoritative path:line citations and bind its declared source pattern line');
+  assert.ok(auditCitationPolicy(auditText), 'every audit row must equal its complete exact authoritative path:line set and bind every material subclaim pattern');
   const a01 = AUDIT_ROWS[0];
   const a01Source = read(resolve(root, a01.sourcePath));
   const a01Ref = `\`${a01.sourcePath}:${lineOf(a01Source, a01.sourcePattern)}\``;
@@ -521,6 +627,19 @@ function auditCitationMutationChecks() {
   const vague = refreshDocumentHashes(auditText.replace(auditText.split('\n').find((line) => line.startsWith('| A20 |')), vagueLine));
   assert.ok(!auditCitationPolicy(vague), 'vague row authority must fail even after document hashes are refreshed');
   console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
+  for (const rowId of ['A20', 'A09']) {
+    const expected = AUTHORITY_BY_ROW.get(rowId);
+    assert.ok(expected && expected.length > 1, `${rowId} must have a multi-source authority contract`);
+    const target = expected.at(-1);
+    const targetSource = read(resolve(root, target.path));
+    const targetRef = `\`${target.path}:${lineOf(targetSource, target.pattern)}\``;
+    const replaced = refreshDocumentHashes(auditText.replace(targetRef, '`package.json:1`'));
+    assert.ok(!auditCitationPolicy(replaced), `${rowId} irrelevant extra-citation replacement must fail after document hashes are refreshed`);
+    console.log(`AUDIT_CITATION_MUTATION ${rowId} extra-replacement REJECTED documentHashesRefreshed=1`);
+    const removedExtra = refreshDocumentHashes(auditText.replace(targetRef, ''));
+    assert.ok(!auditCitationPolicy(removedExtra), `${rowId} extra-citation removal must fail after document hashes are refreshed`);
+    console.log(`AUDIT_CITATION_MUTATION ${rowId} extra-removal REJECTED documentHashesRefreshed=1`);
+  }
 }
 
 function auditDocumentChecks() {
