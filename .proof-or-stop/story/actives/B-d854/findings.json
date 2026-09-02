@@ -386,6 +386,26 @@
       ],
       "signatureTag": "adversarial|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-020",
+      "desc": "tests/AGENTS.verify.mjs:248-299,338-345 and 384-399 do not mechanically prove complete English content or preservation of ordinary prose once the mutable audit SHA is refreshed. Two detached-temp-worktree repros each updated only the audit Final SHA-256 and still made node tests/AGENTS.verify.mjs --final exit 0: (1) replace Keep data, logic, and rendering separated with ASCII Spanish Mantenga los datos, la logica y la representacion separados; Unicode reports nonAscii=0, and (2) delete the baseline-derived sentence Classify a new function before placing it; the structural inventory digest stays unchanged. These false greens violate CHK-002:happy:0 and CHK-002:edge:0 plus the report claim that no deletion is unrecorded.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T01:14:36.047Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-007",
+      "_hash": "9b7bb464dc02932e68e4dded25a300875d158eed4512e13cbd95776afb629120",
+      "files": [
+        "tests/AGENTS.verify.mjs",
+        "AGENTS.md",
+        "docs/audits/AGENTS-current-version-audit.md"
+      ],
+      "signatureTag": "missing|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
