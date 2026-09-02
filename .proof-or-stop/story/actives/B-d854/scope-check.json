@@ -1,6 +1,6 @@
 {
   "storyId": "B-d854",
-  "checkedAt": "2026-09-01T23:59:13.678Z",
+  "checkedAt": "2026-09-02T00:56:15.224Z",
   "features": [
     {
       "feature": "Verify every executable current-behavior claim in root AGENTS.md against current CLI schemas, registries, handlers, gates, and source implementation.",
@@ -169,6 +169,27 @@
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:root-markdown-migration-execution-solution.md"
+    },
+    {
+      "feature": "Use a repository-native rerunnable verifier and structured command evidence rather than treating a prose claim of success as verification.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:testing-infra.md"
+    },
+    {
+      "feature": "Treat missing or stale verification evidence as non-passing and preserve traceability from the verifier result to the authored acceptance intent.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:testing-infra.md"
+    },
+    {
+      "feature": "Keep routine validation evidence separate from policy-specific DONE-required evidence and avoid overstating the assurance of either path.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:testing-infra.md"
     }
   ],
   "readManifest": {
@@ -179,6 +200,8 @@
       "docs/requirements/decisions/root-document-migration-guide.md",
       "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
       "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
       "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
       "docs/requirements/decisions/truth-source.md"
     ],
@@ -294,8 +317,6 @@
       "docs/requirements/decisions/test-fixture-spec.md",
       "docs/requirements/decisions/test-intent-review.md",
       "docs/requirements/decisions/test-runner-consolidation-plan.md",
-      "docs/requirements/decisions/testing-completeness.md",
-      "docs/requirements/decisions/testing-infra.md",
       "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
       "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
       "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
@@ -313,14 +334,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 24,
-    "covered": 24,
+    "total": 27,
+    "covered": 27,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "49c420236d901050e0ce676aa0240ea48552b6ec74e40d0249c066adb5c25d29",
+  "reviewRound": "2026-09-02T00:20:22.610Z",
+  "_hash": "ca0a8ac0c36c2ddb1dd13bb7d37012d052c35d554312c7b30abd8bd8988dca89",
   "openQuestions": []
 }
