@@ -894,7 +894,7 @@
       "desc": "F-037 remains false-green. docs/audits/AGENTS-current-version-audit.md:100-106 promises that each material subclaim has its own named chain, unrelated subclaims cannot be pooled, and broken chains are rejected. tests/AGENTS.verify.mjs:358-379 checks only endpoint label membership, declared role equality, per-row uniqueness/set equality, and non-definition runtime presence; it never validates that a producer/guard pair belongs to the same behavior. Repro without modifying repository files: load tests/AGENTS.verify.mjs in memory, swap A20's `review-entry-verification-evidence-guard` and `done-open-bug-guard` between the `review-evidence-gate` and `done-bug-gate` chains, then run the transformed module with --source-authority-policy. Observed exit=0 and `SOURCE_AUTHORITY_POLICY PASS rows=26 semanticChainRows=13 chains=40 semanticRoleEntries=86 sourceMutations=66 roleMutations=1`. All 66 source mutations still pass because they prove endpoint presence, not pair linkage. The modeled-row set also omits A09 despite its composite interface/runtime claims: init_preflight registration plus boundary call and two repair rejection guards (authority entries at tests/AGENTS.verify.mjs:157-163; no A09 chain at :299-356). Fix with an independent immutable expected chain-to-endpoint mapping or relationship assertions/mutations that reject cross-chain same-role swaps, and justify or model every composite row such as A09; counts derived solely from REQUIRED_AUTHORITY_CHAINS cannot prove completeness.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T09:30:44.395Z",
@@ -906,7 +906,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "adversarial|md|remains-false-green",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit d9633ac independently binds exact named-chain membership to a static audit semantic-chain block, adds A09 three chains, and runs 137 same-role cross-chain swap mutations including 15 A20 guard swaps. It now covers 14 rows, 43 chains, 92 role entries, and 69 executable endpoint mutations; all source and swap mutations are rejected.",
+      "resolvedAt": "2026-09-02T12:31:34.593Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
