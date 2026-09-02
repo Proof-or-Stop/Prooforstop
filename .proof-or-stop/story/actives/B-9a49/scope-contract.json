@@ -142,10 +142,26 @@
       "phase": "DEV",
       "headHash": "bbbe1da1fbe3f438d627eb637544a13f6c6fd3ad",
       "materialHash": "e05894a0652072f25a151aaa38e662ff4ebd498b08f9a94653aa29e589aec5d3"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Supersedes scope-ack:3 without deleting history: the controlled replan rejects any Dynamic Finding authority migration. This authority path is protected and explicitly excluded, remains unchanged, and is used only as the consistency reference for the Agent-side proposal and prompt-envelope behavior.",
+      "timestamp": "2026-09-02T02:56:53.437Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9f927fb6fa226c758f609aa7dd555d482090f866",
+      "materialHash": "fd65db937a1d49d5f56dbdf1b7e5a582697349144da525f7b5e33182b0fbb9a7"
     }
   ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-02T02:54:36.476Z",
+  "updatedAt": "2026-09-02T02:56:53.437Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
