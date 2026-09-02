@@ -367,6 +367,31 @@
         "scanEscalationReason": null
       },
       "_hash": "f699c58da94e4a9c5def4655787fbce9341e8c84cb21708a0d849d42366078ac"
+    },
+    {
+      "id": "B-fe8f:RP-014",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 8 quality re-review of commit dd45caa2ea (register the RED harness, refresh the dynamic binding build budget from 808 to 811, and add the non-git ledger-key fallback). Focused, per the coordinator's ask, on the subjective quality of the finding-ledger.ts non-git fallback: (1) soundness -- gitCommonDir centralizes the signing key at the git common dir specifically so linked worktrees of one repo share it; a genuinely non-git workspace by definition has no linked worktrees to share a key with, so redirecting to <workspaceRoot>/.proof-or-stop/keys/ is a coherent design, and PROOF_OR_STOP_DIR (.proof-or-stop) is the same state-dir convention already used for locks/story data/activity log elsewhere in this codebase; (2) key file mode/creation path unchanged -- confirmed the diff touches only gitCommonDir and findingLedgerKeyPath; findingLedgerSignerFromWorkspace's writeFileSync(..., {encoding:utf8, mode:0o600, flag:wx}) is byte-unchanged, so the private-key bytes are still created with the same owner-only, no-clobber semantics regardless of which of the two paths findingLedgerKeyPath resolves to; (3) catch narrowness -- the new try/catch around the git rev-parse call is a blanket catch (any execFileSync failure, not just the specific not-a-git-repository condition, redirects to the fallback); this is NOT a novel pattern in this diff -- it matches the identical broad catch{...gitBacked=false} idiom already established in transition-orchestrator.ts:152-155 (reviewed without objection at round 6/F-005) for the same is-this-workspace-git-backed question, and the failure mode of over-catching here is benign (worst case: a real git repo hitting a transient git failure gets its own workspace-local key instead of the shared git-common-dir one, still created with the same secure mode/flag; verifyFindingLedgerReceipt would simply fail closed on a key mismatch rather than silently accepting anything). Confirmed via git show that mkFindingProject() in dev-memory-lifecycle-gates-smoke.ts (mkdtempSync + writeConfig, no git init) is a genuinely non-git fixture that calls finding_add repeatedly -- corroborating the commit message's claim that this fixture was the actual failure this fix targets. Byte-verified dist out-of-tree only (git archive HEAD into an external scratch copy, symlinked the worktree's existing node_modules read-only, built there, diff -rq against the worktree's live packages/main/dist showed zero differences); did not touch packages/main/dist in place, and did not run finding-ledger-runtime-smoke or the full validate this round per the coordinator's CPU-contention constraint. Filed one low, non-blocking dead-code/cleanup finding: F-020, an unconditional debug stderr.write left in retired-authority-vocabulary-guard-smoke.ts:5266 (ad-hoc calibration output used to derive the new ceiling, not removed after landing, not gated, not part of the pinned selector). Round-8 effective blocking severity is critical-only, so F-020 is advisory and does not block. Note for the record: an earlier finding_add attempt for F-020's content was auto-normalized by the framework's pass-only-normalization policy into review-pass B-fe8f:RP-011, solely because that draft text happened to contain the literal token PASS -- that record's note field is my raw finding prose mislabeled as a pass, not a genuine independent pass summary; this review_pass_set is the accurate round-8 summary. No blocking finding remains open.",
+      "createdAt": "2026-09-02T14:51:00.297Z",
+      "reviewRound": "2026-09-02T14:44:47.278Z",
+      "reviewRunId": "B-fe8f:RR-025",
+      "envelopeId": "ac62081838422e8b2804a28c257fbf8069ad081089547e886856b5db37acfbf8",
+      "writerSessionId": "sess-bfe8f-claude-3baed1a7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/proof-or-stop-paths.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cde4e03ab43a0bab4a67cb3b3e6c8c6fdfd184c2727fadf71a0b8fd0bc08cbf7"
     }
   ]
 }
