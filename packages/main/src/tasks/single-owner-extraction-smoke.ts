@@ -1817,6 +1817,13 @@ function renderedChars(lines: string[]): number {
   return lines.reduce((total, line) => total + line.length + 1, 0);
 }
 
+/** F-005 regression guard: the label the guard looks for on the two aggregator files that once printed a false PASS. */
+const VACUOUS_WORKSPACE_LABEL_GUARDED = 'workspace-rooted (no story/checklist/config read at all)';
+const F005_GUARDED_FILES = ['proof-or-stop-handoff.ts', 'done-required-validation.ts'] as const;
+function printsVacuousWorkspaceLabelFor(lines: string[], files: readonly string[]): boolean {
+  return lines.some((line) => line.includes(VACUOUS_WORKSPACE_LABEL_GUARDED) && files.some((file) => line.includes(file)));
+}
+
 group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically and classified', [
   {
     name: 'audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed',
@@ -1933,7 +1940,18 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       assert.ok(doneRequired!.remainingReads.some((read) => read.kind === 'config' && read.via === 'resolveDoneRequiredPolicy'), `resolveDoneRequiredPolicy(ctx.root) is a config read: ${JSON.stringify(doneRequired!.remainingReads)}`);
       assert.ok(doneRequired!.remainingReads.some((read) => (read.kind as string) === 'handler' && read.via === 'currentCertificationIdentity(ctx)'), `currentCertificationIdentity(ctx) is a delegation: ${JSON.stringify(doneRequired!.remainingReads)}`);
       assert.ok(report.flagged.some((caller) => caller.file === 'done-required-validation.ts'), 'done-required-validation.ts is in the flagged list');
-      assert.ok(!renderResolverAudit(report).some((line) => line.includes('workspace-rooted (no story/checklist/config read at all)') && (line.includes('proof-or-stop-handoff.ts') || line.includes('done-required-validation.ts'))), 'neither file may print the vacuous workspace-rooted label');
+      assert.ok(!printsVacuousWorkspaceLabelFor(renderResolverAudit(report), F005_GUARDED_FILES), 'neither file may print the vacuous workspace-rooted label');
+    },
+  },
+  {
+    name: 'guard (F-008): the vacuous label the F-005 guard looks for is the one classificationOf emits, and the guard fires when proof-or-stop-handoff.ts prints it',
+    run: () => {
+      const vacuous: ResolverScan = { hasToken: true, callLines: [3], nonCodeMentionLines: [], unboundCallLines: [], workspaceRooted: true, workspaceReads: 0, remainingReads: [] };
+      assert.equal(classificationOf(vacuous), VACUOUS_WORKSPACE_LABEL_GUARDED, 'the guard must look for the label the classifier actually prints; a renamed label silently makes the guard vacuous (F-008)');
+      const synthetic: ResolverAudit = { handlersDir: HANDLERS_DIR, scannedFiles: 1, callers: [{ file: 'proof-or-stop-handoff.ts', ...vacuous }], commentOnly: [], unboundCallMentions: [], flagged: [] };
+      assert.ok(printsVacuousWorkspaceLabelFor(renderResolverAudit(synthetic, false), F005_GUARDED_FILES), 'the default rendering of a vacuous proof-or-stop-handoff.ts line must trip the guard');
+      assert.ok(printsVacuousWorkspaceLabelFor(renderResolverAudit(synthetic, true), F005_GUARDED_FILES), 'the verbose rendering of a vacuous proof-or-stop-handoff.ts line must trip the guard');
+      assert.ok(!printsVacuousWorkspaceLabelFor(renderResolverAudit({ ...synthetic, callers: [{ file: 'other.ts', ...vacuous }] }, false), F005_GUARDED_FILES), 'a vacuous label on an unrelated file does not trip this guard');
     },
   },
   {
