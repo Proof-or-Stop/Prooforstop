@@ -472,6 +472,33 @@
         "scanEscalationReason": null
       },
       "_hash": "1c661ee72eae09594e21c4b96c094acc2435d8f4abe4b1902dd86e66921b2839"
+    },
+    {
+      "id": "B-a745:RP-019",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 6 test-coverage review: verified RED (3f83a2127d) genuinely fails on the claimed F-024/F-025 case and GREEN (286a9b0921) passes via isolated temp-worktree runs; confirmed F-026 (7e1f1c42c8) migrated all three F-023 location-independence cases to buildValidationPinUniverse with no coverage lost; confirmed 34/34 must-intents mechanically covered (33 refreshed + 1 pre-existing permanent waiver) with no selector depending on the renderValidationPlanText refactor. No test-coverage blocker found.",
+      "createdAt": "2026-09-02T10:09:36.394Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-031",
+      "envelopeId": "f9f87103980abcc542e27363cede6d40db5446a38d101c5a170409424fc8c268",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "09bf137cef606f04aacec3695d51c647016c4a3a18d5c04d6effcbbe960f9d42"
     }
   ]
 }
