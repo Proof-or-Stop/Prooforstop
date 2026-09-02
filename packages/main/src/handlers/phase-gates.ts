@@ -38,7 +38,7 @@ import {
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, classifyEvidenceHashSnapshot, currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { loadConfig } from '../core/config.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
@@ -689,9 +689,20 @@ export function runDoneOracleGate(
 
   if (failed.length > 0) {
     const hints = failed.flatMap(r => r.hint ? [r.hint] : []);
+    // B-83aa CHK-003 (DISCLOSED): the DONE oracle fails closed on a partial
+    // evidence hash snapshot via its `evidence-hash-snapshot` row; the thrown
+    // gate text names the missing digest explicitly (the shared classifier
+    // line) in addition to the rendered row, so the reason is never buried in
+    // the checklist body. Complete snapshots add nothing (byte-identical).
+    const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot);
+    const bindingRow = checkRows.find(r => r.id === 'evidence-hash-snapshot');
+    const bindingLine = bindingRow
+      ? `\n\nEvidence hash snapshot binding (${bindingRow.status === 'fail' ? 'fail closed' : 'disclosed'}): ${bindingRow.detail ?? binding.detail}`
+      : '';
     throw new Error(
       rendered + '\n\n' +
       `Cannot enter DONE: ${failed.length} 项检查未通过` +
+      bindingLine +
       (hints.length > 0 ? '\n\n修复建议:\n' + hints.map(h => `→ ${h}`).join('\n') : '')
     );
   }

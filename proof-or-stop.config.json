@@ -715,6 +715,23 @@
         "policySource": "explicit-dyn1-audit-v1"
       },
       {
+        "label": "B-83aa CHK-003: shared evidence hash snapshot classifier + per-consumer classification (done-oracle fail-closed, phase-gates disclosed, verifier tolerable, lifecycle-readiness DONE fail-closed / REVIEW-TEST advisory, session_brief DONE pre-check disclosed)",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/evidence-hash-snapshot-classifier-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"

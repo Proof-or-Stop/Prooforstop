@@ -77,7 +77,7 @@ import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
-import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, classifyEvidenceHashSnapshot, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -826,6 +826,15 @@ function evaluateStoryRoutineReuse(args: {
     headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
+    // B-83aa CHK-003 (TOLERABLE): a partial snapshot is safe here because
+    // evaluateRoutineValidationReuse below refuses reuse whenever a digest is
+    // missing (material-hash-changed-or-missing / story-files-hash-changed-or-
+    // missing / missing-head-lineage), so the worst case is a full re-run. The
+    // classifier line is logged so the refusal is attributable to the binding.
+    const binding = classifyEvidenceHashSnapshot(snapshot);
+    if (!binding.complete) {
+      args.ctx.log?.(`routine validation reuse binding is partial (reuse will be refused): ${binding.detail}`);
+    }
     const reuseCheck = checkEvidenceHashSnapshotReuse(snapshot, {
       gitCwd: args.gitCwd,
       metadataRoot: args.ctx.root,

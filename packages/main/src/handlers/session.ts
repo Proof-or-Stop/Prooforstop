@@ -38,7 +38,7 @@ import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
-import { currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { classifyEvidenceHashSnapshot, currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION } from '../core/process-fact-registry.js';
 import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import {
@@ -434,6 +434,12 @@ export interface NextStepCtx {
    */
   configuredGitRootResolved: boolean;
   donePrecheck: DonePrecheckSummary | null;
+  /**
+   * B-83aa CHK-003: one-line reason when the TEST-phase DONE pre-check could not
+   * be computed (partial evidence hash snapshot or a thrown probe). Disclosed in
+   * the brief and in the next-step hint instead of being swallowed.
+   */
+  donePrecheckUnavailable?: string | null;
   reviewerStatus: ReviewerStatusSummary | null;
   certificationWindowState?: CertificationWindowState | 'UNVERIFIED' | null;
   reviewInventoryState?: 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED' | null;
@@ -702,6 +708,9 @@ export function computeNextStep(c: NextStepCtx): string {
       }
       if (!c.hasPassingTestEvidence) {
         return `TEST phase, last verification failed. Next: proof-or-stop story_advance --storyId=${sid} --phase=DEV to repair failing items and restore PRE_CERT`;
+      }
+      if (c.donePrecheckUnavailable) {
+        return `TEST phase, DONE pre-check unavailable: ${c.donePrecheckUnavailable}. Next: repair the git state of the story worktree (readable HEAD and material tree), then rerun proof-or-stop session_brief`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
@@ -1395,21 +1404,40 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
       // DONE pre-check list for TEST phase stories
       let donePrecheck: DonePrecheckSummary | null = null;
+      // B-83aa CHK-003 (DISCLOSED): the DONE pre-check is never silently omitted.
+      // tryCaptureEvidenceHashSnapshot returns a snapshot that binds nothing when
+      // HEAD / the material tree cannot be read, so the head/material binding is
+      // classified first; a partial binding — or a thrown probe — is disclosed as
+      // exactly one `## DONE pre-check unavailable: <reason>` line and surfaces
+      // in the next-step hint instead of recommending DONE.
+      let donePrecheckUnavailable: string | null = null;
       if (story.phase === 'TEST') {
         try {
           const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: ctx.root, metadataRoot: ctx.root, ref: 'HEAD' });
-          const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
-            gitCwd: ctx.root,
-            evidenceHashSnapshot,
-          });
-          donePrecheck = summarizeDonePrecheck(rows);
-          lines.push('');
-          lines.push('## DONE pre-check');
-          for (const row of rows) {
-            const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
-            lines.push(`  [${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`);
+          const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot, ['headHash', 'materialHash']);
+          if (!binding.complete) {
+            donePrecheckUnavailable = binding.detail;
+          } else {
+            const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
+              gitCwd: ctx.root,
+              evidenceHashSnapshot,
+            });
+            donePrecheck = summarizeDonePrecheck(rows);
+            lines.push('');
+            lines.push('## DONE pre-check');
+            for (const row of rows) {
+              const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
+              lines.push(`  [${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`);
+            }
           }
-        } catch { /* probe: DONE pre-check unavailable */ }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          donePrecheckUnavailable = `DONE pre-check probe failed: ${message.replace(/\s*[\r\n]+\s*/g, ' ').trim()}`;
+        }
+        if (donePrecheckUnavailable) {
+          lines.push('');
+          lines.push(`## DONE pre-check unavailable: ${donePrecheckUnavailable}`);
+        }
       }
 
       // B-abd8: process metrics in session brief
@@ -1482,6 +1510,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         gitReady,
         configuredGitRootResolved: !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot,
         donePrecheck,
+        donePrecheckUnavailable,
         reviewerStatus,
         reviewInventoryState,
         certificationWindowState,
