@@ -316,7 +316,43 @@ function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthori
   return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(outcome);
 }
 
-function hasDynamicFindingAuthorityAmendmentAssertion(segment: string): boolean {
+function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
+  const normalized = normalizeTriageAuthorityText(text);
+  const statement = normalized.replace(/[.!?]+$/u, '').trim();
+  // A nominal Story change is safe only when the complete authority-bearing
+  // statement is one bounded invariant assertion. Punctuation cannot split a
+  // locally safe comparison from an additional affirmative authority outcome.
+  if (/[.!?;\n]/u.test(statement)) return false;
+
+  const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
+  const nominalChange = /\b(?:change|changes|update|updates)\b/u;
+  const invariantPredicate = '(?:remain|remains|stay|stays|is|are|must\\s+remain)\\s+(?:completely\\s+)?(?:unchanged|unaltered|unmodified|identical)';
+  const invariantCause = '(?:\\s+by\\s+(?:the\\s+)?(?:metadata|prompt|implementation|code)(?:\\s+only)?\\s+(?:registration|change|update))?';
+  const liveContractInventory = 'finding\\s+schema\\s+fields\\s+evidence\\s+state\\s+and\\s+severity\\s+semantics\\s+applicability\\s+verdict\\s+vocabulary\\s+freshness\\s+and\\s+supersession\\s+rules\\s+is\\s+finding\\s+blocking\\s+behavior\\s+command\\s+policies\\s+and\\s+process\\s+fact\\s+consumers';
+  const explicitInvariantSubject = `(?:it|its\\s+contract|the\\s+contract|the\\s+runtime\\s+contract|${liveContractInventory})`;
+  const invariantOutcome = new RegExp(
+    `^\\s*(?:(?::\\s*)?(?:(?:and\\s+)?(?:verify|confirm|check)(?:\\s+that)?\\s+)?${explicitInvariantSubject}\\s+${invariantPredicate}|${invariantPredicate})${invariantCause}$`,
+    'u',
+  );
+
+  for (const authorityRange of matchRanges(statement, authority)) {
+    for (const changeRange of matchRanges(statement, nominalChange)) {
+      if (changeRange.start < authorityRange.end) continue;
+      const lead = statement.slice(0, authorityRange.start);
+      const bridge = statement.slice(authorityRange.end, changeRange.end);
+      const outcome = statement.slice(changeRange.end);
+      const boundedLead = /^(?:compare|verify|audit|check)\b[^.;!?]{0,96}$/u.test(lead);
+      const boundedBridge = /^(?:\s+contract)?\s+(?:before\s+and\s+after|across)\b[^.;!?]{0,64}\b(?:change|changes|update|updates)$/u.test(bridge);
+      if (boundedLead && boundedBridge && invariantOutcome.test(outcome)) return true;
+    }
+  }
+  return false;
+}
+
+function hasDynamicFindingAuthorityAmendmentAssertion(
+  segment: string,
+  wholeSourceIsInvariantAssertion: boolean,
+): boolean {
   const authority = /\bdynamic\s+finding(?:\s+system)?(?:\s+execution)?\s+(?:plan|authority|runtime)\b/u;
   const amendment = /\b(?:amend|modify|rewrite|override|replace|extend|change|update|authorit(?:ize|ise))\w*\b|\b(?:make|publish)\b[^.;]{0,80}\bauthoritative\b/u;
   for (const authorityRange of matchRanges(segment, authority)) {
@@ -330,26 +366,12 @@ function hasDynamicFindingAuthorityAmendmentAssertion(segment: string): boolean 
       const amendmentPrefix = segment.slice(Math.max(0, amendmentRange.start - 64), amendmentRange.start);
       const nominalChangeReference = /^(?:change|changes|update|updates)$/u.test(amendmentToken)
         && /\b(?:this|that|these|those|the|current|proposed|metadata\s+only|prompt\s+only|implementation|code)\s+$/u.test(amendmentPrefix);
-      const invariantComparisonLead = segment.slice(Math.max(0, authorityRange.start - 64), authorityRange.start);
-      const invariantComparisonBridge = segment.slice(authorityRange.end, amendmentRange.end);
-      const invariantComparisonOutcome = segment.slice(amendmentRange.end);
-      const invariantOutcomeMatch = /\b(?:remain|remains|stay|stays|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)\b|\bno\s+(?:authority|runtime|schema|semantic|contract)?\s*changes?\b/u.exec(invariantComparisonOutcome);
-      const invariantOutcomeTail = invariantOutcomeMatch
-        ? invariantComparisonOutcome.slice(invariantOutcomeMatch.index + invariantOutcomeMatch[0].length).trim()
-        : null;
-      const invariantOutcomeConsumesTail = invariantOutcomeTail !== null
-        && (invariantOutcomeTail.length === 0
-          || /^by\s+(?:the\s+)?(?:metadata|prompt|implementation|code)(?:\s+only)?\s+(?:registration|change|update)$/u.test(invariantOutcomeTail));
-      const nominalReferenceIsInvariantComparison = nominalChangeReference
-        && /\b(?:compare|verify|audit|check)\b[^.;]{0,48}$/u.test(invariantComparisonLead)
-        && /\b(?:before\s+and\s+after|across)\b[^.;]{0,64}\b(?:change|changes|update|updates)$/u.test(invariantComparisonBridge)
-        && invariantOutcomeConsumesTail;
       // A Story may name its own implementation change while proving that the
-      // authoritative Dynamic Finding contract is invariant. This narrow
-      // nominal-reference exception does not excuse an affirmative amendment
-      // verb: "this change modifies/updates the runtime" is still rejected by
-      // the separate modify/update match.
-      if (nominalReferenceIsInvariantComparison) continue;
+      // authoritative Dynamic Finding contract is invariant only when the
+      // complete source is a bounded invariant assertion. Local invariant
+      // wording cannot launder authority before it, after it, or in a later
+      // punctuation-separated segment.
+      if (nominalChangeReference && wholeSourceIsInvariantAssertion) continue;
       if (!relationIsNegated(segment, amendmentRange, authorityRange, authorityRange)) return true;
     }
   }
@@ -360,8 +382,9 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
   if (isPureInterrogative(source.text)
     || isExplicitFailClosedQuotedFixture(source.text)
     || isNegativeMutationVerificationIntent(source)) return null;
+  const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
   for (const segment of triageAuthoritySegments(source.text)) {
-    if (hasDynamicFindingAuthorityAmendmentAssertion(segment)) {
+    if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion)) {
       return 'Dynamic Finding authority amendment asserted from Task Context';
     }
     if (RETIRED_APPLICABILITY_ALIAS.test(segment)) {
