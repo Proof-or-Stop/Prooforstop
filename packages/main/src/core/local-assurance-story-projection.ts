@@ -1,11 +1,11 @@
 import { existsSync } from 'node:fs';
 
-import { StoryStore } from './store.js';
+import type { StoryStore } from './store.js';
+import { resolveStoryWorkspace, type StoryWorkspace } from './story-workspace.js';
 import type { StoryInfo, StoryPhase } from './types.js';
 import {
   getRepoRoot,
   isForeignAbsolutePath,
-  listGitWorktrees,
   resolveWorktreePath,
 } from './worktree-runtime.js';
 
@@ -49,7 +49,7 @@ export function resolveLocalAssuranceStories(
 ): LocalAssuranceStoryProjection {
   const repoRoot = getRepoRoot(projectRoot);
   const activeOnly = options.activeOnly !== false;
-  const linkedByStoryId = collectLinkedStoryWorktrees(repoRoot);
+  const ctx = { store: rootStore, root: projectRoot };
 
   const allIds = options.storyIds && options.storyIds.length > 0
     ? options.storyIds
@@ -65,7 +65,11 @@ export function resolveLocalAssuranceStories(
     }
     if (activeOnly && TERMINAL_PHASES.has(mainStory.phase)) continue;
 
-    rows.push(buildRow(id, mainStory, linkedByStoryId.get(id) ?? null, repoRoot));
+    // B-41c8 CHK-003: workspace resolution is owned by core/story-workspace.ts.
+    // The projection never applied the phase-terminal guard itself (activeOnly
+    // is the caller's filter; activeOnly=false callers such as the handoff read
+    // a DONE story's residual worktree), so the guard stays off here.
+    rows.push(buildRow(mainStory, resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: false }), repoRoot));
   }
 
   rows.sort((a, b) => a.storyId.localeCompare(b.storyId));
@@ -80,11 +84,11 @@ export function resolveLocalAssuranceStories(
 }
 
 function buildRow(
-  storyId: string,
   mainStory: StoryInfo,
-  linkedPath: string | null,
+  workspace: StoryWorkspace,
   repoRoot: string,
 ): LocalAssuranceStoryRow {
+  const storyId = workspace.storyId;
   const mirrorPhase = mainStory.phase;
   const recordedAbs = resolveWorktreePath(repoRoot, mainStory.worktree?.path ?? null);
   const recordedForeign = mainStory.worktree?.path
@@ -92,7 +96,7 @@ function buildRow(
     : false;
   const recordedExists = Boolean(recordedAbs && !recordedForeign && existsSync(recordedAbs));
 
-  const worktreePath = linkedPath
+  const worktreePath = workspace.worktreePath
     ?? (recordedExists ? recordedAbs : null);
 
   let stateSource: StoryStateSource = 'main';
@@ -102,7 +106,10 @@ function buildRow(
   if (worktreePath) {
     stateSource = 'worktree';
     activeCwd = worktreePath;
-    activePhase = readWorktreePhase(storyId, worktreePath, mirrorPhase);
+    // The workspace store is the linked worktree's when it carries the story,
+    // the invocation root's otherwise (which, invoked from inside the
+    // worktree, is that worktree; anywhere else it is the mirror phase).
+    activePhase = workspace.story.phase;
   }
 
   return {
@@ -114,29 +121,4 @@ function buildRow(
     activeCwd,
     worktreePath,
   };
-}
-
-function readWorktreePhase(
-  storyId: string,
-  worktreePath: string,
-  fallback: StoryPhase,
-): StoryPhase {
-  try {
-    const store = new StoryStore(worktreePath);
-    const story = store.readStory(storyId);
-    return story.phase;
-  } catch {
-    return fallback;
-  }
-}
-
-function collectLinkedStoryWorktrees(repoRoot: string): Map<string, string> {
-  const map = new Map<string, string>();
-  for (const entry of listGitWorktrees(repoRoot)) {
-    const match = entry.branch?.match(/^story\/(.+)$/);
-    if (!match) continue;
-    if (!entry.path || !existsSync(entry.path)) continue;
-    map.set(match[1], entry.path);
-  }
-  return map;
 }
