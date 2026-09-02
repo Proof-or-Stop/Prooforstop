@@ -1492,7 +1492,7 @@
       "desc": "CHK-005:happy:live-pre-review-proof and CHK-005:happy:signed-rollout-full-3x2 are not currently satisfied at HEAD 120268b2cd. Read-only `pre_review_check_read --storyId=B-9a49 --json` returns ok=false/status=inconclusive with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED (although executableEvidence=current, mutations=biting, transcript=related, authority=admissible). Read-only `acceptance_rollout_report_read --storyId=B-9a49 --json` returns ok=false/status=fail, diagnostic AR_REPORT_STALE and receipt=stale; the persisted report is bound to b198b0d while current HEAD is 120268b. The F-063/F-064 source and test behavior is GREEN and discriminating, 60/60 evidence is mechanical/unique/current with zero waivers, 17-role isolation and 0.3.271 build/version checks pass; remediation is evidence re-attestation only: reissue verifier-owned pre_review_check at current material, then regenerate the rollout report to a current full-3x2 receipt. Do not change runtime code for this finding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T21:00:24.663Z",
@@ -1504,7 +1504,11 @@
         ".proof-or-stop/story/actives/B-9a49/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|happy-live-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fresh Story-bound evidence now passes on the committed material: pre_review_check reports complete planned-to-actual mapping, current executable evidence, biting mutations, related transcript, and admissible authority; acceptance_rollout_report_read reports pass with a current full-3x2 receipt and no false-pass or false-block result.",
+      "resolvedAt": "2026-09-02T23:08:14.876Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
