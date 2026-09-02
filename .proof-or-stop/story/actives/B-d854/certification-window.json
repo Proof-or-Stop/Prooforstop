@@ -12,7 +12,52 @@
       "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
       "inventory": {},
       "_hash": "3738c405e7e494b69c6c8a1e0bf3d416351461c5b31c83b0cc4f0ddadc753b4a"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-d854:CW-002",
+      "storyId": "B-d854",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-02T14:39:59.522Z",
+      "updatedAt": "2026-09-02T14:39:59.522Z",
+      "frozen": {
+        "headHash": "01a8a6d4896028c34997d1db13a7c2157a7e82ae",
+        "materialHash": "91002032682f8c2c37344705d19ccb3318db9745600bdb3e53f5a9e4b4904403",
+        "storyFilesHash": "15af07b927ee9318172b233838a6b6b6ae7e7c14208444d0bd14a2fea8112bb6",
+        "expectedMainSha": "eacb0000dc2c4942e8b70908164d98e5b03d683e",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-d854:RIE-001",
+        "receiptId": "B-d854:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-d854:PRECERT-001",
+      "_hash": "13a2f2c39e83bb5717a40eec5823f5defef45ed70370ad7aaae544f4c1eaf5f1"
     }
   ],
-  "receipts": []
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-d854:PRECERT-001",
+      "windowId": "B-d854:CW-002",
+      "storyId": "B-d854",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "01a8a6d4896028c34997d1db13a7c2157a7e82ae",
+        "materialHash": "91002032682f8c2c37344705d19ccb3318db9745600bdb3e53f5a9e4b4904403",
+        "storyFilesHash": "15af07b927ee9318172b233838a6b6b6ae7e7c14208444d0bd14a2fea8112bb6",
+        "expectedMainSha": "eacb0000dc2c4942e8b70908164d98e5b03d683e",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-d854:RIE-001",
+      "inventoryReceiptId": "B-d854:RIE-001:RCP-001",
+      "createdAt": "2026-09-02T14:39:59.522Z",
+      "_hash": "b2bd35249d0ed1cf605726280f15c9e15cf9e928553eb05e1ef95c5ca05df6c9"
+    }
+  ]
 }
