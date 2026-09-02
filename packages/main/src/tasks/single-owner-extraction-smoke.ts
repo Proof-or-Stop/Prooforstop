@@ -42,12 +42,18 @@
  *   resolveGitCwd), a workspace-rooted StoryStore, workspace-loaded config and
  *   the source used; story-query.ts, session.ts,
  *   local-assurance-story-projection.ts and validation-plan.ts delegate to it.
+ *
+ * CHK-004 — mechanical audit of resolveGitCwd call sites:
+ *   every handlers/*.ts file with a CALL EXPRESSION of the resolver (comments,
+ *   strings, templates and regexes masked; import aliases resolved) is listed
+ *   and classified `workspace-rooted` or `reads ctx.root: <story|checklist|
+ *   config>`; the flagged list is the scope of the follow-up migration draft.
  */
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -74,11 +80,14 @@ import { createValidationPlanHandlers } from '../handlers/validation-plan.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { configuredValidationCommands } from '../handlers/verifier.js';
 import { parseLegacyValidationCommandString } from '../core/validation-command-identity.js';
+import { entriesFromSerialReference } from './full-suite-runner.js';
 
 const MARKER = 'single-owner-extraction-smoke';
 const HERE = dirname(fileURLToPath(import.meta.url));
 // dist/tasks -> packages/main/src (the audited source tree).
 const MAIN_SRC = resolve(HERE, '..', '..', 'src');
+// packages/main/src -> repository root (root package.json / proof-or-stop.config.json).
+const REPO_ROOT = resolve(MAIN_SRC, '..', '..', '..');
 
 // ---------------------------------------------------------------------------
 // Case runner. Later checklist items append their own group via `group(...)`.
@@ -1201,6 +1210,325 @@ group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', 
       assert.equal(removedRow.stateSource, 'main');
       assert.equal(removedRow.activePhase, 'DONE');
       assert.equal(removedRow.worktreePath, null);
+    },
+  },
+]);
+
+// ---------------------------------------------------------------------------
+// CHK-004 — mechanical audit of resolveGitCwd call sites in handlers.
+//
+// Three hand-written enumerations of "which handlers call resolveGitCwd" were
+// each wrong during this story's review history, and a file-level grep
+// over-counts: validate-channel.ts only MENTIONS the resolver in a doc comment
+// (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd). This
+// group is the mechanical replacement. It scans packages/main/src/handlers/*.ts
+// for CALL EXPRESSIONS of the resolver and, for each real caller, classifies
+// whether the same file still reads the story index, the checklist or
+// validate.commands from the invocation root rather than through the CHK-003
+// helper. The printed block is the scope of the follow-up draft
+// `migrate-resolvegitcwd-callers-to-workspace`; this story does NOT migrate
+// the flagged callers and a case asserts the flagged list is non-empty.
+//
+// Classification rule (file-level; deliberately conservative -- a false FLAG
+// is the safe direction because the list feeds a migration, a false PASS
+// would hide a caller from it):
+//   caller   -- the file binds `resolveGitCwd` through an `import` whose
+//               module specifier is core/story-signed-workspace-resolution
+//               (`{ resolveGitCwd }`, `{ resolveGitCwd as x }` or
+//               `* as ns` -> `ns.resolveGitCwd`) and calls that binding:
+//               `<binding>(` in a CODE region, not preceded by `.` (a
+//               property call on another object is not the resolver) and
+//               not a `function <binding>(` declaration.
+//   regions  -- `//` line comments, `/* */` block comments, '...' / "..."
+//               strings, `...` template literals (their `${...}` expressions
+//               are code) and /regex/ literals are masked before matching;
+//               a token found only inside those regions is a mention.
+//   ws var   -- an identifier assigned from `resolveStoryWorkspace(`.
+//   story    -- `<receiver>.readStory(` whose receiver is not `<ws var>.store`,
+//               or any `new StoryStore(` (a store the file rooted itself).
+//   checklist-- `<receiver>.readChecklist(` whose receiver is not `<ws var>.store`.
+//   config   -- `loadConfig(<arg>)` or `configuredValidationCommands(<arg>)`
+//               (the validate.commands reader) whose first argument does not
+//               start with `<ws var>.`.
+//   workspace-rooted -- a caller with none of the three read kinds remaining
+//               (vacuously so when it performs no such read at all);
+//               otherwise `reads ctx.root: <story|checklist|config>`.
+//   Destructured `const { store } = resolveStoryWorkspace(...)` is NOT
+//   recognised as a ws var (its reads stay flagged: the safe direction).
+//
+// RED: `scanResolverSource` below is the pre-CHK-004 hand method -- a
+// file-level grep that treats every file containing the token as a caller,
+// every line containing the token as a call line, and classifies nothing.
+// The cases fail against it on purpose; GREEN replaces it with the masked
+// scanner described above.
+// ---------------------------------------------------------------------------
+
+type RootReadKind = 'story' | 'checklist' | 'config';
+type RootRead = { kind: RootReadKind; via: string; line: number };
+type ResolverScan = {
+  hasToken: boolean;
+  /** Lines with a call expression of the imported resolver binding. */
+  callLines: number[];
+  /** Lines where the token appears only inside a comment / string / template / regex region. */
+  nonCodeMentionLines: number[];
+  /** Lines with a code-region `resolveGitCwd(` that no import binds (a second resolver would show up here). */
+  unboundCallLines: number[];
+  workspaceRooted: boolean;
+  remainingReads: RootRead[];
+};
+type ResolverCaller = ResolverScan & { file: string };
+type ResolverMention = { file: string; lines: number[] };
+type ResolverAudit = {
+  handlersDir: string;
+  scannedFiles: number;
+  callers: ResolverCaller[];
+  commentOnly: ResolverMention[];
+  unboundCallMentions: ResolverMention[];
+  flagged: ResolverCaller[];
+};
+
+const HANDLERS_DIR = join(MAIN_SRC, 'handlers');
+const RESOLVER_TOKEN = 'resolveGitCwd';
+const RESOLVER_MODULE_RE = /(^|\/)story-signed-workspace-resolution(\.js)?$/;
+
+function handlerSourceFiles(dir: string): string[] {
+  return readdirSync(dir).filter((name) => name.endsWith('.ts')).sort();
+}
+
+function lineOf(text: string, index: number): number {
+  let line = 1;
+  for (let i = 0; i < index; i += 1) if (text.charCodeAt(i) === 10) line += 1;
+  return line;
+}
+
+function sortedUnique(values: number[]): number[] {
+  return [...new Set(values)].sort((a, b) => a - b);
+}
+
+// RED implementation (the pre-CHK-004 hand method) -- replaced in GREEN.
+function scanResolverSource(source: string): ResolverScan {
+  const callLines = source.split('\n').flatMap((line, index) => (line.includes(RESOLVER_TOKEN) ? [index + 1] : []));
+  return { hasToken: callLines.length > 0, callLines, nonCodeMentionLines: [], unboundCallLines: [], workspaceRooted: true, remainingReads: [] };
+}
+
+function auditResolverCallSites(handlersDir: string): ResolverAudit {
+  const files = handlerSourceFiles(handlersDir);
+  const callers: ResolverCaller[] = [];
+  const commentOnly: ResolverMention[] = [];
+  const unboundCallMentions: ResolverMention[] = [];
+  for (const file of files) {
+    const scan = scanResolverSource(readFileSync(join(handlersDir, file), 'utf-8'));
+    if (!scan.hasToken) continue;
+    if (scan.callLines.length) callers.push({ file, ...scan });
+    else if (scan.unboundCallLines.length) unboundCallMentions.push({ file, lines: scan.unboundCallLines });
+    else commentOnly.push({ file, lines: scan.nonCodeMentionLines });
+  }
+  return { handlersDir, scannedFiles: files.length, callers, commentOnly, unboundCallMentions, flagged: callers.filter((caller) => !caller.workspaceRooted) };
+}
+
+function describeReads(reads: RootRead[]): string {
+  const byVia = new Map<string, number[]>();
+  for (const read of reads) byVia.set(read.via, [...(byVia.get(read.via) ?? []), read.line]);
+  return [...byVia.entries()].map(([via, lines]) => `${via} ${sortedUnique(lines).map((line) => `L${line}`).join(',')}`).join('; ');
+}
+
+function classificationOf(caller: ResolverScan): string {
+  if (caller.workspaceRooted) return 'workspace-rooted';
+  const kinds = (['story', 'checklist', 'config'] as RootReadKind[]).filter((kind) => caller.remainingReads.some((read) => read.kind === kind));
+  return `reads ctx.root: ${kinds.join(', ')}`;
+}
+
+function renderResolverAudit(report: ResolverAudit): string[] {
+  const width = Math.max(...report.callers.map((caller) => caller.file.length), 1);
+  const lines: string[] = [];
+  lines.push('resolveGitCwd call sites');
+  lines.push(`  scope: packages/main/src/handlers/*.ts -- ${report.scannedFiles} files scanned, ${report.callers.length} real callers, ${report.commentOnly.length} comment-only mentions, ${report.unboundCallMentions.length} unbound code mentions`);
+  lines.push('  rule: caller = a CALL EXPRESSION of the resolver binding imported from core/story-signed-workspace-resolution (aliases resolved; comments, strings, templates, regexes masked);');
+  lines.push('        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no `new StoryStore(`, every loadConfig/configuredValidationCommands argument starts with <ws>., where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config>');
+  lines.push(`  callers (${report.callers.length}):`);
+  for (const caller of report.callers) {
+    const calls = caller.callLines.map((line) => `L${line}`).join(',');
+    const detail = caller.remainingReads.length ? `  -- ${describeReads(caller.remainingReads)}` : '';
+    lines.push(`    ${caller.file.padEnd(width)}  calls ${calls.padEnd(18)}  ${classificationOf(caller)}${detail}`);
+  }
+  lines.push(`  comment-only mentions (${report.commentOnly.length}):`);
+  for (const mention of report.commentOnly) lines.push(`    ${mention.file.padEnd(width)}  ${mention.lines.map((line) => `L${line}`).join(', ')}`);
+  if (report.unboundCallMentions.length) {
+    lines.push(`  code mentions without an import binding (${report.unboundCallMentions.length}):`);
+    for (const mention of report.unboundCallMentions) lines.push(`    ${mention.file.padEnd(width)}  ${mention.lines.map((line) => `L${line}`).join(', ')}`);
+  }
+  lines.push(`  flagged callers (reads ctx.root): ${report.flagged.length} of ${report.callers.length}`);
+  return lines;
+}
+
+/** Case-local expectation for a real file: code-level `resolveGitCwd(` lines by a naive line rule (used only where the file is known to have no tricky regions). */
+function naiveCodeLevelCallLines(source: string): number[] {
+  return source.split('\n').flatMap((line, index) => {
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return [];
+    return line.includes(`${RESOLVER_TOKEN}(`) ? [index + 1] : [];
+  });
+}
+
+const ALIAS_FIXTURE_NAME = 'zz-chk004-alias-fixture.ts';
+const ALIAS_FIXTURE_LINES = [
+  "import { resolveGitCwd as resolveWorkspaceCwd } from '../core/story-signed-workspace-resolution.js';", // L1
+  "import type { HandlerContext } from './context.js';", // L2
+  '', // L3
+  '// resolveGitCwd({ mention: "in a line comment" })', // L4
+  '/* resolveGitCwd( in a block comment */', // L5
+  "const LABEL = 'resolveGitCwd(' + \"resolveGitCwd(\";", // L6
+  '', // L7
+  'export function fixtureGitCwd(ctx: HandlerContext, storyId: string): string {', // L8
+  '  const checklist = ctx.store.readChecklist(storyId);', // L9
+  '  void checklist;', // L10
+  '  return resolveWorkspaceCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }) + LABEL;', // L11
+  '}', // L12
+  '',
+];
+const ALIAS_FIXTURE_CALL_LINE = 11;
+const ALIAS_FIXTURE_MENTION_LINES = [4, 5, 6];
+const ALIAS_FIXTURE_READ_LINE = 9;
+
+// Scanner probe: one synthetic source exercising every masked region kind.
+const SCANNER_PROBE_LINES = [
+  "import { resolveGitCwd as aliasCwd } from '../core/story-signed-workspace-resolution.js';", // L1
+  '// resolveGitCwd({ line: "comment" })', // L2 mention
+  '/* resolveGitCwd(', // L3 mention
+  '   continued) */', // L4
+  "const s = 'resolveGitCwd(' + \"resolveGitCwd(\"; // resolveGitCwd(", // L5 mention (strings + trailing comment)
+  'const t = `resolveGitCwd(${aliasCwd({ store, storyId, metadataRoot: root, projectRoot: root })}) ${"resolveGitCwd("}`;', // L6 call inside ${} + mentions
+  "const re = /'\"\\/\\/ resolveGitCwd\\(/g; const half = total / 2 / count;", // L7 mention (regex literal), divisions are not regexes
+  'const x = aliasCwd({ store, storyId, metadataRoot: root, projectRoot: root });', // L8 call
+  'const y = other.resolveGitCwd({}); const z = other.aliasCwd({}); const k = typeof aliasCwd;', // L9 foreign-object calls: neither call nor mention
+  "const w = aliasCwd  ({ store, storyId, metadataRoot: root, projectRoot: root }); const label = `${'aliasCwd('}`;", // L10 call (space before paren); string inside ${} masked
+  'const ws = resolveStoryWorkspace(ctx, storyId); const a = ws.store.readStory(storyId); const b = loadConfig(ws.gitCwd); const c = ws.store.readChecklist(storyId);', // L11 workspace-rooted reads
+  'const bad = new StoryStore(ctx.root); const idx = ctx.store.readStory(storyId); const cfg = loadConfig(join(ctx.root, "x")); const cmds = configuredValidationCommands(ctx.root);', // L12 ctx.root reads
+  '',
+];
+const SCANNER_PROBE_CALL_LINES = [6, 8, 10];
+const SCANNER_PROBE_MENTION_LINES = [2, 3, 5, 6, 7];
+const SCANNER_PROBE_READ_LINE = 12;
+
+function readRootPackageJson(): { scripts: Record<string, string> } {
+  return JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8')) as { scripts: Record<string, string> };
+}
+
+group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically and classified', [
+  {
+    name: 'audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed',
+    run: () => {
+      const started = Date.now();
+      const report = auditResolverCallSites(HANDLERS_DIR);
+      const elapsedMs = Date.now() - started;
+      for (const line of renderResolverAudit(report)) console.log(line);
+      assert.ok(report.callers.length > 0, 'at least one handler calls the resolver');
+      assert.ok(elapsedMs < 10_000, `the audit is a line scan and must finish well under the budget (took ${elapsedMs}ms)`);
+      for (const caller of report.callers) {
+        assert.ok(caller.callLines.length > 0, `${caller.file}: a caller must have at least one call line`);
+        const source = readFileSync(join(HANDLERS_DIR, caller.file), 'utf-8');
+        assert.ok(source.includes('story-signed-workspace-resolution'), `${caller.file}: a real call needs an import binding for the resolver; a file without one is a mention, not a caller`);
+        assert.ok(caller.workspaceRooted || caller.remainingReads.length > 0, `${caller.file}: a flagged caller must name at least one remaining ctx.root read`);
+        assert.ok(!caller.workspaceRooted || caller.remainingReads.length === 0, `${caller.file}: a workspace-rooted caller has no remaining ctx.root read`);
+      }
+    },
+  },
+  {
+    name: 'completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions',
+    run: () => {
+      const report = auditResolverCallSites(HANDLERS_DIR);
+      const rawFiles = handlerSourceFiles(HANDLERS_DIR).filter((file) => readFileSync(join(HANDLERS_DIR, file), 'utf-8').includes(RESOLVER_TOKEN)).sort();
+      const listed = [...report.callers.map((c) => c.file), ...report.commentOnly.map((m) => m.file), ...report.unboundCallMentions.map((m) => m.file)];
+      assert.deepEqual([...listed].sort(), rawFiles, 'the three lists partition the raw-grep file set');
+      assert.equal(new Set(listed).size, listed.length, 'no file is listed twice');
+      for (const mention of report.commentOnly) assert.ok(mention.lines.length > 0, `${mention.file}: a comment-only mention must name the mention lines`);
+    },
+  },
+  {
+    name: 'edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines',
+    run: () => {
+      const report = auditResolverCallSites(HANDLERS_DIR);
+      const channel = report.commentOnly.find((mention) => mention.file === 'validate-channel.ts');
+      assert.ok(channel, 'validate-channel.ts must be listed under comment-only mentions');
+      assert.ok(!report.callers.some((caller) => caller.file === 'validate-channel.ts'), 'validate-channel.ts must not be a caller');
+      const preflight = report.callers.find((caller) => caller.file === 'review-preflight.ts');
+      assert.ok(preflight, 'review-preflight.ts must be a real caller');
+      const expected = naiveCodeLevelCallLines(readFileSync(join(HANDLERS_DIR, 'review-preflight.ts'), 'utf-8'));
+      assert.ok(expected.length > 0, 'review-preflight.ts has at least one code-level call');
+      assert.deepEqual(preflight!.callLines, expected, 'call lines are the code-level call lines, never the import line');
+      assert.equal(preflight!.workspaceRooted, false, 'review-preflight.ts reads deps.store (threaded ctx.store) and is flagged');
+    },
+  },
+  {
+    name: 'edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up',
+    run: () => {
+      const dir = mkdtempSync(join(tmpdir(), 'chk004-alias-'));
+      try {
+        for (const real of ['validate-channel.ts', 'review-preflight.ts']) copyFileSync(join(HANDLERS_DIR, real), join(dir, real));
+        writeFileSync(join(dir, ALIAS_FIXTURE_NAME), ALIAS_FIXTURE_LINES.join('\n'));
+        const report = auditResolverCallSites(dir);
+        assert.equal(report.scannedFiles, 3);
+        assert.deepEqual(report.callers.map((caller) => caller.file), ['review-preflight.ts', ALIAS_FIXTURE_NAME]);
+        assert.deepEqual(report.commentOnly.map((mention) => mention.file), ['validate-channel.ts']);
+        const fixture = report.callers.find((caller) => caller.file === ALIAS_FIXTURE_NAME)!;
+        assert.deepEqual(fixture.callLines, [ALIAS_FIXTURE_CALL_LINE], 'only the aliased call expression is a call (not the import, comment or string lines)');
+        assert.deepEqual(fixture.nonCodeMentionLines, ALIAS_FIXTURE_MENTION_LINES);
+        assert.equal(fixture.workspaceRooted, false);
+        assert.deepEqual(fixture.remainingReads, [{ kind: 'checklist', via: 'ctx.store.readChecklist', line: ALIAS_FIXTURE_READ_LINE }]);
+        assert.deepEqual(report.flagged.map((caller) => caller.file), ['review-preflight.ts', ALIAS_FIXTURE_NAME]);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+      assert.ok(!existsSync(dir), 'the temp dir is removed');
+      assert.ok(!existsSync(join(HANDLERS_DIR, ALIAS_FIXTURE_NAME)), 'nothing was written into the live handlers directory');
+    },
+  },
+  {
+    name: 'adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads',
+    run: () => {
+      const scan = scanResolverSource(SCANNER_PROBE_LINES.join('\n'));
+      assert.equal(scan.hasToken, true);
+      assert.deepEqual(scan.callLines, SCANNER_PROBE_CALL_LINES, 'call lines');
+      assert.deepEqual(scan.nonCodeMentionLines, SCANNER_PROBE_MENTION_LINES, 'non-code mention lines');
+      assert.deepEqual(scan.unboundCallLines, [], 'a foreign-object `.resolveGitCwd(` is not an unbound call');
+      assert.equal(scan.workspaceRooted, false);
+      assert.ok(scan.remainingReads.every((read) => read.line === SCANNER_PROBE_READ_LINE), `no workspace-rooted read (L11) is flagged: ${JSON.stringify(scan.remainingReads)}`);
+      assert.deepEqual(
+        scan.remainingReads.map((read) => `${read.kind}:${read.via}`).sort(),
+        ['config:configuredValidationCommands', 'config:loadConfig', 'story:ctx.store.readStory', 'story:new StoryStore'],
+      );
+    },
+  },
+  {
+    name: 'adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed',
+    run: () => {
+      const report = auditResolverCallSites(HANDLERS_DIR);
+      const rendered = renderResolverAudit(report);
+      assert.ok(report.flagged.length > 0, 'the flagged list must be non-empty: the story only migrated the four CHK-003 resolver implementations');
+      assert.ok(report.flagged.every((caller) => !caller.workspaceRooted && caller.remainingReads.length > 0));
+      const countLine = rendered.find((line) => line.startsWith('  flagged callers (reads ctx.root): '));
+      assert.ok(countLine, 'the flagged count line is printed');
+      assert.equal(countLine, `  flagged callers (reads ctx.root): ${report.flagged.length} of ${report.callers.length}`);
+      assert.equal(rendered[0], 'resolveGitCwd call sites', 'the block heading');
+      console.log(`flagged callers: ${report.flagged.length}`);
+    },
+  },
+  {
+    name: 'registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands',
+    run: () => {
+      const suite = 'test:single-owner-extraction';
+      const pkg = readRootPackageJson();
+      assert.equal(pkg.scripts[suite], 'node packages/main/dist/tasks/single-owner-extraction-smoke.js', `root package.json scripts.${suite}`);
+      const chain = pkg.scripts['test:serial-reference'] ?? '';
+      assert.ok(chain.split(/\s*&&\s*/).includes(`npm run ${suite}`), `${suite} must be a member of test:serial-reference`);
+      const runnerSource = readFileSync(join(MAIN_SRC, 'tasks', 'full-suite-runner.ts'), 'utf-8');
+      assert.ok(new RegExp(`(repoRead|isolated)\\('${suite}'`).test(runnerSource), `${suite} must have a RESOURCE_POLICY row in full-suite-runner.ts`);
+      const entries = entriesFromSerialReference([pkg.scripts['test:serial-reference-prefix'], chain].filter(Boolean).join(' && '), pkg.scripts);
+      assert.ok(entries.some((entry) => entry.name === suite), 'the runner accepts the real inventory with the suite in it (bidirectional membership check)');
+      const config = JSON.parse(readFileSync(join(REPO_ROOT, 'proof-or-stop.config.json'), 'utf-8')) as { validate: { commands: Array<{ command?: string; args?: string[] }> } };
+      const entry = config.validate.commands.find((command) => Array.isArray(command.args) && command.args[0] === 'packages/main/dist/tasks/single-owner-extraction-smoke.js');
+      assert.ok(entry, 'proof-or-stop.config.json validate.commands must list the smoke');
+      assert.equal(entry!.command, 'node');
     },
   },
 ]);
