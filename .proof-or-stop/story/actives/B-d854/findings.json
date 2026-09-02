@@ -139,7 +139,7 @@
       "desc": "CHK-001:happy:0 and CHK-003:happy:0 lack concrete verificationEvidence for the claimed 26-row RED-to-GREEN audit. The only persisted evidence is a docs_check note that says the matrix passed and names broad sources; git grep finds no row-by-row ledger, per-row baseline failure, final pass condition, authoritative line, command, exit code, or captured output. A fresh reviewer cannot rerun or inspect the aggregate claim, so both must intents remain uncovered. Add a durable 26-row ledger and bind rerunnable receipts to the current AGENTS.md. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T00:29:41.117Z",
@@ -150,7 +150,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|happy-happy-lack",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-d854:F-001: the durable report now preserves the independent Claude and Agy evidence plus exact RED/GREEN rows, rather than leaving the proof only in transient review output.",
+      "resolvedAt": "2026-09-02T01:05:12.140Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-008",
