@@ -1,20 +1,25 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-01T11:13:52.206Z",
-  "reviewRound": "2026-09-01T10:52:52.902Z",
+  "checkedAt": "2026-09-02T02:45:39.340Z",
+  "reviewRound": "2026-09-02T02:22:09.054Z",
   "agentId": "product-reviewer",
-  "issues": [],
-  "agentResults": [
+  "issues": [
     {
-      "agentId": "lattice-review-story-init",
-      "checkedAt": "2026-09-01T11:13:51.485Z",
-      "issues": []
-    },
-    {
-      "agentId": "product-reviewer",
-      "checkedAt": "2026-09-01T11:13:52.206Z",
-      "issues": []
+      "severity": "high",
+      "desc": "CHK-004 context still commits the Story to a documentation-only Dynamic Finding authority migration and to retaining the former combined verdict as an active legacy alias. That is the exact unintended authority-amendment/legacy-alias commitment this controlled replan must remove, and it contradicts CHK-001, which now correctly says the Story is subordinate, must not amend Dynamic Finding authority, and may mention retired verdict vocabulary only as historical evidence—not as active Task Context. Preserve CHK-004 RED/GREEN, full-envelope authority-injection, baseline, build, and adapter acceptance; revise only this stale scope prose so the canonical checks reject active legacy-alias retention."
     }
   ],
-  "_hash": "d471bfba6b412c730deb77ef915b75873eb2df0c320a50405fd81305719b4a1a"
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-09-02T02:45:39.340Z",
+      "issues": [
+        {
+          "severity": "high",
+          "desc": "CHK-004 context still commits the Story to a documentation-only Dynamic Finding authority migration and to retaining the former combined verdict as an active legacy alias. That is the exact unintended authority-amendment/legacy-alias commitment this controlled replan must remove, and it contradicts CHK-001, which now correctly says the Story is subordinate, must not amend Dynamic Finding authority, and may mention retired verdict vocabulary only as historical evidence—not as active Task Context. Preserve CHK-004 RED/GREEN, full-envelope authority-injection, baseline, build, and adapter acceptance; revise only this stale scope prose so the canonical checks reject active legacy-alias retention."
+        }
+      ]
+    }
+  ],
+  "_hash": "a3007fe3ac233936b75605c70aab4012efe872b2e2a61c51811fbb7f41ba02c0"
 }
