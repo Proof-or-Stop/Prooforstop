@@ -866,6 +866,24 @@
       "resolvedAt": "2026-09-02T09:23:39.935Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d854:F-039",
+      "desc": "tests/AGENTS.verify.mjs:1255-1278 — refreshed mechanical evidence at commit 08ba1f8 is fresh by material/storyFiles and its pinned selectors match, but every one of the 8 actual 4000-byte receipt.outputTail values omits the newly required proof markers `AUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS`, `SOURCE_AUTHORITY_MUTATION rows=13 chains=40 executableEndpoints=66 removalOrInversion=66 PASS`, `AGY_PROVENANCE_MUTATION ...`, and the final Claude/Agy artifact markers. Independent `node tests/AGENTS.verify.mjs --final` emits them only after the receipt capture window. The early replay loop still replays only CASE42, malformed, Unicode, structure, one semantic mutation, runtime, and structure categories, so the receipts cannot prove the updated 117/234/40-chain/66-mutation/Agy acceptance requested for this final round. Add validated aggregate/external markers to the bounded replay before the verbose ledger (or otherwise make them land in the captured receipt window), then rerun and refresh all mechanical evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T09:27:22.833Z",
+      "reviewRound": "2026-09-02T09:23:21.650Z",
+      "reviewRunId": "B-d854:RR-033",
+      "_hash": "884234a5dfe491550d0f3669ffcaacce838e9c151771c2f8400cf0dd15026690",
+      "files": [
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "missing|mjs|tests-agents-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
