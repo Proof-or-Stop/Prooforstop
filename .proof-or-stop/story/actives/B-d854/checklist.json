@@ -25,7 +25,11 @@
           {
             "desc": "Classify every command, phase, role, artifact and example mentioned in AGENTS.md as current, compatibility-only or historical. Any command absent from `node bin/proof-or-stop.js help --full` is removed from active guidance or explicitly and locally labeled legacy or historical; no nonexistent command remains presented as an executable current instruction. WHY: retained background is acceptable only when a reader cannot mistake it for the current interface.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const current=[\\\"reviewer_batch\\\",\\\"dispatch\\\",\\\"agent_prompt\\\",\\\"review_run_start\\\",\\\"review_pass_set\\\",\\\"finding_add\\\",\\\"verification_evidence_add\\\"];const retired=[\\\"testintent_record\\\",\\\"testintent_resume\\\"];if(!current.every(x=>s.includes(x))||retired.some(x=>s.includes(x))||!s.includes(\\\"compatibility-only\\\")||!s.includes(\\\"retired\\\"))process.exit(1);console.log(\\\"COMMAND_CLASSIFICATION_PASS\\\")\"",
+              "selector": "COMMAND_CLASSIFICATION_PASS"
+            }
           }
         ],
         "adversarial": [
@@ -56,6 +60,26 @@
           "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
           "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
           "timestamp": "2026-09-02T00:15:03.249Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const current=[\\\"reviewer_batch\\\",\\\"dispatch\\\",\\\"agent_prompt\\\",\\\"review_run_start\\\",\\\"review_pass_set\\\",\\\"finding_add\\\",\\\"verification_evidence_add\\\"];const retired=[\\\"testintent_record\\\",\\\"testintent_resume\\\"];if(!current.every(x=>s.includes(x))||retired.some(x=>s.includes(x))||!s.includes(\\\"compatibility-only\\\")||!s.includes(\\\"retired\\\"))process.exit(1);console.log(\\\"COMMAND_CLASSIFICATION_PASS\\\")\"",
+          "result": "pass",
+          "note": "The tool-executed classifier proves current roles and evidence commands are present, retired conversational commands are absent, and retained legacy material is locally classified as compatibility-only or retired.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "519fa5d12d01b7e6129d6b440851389b249ee6e96f30b42ea6256efd60f85360",
+            "outputTail": "COMMAND_CLASSIFICATION_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T00:15:47.392Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "af17c992042d59540e9973e3f45ff5f26095bb95",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:15:48.012Z"
         }
       ]
     },
