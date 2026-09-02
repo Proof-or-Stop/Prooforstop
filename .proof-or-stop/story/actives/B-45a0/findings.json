@@ -25402,7 +25402,7 @@
       "desc": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts (new, F-473 regression smoke) is not wired into any runner: no test:* npm script references it in package.json or packages/main/package.json, and packages/main/src/tasks/full-suite-runner.ts (which invokes smoke tasks via isolated(\"test:closeout-trust\") etc. by npm script name) has no entry for it either. The compiled dist/tasks/validation-runtime-tracer-transparency-smoke.js runs and PASSes when invoked manually (node packages/main/dist/tasks/validation-runtime-tracer-transparency-smoke.js), so the test itself is correct, but proof-or-stop validate / validate --full / npm test never execute it -- it provides zero regression protection against F-473 recurring despite being written specifically for that purpose.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T04:29:27.355Z",
@@ -25431,7 +25431,11 @@
       "readDiagnostics": [],
       "_hash": "ef491392222cf19d97bab930a5a700f3ca61a86376111dd21d8bb4cff1612860",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Recorded and deferred per the defect-triage discipline (medium, non-blocking, unclaimed by any CHK item). Facts: the F-473 regression smoke validation-runtime-tracer-transparency-smoke.ts IS executed by the run-all-smokes auto-discovery lane (test:all / test:legacy match *-smoke.js, verified by the quality reviewer in RP-541), so regression protection is not zero; it is however absent from package.json test:serial-reference (npm test, the DONE-required gate suite) and from validate.commands. Wiring it in is a one-line package.json change, but any such material commit right now would invalidate the freshly re-executed paired-performance campaign artifact (head-bound; code/config drift is non-admissible by design) and force another multi-hour campaign plus a full review round — disproportionate to the marginal coverage gain this week. Follow-up: add test:validation-runtime-tracer-transparency to the serial-reference list in the next story that touches the root test suite or re-runs the campaign anyway; also covered by the known validate.commands-vs-npm-test list-reconciliation backlog item.",
+      "resolvedAt": "2026-09-02T04:49:46.581Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-45a0:F-475",
