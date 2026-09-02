@@ -105,6 +105,7 @@
  */
 
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -176,9 +177,13 @@ const ROOT = '/repo';
 
 let failures = 0;
 
+/** Case names that actually RAN and PASSED, so the CHK-006 coverage registry cannot cite a case that does not exist. */
+const passedCases = new Set<string>();
+
 function testCase(name: string, run: () => void): void {
   try {
     run();
+    passedCases.add(name);
     console.log(`  ok  ${name}`);
   } catch (error) {
     failures += 1;
@@ -2181,6 +2186,276 @@ testCase('the CLI tier aliases map onto the canonical vocabulary and add no four
   );
   const targets = new Set(Object.values(VALIDATION_PLAN_TIER_ALIASES));
   assert.deepEqual([...targets].sort(), [...VALIDATION_TIERS].sort());
+});
+
+// ---------------------------------------------------------------------------
+// CHK-006 — cross-cutting acceptance guards. These do not test one item; they
+// hold the Story's PROCESS and COVERAGE claims to a mechanical standard, so a
+// later change cannot quietly retire one of them.
+//
+//  (39) RED-BEFORE-GREEN ORDERING — for every checklist item this suite declares
+//       a section for, a failing-fixture commit must PRECEDE the implementing
+//       commit in git history. The item list is DERIVED from the suite's own
+//       section headers, so adding a seventh item without its RED commit fails
+//       here instead of passing vacuously on a hardcoded count.
+//  (40) ZOD-BYPASS REJECTION — every new handler field carrying a zod
+//       min/max/enum constraint is DISCOVERED by probing the catalog schema, and
+//       each discovered field must be refused at the handler entry AND at every
+//       consuming core entry when the schema is bypassed entirely. A new
+//       constrained field with no bypass coverage fails closed.
+//  (41) DONEWHEN COVERAGE — every DoneWhen line of CHK-001..CHK-005 is mapped to
+//       the fixture case(s) that prove it, and each cited case must have actually
+//       run and passed in this process.
+// ---------------------------------------------------------------------------
+
+console.log(`\n${MARKER}: running CHK-006 cross-cutting acceptance guards`);
+
+function gitOutput(args: string[]): string | null {
+  try {
+    return execFileSync('git', args, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    return null;
+  }
+}
+
+/** Checklist items DERIVED from this suite's own section headers, never a hardcoded count. */
+function declaredChecklistItems(repoRoot: string): string[] {
+  const source = readFileSync(join(repoRoot, 'packages/main/src/tasks/validation-tier-planner-smoke.ts'), 'utf-8');
+  const found = new Set<string>();
+  for (const line of source.split('\n')) {
+    const match = /^console\.log\(`[^`]*running (CHK-\d{3})/.exec(line);
+    if (match) found.add(match[1]!);
+  }
+  return [...found].sort();
+}
+
+testCase('a RED fixture commit precedes the implementing commit for every item this suite declares', () => {
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'this guard needs real git history; a missing repository is a failure, not a skip');
+
+  const items = declaredChecklistItems(repoRoot);
+  assert.ok(items.length > 0, 'the item list must be derived from the suite sections, and it must not be empty');
+
+  // Prefer the Story branch range; once merged the same commits are reachable from
+  // history, so fall back to a subject-filtered whole-history scan rather than
+  // passing vacuously on an empty range.
+  const rangeSubjects = (gitOutput(['log', '--format=%s', 'main..HEAD']) ?? '').split('\n').filter(Boolean);
+  const subjects = rangeSubjects.some((subject) => /^(RED|GREEN)\(CHK-\d{3}\):/.test(subject))
+    ? rangeSubjects
+    : (gitOutput(['log', '-E', '--format=%s', '--grep=^(RED|GREEN)\\(CHK-[0-9]{3}\\):']) ?? '').split('\n').filter(Boolean);
+  assert.ok(subjects.length > 0, 'no RED/GREEN commit subjects were readable; the ordering claim cannot be proven');
+
+  // git log is newest first; read oldest first so "precedes" means what it says.
+  const chronological = [...subjects].reverse();
+  for (const item of items) {
+    const firstRed = chronological.findIndex((subject) => subject.startsWith(`RED(${item}):`));
+    const firstGreen = chronological.findIndex((subject) => subject.startsWith(`GREEN(${item}):`));
+    assert.notEqual(firstGreen, -1, `${item} has no GREEN commit; the suite declares a section for it`);
+    assert.notEqual(firstRed, -1, `${item} has no RED commit; a failing fixture must exist before the implementation`);
+    assert.ok(
+      firstRed < firstGreen,
+      `${item}: the RED fixture commit must PRECEDE the implementing commit (red@${firstRed}, green@${firstGreen}); squashing them is what this guard forbids`,
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (40) Handler encoding convention, applied EXHAUSTIVELY: discover the
+//      constrained fields by probing rather than by listing them.
+// ---------------------------------------------------------------------------
+
+/**
+ * A field is CONSTRAINED when, within one JS type, the schema accepts some values
+ * and refuses others: that is exactly what a zod min/max/enum does. A pure type
+ * check (`z.boolean()`) or a total refusal (`z.never()`) shows no such split.
+ */
+function schemaFieldIsConstrained(field: z.ZodType): boolean {
+  const probesByType: unknown[][] = [
+    ['x', '', '   ', 'definitely-not-a-member-value', 'x'.repeat(4096)],
+    [0, -1, 1.5, 987654321],
+    [true, false],
+  ];
+  return probesByType.some((probes) => {
+    const outcomes = probes.map((probe) => field.safeParse(probe).success);
+    return outcomes.includes(true) && outcomes.includes(false);
+  });
+}
+
+/**
+ * Bypass coverage: each assertion calls the runtime entry DIRECTLY with an invalid
+ * value, so no schema is anywhere in the call path.
+ */
+const ZOD_BYPASS_COVERAGE: Record<string, () => void> = {
+  storyId: () => {
+    // Handler entry.
+    assert.throws(() => resolveValidationPlanRequest({ storyId: '', tier: 'fast' }), /storyId/);
+    assert.throws(() => resolveValidationPlanRequest({ storyId: '   ', tier: 'fast' }), /storyId/);
+    assert.throws(() => resolveValidationPlanRequest({ storyId: 7 as never, tier: 'fast' }), /storyId/);
+    assert.throws(() => resolveValidationPlanRequest({ tier: 'fast' } as never), /storyId/);
+    // Consuming core entry 1: the tier planner.
+    assert.throws(
+      () => resolveValidationTierPlan({ input: { ...planInput(), storyId: '' }, requestedTier: 'story-fast' }),
+      /storyId/,
+    );
+    assert.throws(
+      () => resolveValidationTierPlan({ input: { ...planInput(), storyId: '  ' }, requestedTier: 'story-fast' }),
+      /storyId/,
+    );
+    // Consuming core entry 2: the Story input collector.
+    assert.throws(() => collect({ story: { storyId: '', phase: 'DEV' } }), /storyId/);
+  },
+  tier: () => {
+    // Handler entry.
+    assert.throws(() => resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID, tier: '' }), /tier/);
+    assert.throws(() => resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID, tier: 'story-quick' }), /unknown tier "story-quick"/);
+    assert.throws(() => resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID, tier: 3 as never }), /tier/);
+    assert.throws(() => resolveValidationPlanRequest({ storyId: PLAN_CLI_STORY_ID } as never), /tier/);
+    // Consuming core entry 1: the tier planner rejects the CLI alias vocabulary.
+    assert.throws(
+      () => resolveValidationTierPlan({ input: planInput(), requestedTier: 'fast' as ValidationTier }),
+      /unknown tier "fast"/,
+    );
+    assert.throws(
+      () => resolveValidationTierPlan({ input: planInput(), requestedTier: '' as ValidationTier }),
+      /tier/,
+    );
+    // Consuming core entry 2: the shared tier assertion used by every consumer.
+    assert.throws(() => assertValidationTier('fast', 'zod-bypass-probe'), /tier/);
+    assert.throws(() => assertValidationTier(undefined, 'zod-bypass-probe'), /tier/);
+  },
+};
+
+testCase('every zod-constrained validation_plan field is still rejected when the schema is bypassed', () => {
+  const tool = planCliTool();
+  const constrained = Object.entries(tool.schema as Record<string, z.ZodType>)
+    .filter(([, field]) => schemaFieldIsConstrained(field))
+    .map(([key]) => key)
+    .sort();
+
+  // Non-vacuity: the discovery probe must find the fields we know carry constraints.
+  for (const expected of ['storyId', 'tier']) {
+    assert.ok(constrained.includes(expected), `${expected} carries a zod constraint and must be discovered by probing`);
+  }
+
+  for (const key of constrained) {
+    const cover = ZOD_BYPASS_COVERAGE[key];
+    assert.ok(
+      cover,
+      `validation_plan.${key} carries a zod constraint with no schema-bypass coverage; ` +
+      'the Handler encoding convention requires a runtime re-check at the handler entry AND at every consuming core entry',
+    );
+    cover();
+  }
+
+  // Coverage entries may not outlive their field either.
+  for (const key of Object.keys(ZOD_BYPASS_COVERAGE)) {
+    assert.ok(constrained.includes(key), `stale bypass coverage for a field that no longer carries a constraint: ${key}`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (41) DoneWhen coverage. Each plan.md DoneWhen line names the case(s) proving
+//      it; a cited case that did not run and pass fails this guard, so renaming
+//      or deleting a case can never silently drop a DoneWhen.
+// ---------------------------------------------------------------------------
+const DONEWHEN_COVERAGE: Array<{ item: string; doneWhen: string; cases: string[] }> = [
+  { item: 'CHK-001', doneWhen: 'a declared id is preserved verbatim; an undeclared one gets a prov- id', cases: [
+    'declared id is preserved verbatim and is not marked provisional',
+    'undeclared id becomes a deterministic prov- id over the narrow portable tuple',
+  ] },
+  { item: 'CHK-001', doneWhen: 'changing only a label, or an array position, leaves the id unchanged', cases: [
+    'moving a command to another array position does not change its provisional id',
+    'renaming ONLY a label keeps the stable id and changes the commandSetDigest',
+  ] },
+  { item: 'CHK-001', doneWhen: 'two commands with identical narrow tuples are rejected as duplicates', cases: [
+    'two identical narrow tuples are rejected as duplicates naming both entries',
+  ] },
+  { item: 'CHK-001', doneWhen: 'a label rename changes commandSetDigest while the stable id survives', cases: [
+    'renaming ONLY a label keeps the stable id and changes the commandSetDigest',
+  ] },
+  { item: 'CHK-001', doneWhen: 'a provisional-id warning names the count while any remain and is absent once none do', cases: [
+    'a migration warning names the runtime count of commands still lacking a declared id',
+    'the migration warning is absent once every command declares an id',
+  ] },
+  { item: 'CHK-001', doneWhen: 'the routine identity digest is byte-identical while no id is declared, and declaring one changes source.inputDigest', cases: [
+    'the optional id leaves the routine identity digest byte-identical, while declaring it in config changes source.inputDigest',
+  ] },
+
+  { item: 'CHK-002', doneWhen: 'exact-id, legacy-exact, missing and ambiguous paths each have a fixture', cases: [
+    'an exact commandId match resolves and is recorded as a declared-id resolution',
+    'a legacy string matching exactly one command records legacy-exact and the normalized-tuple digest',
+    'a legacy string matching nothing stops as pinned_command_missing with no plan',
+    'two commands with identical normalized tuples stop as pinned_command_ambiguous listing every candidate',
+  ] },
+  { item: 'CHK-002', doneWhen: 'a label difference alone does not break an otherwise ambiguous tie', cases: [
+    'two commands with identical normalized tuples stop as pinned_command_ambiguous listing every candidate',
+  ] },
+  { item: 'CHK-002', doneWhen: 'cwd-only and shell-versus-argv differences make two commands distinct', cases: [
+    'commands differing only by resolved cwd are distinct',
+    'commands differing only by shell-versus-argv form are distinct',
+  ] },
+  { item: 'CHK-002', doneWhen: 'pinResolution and the normalized-tuple digest are recorded on a legacy resolution', cases: [
+    'a legacy string matching exactly one command records legacy-exact and the normalized-tuple digest',
+  ] },
+
+  { item: 'CHK-003', doneWhen: 'rename, delete, story-metadata-exclusion and read-failure fixtures all pass', cases: [
+    'a deleted path remains a seed and a rename contributes both old and new paths',
+    'story metadata and registered runtime artifacts are excluded by the canonical classifier',
+    'a changed-file read failure is changed_files_unavailable, never an empty seed set',
+  ] },
+  { item: 'CHK-003', doneWhen: 'the collector calls the shared rename-aware reader rather than duplicating git access', cases: [
+    'the collector defaults to the SHARED rename-aware reader and the shared hash snapshot',
+  ] },
+  { item: 'CHK-003', doneWhen: 'duration history is surfaced, absent history is unknown-duration, and duration cannot change the selected set', cases: [
+    'duration history is collected and an absent history reports unknown-duration, never zero',
+    'mutating duration history leaves the selected set and the selection digest unchanged',
+  ] },
+  { item: 'CHK-003', doneWhen: 'verification intent is reason context only and produces no command-to-seed edge', cases: [
+    'verification intent is carried as reason context and produces no command-to-seed edge',
+  ] },
+
+  { item: 'CHK-004', doneWhen: 'all four source kinds have fixtures', cases: [
+    'configured is the command-set path',
+    'fallback reports source_kind_atomic and executes its atomic repository-full path',
+    'validate-file reports source_kind_atomic and executes its atomic repository-full path',
+    'no-validator preserves the existing skip/warn and produces NO tier pass',
+  ] },
+  { item: 'CHK-004', doneWhen: 'every reason code has a non-empty gloss, asserted by enumeration', cases: [
+    'every reason code carries a non-empty plain-language gloss, asserted by enumeration',
+  ] },
+  { item: 'CHK-004', doneWhen: 'no input produces a reduced effective tier', cases: [
+    'no input in the resolver space yields a reduced effective tier',
+  ] },
+  { item: 'CHK-004', doneWhen: 'an empty selection is a stop, not a pass', cases: [
+    'an empty universe stops as empty_selection_unclassified rather than passing empty',
+  ] },
+
+  { item: 'CHK-005', doneWhen: 'human and --json outputs both carry every documented field including finalAuthority: no', cases: [
+    'validation_plan --tier=fast prints every labelled field including finalAuthority: no',
+    'the printed counts are derived at runtime, not written into the renderer',
+    'duration history from prior signed validation artifacts reaches the report with its basis',
+    'validation_plan --json emits one parseable object carrying the same facts',
+  ] },
+  { item: 'CHK-005', doneWhen: 'a missing storyId and an unknown tier are rejected by name', cases: [
+    'a missing storyId and an unknown tier are each rejected BY NAME, never defaulted',
+  ] },
+  { item: 'CHK-005', doneWhen: 'every story file is byte-identical after invocation and no write-shaped flag is accepted', cases: [
+    'invoking validation_plan leaves every byte under the project root identical',
+    'no write / persist / execute / run flag is accepted, at the schema OR the handler',
+  ] },
+];
+
+testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed', () => {
+  const declaredItems = new Set(DONEWHEN_COVERAGE.map((entry) => entry.item));
+  assert.deepEqual([...declaredItems].sort(), ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-004', 'CHK-005']);
+
+  const missing: string[] = [];
+  for (const entry of DONEWHEN_COVERAGE) {
+    for (const name of entry.cases) {
+      if (!passedCases.has(name)) missing.push(`${entry.item} "${entry.doneWhen}" cites a case that did not run and pass: "${name}"`);
+    }
+  }
+  assert.deepEqual(missing, [], missing.join('\n'));
 });
 
 for (const root of temporaryRoots) {
