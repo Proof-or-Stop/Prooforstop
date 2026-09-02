@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-dc2e",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npm test",
+    "npx tsc --noEmit -p packages/main",
+    "npx tsx *"
+  ],
+  "allowedTools": [
+    "Agent",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/dev",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "git restore *",
+    "proof-or-stop release_approve_push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "excludedPaths": [
+    ".githooks",
+    ".proof-or-stop/dev-memory",
+    ".worktrees",
+    "node_modules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use the worktree's own built CLI (node packages/main/dist/cli.js) for every Proof-or-Stop command; the global proof-or-stop binary resolves into a different story's worktree and is a stale build. CLAUDE.md is allowed only because the re-pin policy and receipt selector persistence change documented evidence semantics and must be reflected in the Verification Intent / Evidence section. .proof-or-stop/dev-memory is blocked until the final finish decision because committing dev-memory records currently counts as material.",
+  "createdAt": "2026-09-02T13:18:34.308Z",
+  "updatedAt": "2026-09-02T13:18:34.308Z",
+  "_hash": "b5047689553e5c35d09f0eb89e6a01af02213da377aa570cb4d2d6190f1f44bc"
+}
