@@ -1,6 +1,6 @@
 {
   "storyId": "B-fe8f",
-  "checkedAt": "2026-09-01T08:58:17.804Z",
+  "checkedAt": "2026-09-02T00:52:50.051Z",
   "features": [
     {
       "feature": "Every Finding-system mutation is durable and has application-level exactly-once effect under the supported writer model.",
@@ -332,11 +332,11 @@
       "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
     },
     {
-      "feature": "The @lattice/lab rename is outside Story 3.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "The accepted Story 3 non-goals explicitly exclude lab rename.",
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+      "feature": "The accepted F-013 clean-install expansion is limited to canonical @proof-or-stop/lab packaging/bootstrap paths already acknowledged by scope-ack:4; it does not authorize any further brand or package rename.",
+      "covered_by": "scope-ack:4 + CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fe8f/scope-contract.json"
     },
     {
       "feature": "Story 3 does not replace review convergence/stall handling or claim persistence/runtime evidence proves semantic acceptance or reduces genuine defect repair.",
@@ -344,6 +344,13 @@
       "status": "excluded",
       "excluded_by": "Persistence proves exact durable bytes and runtime receipts prove executed bytes only; convergence and semantic acceptance remain separately owned.",
       "source": ".lattice/story/actives/B-fe8f/background.md"
+    },
+    {
+      "feature": "CHK-001:happy:2 uses the existing pinned RED command and red.production_unchanged: PASS selector through type=logic so the must intent can receive a mechanical exitCode=0/selectorMatched=true receipt; no product or implementation scope changes.",
+      "covered_by": "CHK-001:happy:2",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fe8f/checklist.json"
     }
   ],
   "readManifest": {
@@ -359,14 +366,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 49,
-    "covered": 42,
-    "excluded": 7,
+    "total": 50,
+    "covered": 44,
+    "excluded": 6,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "cf0b6f929e37cb794c1a58744663b46a0b16928ed1846858bebafbff078cb3f4",
+  "reviewRound": "2026-09-01T23:24:22.129Z",
+  "_hash": "9acf3c8c38179cdfce62504563f2b327a35b01a12523500875e4875ff7b3aaf6",
   "openQuestions": []
 }
