@@ -1291,6 +1291,25 @@
       "resolvedAt": "2026-09-02T08:13:58.699Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-058",
+      "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:836-858 and 1021-1053 verification-coverage gap (high): the unsafe/safe Task Context authority matrix, including the new F-055/F-056 lead and Claude bridge regressions plus F-057 punctuation controls, is executed only through the single `common` role proof-or-stop-review-quality. The later ACTIVE_MODULAR_REVIEWER_ROLE_IDS loop assembles all five roles but never injects an unsafe or safe authority statement. A production-dist mutation changing assertReviewerTaskContextAuthoritySafety from the modular-role predicate to `roleId !== proof-or-stop-review-quality` returned `prompt full-context envelope smoke: PASS` with exit 0, proving the suite does not detect complete loss of this guard from behavior, concept, docs, and test-coverage. This contradicts CHK-004:adversarial:task-context-authority-injection, which requires every complete assembled reviewer envelope to reject injected authority independently of refreshed digests. Production behavior is currently green; remediation is to execute representative unsafe and safe current-context assertions (including lead, bridge, and benign-continuation cases) for every ACTIVE_MODULAR_REVIEWER_ROLE_IDS role, and add a role-selective inverse mutation/RED proof so quality-only enforcement cannot pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T08:19:18.805Z",
+      "reviewRound": "2026-09-02T08:10:02.997Z",
+      "reviewRunId": "B-9a49:RR-086",
+      "_hash": "d6e6bd4e8223169c71e29a456c5cfd1ed4db3ad811fe7994a3c7ed55db7a81bc",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
