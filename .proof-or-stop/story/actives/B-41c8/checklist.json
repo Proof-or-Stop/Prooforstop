@@ -508,21 +508,33 @@
           {
             "desc": "The audit lists every handler with a real resolveGitCwd call expression and classifies each as workspace-rooted or ctx.root-reading, printing the classified list.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:single-owner-extraction",
+              "selector": "[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "validate-channel.ts is classified as a comment-only mention and review-preflight.ts as a real caller; a temporary fixture file with an aliased import is detected as a caller.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "The suite is registered in test:serial-reference, RESOURCE_POLICY and validate.commands, verified by a fixture reading the real files, and the audit initially reports a non-empty flagged list (RED) that the story does not attempt to empty.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:single-owner-extraction",
+              "selector": "[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands"
+            }
           }
         ]
       },
@@ -532,7 +544,72 @@
         "headHash": "b11dd0fb02a623197d56a044212b024e01cf2802",
         "attestedAt": "2026-09-02T14:46:47.550Z",
         "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "npm run test:single-owner-extraction",
+          "result": "pass",
+          "note": "The registered suite prints the classified caller block (28 real callers, 26 flagged as reading ctx.root, 4 comment-only mentions) from a masked call-expression scan of packages/main/src/handlers.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ca5f6b60aeef1949b30cec42817ab035bb6f0b5c2c008ee16a201991a5abf05c",
+            "outputTail": ",L624,L656; ctx.store.readChecklist L498,L548,L621; ctx.store.readStory L620\n    prewrite-guard.ts            calls L197                reads ctx.root: story  -- store.readStory L48,L138\n    proof-or-stop-handoff.ts     calls L579                workspace-rooted (no story/checklist/config read at all)\n    proofstory.ts                calls L368,L390           reads ctx.root: story, checklist, config  -- loadConfig L142,L235,L291,L709; ctx.store.readChecklist L154; store.readStory L263,L428,L594,L640,L655,L690,L766,L795,L832,L869,L905,L952,L1060,L1107,L1253,L1368; store.readChecklist L360,L1135\n    recover-evidence.ts          calls L141                reads ctx.root: config  -- loadConfig L82\n    red-evidence.ts              calls L229                reads ctx.root: story, config  -- store.readStory L282,L463,L621; loadConfig L482\n    review-escalation.ts         calls L266,L313,L410,L483  reads ctx.root: story  -- ctx.store.readStory L256\n    review-inventory.ts          calls L32                 reads ctx.root: story  -- ctx.store.readStory L31\n    review-preflight.ts          calls L387                reads ctx.root: story, checklist  -- store.readStory L231,L271; store.readChecklist L232\n    story-create.ts              calls L558                reads ctx.root: story, config  -- loadConfig L148; store.readStory L407,L447,L775,L1002\n    story-review.ts              calls L148                reads ctx.root: story, checklist, config  -- store.readStory L160,L645,L925; store.readChecklist L162; loadConfig L164\n    transition-effects.ts        calls L174                reads ctx.root: story, checklist, config  -- loadConfig L88; store.readChecklist L135,L227,L253,L304; store.readStory L172,L226,L251,L302,L381\n    transition-orchestrator.ts   calls L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config  -- loadConfig L283,L306; store.readStory L563,L589,L940,L1010,L1404; new StoryStore L769; store.readChecklist L1451\n    verifier.ts                  calls L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config  -- loadConfig L239,L286,L475,L535,L1202,L1620; configuredValidationCommands L384,L1308; ctx.store.readStory L469,L530,L832,L859,L1619; ctx.store.readChecklist L470,L490,L531,L860,L1617\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 26 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\nflagged callers: 26\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\n35/35 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:48:22.247Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ed1fc898e7937470af8325bb3e9c5e543d2d8daf",
+          "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2",
+          "storyFilesHash": "f520c53bcbf768cfcedebf67008b447569321dd0955d3c0e6e349396b15048c5",
+          "timestamp": "2026-09-02T14:48:40.483Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "The preceding edge case asserts validate-channel.ts is comment-only and review-preflight.ts a real caller with exact call lines; this case covers the aliased import in a runner-owned temp dir.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c25369576c7405d53c90ae401b118d7ab7e2c34317e66ef0cd55ca568c5aa28e",
+            "outputTail": ",L624,L656; ctx.store.readChecklist L498,L548,L621; ctx.store.readStory L620\n    prewrite-guard.ts            calls L197                reads ctx.root: story  -- store.readStory L48,L138\n    proof-or-stop-handoff.ts     calls L579                workspace-rooted (no story/checklist/config read at all)\n    proofstory.ts                calls L368,L390           reads ctx.root: story, checklist, config  -- loadConfig L142,L235,L291,L709; ctx.store.readChecklist L154; store.readStory L263,L428,L594,L640,L655,L690,L766,L795,L832,L869,L905,L952,L1060,L1107,L1253,L1368; store.readChecklist L360,L1135\n    recover-evidence.ts          calls L141                reads ctx.root: config  -- loadConfig L82\n    red-evidence.ts              calls L229                reads ctx.root: story, config  -- store.readStory L282,L463,L621; loadConfig L482\n    review-escalation.ts         calls L266,L313,L410,L483  reads ctx.root: story  -- ctx.store.readStory L256\n    review-inventory.ts          calls L32                 reads ctx.root: story  -- ctx.store.readStory L31\n    review-preflight.ts          calls L387                reads ctx.root: story, checklist  -- store.readStory L231,L271; store.readChecklist L232\n    story-create.ts              calls L558                reads ctx.root: story, config  -- loadConfig L148; store.readStory L407,L447,L775,L1002\n    story-review.ts              calls L148                reads ctx.root: story, checklist, config  -- store.readStory L160,L645,L925; store.readChecklist L162; loadConfig L164\n    transition-effects.ts        calls L174                reads ctx.root: story, checklist, config  -- loadConfig L88; store.readChecklist L135,L227,L253,L304; store.readStory L172,L226,L251,L302,L381\n    transition-orchestrator.ts   calls L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config  -- loadConfig L283,L306; store.readStory L563,L589,L940,L1010,L1404; new StoryStore L769; store.readChecklist L1451\n    verifier.ts                  calls L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config  -- loadConfig L239,L286,L475,L535,L1202,L1620; configuredValidationCommands L384,L1308; ctx.store.readStory L469,L530,L832,L859,L1619; ctx.store.readChecklist L470,L490,L531,L860,L1617\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 26 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\nflagged callers: 26\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\n35/35 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:48:31.276Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "ed1fc898e7937470af8325bb3e9c5e543d2d8daf",
+          "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2",
+          "storyFilesHash": "f520c53bcbf768cfcedebf67008b447569321dd0955d3c0e6e349396b15048c5",
+          "timestamp": "2026-09-02T14:48:40.483Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "npm run test:single-owner-extraction",
+          "result": "pass",
+          "note": "Registration verified against the real files; the flagged list is asserted non-empty (26) and printed, and this story does not attempt to empty it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ca5f6b60aeef1949b30cec42817ab035bb6f0b5c2c008ee16a201991a5abf05c",
+            "outputTail": ",L624,L656; ctx.store.readChecklist L498,L548,L621; ctx.store.readStory L620\n    prewrite-guard.ts            calls L197                reads ctx.root: story  -- store.readStory L48,L138\n    proof-or-stop-handoff.ts     calls L579                workspace-rooted (no story/checklist/config read at all)\n    proofstory.ts                calls L368,L390           reads ctx.root: story, checklist, config  -- loadConfig L142,L235,L291,L709; ctx.store.readChecklist L154; store.readStory L263,L428,L594,L640,L655,L690,L766,L795,L832,L869,L905,L952,L1060,L1107,L1253,L1368; store.readChecklist L360,L1135\n    recover-evidence.ts          calls L141                reads ctx.root: config  -- loadConfig L82\n    red-evidence.ts              calls L229                reads ctx.root: story, config  -- store.readStory L282,L463,L621; loadConfig L482\n    review-escalation.ts         calls L266,L313,L410,L483  reads ctx.root: story  -- ctx.store.readStory L256\n    review-inventory.ts          calls L32                 reads ctx.root: story  -- ctx.store.readStory L31\n    review-preflight.ts          calls L387                reads ctx.root: story, checklist  -- store.readStory L231,L271; store.readChecklist L232\n    story-create.ts              calls L558                reads ctx.root: story, config  -- loadConfig L148; store.readStory L407,L447,L775,L1002\n    story-review.ts              calls L148                reads ctx.root: story, checklist, config  -- store.readStory L160,L645,L925; store.readChecklist L162; loadConfig L164\n    transition-effects.ts        calls L174                reads ctx.root: story, checklist, config  -- loadConfig L88; store.readChecklist L135,L227,L253,L304; store.readStory L172,L226,L251,L302,L381\n    transition-orchestrator.ts   calls L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config  -- loadConfig L283,L306; store.readStory L563,L589,L940,L1010,L1404; new StoryStore L769; store.readChecklist L1451\n    verifier.ts                  calls L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config  -- loadConfig L239,L286,L475,L535,L1202,L1620; configuredValidationCommands L384,L1308; ctx.store.readStory L469,L530,L832,L859,L1619; ctx.store.readChecklist L470,L490,L531,L860,L1617\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 26 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\nflagged callers: 26\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\n35/35 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:48:40.358Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ed1fc898e7937470af8325bb3e9c5e543d2d8daf",
+          "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2",
+          "storyFilesHash": "f520c53bcbf768cfcedebf67008b447569321dd0955d3c0e6e349396b15048c5",
+          "timestamp": "2026-09-02T14:48:40.483Z"
+        }
+      ]
     }
   ]
 }
