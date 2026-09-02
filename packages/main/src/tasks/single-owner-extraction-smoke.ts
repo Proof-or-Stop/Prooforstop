@@ -89,6 +89,23 @@ const MAIN_SRC = resolve(HERE, '..', '..', 'src');
 // packages/main/src -> repository root (root package.json / proof-or-stop.config.json).
 const REPO_ROOT = resolve(MAIN_SRC, '..', '..', '..');
 
+// F-007 -- the verification executor (core/validation-executor.ts, MAX_OUTPUT_CHARS = 12000) keeps only the
+// first 12000 chars of a pinned command's stdout BEFORE matching the proof selector, so a `[PASS]` line printed
+// past that offset is refused as absent. The audit block is therefore compact by default; the per-read line
+// detail is printed only under SINGLE_OWNER_AUDIT_VERBOSE=1, and the last CHK-004 case asserts the default run
+// stays under DEFAULT_STDOUT_BOUND_CHARS. Every write to this process's stdout is counted here (console.log goes
+// through process.stdout.write; no child process inherits stdout) so that case measures the real output.
+const AUDIT_VERBOSE = process.env.SINGLE_OWNER_AUDIT_VERBOSE === '1';
+const DEFAULT_STDOUT_BOUND_CHARS = 10_000;
+let capturedStdoutChars = 0;
+{
+  const originalWrite = process.stdout.write;
+  process.stdout.write = function (this: NodeJS.WriteStream, chunk: any, ...rest: any[]): boolean {
+    capturedStdoutChars += typeof chunk === 'string' ? chunk.length : Buffer.from(chunk).toString('utf-8').length;
+    return (originalWrite as any).call(this, chunk, ...rest);
+  } as typeof process.stdout.write;
+}
+
 // ---------------------------------------------------------------------------
 // Case runner. Later checklist items append their own group via `group(...)`.
 // ---------------------------------------------------------------------------
@@ -1684,7 +1701,7 @@ function classificationOf(caller: ResolverScan): string {
   return `reads ctx.root: ${kinds.join(', ')}`;
 }
 
-function renderResolverAudit(report: ResolverAudit): string[] {
+function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VERBOSE): string[] {
   const width = Math.max(...report.callers.map((caller) => caller.file.length), 1);
   const lines: string[] = [];
   lines.push('resolveGitCwd call sites');
@@ -1782,6 +1799,14 @@ function readRootPackageJson(): { scripts: Record<string, string> } {
   return JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8')) as { scripts: Record<string, string> };
 }
 
+/** Chars the audit case actually printed (whichever mode), so the bound case can swap in the default rendering. */
+let printedAuditChars = 0;
+const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) stdout of the whole smoke is under 10000 chars so the CHK-004 selectors sit inside the verification executor 12000-char window; per-read detail prints only in verbose mode';
+
+function renderedChars(lines: string[]): number {
+  return lines.reduce((total, line) => total + line.length + 1, 0);
+}
+
 group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically and classified', [
   {
     name: 'audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed',
@@ -1789,7 +1814,9 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       const started = Date.now();
       const report = auditResolverCallSites(HANDLERS_DIR);
       const elapsedMs = Date.now() - started;
-      for (const line of renderResolverAudit(report)) console.log(line);
+      const rendered = renderResolverAudit(report, AUDIT_VERBOSE);
+      for (const line of rendered) console.log(line);
+      printedAuditChars = renderedChars(rendered);
       assert.ok(report.callers.length > 0, 'at least one handler calls the resolver');
       assert.ok(elapsedMs < 10_000, `the audit is a line scan and must finish well under the budget (took ${elapsedMs}ms)`);
       for (const caller of report.callers) {
@@ -1937,6 +1964,31 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       const entry = config.validate.commands.find((command) => Array.isArray(command.args) && command.args[0] === 'packages/main/dist/tasks/single-owner-extraction-smoke.js');
       assert.ok(entry, 'proof-or-stop.config.json validate.commands must list the smoke');
       assert.equal(entry!.command, 'node');
+    },
+  },
+  {
+    name: DEFAULT_STDOUT_BOUND_CASE_NAME,
+    run: () => {
+      // Projection = everything written so far, with the audit block as printed swapped for its default rendering,
+      // plus exactly the lines still to come when every case passes. It is exact only if this case is the last one.
+      const lastGroup = GROUPS[GROUPS.length - 1]!;
+      assert.equal(lastGroup.cases[lastGroup.cases.length - 1]!.name, DEFAULT_STDOUT_BOUND_CASE_NAME, 'this case must stay the last case of the last group (add new cases before it): its projection covers exactly the lines printed after it');
+      assert.ok(printedAuditChars > 0, 'the audit case printed the block before this case ran');
+      const total = GROUPS.reduce((count, g) => count + g.cases.length, 0);
+      const report = auditResolverCallSites(HANDLERS_DIR);
+      const compact = renderResolverAudit(report, false);
+      const compactChars = renderedChars(compact);
+      const verboseChars = renderedChars(renderResolverAudit(report, true));
+      const tail = `[PASS] ${DEFAULT_STDOUT_BOUND_CASE_NAME}\n${total}/${total} cases passed\n${MARKER}: PASS\n`;
+      const base = capturedStdoutChars - printedAuditChars + compactChars + tail.length;
+      const summaryLine = (projected: number): string => `default stdout projection: ${projected} chars (bound ${DEFAULT_STDOUT_BOUND_CHARS}; audit block compact ${compactChars} chars, verbose ${verboseChars} chars)`;
+      // The summary line below is part of the output; its length depends only on the digit count of the projection.
+      let projected = base + summaryLine(base).length + 1;
+      projected = base + summaryLine(projected).length + 1;
+      assert.ok(projected < DEFAULT_STDOUT_BOUND_CHARS, `default stdout is ${projected} chars, not under ${DEFAULT_STDOUT_BOUND_CHARS}: the audit block (${compactChars} chars by default) must stay compact -- one line per caller, call lines and per-read detail only under SINGLE_OWNER_AUDIT_VERBOSE=1`);
+      assert.ok(!compact.some((line) => /\bcalls L\d/.test(line) || line.includes('  -- ')), 'the default rendering carries no call-line or per-read detail');
+      assert.ok(verboseChars > compactChars, 'the verbose rendering is the one carrying the detail');
+      console.log(summaryLine(projected));
     },
   },
 ]);
