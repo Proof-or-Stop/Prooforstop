@@ -499,6 +499,31 @@
         "scanEscalationReason": null
       },
       "_hash": "09bf137cef606f04aacec3695d51c647016c4a3a18d5c04d6effcbbe960f9d42"
+    },
+    {
+      "id": "B-a745:RP-020",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 6, second concept pass. Verified F-028 accepted_risk (1) accurately not fixed-in-place: rewriting history would invalidate every review-run/receipt/host-verdict binding on this branch, so accepted_risk over fixed is the honest call, not a euphemism; a history rewrite would have been the wrong trade for a verified-true form defect. (2) Re-ran the pasted command live: node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest: -> commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, byte-identical match. (3) Honest census of main..HEAD commit bodies authored after F-021 resolved (2026-09-02T08:58:04.421Z): 3f83a2127d and 286a9b0921 (F-024/F-025) are clean, no unpasted figures. Two additional, earlier, previously-unfiled instances found: 899a13a6cd and 8613d6d6ec, both citing the same abbreviated commandSetDigest (eba363ed...) as prose with no pasted output -- filed as B-a745:F-029 (medium, open, non-blocking at round 6 under critical-only round-3+ blocking). (4) validate --concept: fails on exactly the same 10 pre-adjudicated splitShellWords residuals as prior rounds (all covered by resolved/disproven B-a745:F-007); no new residue, no source changed this round. (5) Seventh-instance check on F-028's own resolution text: the sixth instance tally is itself an unverified count that undercounts the real total once 899a13a6cd/8613d6d6ec are included -- filed as F-029 rather than silently accepted. No new blocking finding of mine remains open; F-029 is medium and advisory at this round.",
+      "createdAt": "2026-09-02T10:16:59.116Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-032",
+      "envelopeId": "28ac303f03dab148462a63a2e644cc6c5d571a3bc5c8a9ed94c25d0a34788a32",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15a6dc6bd06bf45fd9dc7552a5f4589a0c00739b58aca5a349c451ea5ab1a0cf"
     }
   ]
 }
