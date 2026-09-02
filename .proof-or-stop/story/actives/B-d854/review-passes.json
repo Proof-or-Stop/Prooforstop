@@ -280,6 +280,45 @@
         "scanEscalationReason": null
       },
       "_hash": "f3184190b74eecec1595e023627593092901b1caea7877ec94b3fc2094226720"
+    },
+    {
+      "id": "B-d854:RP-010",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Narrow final coverage review passed: 10/10 must intents have fresh evidence (8 mechanical, 2 docs, no gaps or waivers); canonical CLI shows every 4000-byte mechanical receipt tail contains all 18/18 current selectors, including the expanded runtime exclusivity mutation marker; receipt-window and final exit 0, baseline proves 26/26 RED with exit 1.",
+      "createdAt": "2026-09-02T13:13:10.786Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-043",
+      "envelopeId": "101dbc58fdb0857c8065c8922eaf7def92b82b65658150c15ddc8a7831b90072",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "78b3eb8739d65dc6b6227ac06293567c4fda9a04b06ee86908bbe92aa01b5a90"
     }
   ]
 }
