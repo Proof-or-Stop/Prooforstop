@@ -19,20 +19,26 @@ const globalCli = '/opt/homebrew/bin/proof-or-stop';
 const claudeTranscript = '/Users/jek/.claude/projects/-Users-jek-Documents-GitHub-Prooforstop--worktrees-B-d854/3a540dc1-9ecd-45af-bafb-78845401177b.jsonl';
 const agyTranscript = '/Users/jek/.codex/sessions/2026/09/01/rollout-2026-09-01T23-50-54-01a05f2b-162b-7c42-b1c4-9ca08a0d6957.jsonl';
 const baselineRef = '219a567^:AGENTS.md';
-const INITIAL_RUNTIME_AUDIT = Object.freeze({
-  localInvoked: '/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-d854/bin/proof-or-stop.js',
-  localRealpath: '/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-d854/bin/proof-or-stop.js',
-  localVersion: 'Proof-or-Stop 0.3.270',
-  globalInvoked: '/opt/homebrew/bin/proof-or-stop',
-  globalRealpath: '/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/packages/main/dist/cli.js',
-  globalVersion: 'Proof-or-Stop 0.3.271',
-  receiptOutputDigest: '8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748',
+const HISTORICAL_RUNTIME_RECEIPT = Object.freeze({
+  commit: '48d08c69e90dd9d90c7b783a112e54aa955d6241',
+  path: '.proof-or-stop/story/actives/B-d854/checklist.json',
+  blob: '94a3682f2349e0fb42cbfb4ddea784c04a715201',
+  itemId: 'CHK-003',
+  intentRef: 'CHK-003:edge:1',
+  selector: 'RUNTIME classification=VERSION_AND_REALPATH_DRIFT',
+  command: 'node tests/AGENTS.verify.mjs --final',
+  outputDigest: '8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748',
+  outputTailBytes: 4000,
 });
 const mode = process.argv.includes('--baseline') ? 'baseline' : 'final';
 const rowArg = process.argv.find((arg) => arg.startsWith('--row='));
 const selectedRow = rowArg?.slice('--row='.length) ?? null;
 
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
+const gitBlobOid = (value) => {
+  const bytes = Buffer.from(value);
+  return createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+};
 const read = (path) => readFileSync(path, 'utf8');
 const currentText = read(agentsPath);
 const auditText = existsSync(auditPath) ? read(auditPath) : '';
@@ -90,7 +96,7 @@ const AUDIT_ROWS = [
   ['A26', 'L02', [present('legacy materialized prompt directory is primary', /\.proof-or-stop-codex\/agents\//), present('legacy reviewer role appears in prompt example', /name: test-case-reviewer/), present('legacy prompt model field appears', /model: sonnet/)], /`agent_prompt`\nprints the canonical package-registry prompt/, 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/],
 ].map(([id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks = []]) => ({ id, sourceIssue, redChecks, greenPattern, sourcePath, sourcePattern, greenChecks }));
 
-const authority = (kind, label, path, pattern) => ({ kind, label, path, pattern });
+const authority = (kind, label, path, pattern, role = 'support') => ({ kind, label, path, pattern, role });
 
 // Complete authority contract for every durable row. Each entry owns one
 // material subclaim and resolves to the exact current line where its pattern
@@ -111,12 +117,13 @@ const AUTHORITY_BY_ROW = new Map([
     authority('interface', 'utils-aux-locate-registration', 'packages/utils/src/tool-defs.ts', /name: 'aux_locate'/),
   ]],
   ['A05', [
-    authority('runtime', 'story-create-background-required-guard', 'packages/main/src/handlers/story-create.ts', /if \(typeof args\.background !== 'string' \|\| args\.background\.length === 0\)/),
-    authority('runtime', 'story-create-background-validator-call', 'packages/main/src/handlers/story-create.ts', /const bgResult = validateBackground/),
-    authority('policy', 'background-canonical-section-set', 'packages/main/src/core/background-validator.ts', /export const REQUIRED_SECTIONS = \[/),
-    authority('runtime', 'background-total-length-guard', 'packages/main/src/core/background-validator.ts', /if \(totalLen < 300\)/),
-    authority('runtime', 'background-section-length-guard', 'packages/main/src/core/background-validator.ts', /if \(trimmed\.length < 50\)/),
-    authority('runtime', 'background-trigger-identifier-guard', 'packages/main/src/core/background-validator.ts', /const matched = TRIGGER_ID_PATTERNS\.some/),
+    authority('runtime', 'story-create-background-required-guard', 'packages/main/src/handlers/story-create.ts', /if \(typeof args\.background !== 'string' \|\| args\.background\.length === 0\)/, 'guard'),
+    authority('runtime', 'story-create-background-validator-call', 'packages/main/src/handlers/story-create.ts', /const bgResult = validateBackground/, 'consumer'),
+    authority('policy', 'background-canonical-section-set', 'packages/main/src/core/background-validator.ts', /export const REQUIRED_SECTIONS = \[/, 'definition'),
+    authority('runtime', 'background-total-length-guard', 'packages/main/src/core/background-validator.ts', /if \(totalLen < 300\)/, 'guard'),
+    authority('runtime', 'background-section-length-guard', 'packages/main/src/core/background-validator.ts', /if \(trimmed\.length < 50\)/, 'guard'),
+    authority('runtime', 'background-trigger-identifier-guard', 'packages/main/src/core/background-validator.ts', /const matched = TRIGGER_ID_PATTERNS\.some/, 'producer'),
+    authority('runtime', 'background-trigger-identifier-reject-branch', 'packages/main/src/core/background-validator.ts', /if \(!matched\) \{/, 'branch'),
   ]],
   ['A06', [
     authority('runtime', 'story-create-draft-english-authoring-guard', 'packages/main/src/handlers/story-create.ts', /assertEnglishAuthoringText\('story_create', storyCreateAuthoringFields\(\{/),
@@ -136,22 +143,31 @@ const AUTHORITY_BY_ROW = new Map([
     authority('runtime', 'init-repair-substantive-reason-guard', 'packages/main/src/handlers/init-check.ts', /if \(reason\.length < INIT_CHECK_FALLBACK_REASON_MIN\)/),
   ]],
   ['A10', [
-    authority('runtime', 'owner-lease-cli-enforcement-choke-point', 'packages/main/src/cli-engine.ts', /enforceStoryOwnerLeaseGate\(cmd, parsed/),
-    authority('runtime', 'owner-lease-acquire-or-refresh-flow', 'packages/main/src/core/story-owner-lease.ts', /export function acquireOrRefreshOwnerLease/),
-    authority('runtime', 'active-lease-force-takeover-guard', 'packages/main/src/core/story-owner-lease.ts', /if \(options\.kind === 'takeover' && !wasStale\)/),
-    authority('runtime', 'takeover-owner-lease-write', 'packages/main/src/core/story-owner-lease.ts', /writeLease\(storyDir, transferred\)/),
-    authority('runtime', 'session-brief-ownership-renderer', 'packages/main/src/handlers/session.ts', /export function renderOwnershipBlock/),
+    authority('runtime', 'owner-lease-cli-enforcement-choke-point', 'packages/main/src/cli-engine.ts', /enforceStoryOwnerLeaseGate\(cmd, parsed/, 'consumer'),
+    authority('runtime', 'owner-lease-acquire-or-refresh-flow', 'packages/main/src/core/story-owner-lease.ts', /export function acquireOrRefreshOwnerLease/, 'definition'),
+    authority('runtime', 'active-lease-force-takeover-guard', 'packages/main/src/core/story-owner-lease.ts', /if \(options\.kind === 'takeover' && !wasStale\)/, 'guard'),
+    authority('runtime', 'takeover-owner-lease-write', 'packages/main/src/core/story-owner-lease.ts', /writeLease\(storyDir, transferred\)/, 'producer'),
+    authority('runtime', 'session-brief-ownership-renderer', 'packages/main/src/handlers/session.ts', /export function renderOwnershipBlock/, 'definition'),
+    authority('runtime', 'session-brief-ownership-render-consumer', 'packages/main/src/handlers/session.ts', /for \(const l of renderOwnershipBlock\(view\)\) lines\.push\(l\)/, 'consumer'),
   ]],
   ['A11', [authority('interface', 'current-intent-handoff-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'testintent_handoff'/)]],
-  ['A12', [authority('runtime', 'plan-review-blocker-count', 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/)]],
-  ['A13', [authority('runtime', 'quick-path-eligibility-guard', 'packages/main/src/core/machine.ts', /if \(!policy\.quickPath\.enabled\) return false/)]],
+  ['A12', [
+    authority('runtime', 'plan-review-blocker-count', 'packages/main/src/handlers/story-review.ts', /const blockerCount = issues\.filter/, 'producer'),
+    authority('runtime', 'plan-review-zero-blocker-gate', 'packages/main/src/core/machine.ts', /else if \(\(lastRound\.blockerCount \?\? lastRound\.issueCount\) !== 0\)/, 'guard'),
+  ]],
+  ['A13', [
+    authority('runtime', 'quick-path-eligibility-guard', 'packages/main/src/core/machine.ts', /if \(!policy\.quickPath\.enabled\) return false/, 'guard'),
+    authority('runtime', 'quick-path-story-review-skip-branch', 'packages/main/src/core/machine.ts', /if \(!tookExpressChannel && !isRollbackDoor\) try \{/, 'branch'),
+  ]],
   ['A14', [
-    authority('runtime', 'scope-check-signature-mint', 'packages/main/src/handlers/scope-check.ts', /const _hash = signScopeCheck/),
-    authority('runtime', 'scope-check-persistence', 'packages/main/src/handlers/scope-check.ts', /store\.writeScopeCheck/),
-    authority('interface', 'scope-question-resolution-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'scope_question_resolve'/),
-    authority('runtime', 'scope-open-question-resolution-gate', 'packages/main/src/handlers/story-review.ts', /const unresolved = scopeData\.openQuestions\.filter/),
-    authority('runtime', 'plan-to-dev-scope-contract-advisory', 'packages/main/src/handlers/phase-gates.ts', /export function runPlanToDevScopeAdvice/),
-    authority('runtime', 'review-scope-contract-missing-block', 'packages/main/src/handlers/phase-gates.ts', /throw new Error\(\n\s+`Cannot enter \$\{phase\}: scope-contract\.json missing/),
+    authority('runtime', 'scope-check-signature-mint', 'packages/main/src/handlers/scope-check.ts', /const _hash = signScopeCheck/, 'producer'),
+    authority('runtime', 'scope-check-persistence', 'packages/main/src/handlers/scope-check.ts', /store\.writeScopeCheck/, 'producer'),
+    authority('interface', 'scope-question-resolution-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'scope_question_resolve'/, 'definition'),
+    authority('runtime', 'scope-open-questions-present-guard', 'packages/main/src/handlers/story-review.ts', /if \(scopeData && scopeData\.openQuestions && scopeData\.openQuestions\.length > 0\)/, 'guard'),
+    authority('runtime', 'scope-open-question-resolution-producer', 'packages/main/src/handlers/story-review.ts', /const unresolved = scopeData\.openQuestions\.filter/, 'producer'),
+    authority('runtime', 'plan-to-dev-scope-contract-advisory', 'packages/main/src/handlers/phase-gates.ts', /export function runPlanToDevScopeAdvice/, 'definition'),
+    authority('runtime', 'review-scope-contract-missing-block', 'packages/main/src/handlers/phase-gates.ts', /throw new Error\(\n\s+`Cannot enter \$\{phase\}: scope-contract\.json missing/, 'guard'),
+    authority('runtime', 'plan-to-dev-scope-advice-transition-consumer', 'packages/main/src/handlers/transition-orchestrator.ts', /scopeGateReport \+= runPlanToDevScopeAdvice\(ctx, args\.storyId\)/, 'consumer'),
   ]],
   ['A15', [
     authority('interface', 'checklist-title-context-related-docs-fields', 'packages/main/src/cli/command-catalog.ts', /checklist: z\.array\(z\.object\(\{\n\s+title:[\s\S]*?relatedDocs:/),
@@ -245,29 +261,57 @@ function lineOf(text, pattern) {
 }
 
 const AUTHORITY_KINDS = new Set(['config', 'interface', 'policy', 'runtime', 'template']);
+const AUTHORITY_ROLES = new Set(['support', 'definition', 'producer', 'guard', 'consumer', 'branch']);
+const REQUIRED_AUTHORITY_ROLES = new Map([
+  ['A05', new Set(['definition', 'producer', 'guard', 'consumer', 'branch'])],
+  ['A10', new Set(['definition', 'producer', 'guard', 'consumer'])],
+  ['A12', new Set(['producer', 'guard'])],
+  ['A13', new Set(['guard', 'branch'])],
+  ['A14', new Set(['definition', 'producer', 'guard', 'consumer'])],
+]);
 
-function resolvedAuthority(entry) {
+function validateAuthorityRoleCompleteness(authorityMap = AUTHORITY_BY_ROW) {
+  for (const [rowId, requiredRoles] of REQUIRED_AUTHORITY_ROLES) {
+    const entries = authorityMap.get(rowId);
+    assert.ok(entries, `${rowId} semantic authority contract is missing`);
+    const actualRoles = new Set(entries.map((entry) => entry.role));
+    for (const requiredRole of requiredRoles) {
+      assert.ok(actualRoles.has(requiredRole), `${rowId} semantic authority role missing: ${requiredRole}`);
+    }
+  }
+}
+
+function resolvedAuthority(entry, sourceOverrides = new Map()) {
   assert.ok(AUTHORITY_KINDS.has(entry.kind), `unknown authority kind ${entry.kind} for ${entry.label}`);
+  assert.ok(AUTHORITY_ROLES.has(entry.role), `unknown authority role ${entry.role} for ${entry.label}`);
   assert.match(entry.label, /^[a-z0-9]+(?:-[a-z0-9]+)+$/, `authority label must be descriptive kebab-case: ${entry.label}`);
   const absolute = resolve(root, entry.path);
   assert.ok(existsSync(absolute), `authority source path missing: ${entry.path}`);
-  const source = read(absolute);
+  const source = sourceOverrides.get(entry.path) ?? read(absolute);
   const line = lineOf(source, entry.pattern);
   assert.ok(line > 0 && line <= source.split('\n').length, `authority source pattern missing: ${entry.label}`);
   const matchedLine = source.split('\n')[line - 1].trim();
   if (entry.kind === 'runtime') {
     assert.ok(!/^(?:\/\/|\/\*|\*|\*\/|<!--|#)/.test(matchedLine), `runtime authority is comment-only: ${entry.label} at ${entry.path}:${line}`);
   }
-  return { kind: entry.kind, label: entry.label, path: entry.path, line };
+  if (entry.role === 'producer') assert.match(matchedLine, /(?:\bconst\b.*=|\bwrite[A-Z]\w*\(|\bstore\.write\w*\(|\breturn\b)/, `producer role must bind an executable production/write line: ${entry.label}`);
+  if (entry.role === 'guard') assert.match(matchedLine, /(?:\bif\s*\(|\belse if\s*\(|\bthrow\b)/, `guard role must bind an executable predicate/rejection line: ${entry.label}`);
+  if (entry.role === 'consumer') {
+    assert.match(matchedLine, /\w+\s*\(/, `consumer role must bind an executable call site: ${entry.label}`);
+    assert.ok(!/^(?:export\s+)?(?:async\s+)?function\b/.test(matchedLine), `consumer role cannot bind only a function definition: ${entry.label}`);
+  }
+  if (entry.role === 'branch') assert.match(matchedLine, /(?:^|\}\s*)if\s*\(/, `branch role must bind an executable branch: ${entry.label}`);
+  return { kind: entry.kind, label: entry.label, path: entry.path, line, role: entry.role };
 }
 
-function resolvedAuthorityInventory() {
+function resolvedAuthorityInventory(authorityMap = AUTHORITY_BY_ROW, sourceOverrides = new Map()) {
+  validateAuthorityRoleCompleteness(authorityMap);
   const labels = [];
   const inventory = new Map();
   for (const row of AUDIT_ROWS) {
-    const expected = AUTHORITY_BY_ROW.get(row.id);
+    const expected = authorityMap.get(row.id);
     assert.ok(expected && expected.length > 0, `${row.id} authority contract is missing`);
-    const resolved = expected.map(resolvedAuthority);
+    const resolved = expected.map((entry) => resolvedAuthority(entry, sourceOverrides));
     inventory.set(row.id, resolved);
     labels.push(...resolved.map((entry) => entry.label));
   }
@@ -277,6 +321,43 @@ function resolvedAuthorityInventory() {
 
 function renderAuthorityCell(entries) {
   return entries.map((entry) => `\`${entry.kind}:${entry.label}\` -> \`${entry.path}:${entry.line}\``).join('; ');
+}
+
+const SOURCE_AUTHORITY_MUTATIONS = [
+  ['A05', 'background-trigger-identifier-reject-branch', 'if (matched) {'],
+  ['A10', 'session-brief-ownership-render-consumer', 'for (const l of []) lines.push(l);'],
+  ['A12', 'plan-review-zero-blocker-gate', 'else if ((lastRound.blockerCount ?? lastRound.issueCount) === 0)'],
+  ['A13', 'quick-path-story-review-skip-branch', 'if (tookExpressChannel || isRollbackDoor) try {'],
+  ['A14', 'plan-to-dev-scope-advice-transition-consumer', "scopeGateReport += '';"],
+];
+
+function sourceAuthorityMutationChecks() {
+  for (const [rowId, label, invertedLine] of SOURCE_AUTHORITY_MUTATIONS) {
+    const entry = AUTHORITY_BY_ROW.get(rowId)?.find((candidate) => candidate.label === label);
+    assert.ok(entry, `${rowId} source mutation authority missing: ${label}`);
+    const originalSource = read(resolve(root, entry.path));
+    const mutatedSource = originalSource.replace(entry.pattern, invertedLine);
+    assert.notEqual(mutatedSource, originalSource, `${rowId} source mutation must alter the executable site: ${label}`);
+    assert.throws(
+      () => resolvedAuthorityInventory(AUTHORITY_BY_ROW, new Map([[entry.path, mutatedSource]])),
+      new RegExp(`authority source pattern missing: ${label}`),
+      `${rowId} inverted/deleted executable authority must be rejected`,
+    );
+    console.log(`SOURCE_AUTHORITY_MUTATION ${rowId} ${label} REJECTED`);
+  }
+
+  const definitionOnly = new Map(
+    [...AUTHORITY_BY_ROW].map(([rowId, entries]) => [
+      rowId,
+      rowId === 'A05' ? entries.map((entry) => ({ ...entry, role: 'definition' })) : entries,
+    ]),
+  );
+  assert.throws(
+    () => validateAuthorityRoleCompleteness(definitionOnly),
+    /A05 semantic authority role missing:/,
+    'a composite runtime claim must not pass with definition-only authorities',
+  );
+  console.log('SOURCE_AUTHORITY_ROLE_MUTATION A05 definition-only REJECTED');
 }
 
 function runAuditRows() {
@@ -662,12 +743,70 @@ function classifyRuntime(localRealpath, localVersion, globalRealpath, globalVers
 }
 
 function historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, currentClassification) {
-  return historicalMarker.startsWith('RUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit ')
-    && historicalMarker.includes(`initialLocalVersion=${INITIAL_RUNTIME_AUDIT.localVersion.replaceAll(' ', '_')}`)
-    && historicalMarker.includes(`initialGlobalVersion=${INITIAL_RUNTIME_AUDIT.globalVersion.replaceAll(' ', '_')}`)
-    && historicalMarker.includes(`provenanceReceiptSha256=${INITIAL_RUNTIME_AUDIT.receiptOutputDigest}`)
+  return historicalMarker.startsWith(`${HISTORICAL_RUNTIME_RECEIPT.selector} context=initial-audit `)
+    && historicalMarker.includes(`receiptCommit=${HISTORICAL_RUNTIME_RECEIPT.commit}`)
+    && historicalMarker.includes(`receiptBlob=${HISTORICAL_RUNTIME_RECEIPT.blob}`)
+    && historicalMarker.includes(`intentRef=${HISTORICAL_RUNTIME_RECEIPT.intentRef}`)
+    && historicalMarker.includes(`outputDigest=${HISTORICAL_RUNTIME_RECEIPT.outputDigest}`)
     && historicalMarker.endsWith(`currentClassification=${currentClassification}`)
     && currentMarker === `RUNTIME currentClassification=${currentClassification}`;
+}
+
+function historicalRuntimeReceiptChecks(currentMarker, currentClassification) {
+  const commitSpec = `${HISTORICAL_RUNTIME_RECEIPT.commit}^{commit}`;
+  const resolvedCommit = execFileSync('git', ['rev-parse', commitSpec], { cwd: root, encoding: 'utf8' }).trim();
+  assert.equal(resolvedCommit, HISTORICAL_RUNTIME_RECEIPT.commit, 'historical runtime receipt commit identity drifted');
+  const objectSpec = `${HISTORICAL_RUNTIME_RECEIPT.commit}:${HISTORICAL_RUNTIME_RECEIPT.path}`;
+  const resolvedBlob = execFileSync('git', ['rev-parse', objectSpec], { cwd: root, encoding: 'utf8' }).trim();
+  assert.equal(resolvedBlob, HISTORICAL_RUNTIME_RECEIPT.blob, 'historical runtime receipt blob identity drifted');
+  const immutableChecklist = execFileSync('git', ['show', objectSpec], { cwd: root, encoding: 'utf8' });
+  assert.equal(gitBlobOid(immutableChecklist), HISTORICAL_RUNTIME_RECEIPT.blob, 'historical runtime receipt content must hash to the bound blob');
+  const parsed = JSON.parse(immutableChecklist);
+  const item = parsed.items?.find((candidate) => candidate.id === HISTORICAL_RUNTIME_RECEIPT.itemId);
+  assert.ok(item, 'historical runtime receipt checklist item is missing');
+  const intent = item.verificationIntent?.edge?.[1];
+  assert.equal(intent?.verification?.command, HISTORICAL_RUNTIME_RECEIPT.command, 'historical runtime intent command drifted');
+  assert.equal(intent?.verification?.selector, HISTORICAL_RUNTIME_RECEIPT.selector, 'historical runtime intent selector drifted');
+  const matchingEvidence = item.verificationEvidence?.filter((entry) => entry.intentRef === HISTORICAL_RUNTIME_RECEIPT.intentRef) ?? [];
+  assert.equal(matchingEvidence.length, 1, 'historical runtime receipt must bind exactly one correct intent evidence record');
+  const evidence = matchingEvidence[0];
+  assert.equal(evidence.command, HISTORICAL_RUNTIME_RECEIPT.command, 'historical runtime evidence command drifted');
+  assert.equal(evidence.result, 'pass', 'historical runtime evidence result must be pass');
+  assert.equal(evidence.receipt?.exitCode, 0, 'historical runtime receipt exit must be zero');
+  assert.equal(evidence.receipt?.outputDigest, HISTORICAL_RUNTIME_RECEIPT.outputDigest, 'historical runtime receipt output digest drifted');
+  assert.equal(evidence.receipt?.selectorMatched, true, 'historical runtime receipt must record selectorMatched=true');
+  assert.equal(Buffer.byteLength(evidence.receipt?.outputTail ?? ''), HISTORICAL_RUNTIME_RECEIPT.outputTailBytes, 'historical runtime receipt tail byte length drifted');
+  assert.equal((evidence.receipt.outputTail.match(new RegExp(HISTORICAL_RUNTIME_RECEIPT.selector, 'g')) ?? []).length, 1, 'historical runtime receipt tail must preserve exactly one classification selector');
+  for (const token of [
+    HISTORICAL_RUNTIME_RECEIPT.commit,
+    HISTORICAL_RUNTIME_RECEIPT.path,
+    HISTORICAL_RUNTIME_RECEIPT.blob,
+    HISTORICAL_RUNTIME_RECEIPT.intentRef,
+    HISTORICAL_RUNTIME_RECEIPT.selector,
+    HISTORICAL_RUNTIME_RECEIPT.outputDigest,
+    `${HISTORICAL_RUNTIME_RECEIPT.outputTailBytes} bytes`,
+  ]) assert.ok(auditText.includes(token), `audit must bind immutable historical runtime receipt token: ${token}`);
+
+  const historicalMarker = [
+    HISTORICAL_RUNTIME_RECEIPT.selector,
+    'context=initial-audit',
+    `receiptCommit=${HISTORICAL_RUNTIME_RECEIPT.commit}`,
+    `receiptBlob=${HISTORICAL_RUNTIME_RECEIPT.blob}`,
+    `intentRef=${HISTORICAL_RUNTIME_RECEIPT.intentRef}`,
+    `outputDigest=${HISTORICAL_RUNTIME_RECEIPT.outputDigest}`,
+    `currentClassification=${currentClassification}`,
+  ].join(' ');
+  assert.ok(historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, currentClassification), 'historical receipt and current runtime contexts must remain distinct');
+  console.log(historicalMarker);
+  console.log(`RUNTIME_HISTORICAL_RECEIPT commit=${resolvedCommit} blob=${resolvedBlob} intent=${HISTORICAL_RUNTIME_RECEIPT.intentRef} tailBytes=${HISTORICAL_RUNTIME_RECEIPT.outputTailBytes} selectorCount=1 VERIFIED`);
+
+  const missingContext = historicalMarker.replace(' context=initial-audit', '');
+  assert.ok(!historicalRuntimeMarkerPolicy(missingContext, currentMarker, currentClassification), 'removing initial-audit context must invalidate historical runtime evidence');
+  const conflatedWithCurrent = historicalMarker.replace(' context=initial-audit', ' context=current-live');
+  assert.ok(!historicalRuntimeMarkerPolicy(conflatedWithCurrent, currentMarker, currentClassification), 'presenting historical runtime evidence as current must fail');
+  console.log('RUNTIME_CONTEXT_MUTATION missing-initial-context REJECTED');
+  console.log('RUNTIME_CONTEXT_MUTATION historical-as-current REJECTED');
+  return historicalMarker;
 }
 
 function runtimeChecks() {
@@ -691,34 +830,7 @@ function runtimeChecks() {
   const currentMarker = `RUNTIME currentClassification=${classification}`;
   console.log(currentMarker);
 
-  for (const value of Object.values(INITIAL_RUNTIME_AUDIT)) {
-    assert.ok(auditText.includes(value), `audit must bind initial runtime evidence value: ${value}`);
-  }
-  const initialClassification = classifyRuntime(
-    INITIAL_RUNTIME_AUDIT.localRealpath,
-    INITIAL_RUNTIME_AUDIT.localVersion,
-    INITIAL_RUNTIME_AUDIT.globalRealpath,
-    INITIAL_RUNTIME_AUDIT.globalVersion,
-  );
-  assert.equal(initialClassification, 'VERSION_AND_REALPATH_DRIFT', 'initial audit facts must derive the historical classification');
-  const historicalMarker = [
-    `RUNTIME classification=${initialClassification}`,
-    'context=initial-audit',
-    `initialLocalVersion=${INITIAL_RUNTIME_AUDIT.localVersion.replaceAll(' ', '_')}`,
-    `initialGlobalVersion=${INITIAL_RUNTIME_AUDIT.globalVersion.replaceAll(' ', '_')}`,
-    `provenanceReceiptSha256=${INITIAL_RUNTIME_AUDIT.receiptOutputDigest}`,
-    `currentClassification=${classification}`,
-  ].join(' ');
-  assert.ok(historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, classification), 'historical and current runtime contexts must remain distinct');
-  console.log(historicalMarker);
-
-  const missingContext = historicalMarker.replace(' context=initial-audit', '');
-  assert.ok(!historicalRuntimeMarkerPolicy(missingContext, currentMarker, classification), 'removing initial-audit context must invalidate historical runtime evidence');
-  const conflatedWithCurrent = historicalMarker.replace(' context=initial-audit', ' context=current-live');
-  assert.ok(!historicalRuntimeMarkerPolicy(conflatedWithCurrent, currentMarker, classification), 'presenting historical runtime evidence as current must fail');
-  console.log('RUNTIME_CONTEXT_MUTATION missing-initial-context REJECTED');
-  console.log('RUNTIME_CONTEXT_MUTATION historical-as-current REJECTED');
-  return historicalMarker;
+  return historicalRuntimeReceiptChecks(currentMarker, classification);
 }
 
 function auditRowCells(text, id) {
@@ -929,6 +1041,21 @@ if (process.argv.includes('--authority-policy')) {
   process.exit(0);
 }
 
+if (process.argv.includes('--source-authority-policy')) {
+  const inventory = resolvedAuthorityInventory();
+  sourceAuthorityMutationChecks();
+  const roleCount = [...inventory.values()].flat().filter((entry) => entry.role !== 'support').length;
+  console.log(`SOURCE_AUTHORITY_POLICY PASS rows=${inventory.size} semanticRoleEntries=${roleCount} mutations=${SOURCE_AUTHORITY_MUTATIONS.length + 1}`);
+  process.exit(0);
+}
+
+if (process.argv.includes('--runtime-policy')) {
+  const marker = runtimeChecks();
+  assert.ok(marker.includes('context=initial-audit'), 'historical runtime marker must retain its immutable receipt context');
+  console.log('RUNTIME_POLICY PASS live=COMPUTED historicalReceipt=GIT_OBJECT_VERIFIED');
+  process.exit(0);
+}
+
 let exitCode = runAuditRows();
 if (mode === 'final' && !selectedRow && exitCode === 0) {
   // Receipt runners retain a bounded stdout prefix. Emit these cheap pinned
@@ -957,6 +1084,7 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   for (const marker of structure.categoryMarkers) console.log(marker);
   auditDocumentChecks();
   auditCitationMutationChecks();
+  sourceAuthorityMutationChecks();
   externalReviewArtifactChecks();
   rowSemanticMutationChecks();
   completenessChecks();
