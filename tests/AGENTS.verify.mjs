@@ -19,6 +19,15 @@ const globalCli = '/opt/homebrew/bin/proof-or-stop';
 const claudeTranscript = '/Users/jek/.claude/projects/-Users-jek-Documents-GitHub-Prooforstop--worktrees-B-d854/3a540dc1-9ecd-45af-bafb-78845401177b.jsonl';
 const agyTranscript = '/Users/jek/.codex/sessions/2026/09/01/rollout-2026-09-01T23-50-54-01a05f2b-162b-7c42-b1c4-9ca08a0d6957.jsonl';
 const baselineRef = '219a567^:AGENTS.md';
+const INITIAL_RUNTIME_AUDIT = Object.freeze({
+  localInvoked: '/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-d854/bin/proof-or-stop.js',
+  localRealpath: '/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-d854/bin/proof-or-stop.js',
+  localVersion: 'Proof-or-Stop 0.3.270',
+  globalInvoked: '/opt/homebrew/bin/proof-or-stop',
+  globalRealpath: '/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/packages/main/dist/cli.js',
+  globalVersion: 'Proof-or-Stop 0.3.271',
+  receiptOutputDigest: '8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748',
+});
 const mode = process.argv.includes('--baseline') ? 'baseline' : 'final';
 const rowArg = process.argv.find((arg) => arg.startsWith('--row='));
 const selectedRow = rowArg?.slice('--row='.length) ?? null;
@@ -646,6 +655,21 @@ function managedBlockChecks() {
   console.log(`MANAGED id=doc:AGENTS.md status=${item.status}`);
 }
 
+function classifyRuntime(localRealpath, localVersion, globalRealpath, globalVersion) {
+  return localRealpath === globalRealpath && localVersion === globalVersion
+    ? 'ALIGNED'
+    : localVersion === globalVersion ? 'REALPATH_DRIFT' : 'VERSION_AND_REALPATH_DRIFT';
+}
+
+function historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, currentClassification) {
+  return historicalMarker.startsWith('RUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit ')
+    && historicalMarker.includes(`initialLocalVersion=${INITIAL_RUNTIME_AUDIT.localVersion.replaceAll(' ', '_')}`)
+    && historicalMarker.includes(`initialGlobalVersion=${INITIAL_RUNTIME_AUDIT.globalVersion.replaceAll(' ', '_')}`)
+    && historicalMarker.includes(`provenanceReceiptSha256=${INITIAL_RUNTIME_AUDIT.receiptOutputDigest}`)
+    && historicalMarker.endsWith(`currentClassification=${currentClassification}`)
+    && currentMarker === `RUNTIME currentClassification=${currentClassification}`;
+}
+
 function runtimeChecks() {
   const localInvoked = localCli;
   const localRealpath = realpathSync(localCli);
@@ -657,18 +681,44 @@ function runtimeChecks() {
   const globalVersionRun = spawnSync(globalCli, ['--version'], { cwd: root, encoding: 'utf8' });
   assert.equal(globalVersionRun.status, 0);
   const globalVersion = globalVersionRun.stdout.trim();
-  const classification = localRealpath === globalRealpath && localVersion === globalVersion
-    ? 'ALIGNED'
-    : localVersion === globalVersion ? 'REALPATH_DRIFT' : 'VERSION_AND_REALPATH_DRIFT';
+  const classification = classifyRuntime(localRealpath, localVersion, globalRealpath, globalVersion);
   console.log(`RUNTIME localInvoked=${localInvoked}`);
   console.log(`RUNTIME localRealpath=${localRealpath}`);
   console.log(`RUNTIME localVersion=${localVersion}`);
   console.log(`RUNTIME globalInvoked=${globalInvoked}`);
   console.log(`RUNTIME globalRealpath=${globalRealpath}`);
   console.log(`RUNTIME globalVersion=${globalVersion}`);
-  const classificationMarker = `RUNTIME classification=${classification}`;
-  console.log(classificationMarker);
-  return classificationMarker;
+  const currentMarker = `RUNTIME currentClassification=${classification}`;
+  console.log(currentMarker);
+
+  for (const value of Object.values(INITIAL_RUNTIME_AUDIT)) {
+    assert.ok(auditText.includes(value), `audit must bind initial runtime evidence value: ${value}`);
+  }
+  const initialClassification = classifyRuntime(
+    INITIAL_RUNTIME_AUDIT.localRealpath,
+    INITIAL_RUNTIME_AUDIT.localVersion,
+    INITIAL_RUNTIME_AUDIT.globalRealpath,
+    INITIAL_RUNTIME_AUDIT.globalVersion,
+  );
+  assert.equal(initialClassification, 'VERSION_AND_REALPATH_DRIFT', 'initial audit facts must derive the historical classification');
+  const historicalMarker = [
+    `RUNTIME classification=${initialClassification}`,
+    'context=initial-audit',
+    `initialLocalVersion=${INITIAL_RUNTIME_AUDIT.localVersion.replaceAll(' ', '_')}`,
+    `initialGlobalVersion=${INITIAL_RUNTIME_AUDIT.globalVersion.replaceAll(' ', '_')}`,
+    `provenanceReceiptSha256=${INITIAL_RUNTIME_AUDIT.receiptOutputDigest}`,
+    `currentClassification=${classification}`,
+  ].join(' ');
+  assert.ok(historicalRuntimeMarkerPolicy(historicalMarker, currentMarker, classification), 'historical and current runtime contexts must remain distinct');
+  console.log(historicalMarker);
+
+  const missingContext = historicalMarker.replace(' context=initial-audit', '');
+  assert.ok(!historicalRuntimeMarkerPolicy(missingContext, currentMarker, classification), 'removing initial-audit context must invalidate historical runtime evidence');
+  const conflatedWithCurrent = historicalMarker.replace(' context=initial-audit', ' context=current-live');
+  assert.ok(!historicalRuntimeMarkerPolicy(conflatedWithCurrent, currentMarker, classification), 'presenting historical runtime evidence as current must fail');
+  console.log('RUNTIME_CONTEXT_MUTATION missing-initial-context REJECTED');
+  console.log('RUNTIME_CONTEXT_MUTATION historical-as-current REJECTED');
+  return historicalMarker;
 }
 
 function auditRowCells(text, id) {

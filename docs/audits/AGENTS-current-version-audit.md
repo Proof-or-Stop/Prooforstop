@@ -22,6 +22,24 @@ print RED and exit 1. Final rows print GREEN and exit 0. Run all final proof,
 including command, structure, semantic, runtime, Unicode, and managed-template
 checks, with `node tests/AGENTS.verify.mjs --final`.
 
+## Runtime evidence contexts
+
+The initial audit recorded a repository-local invocation and canonical realpath
+of `/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-d854/bin/proof-or-stop.js`
+at `Proof-or-Stop 0.3.270`. Its global invocation was
+`/opt/homebrew/bin/proof-or-stop`, whose canonical realpath was then
+`/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/packages/main/dist/cli.js`
+at `Proof-or-Stop 0.3.271`. Those facts derive the historical classification
+`VERSION_AND_REALPATH_DRIFT` and are bound by the tool-owned verification
+receipt output digest
+`8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748`.
+
+That historical classification is not a claim about every later run. The
+verifier separately resolves both paths and versions on each run and prints a
+live `currentClassification`; the historical marker is always labeled
+`context=initial-audit` and also records the independently computed current
+classification.
+
 ## Independent Claude CLI and Agy CLI provenance
 
 These two external audits were read-only discovery inputs. They did not replace
