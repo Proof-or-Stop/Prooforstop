@@ -246,6 +246,21 @@
       "signatureTag": "missing|ts|quality-mutation-packages",
       "signatureTagSource": "auto",
       "resolvedBy": "B-41c8:F-013@2d12aa7"
+    },
+    {
+      "id": "B-41c8:F-014",
+      "desc": "concept-cleanup (advisory, non-blocking): packages/main/src/handlers/story-query.ts:650 (\"restores the commit 288d359377 behavior\") and packages/main/src/tasks/gitroot-cwd-contract-smoke.ts:74,120,233,352 (\"the d93b69b8f silencing\") each cite a raw git commit hash in a comment; both hashes resolve to real commit objects (git cat-file -t succeeds) but neither is an ancestor of HEAD (git merge-base --is-ancestor exits 1), matching the exact fragility class B-41c8 F-012 fixed in validation-tier-planner-smoke.ts (a branch rewrite orphans the hash and a later git show of it reports a bad object). Filed low, not high/critical, because both lines PRE-DATE this story (git diff main...HEAD -- <file> shows neither line is in this story diff) and are unrelated to the three concepts B-41c8 deletes/replaces (rename-aware diff reader, legacy shell parser, story-workspace resolver) -- pre-existing repo-wide hygiene debt, not residue this story introduced. Distinguishing from F-012: the eba363ed.../791165cf... tokens near the F-012 fix in validation-tier-planner-smoke.ts:403-405 are SHA256 commandSetDigest prefixes (full form appears at lines 28-29 as 64-char hex asserts), not git commit hashes, and are correctly excluded from this finding.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T16:59:40.115Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "reviewRunId": "B-41c8:RR-016",
+      "_hash": "d40c08941bf43e6d79acd52f486a67a22f04ac8c62558d3e1b5fa6f68a9c818e",
+      "signatureTag": "missing|unknown|concept-cleanup-advisory",
+      "signatureTagSource": "auto"
     }
   ]
 }
