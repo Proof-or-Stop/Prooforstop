@@ -320,7 +320,11 @@
           {
             "desc": "proof-or-stop doctor prints a global-cli row showing the resolved realpath of the global proof-or-stop executable, its reported version and file mode when the global install resolves into this repository",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/cli.js doctor",
+              "selector": "global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.271 mode=0755 executable=yes"
+            }
           }
         ],
         "edge": [
@@ -425,6 +429,27 @@
           "materialHash": "91625c7cf5901734b87d9850f620235eeb237b52b3e16726e4fe49b237ff6171",
           "storyFilesHash": "86ec205033ef8edc195c5e4ca415a7fddd2349a2fdf0a9dbf9e11d9d72564fda",
           "timestamp": "2026-09-02T16:20:34.228Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli.ts",
+          "command": "node packages/main/dist/cli.js doctor",
+          "result": "pass",
+          "note": "doctor (dist/cli.js entry) renders the global-core-realpath row with realpath, version, mode and executable flag on this machine; the row is produced by checkGlobalCoreRealpath in core/runtime-environment-checks.ts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "15a6e06fe31abb6d356e9643fdfdbb2388e36a0c5141382bd0b853a1f29022c2",
+            "outputTail": "ssion identity: sess-143edaf916bc0c2b [derived-ppid]\n  session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n  generated-token store: healthy=0 expired=0 corrupt=0 orphanLocks=0 orphanTemps=0\n\nGuard session scan:\n  PreToolUse hook (Claude Code): installed (3 hooks)\n  sessions found : 3 (3 active, 0 with violations)\n  ✓ B-91f3: watcher-fallback, provider=codex, status=active\n  ✓ B-ec3b: watcher-fallback, provider=codex, status=active\n  ✓ B-f458: watcher-fallback, provider=codex, status=active\n\nstoryDir / gitRoot scan:\n  ✓ storyDir resolves inside the resolved gitRoot\n\nStory metadata protection scan:\n  ✓ story metadata is tracked or protected (39 active leaf/leaves checked)\n\nRed-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)\n\nRuntime scan:\n  scope: self\n  runtimeMode: compatibility-launcher (repo-local-dist)\n  status: warn (7 pass, 1 warn, 0 fail)\n  ✓ entrypoint-authority [hard] pass\n  ✓ cli-entrypoint [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js\n  ✓ global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.271 mode=0755 executable=yes\n  ✓ project-local-bin [warn] absent\n  ✓ node-version [warn] v26.8.1\n  ✓ package-version [hard] 0.3.271\n  ✓ validate-source [warn] source=configured\n  ⚠ external-reference-policy [warn] 798 external refs, connectivityChecked=false\n    - AGENTS.md:200 foo.ts:42 is reference-only; no health command semantics found\n    - CLAUDE.md:621 story-review.ts:274 is reference-only; no health command semantics found\n    - CLAUDE.md:739 scope-question-resolve.ts:28 is reference-only; no health command semantics found\n    - CLAUDE.md:1042 fn.ts:42 is reference-only; no health command semantics found\n    - ... and 783 more\n    repair: Document the owning health command or mark the reference as policy-only; localhost examples are treated as internal.\n  note: runtime facts describe environment drift; process gates remain in process-fact-registry.\n\nValidation scan:\n  active validate file: none\n  configured commands: 122; discovered fallback labels: package.json test script\n  no-validator warning: no\n  warnings: none\n\nCodex adapter scan:\n  ✓ Codex adapter checks passed (7/8 pass)\n    [✓] Codex agent asset resolution: mode=full-asset; promptRegistryHash=48694912406b; assets absent=0 matches-runtime=34 stale=0 override=0; authorityBoundary=localNonAuthorityAudit; This projection is a local admissibility audit of prompt asset ownership; lifecycle completion stays with local gate evidence, receipt bundles, and review quorum.\n    [✓] Codex manifest: global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (.proof-or-stop/proof-or-stop.json present)\n    [✓] Codex prompt registry: 17 prompt(s) render from package registry; hash=48694912406b\n    [✓] Codex runtime exclusions: no uppercase-only .proof-or-stop-codex/hooks or .proof-or-stop-codex/settings.json\n    [✓] Codex native PreToolUse hook: .codex/hooks.json wires apply_patch/Edit/Write to proof-or-stop-scope-pretool.cjs\n    [✓] Local Codex wrapper: global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor\n    [!] Global fallback heartbeat: global @proof-or-stop/core resolves to /Users/jek/Documents/GitHub/Prooforstop/packages/main, not current worktree /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/packages/main; treat global proof-or-stop as heartbeat-only, not current-worktree gate/status evidence\n        → PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief\n    [✓] Aux command availability: aux_doc_list registered\n\n→ Brief view. Full diagnostics: proof-or-stop doctor --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:21:07.982Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "08a7f34a8963bb70bfb392ba941d66c52b8c5916",
+          "materialHash": "91625c7cf5901734b87d9850f620235eeb237b52b3e16726e4fe49b237ff6171",
+          "storyFilesHash": "86ec205033ef8edc195c5e4ca415a7fddd2349a2fdf0a9dbf9e11d9d72564fda",
+          "timestamp": "2026-09-02T16:21:08.179Z"
         }
       ]
     }
