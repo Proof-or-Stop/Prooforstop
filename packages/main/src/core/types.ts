@@ -269,6 +269,8 @@ export interface StoryInfo {
   currentReviewRound?: string;
   /** High-risk signals (auto-detection): triggered keyword categories */
   riskSignals?: Array<{ category: string; matched: string }>;
+  /** Dynamic validation capability triggers declared by Story planning. */
+  affectedCapabilities?: string[];
   /**
    * B-5010 CHK-004: risk signal explicitly dismissed by the main agent (false-positive whitelist).
    * story_review skips dismissed categories when determining isHighRisk / advisory message.

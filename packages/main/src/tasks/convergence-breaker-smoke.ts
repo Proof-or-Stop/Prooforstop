@@ -1337,6 +1337,10 @@ let digestMatrixSummary = '';
     assert.throws(() => enforceConvergenceBreakerGate(base), /FROZEN/, 'frozen story_advance is hard-blocked');
     // F-004: a takeover-carrying command is ALSO blocked while frozen.
     assert.throws(() => enforceConvergenceBreakerGate({ ...base, command: 'story_reconcile', isTakeoverCommand: true }), /FROZEN/, 'frozen takeover command is hard-blocked');
+    // The sole human recovery command can carry a takeover to acquire a newly
+    // created terminal session's lease; its own handler still validates TTY,
+    // --ack, and a reason before clearing the breaker.
+    enforceConvergenceBreakerGate({ ...base, command: 'story_resume', isTakeoverCommand: true });
     // A plain read-ish non-gated command still passes.
     enforceConvergenceBreakerGate({ ...base, command: 'summary_set', isTakeoverCommand: false });
 

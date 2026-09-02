@@ -1,0 +1,56 @@
+{
+  "storyId": "B-45a0",
+  "changes": "Implemented the complete story-aware dynamic validation program (14 checklist items across the DYN-1..DYN-5 milestones): observe-only catalog/closure/change/selection soundness, source-first receipts with shadow reuse proven against the complete-plan oracle, fail-closed low-risk dynamic TEST authority, resource-safe weighted LPT scheduling, and exactly-aggregating shardable quorum/review-pass. Closeout additionally fixed F-473: the validation runtime tracer child_process wrappers now preserve util.promisify.custom via a tracing shim (packages/main/src/core/validation-runtime-tracer.cjs) with regression smoke validation-runtime-tracer-transparency-smoke.ts, and bound CHK-014 (Wave-4 acceptance gates) into the proofstory acceptance binding with all five intents mapped into topology assertion groups.",
+  "usage": "proof-or-stop validate --story=B-45a0 --json (story-aware dynamic validation surfaces); node scripts/run-dynamic-validation-replay.mjs --verify-threshold (replay assurance); node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json / acceptance_rollout_check --storyId=B-45a0 --json (Wave-4 acceptance gates).",
+  "expectedOutcome": "proof-or-stop validate reports story-aware dynamic validation coverage; the replay verifier prints historical replay assurance PASS / discovery threshold PASS / threshold PASS; Wave-4 acceptance gates report admissible current-head topology, pre-review, and rollout outcomes.",
+  "actualTranscript": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold -> historical replay artifact admission PASS; historical replay assurance PASS; historical replay discovery threshold PASS; historical replay threshold PASS (campaign re-executed at HEAD d29683e616, 50 stories, paired verdictEquivalent=true). pre_review_check_read -> PASS, codes none. acceptance_rollout_check -> pass, quorum full-3x2. DONE-required validation -> PASS (packages/main build + root full test suite 58/58).",
+  "outcomeDiff": "No difference: every expected selector line was printed by the actual runs at the current head.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Two recorded deferrals with follow-up owners named on findings: (1) the F-473 regression smoke is auto-discovered by test:all/test:legacy but not yet in the npm-test serial-reference list (F-474, accepted_risk); (2) .proof-or-stop/dev-memory/** appends move storyFilesHash and are outside the replay drift allowlist, a path-classification gap deferred on F-475; additionally TRACEPARENT is not in HOST_LAUNCHER_SESSION_ENV_KEYS so done-required environment digests only match within one process tree (workaround applied at closeout; follow-up candidate).",
+  "pitfalls": "Closeout took four remediation cycles; the next person should know: (a) never run verification_evidence_refresh_stale or any checklist mutation while a review inventory epoch is OPEN - it moves the scope digest and voids every lane (RI-117 incident); (b) issue acceptance basis/pre-review only AFTER the scope contract is stable - a later scope_contract_acknowledge re-stales them (F-479); (c) the replay campaign binds HEAD and dev-memory appends are non-admissible drift, so land dev_memory_capture/finish_decision BEFORE the campaign; (d) done-required environment digests include TRACEPARENT which varies per shell invocation - earn and check must share one process tree; (e) story_advance has a flat 900s budget the 116-command suite exceeds - store a standalone validate PASS first.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2008387
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16058
+    },
+    "PLAN": {
+      "count": 9,
+      "durationMs": 8309698
+    },
+    "DEV": {
+      "count": 65,
+      "durationMs": 449317853
+    },
+    "REVIEW": {
+      "count": 57,
+      "durationMs": 528101607
+    },
+    "TEST": {
+      "count": 15,
+      "durationMs": 67321048
+    }
+  },
+  "totalDurationMs": 1055075402,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-02T09:55:36.490Z",
+  "updatedAt": "2026-09-02T09:55:36.490Z"
+}

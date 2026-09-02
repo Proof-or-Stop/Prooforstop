@@ -1208,9 +1208,15 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
     'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
-  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
-    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
   const explicitTopologyFactNames = topologyFactNames(input);
+  // Pre-review control facts are phase material only when the current
+  // acceptance topology explicitly declares them. This keeps the basis
+  // closure total for stories whose topology predates the pre-review control
+  // surface while preserving the strict materialization test for declared
+  // future-phase mappings.
+  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
+    ? new Set([...planControlFacts, ...[...preReviewControlFacts].filter(fact => explicitTopologyFactNames.has(fact))])
+    : planControlFacts;
   const plannedFactNames = new Set(input.plannedPathRecords.flatMap(record => [
     record.outputFactRef.replace(/^process-fact:/, '').replace(/-/g, '_'),
     record.producer.expectedSymbolOrFact,
@@ -1271,6 +1277,23 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
       if (!reached.has(entry)) { reached.add(entry); changed = true; }
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
+  }
+  // A planned source endpoint is only useful when the runtime can reach it.
+  // Keep the closure bounded by retaining only source-inventory files that
+  // import one of the declared endpoint modules; this captures the real
+  // handler binding without turning the discovery graph into a whole-tree
+  // call graph.
+  const plannedEndpointFiles = new Set(input.plannedPathRecords.flatMap(record =>
+    [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)));
+  const plannedEndpointBasenames = [...plannedEndpointFiles].map(file => file.split('/').at(-1)?.replace(/\.[^.]+$/, '') ?? file);
+  for (const file of sourceInventory.files) {
+    if (closure.has(file) || !supportsBindingAnalysis(file)) continue;
+    const source = analysisContext.sourceFiles.get(file);
+    if (!source || !plannedEndpointBasenames.some(name => source.text.includes(name))) continue;
+    const scan = analyzeLocalImportCalls(analysisContext, file);
+    if (!scan.imports.some(binding => plannedEndpointFiles.has(binding.sourceFile))) continue;
+    closure.add(file);
+    sourceScans.set(file, scan);
   }
   for (const file of closure) {
     blindSpots.push(...(analysisContext.readBlindSpots.get(file) ?? []));
@@ -1396,6 +1419,21 @@ function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGr
     ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
     ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
   ]);
+  // Existing `basis-path:path:static-call:...` references are explicit
+  // forward declarations at PLAN and become mandatory current edges at
+  // pre-review. Include their bounded endpoints in the scan so a declared
+  // edge is actually discoverable even when neither endpoint is already in
+  // the process-fact closure. The emitted path is still derived from the
+  // source import/call scan below; the declaration never self-certifies.
+  for (const ref of input.topologyPathRefs ?? []) {
+    const path = ref.startsWith('basis-path:') ? ref.slice('basis-path:'.length) : ref;
+    const match = /^path:static-call:([^#]+)#[^>]+->consumer:([^#]+)#[^>]+$/.exec(path);
+    if (!match) continue;
+    relevantFiles.add(match[1]);
+    relevantFiles.add(match[2]);
+    bindingRequiredFiles.add(match[1]);
+    bindingRequiredFiles.add(match[2]);
+  }
   for (const file of stable([...relevantFiles]).filter(value => !value.endsWith('/registry.ts'))) {
     const absolute = resolve(input.workspaceRoot, file);
     if (!existsSync(absolute)) continue;
