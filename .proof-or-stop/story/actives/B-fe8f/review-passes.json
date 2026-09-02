@@ -40,6 +40,49 @@
         "scanEscalationReason": null
       },
       "_hash": "7797778702baea0c3f82d82252d62947856fe15aee37f9337ed95f39e577a5fd"
+    },
+    {
+      "id": "B-fe8f:RP-002",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 6 quality re-review. Independently re-verified F-017 and F-018 resolutions against current HEAD (not just the resolvedReason text): store.ts readFindings ledger-projection overwrite, finding-ledger.ts isExactSignedReplayBinding + signed exactRequestDigest binding. Rebuilt packages/main from src and diffed dist byte-for-byte against pre-rebuild dist (zero diff, confirms dist is genuinely current). Ran the real finding-ledger-runtime-smoke.js directly and confirmed finding.lifecycle_mirror_shadow_refused: PASS, ledger.idempotency_digest_relabel_refused: PASS, and the full green.story3_matrix: PASS suite. General code-quality scan of git diff main...HEAD (dead code / unnecessary as any / empty catch / shell-fn.ts isolation / dual job.metadata+run.metadata authoring not applicable) found no blocking issue; filed one low dead-code finding (F-019, two unused exported constants) which is advisory this round, not blocking. No open blocking finding remains.",
+      "createdAt": "2026-09-02T08:21:18.941Z",
+      "reviewRound": "2026-09-02T08:08:26.916Z",
+      "reviewRunId": "B-fe8f:RR-017",
+      "envelopeId": "ac05c9970ce0e85d510b1b29b06e6cfecd2ec5b8649e91bf14eedd278d2bcfd3",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24bf3d86e24c2c11eab41702d28d52c7610e73b865547001b4ed5ecf3a00b08f"
     }
   ]
 }
