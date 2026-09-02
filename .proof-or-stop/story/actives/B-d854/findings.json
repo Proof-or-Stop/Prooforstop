@@ -1043,7 +1043,7 @@
       "desc": "tests/AGENTS.verify.mjs:1312 — current final verifier exits 1 because A19 audit authority still cites packages/main/src/cli/command-catalog.ts:3080 while the current repository-derived authority is line 3097. Reproduce with node tests/AGENTS.verify.mjs --final; output shows AUDIT_CITATION_POLICY A19 actual ... command-catalog.ts:3080 expected ... command-catalog.ts:3097 followed by AssertionError. This directly invalidates the current-version evidence mutation contract and blocks the Story final GREEN acceptance.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T16:05:22.253Z",
@@ -1056,7 +1056,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "doc-code-drift|md|tests-agents-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit b4c2452234 rebinds A19 quorum-submit-registration to current packages/main/src/cli/command-catalog.ts:3097; authority policy, semantic-chain policy, and final verifier all exit 0.",
+      "resolvedAt": "2026-09-02T16:28:19.509Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
