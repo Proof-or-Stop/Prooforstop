@@ -90,6 +90,11 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * F-040/F-041 follow-up: the five reviewer bodies preserve the independent
  * claimed-lineage floor, the downstream closure-only mandatory-repair floor,
  * and the exact lineage-release verdict allowlist after the identity cutover.
+ * F-042/F-046/F-047 follow-up: re-approved the same five assembled reviewer
+ * bodies after the Agent projection restored complete repair closure as the
+ * other claimed-lineage release, kept downstream mandatory repair closure-only,
+ * and documented the current Owner-only dismissal effect without changing the
+ * protected Dynamic Finding runtime.
  * B-022e F-056 re-approved only proof-or-stop-review-story-init after replacing
  * its live direct StoryStore reads/writes with background_get, story_get,
  * checklist_get, and init_check_set. The CLI-only surface invariant below binds
@@ -114,7 +119,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: '061c0589009f7ee96045d4a63abff42314ec44e8cd48e03a8ee0270c688be782',
+    templateHash: '27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb',
   },
   {
     role: 'proof-or-stop-review-channel',
@@ -122,7 +127,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: '0dcdbd52fd2d5a26f2e630157552339b37c387dd9166701a54fa6883455343db',
+    templateHash: '95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae',
   },
   {
     role: 'proof-or-stop-review-delivery',
@@ -130,11 +135,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: 'b957c8d3611067f178c752205cb92892f052c66cc65c59a27e596c757afa4a15',
+    templateHash: 'e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: '02ae741802a14d91bd45255840d3bc311d39a23cb066408cb2b15225bd9143d4',
+    templateHash: '85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
@@ -146,7 +151,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: 'cf423a512d006a962bb2627a90e5230ae1c6a479b8154ca0a4c98de6f8a199bf',
+    templateHash: '556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
@@ -166,11 +171,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['proof-or-stop-review-behavior', 'bd2ff3346054f2f0f84b4d314d50f50520fa5267b76baf31dad5583adb5c3b45', '061c0589009f7ee96045d4a63abff42314ec44e8cd48e03a8ee0270c688be782', '2ba770838c177aa99106da93a5c35abd5a378649b9bf952bbb3fca365c405f7c', '4ff50d8786de4e39c38422dd2df7f9625cd742d5417db7b7e3ca610f8db4bd18', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a'],
-  ['proof-or-stop-review-concept', '5fa682086baa7aef7b5b952625d3efc6d2985183b33e4cccde388adad5922da6', '0dcdbd52fd2d5a26f2e630157552339b37c387dd9166701a54fa6883455343db', '662a3bd15d165ce5231ca99d1a9f1d837267c779286937b190edfa6e5d313a70', 'ea1fadcd10784e1df65769142ef8ef4e61565e9670703c836a2208954e2e6333', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e'],
-  ['proof-or-stop-review-docs', '19be7966d1ea12ec7cc16f0b78dabef3b1f98df6cf3d55a08679de06d924ee3e', 'b957c8d3611067f178c752205cb92892f052c66cc65c59a27e596c757afa4a15', '2f953f81bdb37182f2b62c5af7505e55b4bc49630362dad169c93dca998ab8ba', '21e139ce14fe68cc0e5b53b4d04c3ab009ea3773c2b69cfbdc390cacc6c3246f', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea'],
-  ['proof-or-stop-review-quality', 'b96790f15ccc7e8772122ba2eb2ee8ad2320cca724368b0e058eb5b0fb6a98f9', '02ae741802a14d91bd45255840d3bc311d39a23cb066408cb2b15225bd9143d4', '9dfa73bfc2f10e3d8e849c481b59c83a38ce20d0def78d88156697ce7a40698b', '934b12c25362750707300bbb087b3d0ee5d6de7b8586c520e3ff3b26df84d7a7', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304'],
-  ['proof-or-stop-review-test-coverage', 'b26cee4f1b0a1110049b881b074bf705972b07a54eaa67c9c3a02287bf6d60e0', 'cf423a512d006a962bb2627a90e5230ae1c6a479b8154ca0a4c98de6f8a199bf', '3aa40c0b90355343edce8cf30a7e71b3056e6a7f385b3c7b7041b963a695e088', '28ccc08c3fd0264f86c5288e370ca6c0f565cfcd2e53002aeddcdb85efdefd69', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50'],
+  ['proof-or-stop-review-behavior', 'e71931ff4b465178b9192c30ae9a892212f086598f5d43abdaa30626ec8ce7dc', '27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb', '2ba770838c177aa99106da93a5c35abd5a378649b9bf952bbb3fca365c405f7c', '6552d8fb6099be2aee6b59c06f6b9e523772bbbb7e68639ed0b4e74fccfcce49', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a'],
+  ['proof-or-stop-review-concept', '37e57cf6c2be5c035a0bf4cc1c4e2d07458f586ed305cd0f835ed6643114bca6', '95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae', '662a3bd15d165ce5231ca99d1a9f1d837267c779286937b190edfa6e5d313a70', '8015c7666b706a3f3c82656e453b0170e0488d3f8c5e742a6b9c59bfd06303e2', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e'],
+  ['proof-or-stop-review-docs', 'c46d3cddfac0de303c7882cf3394655b597b59c7681dba81a21e96bf65402187', 'e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36', '2f953f81bdb37182f2b62c5af7505e55b4bc49630362dad169c93dca998ab8ba', '2f79cbe2131ab262d773c3ff3f97a3acb8ce20d48dd491460872ece48b784fe0', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea'],
+  ['proof-or-stop-review-quality', '89a12840851dd785bdec0737cd95087d274dac950a2775a4e74c0f6447a82b34', '85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9', '9dfa73bfc2f10e3d8e849c481b59c83a38ce20d0def78d88156697ce7a40698b', '95d7461125302f36bb41b63622347c1d6baf221c765b2f602c6b4be447cfbd19', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304'],
+  ['proof-or-stop-review-test-coverage', 'aa146d8ebfb6d46c39dfbeba4cfeeea9f2801b99f9789632b4e466c8ea080ea1', '556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203', '3aa40c0b90355343edce8cf30a7e71b3056e6a7f385b3c7b7041b963a695e088', 'b9ab1333855c2b14ba8d18a907d2d488cd61dbf5826c55da0d688d7ec1c800d8', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,

@@ -75,12 +75,12 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = '0211b3bf11c6fb9ef2a083098ef255c626dabd4d2cc5ffb73287f91080fe2d21';
+const approvedReviewFindingTriageProposalSha256 = 'cc7675372372a8d11e59414794427fc20ffbb7fce1ed3475f4eca77e0fff6cf5';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
-const approvedReviewFindingTriageContractSha256 = 'cc515bbac1866d7b844311f1551d6eeb2912fe64f5e97417338ed4d6f660c2c3';
+const approvedReviewFindingTriageContractSha256 = '599b099e7a1128c26336c97e64eef34a3cef53791579ebf29cbc7683a56216ac';
 const approvedReviewFindingTriageHeadings = [
   reviewFindingTriageContractMarker,
   '## REVIEW Finding Triage and Routing Contract',
@@ -97,7 +97,7 @@ const approvedReviewFindingTriageHeadings = [
 const approvedReviewFindingTriageNormativeLines = [
   'Apply this contract while reviewing. It governs reviewer behavior; it does not replace the CLI, handler, or gate as the authority for lifecycle state.',
   '- The Dynamic Finding System execution plan is the future authority for signed applicability, ownership, routing, freshness, and supersession. Until its official CLI and artifacts exist, use only commands and fields exposed by the current CLI compatibility path. Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt, and never claim that a target-state mechanism ran.',
-  '- In the current compatibility path, a reviewer records the observation through `finding_add` with the current `reviewRunId` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. `finding_dismiss` and gap or backlog routes are compatibility accounting; they are not applicability proof, `out_of_scope` proof, deferral proof, repair, or resolution.',
+  '- In the current compatibility path, a reviewer records the observation through `finding_add` with the current `reviewRunId` and returns disposition to the Story Owner. Only the Owner may use `finding_dismiss` as an audited round/profile action when current mechanical policy permits it. The command mechanically changes the Finding status from open to dismissed and therefore removes it from the current REVIEW blocking predicate, but it proves neither applicability nor `out_of_scope`, and it is not proof of deferral, repair, or resolution. Gap and backlog routes are also compatibility accounting, not applicability or deferral proof.',
   '- The current compatibility CLI does not implement the future signed `FindingDeferralDisposition` or `defer_with_proof` path. Never fabricate `dispositionPlan`, `acceptedRoute`, `assessmentDispositionPlan`, `expectedAssessmentDispositionPlan`, a signature, freshness binding, expiry, lineage, receipt, or manifest action, and never claim that compatibility accounting exercised the future mechanism.',
   '- When the Dynamic Finding CLI becomes available, request or consume its official signed assessment and follow its fail-closed result. Prompt prose and compatibility records never substitute for that assessment.',
   '- Start the current lane with `proof-or-stop review_run_start`. Carry its current `reviewRunId` on every `finding_add` or `review_pass_set` submission.',
@@ -114,8 +114,8 @@ const approvedReviewFindingTriageNormativeLines = [
   '- If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.',
   '- In the future system, `REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale, unsigned, tampered, mismatched, incomplete, expired, unknown }`. A verified open high or critical Finding in that exact set enters the machine-owned transient assessment-integrity floor before severity, round, and advisory policy. The floor does not itself prove applicability or require current-Story repair.',
   '- A fresh strong non-applicable assessment releases that floor; a fresh `applicable` assessment converts high or critical to the distinct mandatory-repair floor; weak, unknown, or invalid proof remains blocked.',
-  '- Invalid claimed deferral lineage is an independent first floor regardless of the current assessment, including missing, invalid, expired, tampered, ownerless, partially applied, or exhausted lineage. Only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its independent strong proof contract, or a signed `disproven` truth transition with current counter-evidence, releases that lineage floor. `not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair.',
-  "- Invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification. Once that mandatory-repair obligation is active, only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it; superseding proof does not clear the whole block.",
+  '- In the future system, invalid claimed deferral lineage is an independent first floor regardless of the current assessment, including missing, invalid, expired, tampered, ownerless, partially applied, or exhausted lineage. In that future system, only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its independent strong proof contract, a signed `disproven` truth transition with current counter-evidence, or complete repair closure releases that lineage floor. In that future system, complete repair closure is a distinct release path and does not weaken the exact allowlist for non-repair supersession. In that future system, `not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair.',
+  "- In the future system, invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification. In that future system, once that mandatory-repair obligation is active, only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it; lineage-floor superseding proof does not clear the whole block.",
   '- These machine-derived floors are not permission for a reviewer to broaden Story scope.',
   '- Evidence may support a `pre_existing_unaffected` or `out_of_scope` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.',
   '- A `pre_existing_unaffected` candidate requires deterministic base and head reproduction receipts for the same defect, proof that the Story did not worsen severity or impact, confirmation that Story scope does not promise its repair, and a valid owner or route.',
@@ -156,7 +156,9 @@ const requiredReviewFindingTriagePhrases = [
   'The Dynamic Finding System execution plan is the future authority',
   'use only commands and fields exposed by the current CLI compatibility path',
   'Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt',
-  '`finding_dismiss` and gap or backlog routes are compatibility accounting',
+  'Only the Owner may use `finding_dismiss` as an audited round/profile action',
+  'mechanically changes the Finding status from open to dismissed and therefore removes it from the current REVIEW blocking predicate',
+  'proves neither applicability nor `out_of_scope`',
   'The current compatibility CLI does not implement the future signed `FindingDeferralDisposition` or `defer_with_proof` path',
   'evidenceState',
   'observation and `evidenceState` preserve what was seen',
@@ -209,10 +211,11 @@ const requiredReviewFindingTriagePhrases = [
   'before severity, round, and advisory policy',
   'does not itself prove applicability or require current-Story repair',
   'fresh strong non-applicable assessment releases that floor; a fresh `applicable` assessment converts high or critical to the distinct mandatory-repair floor; weak, unknown, or invalid proof remains blocked',
-  'Invalid claimed deferral lineage is an independent first floor',
-  'Only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its independent strong proof contract, or a signed `disproven` truth transition with current counter-evidence, releases that lineage floor',
+  'In the future system, invalid claimed deferral lineage is an independent first floor',
+  'only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its independent strong proof contract, a signed `disproven` truth transition with current counter-evidence, or complete repair closure releases that lineage floor',
+  'complete repair closure is a distinct release path and does not weaken the exact allowlist for non-repair supersession',
   '`not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair',
-  'Invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification',
+  'In the future system, invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification',
   "only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it",
   'superseding proof does not clear the whole block',
   'remains verified, open, visible, and unchanged in severity',
@@ -348,6 +351,10 @@ const forbiddenReviewFindingTriagePermissions = [
     label: 'current negative witness releases claimed lineage or mandatory repair',
     pattern: /not_reproduced_under_current_witness[^.\n]{0,160}(?:may|can|is permitted to)[^.\n]{0,80}(?:release|clear)[^.\n]{0,100}(?:claimed[- ]deferral|deferral\s+lineage|mandatory[- ]repair)/iu,
   },
+  {
+    label: 'complete repair closure denied as a claimed-lineage release',
+    pattern: /complete\s+repair\s+closure[^.\n]{0,80}(?:cannot|never|does\s+not)[^.\n]{0,80}(?:release|clear)[^.\n]{0,100}(?:claimed[- ]deferral|deferral\s+lineage|lineage\s+floor)/iu,
+  },
 ] as const;
 
 function extractReviewFindingTriageStructure(contract: string): {
@@ -474,6 +481,16 @@ function assertReviewFindingTriageMutationFailures(): void {
   assert.equal(paraphraseMutations.length, 13, 'the independent reviewer paraphrase mutation inventory remains complete');
   assert.equal(digestRefreshedParaphraseMutations.length, 13, 'the digest-refreshed reviewer paraphrase inventory remains complete');
   assert.equal(currentAuthorityMutations.length, 18, 'the current Dynamic Finding authority mutation inventory remains complete');
+  const deniedRepairClosureMutation = 'Complete repair closure never releases claimed-deferral lineage.';
+  const deniedRepairClosureGuard = forbiddenReviewFindingTriagePermissions.find(
+    entry => entry.label === 'complete repair closure denied as a claimed-lineage release',
+  );
+  assert.ok(deniedRepairClosureGuard, 'the claimed-lineage complete-repair-closure denial guard is registered');
+  assert.match(
+    deniedRepairClosureMutation,
+    deniedRepairClosureGuard.pattern,
+    'the interaction guard rejects denial of complete repair closure as a claimed-lineage release path',
+  );
   for (const [index, mutation] of [...originalMutations, ...paraphraseMutations].entries()) {
     assert.throws(
       () => assertReviewFindingTriageSemantics(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`, `mutation ${index + 1}`),
@@ -614,6 +631,7 @@ function assertReviewFindingTriageProposal(): void {
   const proposalPath = join(projectRoot, reviewFindingTriageProposalPath);
   assert.ok(existsSync(proposalPath), 'the executable REVIEW Finding triage proposal is tracked');
   const proposal = readFileSync(proposalPath, 'utf8');
+  const normalizedProposal = proposal.replace(/\s+/gu, ' ');
   assert.equal(
     createHash('sha256').update(proposal).digest('hex'),
     approvedReviewFindingTriageProposalSha256,
@@ -629,8 +647,24 @@ function assertReviewFindingTriageProposal(): void {
     proposal.includes('The retired name `stale_or_not_reproduced` must not appear in delivered Agent'),
     'the proposal explicitly rejects retired applicability vocabulary in delivered prompts',
   );
+  const activeRoleSection = proposal.match(
+    /canonical contract is appended once during assembly to the five active modular\nREVIEW roles:\n\n([\s\S]*?)\n\nStory Owner behavior/u,
+  )?.[1] ?? '';
+  assert.deepEqual(
+    activeRoleSection.split('\n').filter(Boolean),
+    [
+      '- `proof-or-stop-review-behavior`;',
+      '- `proof-or-stop-review-concept`;',
+      '- `proof-or-stop-review-docs`;',
+      '- `proof-or-stop-review-quality`; and',
+      '- `proof-or-stop-review-test-coverage`.',
+    ],
+    'the proposal publishes exactly the five canonical active modular REVIEW role IDs',
+  );
+  assert.doesNotMatch(activeRoleSection, /lattice-review-/u, 'the active-role list excludes retired lattice reviewer IDs');
   for (const phrase of [
     'This proposal is its Agent-side projection',
+    'This Story does not amend the Dynamic Finding plan or its runtime',
     'This proposal does not authorize changes to:',
     '`not_reproduced_under_current_witness`',
     '| `unknown` | Current evidence references, an unresolved `direct_scope` or `counter_evidence` basis, current source, scope, and runtime bindings, and the uncertainty that prevents a conclusive verdict; no `nonBlockingProof`, `acceptedRoute`, or `dispositionPlan`.',
@@ -644,17 +678,20 @@ function assertReviewFindingTriageProposal(): void {
     '`REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale,',
     'assessment-integrity floor before severity, round, and advisory policy',
     'does not itself prove applicability or require current-Story repair',
-    'Only a fresh signed superseding',
+    'In the future system, invalid claimed deferral lineage',
+    'only a fresh signed superseding',
     '`pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying',
     '`not_reproduced_under_current_witness` never releases claimed-deferral lineage',
-    'Invalid or exhausted lineage also',
+    'complete repair closure releases that lineage floor',
+    'In the future system, invalid or exhausted lineage also',
     "`MandatoryRepairClassification(state='closure_proven')` clears it",
     'superseding proof does not clear the whole block',
     'The current compatibility CLI does not implement the future signed',
     '`finding_dismiss`, `gap_log`, and backlog notes are compatibility accounting',
+    'mechanically changes a Finding from `open` to `dismissed` and therefore removes it from the current REVIEW blocking predicate',
     'Digest pins provide change review, but they are not the semantic oracle',
   ]) {
-    assert.ok(proposal.includes(phrase), `the proposal keeps authority boundary phrase: ${phrase}`);
+    assert.ok(normalizedProposal.includes(phrase), `the proposal keeps authority boundary phrase: ${phrase}`);
   }
 }
 
@@ -694,18 +731,18 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   for (const phrase of [
     'Every Finding reported only in reviewer prose must be redispatched for structured registration',
     'introduced or worsened by the current Story',
-    'directly blocks acceptance or the core user result',
+    'directly blocks acceptance, a verification intent, the core user result, or a public compatibility promise',
     'critical or high',
     'known or uncertain protected-surface impact',
     'would make lifecycle gate evidence or gate truth misleading',
-    'Invalid claimed deferral lineage is an independent first floor',
+    'In the future official system, invalid claimed deferral lineage is an independent first floor',
     'every final applicable assessment binds exactly one `dispositionPlan`: `repair_current` or `defer_with_proof`',
     '`REQUIRED_ASSESSMENT_INVALID = { missing, re_attestation_required, stale, unsigned, tampered, mismatched, incomplete, expired, unknown }`',
     'transient assessment-integrity floor before severity, round, and advisory policy',
     'it does not itself prove applicability or require current-Story repair',
-    'Only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict',
+    'only a fresh signed superseding `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict',
     '`not_reproduced_under_current_witness` never releases claimed-deferral lineage or mandatory repair',
-    'Invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification',
+    'In the future official system, invalid or exhausted deferral lineage also creates a downstream mandatory-repair classification',
     "only a fresh signed `MandatoryRepairClassification(state='closure_proven')` clears it",
     'superseding proof does not clear the whole block',
     'including a medium Finding in a policy round where medium is blocking',
@@ -719,7 +756,8 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     '`expectedAssessmentDispositionPlan`',
     '`repair_current` forbids `acceptedRoute`',
     'never fabricate an assessment, disposition, owner, route, signature, freshness binding, expiry, lineage, receipt, manifest action, or any of those future fields',
-    'Current `finding_dismiss`, gap, and backlog handling is temporary compatibility accounting for a round or profile',
+    'Only the Owner may use current `finding_dismiss` as an audited round/profile action when mechanical policy permits it',
+    'mechanically changes status from `open` to `dismissed` and therefore removes the Finding from the current REVIEW blocking predicate',
     'proves neither applicability nor `out_of_scope`',
     'is not proof of repair or resolution, nor proof of deferral',
     'Prompt text alone does not mechanically enforce this discipline',
@@ -751,7 +789,8 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
   for (const [file, lines] of [['AGENTS.md', ownerTriageLines], ['CLAUDE.md', claudeTriageLines]] as const) {
     const compatibilityLine = lines.find(line => line.includes('**Compatibility boundary and dismissal**')) ?? '';
-    assert.match(compatibilityLine, /Current `finding_dismiss`, gap, and backlog handling is temporary compatibility accounting for a round or profile;/u, `${file} keeps bounded compatibility accounting`);
+    assert.match(compatibilityLine, /Only the Owner may use current `finding_dismiss` as an audited round\/profile action when mechanical policy permits it;/u, `${file} keeps the Owner-only audited compatibility action`);
+    assert.match(compatibilityLine, /mechanically changes status from `open` to `dismissed` and therefore removes the Finding from the current REVIEW blocking predicate, but/u, `${file} states the current mechanical dismissal effect`);
     assert.match(compatibilityLine, /it proves neither applicability nor `out_of_scope`, and it is not proof of repair or resolution, nor proof of deferral\./u, `${file} keeps each non-proof conclusion once`);
     assert.match(compatibilityLine, /Prompt text alone does not mechanically enforce this discipline\./u, `${file} keeps the prompt-enforcement limitation once`);
     for (const term of ['`finding_dismiss`', 'applicability', '`out_of_scope`', 'proof of repair', 'resolution'] as const) {

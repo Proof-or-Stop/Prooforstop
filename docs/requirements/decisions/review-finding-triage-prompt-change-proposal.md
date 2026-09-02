@@ -5,8 +5,7 @@ Status: executable Agent-side proposal
 Authority: subordinate projection of
 `docs/requirements/decisions/dynamic-finding-system-execution-plan.md`
 
-Scope: Agent prompts, public Agent guidance, a bounded documentation-only
-amendment to the Dynamic Finding target-state plan, REVIEW-only prompt-envelope
+Scope: Agent prompts, public Agent guidance, REVIEW-only prompt-envelope
 assembly safety, and semantic prompt tests
 
 ## 1. Decision
@@ -29,15 +28,15 @@ prompt change. It is not a runtime implementation plan.
 The Dynamic Finding System Execution Plan is the authoritative target-state
 design. This proposal is its Agent-side projection. If the two documents ever
 disagree, the Dynamic Finding plan wins and this proposal must be updated.
+This Story does not amend the Dynamic Finding plan or its runtime, and it does
+not retain retired verdict vocabulary as a legacy input alias. A retired term
+may appear here only to prohibit its delivery as active Agent guidance.
 
 This proposal may change:
 
 - the canonical REVIEW Finding triage contract appended to active REVIEW roles;
 - Story Owner guidance in `AGENTS.md` and `CLAUDE.md`;
 - bounded implementer handoff guidance;
-- the documentation-only Dynamic Finding plan amendment that makes the
-  target-state verdict vocabulary and compatibility boundary authoritative,
-  without implementing those target-state records or commands;
 - pre-digest REVIEW Task Context authority validation in prompt-envelope
   assembly, without changing Dynamic Finding records or lifecycle facts;
 - semantic mutation tests and approved prompt digests; and
@@ -61,11 +60,11 @@ This change does not copy the same contract into every source template. The
 canonical contract is appended once during assembly to the five active modular
 REVIEW roles:
 
-- `lattice-review-behavior`;
-- `lattice-review-concept`;
-- `lattice-review-docs`;
-- `lattice-review-quality`; and
-- `lattice-review-test-coverage`.
+- `proof-or-stop-review-behavior`;
+- `proof-or-stop-review-concept`;
+- `proof-or-stop-review-docs`;
+- `proof-or-stop-review-quality`; and
+- `proof-or-stop-review-test-coverage`.
 
 Story Owner behavior is mirrored byte-for-byte in `AGENTS.md` and `CLAUDE.md`.
 The implementer keeps a smaller handoff rule: preserve evidence, report the
@@ -171,18 +170,23 @@ collapsed into this Agent repair rule:
   fresh strong non-applicable assessment releases it; a fresh `applicable`
   assessment converts high or critical to the distinct mandatory-repair floor;
   weak, unknown, or invalid proof remains blocked.
-- Invalid claimed deferral lineage is an independent first floor, regardless of
-  the current assessment. Only a fresh signed superseding
+- In the future system, invalid claimed deferral lineage is an independent first
+  floor, regardless of the current assessment. In that future system, only a
+  fresh signed superseding
   `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying
   its independent strong proof contract, or a signed `disproven` truth
-  transition with current counter-evidence, releases that lineage floor.
+  transition with current counter-evidence, or complete repair closure releases
+  that lineage floor. In that future system, complete repair closure is a
+  distinct release path and does not weaken the exact allowlist for non-repair
+  supersession. In that future system,
   `not_reproduced_under_current_witness` never releases claimed-deferral lineage
-  or mandatory repair. Invalid or exhausted lineage also creates a downstream
-  mandatory-repair classification; once that obligation is active, only a fresh
-  signed `MandatoryRepairClassification(state='closure_proven')` clears it. The
-  superseding proof does not clear the whole block. A transient integrity floor,
-  lineage floor, or mandatory-repair floor is machine-derived gate state, not
-  permission for an Agent to broaden scope.
+  or mandatory repair. In the future system, invalid or exhausted lineage also
+  creates a downstream mandatory-repair classification; once that obligation is
+  active, only a fresh signed
+  `MandatoryRepairClassification(state='closure_proven')` clears it. In that
+  future system, lineage-floor superseding proof does not clear the whole block.
+  These future transient integrity, lineage, and mandatory-repair floors are
+  machine-derived gate state, not permission for an Agent to broaden scope.
 
 ## 7. Future official defer-with-proof disposition
 
@@ -239,9 +243,13 @@ lineage, receipts, or manifest actions. In particular, they must not fabricate
 `expectedAssessmentDispositionPlan`.
 
 `finding_dismiss`, `gap_log`, and backlog notes are compatibility accounting.
-They do not prove applicability, `out_of_scope`, deferral, repair, resolution,
-or target acceptance. A compatibility record must never erase, rewrite, or
-silently lower the original Finding.
+Only the Story Owner may use current `finding_dismiss` as an audited round or
+profile action when current mechanical policy permits it. The command
+mechanically changes a Finding from `open` to `dismissed` and therefore removes
+it from the current REVIEW blocking predicate. It does not prove applicability,
+`out_of_scope`, deferral, repair, resolution, or target acceptance. Gap and
+backlog routes do not change that predicate by themselves. A compatibility
+record must never erase, rewrite, or silently lower the original Finding.
 
 ## 9. Reviewer and Story Owner responsibilities
 
@@ -312,9 +320,9 @@ the complete assembled reviewer body:
 The Task Context authority guard must compare normalized concepts, their
 semantic relationship, and assertion polarity. It must reject equivalent
 authority claims after underscore, hyphen, word-order, or punctuation changes;
-it must accept explicit prohibitions and documented legacy-input migration that
-normalizes the alias before any official signing step. It remains REVIEW-only
-and runs before envelope digests are minted.
+it may accept a retired term only in explicit prohibitions or historical context
+that does not publish the term as active guidance. It remains REVIEW-only and
+runs before envelope digests are minted.
 
 Digest pins provide change review, but they are not the semantic oracle. The
 independent normative manifest and contradiction mutations must still reject an
