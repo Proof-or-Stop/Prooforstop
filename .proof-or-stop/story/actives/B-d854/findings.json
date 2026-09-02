@@ -553,7 +553,7 @@
       "desc": "The CHK-001 edge verification-evidence note and selector still describe CASE 42 as the final case and claim 42 current invocations, but the current verifier ledger reaches CASE 46; CASE 42 is release_approve_push and CASE 43-46 follow. This does not create a false GREEN because the bound tool receipt also requires exitCode=0 and its captured tail contains CASE 46 plus AGENTS_VERIFY FINAL GREEN, so it is non-blocking evidence-prose drift. Reproduce with rg -n CASE .proof-or-stop/story/actives/B-d854/checklist.json tests/AGENTS.verify.mjs. Defer by updating the evidence description to avoid a brittle numeric final-case claim in a later metadata maintenance Story.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T02:10:58.887Z",
@@ -565,7 +565,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "doc-code-drift|json|edge-verification-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as a nonblocking low-severity metadata-description drift: the executable receipt still exits 0 only after CASE 46 and AGENTS_VERIFY FINAL GREEN. Repro, impact, and remediation are traceably deferred in main draft docs/story/drafts/audit-evidence-case-count-metadata, committed on main as 4839a79be1; this Story does not expand material scope.",
+      "resolvedAt": "2026-09-02T02:33:22.519Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
