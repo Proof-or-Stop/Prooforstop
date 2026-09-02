@@ -29,6 +29,13 @@
  * prepending a directory with a fake `git` to PATH for the duration of a
  * case. The stub honours `-z` (NUL records) versus no `-z` (tab rows) so the
  * same stub is faithful to whichever command shape the reader issues.
+ *
+ * CHK-002 — one owner for the legacy command-string parse:
+ *   core/done-required-validation.ts delegates its `doneRequiredCommands[]`
+ *   string entries to `parseLegacyValidationCommandString`; a committed corpus
+ *   with pinned expected tuples proves the DONE-required executor path,
+ *   handlers/verifier.ts and the canonical parser agree on every entry, and a
+ *   structural case fails if a private parser reappears.
  */
 
 import { strict as assert } from 'node:assert';
@@ -48,7 +55,8 @@ import {
   isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
-import { commandFromString as doneRequiredCommandFromString } from '../core/done-required-validation.js';
+import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
+import { configuredValidationCommands } from '../handlers/verifier.js';
 import { parseLegacyValidationCommandString } from '../core/validation-command-identity.js';
 
 const MARKER = 'single-owner-extraction-smoke';
@@ -629,6 +637,37 @@ const COMMAND_CORPUS: CorpusEntry[] = [
   { label: 'backslash-escaped space joins words', input: 'ls my\\ dir', expected: { shell: false, command: 'ls', args: ['my dir'] } },
 ];
 
+type CorpusCallSites = {
+  doneRequired: ReturnType<typeof resolveDoneRequiredPolicy>;
+  verifier: ReturnType<typeof configuredValidationCommands>;
+};
+
+/**
+ * Writes the whole corpus as string entries into BOTH `doneRequiredCommands`
+ * and `validate.commands` of a real config file, then reads it back through
+ * the two production entry points. Index i of the corpus is labelled
+ * `doneRequiredCommands[i]` / `configured validate.commands[i]` by the call
+ * sites themselves, which is what the cases key on.
+ */
+function withCorpusConfig<T>(fn: (sites: CorpusCallSites) => T): T {
+  return withTempDir('corpus', root => {
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+      doneRequiredCommands: COMMAND_CORPUS.map(entry => entry.input),
+      validate: { commands: COMMAND_CORPUS.map(entry => entry.input) },
+    }, null, 2), 'utf-8');
+    resetConfigCache();
+    try {
+      return fn({ doneRequired: resolveDoneRequiredPolicy(root), verifier: configuredValidationCommands(root) });
+    } finally {
+      resetConfigCache();
+    }
+  });
+}
+
 function assertCorpusTuple(site: string, entry: CorpusEntry, actual: ParsedTuple | null): void {
   assert.deepEqual(
     actual,
@@ -649,12 +688,47 @@ group('CHK-002 done-required command parse is owned by parseLegacyValidationComm
     },
   },
   {
-    name: 'corpus: the private done-required parser agrees with the canonical parser on every entry',
-    run: () => {
-      for (const entry of COMMAND_CORPUS) {
-        assertCorpusTuple('done-required-validation commandFromString', entry, declaredShellTuple(doneRequiredCommandFromString('corpus', entry.input)));
+    name: 'corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry',
+    run: () => withCorpusConfig(({ doneRequired, verifier }) => {
+      for (const [index, entry] of COMMAND_CORPUS.entries()) {
+        const fromDoneRequired = doneRequired.commands.find(command => command.label === `doneRequiredCommands[${index}]`) ?? null;
+        const fromVerifier = verifier.find(command => command.label === `configured validate.commands[${index}]`) ?? null;
+        assertCorpusTuple('resolveDoneRequiredPolicy (DONE-required executor path)', entry, declaredShellTuple(fromDoneRequired));
+        assertCorpusTuple('configuredValidationCommands (handlers/verifier.ts)', entry, declaredShellTuple(fromVerifier));
+        assertCorpusTuple('parseLegacyValidationCommandString', entry, declaredShellTuple(parseLegacyValidationCommandString(entry.input)));
       }
-    },
+      // The two null entries are rejected loudly by the DONE-required policy
+      // and dropped by the verifier; neither becomes a command.
+      const nullIndexes = COMMAND_CORPUS.map((entry, index) => (entry.expected === null ? index : -1)).filter(index => index >= 0);
+      assert.ok(nullIndexes.length >= 2, 'corpus must keep at least two entries that name no command');
+      for (const index of nullIndexes) {
+        assert.ok(
+          doneRequired.configErrors.includes(`doneRequiredCommands[${index}] must not be empty`),
+          `DONE-required policy must reject doneRequiredCommands[${index}]; configErrors=${JSON.stringify(doneRequired.configErrors)}`,
+        );
+      }
+      assert.equal(doneRequired.commands.length, COMMAND_CORPUS.length - nullIndexes.length);
+      assert.equal(verifier.length, COMMAND_CORPUS.length - nullIndexes.length);
+    }),
+  },
+  {
+    name: 'shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)',
+    run: () => withCorpusConfig(({ doneRequired, verifier }) => {
+      for (const [index, entry] of COMMAND_CORPUS.entries()) {
+        if (entry.expected === null) continue;
+        const fromDoneRequired = doneRequired.commands.find(command => command.label === `doneRequiredCommands[${index}]`);
+        const fromVerifier = verifier.find(command => command.label === `configured validate.commands[${index}]`);
+        assert.ok(fromDoneRequired && fromVerifier, `entry ${index} missing at a call site`);
+        for (const [site, command] of [['DONE-required', fromDoneRequired], ['verifier', fromVerifier]] as const) {
+          if (entry.expected.shell) {
+            assert.equal(command.shell, true, `${site}: ${entry.label} must carry shell: true`);
+            assert.deepEqual(command.args, [], `${site}: ${entry.label} shell branch must carry no args`);
+          } else {
+            assert.ok(!('shell' in command), `${site}: ${entry.label} argv branch must omit the shell key; got ${JSON.stringify(command)}`);
+          }
+        }
+      }
+    }),
   },
   {
     name: 'structural: done-required-validation.ts defines no private parser and imports the canonical one',
