@@ -565,7 +565,11 @@
           {
             "desc": "the README endpoint table lists the /story/<id> route",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const row=s.split('\\n').find(l=>l.startsWith('|')&&l.includes('/story/')&&l.includes('dossier'));console.log(row?'DOCS_ENDPOINT_ROW':'FAIL no /story row in endpoint table');process.exit(row?0:1)\"",
+              "selector": "DOCS_ENDPOINT_ROW"
+            }
           }
         ],
         "edge": [
@@ -612,6 +616,27 @@
           "materialHash": "4809fbe4c985a1e819039da620e67fc0ebac011dccf9f1667bff6ef7a872d019",
           "storyFilesHash": "99495d7143b937b087032ec3be79d5a088e963650870ff223ca2d1362712d11a",
           "timestamp": "2026-09-02T09:05:34.820Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "file": "packages/graph/README.md",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const row=s.split('\\n').find(l=>l.startsWith('|')&&l.includes('/story/')&&l.includes('dossier'));console.log(row?'DOCS_ENDPOINT_ROW':'FAIL no /story row in endpoint table');process.exit(row?0:1)\"",
+          "result": "pass",
+          "note": "Requires the /story route to appear as an actual markdown TABLE row (line starts with |) mentioning the dossier, not merely as prose anywhere in the file.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "54ffab077dc44333ecaa5a2f5f863ac17c09d8cc1634b0f45f7fe64c6ea514c0",
+            "outputTail": "DOCS_ENDPOINT_ROW\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T09:05:35.883Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a74f1bf0c9df45cf38fc9a14a56e96132878b2be",
+          "materialHash": "4809fbe4c985a1e819039da620e67fc0ebac011dccf9f1667bff6ef7a872d019",
+          "storyFilesHash": "99495d7143b937b087032ec3be79d5a088e963650870ff223ca2d1362712d11a",
+          "timestamp": "2026-09-02T09:05:36.084Z"
         }
       ]
     },
