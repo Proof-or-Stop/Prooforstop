@@ -1,0 +1,90 @@
+{
+  "principles": [
+    "Fail closed: when identity, a pin, or an input cannot be established, the planner widens to repository-full or stops with a classified reason. It never narrows on uncertainty and never reports an empty selection as a pass.",
+    "One owner per fact: command normalization is already owned by buildRoutineValidationIdentity, changed files and material hashes by evidence-freshness, and checklist evidence collection by delivery-context-pack. This Story consumes those owners and creates no second implementation of any of them.",
+    "Add refusal conditions only: new identity may make existing routine reuse stricter, never looser, and may not remove an existing refusal reason.",
+    "Read-only means mechanically read-only: the planner executes no validation command, writes no evidence artifact, and is classified readOnly in command-policy so the ownership gate agrees with the prose.",
+    "Prove the boundary, do not assert it: every claim this Story makes about not perturbing existing behavior gets a fixture that would fail if it were perturbed."
+  ],
+  "drivers": [
+    "The plan document forbids any set-shrinking in Story 1, so the design must be useful while provably unable to omit a command.",
+    "This repository declares 120 validate commands with zero declared ids, so the legacy and provisional path is the normal case and the declared-id path is the exception.",
+    "The existing routine validation identity is consumed by reuse and freshness gates, so any perturbation of its digest is a correctness regression, not a cosmetic one.",
+    "The Handler encoding convention in CLAUDE.md requires runtime re-validation at every consumer, because zod alone has repeatedly failed to hold on paths that bypass schema parsing.",
+    "Reviewer and operator interpretability: the product reviewer flagged that bare reason codes are unusable to anyone who has not read the plan document."
+  ],
+  "options": [
+    {
+      "name": "A-narrow-portable-id",
+      "pros": [
+        "Provisional id derives from a NARROW repo-portable normalized tuple (command, args, resolved repo-relative cwd, shell) and is stable across machines, so it is a usable migration target that a project can later copy into a declared id.",
+        "The wider machine-dependent digests (effectiveEnvironmentDigest, executableDigest, shellExecutableDigest) are still computed and reported as separate pin-resolution evidence, so precision is not lost, only moved out of the identifier.",
+        "Reuses buildRoutineValidationIdentity for the wide tuple, so there is exactly one normalizer.",
+        "Ambiguity becomes visible rather than hidden: two config entries that differ only by environment collide on the narrow id and are reported as duplicates, which is the honest answer for an identifier a human is expected to declare."
+      ],
+      "cons": [
+        "Two commands differing only by env or by resolved executable share a provisional id and must be reported as a duplicate-id error, which will fire on real configs that legitimately differ only by env.",
+        "Requires a documented rule for what a project does when that collision fires: declare explicit ids."
+      ]
+    },
+    {
+      "name": "B-full-tuple-id",
+      "pros": [
+        "Provisional id derives from the FULL normalized tuple including effectiveEnvironmentDigest and executableDigest, so collisions are nearly impossible and duplicate-id rejection almost never fires.",
+        "Maximum precision for pin resolution."
+      ],
+      "cons": [
+        "The id becomes machine-dependent: it changes when node is upgraded, when PATH differs, or when the same repo is checked out on another host, so it cannot be written into config as a declared id and is useless as a migration target.",
+        "A machine-dependent id silently changes the command-set digest between hosts, which would make any future selection artifact unverifiable across machines and would violate the plan's requirement that a selection artifact be verifiable by a canonical verifier.",
+        "It hides genuine configuration ambiguity instead of surfacing it."
+      ]
+    },
+    {
+      "name": "C-label-id",
+      "pros": [
+        "Provisional id is the command label, which requires no new normalization at all and is trivially readable.",
+        "Zero new code for identity."
+      ],
+      "cons": [
+        "The plan explicitly forbids depending on display labels or array positions for selection identity.",
+        "This repository's config has many entries whose label is absent and derived positionally as configured validate.commands[i], so label ids would be positional in disguise and would shift whenever a command is inserted.",
+        "A label rename would break graph continuity, which is exactly the case the plan requires to keep a stable id."
+      ]
+    }
+  ],
+  "chosen": "A-narrow-portable-id",
+  "rationale": "Option A-narrow-portable-id is the only one that satisfies the plan's two hard identity requirements at once: an id that never derives from label or array index, and an id stable enough that a project can adopt it as a declared id and that a future selection artifact can be verified on another machine. B-full-tuple-id fails the second requirement outright, because a machine-dependent identifier makes the command-set digest host-specific and would silently break the cross-host verification the later rollout stories depend on; its extra precision is recovered anyway by reporting the wide digests as separate pin-resolution evidence rather than baking them into the identifier. C-label-id is excluded by the plan text and is positional in disguise in this very repository, where most configured entries have no explicit label. A-narrow-portable-id's real cost is that legitimate env-only variants collide and are rejected as duplicates; that is accepted deliberately, because a duplicate identifier a human is expected to declare is a configuration ambiguity worth surfacing loudly rather than resolving silently by machine state, and the remedy is a one-line declared id.",
+  "preMortem": [
+    {
+      "scenario": "Adding the optional id field to ValidationCommand silently perturbs the routine validation identity digest, invalidating every project's cached routine PASS and forcing full re-validation across the fleet.",
+      "trigger": "A future edit changes buildRoutineValidationIdentity's per-command projection from an explicit field list to a spread of the source command, or the id is added to the projection for convenience.",
+      "consequence": "Every stored routine validation evidence becomes unreusable, TEST slows down repo-wide, and the cause looks like a freshness bug rather than an identity change.",
+      "mitigation": "CHK-001 ships a fixture that asserts the routine identity digest is byte-identical for a command set before and after the optional id field exists and is left undeclared, and separately asserts that DECLARING an id in the config does change source.inputDigest. The fixture fails if anyone later spreads the source command into the projection."
+    },
+    {
+      "scenario": "The legacy pin resolver quietly resolves a pin to the wrong command because two configured commands normalize to the same tuple, and the resolver picks the first one.",
+      "trigger": "An implementer adds an order-based or label-based tie-break to make a real config stop erroring, because pinned_command_ambiguous looks like a bug when it fires.",
+      "consequence": "A Story's pinned verification evidence is silently bound to a different command than the operator intended, which is a false-provenance defect that no later gate can detect.",
+      "mitigation": "CHK-002 ships a duplicate-normalized-tuple fixture asserting the resolver STOPS with pinned_command_ambiguous, and a separate fixture asserting that a label difference alone does NOT break the tie. Both are negative tests, so removing the stop makes them fail rather than pass."
+    },
+    {
+      "scenario": "The planner is described as read-only but a consumer discovers it can be made to write, or it is classified as a mutating command and starts being blocked by the owner lease, or worse is classified readOnly while actually writing.",
+      "trigger": "The handler is given a convenience flag to persist its plan, or the command-policy row is copied from a mutating command, or a future edit adds a store write inside the planner core.",
+      "consequence": "Either the read-only guarantee in the plan is false and a lower-tier artifact appears in a store that no reader is allowed to consume, or a harmless inspection command starts failing for non-owners.",
+      "mitigation": "CHK-005 registers the command with ownershipClass readOnly and destructiveRisk none, and CHK-006 ships a fixture that snapshots the story store before and after invoking the planner core and asserts byte equality, plus asserts the handler exposes no write, persist or run flag. The store-equality assertion fails if any write is ever added."
+    },
+    {
+      "scenario": "A material input the collector cannot classify is silently dropped, so the planner reports a confident repository-full plan while actually having been blind to part of the Story.",
+      "trigger": "The collector catches an error from the changed-file reader and falls back to an empty array, which reads as no changes rather than as unavailable.",
+      "consequence": "The escalation reason codes become untrustworthy, and in later rollout stories that same blind spot would translate directly into an omitted command, because Story 2 builds exclusion proofs on top of this collector's output.",
+      "mitigation": "CHK-003 ships a fixture that makes the changed-file read fail and asserts the collector reports changed_files_unavailable rather than an empty seed set, and a second fixture that feeds an unclassifiable material path and asserts unclassified_material_input appears in escalationReasons and in the unclassifiedInputs list."
+    },
+    {
+      "scenario": "The new fixture suite is added to the smoke discovery manifest instead of the canonical membership authority, so it never runs in the full suite and rots silently.",
+      "trigger": "An implementer registers the new task where the other tasks appear to live, without noticing that run-all-smokes and smoke-manifest.json are explicitly noncanonical.",
+      "consequence": "Every guarantee above is unenforced from the first commit, and the Story ships with fixtures that only ever ran once by hand.",
+      "mitigation": "CHK-006 requires the npm script, the test:serial-reference entry, and the RESOURCE_POLICY repoRead entry to be added together, and the existing full-suite runner already fails closed with unknownPolicy on a serial-reference name that has no policy row, which turns a half-registration into a hard failure rather than a silent skip."
+    }
+  ],
+  "timestamp": "2026-09-02T01:00:55.031Z"
+}

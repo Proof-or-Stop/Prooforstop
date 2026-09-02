@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a745",
+  "changes": "Adds Rollout Story 1 of the Story-relevance dynamic validation tiers plan. New core/validation-command-identity.ts gives every configured validation command a stable id: a declared id is kept verbatim, an undeclared one gets a deterministic prov- id over the declared-intent portable tuple of command, args, repo-relative cwd and shell, and a commandSetDigest covers the normalized inventory including label and focus. The same module owns the canonical legacy pin resolver (exact commandId, legacy-exact normalized tuple, pinned_command_missing, pinned_command_ambiguous, pinned_command_non_inventory). New core/validation-relevance-input.ts collects a normalized StoryRelevanceInput through the existing shared rename-aware and freshness readers rather than re-deriving them. New core/validation-tier-planner.ts defines the three tier names, the subset invariant and the fail-closed widening matrix, where every reason code carries a plain-language gloss declared in the same table. New handlers/validation-plan.ts exposes it as a read-only CLI. verifier.ts and validation-evidence-reuse.ts had their existing command normalization and legacy string parse EXTRACTED and exported so identity and pin resolution reuse one owner instead of duplicating the rules; buildRoutineValidationIdentity behaviour is unchanged. proof-or-stop.config.json registers the new suite as validate command 121.",
+  "usage": "node packages/main/dist/cli.js validation_plan --storyId=B-xxxx --tier=fast|intermediate|full [--explain] [--json]. It prints requestedTier, effectiveTier, a runtime-derived selected-of-total count, per-command inclusion reasons, unclassified inputs, each escalation reason code followed by a plain-language gloss, an estimated duration with its basis, and finalAuthority: no. It executes no validation command, writes no evidence and changes no gate.",
+  "expectedOutcome": "An operator runs validation_plan against a Story and sees the full command inventory with stable ids, whether each recorded evidence pin resolves, which Story inputs were collected, and a readable explanation of why the effective tier is still the whole repository rather than a reduced set. Validation does not get faster: this increment can never reduce a set, by design.",
+  "actualTranscript": "node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast prints: status: plan / requestedTier: story-fast (requested as \"fast\") / effectiveTier: repository-full / sourceKind: configured / selected: 121 of 121 validation unit(s) / reductionApplied: false / finalAuthority: no, followed by four escalation reasons each with a gloss (impact_index_unusable, command_exclusion_unproven, unclassified_material_input, pinned_command_non_inventory), per-unit inclusion reasons, unclassified inputs, an estimatedDuration line naming its basis, and an inventoryWarning naming the runtime count of commands still on provisional ids. Missing storyId is rejected with 'validation_plan: storyId is required'; --tier=quick with 'unknown tier \"quick\" (expected one of fast, intermediate, full)'.",
+  "outcomeDiff": "No difference between the expected and the delivered outcome: every checklist item is done, the acceptance claim holds literally on the real CLI, and no required milestone is uncovered. One acceptance intent, CHK-002:edge:0, was superseded during review by finding F-001 and carries a permanent supersession waiver naming the two committed fixtures that prove the replacement behaviour; the story's outcome was not reduced by it, because the replacement behaviour is stricter about disclosure and prunes nothing.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This increment performs NO relevance pruning and never returns a reduced tier; effectiveTier is a TypeScript literal type, not a union, so no pruning code path can exist. Validation therefore does not get faster - the value here is stable identity, honest pin resolution and an explain output. Impact index, exclusion proofs, worktree overlay, runner decomposition, signed selection artifacts, tier execution and the kill switch all belong to Rollout Stories 2 to 4 and belong to those later rollout stories by the plan's own numbering and were placed outside this story's INIT scope boundary, which the user confirmed. One receipt is knowingly weak: CHK-005:happy:0 is pinned to the selector 'finalAuthority: no', which prints on every branch including failures and produced a documented false positive (F-002); verification pins are immutable so it could not be corrected, and the discrimination is instead proven by a committed fixture. On whether an unresolvable LEGACY pin should stop, the governing spec's widening matrix qualifies the stop with 'explicit' while its resolver step 4 and Step 7 invariant do not, and this story's own frozen CHK-002:edge:0 encodes the unqualified reading; the implementation follows the qualified reading because under the unqualified one the planner is self-referentially unusable (its own acceptance evidence pins the planner command) and nothing is pruned either way. An independent Codex host filed that choice as a defect; the reconciliation is delegated to the document owner via the committed repository draft docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan. CROSS-HOST QUORUM DISCLOSURE: the DONE-gate quorum is claude-host-a plus agy-host-b (antigravity), 3 rounds x 2 hosts on the final material, not Codex. Codex ran four real cross-host rounds (B-a745-xhr-r1..r4): r1-r3 FAILED on earlier material and produced the fixed findings F-010, F-011, F-016, F-017, F-022, F-023; r4 on the final material recorded codex_review_abnormal_exit with exit code 1 and an empty stdout digest (e3b0c442...). The cause, pasted from the Codex session log rollout-2026-09-02T11-17-46-01a0619f-ef3f-7d00-9756-a44ae20ba6f6.jsonl: \"You've hit your usage limit. Visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Sep 7th, 2026 3:27 AM.\" The three agy verdicts are real read-only reviews launched through host_run (transcript sha256 prefixes 4d9e6edd, 89843660, b777028f), each ending VERDICT: PASS with no defects. agy did not catch F-010, F-016, F-017, F-022, F-023 or F-024 on earlier passes; Codex did. cross_host_review refuses antigravity as a subprocess by policy, so the agy verdicts were recorded via quorum_submit.",
+  "pitfalls": "Four things cost real time and the next person should know them. (1) The global proof-or-stop binary resolves into ANOTHER story's worktree (.worktrees/B-fe8f) and is a pre-rename build, so it fails with 'promptEnvelope.roles contains unknown role'; dispatch and agent_prompt are both dead through it. Every command in this story had to run as node packages/main/dist/cli.js. Diagnose the entrypoint before believing an 'unknown role' error is a registry defect - it is not. (2) The proof selector on a mechanical receipt must DISCRIMINATE. 'finalAuthority: no' prints on every branch, so the receipt recorded pass while its own outputTail showed status: stop. Pins are immutable, so a bad selector is uncorrectable - choose it as carefully as the command. (3) Registering one new CLI command needs six registries, not one: registry.ts, command-catalog.ts, command-policy.ts, config.ts DEFAULT_PHASE_TOOLS, cli/activity-policy.ts READ_ONLY_COMMANDS and process-fact-levels.ts, each failing closed. And a new test suite needs THREE inventories - npm script, test:serial-reference and RESOURCE_POLICY - plus validate.commands if any evidence will pin it, which is what F-005 was. (4) Do not copy a count out of a subagent report into a durable record without re-running the query; that produced two findings here, the second inside the correction for the first. (5) A claim such as 'filed for the spec owner' must name an in-repository artifact that exists at write time; a session task chip is not one, and gap_log is currently broken, so story_draft is the durable follow-up record mechanism. (6) plan.md CHK-001's shell-rule note is WRONG and could not be amended (plan_set is refused after DEV): the portable tuple uses declared shell intent only; the platform-effective rule belongs solely to the complete runtime tuple. See finding F-017. (7) Bounding an error at the collector is not enough; every downstream interpolation into operator prose must be bounded and covered, which F-016 found at four sites.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 299794
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23503
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1367355
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 6693972
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 17223956
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 16123790
+    }
+  },
+  "totalDurationMs": 41732895,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-02T04:35:56.198Z",
+  "updatedAt": "2026-09-02T12:28:43.946Z"
+}

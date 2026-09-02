@@ -1031,6 +1031,17 @@ export interface VerificationEvidence {
   waiverType?: 'permanent' | 'deferred_gate_evidence';
   file?: string;
   command?: string;
+  /**
+   * B-a745 CHK-002: OPTIONAL stable id of the validation command this evidence
+   * pins (`core/validation-command-identity.ts`).
+   *
+   * New evidence should record it. Historical evidence has only the free-form
+   * `command` string above, which the canonical legacy pin resolver normalizes
+   * and matches on the complete executable tuple. A resolved id is written by a
+   * future re-record only: the resolver never rewrites historical evidence in
+   * place merely to migrate it.
+   */
+  commandId?: string;
   result?: 'pass' | 'fail';
   note: string;
   /** Optional git HEAD captured when evidence was recorded. */
