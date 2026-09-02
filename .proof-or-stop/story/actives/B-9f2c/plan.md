@@ -69,13 +69,13 @@ re-applying it — record whichever was done in the commit message.
 **DependsOn**: CHK-002
 **Files**:
 - Modify: packages/main/src/handlers/graph.ts, packages/main/src/cli/command-catalog.ts
-- Test: packages/main/src/tasks (a smoke task following the existing tasks/*-smoke.ts convention)
+- Create/Test: packages/main/src/tasks/graph-story-flag-smoke.ts (following the existing tasks/*-smoke.ts convention)
 
 **Verify**:
 - `npx tsc --noEmit -p packages/main` exits 0
 - `node packages/main/dist/cli.js graph --story=B-0000zzz --no-open` exits non-zero and prints `is not a story in this repository`
 - `node packages/main/dist/cli.js graph --help` shows the `--story` option
-- The new smoke task passes
+- `node packages/main/dist/tasks/graph-story-flag-smoke.js` exits 0
 
 **DoneWhen**:
 - `GraphArgs` has an optional `story` field and the catalog registers it as an optional `z.string()`, with the default documented in the description and NOT expressed via `.default()`
@@ -122,12 +122,12 @@ graph entry at all. A task added to neither list typechecks and looks wired up w
 running nowhere.
 
 **Verify**:
-- `grep -n '<name>-smoke' lattice.config.json` matches
-- `grep -n '<name>-smoke' package.json` matches in both the scripts block and `test:serial-reference`
-- `npm run test:<name>-smoke` exits 0
+- `grep -n 'graph-story-flag-smoke' lattice.config.json` matches
+- `grep -n 'graph-story-flag-smoke' package.json` matches in both the scripts block and `test:serial-reference`
+- `npm run test:graph-story-flag-smoke` exits 0
 
 **DoneWhen**:
-- The CHK-003 smoke task is registered in `validate.commands` in the established form
+- `graph-story-flag-smoke` is registered in `validate.commands` as `node packages/main/dist/tasks/graph-story-flag-smoke.js`
 - `package.json` exposes an npm script alias for it
 - `test:serial-reference` invokes that script
 - Both surfaces reference the task; neither is left to imply the other
