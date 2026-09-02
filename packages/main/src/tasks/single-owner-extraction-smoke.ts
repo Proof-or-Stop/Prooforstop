@@ -91,9 +91,9 @@ const REPO_ROOT = resolve(MAIN_SRC, '..', '..', '..');
 
 // F-007 -- the verification executor (core/validation-executor.ts, MAX_OUTPUT_CHARS = 12000) keeps only the
 // first 12000 chars of a pinned command's stdout BEFORE matching the proof selector, so a `[PASS]` line printed
-// past that offset is refused as absent. The audit block is therefore compact by default; the per-read line
-// detail is printed only under SINGLE_OWNER_AUDIT_VERBOSE=1, and the last CHK-004 case asserts the default run
-// stays under DEFAULT_STDOUT_BOUND_CHARS. Every write to this process's stdout is counted here (console.log goes
+// past that offset is refused as absent. The audit block is therefore compact by default (one line per caller with
+// its call lines as a column, F-010); the full rule text and the per-read line detail are printed only under
+// SINGLE_OWNER_AUDIT_VERBOSE=1, and the last CHK-004 case asserts the default run stays under DEFAULT_STDOUT_BOUND_CHARS. Every write to this process's stdout is counted here (console.log goes
 // through process.stdout.write; no child process inherits stdout) so that case measures the real output.
 const AUDIT_VERBOSE = process.env.SINGLE_OWNER_AUDIT_VERBOSE === '1';
 const DEFAULT_STDOUT_BOUND_CHARS = 10_000;
@@ -1715,16 +1715,19 @@ function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VER
     lines.push('        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context; local callees, arrow parameters and resolveStoryWorkspace itself are not delegations');
   } else {
     // F-007: the default block must fit the verification executor's selector window with the rest of the smoke;
-    // the full rule text, the call lines and the per-read lines are printed under SINGLE_OWNER_AUDIT_VERBOSE=1.
+    // the full rule text and the per-read lines are printed under SINGLE_OWNER_AUDIT_VERBOSE=1.
     lines.push(`  rule: caller = a CALL EXPRESSION of the imported resolver binding; workspace-rooted = every story/checklist/config read and every handler call goes through a resolveStoryWorkspace() result; otherwise reads ctx.root: <story|checklist|config|via-handler(<callee>, ...)>; full rule, call lines and per-read lines: SINGLE_OWNER_AUDIT_VERBOSE=1`);
   }
   lines.push(`  callers (${report.callers.length}):`);
+  const callsOf = (caller: ResolverCaller): string => caller.callLines.map((line) => `L${line}`).join(',');
+  const callWidth = Math.max(...report.callers.map((caller) => callsOf(caller).length), 1);
   for (const caller of report.callers) {
+    const calls = callsOf(caller);
     if (!verbose) {
-      lines.push(`    ${caller.file.padEnd(width)}  ${classificationOf(caller)}`);
+      // F-010: the call lines are printed by default as one compact column; per-read detail stays verbose-only.
+      lines.push(`    ${caller.file.padEnd(width)}  ${calls.padEnd(callWidth)}  ${classificationOf(caller)}`);
       continue;
     }
-    const calls = caller.callLines.map((line) => `L${line}`).join(',');
     const detail = caller.remainingReads.length ? `  -- ${describeReads(caller.remainingReads)}` : '';
     lines.push(`    ${caller.file.padEnd(width)}  calls ${calls.padEnd(18)}  ${classificationOf(caller)}${detail}`);
   }
@@ -2060,7 +2063,7 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       // The summary line below is part of the output; its length depends only on the digit count of the projection.
       let projected = base + summaryLine(base).length + 1;
       projected = base + summaryLine(projected).length + 1;
-      assert.ok(projected < DEFAULT_STDOUT_BOUND_CHARS, `default stdout is ${projected} chars, not under ${DEFAULT_STDOUT_BOUND_CHARS}: the audit block (${compactChars} chars by default) must stay compact -- one line per caller, call lines and per-read detail only under SINGLE_OWNER_AUDIT_VERBOSE=1`);
+      assert.ok(projected < DEFAULT_STDOUT_BOUND_CHARS, `default stdout is ${projected} chars, not under ${DEFAULT_STDOUT_BOUND_CHARS}: the audit block (${compactChars} chars by default) must stay compact -- one line per caller with a call-line column; the full rule and per-read detail only under SINGLE_OWNER_AUDIT_VERBOSE=1`);
       assert.ok(!compact.some((line) => /\bcalls L\d/.test(line) || line.includes('  -- ')), 'the default rendering carries no per-read detail (call lines are a compact column, not the verbose `calls` form)');
       assert.ok(verboseChars > compactChars, 'the verbose rendering is the one carrying the detail');
       console.log(summaryLine(projected));
