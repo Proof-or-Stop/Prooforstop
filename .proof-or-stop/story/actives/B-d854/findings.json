@@ -97,7 +97,7 @@
       "desc": "AGENTS.md:492-530 / CHK-001:adversarial:0 and CHK-003:adversarial:0 evidence — the active-command checker is a false-green oracle for exact examples. Its regex retains only a command name (plus the codex subcommand), then invokes `<command> --help`; it discards every documented argument and never runs concrete read-only examples or validates mutating payloads in a disposable repository/schema path. Therefore an example with a nonexistent flag, wrong payload field, or invalid value would still pass. This fails the pinned intent that every active example be operational and that read-only/mutating examples be exercised safely. Replace it with an extractor that validates each complete example and include a deliberately malformed-argument mutation in addition to the nonexistent-command sentinel.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-02T00:25:16.408Z",
@@ -109,7 +109,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "adversarial|md|agents-adversarial-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The verifier executes the exact 42-case command-contract ledger, validates full argv/schema for mutating examples, executes safe read-only examples, and rejects unknown and malformed invocations; final receipt exits 0.",
+      "resolvedAt": "2026-09-02T01:05:09.806Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-006",
