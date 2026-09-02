@@ -1255,7 +1255,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:341-346 — HIGH: whole-source invariant validation leaves the entire pre-authority lead as an arbitrary 96-character span. An affirmative Dynamic Finding authority claim placed between the initial compare/audit verb and the later `Dynamic Finding runtime` phrase therefore satisfies `boundedLead`, while the later nominal `this change ... remains unchanged` grants the exception at line 374. Built-dist reproduction accepted all four unsafe Story descriptions: `Compare while this Story adds a new applicability verdict the Dynamic Finding runtime before and after this change remains unchanged.`, the same actor claim parenthesized, `Compare the newly official applicability verdict and the Dynamic Finding runtime before and after this change remains unchanged.`, and `Compare if this Story recognizes a new official verdict the Dynamic Finding runtime before and after this change remains unchanged.` The exact live CHK-003 invariant and the safe short invariant were also accepted, while ASCII/Unicode period and semicolon suffix attacks were rejected. Thus F-053/F-054 tail and punctuation cases are fixed, but authority before the matched authority noun still launders through the nominal-change exception. The invariant grammar must validate the complete lead semantically/structurally, not use an unrestricted `[^.;!?]{0,96}` prefix.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T07:41:45.022Z",
@@ -1263,7 +1263,11 @@
       "reviewRunId": "B-9a49:RR-083",
       "_hash": "0740135aacabd5d7cd6934babc557a2615312c5cab4cd924d46852af7e680616",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed with the same structural whole-source correction in 1b8fdfe672fbf1d7970573bdf6be6f82f2651f33, including the independently discovered unrestricted bridge position after the Dynamic Finding noun but before the change/update relation. RED reproduced actor, parenthetical, verbless official, conditional, Unicode and three bridge-position authority mutations; GREEN rejects all such lead/bridge variants without a finite amendment-verb allowlist. Current RR-085 production-dist matrix, full-context/registry/baseline checks, 60/60 receipts, pre-review and rollout all pass; protected authority/runtime diff is empty.",
+      "resolvedAt": "2026-09-02T08:13:57.587Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-057",
