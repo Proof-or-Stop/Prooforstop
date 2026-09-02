@@ -273,6 +273,21 @@
       "_hash": "ade0dd0de95ab3100e58b84623d0b809c21aa15d3cd6c2b050a395bb41069e4d",
       "signatureTag": "missing|unknown|docs-audits-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-014",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:1-128 — WHY high acceptance blocker: the user explicitly required Claude CLI and Agy CLI to participate in the independent consistency evaluation, but the durable audit contains no Claude/Agy session identity, transcript hash, command, verdict, or provenance at all (repository search for Claude, Agy, AGY, claude-cli, and the known session identifiers finds no independent-review record in this artifact). Host-only narrative at final handoff would not let a fresh reviewer reproduce or authenticate that requested participation. Add a bounded external-review evidence section binding provider/CLI version, session or transcript identity, SHA-256, exact audit prompt/scope, salient independently confirmed or rejected findings, and explain that repository-local implementation remains the behavior authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T01:08:30.962Z",
+      "reviewRound": "2026-09-02T01:04:47.350Z",
+      "reviewRunId": "B-d854:RR-005",
+      "_hash": "d76ec93c568511a53d80cfc704c4e76ef1ffbe93eb33492ed0de7cf722ab4481",
+      "signatureTag": "missing|unknown|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
