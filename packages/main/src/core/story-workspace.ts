@@ -25,8 +25,10 @@
  *   - The phase-terminal guard (`DONE` / `DISCARDED` never read from a linked
  *     worktree — a merged-and-removed story must never be resolved as if it
  *     were still live, and a residual worktree is residue, not authority) is
- *     the `terminalPhaseGuard` option. The helper default is ON; each caller
- *     passes the value that matches its pre-CHK-003 behaviour explicitly.
+ *     the `terminalPhaseGuard` option. The helper default is ON and every
+ *     caller passes its value explicitly: story_list, session_brief and
+ *     validation_plan (guarded since B-41c8 F-004) pass true; the local
+ *     assurance projection passes false (activeOnly is its own filter).
  *     When the guard refuses, `gitCwd` is the invocation root and no git
  *     process is spawned: a terminal story's tree IS the invocation root, and
  *     list-shaped callers (story_list, session_brief) iterate every story.

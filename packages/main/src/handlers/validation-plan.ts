@@ -699,11 +699,14 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
       // back to the invocation root; nothing is written either way. No cwd gate
       // is added on purpose; the command must simply look at the right tree.
       //
-      // terminalPhaseGuard=false keeps this handler's pre-CHK-003 behaviour: it
-      // never applied the phase-terminal guard, so a DONE story with a residual
-      // worktree is still planned over that worktree (a merged-and-removed one
-      // cannot be read and resolves to the invocation root either way).
-      const workspace = resolveStoryWorkspace(ctx, request.storyId, { terminalPhaseGuard: false });
+      // terminalPhaseGuard=true (B-41c8 F-004, closing B-a745 F-014): a DONE /
+      // DISCARDED story is never planned from a linked worktree. Before CHK-003
+      // this handler applied no guard, so a just-merged story whose worktree had
+      // not been cleaned up yet was still planned over that residue while
+      // story_list / session_brief already refused it; the plan now agrees with
+      // them and reads the invocation root (a merged-and-removed worktree
+      // cannot be read and lands there either way).
+      const workspace = resolveStoryWorkspace(ctx, request.storyId, { terminalPhaseGuard: true });
       const gitCwd = workspace.gitCwd;
       const storyStore = workspace.store;
       // The plan's project root is the story's tree as gitCwd spells it (its
