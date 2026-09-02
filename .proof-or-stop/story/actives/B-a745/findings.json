@@ -234,7 +234,7 @@
       "desc": "[Registered by the story owner ON BEHALF OF the independent Codex host from cross_host_review run B-a745-xhr-r1, verdict verdict-96c790e338428427; content recovered verbatim from the Codex session transcript because the handler persists no finding text.] Codex (MAJOR as filed): 'Unresolved legacy pins incorrectly produce a plan instead of stopping. When a legacy evidence command matches zero inventory entries, the resolver returns pinned_command_non_inventory. The planner then deliberately widens this to repository-full and returns status=plan. This contradicts CHK-002 and the approved plan, which require zero matches to produce pinned_command_missing and no plan; even the adjacent code comment says zero is a stop.' OWNER TRIAGE, split into two parts. (A) THE SUBSTANTIVE DISAGREEMENT is the already-recorded F-001 design decision: the governing spec contradicts itself (its widening matrix says only an EXPLICIT pin stops; its resolver step 4 says any no-match stops). Codex, as a fresh reader with no review history, applied the frozen CHK-002 intent text and the resolver-step reading; the implementation follows the matrix reading, endorsed by the behavior lane (RP-002), recorded as a permanent supersession waiver on CHK-002:edge:0, and filed for the spec owner B-ccf4 to reconcile. That is a legitimate disagreement between two readings of a self-contradictory spec, not an unnoticed bug; it is NOT re-decided here and is deliberately downgraded from MAJOR because nothing is pruned under either reading. (B) THE CONCRETE CHECKABLE CLAIM IS TRUE AND IS A REAL DEFECT: the comment at validation-command-identity.ts ~line 551 still reads '3. Exactly one match binds. 4. Zero is a stop. 5. Two or more is a stop' while the code immediately below returns status non-inventory for zero matches. A comment that contradicts the implementation is exactly how the next reader gets misled, and it is the same drift class as the F-006 duplicated-fact finding. Fix in scope: rewrite the comment to state the actual three outcomes and point at the F-001 rationale.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-02T07:37:26.561Z",
@@ -244,7 +244,11 @@
         "packages/main/src/core/validation-command-identity.ts"
       ],
       "signatureTag": "missing|ts|registered-story-owner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed (commit 233415b3ac, comment-only). The comment in validation-command-identity.ts that read '4. Zero is a stop' now states the actual three outcomes -- one match binds, zero matches is non-inventory and widens to repository-full, two or more is a stop listing every candidate -- and points at the F-001 rationale. No behaviour change; suite still passes. The SUBSTANTIVE half of Codex's original finding (that zero matches ought to stop) is not re-decided here: it is the documented spec self-contradiction (widening matrix says only an explicit pin stops; resolver step 4 says any no-match stops), already carried by the F-001 resolution, the behavior lane pass RP-002, the permanent supersession waiver on CHK-002:edge:0, and the chip filed for spec owner B-ccf4. Codex read the frozen intent and the resolver-step sentence as a fresh reader with no review history; that is a legitimate disagreement between two readings of a contradictory document, and it was downgraded from MAJOR because nothing is pruned under either reading.",
+      "resolvedAt": "2026-09-02T07:54:30.646Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
