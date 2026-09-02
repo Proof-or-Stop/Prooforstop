@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "At PLAN, run the workspace-resolution audit fixture and record its flagged-caller list in plan.md as the migration scope",
+      "context": "The audit fixture from single-owner-extraction-readers-parsers enumerates resolveGitCwd callers by grep and classifies each; paste its output into plan.md rather than restating it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Migrate every flagged handler onto the shared workspace resolver with a per-caller cross-checkout regression case",
+      "context": "Model each case on B-a745's F-010 fixtures: invoke from the story worktree and from the main checkout (bypassing any cwd gate the way validate --story does) and assert identical output.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Finish only when the audit fixture reports zero flagged callers and runs in the canonical inventories",
+      "context": "The terminal assertion is the audit itself; register it in test:serial-reference plus RESOURCE_POLICY so a future caller that regresses is caught.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
