@@ -291,6 +291,35 @@
         "scanEscalationReason": null
       },
       "_hash": "aa5b57a6be7fccc956fa0e79d1b358a381e49063c1408c4a499e040abbf4d002"
+    },
+    {
+      "id": "B-a745:RP-012",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 re-verification (rebound RR-017->RR-020 after concurrent F-019/F-020 activity landed a comment-only diff in validation-command-identity.ts, re-confirmed no functional change, suite still PASS at new HEAD). Checked out each of the 6 new commits (207d6f1adc, 28188ef373, 48048697fa, 03df6da9fb, 8345c873d6, 3790b0f193) into isolated temp worktrees, built, ran validation-tier-planner-smoke.js. All 3 RED commits fail with exactly the case counts/names their commit messages claim; all 3 GREEN commits pass cleanly. F-017 fixtures cover all 4 requested cases including the COMPLETE runtime tuple asserting notEqual(normalizedTupleDigest) win32 vs posix, proving the runtime side was not flattened. F-016 fixtures cover all 4 sites (changed-files/hash-snapshot/duration-basis/malformed-pin) with genuinely multiline fixtures (40-45 line dumps) asserting absence of every dump line, not just presence of a summary. GREEN diffs are a genuine shared boundedFailureSummary/classifyChangedFilesFailure mechanism. Coverage: 34/34 must intents have evidence with materialHash+storyFilesHash matching current story state. No checklist selector, before or after F-017, ever contained the string shell, so the rewritten old case name was never pinned as anyones selector -- nothing for refresh to have missed. F-012 (my round-3 deferred finding) remains dismissed with its original chip/reason intact. Tests that exist because of each finding: F-016 -> the planner renders a bounded changed_files_unavailable detail, never the raw git usage dump (207d6f1adc/28188ef373) plus hash-snapshot and duration-basis siblings (48048697fa/03df6da9fb); F-017 -> the COMPLETE runtime tuple for an undeclared-shell command still differs on win32 (8345c873d6/3790b0f193). No blocking findings.",
+      "createdAt": "2026-09-02T08:50:34.736Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-020",
+      "envelopeId": "f09a2bb81419cabda6bf9680b53d9225a764ccf7704a63a0d7229a485597e215",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d900e5a31f4a44edcb909458f2d3ec8a75632131f6b17e7518a019148a18409"
     }
   ]
 }
