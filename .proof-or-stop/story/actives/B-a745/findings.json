@@ -57,6 +57,24 @@
       ],
       "signatureTag": "missing|ts|placeholder",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-004",
+      "desc": "validation-tier-planner.ts:229-235 VALIDATION_WIDENING_REASONS.pinned_command_missing gloss (\"Recorded evidence points at a validation command that no longer exists in this project, so no plan is produced until the evidence is re-recorded\") is not actually actionable in the exact circumstance this story demonstrates it in (see F-001): the command DOES exist and DOES run in the project (it is a real, DONE-required root test:serial-reference member script) -- it is simply absent from the separate validate.commands registry the pin resolver consults. Following the glosss literal advice (re-record the evidence against a current command) sends an operator toward the wrong fix: there is no different, more-current command to re-pin to -- the real remedy is reconciling the two disjoint command registries (validate.commands vs test:serial-reference/RESOURCE_POLICY), which the gloss does not mention and the operator has no way to discover from the CLI output alone. The reviewer brief asked specifically whether these glosses are genuinely actionable or jargon restated in longer words; for this reason code, in its own dogfood story, the answer is neither -- it is confidently-worded but factually misleading actionability.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T03:04:01.541Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-001",
+      "_hash": "cf3fe62b5f9003abfdb0c897f564ea0767be350f7e52f325ef77e3634251316c",
+      "files": [
+        "packages/main/src/core/validation-tier-planner.ts"
+      ],
+      "signatureTag": "edge|ts|validation-tier-planner",
+      "signatureTagSource": "auto"
     }
   ]
 }
