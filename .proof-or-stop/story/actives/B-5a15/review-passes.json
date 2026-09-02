@@ -13410,6 +13410,49 @@
         "scanEscalationReason": null
       },
       "_hash": "f70e5bbe3c2e1c53d3626fdd203177549b0f7a757b2cd60d6569bc8d0a9f232f"
+    },
+    {
+      "id": "B-5a15:RP-281",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane re-attestation for epoch RI-061 (wave 1). RI-061 frozen cutoff 0dd3167744 is identical to RI-060, so the material is byte-identical to what this lane passed at RP-277/RP-280; no product-code change to re-litigate. Verified the material scope INDEPENDENTLY by per-file blob hash rather than trusting review_incremental_context (which reported changedFiles: []): git diff --raw -M d5be091089..HEAD lists ONLY 8 story-metadata files under .proof-or-stop/story/actives/B-5a15/ (acceptance-basis, findings, process-events, process-metrics, prompt-envelopes, review-passes, review-runs, scope-contract); ZERO product files. Strongest form: the packages/ tree hash (544418252a) and docs/ tree hash (679bd8d6f9) are byte-IDENTICAL at prior head d5be091089 and at HEAD 1df89edff5. Confirmed the CLAUDE.md revert: blob 6091c5045f at d5be091089, moved to b3a4eab9fb by 2f3f829766, restored to 6091c5045f by 9f0c2ac3f8, and the working-tree file hashes to 6091c5045f - back to its pre-commit content, so storyFilesHash af9bbe5069 is restored. Re-confirmed the two load-bearing guards at this head: validate-resource-claims.test.mjs => PASS (34 assertions), including CONFIGURED-PLAN-CLASSIFIED (116 commands, 100 declared, 16 exclusive by fail-closed default) and the CHK005 audited-barrier and collision-probe rows; red/red-b49d4-registration-derivation.mjs => 0 RED / 26 GREEN of 26 rows, and it self-verifies REAL_CONFIG_BYTE_UNMODIFIED and REPO_TREE_NEVER_WRITTEN_TO. Spot-checked all four prior fixes intact with rationale comments present: F-339 handlers/checklist.ts:617-619 (mechanical===false selects sameAuditedAttestationIdentity, closing the note-only re-stamp hole); F-334 evidence-freshness.ts:483 and :513 (byte ordering, never localeCompare, both sort sites consistent); F-336/F-337 handlers/certification-window.ts:119-126 (review-subject feeds integration so docs-only edits cannot under-invalidate); F-338 core/certification-window.ts:809-817 (digests mapped into the parameter shape so both comparisons actually run). Wave-4 quality boundary: acceptance_topology_check status=pass basisStatus=complete structuralPass=true blocking=no authority=diagnostic_only diagnostics=none; acceptance_rollout_report_read PASS receipt=current quorum=full-3x2 codes=none, and I verified the quorum is GENUINE and not a degraded 3x1 by reading the observation receipts directly - rounds=3, emittedCount=6, 6 distinct verdictIds, 3 distinct runIds, and BOTH claude-cli and codex-cli present in every round, with metrics mislabeled3x1Count=0, falsePassCount=0, falseBlockCount=0, omissionDetectionRate=1; the signed receipt binds storyFilesHash af9bbe5069 matching the frozen cutoff. All four acceptance commands remain verifier/gate-owned and prompt prose was not treated as evidence. Suite: packages/main/tests/causal-evidence.test.mjs 21 pass / 0 fail, and the tree stayed clean with packages/ and docs/ tree hashes unchanged afterwards, so the suite wrote no product files. tsc --noEmit green for packages/main, packages/graph and packages/utils. Role-specific quality checks over the 39 changed product files: zero empty catch blocks, zero @ts-ignore or @ts-nocheck; all five production-path 'as any' uses are narrow and defensible and unchanged from the already-passed material (pre-review-live-proof.ts:248 gzip mtime:0 absent from the @types/node ZlibOptions surface and load-bearing for deterministic output; validation-executor.ts:509-511 narrowing Array.isArray-guarded unknown JSON before per-element validation; handlers/verifier.ts:283 and :322 reading optional config keys), the remainder confined to src/tasks/*-smoke.ts harnesses that deliberately construct malformed input. Explicitly NOT filed: pre_review_check_read reports PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED, and I verified that exact pair is allow-listed in causal-evidence.test.mjs at :2503 and :2670 as a bounded bootstrap - the relaxation applies only when status===fail so it never converts a fail into an asserted pass, the code sets are closed enumerations, and the strict PASS branch remains the only path asserting admissibility, so it cannot manufacture a false PASS; it also reports blocking=false. My prior judgement on the graph write-probe stands unchanged: a spurious digest flip from a concurrent heartbeat append can only cause a FAILURE, never a false PASS, since an unrelated append cannot cancel a real write out of a sha256 chain. No new findings; no defect introduced or masked by the F-350 repair or the CLAUDE.md revert.",
+      "createdAt": "2026-09-02T12:03:14.725Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-849",
+      "envelopeId": "c44fa17e23fa1045c078e51b9e7f6737be8c0c5a5f7909bb4a0520b0210d4204",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "8bb5ff232ceec220f3e7c5a6cbe472cafd1d3caac115668c3c375a52425736d3"
     }
   ]
 }
