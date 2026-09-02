@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-deleted",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-41c8:F-002",
+      "desc": "quality-cleanup: packages/main/src/handlers/validation-plan.ts:678 `const { store, root } = ctx;` — `store` is destructured but never read anywhere in createValidationPlanHandlers after the CHK-003 refactor moved workspace resolution into `resolveStoryWorkspace(ctx, ...)`. Confirmed by diffing `tsc --noUnusedLocals -p packages/main` between main and this branch: this TS6133 hit is new on this branch (3 other unused-declaration hits in the same run are pre-existing on main, this one is not). Dead variable left behind by the extraction; delete it from the destructure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T15:01:29.856Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-003",
+      "_hash": "5a57bae8519f770fb571b69624bfa985bd899c935256a7dbc46becfde9623b0e",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
