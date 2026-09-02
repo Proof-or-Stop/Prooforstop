@@ -538,6 +538,24 @@
       ],
       "signatureTag": "adversarial|ts|validation-plan-return",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-026",
+      "desc": "validation-command-identity.ts:226-228 buildValidationCommandInventory(args:{projectRoot,commands}) still declares a required projectRoot parameter, but F-023 (commit 8613d6d6ec) removed the only statement inside this function body that read it (the old `narrowPortableValidationCommandTuple({ projectRoot: args.projectRoot, command })` call became `narrowPortableValidationCommandTuple({ command })`). Confirmed by extracting the full function body: zero other reference to args.projectRoot inside it. Every caller (buildValidationPinUniverse, validation-plan.ts:744, and 7 call sites in validation-tier-planner-smoke.ts) still supplies a value that is silently dropped. The function's own JSDoc (added by the same F-023 commit) additionally misstates this as `projectRoot is provenance for the caller only; no identity input is derived from it` -- but the return type ValidationCommandInventory carries no projectRoot field anywhere, so it is not provenance either; it is simply unused. No behavioral bug (identity is correctly location-independent either way), but this is exactly the kind of concept-cleanup residue this review checks for: a dead parameter plus an inaccurate doc claim left over from an in-scope refactor.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T09:41:48.865Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-024",
+      "_hash": "1686aeccb8ddda5678189021d942c6d168465886b4dc6681b81f677af648d436",
+      "files": [
+        "packages/main/src/core/validation-command-identity.ts"
+      ],
+      "signatureTag": "missing|ts|validation-command-identity",
+      "signatureTagSource": "auto"
     }
   ]
 }
