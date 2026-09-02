@@ -171,6 +171,34 @@
         "scanEscalationReason": null
       },
       "_hash": "5f3726f870990f047e05c758e4292bb11286a7769c56080f30e04b5475794ed7"
+    },
+    {
+      "id": "B-9f2c:RP-006",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-verification pass (prior B-9f2c:RP-003 pass invalidated only by later unrelated commits changing the file set, not by a reviewer error). Step1 symbol extraction from git diff main...HEAD yielded ~250 identifiers (dense minified dossier.js plus graph.ts additions); Step2 grep against README*.md/CLAUDE.md found the user-facing --story flag documented at CLAUDE.md:329,338,343 and packages/graph/README.md:95-108, while internal helper symbols (assertGraphStoryExists, graphStorySuggestions, GRAPH_STORY_SUGGESTION_LIMIT, resolveStories) have zero doc hits, consistent with pre-existing internal helpers (openBrowser, findRoot) also having zero doc hits -- fallback rule 2 applies, no finding required. Re-confirmed all 4 previously-verified doc claims against current HEAD (1eeaa21b): the 4s/15s poll interval text in README matches dossier.js poll() implementation; the pre-listen refusal + near-miss-candidate claims in both docs match assertGraphStoryExists/graphStorySuggestions in graph.ts (throws before startServer, using resolveStories(root).primary); README keeps 'How the CLI reaches this package' and never presents proof-or-stop-graph as a runnable binary; CLAUDE.md (Chinese) and README.md (English) each match their own file's language convention. Additionally assessed the two NEW artifacts named in this round's dispatch for factual accuracy: (1) the two B-9f2c RE-APPROVAL comment blocks in retired-authority-vocabulary-guard-smoke.ts (lines ~483-490 and ~1621-1628) claim the --story diff in graph.ts introduces no import()/require()/eval()/Function() and that the five pre-existing loader call sites are byte-identical to main -- verified independently via git diff main...HEAD -- packages/main/src/handlers/graph.ts: the added code is limited to assertGraphStoryExists, graphStorySuggestions, editDistance, a resolveStories(probe.root) call, and encodeURIComponent-based URL construction; grep for import(/require(/eval(/new Function( in the added (+) diff lines returns zero matches; the existing await import(.../createRequire( call sites are outside every diff hunk, i.e. untouched. The comments' claim is accurate, not overclaiming. (2) scope-contract.json's acknowledgement (main-agent, 2026-09-02T10:26:37Z) restates the same technical claims, which check out identically; its one non-mechanically-verifiable clause ('human re-approval ... obtained explicitly from the user') is a process attestation about an out-of-band exchange, not a doc-code consistency claim, so it is outside this reviewer's mechanical scope and is not treated as a defect. Tree verified clean of tracked-file changes (git status --short shows only framework-owned .proof-or-stop/story/actives/B-9f2c/{process-events.jsonl,prompt-envelopes.json,review-runs.json}); no negative-control artifact (e.g. removed /story route) present this round. No doc-code-drift, doc-promise-undelivered, or misleading-comment findings identified.",
+      "createdAt": "2026-09-02T13:14:32.903Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-011",
+      "envelopeId": "92a98b13a3540ba9e7b1e802946dc57821fc78a6ba2764de37ade9216c92a592",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "CLAUDE.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65d69dd9feec673f444771ff97841c4373b8b04ab05830c5de998ab80cefcea6"
     }
   ]
 }
