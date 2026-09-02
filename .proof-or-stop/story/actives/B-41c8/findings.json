@@ -105,7 +105,7 @@
       "desc": "validation-tier-planner-smoke case F-023 pins the real-inventory commandSetDigest (validation-tier-planner-smoke.ts:403, eba363ed...). CHK-004 commit b11dd0fb02 added test:single-owner-extraction to proof-or-stop.config.json validate.commands, so the real digest is now 791165cf... and the suite prints validation-tier-planner-smoke: FAIL (1 case failed) on this branch while main passes. Re-pin the digest to the value the current inventory produces and state in the commit body why it moved. Separately observed, not fixed here: the suite exits 0 despite printing FAIL, so a validate gate would not catch this; recorded for the test-and-guard credibility story.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-02T15:34:06.891Z",
@@ -116,7 +116,8 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "missing|ts|validation-tier-planner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-006@e7e44db"
     },
     {
       "id": "B-41c8:F-007",
