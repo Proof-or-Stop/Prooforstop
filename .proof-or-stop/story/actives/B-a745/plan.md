@@ -39,10 +39,20 @@ entry does not.
 - The wide machine-dependent digests (`effectiveEnvironmentDigest`, `executableDigest`,
   `shellExecutableDigest`) are NOT in the id. They are computed via the existing normalizer and
   surfaced as separate pin-resolution evidence (CHK-002).
-- `commandSetDigest` = sha256 over the ordered list of `{id, command, args, cwdRelative, shell, timeoutMs, optional}`.
-  `focus` is deliberately excluded from relevance but IS included in the digest, because a focus
-  change is a config change that must invalidate a plan.
+- `commandSetDigest` = sha256 over the ordered list of
+  `{id, label, command, args, cwdRelative, shell, timeoutMs, optional, focus}`.
+  `label` and `focus` are BOTH in the digest. This corrects a contradiction in the first draft of this
+  plan, which listed a formula omitting them while asserting in prose that focus was included
+  (scope-check OQ-1). `label` is required by the spec line "the selection command-set digest and
+  existing routine identity both change" for a label rename whose stable id survives; `focus` is a
+  config change that must invalidate a plan. Being in the DIGEST is a different question from being in
+  RELEVANCE: `focus` is excluded from relevance computation and included in the digest, and those two
+  facts are not in tension.
 - Duplicate ids (declared or provisional) are a hard error naming both entries. Never dedupe.
+- Emit a migration WARNING while any command in the inventory still relies on a provisional id, per
+  the spec's migration bullet "show a warning until the project declares stable IDs". The `prov-`
+  prefix alone does not satisfy this; the warning must be its own emitted line naming how many
+  commands still lack a declared id (queried at emit time, never a figure written into prose).
 
 **Verify**:
 - `node packages/main/dist/tasks/validation-tier-planner-smoke.js` ends `validation-tier-planner-smoke: PASS`
@@ -52,6 +62,10 @@ entry does not.
 - A declared id is preserved verbatim; an undeclared one gets a `prov-` id.
 - Changing only a command's label, or its array position, leaves its id unchanged.
 - Two commands with identical narrow tuples are rejected as duplicates.
+- Renaming ONLY a command's label changes the `commandSetDigest` while leaving that command's stable
+  id unchanged. Both halves are asserted in one fixture; this is the exact case the spec calls out.
+- A warning naming the count of commands still on provisional ids is emitted while any remain, and is
+  absent once every command declares an id.
 - A fixture proves the routine validation identity digest is byte-identical before and after the
   optional field exists while no id is declared, AND that declaring an id in the project config
   changes `source.inputDigest`. Both assertions are required; the second is what proves the new
@@ -107,6 +121,14 @@ entry does not.
   `checklist-test` / `evidence-pin` / `risk-signal`).
 - A FAILURE to read changed files is `changed_files_unavailable`, never an empty array. This is the
   single most important negative case in this item.
+- Collect the remaining two rows of the spec's Story input contract table that the first draft of this
+  plan omitted (scope-check gaps 2 and 3):
+  - **Command duration history**, read from prior signed validation artifacts. It is an ESTIMATE-ONLY
+    input: it may never affect which commands are selected, and CHK-005's "estimated duration and
+    basis" output is what consumes it. Absent history is reported as unknown-duration, not as zero.
+  - **Verification intent**, carried as human-readable reason context only. The spec is explicit that
+    it is "never parsed as the only machine mapping", so it must not be used to derive any
+    command-to-seed edge; it exists so the `--explain` output can say why a human cared.
 
 **Verify**:
 - `node packages/main/dist/tasks/validation-tier-planner-smoke.js` ends `validation-tier-planner-smoke: PASS`
@@ -115,6 +137,10 @@ entry does not.
 - Rename, delete, story-metadata-exclusion, and read-failure fixtures all pass.
 - A fixture asserts the collector calls the shared rename-aware reader (for example by injecting a
   failing reader and observing the classified escalation) rather than duplicating git access.
+- Duration history is collected and surfaced, with absent history reported as unknown-duration; a
+  fixture asserts duration data cannot change the selected set.
+- Verification intent is collected as reason context only; a fixture asserts it produces no
+  command-to-seed edge on its own.
 
 ## CHK-004: Add language-neutral planner types and the fail-closed widening matrix
 

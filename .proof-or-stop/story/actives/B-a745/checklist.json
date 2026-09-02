@@ -44,7 +44,17 @@
             "priority": "must"
           },
           {
-            "desc": "Renaming a command's label, or moving it to a different array position, does not change its provisional id; identity is never derived from label or index.",
+            "desc": "Moving a command to a different array position does not change its provisional id; identity is never derived from index.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Renaming ONLY a command's label leaves that command's stable id unchanged AND changes the commandSetDigest, because the spec requires a label rename to invalidate the selection command-set digest while the id survives for graph continuity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "While any command in the inventory still relies on a provisional id, a migration warning is emitted naming how many commands still lack a declared id; once every command declares one, the warning is absent.",
             "type": "logic",
             "priority": "must"
           }
