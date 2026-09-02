@@ -11,9 +11,16 @@ import {
   currentStoryFilesHash,
   EMPTY_STORY_FILES_HASH,
 } from '../core/evidence-freshness.js';
-// B-5a15 main-merge: main replaced currentStoryFileHashEntries with the exported
-// resolveStoryChangedFiles (same signature + identical isMaterialExcludedPath filtering);
-// blobId is the field main uses where our helper returned objectId.
+// B-5a15 main-merge: main deleted currentStoryFileHashEntries; this now uses main's
+// resolveStoryChangedFiles from story-aware-validation.ts. It is NOT signature- or
+// behaviour-identical, so the compensating code below is load-bearing -- do not remove it:
+//  - it THROWS with no merge base where our helper returned undefined, hence the try/catch
+//    that restores the original `return undefined` contract;
+//  - it returns `blobId` where ours returned `objectId`;
+//  - it sorts with localeCompare, which F-334 forbids for hash material. That is safe ONLY
+//    because the digest below re-sorts the joined `path\0blobId` strings with a bare
+//    .sort() (byte order), matching currentStoryFilesHash. Keep that re-sort.
+//  - it takes an extra 4th param and drops per-path dedupe; neither is reachable here.
 import { resolveStoryChangedFiles } from '../core/story-aware-validation.js';
 import {
   CAUSAL_DEPENDENCY_DOMAINS,

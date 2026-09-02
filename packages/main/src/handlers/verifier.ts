@@ -2158,12 +2158,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         });
       };
       const runValidateFileAndRender = async () => {
-        const identityCommand: ValidationCommand = {
-          label: validateFile,
-          command: 'npx',
-          args: ['tsx', ...tsArgs],
-          ...(validateFileDefaultTimeoutMs() ? { timeoutMs: validateFileDefaultTimeoutMs() } : {}),
-        };
         if (!args.story && dynamicMode !== 'off' && !focus) {
           try {
             const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], {

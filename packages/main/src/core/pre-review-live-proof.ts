@@ -132,7 +132,7 @@ export function preReviewCaseSemanticBindingForSourceRef(
  *
  * This does NOT reopen the borrowing hole F-339 closed. Where a binding exists it is
  * still enforced exactly, and records for unregistered refs must still be produced by
- * real per-assertion execution (see executeActiveScenarioTopology, which forges a
+ * real per-assertion execution (see executeActiveScenarioWitnesses, which forges a
  * per-assertion signature and runs the real verifier for each one) and still pass every
  * other contract check: unique IDs, no extra IDs, exact kind, and exact sourceRef.
  */
