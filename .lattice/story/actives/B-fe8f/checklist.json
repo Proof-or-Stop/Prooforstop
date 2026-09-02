@@ -404,13 +404,12 @@
           "intentRef": "CHK-001:happy:2",
           "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
-          "result": "pass",
-          "note": "Mechanical execution of the production-unchanged RED selector, closing F-014.",
+          "note": "Tool-executed immutable RED characterization proves the pre-fix production snapshot and assertion remained unchanged; closes F-014 with a mechanical receipt.",
           "mechanical": false,
-          "headHash": "95be1a2e62de0f4a119f9d62600a94f046bacfa6",
+          "headHash": "001a7cac30388f8c8ee73754a37fe78979e68f21",
           "materialHash": "2dc62922f8deaab0a0b92cab3b049247169fe9c0cd5f41acdd278ddf2e841ea1",
           "storyFilesHash": "282a5b9f1414cfa1ff670af06ba8c216bea74a4a0755f5df6de610b42d1d0903",
-          "timestamp": "2026-09-01T23:58:59.751Z"
+          "timestamp": "2026-09-02T00:47:54.796Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
