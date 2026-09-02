@@ -14100,6 +14100,33 @@
       },
       "readDiagnostics": [],
       "_hash": "0ce931ffc1e35b3e5e47f0596608dbc074cde58b8032c2519279b550befff3d0"
+    },
+    {
+      "id": "B-5a15:RP-302",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue check clean; no blocker. (1) Source diff since RR-891 (abff9db275..HEAD) over packages/main/src, packages/main/tests, packages/graph, packages/utils, scripts, docs, *.md, bin, .codex is EMPTY: every one of the 56 changed files is .proof-or-stop/story/actives/B-5a15 metadata, so the RI-069 cutoff materialHash b8406c77a2 is byte-identical to RI-068's as claimed. (2) No concept-deletion surface exists: git diff --diff-filter=D and --diff-filter=R over main...HEAD are both EMPTY; the 37 changed source files are 31 modified + 6 added, zero deleted, zero renamed. There is therefore no deleted or renamed concept whose references could remain residual. (3) Both coupled pin registries still agree on exactly THREE structural divergences, recomputed independently by set-differencing 64-hex literals: retired-authority-vocabulary-guard-smoke.ts holds 14 path-pinned fingerprints, verify-process-fact-contract.mjs holds 15 bare literals. Divergence 1 = 884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75, a different-KIND pin in the guard (PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH, line 183) rather than a source fingerprint. Divergence 2 = b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98, pinned in the guard under the symbolic key LEGACY_DELIVERY_COMPAT_MODULE (line 359) instead of a path literal. Divergence 3 = e3d27511d3a7da22184e1b950d44473987ad34b3c14f700481ff27a4a7cccfd6 for packages/main/src/handlers/graph.ts, pinned TWICE in the guard (lines 508 and 1639) but absent from the verifier's required-literal list. All three are representation-shape differences, NOT hash disagreements. B-cdf6:F-057 lockstep is intact: the cli-engine.ts fingerprint 96b246fba1b363f9388ee4c641aa4840497886c98d57636cdd3750e9a09da75b is byte-identical in both copies. (4) Both coupled guards were executed WITHOUT a pipe and returned a TRUE exit 0: npx tsx packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts printed 'retired authority vocabulary guard PASS builds=815 cacheHits=2 fullAnalysis=1309 astCandidates=508 reachability=34' with EXIT=0; node scripts/verify-process-fact-contract.mjs printed 'Process fact contract verified' with EXIT=0. Method discipline: every absence claim used direct per-path grep -c, never an unquoted --include glob, and the harness was validated with a firing positive control (67 hits on a token known present) plus a negative control returning 0 with grep exit 1.",
+      "createdAt": "2026-09-02T18:35:42.233Z",
+      "reviewRound": "2026-09-02T18:29:32.646Z",
+      "reviewRunId": "B-5a15:RR-895",
+      "envelopeId": "b0b10875f125db9b8e447e489d2d7bf4845996a9218f34f84e0fb63cddd37a10",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e5b898f9f629e015602206a30f587a1af8d49d85001dfb2b8db28ac12211667f"
     }
   ]
 }
