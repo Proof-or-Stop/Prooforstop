@@ -587,7 +587,7 @@
       "desc": "commit 7e1f1c42c8 (\"B-a745: drop the dead projectRoot parameter from buildValidationCommandInventory\") message asserts \"The real commandSetDigest is unchanged (eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661)\" without showing the command run and its literal output at write time. This is the same pattern F-013/F-019 named and F-023/F-027 fixed in findings.json prose (a specific checkable value asserted in a durable, permanent record -- here a git commit message, which cannot be edited after the fact -- without pasting the command and its actual output). The digest value itself is TRUE (independently re-verified in this worktree: `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest:` -> `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`), so this is a form defect like F-027, not a false fact -- but it is a sixth instance of the same rule violation (F-008, F-009, F-013, F-019, F-023-original/F-027 were the first five), this time in a commit message rather than findings.json, which the two adopted rules (check run in the story worktree + pasted; durable record cites only artifacts existing at write time) already cover by their own stated scope (\"any durable record\", not just findings.json).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T10:04:19.571Z",
@@ -598,7 +598,11 @@
         "packages/main/src/core/validation-command-identity.ts"
       ],
       "signatureTag": "missing|ts|commit-7e1f1c42c8-a745",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as the sixth instance and as a fair extension of the rule. Commit 7e1f1c42c8's message asserts the real commandSetDigest as prose with neither the command nor its output. The value is true -- the concept lane re-ran the command independently and I ran it in this worktree: `node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest:` -> `commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661` -- so this is a form defect, not a false fact. WHY NOT FIXED IN PLACE: a commit message is immutable without rewriting history, and rewriting this branch would invalidate every review-run, receipt and host-verdict binding recorded against its commit hashes; that cost is not proportionate to a form defect whose value has been verified twice. Recorded as accepted_risk rather than fixed, deliberately, so the record does not claim a correction that did not happen. RULE EXTENSION, adopted: 'any durable record' includes commit messages; from here on, an implementer dispatch that asks for a figure to be asserted in a commit body must require the command and its pasted output in that body, not a restatement. Root cause on my side: my dispatch text asked the implementer to 'assert it in your report by pasting', which it did in its report, while the commit body restated the figure -- the instruction did not reach the commit.",
+      "resolvedAt": "2026-09-02T10:10:33.727Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
