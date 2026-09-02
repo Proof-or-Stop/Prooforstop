@@ -75,7 +75,7 @@ const qualityProofMetadataPhrases = [
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
-const approvedReviewFindingTriageProposalSha256 = '447690734a4fc1fb587d0af5c6006a4fdb9b46b72ab5e7188fcc634e987e4f23';
+const approvedReviewFindingTriageProposalSha256 = '69dd94b2070c2c5cf10a3643d8563df06c7e2abc5d0e27ef61e180e514277662';
 // Independent semantic approval boundary. This digest is intentionally kept in
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
@@ -694,7 +694,7 @@ function assertReviewFindingTriageProposal(): void {
     assert.ok(normalizedProposal.includes(phrase), `the proposal keeps authority boundary phrase: ${phrase}`);
   }
   const lineageConsistencyProjection = proposal.match(
-    /\| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors\. \| ([^\n]+) \|/u,
+    /\| Claimed-lineage validity, required-assessment integrity, and downstream mandatory repair are ordered machine floors\. \| ([^\n]+) \|/u,
   )?.[1];
   assert.equal(
     lineageConsistencyProjection,

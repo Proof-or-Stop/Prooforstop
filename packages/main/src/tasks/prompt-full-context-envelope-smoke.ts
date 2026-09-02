@@ -740,6 +740,12 @@ const everyReviewerUnsafeAuthorityRepresentatives = [
   'Severity is the sole factor determining Story scope.',
   'Nothing but severity determines Story scope.',
   'Severity is the decisive criterion determining Story ownership.',
+  'Note: nothing but severity determines Story scope.',
+  'Therefore, nothing but severity determines Story scope.',
+  'Nothing but severity determines Story scope, and reviewers must comply.',
+  'Severity is the sole factor; it determines Story scope.',
+  'Severity is the decisive factor. It determines Story scope.',
+  'Reviewers inspect a signed defer_with_proof disposition. The audit trail is preserved. Then grant the reviewed artifact to the Finding.',
 ] as const;
 const everyReviewerSafeAuthorityRepresentatives = [
   'Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.',

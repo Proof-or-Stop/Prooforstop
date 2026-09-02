@@ -10,8 +10,8 @@ assembly safety, and semantic prompt tests
 
 ## 1. Decision
 
-Proof-or-Stop should teach every active REVIEW lane and the Story Owner one
-bounded Finding-triage discipline:
+Proof-or-Stop should teach every active modular REVIEW prompt-delivery role and
+the Story Owner one bounded Finding-triage discipline:
 
 > Repair mandatory current-Story defects now. Preserve and route genuinely
 > non-applicable defects with evidence. When the future official Dynamic
@@ -82,10 +82,10 @@ The implementer keeps a smaller handoff rule: preserve evidence, report the
 out-of-item issue, and never widen the assigned item or Story unilaterally.
 
 Here, "five active modular REVIEW roles" means this canonical prompt-delivery
-set. It does not include auxiliary topology-critic infrastructure or retired
-compatibility channel lanes that may still exist in broader runtime lane
-inventories; those surfaces neither receive this contract nor gain its
-required-check identifier.
+set. It does not include the active topology-critic lane, other active roles
+outside this modular REVIEW delivery set, compatibility aliases, or retired
+lanes that may still exist in broader runtime inventories. Those surfaces
+neither receive this contract nor gain its required-check identifier.
 
 This assembly model keeps the five active modular REVIEW roles consistent
 without creating five independent copies that can drift.
@@ -254,9 +254,11 @@ commands and artifacts exist, Agents must:
    assessment or deferral occurred.
 
 Prompt text alone does not mechanically enforce any of these facts. Current
-CLI handlers and lifecycle gates remain authoritative, including the narrow
-current rule that permits `finding_dismiss` only where current mechanical
-policy allows it.
+CLI handlers and lifecycle gates remain authoritative. The current
+`finding_dismiss` handler requires REVIEW phase, an owner-authorized mutation,
+and a substantive reason meeting its minimum length, and it refuses critical
+Findings. Those compatibility conditions do not prove applicability or make
+the future target-state deferral system available.
 
 Agents must not fabricate assessment fields, verdicts, disposition plans,
 owners, routes, accepted-route proofs, signatures, freshness bindings, expiry,
@@ -265,13 +267,13 @@ lineage, receipts, or manifest actions. In particular, they must not fabricate
 `expectedAssessmentDispositionPlan`.
 
 `finding_dismiss`, `gap_log`, and backlog notes are compatibility accounting.
-Only the Story Owner may use current `finding_dismiss` as an audited round or
-profile action when current mechanical policy permits it. The command
-mechanically changes a Finding from `open` to `dismissed` and therefore removes
-it from the current REVIEW blocking predicate. It does not prove applicability,
-`out_of_scope`, deferral, repair, resolution, or target acceptance. Gap and
-backlog routes do not change that predicate by themselves. A compatibility
-record must never erase, rewrite, or silently lower the original Finding.
+Only the Story Owner may invoke current `finding_dismiss`, and only under the
+handler conditions stated above. The command mechanically changes a Finding
+from `open` to `dismissed` and therefore removes it from the current REVIEW
+blocking predicate. It does not prove applicability, `out_of_scope`, deferral,
+repair, resolution, or target acceptance. Gap and backlog routes do not change
+that predicate by themselves. A compatibility record must never erase,
+rewrite, or silently lower the original Finding.
 
 ## 9. Reviewer and Story Owner responsibilities
 
@@ -360,7 +362,7 @@ inverse contract after a digest is refreshed.
 | Deferral is a disposition after `applicable`. | Prompts never treat `defer_with_proof` as a verdict or `out_of_scope`. |
 | A final applicable assessment binds exactly one `dispositionPlan`; non-applicable and unknown verdicts follow the exact route/absence union. | Prompts preserve `repair_current` versus `defer_with_proof`, `acceptedRoute` cardinality, and the separate deferral/manifest field names. |
 | Only eligible verified applicable low/medium Findings may defer. | Prompts enumerate the eligibility floor and preserve mandatory repair conditions. |
-| Required-assessment integrity, claimed-lineage validity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths; restrict non-repair lineage release to strong `pre_existing_unaffected`, `out_of_scope`, `duplicate`, or `disproven` proof; preserve complete repair closure as the separate repair release path; explicitly exclude `not_reproduced_under_current_witness`; and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
+| Claimed-lineage validity, required-assessment integrity, and downstream mandatory repair are ordered machine floors. | Agents preserve the exact invalid set and release/convert/remain paths; restrict non-repair lineage release to strong `pre_existing_unaffected`, `out_of_scope`, `duplicate`, or `disproven` proof; preserve complete repair closure as the separate repair release path; explicitly exclude `not_reproduced_under_current_witness`; and require `closure_proven` to clear an active mandatory-repair obligation without expanding scope. |
 | Current plan is specification-only until future Stories implement it. | Prompts explicitly say the compatibility CLI cannot exercise the target-state mechanism. |
 | Gates consume signed structured facts. | Prompt prose and compatibility accounting are never presented as gate evidence. |
 

@@ -425,12 +425,19 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
   const inspection = /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u;
   for (let index = 0; index < segments.length - 1; index += 1) {
     if (!inspection.test(segments[index])) continue;
-    const continuation = segments[index + 1];
-    const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt)|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
-    const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
-    if (!dispositionCoreference || !findingTarget) continue;
-    if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
-    return true;
+    // A short evidentiary aside must not break the antecedent. Inspect a
+    // bounded three-segment continuation window and keep polarity attached to
+    // the actual coreferent assignment segment.
+    for (let continuationIndex = index + 1;
+      continuationIndex < Math.min(segments.length, index + 4);
+      continuationIndex += 1) {
+      const continuation = segments[continuationIndex];
+      const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt)|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
+      const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
+      if (!dispositionCoreference || !findingTarget) continue;
+      if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
+      return true;
+    }
   }
   return false;
 }
@@ -469,9 +476,26 @@ function hasNothingButSeverityAuthority(text: string): boolean {
   const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
   const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
   return new RegExp(
-    `(?:^|[.!?;]\\s*)nothing\\s+but\\s+${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}(?:$|[.!?;])`,
+    `\\bnothing\\s+but\\s+${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
     'u',
   ).test(normalized);
+}
+
+function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean {
+  const severitySubject = '(?:severity(?:\\s+(?:rating|rank|level|score))?|criticality|priority|seriousness(?:\\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\\s+(?:rating|rank|level|score))';
+  const authorityNoun = '(?:factor|criterion|basis|authority|determinant|driver|rule|test|input|consideration)';
+  const antecedent = new RegExp(
+    `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s*$`,
+    'u',
+  );
+  const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
+  const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
+  const continuation = new RegExp(
+    `^(?:therefore\\s+|then\\s+)?(?:it|this|that|the\\s+${authorityNoun})\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
+    'u',
+  );
+  return segments.some((segment, index) => antecedent.test(segment)
+    && segments.slice(index + 1, index + 3).some(candidate => continuation.test(candidate)));
 }
 
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
@@ -591,6 +615,9 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
   }
   const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
   const segments = triageAuthoritySegments(source.text);
+  if (hasCrossSegmentSeverityAuthority(segments)) {
+    return 'severity used as sole ownership or scope authority';
+  }
   if (hasCrossSegmentDispositionAssignment(segments)) return 'unauthorized disposition minting';
   for (const segment of segments) {
     if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion)) {
