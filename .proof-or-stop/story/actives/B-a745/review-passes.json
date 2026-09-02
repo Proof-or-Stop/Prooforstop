@@ -429,6 +429,29 @@
         "scanEscalationReason": null
       },
       "_hash": "8e7eaca73f67fb6e6b361df8aa1332de4df04085b4f319aa80acbd31161f747c"
+    },
+    {
+      "id": "B-a745:RP-017",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 6 targeted re-review of F-024/F-025/F-026 fixes; all four items verified, no blocking findings.",
+      "createdAt": "2026-09-02T10:02:07.923Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-028",
+      "envelopeId": "c376448ea1155e68e68abdd6bc4077ca4ae7948ea7cd4568e83483e5fdcd28a7",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1195f486e1690a84b0331c8896a3579a8f472b8a1e78772b7debe3a07c19dc43"
     }
   ]
 }
