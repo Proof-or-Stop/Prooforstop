@@ -528,6 +528,21 @@
       "resolvedAt": "2026-09-02T21:49:51.160Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-023",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:1370-1371 — high integrity blocker: verifyRuntimeReceiptCarrier accepts a current-key signed append_runtime_receipt carrier that omits exactRequestDigest whenever the unsigned persistence carrier still contains any digest. An isolated full-receipt reproduction returned {runtimeCurrent:true,carrierAccepted:true,wouldReturnVerified:true,rawCarrierHasExactRequestDigest:true,signedCarrierHasExactRequestDigest:false}; finding_runtime_evidence_verify calls this predicate at lines 1558-1564 before returning verified, so the L3 gate-eligible runtime consumer admits a carrier whose exact request binding is not signed. Require the signed exactRequestDigest to be present and equal to the raw carrier (retain legacy compatibility only in finding_ledger_query), and add the missing current-key re-sign/omission regression beside runtime.carrier_trust_chain.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T23:20:16.068Z",
+      "reviewRound": "2026-09-02T21:49:26.453Z",
+      "reviewRunId": "B-fe8f:RR-039",
+      "_hash": "9a3fc34cd8c8c098d4b65ce121301fd8907c4e0e4fc1ef84a2660371d04a2da1",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
