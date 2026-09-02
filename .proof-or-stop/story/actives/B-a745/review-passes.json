@@ -452,6 +452,26 @@
         "scanEscalationReason": null
       },
       "_hash": "1195f486e1690a84b0331c8896a3579a8f472b8a1e78772b7debe3a07c19dc43"
+    },
+    {
+      "id": "B-a745:RP-018",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Independently re-verified F-024/F-025 fix (commit 286a9b0921) from the operator side, round 6. (1) Constructed 3 forged reports myself (empty-selection-status-plan, headHash-null-while-bound, status-stop-with-selection) against the real dist module and pushed each through --json AND text; both paths threw the identical error message for all 3 (pasted in review transcript). (2) Ran the real CLI both ways for B-a745 tier=fast: text and --json agree on status=plan, freshnessBinding bound (head 37eeed1.., material df3dc49.., storyFiles 3da38ce..), selected 121 of 121, commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 -- matches the round-6 dispatch quote exactly. (3) Diffed 286a9b0921..HEAD on validation-plan.ts: only one later commit (7e1f1c42c8) touched the file and it only dropped an unrelated dead projectRoot arg from a buildValidationCommandInventory call in the handler body, not renderValidationPlanReport; grep + Read + a raw python file read all independently confirm HEAD still has exactly one call site: renderValidationPlanReport computes statusLine via assertValidationPlanStatusInvariant BEFORE branching on options.json, so no success-path text changed and no new bypass was introduced. (4) Re-ran npm run test:validation-tier-planner: PASS, including the F-024/F-025-titled case and the CHK-006 call-site-count=1 guard. review_incremental_context confirms unresolvedFindings=[] for this lane. No blocking issue found this round.",
+      "createdAt": "2026-09-02T10:02:16.746Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-029",
+      "envelopeId": "1d5eecff7b068a0bde7c08ab3251d4350ddb2c4a998e8900c611cfaeca72fee2",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1c661ee72eae09594e21c4b96c094acc2435d8f4abe4b1902dd86e66921b2839"
     }
   ]
 }
