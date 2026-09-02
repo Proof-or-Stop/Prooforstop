@@ -252,7 +252,7 @@
       "desc": "concept-cleanup (advisory, non-blocking): packages/main/src/handlers/story-query.ts:650 (\"restores the commit 288d359377 behavior\") and packages/main/src/tasks/gitroot-cwd-contract-smoke.ts:74,120,233,352 (\"the d93b69b8f silencing\") each cite a raw git commit hash in a comment; both hashes resolve to real commit objects (git cat-file -t succeeds) but neither is an ancestor of HEAD (git merge-base --is-ancestor exits 1), matching the exact fragility class B-41c8 F-012 fixed in validation-tier-planner-smoke.ts (a branch rewrite orphans the hash and a later git show of it reports a bad object). Filed low, not high/critical, because both lines PRE-DATE this story (git diff main...HEAD -- <file> shows neither line is in this story diff) and are unrelated to the three concepts B-41c8 deletes/replaces (rename-aware diff reader, legacy shell parser, story-workspace resolver) -- pre-existing repo-wide hygiene debt, not residue this story introduced. Distinguishing from F-012: the eba363ed.../791165cf... tokens near the F-012 fix in validation-tier-planner-smoke.ts:403-405 are SHA256 commandSetDigest prefixes (full form appears at lines 28-29 as 64-char hex asserts), not git commit hashes, and are correctly excluded from this finding.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T16:59:40.115Z",
@@ -260,6 +260,26 @@
       "reviewRunId": "B-41c8:RR-016",
       "_hash": "d40c08941bf43e6d79acd52f486a67a22f04ac8c62558d3e1b5fa6f68a9c818e",
       "signatureTag": "missing|unknown|concept-cleanup-advisory",
+      "signatureTagSource": "auto",
+      "dismissReason": "Both citations (story-query.ts:650 and gitroot-cwd-contract-smoke.ts:74,120,233,352) predate this story and were orphaned by the repository-wide history rewrite, not by this branch; they are outside the scope contract. Recorded for a later owner as repository draft docs/story/drafts/orphaned-commit-hash-citations (committed on main at 7de56c4623), which also asks for a residue check so new hash citations are rejected.",
+      "dismissedAt": "2026-09-02T17:01:35.891Z"
+    },
+    {
+      "id": "B-41c8:F-015",
+      "desc": "REVIEW->TEST validate failed: packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js throws \"dynamic binding graph builds must remain bounded at 808, got 809 (synthetic=419, repo=390)\". DYNAMIC_BINDING_BUILD_CEILING = 808 (retired-authority-vocabulary-guard-smoke.ts:695) pins a repository-wide count that grows by one for every source file under packages/main/src; this story added core/story-workspace.ts (CHK-003), so the real count is 809 while main (808 files) still passes. Acceptance-blocking. Fix: raise the ceiling to the value the current tree produces and add a maintenance comment stating that the ceiling moves by one per added source file and which story moved it; do not cite a commit hash. Standalone rc=1 reproduced in the worktree; codex-heartbeat-timeout-smoke, the other failure in the same run, passes standalone and is recorded as load-flaky for the test-and-guard credibility story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-02T17:40:12.987Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "_hash": "21cb4994691b833841f5c9ca5e978afef8c6cf3003df0ccdfb4fa078ade8f06f",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/core/story-workspace.ts"
+      ],
+      "signatureTag": "missing|ts|review-test-validate",
       "signatureTagSource": "auto"
     }
   ]
