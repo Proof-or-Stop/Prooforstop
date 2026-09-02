@@ -922,7 +922,7 @@
       "desc": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:174-180 and packages/main/src/core/prompt-registry.ts:65-66 preserve F-040 downstream closure semantics but broaden the lineage-floor release set to exact strong superseding non-applicable or disproven proof. In this vocabulary, not_reproduced_under_current_witness is a non-applicable assessment verdict (proposal:103-106,115-138), yet the authoritative Dynamic Finding plan permits lineage release only for pre_existing_unaffected, out_of_scope, duplicate, or disproven (dynamic-finding-system-execution-plan.md:1920-1925,3503-3505) and explicitly states that not_reproduced_under_current_witness never releases claimed-deferral lineage or an existing mandatory-repair floor (3506-3512; table line 2284). AGENTS.md:573 and CLAUDE.md:784 repeat the broad phrase byte-identically, and prompt-registry-smoke asserts it rather than rejecting a current-witness lineage release. This can teach an Agent to treat a strong current negative witness as lineage-release proof contrary to future authority. Name the exact three assessment verdicts plus disproven in the proposal, canonical contract, and Owner mirrors; explicitly exclude not_reproduced_under_current_witness from lineage and mandatory-repair release; add an inverse mutation. severity=high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-09-01T23:49:35.128Z",
@@ -938,7 +938,11 @@
         "CLAUDE.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 07809874d6ccdca1e2079ff0dac789e64a828d4a. The proposal, canonical REVIEW contract, and byte-identical Owner mirrors now use the exact authority release allowlist: pre_existing_unaffected, out_of_scope, duplicate, or disproven. They explicitly state that not_reproduced_under_current_witness never releases claimed-deferral lineage or an active mandatory-repair obligation. Added a RED-to-GREEN inverse authority mutation for current-witness release, refreshed approved/generated baselines, and fixed the same-scope English list/table defects. Build, focused/full registry, full-context, measurement, prompt-baseline, process/runtime-fact, English guard, Owner mirror, and protected-runtime diff checks passed. The Dynamic Finding authority document and protected runtime files were not changed by this fix.",
+      "resolvedAt": "2026-09-02T00:24:15.994Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
