@@ -1015,7 +1015,7 @@
       "desc": "acceptance-evidence-currentness: .proof-or-stop/story/actives/B-9a49/acceptance-basis.json:1 and its verifier-owned pre-review/rollout dependencies are not current signed PASS evidence for HEAD 8816d08. Read-only CLI checks returned acceptance_topology_check status=fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING (invalid signer/signature, semantic-discovery/scope-contract/closure/snapshot digests and storyFilesHash freshness mismatch); pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_report_read fails with AR_REPORT_STALE and AR_REPORT_TAMPERED despite its historical full-3x2 label. The quality lane requires current signed PASS plus genuine full 3x2, so passing source/dist/baseline smoke tests and the 18 bounded permanent waivers cannot substitute for verifier-owned current artifacts. Reissue the acceptance basis, pre-review check, and rollout report through their supported CLI path after current scope/material convergence; do not fabricate or hand-edit evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T01:50:22.041Z",
@@ -1023,7 +1023,11 @@
       "reviewRunId": "B-9a49:RR-067",
       "_hash": "1cca96988245d59ec0a95415a0c239c4b01a8661518892dbd7c7e4e28bb6d946",
       "signatureTag": "missing|unknown|acceptance-evidence-currentness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by regenerating acceptance basis, cohort/live transcript, pre-review check, and rollout evidence after the final source material change. Current readers report verified/complete, PASS/current/admissible, and full-3x2.",
+      "resolvedAt": "2026-09-02T03:44:32.431Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-046",
