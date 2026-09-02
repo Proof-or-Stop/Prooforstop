@@ -100,6 +100,42 @@
         "scanEscalationReason": null
       },
       "_hash": "b5f780f3a6072d0a4382196d21785ebb5c7e78faa9556a1ac3712beab2b41290"
+    },
+    {
+      "id": "B-a745:RP-005",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round closed clean after two corrections, both verified by re-running rather than trusting the prose. F-006 final text keeps only 4 checkable line numbers + qualitative claim; all 4 lines confirmed correct. F-009 explains the transcription-vs-verification gap; both halves (broken literal-pipe form, working escaped-alternation form) independently reproduced by me. No third instance of the unverified-specific-claim pattern found. validate --concept re-run: identical 10 non-blocking residuals, no source changed since prior pass. No blocking issues remain for this reviewer.",
+      "createdAt": "2026-09-02T03:57:12.213Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-006",
+      "envelopeId": "ac68712775919a35d443058a4efe9d88964cd036386e3026334eb4c4b0ef8bb4",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a96e6b3b9ce8ee839ea31a51548705457f95ccf59fa10e3295433c431a753647"
     }
   ]
 }
