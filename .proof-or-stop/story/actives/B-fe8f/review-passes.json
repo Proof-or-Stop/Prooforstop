@@ -171,6 +171,30 @@
         "scanEscalationReason": null
       },
       "_hash": "a8291d54d932cab1f6fb56c32bd6bea376d33f5522d80ea05401934f2b8b8a17"
+    },
+    {
+      "id": "B-fe8f:RP-006",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review round 6 (incremental, triggered by commit 5b89a79b44 resolving quality finding F-019: make FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation load-bearing in packages/main/src/handlers/finding-ledger.ts, replacing four 'append_runtime_receipt' string literals; and add live facade/adapter-contract assertions to finding-ledger-runtime-smoke.ts). No blocking findings. Checked: (1) FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation in core/finding-runtime-evidence.ts literally equals 'append_runtime_receipt' -- the persisted/signed ledger operation string value is unchanged, only its source moved from four inline literals to one shared constant. (2) No import cycle: handlers/finding-ledger.ts now imports FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT from ../core/finding-runtime-evidence.ts (core layer); that core module only re-exports core/runtime-evidence-receipt.ts (node builtins + types only, no handler imports) and defines the frozen contract constant -- no path back into handlers/finding-ledger.ts or handlers/finding-runtime-evidence.ts. Confirmed by full clean rebuild (npm --prefix packages/main run build) succeeding with no module-resolution/circular-import errors. (3) No retired identity token introduced: git show 5b89a79b44 | grep -i lattice on added lines -> zero hits. (4) Ran the rebuilt smoke end-to-end: node packages/main/dist/tasks/finding-ledger-runtime-smoke.js exits 0 with 85 PASS lines, including the two new/changed selectors this commit touches -- registry.runtime_facade_boundary: PASS exactCommands=2 canonicalRegistry=true adapterContract=true, and runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true adapterContract=true -- both still contain the pre-existing pinned selector text as a literal prefix substring, so existing verificationIntent selector matches for CHK items remain satisfied despite the added adapterContract=true suffix.",
+      "createdAt": "2026-09-02T08:49:25.623Z",
+      "reviewRound": "2026-09-02T08:08:26.916Z",
+      "reviewRunId": "B-fe8f:RR-020",
+      "envelopeId": "69df5e9c9665dcac88a5fa1fb301476b976af34ea92763f2e7a1c3a49ba60354",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "37a89fcf80f895992fff6366c4acd4a31a8313afe74699e2f16e4db1ad093483"
     }
   ]
 }
