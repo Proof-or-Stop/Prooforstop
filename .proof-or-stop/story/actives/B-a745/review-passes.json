@@ -1,0 +1,34 @@
+{
+  "passes": [
+    {
+      "id": "B-a745:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Byte-verified dist==fresh rebuild, extraction diffs behaviour-preserving, mutation-tested two mutation-proven guards, live CLI edge cases checked. No blocking findings.",
+      "createdAt": "2026-09-02T03:02:05.622Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-003",
+      "envelopeId": "42d3a943ffc15cda811ef52c8294133c014a58aa5a26c3a4e65abf1da0ef1980",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dccd66be9dda96b8635ec36aad588be44e173aa2d3eeff4206abad4f553a97cc"
+    }
+  ]
+}
