@@ -19332,6 +19332,23 @@
       ],
       "signatureTag": "missing|mjs|repin-desynchronized-coupled",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-359",
+      "desc": "REPAIR-PLAN CORRECTION accepting B-5a15:F-355, which correctly overturned my stated fix for F-351. F-355 proved the operative cause has CHANGED: live codes are now [PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_AUTHORITY_INADMISSIBLE], and PR_AUTHORITY_INADMISSIBLE appears in NONE of the four exact-join allowlist variants, so isEvidenceRefreshBootstrap is now FALSE, the block at causal-evidence.test.mjs:2514 IS entered, and assert.equal(preReview.status,'pass') throws at :2506 - upstream of :2514, which is never evaluated. I verified this independently: pre_review_check_read reports exactly those three codes with authority=inadmissible. So F-351's premise (bootstrap-skip suppressing the two CHK-004:happy:2/:3 selector emissions) is no longer what blocks them, and patching only the :2514 guard would NOT have restored those selectors. F-355 caught a real hole in my plan. WHAT THE ACTUAL REPAIR IS, root-caused rather than guessed: pre-review-check.ts:428 pushes PR_AUTHORITY_INADMISSIBLE when preReviewExecutableProvenanceIsCurrent(gitCwd, artifact.executableProof?.provenance) is false. That provenance pins the runner and target digests (scripts/run-proofstory-pre-review-live-proof.mjs and packages/main/dist/tasks/proofstory-pre-review-check-smoke.js). The main merge rebuilt dist, so the stored 18:25 live proof provenance no longer matches the current build - which is exactly what SHOULD happen and is why the code is fail-closed. Confirming evidence that this is staleness and not a product regression: the substantive dimensions are all healthy - executableEvidence=current, mutations=biting, transcript=related - and authority=inadmissible is the sole failing dimension. THEREFORE the repair is to RE-CAPTURE the live proof in DEV, not to weaken any test: run live_smoke_transcript --capture='node scripts/run-proofstory-pre-review-live-proof.mjs' --write to reseal the proof against the post-merge build, then acceptance_basis_generate and pre_review_check BACK-TO-BACK per B-5a15:F-352's ordering, then re-earn the 53 receipts with the two should-intents LAST. That clears all three codes together (PR_AUTHORITY_INADMISSIBLE via fresh provenance, PR_COVERAGE_BASIS_CHANGED and PR_ARTIFACT_TAMPERED via the back-to-back reseal). F-355's own recommendation - classify bootstrap on the authority/staleness DIMENSION instead of an exact codes.join() string set, so the condition cannot silently stop matching whenever the code set gains a member - is a genuine brittleness in causal-evidence.test.mjs and I agree with it, but it is test-harness hardening that this story's checklist does not claim; per defect-triage rule 3 it belongs to a follow-up story rather than expanding B-5a15. NOT BLOCKING on its own: this note records the corrected plan; the blocking conditions remain F-351 and F-355 until the DEV pass lands.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-02T12:43:51.586Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "_hash": "a8ed2df9362e43d1101e31cb01a65e25d1e239da12dad7921da5f48bc90fcd2e",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|repair-plan-correction",
+      "signatureTagSource": "auto"
     }
   ]
 }
