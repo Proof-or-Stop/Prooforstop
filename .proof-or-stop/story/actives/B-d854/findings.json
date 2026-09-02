@@ -183,7 +183,7 @@
       "desc": "CHK-002:edge:0 lacks the deterministic structural and technical-token inventory it requires. The evidence checks marker/fence balance, aggregate heading/table counts, and only 18 selected tokens; it does not compare list nesting, blockquotes, fence language tags, links, all paths, command/role identifiers, JSON keys, phase/story identifiers, or enumerate every intentional difference. Independent mutation proof changed `scripts/verify-process-fact-contract.mjs` to `scripts/WRONG.mjs`, and the recorded checker still accepts the document. This must intent remains uncovered. severity: high",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T00:29:45.380Z",
@@ -194,7 +194,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "edge|md|edge-lacks-deterministic",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The structural checker inventories headings, nesting, tables, blockquotes, fences, HTML markers, links, paths, commands, roles, JSON keys, phases and Story tokens; a WRONG-path mutation is rejected.",
+      "resolvedAt": "2026-09-02T01:05:14.457Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-010",
