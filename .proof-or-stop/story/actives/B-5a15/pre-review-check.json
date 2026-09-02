@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-09-02T09:25:07.763Z",
+  "cutoffAt": "2026-09-02T09:26:12.956Z",
   "planBasisDigest": "sha256:740085881c8095cd95df647d5c56383a0a2a8bd2ebc6fd3d6bc4c9d7e7269c45",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -792,7 +792,15 @@
   "scopeContractDigest": "sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae",
   "storyFilesHash": "af9bbe506973de208e0e2490dca821e78b966f32b226fee71c2a27003fa92d85",
   "closureFilesHash": "sha256:584635cd1e52fb5bfc6a62cde5ecd0a846ec6bd8e6f03fc409a1a37a616559ff",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:3285da12003fd5ac174c47223a26039b57e0915e4d7e7bd44cf151e22fcf3367"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5a15",
@@ -969,7 +977,7 @@
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-02T09:25:07.763Z",
+  "issuedAt": "2026-09-02T09:26:12.956Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "C5HMcArSkV2tOJ37d45iqyHGaAsFgl3Cvd49dO8+kaopqnuVfAJlh43nueNUNLA/q+yuZFIhSOAD/ibw/mttBQ=="
+  "signature": "e8/NtZmZJ7eU2GtXNqJ0N+P7ASxczJVp2e3/0XUkufc0mRb5GcPRRKtD9IAPtosY8QNMsg9nRXLQVD9Z6IIZBQ=="
 }
