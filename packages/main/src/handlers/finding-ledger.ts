@@ -184,6 +184,89 @@ function exactRequestDigest<T extends JsonValue>(options: LedgerAppendOptions<T>
   });
 }
 
+function storageRequestDigest<T extends JsonValue>(options: LedgerAppendOptions<T>): string {
+  return canonicalHash({
+    operation: options.operation,
+    idempotencyKey: options.idempotencyKey,
+    records: options.records,
+    ledgerSchemaEpoch: FINDING_LEDGER_SCHEMA_EPOCH,
+    writerCapability: FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
+  });
+}
+
+/**
+ * A replay is safe only when the signed public receipt binds the exact caller
+ * request and the unsigned persistence carrier still names the same immutable
+ * ledger prefix and exact records. Legacy receipts without that signed digest
+ * remain queryable, but deliberately fail closed on replay.
+ */
+function isExactSignedReplayBinding<T extends JsonValue>(
+  ledger: LedgerEnvelope<T>,
+  carrier: PersistedCommitReceipt,
+  receipt: FindingLedgerReceipt,
+  options: LedgerAppendOptions<T>,
+  transactionDigest: string,
+): boolean {
+  if (receipt.exactRequestDigest !== transactionDigest
+    || carrier.exactRequestDigest !== receipt.exactRequestDigest
+    || carrier.requestDigest !== storageRequestDigest(options)
+    || receipt.storyId !== options.storyId
+    || receipt.operation !== options.operation
+    || receipt.idempotencyKey !== options.idempotencyKey
+    || receipt.receiptId !== carrier.receiptId
+    || receipt.operation !== carrier.operation
+    || receipt.idempotencyKey !== carrier.idempotencyKey
+    || canonicalJson(receipt.recordIds) !== canonicalJson(carrier.recordIds)
+    || canonicalJson(receipt.casBindings) !== canonicalJson(options.casBindings ?? [])
+    || receipt.priorLedgerDigest !== carrier.priorLedgerDigest
+    || receipt.committedLedgerDigest !== carrier.committedLedgerDigest
+    || receipt.writerSessionId !== carrier.writerSessionId
+    || receipt.writerFenceToken !== carrier.writerFenceToken
+    || receipt.committedAt !== carrier.committedAt
+    || receipt.replayed !== false
+    || carrier.replayed !== false
+    || (options.expectedPriorLedgerDigest !== undefined
+      && receipt.priorLedgerDigest !== options.expectedPriorLedgerDigest)
+    || receipt.recordIds.length !== options.records.length) return false;
+
+  const carrierIndex = ledger.receipts.indexOf(carrier);
+  if (carrierIndex < 0) return false;
+  const recordsById = new Map(ledger.records.map((record) => [record.recordId, record]));
+  const seenRecordIds = new Set<string>();
+  const orderedRecords: LedgerRecord<T>[] = [];
+  let priorDigest = canonicalHash([]);
+  for (let index = 0; index <= carrierIndex; index += 1) {
+    const candidate = ledger.receipts[index]!;
+    const candidatePriorDigest = priorDigest;
+    for (const recordId of candidate.recordIds) {
+      const record = recordsById.get(recordId);
+      if (!record) return false;
+      if (!seenRecordIds.has(recordId)) {
+        const expectedRecord = ledger.records[orderedRecords.length];
+        if (!expectedRecord || expectedRecord.recordId !== recordId
+          || record.priorDigest !== candidatePriorDigest) return false;
+        seenRecordIds.add(recordId);
+        orderedRecords.push(record);
+      }
+    }
+    const candidateCommittedDigest = canonicalHash(orderedRecords);
+    if (index === carrierIndex) {
+      if (receipt.priorLedgerDigest !== candidatePriorDigest
+        || receipt.committedLedgerDigest !== candidateCommittedDigest) return false;
+    }
+    priorDigest = candidateCommittedDigest;
+  }
+
+  return options.records.every((input, index) => {
+    const record = recordsById.get(receipt.recordIds[index]!);
+    return !!record
+      && record.recordType === input.recordType
+      && record.payloadHash === canonicalHash(input.payload)
+      && canonicalJson(record.payload) === canonicalJson(input.payload)
+      && record.uniqueBindingKey === input.uniqueBindingKey;
+  });
+}
+
 /**
  * Compare exact referenced-record bytes, chain tip, ledger digest and a
  * caller-owned predicate under the acquired fence, then publish semantic rows
@@ -203,16 +286,16 @@ export function appendFindingLedger<T extends JsonValue = JsonValue>(options: Le
   return options.store.transactFindingLedger<T, FindingLedgerReceipt>(options.storyId, options.fence, (current) => {
     const existing = current.receipts.find((candidate) => candidate.idempotencyKey === options.idempotencyKey) as PersistedCommitReceipt | undefined;
     if (existing) {
-      if (existing.exactRequestDigest !== transactionDigest || !existing.findingLedgerReceipt) {
-        throw new Error('IDEMPOTENCY_CONFLICT: idempotency key is bound to different exact transaction bytes');
-      }
-      if (!verifyFindingLedgerReceipt(existing.findingLedgerReceipt, {
+      const receipt = existing.findingLedgerReceipt;
+      if (!receipt || !verifyFindingLedgerReceipt(receipt, {
         publicKey: options.signer.publicKey,
         keyId: options.signer.keyId,
         algorithm: 'ed25519',
         trustRootDigest: options.signer.trustRootDigest,
         keyFreshnessPolicyDigest: options.signer.keyFreshnessPolicyDigest,
-      })) throw new Error('IDEMPOTENCY_CONFLICT: original signed receipt is invalid');
+      }) || !isExactSignedReplayBinding(current, existing, receipt, options, transactionDigest)) {
+        throw new Error('IDEMPOTENCY_CONFLICT: idempotency key is not bound by a valid signed exact transaction');
+      }
       const records = existing.recordIds.map((recordId) => {
         const record = current.records.find((candidate) => candidate.recordId === recordId);
         if (!record) throw new Error(`ledger receipt references missing record ${recordId}`);
@@ -221,7 +304,7 @@ export function appendFindingLedger<T extends JsonValue = JsonValue>(options: Le
       const replayPlan: AppendPlan<T> = {
         action: 'replay', records, receipt: existing, envelope: current,
       };
-      return { plan: replayPlan, result: existing.findingLedgerReceipt };
+      return { plan: replayPlan, result: receipt };
     }
 
     if (options.expectedPriorLedgerDigest !== undefined
@@ -255,7 +338,8 @@ export function appendFindingLedger<T extends JsonValue = JsonValue>(options: Le
     const receipt = signFindingLedgerReceipt({
       schemaVersion: 1, ledgerSchemaEpoch: FINDING_LEDGER_SCHEMA_EPOCH,
       minimumWriterCapability: FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY, receiptId: core.receiptId,
-      storyId: options.storyId, idempotencyKey: core.idempotencyKey, operation: options.operation,
+      storyId: options.storyId, idempotencyKey: core.idempotencyKey,
+      exactRequestDigest: transactionDigest, operation: options.operation,
       recordIds: core.recordIds, casBindings: bindings, priorLedgerDigest: core.priorLedgerDigest,
       committedLedgerDigest: core.committedLedgerDigest, replayed: false, committedAt: core.committedAt,
       writerSessionId: core.writerSessionId, writerLeaseId: options.writerLeaseId,
@@ -831,6 +915,8 @@ export function queryFindingLedger(
       || receipt.replayed !== false
       || typeof persisted.exactRequestDigest !== 'string'
       || !/^[0-9a-f]{64}$/.test(persisted.exactRequestDigest)
+      || (receipt.exactRequestDigest !== undefined
+        && receipt.exactRequestDigest !== persisted.exactRequestDigest)
       || receipt.priorLedgerDigest !== priorDigest) {
       throw new FindingLedgerQueryRefusal('ledger_incomplete');
     }
@@ -1202,9 +1288,10 @@ function runtimeReplay(
   const ledger = ctx.store.readFindingLedger<JsonValue>(args.storyId);
   const commit = ledger.receipts.find((candidate) => candidate.idempotencyKey === args.idempotencyKey) as PersistedCommitReceipt | undefined;
   if (!commit) return null;
-  if (!commit.findingLedgerReceipt
-    || !verifyFindingLedgerReceipt(commit.findingLedgerReceipt, ledgerTrust)
-    || commit.findingLedgerReceipt.operation !== 'append_runtime_receipt'
+  const signed = commit.findingLedgerReceipt;
+  if (!signed
+    || !verifyFindingLedgerReceipt(signed, ledgerTrust)
+    || signed.operation !== 'append_runtime_receipt'
     || commit.recordIds.length !== 1) {
     throw new Error('IDEMPOTENCY_CONFLICT: original runtime ledger receipt is invalid');
   }
@@ -1213,11 +1300,36 @@ function runtimeReplay(
     throw new Error('IDEMPOTENCY_CONFLICT: original runtime record is missing');
   }
   const runtimeReceipt = record.payload as unknown as RuntimeEvidenceReceipt;
+  const exactRuntimeRequestDigest = canonicalHash({
+    storyId: args.storyId,
+    operation: 'append_runtime_receipt',
+    idempotencyKey: args.idempotencyKey,
+    records: [{
+      recordType: 'runtime_evidence_receipt',
+      payload: runtimeReceipt as unknown as JsonValue,
+      uniqueBindingKey: `runtime-evidence-receipt:${runtimeReceipt.receiptId}`,
+    }],
+    casBindings: [],
+  });
+  if (signed.exactRequestDigest !== exactRuntimeRequestDigest
+    || commit.exactRequestDigest !== signed.exactRequestDigest
+    || signed.receiptId !== commit.receiptId
+    || signed.idempotencyKey !== commit.idempotencyKey
+    || canonicalJson(signed.recordIds) !== canonicalJson(commit.recordIds)
+    || signed.priorLedgerDigest !== commit.priorLedgerDigest
+    || signed.committedLedgerDigest !== commit.committedLedgerDigest
+    || signed.writerSessionId !== commit.writerSessionId
+    || signed.writerFenceToken !== commit.writerFenceToken
+    || signed.committedAt !== commit.committedAt
+    || signed.replayed !== false
+    || commit.replayed !== false) {
+    throw new Error('IDEMPOTENCY_CONFLICT: original runtime replay binding is invalid');
+  }
   const verification = verifyRuntimeEvidenceCurrent(runtimeReceipt, expected);
   if (!verification.valid) {
     throw new Error(`IDEMPOTENCY_CONFLICT: original runtime receipt is not current (${verification.refusal})`);
   }
-  return { runtimeReceipt, runtimeRecordId: record.recordId, ledgerReceipt: commit.findingLedgerReceipt };
+  return { runtimeReceipt, runtimeRecordId: record.recordId, ledgerReceipt: signed };
 }
 
 /**
@@ -1254,6 +1366,8 @@ export function verifyRuntimeReceiptCarrier(
       || receipt.writerFenceToken !== carrier.writerFenceToken
       || receipt.committedAt !== carrier.committedAt
       || receipt.replayed !== false
+      || (receipt.exactRequestDigest !== undefined
+        && receipt.exactRequestDigest !== carrier.exactRequestDigest)
       || !receipt.recordIds.includes(record.recordId)
       || receipt.priorLedgerDigest !== record.priorDigest
       || receipt.committedLedgerDigest !== canonicalHash(ledger.records.slice(0, recordIndex + 1))

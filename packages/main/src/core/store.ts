@@ -109,7 +109,9 @@ function isTrustedFindingLifecycleTransition(
     || signed.replayed !== false
     || carrier.replayed !== false
     || typeof carrier.exactRequestDigest !== 'string'
-    || !/^[0-9a-f]{64}$/.test(carrier.exactRequestDigest)) return false;
+    || !/^[0-9a-f]{64}$/.test(carrier.exactRequestDigest)
+    || (signed.exactRequestDigest !== undefined
+      && signed.exactRequestDigest !== carrier.exactRequestDigest)) return false;
 
   const recordsBefore = ledger.records.slice(0, recordIndex);
   const recordsThrough = ledger.records.slice(0, recordIndex + 1);
@@ -571,11 +573,10 @@ export class StoryStore {
       };
       const index = data.findings.findIndex((finding) => finding.id === payload.id);
       if (index < 0) data.findings.push(projected);
-      else if (data.findings[index]?.recordId === record.recordId) {
-        // A ledger-backed Finding can become terminal only through a trusted,
-        // append-only lifecycle receipt folded below. Truly legacy mirror-only
-        // findings (no recordId match) remain readable for compatibility, but
-        // unsigned mirror bytes cannot close a signed Finding.
+      else {
+        // Display id is the compatibility join key. Once that id has a durable
+        // ledger row, no unsigned mirror recordId (missing, stale, or forged)
+        // can shadow it. Different mirror-only ids remain readable below.
         data.findings[index] = projected;
       }
     }

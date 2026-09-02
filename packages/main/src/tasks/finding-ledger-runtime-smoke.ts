@@ -51,6 +51,7 @@ import {
   RUNTIME_EVIDENCE_PUBLIC_KEY_ENV,
   runtimeEvidenceSignerFromWorkspace,
   setRuntimeEvidenceKeyStatusForTest,
+  signFindingLedgerReceipt,
   signAssessmentProposal,
   verifyAssessmentProposal,
   verifyFindingLedgerQueryRow,
@@ -465,6 +466,57 @@ function runFindingProjectionRegression(root: string): void {
     'an idempotent finding_add replay must not duplicate reviewer_finding process facts',
   );
   console.log('finding.idempotency_contract: PASS callerKey=true replayRows=0 processEvents=1 signedQuery=true');
+
+  const ledgerAuthoritativeOpen = store.readFindings(storyId);
+  const terminalFindingRecordId = ledgerAuthoritativeOpen.findings
+    .find((finding) => finding.id === `${storyId}:F-004`)!.recordId!;
+  const mirrorShadowResults: Array<{ variant: string; status: string | undefined; recordId: string | undefined }> = [];
+  for (const variant of ['missing', 'wrong'] as const) {
+    const shadowedMirror = structuredClone(ledgerAuthoritativeOpen);
+    const shadowedFinding = shadowedMirror.findings.find((finding) => finding.id === `${storyId}:F-004`)!;
+    shadowedFinding.status = 'resolved';
+    shadowedFinding.resolvedAt = '2026-09-01T00:00:00.000Z';
+    shadowedFinding.resolvedReason = `unsigned ${variant} recordId shadow`;
+    if (variant === 'missing') delete shadowedFinding.recordId;
+    else shadowedFinding.recordId = 'lr_unsigned_wrong_record_id';
+    delete shadowedFinding.ledgerCommitReceiptId;
+    if (!shadowedMirror.findings.some((finding) => finding.id === `${storyId}:F-LEGACY`)) {
+      shadowedMirror.findings.push({
+        id: `${storyId}:F-LEGACY`,
+        desc: 'genuine mirror-only legacy finding',
+        severity: 'low',
+        category: 'edge',
+        status: 'resolved',
+      });
+    }
+    store.writeFindings(storyId, shadowedMirror);
+    const projectedShadow = store.readFindings(storyId);
+    const projectedFinding = projectedShadow.findings.find((finding) => finding.id === `${storyId}:F-004`)!;
+    mirrorShadowResults.push({
+      variant,
+      status: projectedFinding.status,
+      recordId: projectedFinding.recordId,
+    });
+    assert.equal(
+      projectedShadow.findings.find((finding) => finding.id === `${storyId}:F-LEGACY`)?.status,
+      'resolved',
+      'a distinct genuine mirror-only legacy Finding must remain readable',
+    );
+  }
+  if (mirrorShadowResults.some((result) => result.status !== 'open')) {
+    console.log(`finding.lifecycle_mirror_shadow_refused: RED ${mirrorShadowResults.map((result) => `${result.variant}=${result.status}`).join(' ')}`);
+  }
+  assert.deepEqual(
+    mirrorShadowResults.map((result) => result.status),
+    ['open', 'open'],
+    'a ledger-backed Finding id must remain authoritative when mirror recordId is missing or wrong',
+  );
+  assert.equal(
+    mirrorShadowResults.every((result) => result.recordId === terminalFindingRecordId),
+    true,
+    'ledger projection must restore the canonical durable recordId for the same Finding id',
+  );
+  console.log('finding.lifecycle_mirror_shadow_refused: PASS missing=open wrong=open legacyOnly=preserved');
 
   const terminalMirror = store.readFindings(storyId);
   const terminalFinding = terminalMirror.findings.find((finding) => finding.id === `${storyId}:F-004`)!;
@@ -1943,7 +1995,7 @@ if (process.argv[2] === '--ledger-worker') {
       assert.equal(verifyFindingLedgerReceipt(casReceipt, ledgerTrust), true);
       const acceptedReceiptKeys = [
         'schemaVersion', 'ledgerSchemaEpoch', 'minimumWriterCapability', 'receiptId', 'storyId',
-        'idempotencyKey', 'operation', 'recordIds', 'casBindings', 'priorLedgerDigest',
+        'idempotencyKey', 'exactRequestDigest', 'operation', 'recordIds', 'casBindings', 'priorLedgerDigest',
         'committedLedgerDigest', 'replayed', 'committedAt', 'writerSessionId', 'writerLeaseId',
         'writerFenceToken', 'keyId', 'algorithm', 'trustRootDigest', 'keyFreshnessPolicyDigest',
         'receiptHash', 'signature',
@@ -1962,7 +2014,128 @@ if (process.argv[2] === '--ledger-worker') {
       assert.equal(afterReplay.records.filter((record) => record.recordType === 'finding_ledger_receipt').length, 0);
       console.log('ledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0');
 
-      const staleBaseCount = afterReplay.records.length;
+      const relabelIdempotencyKey = 'chk003:idempotency-digest-relabel';
+      const relabelV1Options: LedgerAppendOptions<JsonValue> = {
+        ...baseOptions(relabelIdempotencyKey),
+        operation: 'append_candidate',
+        records: [{ recordType: 'candidate', payload: { candidateId: 'digest-relabel', version: 1 } }],
+      };
+      appendFindingLedger(relabelV1Options);
+      const relabelLedgerPath = integrityStore.findingLedgerPath(integrityStoryId);
+      const relabelOriginalLedger = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const relabelV2Options: LedgerAppendOptions<JsonValue> = {
+        ...relabelV1Options,
+        records: [{ recordType: 'candidate', payload: { candidateId: 'digest-relabel', version: 2 } }],
+      };
+      const digestFor = (options: LedgerAppendOptions<JsonValue>): string => canonicalHash({
+        storyId: options.storyId,
+        operation: options.operation,
+        idempotencyKey: options.idempotencyKey,
+        records: options.records,
+        casBindings: options.casBindings ?? [],
+        ...(options.expectedPriorLedgerDigest !== undefined
+          ? { expectedPriorLedgerDigest: options.expectedPriorLedgerDigest }
+          : {}),
+      });
+      const relabeledLedger = structuredClone(relabelOriginalLedger) as typeof relabelOriginalLedger & {
+        receipts: Array<Record<string, unknown>>;
+      };
+      const relabeledCarrier = relabeledLedger.receipts.find((receipt) => (
+        receipt.idempotencyKey === relabelIdempotencyKey
+      ))!;
+      (relabeledCarrier as unknown as Record<string, unknown>).exactRequestDigest = digestFor(relabelV2Options);
+      writeFileSync(relabelLedgerPath, `${JSON.stringify(relabeledLedger, null, 2)}\n`);
+      let relabeledReplayAccepted = false;
+      try {
+        appendFindingLedger(relabelV2Options);
+        relabeledReplayAccepted = true;
+      } catch (error) {
+        assert.match(String(error), /IDEMPOTENCY_CONFLICT/);
+      }
+      const relabeledPersisted = integrityStore.readFindingLedger<JsonValue>(integrityStoryId);
+      const relabeledPayload = relabeledPersisted.records.find((record) => (
+        record.idempotencyKey === relabelIdempotencyKey
+      ))?.payload as Record<string, JsonValue> | undefined;
+      writeFileSync(relabelLedgerPath, `${JSON.stringify(relabelOriginalLedger, null, 2)}\n`);
+      if (relabeledReplayAccepted) {
+        console.log(`ledger.idempotency_digest_relabel_refused: RED replayV2=accepted persistedVersion=${String(relabeledPayload?.version)}`);
+      }
+      assert.equal(
+        relabeledReplayAccepted,
+        false,
+        'changing only unsigned exactRequestDigest must not relabel a v2 request as a v1 replay',
+      );
+      assert.equal(relabeledPayload?.version, 1, 'replay refusal must preserve the original v1 payload');
+      let relabelRefusals = relabeledReplayAccepted ? 0 : 1;
+      const expectReplayBindingRefusal = (
+        candidate: typeof relabelOriginalLedger,
+        options: LedgerAppendOptions<JsonValue>,
+      ): void => {
+        writeFileSync(relabelLedgerPath, `${JSON.stringify(candidate, null, 2)}\n`);
+        assert.throws(() => appendFindingLedger(options), /IDEMPOTENCY_CONFLICT/);
+        relabelRefusals += 1;
+        writeFileSync(relabelLedgerPath, `${JSON.stringify(relabelOriginalLedger, null, 2)}\n`);
+      };
+      const semanticRelabels: LedgerAppendOptions<JsonValue>[] = [
+        { ...relabelV1Options, operation: 'append_deferral' },
+        { ...relabelV1Options, records: [{ recordType: 'candidate_route', payload: { candidateId: 'digest-relabel', version: 1 } }] },
+        {
+          ...relabelV1Options,
+          casBindings: [{
+            recordType: 'finding', expectedRecordId: seedReceipt.recordIds[0]!,
+            expectedRecordHash: exactLedgerRecordHash(seedRecord),
+            observedChainHeadId: seedRecord.recordId,
+            observedChainHeadHash: exactLedgerRecordHash(seedRecord),
+            predicateDigest: 'relabel-cas-predicate',
+          }],
+        },
+        { ...relabelV1Options, expectedPriorLedgerDigest: '0'.repeat(64) },
+      ];
+      for (const options of semanticRelabels) {
+        const candidate = structuredClone(relabelOriginalLedger) as typeof relabelOriginalLedger & {
+          receipts: Array<Record<string, unknown>>;
+        };
+        const carrier = candidate.receipts.find((receipt) => receipt.idempotencyKey === relabelIdempotencyKey)!;
+        (carrier as unknown as Record<string, unknown>).exactRequestDigest = digestFor(options);
+        expectReplayBindingRefusal(candidate, options);
+      }
+
+      for (const mutateCarrier of [
+        (carrier: Record<string, unknown>) => { carrier.idempotencyKey = 'chk003:idempotency-carrier-relabel'; },
+        (carrier: Record<string, unknown>) => { carrier.operation = 'append_deferral'; },
+        (carrier: Record<string, unknown>) => { carrier.recordIds = [...seedReceipt.recordIds]; },
+        (carrier: Record<string, unknown>) => { carrier.priorLedgerDigest = '0'.repeat(64); },
+        (carrier: Record<string, unknown>) => { carrier.requestDigest = '0'.repeat(64); },
+      ]) {
+        const candidate = structuredClone(relabelOriginalLedger) as typeof relabelOriginalLedger & {
+          receipts: Array<Record<string, unknown>>;
+        };
+        const carrier = candidate.receipts.find((receipt) => receipt.idempotencyKey === relabelIdempotencyKey)!;
+        mutateCarrier(carrier as unknown as Record<string, unknown>);
+        const candidateKey = String((carrier as unknown as Record<string, unknown>).idempotencyKey);
+        expectReplayBindingRefusal(candidate, { ...relabelV1Options, idempotencyKey: candidateKey });
+      }
+
+      const legacyCandidate = structuredClone(relabelOriginalLedger) as typeof relabelOriginalLedger & {
+        receipts: Array<Record<string, unknown>>;
+      };
+      const legacyCarrier = legacyCandidate.receipts.find((receipt) => receipt.idempotencyKey === relabelIdempotencyKey)!;
+      const signedOriginal = (legacyCarrier as unknown as Record<string, unknown>).findingLedgerReceipt as ReturnType<typeof signFindingLedgerReceipt>;
+      const {
+        exactRequestDigest: _legacyExactRequestDigest,
+        receiptHash: _legacyReceiptHash,
+        signature: _legacySignature,
+        ...legacyUnsigned
+      } = signedOriginal;
+      (legacyCarrier as unknown as Record<string, unknown>).findingLedgerReceipt = signFindingLedgerReceipt(
+        legacyUnsigned,
+        ledgerSigner,
+      );
+      expectReplayBindingRefusal(legacyCandidate, relabelV1Options);
+      assert.equal(relabelRefusals, 11);
+      console.log('ledger.idempotency_digest_relabel_refused: PASS replayV2=refused persistedVersion=1 signedBinding=true semanticRelabels=4 carrierRelabels=5 legacyReplay=refused');
+
+      const staleBaseCount = integrityStore.readFindingLedger<JsonValue>(integrityStoryId).records.length;
       const staleAttempts: Array<LedgerAppendOptions<JsonValue>> = [
         {
           ...baseOptions('chk003:stale-id'), operation: 'append_candidate_route',
@@ -2366,6 +2539,7 @@ if (process.argv[2] === '--ledger-worker') {
       mutate('receiptId', 'other-receipt');
       mutate('storyId', 'B-OTHER');
       mutate('idempotencyKey', 'other-idempotency');
+      mutate('exactRequestDigest', '0'.repeat(64));
       mutate('operation', 'append_deferral');
       mutate('recordIds', [...casReceipt.recordIds, 'extra-record']);
       mutate('casBindings', [{ ...casReceipt.casBindings[0]!, predicateDigest: 'other-predicate' }]);

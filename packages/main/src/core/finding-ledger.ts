@@ -262,6 +262,10 @@ const FINDING_LEDGER_RECEIPT_KEYS = [
   "writerFenceToken", "keyId", "algorithm", "trustRootDigest", "keyFreshnessPolicyDigest",
   "receiptHash", "signature",
 ].sort();
+const FINDING_LEDGER_RECEIPT_EXACT_REQUEST_KEYS = [
+  ...FINDING_LEDGER_RECEIPT_KEYS,
+  "exactRequestDigest",
+].sort();
 const FINDING_LEDGER_CAS_KEYS = [
   "recordType", "expectedRecordId", "expectedRecordHash", "observedChainHeadId",
   "observedChainHeadHash", "predicateDigest",
@@ -299,7 +303,8 @@ export function verifyFindingLedgerReceipt(
   trust: string | FindingLedgerReceiptTrust,
 ): boolean {
   try {
-    if (!hasExactKeys(receipt, FINDING_LEDGER_RECEIPT_KEYS)
+    if ((!hasExactKeys(receipt, FINDING_LEDGER_RECEIPT_KEYS)
+      && !hasExactKeys(receipt, FINDING_LEDGER_RECEIPT_EXACT_REQUEST_KEYS))
       || !receipt.casBindings.every((binding) => hasExactKeys(binding, FINDING_LEDGER_CAS_KEYS))) return false;
     const publicKey = typeof trust === "string" ? trust : trust.publicKey;
     if (typeof trust !== "string" && (
@@ -312,6 +317,7 @@ export function verifyFindingLedgerReceipt(
       || receipt.minimumWriterCapability !== FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY
       || receipt.algorithm !== "ed25519"
       || !FINDING_LEDGER_OPERATIONS.has(receipt.operation)
+      || (receipt.exactRequestDigest !== undefined && !/^[0-9a-f]{64}$/.test(receipt.exactRequestDigest))
       || !receipt.recordIds.length
       || new Set(receipt.recordIds).size !== receipt.recordIds.length
       || [

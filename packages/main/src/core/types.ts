@@ -1633,6 +1633,8 @@ export interface FindingLedgerReceipt {
   receiptId: string;
   storyId: string;
   idempotencyKey: string;
+  /** Canonical digest of every semantic append input; required for safe replay. */
+  exactRequestDigest?: string;
   operation: FindingLedgerOperation;
   recordIds: string[];
   casBindings: FindingLedgerCasBinding[];
