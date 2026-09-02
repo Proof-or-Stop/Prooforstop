@@ -170,10 +170,32 @@
         "identity_cutover_merge",
         "identity_state_migrate"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Full validate exposed two framework guards that the Story 3 sources trip: red-b49d4-harness-registration requires the new RED harness to be registered in proof-or-stop.config.json validate.commands, and retired-authority-vocabulary-guard pins a dynamic binding graph build ceiling (808) that the three new Story 3 source files raise to 811; both files are touched only to register the harness and refresh the ceiling.",
+      "timestamp": "2026-09-02T12:54:45.291Z",
+      "paths": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "dd45caa2ea97c16cd22ebf522c5d34dadeec0d82",
+      "materialHash": "9cbfbe65767c96e02c387f0ef15062a25c498976220ce4d1cfd5d838ed7caba7",
+      "anchors": [
+        "validate_registration",
+        "binding_build_ceiling"
+      ]
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-02T08:08:20.579Z",
+  "updatedAt": "2026-09-02T12:54:45.292Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -226,6 +248,8 @@
     ".lattice/story/actives/B-fe8f/process-events.jsonl": ".lattice/story/actives/B-fe8f/process-events.jsonl",
     ".lattice/story/actives/B-fe8f/scope-boundary.json": ".lattice/story/actives/B-fe8f/scope-boundary.json",
     ".lattice/story/actives/B-fe8f/scope-freeze-check.json": ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
-    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts"
+    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
