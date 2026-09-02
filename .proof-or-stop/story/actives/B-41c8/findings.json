@@ -138,6 +138,21 @@
       "signatureTag": "edge|ts|verification-executor-core",
       "signatureTagSource": "auto",
       "resolvedBy": "B-41c8:F-007@e50125b"
+    },
+    {
+      "id": "B-41c8:F-008",
+      "desc": "concept-cleanup: packages/main/src/tasks/single-owner-extraction-smoke.ts:1936 F-005s vacuous-label regression guard checks the assembled audit line for the string workspace-rooted (no story/checklist/config read at all) but the label was renamed in the same F-005 fix wave (a20d0e0e40) at line 1697 to workspace-rooted (no story/checklist/config read and no delegation on ctx at all). classificationOf can never emit the pre-rename string, so this assert.ok(...includes(...)) is now vacuously true regardless of whether the vacuous label reappears for proof-or-stop-handoff.ts / done-required-validation.ts, silently defeating the exact regression the case name promises to guard.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T15:57:52.676Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-008",
+      "_hash": "29db973ee790e4baa03841f8c6867c176f508884a64dc55ceecf8d103927869e",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
