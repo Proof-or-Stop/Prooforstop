@@ -261,6 +261,35 @@
         "scanEscalationReason": null
       },
       "_hash": "8c8394040626e75a54d96d33bdd0852c6853637385fbb8fa690a8e5cecc9e251"
+    },
+    {
+      "id": "B-41c8:RP-010",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review after main-merge round bounce. Confirmed git diff main...HEAD --stat (43 files) shows only story-owned files (all under .proof-or-stop/story/actives/B-41c8/, plus the CHK-001..004 scoped source files); none of the merge-brought files (AGENTS.md, docs/audits/AGENTS-current-version-audit.md, tests/AGENTS.verify.mjs, .proof-or-stop/artifact-releases.jsonl, .proof-or-stop/capability-releases.jsonl, .proof-or-stop/dev-memory/experience.jsonl -- per review_incremental_context changedFiles since RP-009) are story-owned source. Re-ran the round-5 residual sweep for all 8 deleted symbols (collectLinkedStoryWorktrees, commandFromString, listActiveWorktrees, listLinkedStoryWorktrees, readStoryFromLinkedWorktree, readWorktreePhase, resolveStoryWorkspace, splitShellWords) over packages/ docs/ CLAUDE.md scripts/: 7 of 8 counts are byte-identical to RP-009 (3,13,3,2,3,2,9). resolveStoryWorkspace grew from 41 to 43 lines (44 occurrences with one pre-existing double-occurrence regex line unchanged from round 5); the +2 delta is exactly two lines in docs/story/drafts/zombie-detector-wrapper-root-layout/{background.md,checklist.json}, a separate draft story (commit 94d6644, shared ancestor of both main and this branch, not in git diff main...HEAD --name-only) that references resolveStoryWorkspace by name as the correct pattern to reuse for a future story -- a legitimate forward reference to the new canonical helper (same bucket-(a)/(c) class as round 5), not residue of a deleted symbol. Re-confirmed zero remaining splitShellWords/SHELL_META_RE/commandFromString occurrences in done-required-validation.ts and validation-plan.ts. Zero (d) genuine-residue hits across all 8 symbols. No blocker.",
+      "createdAt": "2026-09-02T23:49:33.417Z",
+      "reviewRound": "2026-09-02T23:45:41.118Z",
+      "reviewRunId": "B-41c8:RR-021",
+      "envelopeId": "bdd76f5249d839aa175fa003344c1426a3773d3f58bf071ad41916e57f9d33a5",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/drafts/zombie-detector-wrapper-root-layout/background.md",
+          "docs/story/drafts/zombie-detector-wrapper-root-layout/checklist.json",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5275ef7d8eef935799662941e43f169fc499dc6be05ad03d8e977f24cd068b4"
     }
   ]
 }
