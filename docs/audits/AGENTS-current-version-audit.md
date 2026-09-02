@@ -97,7 +97,7 @@ separately.
 `L01` and `L02` are the two separately reported low-priority issues. Exactly one
 mechanical row owns each source issue. A row may use multiple conjunctive stale
 predicates, but no source issue is split or merged merely to reach a row count.
-For the explicitly modeled composite behavioral rows A05, A10, A12, A13, A14,
+For the explicitly modeled composite behavioral rows A05, A09, A10, A12, A13, A14,
 A18, A19, A20, A21, A22, A24, A25, and A26, verifier-side authority entries
 also carry a semantic role (`definition`, `producer`, `guard`, `consumer`, or
 `branch`). Each material subclaim has its own named chain; entries from
@@ -106,6 +106,28 @@ each declared executable endpoint and mutates its source match to prove that a
 definition-only or broken producer/guard/consumer/branch chain is rejected.
 This guarantee is limited to those declared subclaim chains, not every possible
 behavior of the repository.
+
+The following auditable contract independently binds every named subclaim to
+its exact authority labels and semantic roles. The verifier requires this block
+to match its executable chain model byte for byte and rejects every possible
+same-role, cross-chain endpoint swap within a row.
+
+<!-- semantic-authority-chains:start -->
+- **A05**: `background-entry` -> story-create-background-required-guard@guard, story-create-background-validator-call@consumer; `background-shape` -> background-canonical-section-set@definition, background-total-length-guard@guard, background-section-length-guard@guard; `background-trigger-id` -> background-trigger-identifier-guard@producer, background-trigger-identifier-reject-branch@branch
+- **A09**: `init-transition-policy` -> init-check-required-reviewer-pair@definition, init-check-six-transition-gates@definition; `init-preflight-boundary` -> init-preflight-command-registration@definition, init-preflight-read-only-boundary-call@consumer; `init-repair-guards` -> init-repair-explicit-acknowledgement-guard@guard, init-repair-substantive-reason-guard@guard
+- **A10**: `owner-lease-enforcement` -> owner-lease-cli-enforcement-choke-point@consumer, owner-lease-acquire-or-refresh-flow@definition; `takeover` -> active-lease-force-takeover-guard@guard, takeover-owner-lease-write@producer; `session-render` -> session-brief-ownership-renderer@definition, session-brief-ownership-render-consumer@consumer
+- **A12**: `review-blocker-gate` -> plan-review-blocker-count@producer, plan-review-zero-blocker-gate@guard
+- **A13**: `quick-review-skip` -> quick-path-eligibility-guard@guard, quick-path-story-review-skip-branch@branch
+- **A14**: `scope-check` -> scope-check-signature-mint@producer, scope-check-persistence@producer; `scope-questions` -> scope-question-resolution-registration@definition, scope-open-questions-present-guard@guard, scope-open-question-resolution-producer@producer; `plan-scope-advice` -> plan-to-dev-scope-contract-advisory@definition, plan-to-dev-scope-advice-transition-consumer@consumer; `review-scope-block` -> review-scope-contract-missing-block@guard
+- **A18**: `tool-owned-receipt` -> pinned-verification-command-execution@consumer, tool-owned-verification-receipt-mint@producer
+- **A19**: `dispatch` -> dispatch-implementer-role-registry@definition, dispatch-implementer-target-cardinality@definition, dispatch-command-registration@definition, dispatch-registry-request-validation@consumer; `prompt-render` -> canonical-agent-prompt-render@consumer; `reviewer-list-roster` -> reviewer-list-policy-roster-computation@producer; `reviewer-batch-roster` -> reviewer-batch-shared-roster-computation@producer; `reviewer-batch-boundary` -> reviewer-batch-side-effect-boundary-definition@definition, reviewer-batch-all-side-effect-rejection-guards@guard, reviewer-batch-boundary-invocation@consumer; `host-instruction` -> reviewer-batch-host-instruction-builder@definition, reviewer-batch-host-instruction-use@consumer; `review-run-start-interface` -> review-run-start-registration@definition; `review-pass` -> review-pass-registration@definition, review-pass-run-id-schema@definition, review-pass-current-run-enforcement@consumer; `reviewer-finding` -> reviewer-finding-registration@definition, reviewer-finding-run-id-schema@definition, reviewer-finding-lane-detection@producer, reviewer-finding-current-run-branch@branch, reviewer-finding-current-run-enforcement@consumer; `quorum-pass-prerequisite` -> quorum-submit-registration@definition, quorum-required-reviewer-pass-validation@definition, quorum-missing-or-invalid-pass-guard@guard, quorum-reviewer-pass-validation-call@consumer
+- **A20**: `review-evidence-gate` -> review-entry-verification-evidence-producer@producer, review-entry-verification-evidence-guard@guard; `done-bug-gate` -> done-open-bug-producer@producer, done-open-bug-guard@guard; `test-review-verdict` -> test-entry-review-verdict-producer@producer, test-entry-review-verdict-guard@guard; `proofstory-review-gate` -> proofstory-review-completeness-producer@producer, proofstory-review-completeness-guard@guard; `acceptance-topology-gate` -> plan-acceptance-topology-producer@producer, plan-acceptance-topology-guard@guard; `delivery-freshness-gate` -> done-delivery-freshness-producer@producer, done-delivery-freshness-guard@guard; `summary-policy-gate` -> done-policy-summary-producer@producer, done-policy-summary-branch@branch
+- **A21**: `dirty-classification-block` -> dirty-row-canonical-classification-call@consumer, done-prepare-dirty-classification-producer@producer, done-prepare-blocking-entry-producer@producer, done-prepare-blocking-entry-guard@guard
+- **A22**: `done-version-bump` -> done-watched-input-change-decision@producer, done-version-bump-effect-call@consumer, version-bump-no-watched-input-skip@guard, version-bump-apply-call@consumer, version-bump-git-commit@consumer
+- **A24**: `empty-options` -> decision-empty-options-branch@branch, decision-empty-options-rationale-guard@guard; `single-option` -> decision-single-option-branch@branch, decision-single-option-cons-guard@guard
+- **A25**: `test-auto-preview` -> test-auto-dry-run-preview-branch@branch; `test-auto-confirm` -> test-auto-confirmation-guard@guard
+- **A26**: `modern-prompt-render` -> modern-agent-prompt-host-render@consumer; `thin-registry` -> thin-adapter-package-prompt-registry@definition; `host-launch-instruction` -> modern-host-launch-instruction-builder@definition, modern-host-launch-instruction-use@consumer; `legacy-alias` -> legacy-verification-role-alias-map@definition
+<!-- semantic-authority-chains:end -->
 
 | ID | Source issue | Original baseline location and exact defect | RED command, salient output, exit | Authoritative source | Final AGENTS correction | GREEN command, salient output, exit |
 |---|---|---|---|---|---|---|
@@ -212,6 +234,13 @@ The separate immutable reviewed-file SHA closes the mutable-audit loophole. Two
 explicit probes refresh the in-memory audit SHA and still reject an ASCII Spanish
 substitution and deletion of an ordinary baseline-derived architecture sentence.
 
+The declared semantic boundary currently contains 14 rows and 43 named chains.
+Its source probe deletes or inverts each of the 69 executable endpoints. A
+separate independent-contract probe rejects all 137 same-role endpoint swaps
+that can cross named chains within one modeled row, including all 15 such guard
+swaps in A20. These figures describe this fixed verifier contract; they do not
+claim coverage of undeclared repository behavior.
+
 The command case ledger extracts every exact lowercase `proof-or-stop` invocation
 from Bash fences and inline code. Every real command, including conceptual
 `aux_diagnose` and `test_fixture` examples, must resolve through its real `--help`;
@@ -219,3 +248,13 @@ payloads are additionally executed read-only or validated by the built
 `MAIN_TOOLS` Zod schema. Dedicated unavailable-command mutations for both
 conceptual examples, the unknown-command sentinel, and malformed
 `story_get --storyId` invocation must all be rejected.
+
+For receipt auditability, the final verifier executes every substantive check
+before its compact proof replay. The receipt-window policy then spawns that full
+verifier, retains the same first 12,000 bytes as the validation executor, takes
+the last 4,000 bytes of that capture, and requires all 14 current selectors:
+the six verification-intent selectors plus the command aggregate, citation
+aggregate, source/chain mutation aggregates, Claude and Agy artifact results,
+Agy provenance mutations, and cross-vendor provenance binding. Replay lines are
+returned by completed checks; the verifier does not print unconditional pass
+markers.

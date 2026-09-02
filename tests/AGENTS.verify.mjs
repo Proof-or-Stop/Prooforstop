@@ -155,12 +155,12 @@ const AUTHORITY_BY_ROW = new Map([
     authority('policy', 'plan-entry-cwd-worktree-gate', 'packages/main/src/core/lifecycle-registry.ts', /gates: \['cwd-worktree'\]/),
   ]],
   ['A09', [
-    authority('policy', 'init-check-required-reviewer-pair', 'packages/main/src/core/init-check-gate.ts', /export const REQUIRED_INIT_CHECK_AGENTS/),
-    authority('policy', 'init-check-six-transition-gates', 'packages/main/src/core/lifecycle-registry.ts', /gates: \['init-check', 'scope-boundary', 'execution-boundary', 'scope-freeze-check', 'scope-extension-proposals', 'scope-discard-digest'\]/),
-    authority('interface', 'init-preflight-command-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'init_preflight'/),
-    authority('runtime', 'init-preflight-read-only-boundary-call', 'packages/main/src/handlers/init-preflight.ts', /assertBoundary\(args\)/),
-    authority('runtime', 'init-repair-explicit-acknowledgement-guard', 'packages/main/src/handlers/init-check.ts', /if \(args\.acknowledge !== true\)/),
-    authority('runtime', 'init-repair-substantive-reason-guard', 'packages/main/src/handlers/init-check.ts', /if \(reason\.length < INIT_CHECK_FALLBACK_REASON_MIN\)/),
+    authority('policy', 'init-check-required-reviewer-pair', 'packages/main/src/core/init-check-gate.ts', /export const REQUIRED_INIT_CHECK_AGENTS/, 'definition'),
+    authority('policy', 'init-check-six-transition-gates', 'packages/main/src/core/lifecycle-registry.ts', /gates: \['init-check', 'scope-boundary', 'execution-boundary', 'scope-freeze-check', 'scope-extension-proposals', 'scope-discard-digest'\]/, 'definition'),
+    authority('interface', 'init-preflight-command-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'init_preflight'/, 'definition'),
+    authority('runtime', 'init-preflight-read-only-boundary-call', 'packages/main/src/handlers/init-preflight.ts', /assertBoundary\(args\)/, 'consumer'),
+    authority('runtime', 'init-repair-explicit-acknowledgement-guard', 'packages/main/src/handlers/init-check.ts', /if \(args\.acknowledge !== true\)/, 'guard'),
+    authority('runtime', 'init-repair-substantive-reason-guard', 'packages/main/src/handlers/init-check.ts', /if \(reason\.length < INIT_CHECK_FALLBACK_REASON_MIN\)/, 'guard'),
   ]],
   ['A10', [
     authority('runtime', 'owner-lease-cli-enforcement-choke-point', 'packages/main/src/cli-engine.ts', /enforceStoryOwnerLeaseGate\(cmd, parsed/, 'consumer'),
@@ -302,6 +302,11 @@ const REQUIRED_AUTHORITY_CHAINS = new Map([
     chain('background-shape', ['background-canonical-section-set', 'definition'], ['background-total-length-guard', 'guard'], ['background-section-length-guard', 'guard']),
     chain('background-trigger-id', ['background-trigger-identifier-guard', 'producer'], ['background-trigger-identifier-reject-branch', 'branch']),
   ]],
+  ['A09', [
+    chain('init-transition-policy', ['init-check-required-reviewer-pair', 'definition'], ['init-check-six-transition-gates', 'definition']),
+    chain('init-preflight-boundary', ['init-preflight-command-registration', 'definition'], ['init-preflight-read-only-boundary-call', 'consumer']),
+    chain('init-repair-guards', ['init-repair-explicit-acknowledgement-guard', 'guard'], ['init-repair-substantive-reason-guard', 'guard']),
+  ]],
   ['A10', [
     chain('owner-lease-enforcement', ['owner-lease-cli-enforcement-choke-point', 'consumer'], ['owner-lease-acquire-or-refresh-flow', 'definition']),
     chain('takeover', ['active-lease-force-takeover-guard', 'guard'], ['takeover-owner-lease-write', 'producer']),
@@ -354,6 +359,67 @@ const REQUIRED_AUTHORITY_CHAINS = new Map([
     chain('legacy-alias', ['legacy-verification-role-alias-map', 'definition']),
   ]],
 ]);
+
+const SEMANTIC_CHAIN_BLOCK_START = '<!-- semantic-authority-chains:start -->';
+const SEMANTIC_CHAIN_BLOCK_END = '<!-- semantic-authority-chains:end -->';
+
+function renderSemanticChainRow(rowId, chains) {
+  const claims = chains.map((semanticChain) => {
+    const endpoints = semanticChain.endpoints.map((endpoint) => `${endpoint.label}@${endpoint.role}`).join(', ');
+    return `\`${semanticChain.name}\` -> ${endpoints}`;
+  }).join('; ');
+  return `- **${rowId}**: ${claims}`;
+}
+
+function renderSemanticChainBlock(chainContract = REQUIRED_AUTHORITY_CHAINS) {
+  return [...chainContract].map(([rowId, chains]) => renderSemanticChainRow(rowId, chains)).join('\n');
+}
+
+function auditSemanticChainPolicy(text, chainContract = REQUIRED_AUTHORITY_CHAINS) {
+  const start = text.indexOf(SEMANTIC_CHAIN_BLOCK_START);
+  const end = text.indexOf(SEMANTIC_CHAIN_BLOCK_END);
+  if (start < 0 || end <= start) return false;
+  const actual = text.slice(start + SEMANTIC_CHAIN_BLOCK_START.length, end).trim();
+  return actual === renderSemanticChainBlock(chainContract);
+}
+
+function cloneAuthorityChains(chainContract = REQUIRED_AUTHORITY_CHAINS) {
+  return new Map([...chainContract].map(([rowId, chains]) => [
+    rowId,
+    chains.map((semanticChain) => ({
+      name: semanticChain.name,
+      endpoints: semanticChain.endpoints.map((endpoint) => ({ ...endpoint })),
+    })),
+  ]));
+}
+
+function semanticChainSwapMutationChecks() {
+  assert.ok(auditSemanticChainPolicy(auditText), 'audit must independently bind every named semantic chain endpoint and role');
+  let swapCount = 0;
+  let a20GuardSwapCount = 0;
+  for (const [rowId, chains] of REQUIRED_AUTHORITY_CHAINS) {
+    const candidates = chains.flatMap((semanticChain, chainIndex) => semanticChain.endpoints.map((endpoint, endpointIndex) => ({ ...endpoint, chainIndex, endpointIndex })));
+    for (let leftIndex = 0; leftIndex < candidates.length; leftIndex += 1) {
+      for (let rightIndex = leftIndex + 1; rightIndex < candidates.length; rightIndex += 1) {
+        const left = candidates[leftIndex];
+        const right = candidates[rightIndex];
+        if (left.role !== right.role || left.chainIndex === right.chainIndex) continue;
+        const mutated = cloneAuthorityChains();
+        const mutatedChains = mutated.get(rowId);
+        const leftEndpoint = mutatedChains[left.chainIndex].endpoints[left.endpointIndex];
+        const rightEndpoint = mutatedChains[right.chainIndex].endpoints[right.endpointIndex];
+        [leftEndpoint.label, rightEndpoint.label] = [rightEndpoint.label, leftEndpoint.label];
+        assert.ok(!auditSemanticChainPolicy(auditText, mutated), `${rowId} same-role cross-chain endpoint swap must fail: ${left.label}<->${right.label}`);
+        swapCount += 1;
+        if (rowId === 'A20' && left.role === 'guard') a20GuardSwapCount += 1;
+      }
+    }
+  }
+  assert.ok(a20GuardSwapCount > 0, 'A20 must exercise same-role guard swaps across independent gate chains');
+  const marker = `SEMANTIC_CHAIN_SWAP_MUTATION rows=${REQUIRED_AUTHORITY_CHAINS.size} swaps=${swapCount} a20GuardSwaps=${a20GuardSwapCount} PASS`;
+  console.log(marker);
+  return { marker, swapCount, a20GuardSwapCount };
+}
 
 function validateAuthorityRoleCompleteness(authorityMap = AUTHORITY_BY_ROW) {
   for (const [rowId, chains] of REQUIRED_AUTHORITY_CHAINS) {
@@ -471,9 +537,11 @@ function sourceAuthorityMutationChecks() {
     /A05\/background-entry semantic endpoint role drifted:/,
     'a composite runtime claim must not pass with definition-only authorities',
   );
-  console.log(`SOURCE_AUTHORITY_MUTATION rows=${REQUIRED_AUTHORITY_CHAINS.size} chains=${chainCount} executableEndpoints=${endpointCount} removalOrInversion=${endpointCount} PASS`);
-  console.log('SOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED');
-  return { rows: REQUIRED_AUTHORITY_CHAINS.size, chainCount, endpointCount, roleMutationCount: 1 };
+  const aggregateMarker = `SOURCE_AUTHORITY_MUTATION rows=${REQUIRED_AUTHORITY_CHAINS.size} chains=${chainCount} executableEndpoints=${endpointCount} removalOrInversion=${endpointCount} PASS`;
+  const roleMarker = 'SOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED';
+  console.log(aggregateMarker);
+  console.log(roleMarker);
+  return { rows: REQUIRED_AUTHORITY_CHAINS.size, chainCount, endpointCount, roleMutationCount: 1, aggregateMarker, roleMarker };
 }
 
 function runAuditRows() {
@@ -624,7 +692,7 @@ function assertCommandAvailable(command, injectedRunner = null) {
   if (injectedRunner === null) commandHelpCache.add(command);
 }
 
-function runCommandLedger() {
+function runCommandLedger({ verbose = true } = {}) {
   const invocations = extractInvocations(currentText);
   assert.equal(invocations.length, 46, `expected exactly 46 reviewed active invocations, got ${invocations.length}`);
   const ledger = [];
@@ -675,7 +743,7 @@ function runCommandLedger() {
       throw new Error(`unclassified active invocation: ${text}`);
     }
     ledger.push({ text, fullArgv: text, command: parsed.command, payload: parsed.payload, kind, result });
-    console.log(`CASE ${String(ledger.length).padStart(2, '0')} PASS kind=${kind} argv=${JSON.stringify(text)}`);
+    if (verbose) console.log(`CASE ${String(ledger.length).padStart(2, '0')} PASS kind=${kind} argv=${JSON.stringify(text)}`);
   }
   assert.equal(ledger.length, invocations.length, 'every exact invocation must have one ledger case');
   assert.equal(ledger[41]?.text, invocations[41], 'CASE 42 must be backed by the forty-second validated invocation');
@@ -683,20 +751,22 @@ function runCommandLedger() {
 
   const unknown = spawnSync(process.execPath, [localCli, '__agents_unknown_command__', '--help'], { cwd: root, encoding: 'utf8' });
   assert.notEqual(unknown.status, 0, 'unknown-command sentinel must be rejected');
-  console.log(`MUTATION unknown-command REJECTED exit=${unknown.status}`);
+  if (verbose) console.log(`MUTATION unknown-command REJECTED exit=${unknown.status}`);
   const malformed = spawnSync(process.execPath, [localCli, 'story_get', '--storyId'], { cwd: root, encoding: 'utf8' });
   assert.notEqual(malformed.status, 0, 'malformed story_get --storyId must be rejected');
   const malformedSelector = 'MUTATION malformed-argument REJECTED';
-  console.log(`${malformedSelector} exit=${malformed.status}`);
+  if (verbose) console.log(`${malformedSelector} exit=${malformed.status}`);
   for (const command of ['aux_diagnose', 'test_fixture']) {
     assert.throws(
       () => assertCommandAvailable(command, () => ({ status: 1, stdout: '', stderr: `Unknown command: ${command}` })),
       /must resolve/,
       `${command} unavailability mutation must make command validation fail`,
     );
-    console.log(`COMMAND_AVAILABILITY_MUTATION ${command} REJECTED`);
+    if (verbose) console.log(`COMMAND_AVAILABILITY_MUTATION ${command} REJECTED`);
   }
-  return { ledger, case42Selector, malformedSelector };
+  const aggregateSelector = `COMMAND_LEDGER cases=${ledger.length}/${invocations.length} PASS`;
+  if (verbose) console.log(aggregateSelector);
+  return { ledger, case42Selector, malformedSelector, aggregateSelector };
 }
 
 function tally(values) {
@@ -955,6 +1025,10 @@ function auditRowCells(text, id) {
 }
 
 function auditCitationPolicy(text, authorityInventory = resolvedAuthorityInventory()) {
+  if (!auditSemanticChainPolicy(text)) {
+    if (text === auditText) console.error('AUDIT_CITATION_POLICY semantic-chain-contract-mismatch');
+    return false;
+  }
   for (const row of AUDIT_ROWS) {
     const reject = (reason) => {
       if (text === auditText) console.error(`AUDIT_CITATION_POLICY ${row.id} ${reason}`);
@@ -1047,7 +1121,8 @@ function auditCitationMutationChecks() {
   assert.equal(removalCount, entryCount, 'every authority entry must have one removal mutation');
   assert.equal(replacementCount, entryCount, 'every authority entry must have one irrelevant replacement mutation');
   assert.equal(removalCount + replacementCount, entryCount * 2, 'authority mutation total must be exactly two per entry');
-  console.log(`AUDIT_CITATION_EXHAUSTIVE rows=${authorityInventory.size} entries=${entryCount} removal=${removalCount} replacement=${replacementCount} total=${removalCount + replacementCount} PASS documentHashesRefreshed=1`);
+  const aggregateMarker = `AUDIT_CITATION_EXHAUSTIVE rows=${authorityInventory.size} entries=${entryCount} removal=${removalCount} replacement=${replacementCount} total=${removalCount + replacementCount} PASS documentHashesRefreshed=1`;
+  console.log(aggregateMarker);
 
   const labelTarget = authorityInventory.get('A19')?.find((entry) => entry.label === 'dispatch-registry-request-validation');
   assert.ok(labelTarget, 'independent label mutation sentinel must exist');
@@ -1063,6 +1138,7 @@ function auditCitationMutationChecks() {
   const vague = refreshDocumentHashes(auditText.replace(auditText.split('\n').find((line) => line.startsWith('| A20 |')), vagueLine));
   assert.ok(!auditCitationPolicy(vague, authorityInventory), 'vague row authority must fail even after document hashes are refreshed');
   console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
+  return { aggregateMarker, entryCount, removalCount, replacementCount };
 }
 
 function auditDocumentChecks() {
@@ -1095,8 +1171,12 @@ function auditDocumentChecks() {
     'repository-local implementation remains the behavior authority',
   ];
   for (const token of provenance) assert.ok(auditText.includes(token), `external-review provenance token missing: ${token}`);
-  console.log('EXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION');
-  console.log(`AUDIT_DOCUMENT rows=26 baselineSha=${sha256(baselineText)} finalSha=${sha256(currentText)}`);
+  assert.ok(auditSemanticChainPolicy(auditText), 'audit document semantic-chain block must exactly bind every chain endpoint and role');
+  const provenanceMarker = 'EXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION';
+  const documentMarker = `AUDIT_DOCUMENT rows=26 baselineSha=${sha256(baselineText)} finalSha=${sha256(currentText)}`;
+  console.log(provenanceMarker);
+  console.log(documentMarker);
+  return { provenanceMarker, documentMarker };
 }
 
 function rowSemanticMutationChecks() {
@@ -1176,34 +1256,94 @@ function agyProvenanceMutationChecks(record, promptText) {
   const mutatedPrompt = promptText.replace('independent', 'IndependenT');
   assert.equal(Buffer.byteLength(mutatedPrompt), Buffer.byteLength(promptText), 'Agy prompt-hash mutation must preserve bytes');
   assert.throws(() => validateAgyProvenanceRecord(record, mutatedPrompt), /prompt hash drifted/, 'invented Agy prompt hash must be rejected');
-  console.log('AGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED');
+  const marker = 'AGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED';
+  console.log(marker);
+  return marker;
 }
 
 function externalReviewArtifactChecks() {
+  const markers = [];
   if (existsSync(claudeTranscript)) {
     const transcript = read(claudeTranscript);
     assert.equal(sha256(transcript), '1cd25e48b697df884252a65b08c9eda602e4ce5bd4f6b3ec537899588030b0f7', 'Claude transcript hash drifted');
     assert.ok(transcript.includes('3a540dc1-9ecd-45af-bafb-78845401177b') && transcript.includes('"version":"2.1.258"') && transcript.includes('"model":"claude-opus-5"'), 'Claude transcript identity must match the durable provenance');
-    console.log('EXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED');
+    markers.push('EXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED');
   } else {
-    console.log('EXTERNAL_ARTIFACT claude availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
+    markers.push('EXTERNAL_ARTIFACT claude availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
   }
+  console.log(markers.at(-1));
   if (existsSync(agyTranscript)) {
     const records = read(agyTranscript).split('\n').filter(Boolean).map((line) => JSON.parse(line)).filter((entry) => entry.ordinal === AGY_PROVENANCE.ordinal);
     assert.equal(records.length, 1, 'Agy transcript must contain exactly one selected ordinal 953 record');
     assert.ok(existsSync(AGY_PROVENANCE.promptPath), 'Agy selected invocation prompt file is unavailable on its provenance host');
     const promptText = read(AGY_PROVENANCE.promptPath);
     validateAgyProvenanceRecord(records[0], promptText);
-    agyProvenanceMutationChecks(records[0], promptText);
-    console.log(`EXTERNAL_ARTIFACT agy availability=LOCAL ordinal=${AGY_PROVENANCE.ordinal} bytes=${AGY_PROVENANCE.stdoutBytes} hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED`);
+    markers.push(agyProvenanceMutationChecks(records[0], promptText));
+    markers.push(`EXTERNAL_ARTIFACT agy availability=LOCAL ordinal=${AGY_PROVENANCE.ordinal} bytes=${AGY_PROVENANCE.stdoutBytes} hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED`);
   } else {
-    console.log('EXTERNAL_ARTIFACT agy availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
+    markers.push('EXTERNAL_ARTIFACT agy availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
   }
+  console.log(markers.at(-1));
+  return markers;
+}
+
+const RECEIPT_WINDOW_SELECTORS = Object.freeze([
+  'COMMAND_LEDGER cases=46/46 PASS',
+  'CASE 42 PASS',
+  'MUTATION malformed-argument REJECTED',
+  'UNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0',
+  'STRUCTURE baselineDigest=',
+  'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED',
+  'RUNTIME classification=VERSION_AND_REALPATH_DRIFT',
+  'EXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION',
+  'AUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS',
+  'SOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS',
+  'SEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=',
+  'EXTERNAL_ARTIFACT claude availability=',
+  'AGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED',
+  'EXTERNAL_ARTIFACT agy availability=',
+]);
+
+function receiptWindowPolicyChecks() {
+  const verifierPath = fileURLToPath(import.meta.url);
+  const run = spawnSync(process.execPath, [verifierPath, '--final'], { cwd: root, encoding: null, timeout: 180000, maxBuffer: 8 * 1024 * 1024 });
+  assert.equal(run.status, 0, `receipt-window final verifier failed: ${Buffer.concat([run.stdout ?? Buffer.alloc(0), run.stderr ?? Buffer.alloc(0)]).subarray(-2000).toString('utf8')}`);
+  const raw = run.stdout ?? Buffer.alloc(0);
+  const captured = raw.subarray(0, Math.min(raw.length, 12000));
+  const receiptTail = captured.subarray(Math.max(0, captured.length - 4000));
+  const offsets = [];
+  for (const selector of RECEIPT_WINDOW_SELECTORS) {
+    const offset = receiptTail.indexOf(Buffer.from(selector));
+    assert.ok(offset >= 0, `validation receipt tail is missing acceptance-critical selector: ${selector}`);
+    offsets.push(`${selector.split(' ')[0]}@${offset}`);
+  }
+  const marker = `RECEIPT_WINDOW raw=${raw.length} captured=${captured.length} tail=${receiptTail.length} selectors=${RECEIPT_WINDOW_SELECTORS.length}/${RECEIPT_WINDOW_SELECTORS.length} offsets=${offsets.join(',')} PASS`;
+  console.log(marker);
+  return { marker, rawBytes: raw.length, capturedBytes: captured.length, tailBytes: receiptTail.length, offsets };
 }
 
 if (process.argv.includes('--external-review-policy')) {
   externalReviewArtifactChecks();
   console.log('EXTERNAL_REVIEW_POLICY PASS');
+  process.exit(0);
+}
+
+if (process.argv.includes('--receipt-window-policy')) {
+  receiptWindowPolicyChecks();
+  process.exit(0);
+}
+
+if (process.argv.includes('--semantic-chain-inventory')) {
+  console.log(SEMANTIC_CHAIN_BLOCK_START);
+  console.log(renderSemanticChainBlock());
+  console.log(SEMANTIC_CHAIN_BLOCK_END);
+  process.exit(0);
+}
+
+if (process.argv.includes('--semantic-chain-policy')) {
+  const mutationSummary = semanticChainSwapMutationChecks();
+  const chainCount = [...REQUIRED_AUTHORITY_CHAINS.values()].reduce((sum, chains) => sum + chains.length, 0);
+  console.log(`SEMANTIC_CHAIN_POLICY PASS rows=${REQUIRED_AUTHORITY_CHAINS.size} chains=${chainCount} swaps=${mutationSummary.swapCount}`);
   process.exit(0);
 }
 
@@ -1247,37 +1387,45 @@ if (process.argv.includes('--runtime-policy')) {
 
 let exitCode = runAuditRows();
 if (mode === 'final' && !selectedRow && exitCode === 0) {
-  // Receipt runners retain a bounded stdout prefix. Emit these cheap pinned
-  // environment/language facts before the verbose command ledger while still
-  // requiring every later assertion and the authoritative final exit code.
+  // Every replayed proof line below is returned by a completed check. The
+  // command ledger remains fully executable but is quiet here so the complete
+  // post-check replay fits the validation executor's bounded receipt window.
   const runtimeMarker = runtimeChecks();
   const unicodeMarkers = unicodeChecks();
   const semanticMarkers = semanticChecks();
-  const commandMarkers = runCommandLedger();
+  const commandMarkers = runCommandLedger({ verbose: false });
   const structure = structuralChecks();
-  // The validation executor keeps only stdout bytes 0..12000 and receipts keep
-  // bytes 8000..12000 of that prefix. Replay only proof values returned by
-  // completed assertions here, before the remaining authoritative checks.
+  for (const marker of structure.categoryMarkers) console.log(marker);
+  const auditDocument = auditDocumentChecks();
+  const citationSummary = auditCitationMutationChecks();
+  const sourceSummary = sourceAuthorityMutationChecks();
+  const chainSummary = semanticChainSwapMutationChecks();
+  const externalMarkers = externalReviewArtifactChecks();
+  rowSemanticMutationChecks();
+  completenessChecks();
+  managedBlockChecks();
+
+  // The validation executor keeps stdout bytes 0..12000 and receipts keep the
+  // last 4000 bytes of that prefix. Compactly replay only earned return values
+  // after every substantive check has completed.
   const unicodeReplay = unicodeMarkers.find((marker) => marker.startsWith('UNICODE path=AGENTS.md '));
   const semanticReplay = semanticMarkers.find((marker) => marker === 'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED');
   assert.ok(unicodeReplay, 'validated AGENTS Unicode marker must be available for receipt replay');
   assert.ok(semanticReplay, 'validated semantic mutation marker must be available for receipt replay');
   for (const marker of [
+    commandMarkers.aggregateSelector,
     commandMarkers.case42Selector,
     commandMarkers.malformedSelector,
     unicodeReplay,
     structure.marker,
     semanticReplay,
     runtimeMarker,
+    auditDocument.provenanceMarker,
+    citationSummary.aggregateMarker,
+    sourceSummary.aggregateMarker,
+    chainSummary.marker,
+    ...externalMarkers,
   ]) console.log(marker);
-  for (const marker of structure.categoryMarkers) console.log(marker);
-  auditDocumentChecks();
-  auditCitationMutationChecks();
-  sourceAuthorityMutationChecks();
-  externalReviewArtifactChecks();
-  rowSemanticMutationChecks();
-  completenessChecks();
-  managedBlockChecks();
   console.log('AGENTS_VERIFY FINAL GREEN');
 }
 process.exit(exitCode);
