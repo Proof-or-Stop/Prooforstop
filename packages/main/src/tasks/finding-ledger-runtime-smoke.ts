@@ -92,7 +92,8 @@ import {
 import { StoryStore } from '../core/store.js';
 import { createMainRegistry } from '../registry.js';
 import { createFindingHandlers } from '../handlers/finding.js';
-import { createFindingRuntimeEvidenceHandlers } from '../handlers/finding-runtime-evidence.js';
+import { createFindingRuntimeEvidenceHandlers, FINDING_RUNTIME_EVIDENCE_COMMANDS } from '../handlers/finding-runtime-evidence.js';
+import { FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT } from '../core/finding-runtime-evidence.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { Finding, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
@@ -415,16 +416,21 @@ function runFindingProjectionRegression(root: string): void {
   });
   const ctx: HandlerContext = { root, scanRoot: root, store };
   const runtimeFacade = createFindingRuntimeEvidenceHandlers(ctx);
-  assert.deepEqual(Object.keys(runtimeFacade).sort(), [
+  // The exported command list is the published facade contract: the handler
+  // surface, the canonical registry, and the adapter contract must all agree
+  // with it exactly, so widening any one of them is caught here.
+  assert.deepEqual([...FINDING_RUNTIME_EVIDENCE_COMMANDS].sort(), [
     'finding_runtime_evidence_run',
     'finding_runtime_evidence_verify',
   ]);
+  assert.deepEqual(Object.keys(runtimeFacade).sort(), [...FINDING_RUNTIME_EVIDENCE_COMMANDS].sort());
   assert.equal('finding_ledger_query' in runtimeFacade, false);
+  assert.ok(FINDING_RUNTIME_EVIDENCE_COMMANDS.includes(FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.runCommand));
+  assert.ok(FINDING_RUNTIME_EVIDENCE_COMMANDS.includes(FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.verifyCommand));
   const registry = createMainRegistry(ctx);
   assert.equal(registry.has('finding_ledger_query'), true);
-  assert.equal(registry.has('finding_runtime_evidence_run'), true);
-  assert.equal(registry.has('finding_runtime_evidence_verify'), true);
-  console.log('registry.runtime_facade_boundary: PASS exactCommands=2 canonicalRegistry=true');
+  for (const command of FINDING_RUNTIME_EVIDENCE_COMMANDS) assert.equal(registry.has(command), true, `${command} missing from registry`);
+  console.log(`registry.runtime_facade_boundary: PASS exactCommands=${FINDING_RUNTIME_EVIDENCE_COMMANDS.length} canonicalRegistry=true adapterContract=true`);
 
   const handlers = createFindingHandlers(ctx);
   const args = {
@@ -1718,7 +1724,15 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(afterReplay.records.length, beforeReplay.records.length);
     assert.equal(afterReplay.receipts.length, beforeReplay.receipts.length);
     assert.equal(canonicalJson(afterReplay.records.find((record) => record.recordId === runtimeRecordId)), originalRecordBytes);
-    console.log('runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true');
+    const runtimeLedgerReceipt = afterReplay.receipts.find((receipt) => receipt.recordIds.includes(runtimeRecordId));
+    assert.equal(runtimeLedgerReceipt?.operation, FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation);
+    assert.ok(
+      afterReplay.records.some((record) => record.recordId === runtimeRecordId
+        && Array.isArray((record.payload as { artifacts?: Array<Record<string, unknown>> }).artifacts)
+        && (record.payload as { artifacts: Array<Record<string, unknown>> }).artifacts.every((artifact) => typeof artifact[FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.artifactRealpathBinding] === 'string')),
+      'runtime receipt artifacts must carry the adapter-contract realpath binding',
+    );
+    console.log('runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true adapterContract=true');
     assert.doesNotMatch(
       `${cliRun.stdout}\n${cliRun.stderr}\n${cliReplay.stdout}\n${cliReplay.stderr}`,
       /session identity degraded: derived-ppid|is owned by Proof-or-Stop session/,

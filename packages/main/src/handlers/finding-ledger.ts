@@ -25,6 +25,7 @@ import {
   verifyCanonical,
 } from '../core/authority-signing.js';
 import type { StoryStore } from '../core/store.js';
+import { FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT } from '../core/finding-runtime-evidence.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
@@ -404,7 +405,7 @@ export interface RuntimeReceiptAppendOptions extends Omit<LedgerAppendOptions<Js
 export function appendRuntimeReceipt(options: RuntimeReceiptAppendOptions): FindingLedgerReceipt {
   return appendFindingLedger({
     ...options,
-    operation: 'append_runtime_receipt',
+    operation: FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation,
     records: [{
       recordType: 'runtime_evidence_receipt',
       payload: options.runtimeReceipt as unknown as JsonValue,
@@ -1291,7 +1292,7 @@ function runtimeReplay(
   const signed = commit.findingLedgerReceipt;
   if (!signed
     || !verifyFindingLedgerReceipt(signed, ledgerTrust)
-    || signed.operation !== 'append_runtime_receipt'
+    || signed.operation !== FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation
     || commit.recordIds.length !== 1) {
     throw new Error('IDEMPOTENCY_CONFLICT: original runtime ledger receipt is invalid');
   }
@@ -1302,7 +1303,7 @@ function runtimeReplay(
   const runtimeReceipt = record.payload as unknown as RuntimeEvidenceReceipt;
   const exactRuntimeRequestDigest = canonicalHash({
     storyId: args.storyId,
-    operation: 'append_runtime_receipt',
+    operation: FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation,
     idempotencyKey: args.idempotencyKey,
     records: [{
       recordType: 'runtime_evidence_receipt',
@@ -1356,7 +1357,7 @@ export function verifyRuntimeReceiptCarrier(
     const receipt = carrier?.findingLedgerReceipt;
     if (!carrier || !receipt
       || receipt.storyId !== storyId
-      || receipt.operation !== 'append_runtime_receipt'
+      || receipt.operation !== FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation
       || receipt.receiptId !== carrier.receiptId
       || receipt.idempotencyKey !== carrier.idempotencyKey
       || canonicalHash(receipt.recordIds) !== canonicalHash(carrier.recordIds)
