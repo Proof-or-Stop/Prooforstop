@@ -18,6 +18,26 @@ const localCli = resolve(root, 'bin/proof-or-stop.js');
 const globalCli = '/opt/homebrew/bin/proof-or-stop';
 const claudeTranscript = '/Users/jek/.claude/projects/-Users-jek-Documents-GitHub-Prooforstop--worktrees-B-d854/3a540dc1-9ecd-45af-bafb-78845401177b.jsonl';
 const agyTranscript = '/Users/jek/.codex/sessions/2026/09/01/rollout-2026-09-01T23-50-54-01a05f2b-162b-7c42-b1c4-9ca08a0d6957.jsonl';
+const AGY_PROVENANCE = Object.freeze({
+  ordinal: 953,
+  threadId: '01a05f2b-162b-7c42-b1c4-9ca08a0d6957',
+  turnId: '01a05f3f-49d0-7e31-bec4-a408543fa386',
+  itemId: 'exec-d0c3cff6-f5aa-4d73-ac90-c481f633af1f',
+  command: Object.freeze([
+    '/bin/zsh',
+    '-lc',
+    'agy --print "$(cat /tmp/B-d854-agy-agents-audit-prompt.txt)" --mode plan --sandbox --dangerously-skip-permissions --output-format json --print-timeout 10m',
+  ]),
+  cwd: 'file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-d854',
+  promptPath: '/tmp/B-d854-agy-agents-audit-prompt.txt',
+  promptBytes: 2566,
+  promptSha256: '6e022d8eebd7235a521f3a764e13ccf107ad8bdd889f0dfac5177624e35c121a',
+  stdoutBytes: 38164,
+  stdoutSha256: 'b4e930f908b5723acdfc7c24538c5081baeaf05fc50aac03a986f1018cd7f7ed',
+  conversationId: 'f48bd033-f9a7-4198-8ad2-638be9d122ff',
+  status: 'SUCCESS',
+  durationSeconds: 465.638154,
+});
 const baselineRef = '219a567^:AGENTS.md';
 const HISTORICAL_RUNTIME_RECEIPT = Object.freeze({
   commit: '48d08c69e90dd9d90c7b783a112e54aa955d6241',
@@ -118,7 +138,7 @@ const AUTHORITY_BY_ROW = new Map([
   ]],
   ['A05', [
     authority('runtime', 'story-create-background-required-guard', 'packages/main/src/handlers/story-create.ts', /if \(typeof args\.background !== 'string' \|\| args\.background\.length === 0\)/, 'guard'),
-    authority('runtime', 'story-create-background-validator-call', 'packages/main/src/handlers/story-create.ts', /const bgResult = validateBackground/, 'consumer'),
+    authority('runtime', 'story-create-background-validator-call', 'packages/main/src/handlers/story-create.ts', /const bgResult = validateBackground\(args\.background\)/, 'consumer'),
     authority('policy', 'background-canonical-section-set', 'packages/main/src/core/background-validator.ts', /export const REQUIRED_SECTIONS = \[/, 'definition'),
     authority('runtime', 'background-total-length-guard', 'packages/main/src/core/background-validator.ts', /if \(totalLen < 300\)/, 'guard'),
     authority('runtime', 'background-section-length-guard', 'packages/main/src/core/background-validator.ts', /if \(trimmed\.length < 50\)/, 'guard'),
@@ -179,69 +199,82 @@ const AUTHORITY_BY_ROW = new Map([
   ['A16', [authority('policy', 'bounded-defect-triage-policy', 'AGENTS.md', /Defect triage and bounded scope/)]],
   ['A17', [authority('runtime', 'nonlatest-pass-latest-finding-branch', 'packages/main/src/core/review-run.ts', /if \(currentRun && currentRun\.reviewRunId !== run\.reviewRunId && evidence\.kind !== 'pass'\)/)]],
   ['A18', [
-    authority('runtime', 'pinned-verification-command-execution', 'packages/main/src/handlers/checklist.ts', /const run = await deps\.runCommand/),
-    authority('runtime', 'tool-owned-verification-receipt-mint', 'packages/main/src/handlers/checklist.ts', /const receipt: VerificationExecutionReceipt =/),
+    authority('runtime', 'pinned-verification-command-execution', 'packages/main/src/handlers/checklist.ts', /const run = await deps\.runCommand/, 'consumer'),
+    authority('runtime', 'tool-owned-verification-receipt-mint', 'packages/main/src/handlers/checklist.ts', /const receipt: VerificationExecutionReceipt =/, 'producer'),
   ]],
   ['A19', [
-    authority('policy', 'dispatch-implementer-role-registry', 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName: 'proof-or-stop-implementer'/),
-    authority('policy', 'dispatch-implementer-target-cardinality', 'packages/main/src/core/agent-dispatch-registry.ts', /targetCardinality: 'exactly-one'/),
-    authority('interface', 'dispatch-command-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'dispatch'/),
-    authority('runtime', 'dispatch-registry-request-validation', 'packages/main/src/handlers/story-dispatch.ts', /const resolved = validateAgentDispatchRequest/),
-    authority('runtime', 'canonical-agent-prompt-render', 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/),
-    authority('runtime', 'reviewer-list-policy-roster-computation', 'packages/main/src/handlers/reviewer-list.ts', /const reviewers = computeActiveReviewers/),
-    authority('runtime', 'reviewer-batch-shared-roster-computation', 'packages/main/src/handlers/reviewer-batch.ts', /const activeReviewers = computeActiveReviewers/),
-    authority('runtime', 'reviewer-batch-side-effect-flag-guard', 'packages/main/src/handlers/reviewer-batch.ts', /function assertBoundary\(args: ReviewerBatchArgs\)/),
-    authority('runtime', 'reviewer-batch-boundary-invocation', 'packages/main/src/handlers/reviewer-batch.ts', /assertBoundary\(args\)/),
-    authority('runtime', 'reviewer-batch-host-instruction-builder', 'packages/main/src/handlers/reviewer-batch.ts', /function laneLaunchInstruction/),
-    authority('runtime', 'reviewer-batch-host-instruction-use', 'packages/main/src/handlers/reviewer-batch.ts', /launchInstruction: needsRun/),
-    authority('interface', 'review-run-start-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'review_run_start'/),
-    authority('interface', 'review-pass-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'review_pass_set'/),
-    authority('interface', 'review-pass-run-id-schema', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.describe\('Current reviewer run ID/),
-    authority('runtime', 'review-pass-current-run-enforcement', 'packages/main/src/handlers/finding.ts', /const reviewRun = assertCurrentReviewRunForEvidence/),
-    authority('interface', 'reviewer-finding-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'finding_add'/),
-    authority('interface', 'reviewer-finding-run-id-schema', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.optional\(\)\.describe\('Current proof-or-stop-review/),
-    authority('runtime', 'reviewer-finding-lane-detection', 'packages/main/src/handlers/finding.ts', /const isReviewerAgent = isRegisteredReviewAgent/),
-    authority('runtime', 'reviewer-finding-current-run-enforcement', 'packages/main/src/handlers/finding.ts', /if \(reviewerLane\) \{\n\s+assertCurrentReviewRunForEvidence/),
-    authority('interface', 'quorum-submit-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/),
-    authority('runtime', 'quorum-required-reviewer-pass-validation', 'packages/main/src/handlers/quorum-submit.ts', /function assertCurrentReviewerPasses/),
-    authority('runtime', 'quorum-reviewer-pass-validation-call', 'packages/main/src/handlers/quorum-submit.ts', /const reviewerPasses = assertCurrentReviewerPasses/),
+    authority('policy', 'dispatch-implementer-role-registry', 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName: 'proof-or-stop-implementer'/, 'definition'),
+    authority('policy', 'dispatch-implementer-target-cardinality', 'packages/main/src/core/agent-dispatch-registry.ts', /targetCardinality: 'exactly-one'/, 'definition'),
+    authority('interface', 'dispatch-command-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'dispatch'/, 'definition'),
+    authority('runtime', 'dispatch-registry-request-validation', 'packages/main/src/handlers/story-dispatch.ts', /const resolved = validateAgentDispatchRequest/, 'consumer'),
+    authority('runtime', 'canonical-agent-prompt-render', 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/, 'consumer'),
+    authority('runtime', 'reviewer-list-policy-roster-computation', 'packages/main/src/handlers/reviewer-list.ts', /const reviewers = computeActiveReviewers/, 'producer'),
+    authority('runtime', 'reviewer-batch-shared-roster-computation', 'packages/main/src/handlers/reviewer-batch.ts', /const activeReviewers = computeActiveReviewers/, 'producer'),
+    authority('runtime', 'reviewer-batch-side-effect-boundary-definition', 'packages/main/src/handlers/reviewer-batch.ts', /function assertBoundary\(args: ReviewerBatchArgs\)/, 'definition'),
+    authority('runtime', 'reviewer-batch-all-side-effect-rejection-guards', 'packages/main/src/handlers/reviewer-batch.ts', /if \(args\.runCommands === true\)[\s\S]*?if \(args\.run === true\) rejected\.push\('run=true'\)/, 'guard'),
+    authority('runtime', 'reviewer-batch-boundary-invocation', 'packages/main/src/handlers/reviewer-batch.ts', /assertBoundary\(args\)/, 'consumer'),
+    authority('runtime', 'reviewer-batch-host-instruction-builder', 'packages/main/src/handlers/reviewer-batch.ts', /function laneLaunchInstruction/, 'definition'),
+    authority('runtime', 'reviewer-batch-host-instruction-use', 'packages/main/src/handlers/reviewer-batch.ts', /launchInstruction: needsRun\s+\? laneLaunchInstruction\(/, 'consumer'),
+    authority('interface', 'review-run-start-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'review_run_start'/, 'definition'),
+    authority('interface', 'review-pass-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'review_pass_set'/, 'definition'),
+    authority('interface', 'review-pass-run-id-schema', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.describe\('Current reviewer run ID/, 'definition'),
+    authority('runtime', 'review-pass-current-run-enforcement', 'packages/main/src/handlers/finding.ts', /const reviewRun = assertCurrentReviewRunForEvidence/, 'consumer'),
+    authority('interface', 'reviewer-finding-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'finding_add'/, 'definition'),
+    authority('interface', 'reviewer-finding-run-id-schema', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.optional\(\)\.describe\('Current proof-or-stop-review/, 'definition'),
+    authority('runtime', 'reviewer-finding-lane-detection', 'packages/main/src/handlers/finding.ts', /const isReviewerAgent = isRegisteredReviewAgent/, 'producer'),
+    authority('runtime', 'reviewer-finding-current-run-branch', 'packages/main/src/handlers/finding.ts', /if \(reviewerLane\) \{/, 'branch'),
+    authority('runtime', 'reviewer-finding-current-run-enforcement', 'packages/main/src/handlers/finding.ts', /assertCurrentReviewRunForEvidence\(store, story, ctx\.root, reviewerLane, args\.reviewRunId\)/, 'consumer'),
+    authority('interface', 'quorum-submit-registration', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/, 'definition'),
+    authority('runtime', 'quorum-required-reviewer-pass-validation', 'packages/main/src/handlers/quorum-submit.ts', /function assertCurrentReviewerPasses/, 'definition'),
+    authority('runtime', 'quorum-missing-or-invalid-pass-guard', 'packages/main/src/handlers/quorum-submit.ts', /if \(missing\.length > 0 \|\| state\.invalid\.length > 0\)/, 'guard'),
+    authority('runtime', 'quorum-reviewer-pass-validation-call', 'packages/main/src/handlers/quorum-submit.ts', /const reviewerPasses = assertCurrentReviewerPasses/, 'consumer'),
   ]],
   ['A20', [
-    authority('runtime', 'review-entry-verification-evidence-gate', 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/),
-    authority('runtime', 'done-open-bug-gate', 'packages/main/src/core/machine.ts', /const openBugs = bugs\.bugs\.filter/),
-    authority('runtime', 'test-entry-review-verdict-gate', 'packages/main/src/core/machine.ts', /const verdict = evaluateReviewVerdict/),
-    authority('runtime', 'proofstory-review-completeness-evaluation', 'packages/main/src/handlers/phase-gates.ts', /const proofStoryReport = evaluateReviewCompleteness/),
-    authority('runtime', 'plan-acceptance-topology-evaluation', 'packages/main/src/handlers/transition-orchestrator.ts', /const topology = evaluateAcceptanceTopologyForContext/),
-    authority('runtime', 'done-delivery-freshness-evaluation', 'packages/main/src/core/machine.ts', /const deliveryCheckFreshness = evaluateDeliveryCheckFreshness/),
-    authority('runtime', 'done-policy-summary-requirement', 'packages/main/src/core/done-oracle.ts', /const summaryReq = policy\.done\.requireSummary/),
+    authority('runtime', 'review-entry-verification-evidence-producer', 'packages/main/src/core/machine.ts', /const missingEvidence = getBlockingVerificationEvidenceIssues/, 'producer'),
+    authority('runtime', 'review-entry-verification-evidence-guard', 'packages/main/src/core/machine.ts', /if \(missingEvidence\.length > 0\)/, 'guard'),
+    authority('runtime', 'done-open-bug-producer', 'packages/main/src/core/machine.ts', /const openBugs = bugs\.bugs\.filter/, 'producer'),
+    authority('runtime', 'done-open-bug-guard', 'packages/main/src/core/machine.ts', /if \(openBugs\.length > 0\)/, 'guard'),
+    authority('runtime', 'test-entry-review-verdict-producer', 'packages/main/src/core/machine.ts', /const verdict = evaluateReviewVerdict/, 'producer'),
+    authority('runtime', 'test-entry-review-verdict-guard', 'packages/main/src/core/machine.ts', /if \(!verdict\.ok\) return `Cannot enter TEST:/, 'guard'),
+    authority('runtime', 'proofstory-review-completeness-producer', 'packages/main/src/handlers/phase-gates.ts', /const proofStoryReport = evaluateReviewCompleteness/, 'producer'),
+    authority('runtime', 'proofstory-review-completeness-guard', 'packages/main/src/handlers/phase-gates.ts', /if \(proofStoryReport\.blocking\)/, 'guard'),
+    authority('runtime', 'plan-acceptance-topology-producer', 'packages/main/src/handlers/transition-orchestrator.ts', /const topology = evaluateAcceptanceTopologyForContext/, 'producer'),
+    authority('runtime', 'plan-acceptance-topology-guard', 'packages/main/src/handlers/transition-orchestrator.ts', /if \(topology\.blocking\)/, 'guard'),
+    authority('runtime', 'done-delivery-freshness-producer', 'packages/main/src/core/machine.ts', /const deliveryCheckFreshness = evaluateDeliveryCheckFreshness\(\n\s+context\.storyId/, 'producer'),
+    authority('runtime', 'done-delivery-freshness-guard', 'packages/main/src/core/machine.ts', /if \(!deliveryCheckFreshness\.ok\) return false/, 'guard'),
+    authority('runtime', 'done-policy-summary-producer', 'packages/main/src/core/done-oracle.ts', /const summaryReq = policy\.done\.requireSummary/, 'producer'),
+    authority('runtime', 'done-policy-summary-branch', 'packages/main/src/core/done-oracle.ts', /if \(summaryReq !== 'none'\)/, 'branch'),
   ]],
   ['A21', [
-    authority('runtime', 'dirty-row-canonical-classification-call', 'packages/main/src/handlers/done-prepare.ts', /return classifyGitStatusRows/),
-    authority('runtime', 'done-prepare-classified-blocker-consumption', 'packages/main/src/handlers/done-prepare.ts', /const initialDirtyClassification = classifyDirtyRows/),
+    authority('runtime', 'dirty-row-canonical-classification-call', 'packages/main/src/handlers/done-prepare.ts', /return classifyGitStatusRows/, 'consumer'),
+    authority('runtime', 'done-prepare-dirty-classification-producer', 'packages/main/src/handlers/done-prepare.ts', /const initialDirtyClassification = classifyDirtyRows/, 'producer'),
+    authority('runtime', 'done-prepare-blocking-entry-producer', 'packages/main/src/handlers/done-prepare.ts', /const initialBlockingEntries = initialDonePrepareBlockingEntries/, 'producer'),
+    authority('runtime', 'done-prepare-blocking-entry-guard', 'packages/main/src/handlers/done-prepare.ts', /if \(initialBlockingEntries\.length > 0\)/, 'guard'),
   ]],
   ['A22', [
-    authority('runtime', 'done-watched-input-change-decision', 'packages/main/src/handlers/done-effects.ts', /const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths/),
-    authority('runtime', 'done-version-bump-effect-call', 'packages/main/src/handlers/done-effects.ts', /mergeLines\.push\(bumpVersionOnDoneMerge/),
-    authority('runtime', 'version-bump-no-watched-input-skip', 'packages/main/src/core/version-bump.ts', /if \(!opts\.shouldBump\) return VERSION_BUMP_SKIPPED_LINE/),
-    authority('runtime', 'version-bump-git-commit', 'packages/main/src/core/version-bump.ts', /opts\.runGit\(\n\s+\['-c', 'commit\.gpgsign=false'/),
+    authority('runtime', 'done-watched-input-change-decision', 'packages/main/src/handlers/done-effects.ts', /const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths/, 'producer'),
+    authority('runtime', 'done-version-bump-effect-call', 'packages/main/src/handlers/done-effects.ts', /mergeLines\.push\(bumpVersionOnDoneMerge/, 'consumer'),
+    authority('runtime', 'version-bump-no-watched-input-skip', 'packages/main/src/core/version-bump.ts', /if \(!opts\.shouldBump\) return VERSION_BUMP_SKIPPED_LINE/, 'guard'),
+    authority('runtime', 'version-bump-apply-call', 'packages/main/src/core/version-bump.ts', /bump = applyPatchBump\(opts\.mainMergeRoot\)/, 'consumer'),
+    authority('runtime', 'version-bump-git-commit', 'packages/main/src/core/version-bump.ts', /opts\.runGit\(\n\s+\['-c', 'commit\.gpgsign=false'/, 'consumer'),
   ]],
   ['A23', [authority('runtime', 'done-clean-tree-closeout-call', 'packages/main/src/handlers/done-prepare.ts', /runCloseoutPhase\(ctx, CLOSEOUT_PHASES\.cleanTree/)]],
   ['A24', [
-    authority('runtime', 'decision-empty-options-branch', 'packages/main/src/handlers/decision.ts', /if \(args\.options\.length === 0\)/),
-    authority('runtime', 'decision-empty-options-rationale-guard', 'packages/main/src/handlers/decision.ts', /if \(rationale\.trim\(\)\.length < 50 \|\| !hasExclusionRationale/),
-    authority('runtime', 'decision-single-option-branch', 'packages/main/src/handlers/decision.ts', /else if \(args\.options\.length < 2\)/),
-    authority('runtime', 'decision-single-option-cons-guard', 'packages/main/src/handlers/decision.ts', /if \(!opt\.cons \|\| opt\.cons\.length === 0\)/),
+    authority('runtime', 'decision-empty-options-branch', 'packages/main/src/handlers/decision.ts', /if \(args\.options\.length === 0\)/, 'branch'),
+    authority('runtime', 'decision-empty-options-rationale-guard', 'packages/main/src/handlers/decision.ts', /if \(rationale\.trim\(\)\.length < 50 \|\| !hasExclusionRationale/, 'guard'),
+    authority('runtime', 'decision-single-option-branch', 'packages/main/src/handlers/decision.ts', /else if \(args\.options\.length < 2\)/, 'branch'),
+    authority('runtime', 'decision-single-option-cons-guard', 'packages/main/src/handlers/decision.ts', /if \(!opt\.cons \|\| opt\.cons\.length === 0\)/, 'guard'),
   ]],
   ['A25', [
-    authority('runtime', 'test-auto-dry-run-preview-branch', 'packages/main/src/handlers/test-auto.ts', /if \(args\.dryRun\)/),
-    authority('runtime', 'test-auto-confirmation-guard', 'packages/main/src/handlers/test-auto.ts', /if \(args\.confirm !== true\)/),
+    authority('runtime', 'test-auto-dry-run-preview-branch', 'packages/main/src/handlers/test-auto.ts', /if \(args\.dryRun\)/, 'branch'),
+    authority('runtime', 'test-auto-confirmation-guard', 'packages/main/src/handlers/test-auto.ts', /if \(args\.confirm !== true\)/, 'guard'),
   ]],
   ['A26', [
-    authority('runtime', 'modern-agent-prompt-host-render', 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/),
-    authority('template', 'thin-adapter-package-prompt-registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/),
-    authority('runtime', 'modern-host-launch-instruction-builder', 'packages/main/src/handlers/reviewer-batch.ts', /function laneLaunchInstruction/),
-    authority('runtime', 'modern-host-launch-instruction-use', 'packages/main/src/handlers/reviewer-batch.ts', /launchInstruction: needsRun/),
-    authority('policy', 'legacy-verification-role-alias-map', 'packages/main/src/core/agent-dispatch-registry.ts', /aliases: \['test-intent', 'test-case-reviewer'\]/),
+    authority('runtime', 'modern-agent-prompt-host-render', 'packages/main/src/handlers/agent-prompt.ts', /renderPromptEntryForHost\(entry, 'claude'\)/, 'consumer'),
+    authority('template', 'thin-adapter-package-prompt-registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/, 'definition'),
+    authority('runtime', 'modern-host-launch-instruction-builder', 'packages/main/src/handlers/reviewer-batch.ts', /function laneLaunchInstruction/, 'definition'),
+    authority('runtime', 'modern-host-launch-instruction-use', 'packages/main/src/handlers/reviewer-batch.ts', /launchInstruction: needsRun\s+\? laneLaunchInstruction\(/, 'consumer'),
+    authority('policy', 'legacy-verification-role-alias-map', 'packages/main/src/core/agent-dispatch-registry.ts', /aliases: \['test-intent', 'test-case-reviewer'\]/, 'definition'),
   ]],
 ]);
 
@@ -262,22 +295,87 @@ function lineOf(text, pattern) {
 
 const AUTHORITY_KINDS = new Set(['config', 'interface', 'policy', 'runtime', 'template']);
 const AUTHORITY_ROLES = new Set(['support', 'definition', 'producer', 'guard', 'consumer', 'branch']);
-const REQUIRED_AUTHORITY_ROLES = new Map([
-  ['A05', new Set(['definition', 'producer', 'guard', 'consumer', 'branch'])],
-  ['A10', new Set(['definition', 'producer', 'guard', 'consumer'])],
-  ['A12', new Set(['producer', 'guard'])],
-  ['A13', new Set(['guard', 'branch'])],
-  ['A14', new Set(['definition', 'producer', 'guard', 'consumer'])],
+const chain = (name, ...endpoints) => ({ name, endpoints: endpoints.map(([label, role]) => ({ label, role })) });
+const REQUIRED_AUTHORITY_CHAINS = new Map([
+  ['A05', [
+    chain('background-entry', ['story-create-background-required-guard', 'guard'], ['story-create-background-validator-call', 'consumer']),
+    chain('background-shape', ['background-canonical-section-set', 'definition'], ['background-total-length-guard', 'guard'], ['background-section-length-guard', 'guard']),
+    chain('background-trigger-id', ['background-trigger-identifier-guard', 'producer'], ['background-trigger-identifier-reject-branch', 'branch']),
+  ]],
+  ['A10', [
+    chain('owner-lease-enforcement', ['owner-lease-cli-enforcement-choke-point', 'consumer'], ['owner-lease-acquire-or-refresh-flow', 'definition']),
+    chain('takeover', ['active-lease-force-takeover-guard', 'guard'], ['takeover-owner-lease-write', 'producer']),
+    chain('session-render', ['session-brief-ownership-renderer', 'definition'], ['session-brief-ownership-render-consumer', 'consumer']),
+  ]],
+  ['A12', [chain('review-blocker-gate', ['plan-review-blocker-count', 'producer'], ['plan-review-zero-blocker-gate', 'guard'])]],
+  ['A13', [chain('quick-review-skip', ['quick-path-eligibility-guard', 'guard'], ['quick-path-story-review-skip-branch', 'branch'])]],
+  ['A14', [
+    chain('scope-check', ['scope-check-signature-mint', 'producer'], ['scope-check-persistence', 'producer']),
+    chain('scope-questions', ['scope-question-resolution-registration', 'definition'], ['scope-open-questions-present-guard', 'guard'], ['scope-open-question-resolution-producer', 'producer']),
+    chain('plan-scope-advice', ['plan-to-dev-scope-contract-advisory', 'definition'], ['plan-to-dev-scope-advice-transition-consumer', 'consumer']),
+    chain('review-scope-block', ['review-scope-contract-missing-block', 'guard']),
+  ]],
+  ['A18', [chain('tool-owned-receipt', ['pinned-verification-command-execution', 'consumer'], ['tool-owned-verification-receipt-mint', 'producer'])]],
+  ['A19', [
+    chain('dispatch', ['dispatch-implementer-role-registry', 'definition'], ['dispatch-implementer-target-cardinality', 'definition'], ['dispatch-command-registration', 'definition'], ['dispatch-registry-request-validation', 'consumer']),
+    chain('prompt-render', ['canonical-agent-prompt-render', 'consumer']),
+    chain('reviewer-list-roster', ['reviewer-list-policy-roster-computation', 'producer']),
+    chain('reviewer-batch-roster', ['reviewer-batch-shared-roster-computation', 'producer']),
+    chain('reviewer-batch-boundary', ['reviewer-batch-side-effect-boundary-definition', 'definition'], ['reviewer-batch-all-side-effect-rejection-guards', 'guard'], ['reviewer-batch-boundary-invocation', 'consumer']),
+    chain('host-instruction', ['reviewer-batch-host-instruction-builder', 'definition'], ['reviewer-batch-host-instruction-use', 'consumer']),
+    chain('review-run-start-interface', ['review-run-start-registration', 'definition']),
+    chain('review-pass', ['review-pass-registration', 'definition'], ['review-pass-run-id-schema', 'definition'], ['review-pass-current-run-enforcement', 'consumer']),
+    chain('reviewer-finding', ['reviewer-finding-registration', 'definition'], ['reviewer-finding-run-id-schema', 'definition'], ['reviewer-finding-lane-detection', 'producer'], ['reviewer-finding-current-run-branch', 'branch'], ['reviewer-finding-current-run-enforcement', 'consumer']),
+    chain('quorum-pass-prerequisite', ['quorum-submit-registration', 'definition'], ['quorum-required-reviewer-pass-validation', 'definition'], ['quorum-missing-or-invalid-pass-guard', 'guard'], ['quorum-reviewer-pass-validation-call', 'consumer']),
+  ]],
+  ['A20', [
+    chain('review-evidence-gate', ['review-entry-verification-evidence-producer', 'producer'], ['review-entry-verification-evidence-guard', 'guard']),
+    chain('done-bug-gate', ['done-open-bug-producer', 'producer'], ['done-open-bug-guard', 'guard']),
+    chain('test-review-verdict', ['test-entry-review-verdict-producer', 'producer'], ['test-entry-review-verdict-guard', 'guard']),
+    chain('proofstory-review-gate', ['proofstory-review-completeness-producer', 'producer'], ['proofstory-review-completeness-guard', 'guard']),
+    chain('acceptance-topology-gate', ['plan-acceptance-topology-producer', 'producer'], ['plan-acceptance-topology-guard', 'guard']),
+    chain('delivery-freshness-gate', ['done-delivery-freshness-producer', 'producer'], ['done-delivery-freshness-guard', 'guard']),
+    chain('summary-policy-gate', ['done-policy-summary-producer', 'producer'], ['done-policy-summary-branch', 'branch']),
+  ]],
+  ['A21', [chain('dirty-classification-block', ['dirty-row-canonical-classification-call', 'consumer'], ['done-prepare-dirty-classification-producer', 'producer'], ['done-prepare-blocking-entry-producer', 'producer'], ['done-prepare-blocking-entry-guard', 'guard'])]],
+  ['A22', [chain('done-version-bump', ['done-watched-input-change-decision', 'producer'], ['done-version-bump-effect-call', 'consumer'], ['version-bump-no-watched-input-skip', 'guard'], ['version-bump-apply-call', 'consumer'], ['version-bump-git-commit', 'consumer'])]],
+  ['A24', [
+    chain('empty-options', ['decision-empty-options-branch', 'branch'], ['decision-empty-options-rationale-guard', 'guard']),
+    chain('single-option', ['decision-single-option-branch', 'branch'], ['decision-single-option-cons-guard', 'guard']),
+  ]],
+  ['A25', [
+    chain('test-auto-preview', ['test-auto-dry-run-preview-branch', 'branch']),
+    chain('test-auto-confirm', ['test-auto-confirmation-guard', 'guard']),
+  ]],
+  ['A26', [
+    chain('modern-prompt-render', ['modern-agent-prompt-host-render', 'consumer']),
+    chain('thin-registry', ['thin-adapter-package-prompt-registry', 'definition']),
+    chain('host-launch-instruction', ['modern-host-launch-instruction-builder', 'definition'], ['modern-host-launch-instruction-use', 'consumer']),
+    chain('legacy-alias', ['legacy-verification-role-alias-map', 'definition']),
+  ]],
 ]);
 
 function validateAuthorityRoleCompleteness(authorityMap = AUTHORITY_BY_ROW) {
-  for (const [rowId, requiredRoles] of REQUIRED_AUTHORITY_ROLES) {
+  for (const [rowId, chains] of REQUIRED_AUTHORITY_CHAINS) {
     const entries = authorityMap.get(rowId);
     assert.ok(entries, `${rowId} semantic authority contract is missing`);
-    const actualRoles = new Set(entries.map((entry) => entry.role));
-    for (const requiredRole of requiredRoles) {
-      assert.ok(actualRoles.has(requiredRole), `${rowId} semantic authority role missing: ${requiredRole}`);
+    const entryByLabel = new Map(entries.map((entry) => [entry.label, entry]));
+    const modeledLabels = [];
+    for (const semanticChain of chains) {
+      const chainRoles = new Set();
+      for (const endpoint of semanticChain.endpoints) {
+        const entry = entryByLabel.get(endpoint.label);
+        assert.ok(entry, `${rowId}/${semanticChain.name} semantic endpoint missing: ${endpoint.label}`);
+        assert.equal(entry.role, endpoint.role, `${rowId}/${semanticChain.name} semantic endpoint role drifted: ${endpoint.label}`);
+        modeledLabels.push(endpoint.label);
+        chainRoles.add(endpoint.role);
+      }
+      const hasRuntimeEndpoint = semanticChain.endpoints.some((endpoint) => entryByLabel.get(endpoint.label)?.kind === 'runtime');
+      if (hasRuntimeEndpoint) assert.ok([...chainRoles].some((role) => role !== 'definition' && role !== 'support'), `${rowId}/${semanticChain.name} runtime chain cannot be definition-only`);
     }
+    assert.equal(new Set(modeledLabels).size, modeledLabels.length, `${rowId} semantic endpoints must belong to exactly one independent chain`);
+    assert.deepEqual(new Set(modeledLabels), new Set(entries.map((entry) => entry.label)), `${rowId} every authority entry must belong to an explicit semantic chain`);
+    for (const entry of entries.filter((candidate) => candidate.kind === 'runtime')) assert.notEqual(entry.role, 'support', `${rowId} runtime authority cannot silently default to support: ${entry.label}`);
   }
 }
 
@@ -288,19 +386,21 @@ function resolvedAuthority(entry, sourceOverrides = new Map()) {
   const absolute = resolve(root, entry.path);
   assert.ok(existsSync(absolute), `authority source path missing: ${entry.path}`);
   const source = sourceOverrides.get(entry.path) ?? read(absolute);
+  const sourceMatch = source.match(entry.pattern);
   const line = lineOf(source, entry.pattern);
   assert.ok(line > 0 && line <= source.split('\n').length, `authority source pattern missing: ${entry.label}`);
   const matchedLine = source.split('\n')[line - 1].trim();
+  const matchedText = sourceMatch?.[0] ?? '';
   if (entry.kind === 'runtime') {
     assert.ok(!/^(?:\/\/|\/\*|\*|\*\/|<!--|#)/.test(matchedLine), `runtime authority is comment-only: ${entry.label} at ${entry.path}:${line}`);
   }
   if (entry.role === 'producer') assert.match(matchedLine, /(?:\bconst\b.*=|\bwrite[A-Z]\w*\(|\bstore\.write\w*\(|\breturn\b)/, `producer role must bind an executable production/write line: ${entry.label}`);
   if (entry.role === 'guard') assert.match(matchedLine, /(?:\bif\s*\(|\belse if\s*\(|\bthrow\b)/, `guard role must bind an executable predicate/rejection line: ${entry.label}`);
   if (entry.role === 'consumer') {
-    assert.match(matchedLine, /\w+\s*\(/, `consumer role must bind an executable call site: ${entry.label}`);
+    assert.match(`${matchedLine}\n${matchedText}`, /\w+\s*\(/, `consumer role must bind an executable call site: ${entry.label}`);
     assert.ok(!/^(?:export\s+)?(?:async\s+)?function\b/.test(matchedLine), `consumer role cannot bind only a function definition: ${entry.label}`);
   }
-  if (entry.role === 'branch') assert.match(matchedLine, /(?:^|\}\s*)if\s*\(/, `branch role must bind an executable branch: ${entry.label}`);
+  if (entry.role === 'branch') assert.match(matchedLine, /(?:^|\}\s*)(?:else\s+)?if\s*\(/, `branch role must bind an executable branch: ${entry.label}`);
   return { kind: entry.kind, label: entry.label, path: entry.path, line, role: entry.role };
 }
 
@@ -323,27 +423,41 @@ function renderAuthorityCell(entries) {
   return entries.map((entry) => `\`${entry.kind}:${entry.label}\` -> \`${entry.path}:${entry.line}\``).join('; ');
 }
 
-const SOURCE_AUTHORITY_MUTATIONS = [
-  ['A05', 'background-trigger-identifier-reject-branch', 'if (matched) {'],
-  ['A10', 'session-brief-ownership-render-consumer', 'for (const l of []) lines.push(l);'],
-  ['A12', 'plan-review-zero-blocker-gate', 'else if ((lastRound.blockerCount ?? lastRound.issueCount) === 0)'],
-  ['A13', 'quick-path-story-review-skip-branch', 'if (tookExpressChannel || isRollbackDoor) try {'],
-  ['A14', 'plan-to-dev-scope-advice-transition-consumer', "scopeGateReport += '';"],
-];
+const SOURCE_AUTHORITY_INVERSION_OVERRIDES = new Map([
+  ['background-trigger-identifier-reject-branch', 'if (matched) {'],
+  ['session-brief-ownership-render-consumer', 'for (const l of []) lines.push(l);'],
+  ['plan-review-zero-blocker-gate', 'else if ((lastRound.blockerCount ?? lastRound.issueCount) === 0)'],
+  ['quick-path-story-review-skip-branch', 'if (tookExpressChannel || isRollbackDoor) try {'],
+  ['plan-to-dev-scope-advice-transition-consumer', "scopeGateReport += '';"],
+  ['done-prepare-blocking-entry-guard', 'if (initialBlockingEntries.length === 0)'],
+]);
 
 function sourceAuthorityMutationChecks() {
-  for (const [rowId, label, invertedLine] of SOURCE_AUTHORITY_MUTATIONS) {
-    const entry = AUTHORITY_BY_ROW.get(rowId)?.find((candidate) => candidate.label === label);
-    assert.ok(entry, `${rowId} source mutation authority missing: ${label}`);
-    const originalSource = read(resolve(root, entry.path));
-    const mutatedSource = originalSource.replace(entry.pattern, invertedLine);
-    assert.notEqual(mutatedSource, originalSource, `${rowId} source mutation must alter the executable site: ${label}`);
-    assert.throws(
-      () => resolvedAuthorityInventory(AUTHORITY_BY_ROW, new Map([[entry.path, mutatedSource]])),
-      new RegExp(`authority source pattern missing: ${label}`),
-      `${rowId} inverted/deleted executable authority must be rejected`,
-    );
-    console.log(`SOURCE_AUTHORITY_MUTATION ${rowId} ${label} REJECTED`);
+  const chainCount = [...REQUIRED_AUTHORITY_CHAINS.values()].reduce((sum, chains) => sum + chains.length, 0);
+  let endpointCount = 0;
+  for (const [rowId, chains] of REQUIRED_AUTHORITY_CHAINS) {
+    const entries = AUTHORITY_BY_ROW.get(rowId);
+    assert.ok(entries, `${rowId} source mutation authority inventory missing`);
+    const executableEndpoints = chains
+      .flatMap((semanticChain) => semanticChain.endpoints)
+      .filter((endpoint) => endpoint.role !== 'definition' && endpoint.role !== 'support');
+    let rowEndpointCount = 0;
+    for (const endpoint of executableEndpoints) {
+      const entry = entries.find((candidate) => candidate.label === endpoint.label);
+      assert.ok(entry, `${rowId} source mutation authority missing: ${endpoint.label}`);
+      const originalSource = read(resolve(root, entry.path));
+      const replacement = SOURCE_AUTHORITY_INVERSION_OVERRIDES.get(entry.label) ?? `/* removed semantic endpoint ${entry.label} */`;
+      const mutatedSource = originalSource.replace(entry.pattern, replacement);
+      assert.notEqual(mutatedSource, originalSource, `${rowId} source mutation must alter the executable site: ${entry.label}`);
+      assert.throws(
+        () => resolvedAuthorityInventory(AUTHORITY_BY_ROW, new Map([[entry.path, mutatedSource]])),
+        /authority source pattern missing:/,
+        `${rowId} inverted/deleted executable authority must be rejected: ${entry.label}`,
+      );
+      rowEndpointCount += 1;
+    }
+    assert.equal(rowEndpointCount, executableEndpoints.length, `${rowId} source mutation count must cover every executable chain endpoint`);
+    endpointCount += rowEndpointCount;
   }
 
   const definitionOnly = new Map(
@@ -354,10 +468,12 @@ function sourceAuthorityMutationChecks() {
   );
   assert.throws(
     () => validateAuthorityRoleCompleteness(definitionOnly),
-    /A05 semantic authority role missing:/,
+    /A05\/background-entry semantic endpoint role drifted:/,
     'a composite runtime claim must not pass with definition-only authorities',
   );
-  console.log('SOURCE_AUTHORITY_ROLE_MUTATION A05 definition-only REJECTED');
+  console.log(`SOURCE_AUTHORITY_MUTATION rows=${REQUIRED_AUTHORITY_CHAINS.size} chains=${chainCount} executableEndpoints=${endpointCount} removalOrInversion=${endpointCount} PASS`);
+  console.log('SOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED');
+  return { rows: REQUIRED_AUTHORITY_CHAINS.size, chainCount, endpointCount, roleMutationCount: 1 };
 }
 
 function runAuditRows() {
@@ -971,6 +1087,9 @@ function auditDocumentChecks() {
     '1cd25e48b697df884252a65b08c9eda602e4ce5bd4f6b3ec537899588030b0f7',
     '34/34 sections', '262 material claims', '33 raw FAIL findings', '26 supportable',
     'Agy CLI 1.1.23', 'f48bd033-f9a7-4198-8ad2-638be9d122ff',
+    '01a05f2b-162b-7c42-b1c4-9ca08a0d6957', '01a05f3f-49d0-7e31-bec4-a408543fa386',
+    'exec-d0c3cff6-f5aa-4d73-ac90-c481f633af1f', 'payload.item.command', AGY_PROVENANCE.cwd,
+    AGY_PROVENANCE.command[2], '2,566 bytes', AGY_PROVENANCE.promptSha256,
     'b4e930f908b5723acdfc7c24538c5081baeaf05fc50aac03a986f1018cd7f7ed',
     'ordinal 953', '38,164 bytes', '13 raw findings', '11 supportable',
     'repository-local implementation remains the behavior authority',
@@ -996,6 +1115,70 @@ function rowSemanticMutationChecks() {
   }
 }
 
+function extractAgyPromptPath(invocation) {
+  const invocationMatch = invocation.match(/^agy --print "\$\(cat ([^)]+)\)" --mode plan --sandbox --dangerously-skip-permissions --output-format json --print-timeout 10m$/);
+  assert.ok(invocationMatch, 'Agy prompt invocation must remain the exact bounded cat substitution');
+  return invocationMatch[1];
+}
+
+function validateAgyProvenanceRecord(record, promptText) {
+  assert.equal(record?.ordinal, AGY_PROVENANCE.ordinal, 'Agy selected ordinal drifted');
+  assert.equal(record?.type, 'event_msg', 'Agy selected record type drifted');
+  const payload = record?.payload;
+  const item = payload?.item;
+  assert.equal(payload?.thread_id, AGY_PROVENANCE.threadId, 'Agy Codex thread identity drifted');
+  assert.equal(payload?.turn_id, AGY_PROVENANCE.turnId, 'Agy Codex turn identity drifted');
+  assert.equal(item?.id, AGY_PROVENANCE.itemId, 'Agy command item identity drifted');
+  assert.equal(item?.type, 'CommandExecution', 'Agy selected item type drifted');
+  assert.equal(item?.status, 'completed', 'Agy command item must be completed');
+  assert.equal(item?.exit_code, 0, 'Agy command item exit code drifted');
+  assert.equal(item?.stderr, '', 'Agy command item stderr must be empty');
+  assert.deepEqual(item?.command, AGY_PROVENANCE.command, 'Agy payload.item.command drifted');
+  assert.equal(item?.cwd, AGY_PROVENANCE.cwd, 'Agy command cwd drifted');
+
+  const invocation = item.command[2];
+  assert.equal(extractAgyPromptPath(invocation), AGY_PROVENANCE.promptPath, 'Agy invocation prompt path drifted');
+  assert.equal(Buffer.byteLength(promptText), AGY_PROVENANCE.promptBytes, 'Agy prompt byte length drifted');
+  assert.equal(sha256(promptText), AGY_PROVENANCE.promptSha256, 'Agy prompt hash drifted');
+  for (const promptToken of [
+    'independent Antigravity Agy CLI auditor',
+    'Work read-only in the current repository worktree',
+    'Audit the root AGENTS.md exhaustively, claim by claim',
+    'repository-local Proof-or-Stop 0.3.270 implementation',
+  ]) assert.ok(promptText.includes(promptToken), `Agy prompt scope token missing: ${promptToken}`);
+
+  const stdout = item.stdout;
+  assert.equal(typeof stdout, 'string', 'Agy ordinal 953 must contain captured stdout');
+  assert.equal(Buffer.byteLength(stdout), AGY_PROVENANCE.stdoutBytes, 'Agy captured stdout byte length drifted');
+  assert.equal(sha256(stdout), AGY_PROVENANCE.stdoutSha256, 'Agy captured stdout hash drifted');
+  const result = JSON.parse(stdout);
+  assert.equal(result.conversation_id, AGY_PROVENANCE.conversationId, 'Agy response conversation identity drifted');
+  assert.equal(result.status, AGY_PROVENANCE.status, 'Agy response status drifted');
+  assert.equal(result.duration_seconds, AGY_PROVENANCE.durationSeconds, 'Agy response duration drifted');
+  assert.ok(result.response.includes('/Users/jek/.local/bin/agy') && result.response.includes('1.1.23'), 'Agy response must retain the observed executable path and version');
+  const rawFindingIds = new Set([...result.response.matchAll(/AUD-(\d{3})/g)].map((match) => match[1]));
+  assert.deepEqual([...rawFindingIds].sort(), Array.from({ length: 13 }, (_, index) => String(index + 1).padStart(3, '0')), 'Agy response must retain exactly the 13 reported raw finding IDs');
+  return { item, result };
+}
+
+function agyProvenanceMutationChecks(record, promptText) {
+  const mutatedCommand = structuredClone(record);
+  mutatedCommand.payload.item.command[0] = '/bin/bash';
+  assert.throws(() => validateAgyProvenanceRecord(mutatedCommand, promptText), /payload\.item\.command drifted/, 'invented Agy command must be rejected');
+
+  const mutatedCwd = structuredClone(record);
+  mutatedCwd.payload.item.cwd = 'file:///tmp/invented-worktree';
+  assert.throws(() => validateAgyProvenanceRecord(mutatedCwd, promptText), /command cwd drifted/, 'invented Agy cwd must be rejected');
+
+  const mutatedInvocation = record.payload.item.command[2].replace('$(cat ', '$(sed -n 1,999p ');
+  assert.throws(() => extractAgyPromptPath(mutatedInvocation), /exact bounded cat substitution/, 'invented Agy prompt invocation must be rejected');
+
+  const mutatedPrompt = promptText.replace('independent', 'IndependenT');
+  assert.equal(Buffer.byteLength(mutatedPrompt), Buffer.byteLength(promptText), 'Agy prompt-hash mutation must preserve bytes');
+  assert.throws(() => validateAgyProvenanceRecord(record, mutatedPrompt), /prompt hash drifted/, 'invented Agy prompt hash must be rejected');
+  console.log('AGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED');
+}
+
 function externalReviewArtifactChecks() {
   if (existsSync(claudeTranscript)) {
     const transcript = read(claudeTranscript);
@@ -1006,16 +1189,22 @@ function externalReviewArtifactChecks() {
     console.log('EXTERNAL_ARTIFACT claude availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
   }
   if (existsSync(agyTranscript)) {
-    const record = read(agyTranscript).split('\n').filter(Boolean).map((line) => JSON.parse(line)).find((entry) => entry.ordinal === 953);
-    const stdout = record?.payload?.item?.stdout;
-    assert.equal(typeof stdout, 'string', 'Agy ordinal 953 must contain captured stdout');
-    assert.equal(Buffer.byteLength(stdout), 38164, 'Agy captured stdout byte length drifted');
-    assert.equal(sha256(stdout), 'b4e930f908b5723acdfc7c24538c5081baeaf05fc50aac03a986f1018cd7f7ed', 'Agy captured stdout hash drifted');
-    assert.ok(stdout.includes('f48bd033-f9a7-4198-8ad2-638be9d122ff') && stdout.includes('"status":"SUCCESS"'), 'Agy captured stdout identity/status must match durable provenance');
-    console.log('EXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED session=VERIFIED');
+    const records = read(agyTranscript).split('\n').filter(Boolean).map((line) => JSON.parse(line)).filter((entry) => entry.ordinal === AGY_PROVENANCE.ordinal);
+    assert.equal(records.length, 1, 'Agy transcript must contain exactly one selected ordinal 953 record');
+    assert.ok(existsSync(AGY_PROVENANCE.promptPath), 'Agy selected invocation prompt file is unavailable on its provenance host');
+    const promptText = read(AGY_PROVENANCE.promptPath);
+    validateAgyProvenanceRecord(records[0], promptText);
+    agyProvenanceMutationChecks(records[0], promptText);
+    console.log(`EXTERNAL_ARTIFACT agy availability=LOCAL ordinal=${AGY_PROVENANCE.ordinal} bytes=${AGY_PROVENANCE.stdoutBytes} hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED`);
   } else {
     console.log('EXTERNAL_ARTIFACT agy availability=MACHINE_LOCAL_UNAVAILABLE durableHash=RECORDED');
   }
+}
+
+if (process.argv.includes('--external-review-policy')) {
+  externalReviewArtifactChecks();
+  console.log('EXTERNAL_REVIEW_POLICY PASS');
+  process.exit(0);
 }
 
 if (process.argv.includes('--authority-inventory')) {
@@ -1043,9 +1232,9 @@ if (process.argv.includes('--authority-policy')) {
 
 if (process.argv.includes('--source-authority-policy')) {
   const inventory = resolvedAuthorityInventory();
-  sourceAuthorityMutationChecks();
+  const mutationSummary = sourceAuthorityMutationChecks();
   const roleCount = [...inventory.values()].flat().filter((entry) => entry.role !== 'support').length;
-  console.log(`SOURCE_AUTHORITY_POLICY PASS rows=${inventory.size} semanticRoleEntries=${roleCount} mutations=${SOURCE_AUTHORITY_MUTATIONS.length + 1}`);
+  console.log(`SOURCE_AUTHORITY_POLICY PASS rows=${inventory.size} semanticChainRows=${mutationSummary.rows} chains=${mutationSummary.chainCount} semanticRoleEntries=${roleCount} sourceMutations=${mutationSummary.endpointCount} roleMutations=${mutationSummary.roleMutationCount}`);
   process.exit(0);
 }
 
