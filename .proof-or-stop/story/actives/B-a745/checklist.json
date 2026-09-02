@@ -346,9 +346,9 @@
       "id": "CHK-006",
       "title": "Add the Story 1 fixture suite and wire it into the canonical test inventory",
       "context": "Plan 'Acceptance matrix' rows reachable in Story 1 plus its Story 1 exit line. Cover: provisional and declared identity, duplicate-id rejection, index-independence, digest change on inventory change, pin resolution with zero/duplicate/shell-vs-argv/cwd/env variants and a label rename whose id survives, collector seeds for rename and delete and unreadable diff, every fail-closed reason code reachable in this Story, all four source kinds, schema round-trip, and the read-only CLI. Each behavior lands RED first. Register the suite in the canonical membership authority (root test:serial-reference plus its RESOURCE_POLICY mapping) rather than a discovery manifest.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T02:30:22.297Z",
-      "endTime": null,
+      "endTime": "2026-09-02T02:42:33.536Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#acceptance-matrix",
         "CLAUDE.md#handler-encoding-conventions"
@@ -393,6 +393,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "56c53c77112856c6c9629a7e85c00bd70aac607e9038ad69ad6d74334e6f67ce",
+        "storyFilesHash": "088a24a9625d9250738061397b9ba45ca9aebf6277f6783df640a2099f40cc3c",
+        "headHash": "d0659be5aa87a2879658810cc1a3330cef63795f",
+        "attestedAt": "2026-09-02T02:42:33.703Z",
+        "materialHash": "0796998bd110e2347f3e0e52a8d0e8b4d51be4c7c3f21cabaea4c4423301f407"
       }
     }
   ]
