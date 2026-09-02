@@ -195,6 +195,35 @@
         "scanEscalationReason": null
       },
       "_hash": "37a89fcf80f895992fff6366c4acd4a31a8313afe74699e2f16e4db1ad093483"
+    },
+    {
+      "id": "B-fe8f:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-review after commit 5b89a79b44 (F-019 fix, quality lane) at head c425127. Diff confined to packages/main/src/handlers/finding-ledger.ts (operation string literal at 4 call sites replaced with FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation, same runtime value) and finding-ledger-runtime-smoke.ts (new cross-checks in runFindingProjectionRegression + the runtime replay case tying FINDING_RUNTIME_EVIDENCE_COMMANDS / FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT to the actual handler-export keys, registry membership, persisted runtime-receipt operation, and persisted artifact realpath-binding field name). Verified with a real mutation test (not just static reasoning): copied dist/core/finding-runtime-evidence.js, mutated ADAPTER_CONTRACT.runCommand to a bogus value, reran the real dist smoke unmodified elsewhere -> it failed exactly at the new assertion `FINDING_RUNTIME_EVIDENCE_COMMANDS.includes(FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.runCommand)` (AssertionError, exit 1); restored the original file byte-for-byte (md5 1acab967f0b6f21fac47a9ed70690bbd confirmed unchanged) and reran the full unmodified smoke, which passed clean. Traced the other 3 new/changed assertions (facade-keys-vs-COMMANDS deepEqual, registry.has() loop, runCommand/verifyCommand membership, persisted receipt.operation vs contract, persisted artifact[contract.artifactRealpathBinding] typeof string) and confirmed each compares two independently-declared literal sources (core/finding-runtime-evidence.ts contract vs handlers/finding-runtime-evidence.ts COMMANDS array vs registry.ts registration vs actual persisted ledger bytes vs types.ts/runtime-evidence-receipt.ts field name), so each would fail under an equivalent single-constant mutation -- this is a genuine coverage improvement over the prior dead-export state, not decorative. Confirmed via the stored checklist selector that the CHK-004 edge pin (`runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true`) is a strict substring of the new printed line (...adapterContract=true appended), and selectorMatched uses run.output.includes(pinSelector) (packages/main/src/handlers/checklist.ts:771), so the pin still matches; no other checklist selector references the changed registry.runtime_facade_boundary line. Reran both pinned commands unmutated after restoring dist: RED exit 0, full smoke exit 0 (85 PASS lines incl. adapterContract=true suffixes). No blocking finding.",
+      "createdAt": "2026-09-02T08:51:43.322Z",
+      "reviewRound": "2026-09-02T08:08:26.916Z",
+      "reviewRunId": "B-fe8f:RR-021",
+      "envelopeId": "6f4abc8d37e0bde130906c9fbe2cde90dfb312afb6a5cc31afbcbafa82f8d9cc",
+      "writerSessionId": "sess-bdb9bfcb9ef723ad9782afb8f7dbe6c6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c2eb5ed6cb2018ce93d205be412fd9f2491a4517275716118d1cf4fa4d2f1e16"
     }
   ]
 }
