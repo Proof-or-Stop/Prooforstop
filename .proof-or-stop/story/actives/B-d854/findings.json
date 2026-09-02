@@ -884,6 +884,25 @@
       ],
       "signatureTag": "missing|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-040",
+      "desc": "F-037 remains false-green. docs/audits/AGENTS-current-version-audit.md:100-106 promises that each material subclaim has its own named chain, unrelated subclaims cannot be pooled, and broken chains are rejected. tests/AGENTS.verify.mjs:358-379 checks only endpoint label membership, declared role equality, per-row uniqueness/set equality, and non-definition runtime presence; it never validates that a producer/guard pair belongs to the same behavior. Repro without modifying repository files: load tests/AGENTS.verify.mjs in memory, swap A20's `review-entry-verification-evidence-guard` and `done-open-bug-guard` between the `review-evidence-gate` and `done-bug-gate` chains, then run the transformed module with --source-authority-policy. Observed exit=0 and `SOURCE_AUTHORITY_POLICY PASS rows=26 semanticChainRows=13 chains=40 semanticRoleEntries=86 sourceMutations=66 roleMutations=1`. All 66 source mutations still pass because they prove endpoint presence, not pair linkage. The modeled-row set also omits A09 despite its composite interface/runtime claims: init_preflight registration plus boundary call and two repair rejection guards (authority entries at tests/AGENTS.verify.mjs:157-163; no A09 chain at :299-356). Fix with an independent immutable expected chain-to-endpoint mapping or relationship assertions/mutations that reject cross-chain same-role swaps, and justify or model every composite row such as A09; counts derived solely from REQUIRED_AUTHORITY_CHAINS cannot prove completeness.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T09:30:44.395Z",
+      "reviewRound": "2026-09-02T09:23:21.650Z",
+      "reviewRunId": "B-d854:RR-032",
+      "_hash": "7f239161e4d0866de6571c3f3405cf969c16d389f1c3bdf49cd09bee2acec1cf",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "adversarial|md|remains-false-green",
+      "signatureTagSource": "auto"
     }
   ]
 }
