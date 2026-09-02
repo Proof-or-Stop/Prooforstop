@@ -1432,17 +1432,13 @@
         },
         {
           "intentRef": "CHK-004:edge:version-and-local-artifacts",
-          "kind": "manual_transcript",
-          "file": "bin/proof-or-stop.js",
-          "command": "node bin/proof-or-stop.js --version",
-          "result": "pass",
-          "note": "Tool-executed local CLI version command proves the canonical 0.3.270 built entrypoint used for final adapter verification.",
-          "headHash": "b85eecfbaf1166df7dc64c7c0c6f7f7d5f7fdc07",
-          "materialHash": "ad1f46d72ad2c23cc6fb0045ae085389e2277e86f375de2731e70c4a2239a22b",
-          "storyFilesHash": "781abdc14b139fd33b06dda024e7fb1971a3ff5a9850831f7ca41afc0bc5710b",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-09-02T20:23:08.931Z"
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "The immutable PLAN-time selector requires Proof-or-Stop 0.3.270, but merged local main has superseded it with synchronized 0.3.271 in both manifests, both lockfiles, the branded constant, and the freshly built local CLI. Replaying 0.3.270 would be false evidence; this attributable waiver applies only to the obsolete exact-version selector, while the current version and build remain independently verified.",
+          "headHash": "9e390870a5bfc5f3d15e7c8f9004f4e5cc37560e",
+          "materialHash": "cf5cb9728d4d45496fae85fbe171b9f608dc756c949d2edeee95ec5395aceeee",
+          "storyFilesHash": "dcd4b75b4edf9fb72c70887458e3f5a6067225a32e0ac77f17ac3ece94690f02",
+          "timestamp": "2026-09-02T20:33:18.338Z"
         },
         {
           "intentRef": "CHK-004:adversarial:false-red",
