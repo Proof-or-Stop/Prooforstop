@@ -290,6 +290,41 @@
         "scanEscalationReason": null
       },
       "_hash": "d5275ef7d8eef935799662941e43f169fc499dc6be05ad03d8e977f24cd068b4"
+    },
+    {
+      "id": "B-41c8:RP-011",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 6 re-pass after RP-008 was invalidated by a merge-main-into-branch + TEST/back bounce. Confirmed via review_incremental_context --role=proof-or-stop-review-quality --json: changedFiles since RP-008 (headHash 37e99ad1 -> 08a6d5e9) are only .proof-or-stop/artifact-releases.jsonl, .proof-or-stop/capability-releases.jsonl, .proof-or-stop/dev-memory/experience.jsonl, AGENTS.md, docs/audits/AGENTS-current-version-audit.md, tests/AGENTS.verify.mjs -- merged-main files and story metadata only, no story-owned source under packages/main/src changed since the prior pass. Rebuilt via npm --prefix packages/main run build (clean). npx tsc --noEmit -p packages/main: clean, exit 0, no diagnostics. node packages/main/dist/tasks/single-owner-extraction-smoke.js: 40/40 cases passed, single-owner-extraction-smoke: PASS, default stdout projection 10609 chars (bound 11000). node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js: retired authority vocabulary guard PASS builds=809 cacheHits=2 fullAnalysis=1292 astCandidates=506 reachability=34. No blocking finding.",
+      "createdAt": "2026-09-02T23:49:41.138Z",
+      "reviewRound": "2026-09-02T23:45:41.118Z",
+      "reviewRunId": "B-41c8:RR-022",
+      "envelopeId": "78eb7c2ecec26373b3f61ef05f35564577dedb9bbd8a48bacf006a378863ed08",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e8bd9f485048b545271268f32b12ff712b97523672ac4da578507d2ed934679"
     }
   ]
 }
