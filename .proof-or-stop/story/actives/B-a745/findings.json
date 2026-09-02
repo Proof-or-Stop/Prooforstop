@@ -556,6 +556,24 @@
       ],
       "signatureTag": "missing|ts|validation-command-identity",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a745:F-027",
+      "desc": "B-a745:F-023 resolvedReason (findings.json) does not honour the pasted-output half of the two-rule discipline this Story adopted at F-013 (\"no count or command is asserted in prose unless its actual output was pasted\") and reaffirmed at F-021. Its OWNER VERIFICATION line states two specific quantitative facts as prose, not pasted command output: the commandSetDigest value `eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`, and \"this repository declares no cwd on any of its 121 commands\" -- neither is shown as a labelled command plus its literal terminal output, unlike F-022's adjacent OWNER VERIFICATION in the same review round, which pastes `status: plan` / `selected: 121 of 121 validation unit(s)` / `freshnessBinding: bound (...)` / `commandSetDigest: ...` as discrete lines from an actual run. I independently re-ran both checks this round (`validation_plan --storyId=B-a745 --tier=fast` prints commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661; a script over proof-or-stop.config.json.validate.commands confirms 121 total, 0 with cwd, 0 absolute) and both values are CORRECT -- so this is not a false claim, only a process-rule shortfall: a bare digest/count asserted from memory or computation notes rather than pasted CLI output. Low severity because non-mechanical and does not misstate code behaviour, matching the precedent set by this Story's own F-021 resolution for the same class of gap.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T09:42:07.908Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-024",
+      "_hash": "69aa1b5860a18c244f08fafc5e97e0ae716240eb67af7f97e8c0cef3f9a508e1",
+      "files": [
+        ".proof-or-stop/story/actives/B-a745/findings.json"
+      ],
+      "signatureTag": "missing|json|a745-resolvedreason-findings",
+      "signatureTagSource": "auto"
     }
   ]
 }
