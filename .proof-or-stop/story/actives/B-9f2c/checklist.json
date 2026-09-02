@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Port the dossier client sources into packages/graph",
+      "context": "Copy src/shells/web/dossier.js verbatim from upstream HEAD, and apply the upstream diffs to app.css (585 lines of dossier styling plus the .sidrow and .dsrcover rules), app.body.html (the dossierSlot span in the drawer header) and app.js (the drawer dossier button, the relationsOf / openDossierFor / dossierPath routing helpers, the popstate listener, and the boot-time deep-link cover). The four target files are byte-identical to upstream 10b5921 in this repo, verified by shasum, so the upstream diffs apply cleanly.",
+      "relatedDocs": [
+        "packages/graph/README.md"
+      ],
+      "userSees": "ls packages/graph/src/shells/web/dossier.js prints the path, and git diff --stat shows app.css, app.js and app.body.html changed",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Serve the /story/<id> route and include dossier.js in the built page",
+      "context": "Two upstream edits. In src/io/http.ts the / and /index.html branch also matches the regex for /story/<id> and serves the same app.html, so the deep link needs no second HTML asset. In scripts/build-web.mjs, concatenate dossier.js after playback.js, matching the existing contract that it loads after app.js and self-registers window.openStoryDossier. Note that build-web.mjs already carries an uncommitted local change, a hard failure when d3 is missing, which must be preserved.",
+      "relatedDocs": [
+        "packages/graph/README.md"
+      ],
+      "userSees": "npm --prefix packages/graph run build succeeds, and grep -c openStoryDossier packages/graph/assets/app.html prints a non-zero count",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add --story=<id> to the graph command with pre-listen validation",
+      "context": "Add an optional story field to GraphArgs and to the graph entry in packages/main/src/cli/command-catalog.ts as an optional z.string(), with the default documented in the description and never expressed as .default(), per the convention already recorded on the open flag. When set, the handler opens and reports http://localhost:<port>/story/<id> instead of /. An id that is not a story in the resolved repository is refused BEFORE startServer, mirroring how an unresolvable --root is already refused in the same handler; validate against resolveStories(root).primary, which is already on the graph library surface, and name near-miss candidates in the error. Also extend the command longHelp.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "userSees": "proof-or-stop graph --story=B-9999 --no-open exits non-zero printing 'graph: B-9999 is not a story in this repository', while --story on a real id prints 'graph serving http://localhost:8731/story/<id>'",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the dossier and the new flag in the repository docs",
+      "context": "Port the upstream README dossier section into packages/graph/README.md, preserving this repository's migration-specific wording: the header is proof-or-stop graph rather than proof-or-stop-graph, and the CLI section reads 'How the CLI reaches this package'. Add the /story/<id> endpoint row to the endpoint table. Then update the Story graph section of the root CLAUDE.md to list the --story flag in its flag table and mention the dossier page, so the documented command surface matches the shipped one.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "packages/graph/README.md"
+      ],
+      "userSees": "grep -n -- --story CLAUDE.md packages/graph/README.md prints matches in both files",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
