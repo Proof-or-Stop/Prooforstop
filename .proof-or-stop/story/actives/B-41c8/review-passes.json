@@ -229,6 +229,38 @@
         "scanEscalationReason": null
       },
       "_hash": "427bdf9b8610dea30255cca0d48061e92f0793a6f26159f0553f385d9a7e8a70"
+    },
+    {
+      "id": "B-41c8:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue check for 8 deleted symbols. Occurrence-mode rg -o count = 76, matches gate exactly. Bucket counts (a=new definition/uses of deliberately reused name, b=pre-existing untouched same-named symbol, c=historical mentions describing removal/structural residue checks, d=genuine residue): collectLinkedStoryWorktrees 3=(c); commandFromString 13=(b:5 verifier.ts def+callsites untouched by this diff, git diff main...HEAD --stat empty for verifier.ts)+(b/c:8 comments referencing that untouched symbol + PRIVATE_PARSER_TOKENS structural array); listActiveWorktrees 3=(c); listLinkedStoryWorktrees 2=(c); readStoryFromLinkedWorktree 3=(c); readWorktreePhase 2=(c); resolveStoryWorkspace 41=(a:~38 new exported helper in core/story-workspace.ts + its 4 migrated call sites import+call in session.ts/story-query.ts/validation-plan.ts/local-assurance-story-projection.ts + smoke test exercising new symbol)+(c:~3 story-workspace.ts header migration-provenance comment and smoke removed:[...] structural check confirming old validation-plan.ts private copy is gone); splitShellWords 9=(c, zero function definitions named splitShellWords exist anywhere in packages/main/src -- all hits are historical-narrative comments or PRIVATE_PARSER_TOKENS residue-check array). Verified grep of done-required-validation.ts and validation-plan.ts show zero remaining occurrences of the deleted private implementations. Checked the only diff since round 4 (commit 418e5d8103): unrelated ceiling-constant bump in retired-authority-vocabulary-guard-smoke.ts. Zero (d) genuine-residue hits across all 8 symbols. No blocker.",
+      "createdAt": "2026-09-02T20:09:17.904Z",
+      "reviewRound": "2026-09-02T17:48:38.951Z",
+      "reviewRunId": "B-41c8:RR-020",
+      "envelopeId": "a8dc9b6a45092bb1cc2dea3e30381df945cc26976c15086836bfb5f0569f6208",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8c8394040626e75a54d96d33bdd0852c6853637385fbb8fa690a8e5cecc9e251"
     }
   ]
 }
