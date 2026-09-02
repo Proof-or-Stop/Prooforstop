@@ -244,6 +244,28 @@ function hasConceptPair(text: string, left: RegExp, right: RegExp, maxSpan = 240
   );
 }
 
+function countBoundedConceptPairInstances(text: string, left: RegExp, right: RegExp, maxSpan = 240): number {
+  const leftRanges = matchRanges(text, left);
+  const rightRanges = matchRanges(text, right);
+  const unmatchedRight = new Set(rightRanges.map((_, index) => index));
+  let count = 0;
+  for (const leftRange of leftRanges) {
+    const candidate = [...unmatchedRight]
+      .map(index => {
+        const rightRange = rightRanges[index];
+        const start = Math.min(leftRange.start, rightRange.start);
+        const end = Math.max(leftRange.end, rightRange.end);
+        return { index, span: end - start };
+      })
+      .filter(item => item.span <= maxSpan)
+      .sort((first, second) => first.span - second.span || first.index - second.index)[0];
+    if (!candidate) continue;
+    unmatchedRight.delete(candidate.index);
+    count += 1;
+  }
+  return count;
+}
+
 /**
  * A controlled triage relationship is safe only when its polarity is explicit
  * inside the complete local relationship. This is a positive grammar for
@@ -374,7 +396,10 @@ function rejectedAuthorityRelationCount(claim: string): number {
     [deferral, collapsedOutcome],
     [DYNAMIC_FINDING_AUTHORITY, storyAuthoredChange],
   ];
-  return relations.reduce((count, [left, right]) => count + (hasConceptPair(normalized, left, right) ? 1 : 0), 0);
+  return relations.reduce(
+    (count, [left, right]) => count + countBoundedConceptPairInstances(normalized, left, right),
+    0,
+  );
 }
 
 function isBoundedSignedDispositionInspection(segment: string): boolean {
@@ -387,7 +412,7 @@ function isExplicitlyProhibitedDispositionAuthority(segment: string): boolean {
   // coordinated action sequence. Clause starters, actor pronouns, conjunction
   // pivots, and infinitive `to` are excluded structurally: a negated action
   // cannot launder a later independent assignment clause or double negation.
-  const action = '(?!(?:and|or|to|then|they|he|she|it|this|that|reviewers?|agents?|owners?)\\b)[\\p{L}][\\p{L}\\p{N}_]*';
+  const action = '(?!(?:and|or|to|from|before|after|until|then|they|he|she|it|this|that|reviewers?|agents?|owners?)\\b)[\\p{L}][\\p{L}\\p{N}_]*';
   const actionList = `${action}(?:(?:\\s+or)?\\s+${action}){0,5}`;
   const disposition = '(?:defer\\s+with\\s+proof(?:\\s+disposition)?|finding\\s+deferral\\s+disposition)';
   const target = '(?:\\s+(?:on|to|for)\\s+(?:the\\s+)?finding)?';
@@ -401,7 +426,7 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
   for (let index = 0; index < segments.length - 1; index += 1) {
     if (!inspection.test(segments[index])) continue;
     const continuation = segments[index + 1];
-    const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+disposition|the\s+disposition|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
+    const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+disposition|the\s+(?:[\p{L}]+\s+){0,2}disposition|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
     const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
     if (!dispositionCoreference || !findingTarget) continue;
     if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
@@ -596,7 +621,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     }
 
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
-    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|sufficient\s+by\s+itself|by\s+itself|on\s+its\s+own|sole\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|sufficient\s+by\s+itself|enough\s+by\s+itself|sufficient\s+on\s+its\s+own|by\s+itself|on\s+its\s+own|sole\s+criterion|single\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
       const qualifier = segment.slice(soleRange.start, soleRange.end);
