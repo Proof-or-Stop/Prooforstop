@@ -5,7 +5,7 @@
     "packages/main/src/core/prompt-registry.ts",
     "AGENTS.md",
     "CLAUDE.md",
-    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-implementer.md",
     "packages/main/src/core/prompt-role-contract-registry.ts",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
@@ -15,12 +15,12 @@
     "package-lock.json",
     "packages/main/package.json",
     "packages/main/package-lock.json",
-    "packages/main/src/core/lattice-brand.ts",
-    ".claude/agents/lattice-implementer.md",
-    ".proof-or-stop-codex/agents/lattice-implementer.md",
-    "packages/main/templates/agents/lattice-review-channel.md",
-    ".claude/agents/lattice-review-channel.md",
-    ".proof-or-stop-codex/agents/lattice-review-channel.md",
+    "packages/main/src/core/proof-or-stop-brand.ts",
+    ".claude/agents/proof-or-stop-implementer.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-review-channel.md",
+    ".claude/agents/proof-or-stop-review-channel.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md",
     "packages/main/src/core/acceptance-coverage-basis.ts"
   ],
   "allowedCreate": [],
@@ -28,10 +28,9 @@
     "packages/main/src/tasks/prompt-registry-smoke.ts",
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
-    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
-    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "protectedFiles": [
@@ -46,7 +45,7 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/acceptance-topology.ts"
   ],
-  "scopeChangeReason": "A current-Story live proof blocker exposed a deprecated hard-coded Codex asset root in the pre-review smoke. Add only packages/main/src/tasks/proofstory-pre-review-check-smoke.ts as a test-scoped repair: resolve canonical .proof-or-stop-codex/agents first, retain deprecated read fallback, and fail closed when neither exists. No runtime handler, gate predicate, Dynamic Finding file, or acceptance-topology validator changes.",
+  "scopeChangeReason": "Canonical path migration after merging the approved Proof-or-Stop identity cutover: replace retired lattice implementer, review-channel, and brand paths with their exact proof-or-stop counterparts while preserving the same Agent-side scope, protected Dynamic Finding runtime exclusions, and test boundary.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -142,7 +141,7 @@
     }
   ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-02T01:37:15.247Z",
+  "updatedAt": "2026-09-02T02:07:48.229Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -195,6 +194,10 @@
     ".lattice/story/actives/B-9a49/init-check.json": ".lattice/story/actives/B-9a49/init-check.json",
     ".lattice/story/actives/B-9a49/process-events.jsonl": ".lattice/story/actives/B-9a49/process-events.jsonl",
     ".lattice/story/actives/B-9a49/scope-boundary.json": ".lattice/story/actives/B-9a49/scope-boundary.json",
-    ".lattice/story/actives/B-9a49/scope-freeze-check.json": ".lattice/story/actives/B-9a49/scope-freeze-check.json"
+    ".lattice/story/actives/B-9a49/scope-freeze-check.json": ".lattice/story/actives/B-9a49/scope-freeze-check.json",
+    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
+    "packages/main/templates/agents/proof-or-stop-review-channel.md": "packages/main/templates/agents/proof-or-stop-review-channel.md",
+    ".claude/agents/proof-or-stop-review-channel.md": ".claude/agents/proof-or-stop-review-channel.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md": ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md"
   }
 }
