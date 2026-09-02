@@ -912,6 +912,41 @@
       },
       "readDiagnostics": [],
       "_hash": "d27df11b1feeb16ce90558c9b41f071c309eae6f5b2cc620f732315b4ada8d45"
+    },
+    {
+      "id": "B-9a49:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 31 test-coverage review passed: verified all 60 must intents have unique current mechanical PASS receipts with zero waiver/non-mechanical rows; build-first source/dist smokes pass, full-context passes twice, 17-role Claude/Codex registry isolation, measurement, baseline, process/runtime contracts, acceptance-basis and full pre-review smokes pass; independent inverse mutations for same-category relation counting, cross-segment disposition assignment, cross-segment severity authority, and nothing-but-severity each turn the current GREEN smoke RED; topology/pre-review/rollout readers are current PASS with admissible/biting/related evidence and full-3x2 quorum; protected Dynamic Finding runtime paths are unchanged.",
+      "createdAt": "2026-09-02T23:14:45.406Z",
+      "reviewRound": "2026-09-02T23:07:48.292Z",
+      "reviewRunId": "B-9a49:RR-108",
+      "envelopeId": "3d78d9e92d3f69b371d1b227b09c1544428ae34b0fc3f1797d07d50d99ec37fa",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3391f8c8e3868749bdf668820975d81260aa0157d98f70c069d2070608df8ac2"
     }
   ]
 }
