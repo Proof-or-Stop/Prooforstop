@@ -131,11 +131,14 @@
       "q": "Will the Owner replace or update plan.md so it covers CHK-001 through CHK-006 and removes active lattice-implementer and stale_or_not_reproduced guidance before PLAN approval?",
       "evidence": "plan_get returns only CHK-001 through CHK-004; CHK-002 still names lattice-implementer and CHK-001 still publishes stale_or_not_reproduced, while the current checklist and decision require canonical proof-or-stop identities and prohibit the retired verdict as active guidance.",
       "sourcePointers": [
-        "plan_get:B-9a49 CHK-001",
-        "plan_get:B-9a49 CHK-002",
-        "checklist_get:B-9a49 CHK-001",
-        "decision_get:B-9a49"
-      ]
+        ".proof-or-stop/story/actives/B-9a49/plan.md",
+        "CHK-001",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "resolution": "Resolved by commit 3c0bb48abe: plan.md now contains dedicated CHK-001 through CHK-006 sections, uses canonical Proof-or-Stop role identities, and treats retired verdict vocabulary as historical evidence or negative test input only, never as active authority.",
+      "resolvedAt": "2026-09-02T02:55:37.765Z"
     },
     {
       "id": "SQ-B9A49-SCOPE-REBASELINE",
