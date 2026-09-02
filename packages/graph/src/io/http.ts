@@ -59,7 +59,10 @@ export function startServer(o: ServeOptions): Promise<http.Server> {
   const server = http.createServer((req, res) => {
     const u = new URL(req.url ?? '/', 'http://localhost');
     try {
-      if (u.pathname === '/' || u.pathname === '/index.html') {
+      /* /story/<id> is the story-dossier deep link. It serves the same shell:
+         the client reads the path at boot and opens the dossier over the graph,
+         so the page needs no second HTML asset and works offline the same way. */
+      if (u.pathname === '/' || u.pathname === '/index.html' || /^\/story\/[^/]+$/.test(u.pathname)) {
         if (sendFile(res, path.join(assetDir, 'app.html'), 'text/html; charset=utf-8', 'no-store')) return;
         res.writeHead(500); return res.end('app.html missing — run npm run build');
       }
