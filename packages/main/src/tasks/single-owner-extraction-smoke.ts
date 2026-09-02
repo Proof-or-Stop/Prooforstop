@@ -1267,13 +1267,29 @@ group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', 
 //               otherwise `reads ctx.root: <story|checklist|config>`.
 //   Destructured `const { store } = resolveStoryWorkspace(...)` is NOT
 //   recognised as a ws var (its reads stay flagged: the safe direction).
+//   handler  -- (B-41c8 F-005) a transitive ctx.root read through another
+//               handler invoked on the same context: a method call on a
+//               variable bound from `<factory>Handlers(<ctx>)`, an unbound
+//               `<factory>Handlers(<ctx>).m(`, or any call that passes the
+//               whole context (`<ctx>` bare, where <ctx> is `ctx` or any
+//               parameter typed HandlerContext) to a callee NOT declared in
+//               this file. A callee declared in this file is scanned in place
+//               (its own reads are already in this file); resolveStoryWorkspace
+//               is the helper itself; arrow parameter lists are not calls; a
+//               factory constructed on a <ws var> is a workspace-rooted read.
+//               Printed as `via-handler(<callee>, ...)`. The file-level scan
+//               cannot see what the callee reads, so the label is the
+//               conservative "reads ctx.root" -- a false FLAG is the safe
+//               direction; proof-or-stop-handoff.ts was the false PASS.
+//   config loaders are loadConfig, configuredValidationCommands and
+//   resolveDoneRequiredPolicy (which loads config from its argument).
 //
 // RED committed these cases against the pre-CHK-004 hand method (a file-level
 // grep: every file containing the token a caller, every token line a call
 // line, nothing classified); GREEN replaced it with the masked scanner below.
 // ---------------------------------------------------------------------------
 
-type RootReadKind = 'story' | 'checklist' | 'config';
+type RootReadKind = 'story' | 'checklist' | 'config' | 'handler';
 type RootRead = { kind: RootReadKind; via: string; line: number };
 type ResolverScan = {
   hasToken: boolean;
@@ -1481,6 +1497,67 @@ function firstArgumentAt(code: string, openIndex: number): string {
   return code.slice(openIndex + 1).trim();
 }
 
+const CONFIG_LOADERS = ['loadConfig', 'configuredValidationCommands', 'resolveDoneRequiredPolicy'] as const;
+/** Callee tokens that can precede `(<ctx>)` without being a call of a function receiving the context. */
+const NON_CALLEE_KEYWORDS: ReadonlySet<string> = new Set(['if', 'for', 'while', 'switch', 'catch', 'return', 'function', 'async', 'await', 'typeof', 'yield', 'else', 'do', 'throw', 'void', 'delete']);
+/** Receiving the context is the whole point of the CHK-003 helper; it is not a delegation. */
+const DELEGATION_EXEMPT_CALLEES: ReadonlySet<string> = new Set(['resolveStoryWorkspace']);
+
+/** Names the file uses for its HandlerContext: `ctx` plus every parameter typed HandlerContext. */
+function contextNames(code: string): Set<string> {
+  const names = new Set<string>(['ctx']);
+  const re = /([\w$]+)\s*:\s*HandlerContext\b/g;
+  for (let match = re.exec(code); match; match = re.exec(code)) names.add(match[1]!);
+  return names;
+}
+
+/** Functions declared in this file (`function f(`, `const f = (...) =>`, `const f = x =>`); calls to them are scanned in place, not as delegations. */
+function localFunctionNames(code: string): Set<string> {
+  const names = new Set<string>();
+  const fnRe = /\bfunction\s+([\w$]+)\s*\(/g;
+  for (let match = fnRe.exec(code); match; match = fnRe.exec(code)) names.add(match[1]!);
+  const arrowRe = /\b(?:const|let|var)\s+([\w$]+)\s*=\s*(?:async\s+)?(?:\([^()]*\)\s*(?::[^=]*?)?=>|[\w$]+\s*=>)/g;
+  for (let match = arrowRe.exec(code); match; match = arrowRe.exec(code)) names.add(match[1]!);
+  return names;
+}
+
+/** The callee of the call whose argument list contains `argIndex`, or null when the enclosing `(` is not a call (grouping, arrow parameters). */
+function enclosingCallee(code: string, argIndex: number): { name: string; open: number } | null {
+  let depth = 0;
+  for (let i = argIndex - 1; i >= 0; i -= 1) {
+    const ch = code[i]!;
+    if (ch === ')' || ch === ']' || ch === '}') { depth += 1; continue; }
+    if (ch === '(' || ch === '[' || ch === '{') {
+      if (depth > 0) { depth -= 1; continue; }
+      if (ch !== '(') return null;
+      let j = i - 1;
+      while (j >= 0 && /\s/.test(code[j]!)) j -= 1;
+      const end = j + 1;
+      while (j >= 0 && /[\w$.]/.test(code[j]!)) j -= 1;
+      const name = code.slice(j + 1, end);
+      if (!name || name.startsWith('.') || name.endsWith('.') || /^\d/.test(name)) return null;
+      return { name, open: i };
+    }
+  }
+  return null;
+}
+
+/** Index of the `)` that closes the `(` at `openIndex` (or -1). */
+function closingParenOf(code: string, openIndex: number): number {
+  let depth = 0;
+  for (let i = openIndex; i < code.length; i += 1) {
+    if (code[i] === '(') depth += 1;
+    else if (code[i] === ')') { depth -= 1; if (depth === 0) return i; }
+  }
+  return -1;
+}
+
+/** True when the call result is immediately used as a receiver (`f(ctx).m(`): a chained delegation, not a stored factory. */
+function callIsChained(code: string, openIndex: number): boolean {
+  const close = closingParenOf(code, openIndex);
+  return close >= 0 && /^\s*[?!]?\./.test(code.slice(close + 1, close + 4));
+}
+
 function rootReadsOf(code: string): { reads: RootRead[]; workspaceReads: number } {
   const wsVars = new Set<string>();
   const wsRe = /(?:^|[^\w$.])([\w$]+)\s*=\s*resolveStoryWorkspace\s*\(/g;
@@ -1499,13 +1576,46 @@ function rootReadsOf(code: string): { reads: RootRead[]; workspaceReads: number 
   }
   const storeCtorRe = /\bnew\s+StoryStore\s*\(/g;
   for (let match = storeCtorRe.exec(code); match; match = storeCtorRe.exec(code)) reads.push({ kind: 'story', via: 'new StoryStore', line: lineOf(code, match.index) });
-  const configRe = /(^|[^\w$.])(loadConfig|configuredValidationCommands)\s*\(/g;
+  const configRe = new RegExp(`(^|[^\\w$.])(${CONFIG_LOADERS.join('|')})\\s*\\(`, 'g');
   for (let match = configRe.exec(code); match; match = configRe.exec(code)) {
     const at = match.index + match[1]!.length;
     if (precededByFunctionKeyword(code, at)) continue;
     const open = code.indexOf('(', at);
     if (fromWorkspace(firstArgumentAt(code, open))) { workspaceReads += 1; continue; }
     reads.push({ kind: 'config', via: match[2]!, line: lineOf(code, at) });
+  }
+
+  // B-41c8 F-005: transitive reads through handlers invoked on the context.
+  const ctxNames = contextNames(code);
+  const localFns = localFunctionNames(code);
+  const mentionsWorkspace = (expr: string): boolean =>
+    [...wsVars].some((ws) => new RegExp(`(^|[^\\w$.])${escapeRegExp(ws)}\\s*[?!]?\\.`).test(expr));
+  const factoryVars = new Map<string, string>();
+  const factoryRe = /\b(?:const|let|var)\s+([\w$]+)\s*=\s*([\w$]*Handlers)\s*\(/g;
+  for (let match = factoryRe.exec(code); match; match = factoryRe.exec(code)) {
+    const open = match.index + match[0].length - 1;
+    const arg = firstArgumentAt(code, open);
+    if (callIsChained(code, open)) continue; // `const x = f(ctx).m()` stores a result, not the factory; the bare-ctx rule flags it
+    if (ctxNames.has(arg)) factoryVars.set(match[1]!, match[2]!);
+    else if (mentionsWorkspace(arg)) workspaceReads += 1;
+  }
+  for (const [variable] of factoryVars) {
+    const methodRe = new RegExp(`(^|[^\\w$.])${escapeRegExp(variable)}\\s*[?!]?\\.\\s*([\\w$]+)\\s*\\(`, 'g');
+    for (let match = methodRe.exec(code); match; match = methodRe.exec(code)) {
+      const at = match.index + match[1]!.length;
+      reads.push({ kind: 'handler', via: `${variable}.${match[2]!}()`, line: lineOf(code, at) });
+    }
+  }
+  const bareCtxRe = new RegExp(`[(,]\\s*(${[...ctxNames].map(escapeRegExp).join('|')})\\s*(?=[,)])`, 'g');
+  for (let match = bareCtxRe.exec(code); match; match = bareCtxRe.exec(code)) {
+    const token = match[1]!;
+    const at = match.index + match[0].indexOf(token);
+    const call = enclosingCallee(code, at);
+    if (!call) continue;
+    if (NON_CALLEE_KEYWORDS.has(call.name) || DELEGATION_EXEMPT_CALLEES.has(call.name) || localFns.has(call.name)) continue;
+    // A factory stored in a variable is reported through that variable's method calls, not as a read of its own; a chained `f(ctx).m(` is a delegation here.
+    if (/Handlers$/.test(call.name) && !callIsChained(code, call.open) && /(?:const|let|var)\s+[\w$]+\s*=\s*$/.test(code.slice(Math.max(0, call.open - call.name.length - 80), call.open - call.name.length))) continue;
+    reads.push({ kind: 'handler', via: `${call.name}(${token})`, line: lineOf(code, at) });
   }
   const seen = new Set<string>();
   const unique = reads
@@ -1567,8 +1677,10 @@ function describeReads(reads: RootRead[]): string {
 }
 
 function classificationOf(caller: ResolverScan): string {
-  if (caller.workspaceRooted) return caller.workspaceReads > 0 ? 'workspace-rooted' : 'workspace-rooted (no story/checklist/config read at all)';
-  const kinds = (['story', 'checklist', 'config'] as RootReadKind[]).filter((kind) => caller.remainingReads.some((read) => read.kind === kind));
+  if (caller.workspaceRooted) return caller.workspaceReads > 0 ? 'workspace-rooted' : 'workspace-rooted (no story/checklist/config read and no delegation on ctx at all)';
+  const kinds: string[] = (['story', 'checklist', 'config'] as RootReadKind[]).filter((kind) => caller.remainingReads.some((read) => read.kind === kind));
+  const delegations = [...new Set(caller.remainingReads.filter((read) => read.kind === 'handler').map((read) => read.via.replace(/\(.*\)$/, '')))].sort();
+  if (delegations.length) kinds.push(`via-handler(${delegations.join(', ')})`);
   return `reads ctx.root: ${kinds.join(', ')}`;
 }
 
@@ -1578,7 +1690,8 @@ function renderResolverAudit(report: ResolverAudit): string[] {
   lines.push('resolveGitCwd call sites');
   lines.push(`  scope: packages/main/src/handlers/*.ts -- ${report.scannedFiles} files scanned, ${report.callers.length} real callers, ${report.commentOnly.length} comment-only mentions, ${report.unboundCallMentions.length} unbound code mentions`);
   lines.push('  rule: caller = a CALL EXPRESSION of the resolver binding imported from core/story-signed-workspace-resolution (aliases resolved; comments, strings, templates, regexes masked);');
-  lines.push('        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no `new StoryStore(`, every loadConfig/configuredValidationCommands argument starts with <ws>., where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config>');
+  lines.push(`        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no \`new StoryStore(\`, every ${CONFIG_LOADERS.join('/')} argument starts with <ws>., and no handler is invoked on the context, where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config|via-handler(...)>`);
+  lines.push('        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context; local callees, arrow parameters and resolveStoryWorkspace itself are not delegations');
   lines.push(`  callers (${report.callers.length}):`);
   for (const caller of report.callers) {
     const calls = caller.callLines.map((line) => `L${line}`).join(',');
