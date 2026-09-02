@@ -161,7 +161,7 @@
       "desc": "CHK-001:adversarial:0 and CHK-003:adversarial:0 are not covered by the recorded command checker. Its implementation extracts only command names and appends --help; it never executes read-only examples with their documented arguments and never validates mutating example payloads in an isolated repository or against the registered schema. Independent mutation proof appended `proof-or-stop story_get --storyId`: the real invocation exits 1 for invalid boolean storyId, while the checker input set is unchanged and would remain green. The invalid-command sentinel tests name rejection only, not example validity. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T00:29:43.222Z",
@@ -172,7 +172,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "adversarial|md|adversarial-adversarial-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-d854:F-005: safe active examples are executed with repository-valid arguments and malformed story_get arguments are rejected; mutating examples use registered schema without changing the Story.",
+      "resolvedAt": "2026-09-02T01:05:13.279Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-009",
