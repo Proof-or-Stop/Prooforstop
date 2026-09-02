@@ -370,6 +370,38 @@
         "scanEscalationReason": null
       },
       "_hash": "72d2b53e8620324ddb3a278a1e2d795dee2ecda7f90f8892a5c193ac2aae5891"
+    },
+    {
+      "id": "B-a745:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 5 concept-residue + prose-audit pass, non-blocking. (A) Residue: grepped commandCwdRelative (0 hits outside the finding record itself) and narrowPortableValidationCommandTuple (all 8 call sites pass only {command}, none pass projectRoot); missingEvidenceHashDigests and freshnessBinding are fully wired end to end with no orphan. Found one genuine dead parameter -- buildValidationCommandInventory still declares projectRoot but its only internal use was removed by F-023, with an inaccurate provenance claim in its own JSDoc -- filed as F-026 (low). (B) Reproduced every specific claim in F-022/F-023 myself in this worktree: real-story validation_plan output matches (status/selected/commandSetDigest=eba363ed... byte-identical, material/storyFiles hashes byte-identical, headHash differs only because HEAD has legitimately advanced since the owner's run); an unborn git repo built fresh from this worktree's config+story metadata reproduces freshnessBinding: unbound and [hash_snapshot_unavailable] outcome=repository-full verbatim; story_draft_list run here lists partial-hash-snapshot-treated-as-binding, whose checklist.json names exactly the five consumers claimed (done-oracle.ts, verifier.ts, lifecycle-readiness.ts, phase-gates.ts, session.ts), and commit 09e0447244 is a verified ancestor of main; proof-or-stop.config.json has 121 commands, 0 with cwd, matching F-023's claim exactly; git show of 9af45102b4^ has no hash_snapshot_unavailable row, confirming the previously-had-NO-row claim; the RED commit 899a13a6cd diff shows the old absolute/relative-agree test case that F-023 says it replaced. No false claim found. One process gap found and filed as F-027 (low): F-023's OWNER VERIFICATION states its digest and 121/0-cwd count as prose rather than pasted command output, short of the F-013/F-021 pasted-output rule, though both values are independently confirmed correct. (C) F-022 explicitly honours both F-021 rules (labelled worktree run + literal pasted output; artifact citation verified to exist pre-write via commit hash and story_draft_list). F-023 honours the artifact-citation rule (N/A, cites none) but only partially honours the pasted-output rule -- captured as F-027, non-blocking at low severity. Both new findings are low/missing, evidenceState=verified, non-blocking at this round; no blocking finding of mine is open.",
+      "createdAt": "2026-09-02T09:42:49.384Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-024",
+      "envelopeId": "ac01c1828e9e041b78ab7b3e7fb48f70498c60d78d3045c74625210801f7c1a7",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json",
+          "docs/story/drafts/partial-hash-snapshot-treated-as-binding/background.md",
+          "docs/story/drafts/partial-hash-snapshot-treated-as-binding/checklist.json",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c198c225a35f11e2561cb48ede0003cb83aba8d38aa265a1f22a7cd770836b5f"
     }
   ]
 }
