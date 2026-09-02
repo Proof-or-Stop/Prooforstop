@@ -1063,9 +1063,9 @@
         "AGENTS.md",
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T03:02:34.353Z",
-      "endTime": "2026-09-02T03:17:03.148Z",
+      "endTime": "2026-09-02T03:33:05.536Z",
       "userSees": "A failing pre-implementation contract test becomes green after the change, and digest/adapter verification confirms the published English Agent prompts are fresh and compatible.",
       "files": {
         "modify": [
@@ -2281,6 +2281,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Reopen for the Round 20 acceptance blocker: the guard rejects a safe before/after invariant that explicitly requires Dynamic Finding runtime semantics to remain unchanged."
+    },
+    {
+      "timestamp": "2026-09-02T03:33:05.536Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "The complete CLI-derived 6-item/60-intent REVIEW Task Context now passes the production guard, unsafe amendment and laundering mutations remain rejected, and all 60 receipts were refreshed against 55b8c9d."
     }
   ]
 }
