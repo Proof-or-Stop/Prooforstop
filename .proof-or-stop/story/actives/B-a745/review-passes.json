@@ -49,6 +49,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a9aecc0c215edd7a9f5a3dfed574506f9dd893fae8d9ddac68c0b0c7b6f311ad"
+    },
+    {
+      "id": "B-a745:RP-003",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-review after F-001/F-002/F-004/F-006 fixes + validate.commands entry (120->121). Dist re-verified fresh, F-006 wiring confirmed behaviour-preserving and mutation-tested, F-001 split has no dead branches, resource claims on the new validate.commands entry verified true against keyed-scheduler.ts and suite source. No blocking issues found.",
+      "createdAt": "2026-09-02T03:38:05.117Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-008",
+      "envelopeId": "2bcae2f7907a61c7a64cf67bc0a53dc3d2cd8919c7aecdaceb9ba8b1df0d7e4a",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "923518a5fd49e2a0e51e6337e4dd8e05342ba3892fdb61e789f909a49e429fdb"
     }
   ]
 }
