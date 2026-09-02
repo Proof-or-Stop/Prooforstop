@@ -395,6 +395,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtje1deq_15g1_d7876fd8c92d41a59e7a14d0e83267fc",
       "ledgerCommitReceiptId": "lrc_mtje1deq_15g1_d4282734eeaf4116a2ec23921aac7562"
+    },
+    {
+      "id": "B-fe8f:F-018",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:206 — idempotent replay trusts persisted exactRequestDigest even though that field is neither covered by FindingLedgerReceipt signature nor recomputed from the signed record bundle. Reproduction on current build: append same-key payload {v:1}, mutate only receipts[0].exactRequestDigest to the canonical digest for {v:2}, then replay same-key {v:2}; appendFindingLedger returns success with the original receipt while persisted payload remains {v:1}. This violates the explicit conflicting-bytes fail-closed contract and lets ledger-file tampering relabel a different request as an accepted replay.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-02T01:02:31.558Z",
+      "reviewRound": "2026-09-02T00:54:51.339Z",
+      "reviewRunId": "B-fe8f:RR-014",
+      "_hash": "f9d12dde34a8e7740f4d4ace4a0cdb51bae45d58582bdab27344da6b32019d1f",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtje61dz_o5x_c152b74b80504cc5862132f4e242fb98",
+      "ledgerCommitReceiptId": "lrc_mtje61dz_o5x_bc3410e44aab47ad89e4c10bcd49b1a6"
     }
   ]
 }
