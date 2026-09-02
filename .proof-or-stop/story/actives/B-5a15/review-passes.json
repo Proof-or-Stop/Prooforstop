@@ -13672,6 +13672,37 @@
         "scanEscalationReason": null
       },
       "_hash": "ef857ddf3d17b84203a61516f3f19054e27ffd5cda59bf3b541ffe8ea2fd0b29"
+    },
+    {
+      "id": "B-5a15:RP-288",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review PASSED (re-attestation on settled tree, epoch RI-065, run RR-874). Scope claim verified INDEPENDENTLY: git diff c7691425..53ae7ebd touches only packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs, both COMMENT-ONLY (F-363 basis-note correction); pin literal 3152baa872 byte-identical on both sides; no executable statement, assertion, pin, or source logic changed. (a) checklist.json read directly: 5 items / 53 intents, intentRef 1:1, 0 duplicates, 0 orphans, 0 uncovered; 51 effective must (29 priority-absent defaulting + 22 explicit) + 2 should; exactly ONE non-positional explicit id = CHK-001:edge:oversized-output-probe, 52 positional. (b) 53 evidence rows all carrying receipts: 53 mechanical=true, 53 exitCode===0, 53 selectorMatched===true, ONE storyFilesHash af9bbe506973, 53 DISTINCT outputDigests, 53 DISTINCT executionKeys, 1 materialHash, timeoutMs 270000 x53 - no split, no lost receipt, no cloned execution. (c) zero fakery: 0 waivers, 0 nonMechanicalReason, 0 result:fail (53/53 pass), 0 timeoutOverride, 0 nonzero commandReruns; kinds 46 integration_test + 7 logic_test. (d) CHK-002 lanes 2/3/4 confirmed; verification_evidence_batch_add at checklist.ts:2445; commitCanonicalCausalEvidence at :1607 still a non-exported local const with zero references outside checklist.ts. (e) fresh suite run: 21 tests / 19 pass / 2 fail; 54 marker lines, all PASS, all distinct, zero duplicates = 51 of 53 declared intents present PLUS 3 supplementary NON-intent regression markers (CHK-001:adversarial:session-like-environment, CHK-003:adversarial:4, CHK-003:adversarial:5) whose indices exceed the declared arrays (CHK-001 declares 3 adversarial, CHK-003 declares 4); additive strengthening only, cannot inflate coverage because coverage keys on exact intentRef. Every emitting site sits after its assertions. (f) F-351/F-355 CONFIRMED still open exactly as recorded: CHK-004:happy:2 and CHK-004:happy:3 are the ONLY two absent intents; both F-359 sites fail at the predicted lines - :2469 failing at :2506 (actual 'fail' !== expected 'pass') and :2643 failing at :2684 (assert.ok(preReviewFresh || preReviewFailClosed)). Live pre_review_check_read code set UNCHANGED: exactly PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_AUTHORITY_INADMISSIBLE (ok=false status=fail readOnly=true executableEvidence=current mutations=biting transcript=related authority=inadmissible). Re-verified PR_AUTHORITY_INADMISSIBLE occurs in ZERO places in causal-evidence.test.mjs - absent from both exact-join allowlists (:2502-2504, :2667-2671) AND from the per-code fallback list (:2676-2681) - which is precisely why both sites fail closed. DEV acceptance criterion remains 21 pass / 0 fail with all 53 selectors present, not 51. F-362 TRANSFERS: causal-evidence.ts, evidence-freshness.ts, certification-window-smoke.ts, flow-stability-smoke.ts, validate-progress-heartbeat-smoke.ts, done-required-validation-smoke.ts, causal-evidence.test.mjs and checklist.ts are byte-unchanged since my prior bound head; the two distinct decision paths previously proven sound (storyFilesDrift -> strict -> INVALIDATED vs materialDrift && storyFilesMatch && !doneRequiredStrict -> advisory -> ADMITTED at causal-evidence.ts:1252-1266) and the whole-tree git ls-tree -r materialHash at evidence-freshness.ts:401 are intact. Only remaining opens F-351/F-355 are DEV-repairable pre-review staleness, not source defects; evidence binding af9bbe506973 vs live storyFilesHash 510541bd3a04 is the expected already-dispositioned acceptance-artifact staleness. No new finding.",
+      "createdAt": "2026-09-02T13:48:25.276Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-874",
+      "envelopeId": "39d38b89ecbca4df945b8d1c27865dd9fb6a720f45bfe4a896f660d6d734fb0d",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44c42e246ce662d746af8f3a434acaee4c6b4fa2ad61757f36c71dd7561bb87c"
     }
   ]
 }
