@@ -673,7 +673,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:75-84,97 and tests/AGENTS.verify.mjs:86-106,157 — acceptance-blocking global claim-to-authority partition is still incomplete outside A19/A26, despite the code comment promising one authority entry for every material subclaim. Confirmed examples: A04 concludes all registered repository-local aux commands are current, but its only authority is aux_doc_list at command-catalog.ts:1327; the other current commands are separately registered in packages/utils/src/tool-defs.ts:11-28. A08 concludes both INIT-to-INIT_CHECK worktree creation and PLAN cwd enforcement, but maps only lifecycle-registry.ts:145; the independent cwd-worktree gate is at lifecycle-registry.ts:154. A10 resolves owner lease, takeover UX, and session_brief owner rendering, but maps only cli-engine.ts:531 forceTakeover; lease/takeover mechanics are in core/story-owner-lease.ts:411-426 and owner rendering is in handlers/session.ts:520-563. A24 concludes both options=[] rationale and one-option exclusion, but maps only decision.ts:53; the separate single-option branch is decision.ts:63-70. A02 likewise adds CLI-only mutation and bounded-review-read rules beyond the sole storyDir citation. The final verifier still exits 0 because exhaustive citation mutation applies only to A19/A26 (plus focused A09/A20 probes), so it cannot detect these unmapped row clauses. WHY high: the Story promises a claim-by-claim evidence ledger for all M01-M24/L01-L02, not just exhaustive A19/A26 evidence. Partition each row's correction into explicit machine-readable subclaims, add exact authorities for every clause, and exhaustively remove/replace every authority across all 26 rows so a manually incomplete authority declaration cannot define itself as complete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T03:10:19.424Z",
@@ -690,7 +690,11 @@
         "packages/main/src/handlers/decision.ts"
       ],
       "signatureTag": "missing|md|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commits fbc8caa4 and 0581e1b7 replace the self-defined partial authority set with an explicit all-row claim partition: 26 rows, 98 globally labeled ordered authority tuples, 62 runtime entries, human-readable kind:label-to-path:line cells, exact parser equality, runtime comment-line rejection, and exhaustive removal plus irrelevant-replacement mutations for every entry (196 total). Known A02/A04/A08/A10/A24 gaps and all other composite rows were audited.",
+      "resolvedAt": "2026-09-02T08:08:25.440Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-032",
