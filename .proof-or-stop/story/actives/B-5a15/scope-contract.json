@@ -538,10 +538,26 @@
       "phase": "REVIEW",
       "headHash": "2f3f8297669b9c9b799b16184ce06f73097136a7",
       "materialHash": "d497af094d097b9e9b6fd582eb70c84f1e07f117ea221980f5dcc9a7e5e3b261"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Out-of-scope but acceptance-blocking, fixed in place per defect-triage rule 1. git ls-files output crossed Node's 1MB execFileSync default as the repo grew (14997 tracked files / 1050604 bytes, over by 2028), so the verifier died with spawnSync git ENOBUFS at status:0 -- git succeeded and only the capture buffer overflowed. The full-suite runner is fail-fast, so this single terminal failure cancelled 36 downstream suites and blocked done_prepare, making it non-deferrable. Change is one added maxBuffer option plus an explanatory comment; no decision logic, allowlist, or acceptance input was relaxed. Verified both directions: clean run exits 0, and a planted deprecated-only file still exits 1 naming the stranded path, so the check is repaired rather than silenced. Root suite went from 22/58 with 36 cancelled to 58/58.",
+      "timestamp": "2026-09-02T21:09:45.346Z",
+      "paths": [
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9cdf7d2e89aa4a8a18ea97949efccb48ff90a395",
+      "materialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-09-02T11:50:36.455Z",
+  "updatedAt": "2026-09-02T21:09:45.346Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -632,6 +648,7 @@
     "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "lattice.config.json": "lattice.config.json",
-    "CLAUDE.md": "CLAUDE.md"
+    "CLAUDE.md": "CLAUDE.md",
+    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs"
   }
 }
