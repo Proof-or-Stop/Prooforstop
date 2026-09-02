@@ -575,9 +575,13 @@ export class StoryStore {
       if (index < 0) data.findings.push(projected);
       else {
         // Display id is the compatibility join key. Once that id has a durable
-        // ledger row, no unsigned mirror recordId (missing, stale, or forged)
-        // can shadow it. Different mirror-only ids remain readable below.
+        // ledger row, collapse every row with that id so no unsigned duplicate
+        // recordId (missing, stale, or forged) can shadow it before or after a
+        // signed lifecycle transition. Different mirror-only ids remain readable.
         data.findings[index] = projected;
+        data.findings = data.findings.filter((finding, findingIndex) => (
+          findingIndex === index || finding.id !== payload.id
+        ));
       }
     }
     for (const record of ledger.records) {

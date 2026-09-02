@@ -495,9 +495,23 @@ function runFindingProjectionRegression(root: string): void {
         status: 'resolved',
       });
     }
+    shadowedMirror.findings.push({
+      id: `${storyId}:F-004`,
+      desc: `duplicate unsigned ${variant} mirror row`,
+      severity: 'high',
+      category: 'adversarial',
+      status: 'open',
+      recordId: `lr_unsigned_duplicate_${variant}`,
+    });
     store.writeFindings(storyId, shadowedMirror);
     const projectedShadow = store.readFindings(storyId);
-    const projectedFinding = projectedShadow.findings.find((finding) => finding.id === `${storyId}:F-004`)!;
+    const projectedRows = projectedShadow.findings.filter((finding) => finding.id === `${storyId}:F-004`);
+    assert.equal(
+      projectedRows.length,
+      1,
+      'every duplicate mirror row sharing a ledger-backed display id must collapse before a terminal transition',
+    );
+    const projectedFinding = projectedRows[0]!;
     mirrorShadowResults.push({
       variant,
       status: projectedFinding.status,
@@ -522,7 +536,7 @@ function runFindingProjectionRegression(root: string): void {
     true,
     'ledger projection must restore the canonical durable recordId for the same Finding id',
   );
-  console.log('finding.lifecycle_mirror_shadow_refused: PASS missing=open wrong=open legacyOnly=preserved');
+  console.log('finding.lifecycle_mirror_shadow_refused: PASS missing=open wrong=open duplicateBefore=collapsed legacyOnly=preserved');
 
   const terminalMirror = store.readFindings(storyId);
   const terminalFinding = terminalMirror.findings.find((finding) => finding.id === `${storyId}:F-004`)!;
@@ -583,10 +597,33 @@ function runFindingProjectionRegression(root: string): void {
     if (priorAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
     else process.env.PROOF_OR_STOP_AGENT = priorAgent;
   }
+  const duplicateTerminalMirror = structuredClone(store.readFindings(storyId));
+  duplicateTerminalMirror.findings.push({
+    id: `${storyId}:F-004`,
+    desc: 'duplicate unsigned open mirror row after signed resolution',
+    severity: 'high',
+    category: 'adversarial',
+    status: 'open',
+    recordId: 'lr_unsigned_duplicate_after_terminal',
+  });
+  store.writeFindings(storyId, duplicateTerminalMirror);
   const terminalProjection = store.readFindings(storyId);
-  assert.equal(terminalProjection.findings.find((finding) => finding.id === `${storyId}:F-004`)?.status, 'resolved');
+  const resolvedProjectionRows = terminalProjection.findings
+    .filter((finding) => finding.id === `${storyId}:F-004`);
+  assert.equal(
+    resolvedProjectionRows.length,
+    1,
+    'every duplicate mirror row sharing a ledger-backed display id must collapse after a signed terminal transition',
+  );
+  assert.equal(resolvedProjectionRows[0]?.status, 'resolved');
+  assert.equal(resolvedProjectionRows[0]?.recordId, terminalFindingRecordId);
+  assert.equal(
+    terminalProjection.findings.some((finding) => finding.id === `${storyId}:F-LEGACY`),
+    true,
+    'a distinct mirror-only legacy id must survive duplicate collapse',
+  );
   assert.equal(terminalProjection.findings.find((finding) => finding.id === `${storyId}:F-005`)?.status, 'dismissed');
-  console.log('finding.lifecycle_projection: PASS terminal=resolved resurrected=0');
+  console.log('finding.lifecycle_projection: PASS terminal=resolved resurrected=0 duplicateAfter=collapsed legacyOnly=preserved');
   const lifecycleLedger = store.readFindingLedger<JsonValue>(storyId);
   assert.equal(lifecycleLedger.records.filter((record) => record.recordType === 'finding_lifecycle_transition').length, 2);
   assert.equal(lifecycleLedger.receipts.filter((receipt) => receipt.operation === 'append_finding_lifecycle_transition').length, 2);
