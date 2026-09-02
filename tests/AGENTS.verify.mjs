@@ -124,14 +124,22 @@ const AUTHORITY_BY_ROW = new Map([
   ['A18', [authority('tool-owned verification receipt', 'packages/main/src/handlers/checklist.ts', /verification_evidence_add/)]],
   ['A19', [
     authority('dispatch role registry', 'packages/main/src/core/agent-dispatch-registry.ts', /canonicalName/),
+    authority('dispatch command and target cardinality', 'packages/main/src/cli/command-catalog.ts', /name: 'dispatch', description: 'Dispatch a registered subagent prompt using registry-defined story-only or exactly-one target cardinality'/),
+    authority('dispatch runtime registry authority', 'packages/main/src/handlers/story-dispatch.ts', /The registry is the sole authority for phase, cardinality, prompt class/),
+    authority('dispatch runtime request validation', 'packages/main/src/handlers/story-dispatch.ts', /const resolved = validateAgentDispatchRequest/),
     authority('canonical agent prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
     authority('computed reviewer roster', 'packages/main/src/handlers/reviewer-list.ts', /Output the opt-in reviewer roster/),
-    authority('read-only reviewer batch', 'packages/main/src/handlers/reviewer-batch.ts', /active\/required review lanes/),
+    authority('reviewer batch shared opt-in path', 'packages/main/src/handlers/reviewer-batch.ts', /active\/required review lanes/),
+    authority('reviewer batch read-only producer', 'packages/main/src/handlers/reviewer-batch.ts', /Lifecycle Readiness P7: reviewer_batch \u2014 a READ-ONLY reviewer-launcher PLAN/),
+    authority('reviewer batch strict no-side-effect boundary', 'packages/main/src/handlers/reviewer-batch.ts', /CRITICAL BOUNDARY: reviewer_batch is a strictly read-only PLAN producer/),
     authority('signed reviewer run', 'packages/main/src/cli/command-catalog.ts', /name: 'review_run_start'/),
     authority('reviewer pass command', 'packages/main/src/cli/command-catalog.ts', /name: 'review_pass_set'/),
     authority('reviewer pass run binding', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.describe\('Current reviewer run ID/),
+    authority('reviewer pass current-run runtime enforcement', 'packages/main/src/handlers/finding.ts', /const reviewRun = assertCurrentReviewRunForEvidence/),
     authority('reviewer finding command', 'packages/main/src/cli/command-catalog.ts', /name: 'finding_add'/),
     authority('reviewer finding run binding', 'packages/main/src/cli/command-catalog.ts', /reviewRunId: z\.string\(\)\.optional\(\)\.describe\('Current proof-or-stop-review/),
+    authority('reviewer finding lane runtime enforcement', 'packages/main/src/handlers/finding.ts', /const isReviewerAgent = isRegisteredReviewAgent/),
+    authority('reviewer finding current-run runtime enforcement', 'packages/main/src/handlers/finding.ts', /if \(reviewerLane\) \{\n\s+assertCurrentReviewRunForEvidence/),
     authority('quorum pass prerequisite', 'packages/main/src/cli/command-catalog.ts', /name: 'quorum_submit'/),
   ]],
   ['A20', [
@@ -151,6 +159,7 @@ const AUTHORITY_BY_ROW = new Map([
   ['A26', [
     authority('body-free prompt', 'packages/main/src/handlers/agent-prompt.ts', /body-free/),
     authority('thin prompt registry', 'packages/main/src/init-assets.ts', /Thin asset mode uses the package prompt registry/),
+    authority('host orchestration instruction', 'packages/main/src/handlers/reviewer-batch.ts', /The orchestrator launch INSTRUCTION for each lane/),
     authority('legacy role aliases', 'packages/main/src/core/agent-dispatch-registry.ts', /aliases: \['test-intent', 'test-case-reviewer'\]/),
   ]],
 ]);
@@ -372,13 +381,16 @@ function runCommandLedger() {
     console.log(`CASE ${String(ledger.length).padStart(2, '0')} PASS kind=${kind} argv=${JSON.stringify(text)}`);
   }
   assert.equal(ledger.length, invocations.length, 'every exact invocation must have one ledger case');
+  assert.equal(ledger[41]?.text, invocations[41], 'CASE 42 must be backed by the forty-second validated invocation');
+  const case42Selector = 'CASE 42 PASS';
 
   const unknown = spawnSync(process.execPath, [localCli, '__agents_unknown_command__', '--help'], { cwd: root, encoding: 'utf8' });
   assert.notEqual(unknown.status, 0, 'unknown-command sentinel must be rejected');
   console.log(`MUTATION unknown-command REJECTED exit=${unknown.status}`);
   const malformed = spawnSync(process.execPath, [localCli, 'story_get', '--storyId'], { cwd: root, encoding: 'utf8' });
   assert.notEqual(malformed.status, 0, 'malformed story_get --storyId must be rejected');
-  console.log(`MUTATION malformed-argument REJECTED exit=${malformed.status}`);
+  const malformedSelector = 'MUTATION malformed-argument REJECTED';
+  console.log(`${malformedSelector} exit=${malformed.status}`);
   for (const command of ['aux_diagnose', 'test_fixture']) {
     assert.throws(
       () => assertCommandAvailable(command, () => ({ status: 1, stdout: '', stderr: `Unknown command: ${command}` })),
@@ -387,7 +399,7 @@ function runCommandLedger() {
     );
     console.log(`COMMAND_AVAILABILITY_MUTATION ${command} REJECTED`);
   }
-  return ledger;
+  return { ledger, case42Selector, malformedSelector };
 }
 
 function tally(values) {
@@ -440,12 +452,15 @@ function structuralChecks() {
   const wrong = currentText.replace('scripts/verify-process-fact-contract.mjs', 'scripts/WRONG.mjs');
   assert.notEqual(inventoryDigest(wrong), EXPECTED_FINAL_INVENTORY_DIGEST, 'WRONG path mutation must alter inventory');
   assert.ok(!wrong.includes('scripts/verify-process-fact-contract.mjs'), 'WRONG path mutation must remove canonical token');
-  console.log(`STRUCTURE baselineDigest=${baselineDigest} finalDigest=${finalDigest} mutation=REJECTED`);
+  const marker = `STRUCTURE baselineDigest=${baselineDigest} finalDigest=${finalDigest} mutation=REJECTED`;
+  const categoryMarkers = [];
   for (const [name, value] of Object.entries(inventory(currentText))) {
     const count = Array.isArray(value) ? value.length : Object.values(value).reduce((sum, item) => sum + item, 0);
-    console.log(`STRUCTURE_CATEGORY ${name} count=${count} digest=${sha256(JSON.stringify(value))}`);
+    categoryMarkers.push(`STRUCTURE_CATEGORY ${name} count=${count} digest=${sha256(JSON.stringify(value))}`);
   }
   assert.ok(auditText.includes(baselineDigest) && auditText.includes(finalDigest), 'audit must bind both structural inventory digests');
+  console.log(marker);
+  return { marker, categoryMarkers };
 }
 
 function proseUnits(text) {
@@ -629,6 +644,17 @@ function refreshDocumentHashes(text) {
     .replace(/(Final complete-prose digest: `)[a-f0-9]{64}(`)/, `$1${semanticDigest(currentText)}$2`);
 }
 
+function replaceRowAuthorityReference(text, rowId, targetRef, replacement) {
+  const rowLine = text.split('\n').find((line) => line.startsWith(`| ${rowId} |`));
+  assert.ok(rowLine, `${rowId} audit row must exist for citation mutation`);
+  const cells = auditRowCells(text, rowId);
+  assert.ok(cells, `${rowId} audit cells must parse for citation mutation`);
+  assert.ok(cells[4].includes(targetRef), `${rowId} authority cell must contain mutation target ${targetRef}`);
+  const mutatedCells = [...cells];
+  mutatedCells[4] = mutatedCells[4].replace(targetRef, replacement);
+  return text.replace(rowLine, `| ${mutatedCells.join(' | ')} |`);
+}
+
 function auditCitationMutationChecks() {
   assert.ok(auditCitationPolicy(auditText), 'every audit row must equal its complete exact authoritative path:line set and bind every material subclaim pattern');
   const a01 = AUDIT_ROWS[0];
@@ -643,29 +669,41 @@ function auditCitationMutationChecks() {
   const vague = refreshDocumentHashes(auditText.replace(auditText.split('\n').find((line) => line.startsWith('| A20 |')), vagueLine));
   assert.ok(!auditCitationPolicy(vague), 'vague row authority must fail even after document hashes are refreshed');
   console.log('AUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1');
-  const authorityMutations = [
+  const focusedAuthorityMutations = [
     ['A20', 'policy-aware summary gate', 'extra'],
     ['A09', 'fallback requires acknowledgement', 'extra'],
-    ['A19', 'signed reviewer run', 'signed-run'],
-    ['A19', 'reviewer pass command', 'review-pass'],
-    ['A19', 'reviewer pass run binding', 'review-pass-binding'],
-    ['A19', 'reviewer finding command', 'finding'],
-    ['A19', 'reviewer finding run binding', 'finding-binding'],
-    ['A26', 'legacy role aliases', 'alias'],
   ];
-  for (const [rowId, label, marker] of authorityMutations) {
+  for (const [rowId, label, marker] of focusedAuthorityMutations) {
     const expected = AUTHORITY_BY_ROW.get(rowId);
     assert.ok(expected && expected.length > 1, `${rowId} must have a multi-source authority contract`);
     const target = expected.find((entry) => entry.label === label);
     assert.ok(target, `${rowId} mutation target must exist: ${label}`);
     const targetSource = read(resolve(root, target.path));
     const targetRef = `\`${target.path}:${lineOf(targetSource, target.pattern)}\``;
-    const replaced = refreshDocumentHashes(auditText.replace(targetRef, '`package.json:1`'));
+    const replaced = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, '`package.json:1`'));
     assert.ok(!auditCitationPolicy(replaced), `${rowId} irrelevant extra-citation replacement must fail after document hashes are refreshed`);
     console.log(`AUDIT_CITATION_MUTATION ${rowId} ${marker}-replacement REJECTED documentHashesRefreshed=1`);
-    const removedExtra = refreshDocumentHashes(auditText.replace(targetRef, ''));
+    const removedExtra = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, ''));
     assert.ok(!auditCitationPolicy(removedExtra), `${rowId} extra-citation removal must fail after document hashes are refreshed`);
     console.log(`AUDIT_CITATION_MUTATION ${rowId} ${marker}-removal REJECTED documentHashesRefreshed=1`);
+  }
+
+  for (const rowId of ['A19', 'A26']) {
+    const expected = AUTHORITY_BY_ROW.get(rowId);
+    assert.ok(expected && expected.length > 1, `${rowId} must have a multi-source authority contract`);
+    let targetCount = 0;
+    for (const target of expected) {
+      const targetSource = read(resolve(root, target.path));
+      const targetRef = `\`${target.path}:${lineOf(targetSource, target.pattern)}\``;
+      assert.ok(!targetRef.endsWith(':0`'), `${rowId} authority mutation target must resolve: ${target.label}`);
+      const replaced = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, '`package.json:1`'));
+      assert.ok(!auditCitationPolicy(replaced), `${rowId} ${target.label} irrelevant replacement must fail after refreshed hashes`);
+      const removedTarget = refreshDocumentHashes(replaceRowAuthorityReference(auditText, rowId, targetRef, ''));
+      assert.ok(!auditCitationPolicy(removedTarget), `${rowId} ${target.label} removal must fail after refreshed hashes`);
+      targetCount += 1;
+    }
+    assert.equal(targetCount, expected.length, `${rowId} exhaustive mutation target count must equal authority entry count`);
+    console.log(`AUDIT_CITATION_EXHAUSTIVE ${rowId} targets=${targetCount}/${expected.length} mutations=${targetCount * 2} PASS documentHashesRefreshed=1`);
   }
 }
 
@@ -746,23 +784,30 @@ if (mode === 'final' && !selectedRow && exitCode === 0) {
   const runtimeMarker = runtimeChecks();
   const unicodeMarkers = unicodeChecks();
   const semanticMarkers = semanticChecks();
+  const commandMarkers = runCommandLedger();
+  const structure = structuralChecks();
+  // The validation executor keeps only stdout bytes 0..12000 and receipts keep
+  // bytes 8000..12000 of that prefix. Replay only proof values returned by
+  // completed assertions here, before the remaining authoritative checks.
+  const unicodeReplay = unicodeMarkers.find((marker) => marker.startsWith('UNICODE path=AGENTS.md '));
+  const semanticReplay = semanticMarkers.find((marker) => marker === 'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED');
+  assert.ok(unicodeReplay, 'validated AGENTS Unicode marker must be available for receipt replay');
+  assert.ok(semanticReplay, 'validated semantic mutation marker must be available for receipt replay');
+  for (const marker of [
+    commandMarkers.case42Selector,
+    commandMarkers.malformedSelector,
+    unicodeReplay,
+    structure.marker,
+    semanticReplay,
+    runtimeMarker,
+  ]) console.log(marker);
+  for (const marker of structure.categoryMarkers) console.log(marker);
   auditDocumentChecks();
   auditCitationMutationChecks();
   externalReviewArtifactChecks();
-  runCommandLedger();
-  structuralChecks();
   rowSemanticMutationChecks();
   completenessChecks();
   managedBlockChecks();
-  // Replay only markers returned by already-completed assertions so both the
-  // bounded stdout prefix and persisted output tail retain the pinned proof.
-  const unicodeReplay = unicodeMarkers.find((marker) => marker.startsWith('UNICODE path=AGENTS.md '));
-  const semanticReplay = semanticMarkers.find((marker) => marker === 'SEMANTIC_MUTATION dev-only-to-every-phase REJECTED');
-  assert.ok(unicodeReplay, 'validated AGENTS Unicode marker must be available for tail replay');
-  assert.ok(semanticReplay, 'validated semantic mutation marker must be available for tail replay');
-  console.log(runtimeMarker);
-  console.log(unicodeReplay);
-  console.log(semanticReplay);
   console.log('AGENTS_VERIFY FINAL GREEN');
 }
 process.exit(exitCode);
