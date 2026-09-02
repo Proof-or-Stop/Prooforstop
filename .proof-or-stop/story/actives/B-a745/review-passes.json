@@ -345,6 +345,31 @@
         "scanEscalationReason": null
       },
       "_hash": "a3cb11a631a7ff0ff546c1c08f6872e35cfdec5a0dc8e555050961c5af38ac84"
+    },
+    {
+      "id": "B-a745:RP-014",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 5, scope = F-022 (8d9b6c2c14/9af45102b4) + F-023 (899a13a6cd/8613d6d6ec) diffs, story-level review, quality lane. Verified: (1) dist byte-identical to a fresh build. (2) F-022 missing-digest check has exactly one call site in the collector, evidence-freshness.ts untouched, planner re-validates via the SAME shared function so collector/planner cannot diverge. (3) F-023 leaves no stale commandCwdRelative/resolveValidationCommandCwd/relative-import references; complete/runtime tuple still resolves absolute cwd via untouched code. (4) freshnessBinding render emitted from exactly one place, no per-branch duplication. (5) Mutation-checked one F-022 fixture (zeroed missingDigests in the collector, 7/11 F-022 fixtures failed as expected) and one F-023 fixture (suffixed the portable cwd literal, 4/6 F-023 fixtures failed as expected); both reverted, git status clean, full suite re-run to PASS. One non-blocking finding filed under RR-025 and carried forward here (F-024, medium, not resolved/dismissed, still open): the new freshnessBinding invariant (and every other invariant in assertValidationPlanStatusInvariant) is enforced only on the text-render path, not the --json path in validation-plan.ts; currently unreachable in practice since freshnessBindingFor throws upstream first, and the gap predates this round. Round 5 blocking set is critical-only; F-024 is medium, non-blocking.",
+      "createdAt": "2026-09-02T09:41:52.095Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-027",
+      "envelopeId": "4555905f3c01cb4e7c18aa546acacd1afb493b6808b2eb81978521dc0a451ba1",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72d2b53e8620324ddb3a278a1e2d795dee2ecda7f90f8892a5c193ac2aae5891"
     }
   ]
 }
