@@ -13297,6 +13297,44 @@
         "scanEscalationReason": null
       },
       "_hash": "2bdab4f32b33d56c78cd598edec41f4a72ae38e49d7895cc35b0f71301a8783e"
+    },
+    {
+      "id": "B-5a15:RP-278",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Frozen material at head 6bc88d7d89 / storyFilesHash af9bbe50 is structurally sound. (1) Material delta vs prior bound head 917076e071 is exactly 2 config files (lattice.config.json blob 5631cc7a->e71e224f, proof-or-stop.config.json ba5e39de->1c0a27eb), an identical removal of the resources key from validate.commands[112] (npm --prefix packages/graph run check); git diff --name-only -M over packages/main/src, packages/main/tests, packages/graph, scripts, docs, *.md, packages/utils, bin, .codex, .claude returns 0 files; checklist.json blob 50104d12 is byte-identical across prior head, HEAD and worktree; the two configs remaining line-10 legacy-alias divergence is pre-existing (identical diff digest 04584632 at both heads); 100 of 116 validate commands still carry resources. (2) Structure intact: 5 items, 53 intents, 53 evidence rows, intentRef 1:1, 0 duplicate intentRefs, 0 orphan rows, effective must=51 under verification.ts:214 priority||must (2 declared should at CHK-004:happy:2 and :3), and all 51 required resolve under the frameworks own intentRef() rule (verification.ts:24-26 prefers intent.id, so CHK-001:edge:3 legitimately binds via its named id CHK-001:edge:oversized-output-probe). (3) CHK-002 lanes are happy=2/edge=3/adversarial=4, identical at prior bound head and HEAD, no lane dropped; its planned-path consumer in acceptance-basis.json plannedPathRecords is expectedArtifactKind=handler, packages/main/src/handlers/checklist.ts, symbol verification_evidence_batch_add, which is a registered handler method at checklist.ts:2444, while commitCanonicalCausalEvidence is a non-exported local const at checklist.ts:1606 with zero export sites repo-wide. (4) No row fakes coverage: 0 waivers, 0 waiverType, 0 nonMechanicalReason, 0 result=fail; all 53 rows are result=pass, mechanical=true, kind integration_test(46)/logic_test(7), each with a receipt block sharing one identical 9-key shape and exitCode=0, selectorMatched=true, timeoutMs=270000, commandReruns=0, no timeoutOverride, 53 distinct executionKeys/outputDigests/causalReceiptHashes with zero intra-key inconsistency, one storyFilesHash 0b5fe162 and one materialHash baf3b78a across all 53 (the 53 distinct evidence headHashes are per-row auto-commit heads). Each of the 53 intents pins a distinct selector (53 unique, 0 duplicates) against the shared command node --test packages/main/tests/causal-evidence.test.mjs; 29 selectors are literal source strings and the other 24 are runtime-composed by the emitter at causal-evidence.test.mjs:74 with all 24 carrying the correct embedded intentRef and a descriptive tail present in the source; all 57 emitIntentMarker sites are placed after their assertions so a failing assertion throws before any marker prints, and 53 intents map to exactly one literal emit site each with 0 duplicates (3 surplus markers assert beyond the declared intents). The single hash move fully explains the stale binding and no row is inconsistent with the others in any way it does not explain. Per dispatch, the known stale-bound evidence rows, the 19/21 pre-review suite state, and pre_review_check being DEV-only were not filed.",
+      "createdAt": "2026-09-02T09:10:01.021Z",
+      "reviewRound": "2026-09-02T06:51:00.539Z",
+      "reviewRunId": "B-5a15:RR-840",
+      "envelopeId": "5777068253ccec97a635a1a81ff0b6984725bb9785a02abba0e9c631809f7011",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/proofstory.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "a9c38567b0d0fc763ca885ee38142c42f61c6d8fd839b398eb8234c983ae4e06"
     }
   ]
 }
