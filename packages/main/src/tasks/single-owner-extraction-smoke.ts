@@ -1093,7 +1093,7 @@ group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', 
       const retiredStateDir = ['.', 'lat', 'tice'].join('');
       assert.equal(source.split(retiredStateDir).length - 1, 0, `retired state-dir spelling found in core/story-workspace.ts`);
       assert.equal(source.split(`'${PROOF_OR_STOP_STATE_DIR}`).length - 1, 0, 'the canonical state-dir name must not be a literal either; it is derived via config -> proof-or-stop-paths -> brand-paths');
-      assert.ok(source.includes('storyDirPath('), 'the helper must take the story directory from StoryStore.storyDirPath');
+      assert.ok(!/\bjoin\s*\(/.test(source) && !source.includes('storyDirPath('), 'the helper builds no metadata path of its own (F-003 removed the unconsumed storyDir field); every read goes through StoryStore');
       assert.ok(source.includes('resolveGitCwd('), 'the helper must obtain gitCwd from resolveGitCwd');
       assert.match(source, /export function resolveStoryWorkspace\(/);
     },

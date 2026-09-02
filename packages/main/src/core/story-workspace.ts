@@ -30,9 +30,9 @@
  *     When the guard refuses, `gitCwd` is the invocation root and no git
  *     process is spawned: a terminal story's tree IS the invocation root, and
  *     list-shaped callers (story_list, session_brief) iterate every story.
- *   - Paths come from StoryStore (`storyDirPath`), whose default story
- *     directory derives from core/proof-or-stop-paths.ts -> core/brand-paths.ts;
- *     this file spells no state-directory name.
+ *   - This file spells no state-directory name and builds no metadata path
+ *     of its own: every read goes through StoryStore, whose default story
+ *     directory derives from core/proof-or-stop-paths.ts -> core/brand-paths.ts.
  *
  * Read-only: nothing here writes to either tree.
  */
@@ -92,8 +92,6 @@ export interface StoryWorkspace {
    * invocation root IS that worktree.
    */
   readFromStoryWorktree: boolean;
-  /** Absolute story metadata directory inside the resolved workspace. */
-  storyDir: string;
   /** The story as read from `store`. */
   story: StoryInfo;
   /** The story as read from the invocation root (`ctx.store`). */
@@ -139,7 +137,6 @@ function atInvocationRoot(
     worktreePath,
     readFromStoryWorktree:
       rootReason === 'same-tree' && worktreePath !== null && canonicalPath(worktreePath) === canonicalPath(gitCwd),
-    storyDir: ctx.store.storyDirPath(rootStory.storyId),
     story: rootStory,
     rootStory,
   };
@@ -188,7 +185,6 @@ export function resolveStoryWorkspace(
       rootReason: null,
       worktreePath,
       readFromStoryWorktree: true,
-      storyDir: store.storyDirPath(storyId),
       story,
       rootStory,
     };
