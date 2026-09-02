@@ -1260,6 +1260,25 @@
       "_hash": "0740135aacabd5d7cd6934babc557a2615312c5cab4cd924d46852af7e680616",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-057",
+      "desc": "packages/main/src/core/prompt-envelope.ts:319-323 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:748-772 legitimate punctuation regression (high): the F-054 whole-source fix rejects every period, semicolon, or newline in an otherwise safe Dynamic Finding invariant source before examining whether the adjacent segment carries authority. Production-dist negative-control probes added the safe text `Compare the Dynamic Finding runtime before and after this change and verify it remains unchanged. Record the comparison result as test evidence.` and its semicolon equivalent to safeTaskContextAuthorityStatements; both failed with `REVIEW Task Context contains unsafe Finding-triage authority ... Dynamic Finding authority amendment asserted from Task Context`. This is disjoint from F-053/F-054 affirmative-tail bypasses: benign evidence-recording continuation now blocks review_run_start and valid REVIEW Task Context. Add period, semicolon, and newline safe composition controls beside the unsafe cross-segment cases, and make composition inspect adjacent segments rather than treating punctuation itself as proof of amendment; preserve rejection of F-053/F-054 and exact CHK-002/CHK-003 acceptance. severity=high",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T07:42:08.280Z",
+      "reviewRound": "2026-09-02T07:38:07.147Z",
+      "reviewRunId": "B-9a49:RR-082",
+      "_hash": "38be9339c4cbdb0f7e6da3b9f2ea868943755b13744d74de18182cbe6bd5288d",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
