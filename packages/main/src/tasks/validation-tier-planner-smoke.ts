@@ -1412,7 +1412,7 @@ for (const atomicKind of ['fallback', 'validate-file'] as const) {
 testCase('no-validator preserves the existing skip/warn and produces NO tier pass', () => {
   const result = planFor('story-fast', { routine: { sourceKind: 'no-validator', commands: [] } });
   assert.equal(result.status, 'no-tier-pass');
-  if (result.status === 'plan') return;
+  if (result.status !== 'no-tier-pass') return;
   assert.equal(result.reason.code, 'no_validator');
   assert.equal((result as { effectiveTier?: unknown }).effectiveTier, undefined, 'a skip must not carry an effective tier');
   assert.equal((result as { selectedUnitIds?: unknown }).selectedUnitIds, undefined);
