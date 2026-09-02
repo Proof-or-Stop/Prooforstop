@@ -334,7 +334,11 @@
           {
             "desc": "graph --story=<real id> reports and opens the /story/<id> URL rather than /",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
           },
           {
             "desc": "the story field is registered on the graph command schema as an optional string",
@@ -378,7 +382,30 @@
         "test": [
           "packages/main/src/tasks/graph-story-flag-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) drives the real handler against an on-disk stub graph package and asserts the URL actually handed to openBrowser is http://localhost:18731/story/B-9f2c, plus startServerCalls==1. Negative control: rewriting the URL expression so the deep-link path is always taken made the task exit 1.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e624ba7fa7af8d409385a7718994a4128a4ff63e789d71542983b936d34698cd",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-4YjrsS (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-4YjrsS (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-4YjrsS (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T08:53:42.872Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "092b9f44673a1a0b5e5e66fc7c2ccb9b85b3ce55",
+          "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62",
+          "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+          "timestamp": "2026-09-02T08:53:43.083Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
