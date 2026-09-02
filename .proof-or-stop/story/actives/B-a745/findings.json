@@ -502,6 +502,24 @@
       "resolvedAt": "2026-09-02T09:34:06.424Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a745:F-024",
+      "desc": "validation-plan.ts:757 the new F-022 freshnessBinding invariant (assertValidationPlanStatusInvariant, lines 502-533) is only invoked from renderValidationPlanText (line 547); the --json branch at line 757 returns JSON.stringify(report) directly and never calls the invariant. So a report that claims freshnessBinding.status=bound with a null digest, or status=plan while unbound without a disclosed hash_snapshot_unavailable escalation, would reach a --json caller (explicitly the machine/selector audience per the surrounding comments) unchecked. Currently unreachable in practice because freshnessBindingFor() (line 266) itself throws before such a report is ever built, but this leaves the defense-in-depth re-validation (Handler encoding convention: re-check at every consumption point) present on only one of the two output paths, and the same gap applies to every other invariant this function checks (status/count/escalation consistency), not just this new one.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T09:39:53.967Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-025",
+      "_hash": "a78726669708166245b72a692d69605163f58515a2e372f5ac6831e4f071d590",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "missing|ts|validation-plan-freshnessbinding",
+      "signatureTagSource": "auto"
     }
   ]
 }
