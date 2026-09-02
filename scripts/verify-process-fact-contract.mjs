@@ -2021,8 +2021,10 @@ function assertCloseoutTrustBoundary() {
     // (see B-cdf6:F-057 coupling note). B-5a15 F-361: the pin move is NOT
     // persistSyntheticAdmittedWindowForTest (already on main); it is the new canonical
     // writer topology_critic_receipt_set plus its registry row, a
-    // deriveCertificationDomainInputHashes fixture, an acquireOwnerLease seed, and
-    // main's refresh-stale checklist policy row. Compat surface unchanged (2/2 counts).
+    // deriveCertificationDomainInputHashes fixture, and an acquireOwnerLease seed.
+    // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
+    // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
+    // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
     '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.

@@ -383,11 +383,16 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   //     plus its 'topology-critic-receipt.json' closeout-evidence registry row;
   //  2. a deriveCertificationDomainInputHashes fixture with causalInputHashes threading;
   //  3. an acquireOwnerLease seed for the verifier owner lease;
-  //  4. main's own receipt-bound verification_evidence_refresh_stale checklist policy row.
-  // Approved compatibility surface is UNCHANGED: isExactLegacyLocalOnlyDeliveryClaims still
-  // appears exactly twice and createLegacyLocalOnlyDeliveryClaims exactly twice; no compat
-  // call, argument, or shape was added, removed, or rewritten. The AST algorithm strips
-  // comments, so this note is the ONLY durable record of what a human re-approved.
+  //  4. main's own checklist-policy row in core/closeout-trust.ts (that file's separate change).
+  // Approved compatibility surface is UNCHANGED, stated PER FILE (F-363 correction: the earlier
+  // wording mis-scoped one count and credited an unchanged symbol):
+  //   core/closeout-trust.ts      -> isExactLegacyLocalOnlyDeliveryClaims 2, LegacyLocalOnlyDeliveryClaims 2
+  //   tasks/closeout-trust-smoke.ts -> createLegacyLocalOnlyDeliveryClaims 2 (this file has ZERO
+  //   occurrences of isExactLegacyLocalOnlyDeliveryClaims; that count belongs to the row above).
+  // NOT a divergence: verification_evidence_refresh_stale is 4 on BOTH branches and does not
+  // appear in this file's main...HEAD diff at all, so it did not move the pin.
+  // The AST algorithm strips comments, so this note is the ONLY durable record of the
+  // human re-approval.
   ['packages/main/src/tasks/closeout-trust-smoke.ts', '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
