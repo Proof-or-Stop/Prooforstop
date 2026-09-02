@@ -110,7 +110,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
@@ -272,14 +272,127 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
   assert.equal(id, inventory([entry]).entries[0].id);
 });
 
-testCase('the narrow tuple carries a repo-relative cwd, so an absolute and a relative cwd agree', () => {
-  const relativeCwd = command({ label: 'a', command: 'npm', args: ['test'], cwd: 'packages/main' });
-  const absoluteCwd = command({ label: 'b', command: 'npm', args: ['test'], cwd: resolve(ROOT, 'packages/main') });
-  const left = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: relativeCwd });
-  const right = narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: absoluteCwd });
-  assert.equal(left.cwdRelative, 'packages/main');
-  assert.deepEqual(left, right);
-  assert.equal(provisionalValidationCommandId(left), provisionalValidationCommandId(right));
+// ---------------------------------------------------------------------------
+// B-a745 F-023 (Codex cross-host review round 3) — THE PORTABLE TUPLE HASHES THE
+// DECLARED cwd, NEVER A RESOLVED ONE.
+//
+// The first cut resolved the declared cwd against the project root and then
+// relativized it back. For a relative declaration that round-trips to the
+// literal; for an ABSOLUTE declaration it makes the "portable" id and the
+// commandSetDigest a function of where the checkout lives (depth, drive,
+// symlink alias). Same class as F-017: an EFFECTIVE value leaking into the
+// DECLARED-intent tuple. The split is the same as F-017's: the portable tuple
+// hashes the declared literal (posix-normalized, absent means `.`) and takes
+// no project-root input at all; the COMPLETE runtime tuple keeps the resolved
+// absolute cwd because that is what executes. An absolute declaration is
+// location-bound by the config author's choice, so it is named in an inventory
+// warning rather than silently relativized.
+// ---------------------------------------------------------------------------
+
+const F023_ROOTS = ['/repo-a', '/some/much/deeper/checkout/repo-b'];
+
+testCase('F-023: the same relative declared cwd yields one provisional id and one commandSetDigest from two project roots', () => {
+  const entry = command({ label: 'unit', command: 'npm', args: ['test'], cwd: 'packages/main' });
+  const results = F023_ROOTS.map((projectRoot) => buildValidationCommandInventory({ projectRoot, commands: [entry] }));
+  assert.equal(new Set(results.map((result) => result.entries[0].id)).size, 1, 'the provisional id must not depend on the project root');
+  assert.equal(new Set(results.map((result) => result.commandSetDigest)).size, 1, 'the commandSetDigest must not depend on the project root');
+  assert.equal(results[0].entries[0].tuple.cwdRelative, 'packages/main');
+});
+
+testCase('F-023: the declared cwd literal is posix-normalized so cosmetic spellings agree and absent means "."', () => {
+  const spellings = ['packages/main', './packages/main', 'packages/main/', 'packages//main', 'packages\\main'];
+  const ids = spellings.map((cwd) => inventory([command({ label: 'unit', command: 'npm', args: ['test'], cwd })]).entries[0].id);
+  assert.equal(new Set(ids).size, 1, `cosmetic spellings of the same declared cwd must share one id, got ${ids.join(', ')}`);
+  for (const cwd of spellings) {
+    assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm', cwd }) }).cwdRelative, 'packages/main');
+  }
+  assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm' }) }).cwdRelative, '.');
+  assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm', cwd: '.' }) }).cwdRelative, '.');
+  assert.equal(narrowPortableValidationCommandTuple({ projectRoot: ROOT, command: command({ label: 'x', command: 'npm', cwd: './' }) }).cwdRelative, '.');
+});
+
+testCase('F-023: an absolute declared cwd is hashed as its literal, is location-independent, and is named in an inventory warning', () => {
+  const absoluteCwd = '/opt/build/packages/main';
+  const entry = command({ label: 'unit', command: 'npm', args: ['test'], cwd: absoluteCwd });
+  const results = F023_ROOTS.map((projectRoot) => buildValidationCommandInventory({ projectRoot, commands: [entry] }));
+  assert.equal(
+    new Set(results.map((result) => result.entries[0].id)).size,
+    1,
+    `an absolute declared cwd must give ONE id regardless of where the checkout lives, got ${results.map((r) => r.entries[0].id).join(', ')}`,
+  );
+  assert.equal(new Set(results.map((result) => result.commandSetDigest)).size, 1, 'the commandSetDigest must not depend on the project root');
+  const [reference] = results;
+  assert.equal(reference.entries[0].tuple.cwdRelative, absoluteCwd, 'the portable tuple carries the declared literal, never a relativized path');
+  assert.equal(
+    reference.entries[0].id,
+    provisionalValidationCommandId({ command: 'npm', args: ['test'], cwdRelative: absoluteCwd, shell: false }),
+    'the id must equal hashing the declared literal',
+  );
+  for (const result of results) {
+    const warning = result.warnings.find((text) => text.includes(absoluteCwd));
+    assert.ok(warning, `the inventory must warn about the absolute declared cwd, got warnings: ${JSON.stringify(result.warnings)}`);
+    assert.match(warning!, /"unit"/, 'the warning must name the command');
+    assert.match(warning!, /validate\.commands\[0\]/, 'the warning must locate the command');
+    assert.match(warning!, /absolute/i);
+    assert.match(warning!, /portable/i);
+  }
+  // A declared id does not exempt the digest from being location-bound, so it still warns.
+  const declaredId = buildValidationCommandInventory({ projectRoot: ROOT, commands: [{ ...entry, id: 'unit-suite' }] });
+  assert.ok(declaredId.warnings.some((text) => text.includes(absoluteCwd)), 'an absolute cwd warns even with a declared id');
+  // A relative declaration never triggers it.
+  const relativeOnly = inventory([command({ label: 'unit', command: 'npm', args: ['test'], cwd: 'packages/main', id: 'unit-suite' })]);
+  assert.deepEqual(relativeOnly.warnings, []);
+});
+
+testCase('F-023: a symlinked alias of the project root yields the same provisional id and commandSetDigest', () => {
+  const real = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-f023-real-')));
+  temporaryRoots.push(real);
+  mkdirSync(join(real, 'packages', 'main'), { recursive: true });
+  const aliasParent = mkdtempSync(join(tmpdir(), 'proof-or-stop-f023-alias-'));
+  temporaryRoots.push(aliasParent);
+  const alias = join(aliasParent, 'checkout');
+  symlinkSync(real, alias, 'dir');
+  assert.notEqual(alias, real);
+  assert.equal(realpathSync(alias), real, 'the alias must reach the same checkout');
+
+  for (const cwd of ['packages/main', join(real, 'packages', 'main')]) {
+    const entry = command({ label: 'unit', command: 'npm', args: ['test'], cwd });
+    const viaReal = buildValidationCommandInventory({ projectRoot: real, commands: [entry] });
+    const viaAlias = buildValidationCommandInventory({ projectRoot: alias, commands: [entry] });
+    assert.equal(viaAlias.entries[0].id, viaReal.entries[0].id, `declared cwd ${JSON.stringify(cwd)}: the id must not depend on which alias of the checkout was used`);
+    assert.equal(viaAlias.commandSetDigest, viaReal.commandSetDigest, `declared cwd ${JSON.stringify(cwd)}: the commandSetDigest must not depend on the alias`);
+  }
+});
+
+testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute cwd for both declaration forms', () => {
+  const absoluteCwd = resolve(ROOT, 'packages', 'main');
+  const relativeEntry = command({ label: 'a', command: 'npm', args: ['test'], cwd: 'packages/main' });
+  const absoluteEntry = command({ label: 'b', command: 'npm', args: ['test'], cwd: absoluteCwd });
+  const universe = buildValidationPinUniverse({
+    projectRoot: ROOT,
+    commands: [relativeEntry, absoluteEntry],
+    processEnvironment: { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv,
+    platform: 'linux',
+  });
+  const [relativeUnit, absoluteUnit] = universe.entries;
+  assert.equal(relativeUnit.completeTuple.cwd, absoluteCwd, 'a relative declaration resolves against the project root at runtime');
+  assert.equal(absoluteUnit.completeTuple.cwd, absoluteCwd, 'an absolute declaration is executed exactly where it points');
+  // Same executable tuple: a legacy pin naming the command would be ambiguous between them,
+  // which is the runtime side saying "these run in the same place" while the portable side keeps them distinct.
+  assert.equal(relativeUnit.normalizedTupleDigest, absoluteUnit.normalizedTupleDigest);
+  assert.notEqual(relativeUnit.id, absoluteUnit.id, 'the portable side hashes the declared literal, so the two declarations differ');
+});
+
+testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
+  const commands = configuredValidationCommands(repoRoot);
+  assert.ok(commands.length > 0);
+  assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
+  const real = buildValidationCommandInventory({ projectRoot: repoRoot, commands });
+  assert.equal(real.commandSetDigest, 'eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661', 'the real commandSetDigest must not move for a repository that declares no cwd');
+  assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
+  for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });
 
 // ---------------------------------------------------------------------------
