@@ -2098,7 +2098,7 @@ Behavior:
     port: z.number().optional().describe('API port (default: 3456).'),
   }},
   { name: 'graph', description: 'Interactive story + evidence graph for this repository (reads story state; writes its index cache outside the repo)', longHelp:
-`proof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json]
+`proof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json] [--story=<id>]
 
 Read-only visualizer for the stories and evidence of a Proof-or-Stop repository:
 a browsable graph plus full-text search and per-story detail.
@@ -2108,6 +2108,10 @@ Options:
   --port=<n>     HTTP port (default: 8731).
   --no-open      Do not launch a browser.
   --json         Print status as JSON and exit without serving.
+  --story=<id>   Open the graph on that story's dossier page (/story/<id>) instead
+                 of the root graph view (default: the root view). An id that is not
+                 a story in this repository is refused before the server listens,
+                 and the error names near-miss candidates.
 
 Behavior:
   - Reads story state only; it never mutates story metadata, so it is allowed in
@@ -2130,6 +2134,11 @@ Behavior:
     // convention — document the default in the description, apply it in code.
     open: z.boolean().optional().describe('Launch a browser once the server is listening; default true, use --no-open to suppress.'),
     json: z.boolean().optional().describe('Print status as JSON and exit without serving.'),
+    // Optional with the default documented here, NOT `.default()` — same reason as
+    // `open` above: a ZodDefault wrapper defeats the help renderer's ZodOptional
+    // check and would render this flag as required with type `any`. The handler
+    // re-validates the value at its entry, so a schema-bypassing call is refused too.
+    story: z.string().optional().describe('Open the graph on that story\'s dossier page (/story/<id>); default is the root graph view. An unknown id is refused before the server listens.'),
   }},
 
   // Evaluate (AI evaluation for browser projects).
