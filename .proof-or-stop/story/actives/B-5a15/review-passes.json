@@ -14216,6 +14216,59 @@
       },
       "readDiagnostics": [],
       "_hash": "d5881f84f44248decec0793e8e970835c25291019850a255a457079e68a50268"
+    },
+    {
+      "id": "B-5a15:RP-306",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Story-level concept-residue review of B-5a15 (U-03 CausalEvidence DAG). Manual scan performed because validate --concept self-reported status=warn/skip (ENOBUFS on the 239MB unified=1000000 diff, filed as F-366 medium/deferred, not caused by this story). Checked every apparent deletion in the diff for stranded residue and found none; rerunNodeIds retained with required backward-compat comment; new proofbound.causal-*.v1 schema constants match the pre-existing proofbound.* namespace. tsc/lint gate passes clean across all 4 tsconfigs. No stranded concept references found; 1 medium finding (F-366) filed against an out-of-scope pre-existing infra gap this story exposed but did not cause.",
+      "createdAt": "2026-09-02T21:27:18.815Z",
+      "reviewRound": "2026-09-02T21:18:15.582Z",
+      "reviewRunId": "B-5a15:RR-899",
+      "envelopeId": "b44ee29dc78b130fe6cd0dffcdf747a3f5faa7c27a71b33151cc765cc17267bf",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "e14bee619d7278f22967093cb4dc5fdb050a007801d3ce7b72672412d403a46a"
     }
   ]
 }
