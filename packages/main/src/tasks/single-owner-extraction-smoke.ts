@@ -96,7 +96,12 @@ const REPO_ROOT = resolve(MAIN_SRC, '..', '..', '..');
 // SINGLE_OWNER_AUDIT_VERBOSE=1, and the last CHK-004 case asserts the default run stays under DEFAULT_STDOUT_BOUND_CHARS. Every write to this process's stdout is counted here (console.log goes
 // through process.stdout.write; no child process inherits stdout) so that case measures the real output.
 const AUDIT_VERBOSE = process.env.SINGLE_OWNER_AUDIT_VERBOSE === '1';
-const DEFAULT_STDOUT_BOUND_CHARS = 10_000;
+// F-009: 1000 chars of true headroom under the executor's 12000-char cap. If the bound case trips on an unrelated
+// change (e.g. one more real caller), either shrink the default block (the `rule:` line, the call-line column, a case
+// name) or raise this toward 12000 while keeping real headroom; do not print more by default.
+const DEFAULT_STDOUT_BOUND_CHARS = 11_000;
+/** Width of the default call-line column; wider lists overflow instead of padding every row (F-009). */
+const CALL_COLUMN_WIDTH = 18;
 let capturedStdoutChars = 0;
 {
   const originalWrite = process.stdout.write;
@@ -1716,11 +1721,11 @@ function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VER
   } else {
     // F-007: the default block must fit the verification executor's selector window with the rest of the smoke;
     // the full rule text and the per-read lines are printed under SINGLE_OWNER_AUDIT_VERBOSE=1.
-    lines.push(`  rule: caller = a CALL EXPRESSION of the imported resolver binding; workspace-rooted = every story/checklist/config read and every handler call goes through a resolveStoryWorkspace() result; otherwise reads ctx.root: <story|checklist|config|via-handler(<callee>, ...)>; full rule, call lines and per-read lines: SINGLE_OWNER_AUDIT_VERBOSE=1`);
+    lines.push('  rule: a caller is a call expression of the imported resolver binding, classified by its remaining ctx.root reads; full rule and per-read lines: SINGLE_OWNER_AUDIT_VERBOSE=1');
   }
   lines.push(`  callers (${report.callers.length}):`);
   const callsOf = (caller: ResolverCaller): string => caller.callLines.map((line) => `L${line}`).join(',');
-  const callWidth = Math.max(...report.callers.map((caller) => callsOf(caller).length), 1);
+  const callWidth = Math.min(Math.max(...report.callers.map((caller) => callsOf(caller).length), 1), CALL_COLUMN_WIDTH);
   for (const caller of report.callers) {
     const calls = callsOf(caller);
     if (!verbose) {
@@ -1830,7 +1835,7 @@ function readRootPackageJson(): { scripts: Record<string, string> } {
 
 /** Chars the audit case actually printed (whichever mode), so the bound case can swap in the default rendering. */
 let printedAuditChars = 0;
-const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 10000 chars';
+const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars';
 
 function renderedChars(lines: string[]): number {
   return lines.reduce((total, line) => total + line.length + 1, 0);
