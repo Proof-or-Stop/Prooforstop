@@ -350,11 +350,50 @@ function isExplicitRejectedAuthorityStatement(text: string): boolean {
   // statements that must each be evaluated by the normal fail-closed guard.
   if (claim.length === 0 || claim.length > 240) return false;
   if (!/^[\p{L}\p{N}_\s]+$/u.test(claim)) return false;
-  return !/\b(?:and|or|nor|but|however|yet|although|while|then|therefore|so|if|unless|because|whereas)\b/iu.test(claim);
+  if (/\b(?:and|or|nor|but|however|yet|although|while|then|therefore|so|if|unless|because|whereas)\b/iu.test(claim)) return false;
+  return rejectedAuthorityRelationCount(claim) === 1;
+}
+
+function rejectedAuthorityRelationCount(claim: string): number {
+  const normalized = normalizeTriageAuthorityText(claim);
+  const deferral = /\b(?:defer\s+with\s+proof|finding\s+deferral\s+disposition|deferral(?!\s+lineage))\b/u;
+  const reviewerActor = /\b(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\b/u;
+  const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
+  const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
+  const dismissal = /\b(?:finding\s+dismiss|dismissal|dismissed|(?:closed|dismissed|archived)\s+finding|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|archiv(?:e|es|ed|ing)(?:\s+the)?\s+finding|closing|close\s+the\s+finding)\b/u;
+  const applicabilityOutcome = /\b(?:out\s+of\s+scope|outside\s+(?:(?:this|the|current)\s+)?story\s+boundary|non\s+applicable|nonapplicable|applicability|deferral|repair|resolution|resolved)\b/u;
+  const unknownApplicability = /\b(?:(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved)\s+applicability|applicability\s+(?:is|remains|stays)?\s*(?:unknown|uncertain|undetermined|pending|unassessed|unevaluated|unresolved))\b/u;
+  const routingOrGateRelief = /\b(?:routing|route|routes|routed|defer|deferral|non\s+blocking|advisory|away\s+from\s+(?:this|the|current)\s+story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|unblock(?:s|ed)?)\b/u;
+  const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
+  const storyAuthoredChange = /\b(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b/u;
+  const relations: Array<[RegExp, RegExp]> = [
+    [reviewerActor, deferral],
+    [severity, storyResponsibility],
+    [dismissal, applicabilityOutcome],
+    [unknownApplicability, routingOrGateRelief],
+    [deferral, collapsedOutcome],
+    [DYNAMIC_FINDING_AUTHORITY, storyAuthoredChange],
+  ];
+  return relations.reduce((count, [left, right]) => count + (hasConceptPair(normalized, left, right) ? 1 : 0), 0);
 }
 
 function isBoundedSignedDispositionInspection(segment: string): boolean {
   return /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u.test(segment);
+}
+
+function isExplicitlyProhibitedDispositionAuthority(segment: string): boolean {
+  const actor = '(?:reviewers?|review\\s+lanes?|agents?|story\\s+owners?)';
+  // Punctuation is removed by authority normalization, so accept a bounded
+  // coordinated action sequence. Clause starters, actor pronouns, conjunction
+  // pivots, and infinitive `to` are excluded structurally: a negated action
+  // cannot launder a later independent assignment clause or double negation.
+  const action = '(?!(?:and|or|to|then|they|he|she|it|this|that|reviewers?|agents?|owners?)\\b)[\\p{L}][\\p{L}\\p{N}_]*';
+  const actionList = `${action}(?:(?:\\s+or)?\\s+${action}){0,5}`;
+  const disposition = '(?:defer\\s+with\\s+proof(?:\\s+disposition)?|finding\\s+deferral\\s+disposition)';
+  const target = '(?:\\s+(?:on|to|for)\\s+(?:the\\s+)?finding)?';
+  const direct = new RegExp(`^${actor}\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
+  const neither = new RegExp(`^neither\\s+${actor}\\s+nor\\s+${actor}\\s+(?:may|can|must|should|will|would)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
+  return direct.test(segment) || neither.test(segment);
 }
 
 function hasCrossSegmentDispositionAssignment(segments: readonly string[]): boolean {
@@ -362,7 +401,7 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
   for (let index = 0; index < segments.length - 1; index += 1) {
     if (!inspection.test(segments[index])) continue;
     const continuation = segments[index + 1];
-    const dispositionCoreference = /\b(?:it|that\s+disposition|the\s+disposition)\b/u.test(continuation);
+    const dispositionCoreference = /\b(?:it|this|the\s+same|that\s+disposition|the\s+disposition|defer\s+with\s+proof|finding\s+deferral\s+disposition)\b/u.test(continuation);
     const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
     if (!dispositionCoreference || !findingTarget) continue;
     if (/^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
@@ -547,7 +586,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     const signedDispositionInspection = isBoundedSignedDispositionInspection(segment);
     if (!signedDispositionInspection
       && hasConceptPair(segment, unauthorizedActor, deferral)
-      && !controlledConceptPairIsExplicitlyNegative(segment, unauthorizedActor, deferral)) {
+      && !isExplicitlyProhibitedDispositionAuthority(segment)) {
       return 'unauthorized disposition minting';
     }
     const compatibilityAuthority = /\b(?:current\s+cli|compatibility\s+cli|compatibility\s+path)\b/u;
@@ -557,7 +596,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     }
 
     const severity = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|criticality|critical|high|medium|low|priority|seriousness(?:\s+(?:rating|rank|level|score))?|risk\s+(?:rating|rank|level|score)|impact\s+(?:rating|rank|level|score)|harm\s+(?:rating|rank|level|score))\b/u;
-    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|by\s+itself|on\s+its\s+own|nothing\s+except|no\s+other\s+factor|without\s+regard\s+to\s+applicability)\b/u;
+    const soleAuthority = /\b(?:alone|solely|only|automatically|independently|independent\s+basis|exclusive(?:ly|\s+basis)?|sufficient\s+by\s+itself|by\s+itself|on\s+its\s+own|sole\s+criterion|nothing\s+except|no\s+other\s+factor|no\s+criterion\s+besides|without\s+regard\s+to\s+applicability|to\s+the\s+exclusion\s+of\s+every\s+other\s+factor)\b/u;
     const storyResponsibility = /\b(?:scope|applicability|ownership|owns?|belongs?|responsibility|(?:this|the|current)\s+story|routing|repair)\b/u;
     const soleQualifierBindsSeverity = matchRanges(segment, soleAuthority).some(soleRange => {
       const qualifier = segment.slice(soleRange.start, soleRange.end);
