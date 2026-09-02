@@ -1858,12 +1858,13 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
         assert.ok(caller.workspaceRooted || caller.remainingReads.length > 0, `${caller.file}: a flagged caller must name at least one remaining ctx.root read`);
         assert.ok(!caller.workspaceRooted || caller.remainingReads.length === 0, `${caller.file}: a workspace-rooted caller has no remaining ctx.root read`);
       }
-      // The call lines live in the report (asserted above) and in the verbose rendering; the default block is one
-      // `<file>  <classification>` line per caller so the block stays inside the executor's selector window (F-007).
+      // The default block is one `<file>  <call lines>  <classification>` line per caller (F-010: the call lines are
+      // printed by default, compactly); per-read detail stays verbose-only so the block fits the executor's selector window (F-007).
       const compact = renderResolverAudit(report, false);
       const verboseLines = renderResolverAudit(report, true);
       for (const caller of report.callers) {
         assert.equal(compact.filter((line) => line.startsWith(`    ${caller.file} `)).length, 1, `${caller.file}: exactly one default line`);
+        assert.ok(compact.some((line) => line.startsWith(`    ${caller.file} `) && line.includes(`  ${caller.callLines.map((n) => `L${n}`).join(',')}  `)), `${caller.file}: the default line lists its call lines`);
         assert.ok(compact.some((line) => line.startsWith(`    ${caller.file} `) && line.trimEnd().endsWith(classificationOf(caller))), `${caller.file}: the default line ends with its classification`);
         assert.ok(verboseLines.some((line) => line.startsWith(`    ${caller.file} `) && line.includes(`calls ${caller.callLines.map((n) => `L${n}`).join(',')}`)), `${caller.file}: the verbose line carries its call lines`);
       }
@@ -2060,7 +2061,7 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       let projected = base + summaryLine(base).length + 1;
       projected = base + summaryLine(projected).length + 1;
       assert.ok(projected < DEFAULT_STDOUT_BOUND_CHARS, `default stdout is ${projected} chars, not under ${DEFAULT_STDOUT_BOUND_CHARS}: the audit block (${compactChars} chars by default) must stay compact -- one line per caller, call lines and per-read detail only under SINGLE_OWNER_AUDIT_VERBOSE=1`);
-      assert.ok(!compact.some((line) => /\bcalls L\d/.test(line) || line.includes('  -- ')), 'the default rendering carries no call-line or per-read detail');
+      assert.ok(!compact.some((line) => /\bcalls L\d/.test(line) || line.includes('  -- ')), 'the default rendering carries no per-read detail (call lines are a compact column, not the verbose `calls` form)');
       assert.ok(verboseChars > compactChars, 'the verbose rendering is the one carrying the detail');
       console.log(summaryLine(projected));
     },
