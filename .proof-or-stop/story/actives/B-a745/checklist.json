@@ -142,9 +142,9 @@
       "id": "CHK-003",
       "title": "Add the Story input collector producing a normalized StoryRelevanceInput",
       "context": "Plan section 'Story input contract'. Collect Story identity/phase, base/HEAD/material/story-files hashes, rename-aware changed paths via changedFilesBetweenRenameAware or changedFileStatusesBetweenRenameAware (packages/main/src/core/evidence-freshness.ts), checklist files.modify/create/test and evidence command pins (see packages/main/src/handlers/delivery-context-pack.ts for existing collection semantics), risk signals, and the routine source kind plus execution inventory. Deleted files and both sides of a rename stay seeds; Story metadata and registered runtime artifacts are not material seeds; a failure to read the changed-file set must escalate rather than read as 'no changes'.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T01:47:34.076Z",
-      "endTime": null,
+      "endTime": "2026-09-02T01:58:45.472Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#story-input-contract"
       ],
@@ -205,6 +205,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "5a0c7fd6692b7ce800b9211dd376ff50656306abdf5a2e89f1e1791dafcbba2a",
+        "storyFilesHash": "8a15c9bb876480b18b9d543a2456d83a351c42fcd14e939f41e96ed039029330",
+        "headHash": "f9a885d054547de4b6007ab44634c93c9edb5daf",
+        "attestedAt": "2026-09-02T01:58:45.651Z",
+        "materialHash": "9ba9d515de1da041997ad65b0fbbca3e0689a80e3d9b646615366ebe16006ede"
       }
     },
     {
