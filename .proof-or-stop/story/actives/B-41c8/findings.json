@@ -176,7 +176,7 @@
       "desc": "packages/main/src/tasks/single-owner-extraction-smoke.ts:1822 CHK-004:happy:0 pinned selector/case name says the audit block is \"listed with its call lines and a classification\", but F-007 (e50125b151) changed the default (SINGLE_OWNER_AUDIT_VERBOSE unset) rendering to print only `<file>  <classification>` per caller -- call lines now appear only under SINGLE_OWNER_AUDIT_VERBOSE=1, never in the pinned commands actual default stdout. The case still substantively verifies call lines via report.callers[].callLines and a separately in-memory-rendered verboseLines array, so this is not a vacuous check, but the selector text itself is now a stale/inaccurate description of what the pinned command npm run test:single-owner-extraction actually prints by default. CHK-004 userSees text is unaffected (it never promised call lines). Low severity: substance is covered, only the case-name/selector documentation has drifted from F-007s behavior change.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-02T16:02:28.102Z",
@@ -187,7 +187,8 @@
         "packages/main/src/tasks/single-owner-extraction-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-02T16:31:09.630Z"
     },
     {
       "id": "B-41c8:F-011",
