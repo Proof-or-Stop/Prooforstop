@@ -1,0 +1,54 @@
+{
+  "storyId": "B-49df",
+  "name": "canonical-new-story-artifacts",
+  "title": "Enforce canonical Proof-or-Stop identity in every newly generated Story artifact",
+  "description": "Ensure every Story created after this change writes only canonical Proof-or-Stop identity values. New scope-boundary artifacts must use schemaVersion proof-or-stop.scope_boundary.v1.1 while existing lattice.scope_boundary.v1 artifacts remain read-only compatible and their signed bytes are never rewritten. INIT reviewer evidence for new Stories must use proof-or-stop-review-story-init; retired lattice-* reviewer identities must not be generated or accepted as new evidence. Story-scoped mutations must fail closed when the executing global Proof-or-Stop runtime resolves to another worktree rather than the current project runtime. DONE release-ledger writes must not leave the identity-cutover verifier failing. Prove the result with RED-first focused tests and an end-to-end fresh Story artifact scan. Historical artifacts and signatures are out of scope for rewriting.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "canonical-story-artifacts",
+    "identity-cutover",
+    "scope-boundary-schema",
+    "runtime-realpath",
+    "init-reviewer"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-09-02T07:47:20.537Z",
+  "startedAt": "2026-09-02T07:47:20.537Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T07:47:21.537Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-0f9c2b7e4d1a63c8b5e709f2a4d6c1e3",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T07:53:38.420Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-0f9c2b7e4d1a63c8b5e709f2a4d6c1e3",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-49df",
+    "branch": "story/B-49df",
+    "createdAt": "2026-09-02T07:53:35.397Z"
+  }
+}
