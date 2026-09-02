@@ -187,6 +187,36 @@
         "scanEscalationReason": null
       },
       "_hash": "2e9649a169ace7e103f5edd35b645af878e2134ac274f650aebef16ce3ec5bcd"
+    },
+    {
+      "id": "B-a745:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 3 re-review of F-010/F-011: no blocking finding this lane. Byte-verified dist rebuild, diffed workspace-resolution vs story-query.ts/session.ts (filed F-014 medium non-blocking), mutation-checked both new fixtures (filed F-015 low non-blocking).",
+      "createdAt": "2026-09-02T08:05:35.343Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-011",
+      "envelopeId": "4ec3b331bb96bfe91c7e88ab3feb7a03c521ffa0b681c9314c4b06ea0566c358",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/core/worktree-runtime.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "df98ca30ac2e922aa7a3c8a4de2dd33078527d0654d8b79b0ba6e33c9bcf99a3"
     }
   ]
 }
