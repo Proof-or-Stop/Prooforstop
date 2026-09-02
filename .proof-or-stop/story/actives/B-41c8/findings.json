@@ -144,7 +144,7 @@
       "desc": "concept-cleanup: packages/main/src/tasks/single-owner-extraction-smoke.ts:1936 F-005s vacuous-label regression guard checks the assembled audit line for the string workspace-rooted (no story/checklist/config read at all) but the label was renamed in the same F-005 fix wave (a20d0e0e40) at line 1697 to workspace-rooted (no story/checklist/config read and no delegation on ctx at all). classificationOf can never emit the pre-rename string, so this assert.ok(...includes(...)) is now vacuously true regardless of whether the vacuous label reappears for proof-or-stop-handoff.ts / done-required-validation.ts, silently defeating the exact regression the case name promises to guard.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T15:57:52.676Z",
@@ -153,7 +153,8 @@
       "_hash": "29db973ee790e4baa03841f8c6867c176f508884a64dc55ceecf8d103927869e",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@220075c"
     },
     {
       "id": "B-41c8:F-009",
@@ -195,7 +196,7 @@
       "desc": "single-owner-extraction-smoke.ts:1532-1534 localFunctionNames() (regex: function keyword, name, optional whitespace, then an opening paren) does not allow a generic type-parameter clause between the name and the paren, so checklist.ts:135 `function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T` -- declared and called only inside checklist.ts itself -- is NOT recognized as local. It is instead treated as a non-local callee receiving bare ctx and flagged via-handler(withChecklistLock). Its body (core/store.ts:101 runtimeLockDirPath -> storyRuntimeLockPath) only computes a lock-directory path string; it contains zero readStory/readChecklist/loadConfig calls, so it provably never reads story/checklist/config data. This contradicts the audit's own documented rule (smoke.ts:1712/1531: 'local callees ... are not delegations', 'scanned in place not flagged'). Separately, contextNames() at smoke.ts:1526 (regex matching NAME colon HandlerContext with a trailing word-boundary) also matches the annotation HandlerContext['store'] (checklist.ts:149, story-create.ts:399/440) because the word-boundary only requires a word/non-word character transition, which exists immediately after the word 'HandlerContext' regardless of what follows (a bracket in this case) -- so 'store' is added to the file's ctx-name set even though its declared type is only HandlerContext's store property, not the bare context. Repro run: node -e with the two regexes above against the literal withChecklistLock and assertChecklistMutationCwd signatures confirms both: localFunctionNames returns an empty set for the withChecklistLock declaration, and contextNames returns {ctx, store} for the assertChecklistMutationCwd declaration. Net effect: `npm run test:single-owner-extraction` default output prints checklist.ts as 'reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, withChecklistLock)' -- the withChecklistLock half of that is a false delegation flag, not a conservative-but-honest one, because the callee is fully in-file, fully inspectable, and provably reads nothing. CHK-004's stated purpose is to scope the follow-up draft migrate-resolvegitcwd-callers-to-workspace; a spurious withChecklistLock entry could misdirect that migration into inspecting a callee that needs no change, and it means the printed via-handler(...) label is not always an honest 'reads' claim -- for this entry specifically it is simply wrong, not merely unverified. Fix suggestion: extend the localFunctionNames function-declaration regex to tolerate an optional generic clause (angle-bracket group) between the function name and the opening paren, and tighten the contextNames regex so the HandlerContext token is rejected when immediately followed by '[' or '<' (subscript/generic-instantiation forms), so a ctx.store-typed parameter is not folded into the ctx-name set.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-02T16:03:54.589Z",
@@ -208,7 +209,8 @@
       ],
       "signatureTag": "edge|ts|single-owner-extraction",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@220075c"
     }
   ]
 }
