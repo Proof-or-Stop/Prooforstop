@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1482",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc --noEmit -p packages/main",
+    "npx tsx *"
+  ],
+  "allowedTools": [
+    "Agent",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/dev",
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/init-assets",
+    "packages/main/src/tasks",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "git restore *",
+    "proof-or-stop release_approve_push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "excludedPaths": [
+    ".claude/hooks",
+    ".githooks",
+    ".proof-or-stop/dev-memory",
+    ".worktrees",
+    "node_modules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use the worktree's own built CLI (node packages/main/dist/cli.js) for every Proof-or-Stop command; the global proof-or-stop binary is a stale build in another story's worktree. The evidence-pin seatbelt hook under .claude/hooks is a framework-managed generated asset: change its generation source under packages/main/src (init-assets / managed-assets), never the generated file, per CLAUDE.md. .proof-or-stop/dev-memory is blocked until the final finish decision because committing dev-memory records currently counts as material.",
+  "createdAt": "2026-09-02T13:36:13.462Z",
+  "updatedAt": "2026-09-02T13:36:13.462Z",
+  "_hash": "b8648cb3a6fc38c00179d49157fa9c5467a684e474e63f8fa15a2359bb8c74fb"
+}
