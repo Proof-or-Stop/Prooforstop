@@ -541,6 +541,18 @@ function formatMs(ms: number): string {
 /** How many units are listed without `--explain` before the list is summarised. */
 const UNIT_PREVIEW_LIMIT = 5;
 
+/**
+ * The one render entry point the CLI handler uses for BOTH shapes of output.
+ * (RED scaffold for B-a745 F-024/F-025: the JSON branch still mirrors the
+ * handler's previous bare `JSON.stringify(report)`.)
+ */
+export function renderValidationPlanReport(
+  report: ValidationPlanReport,
+  options: { json: boolean; explain: boolean },
+): string {
+  return options.json ? JSON.stringify(report) : renderValidationPlanText(report, options.explain);
+}
+
 export function renderValidationPlanText(report: ValidationPlanReport, explain: boolean): string {
   // Refuse before printing: a report whose status word contradicts its own facts
   // must never reach an operator or a selector.
@@ -754,7 +766,7 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         unitLabels,
       });
 
-      return request.json ? JSON.stringify(report) : renderValidationPlanText(report, request.explain);
+      return renderValidationPlanReport(report, { json: request.json, explain: request.explain });
     },
   };
 }

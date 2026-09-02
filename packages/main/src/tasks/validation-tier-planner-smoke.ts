@@ -174,6 +174,7 @@ import {
   assertValidationPlanStatusInvariant,
   buildValidationPlanReport,
   createValidationPlanHandlers,
+  renderValidationPlanReport,
   renderValidationPlanText,
   resolveValidationPlanRequest,
 } from '../handlers/validation-plan.js';
@@ -2789,6 +2790,85 @@ testCase('every planner outcome renders only its own status line, and a forged p
       /status: plan/,
       'a refusal-shaped report claiming status: plan must be refused, not rendered',
     );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (33b) B-a745 F-024 / F-025: the status invariant guards EVERY consumption
+//       point. A schema-bypassing report that contradicts itself is refused
+//       on the --json path with the same message the text path throws, and a
+//       consistent report renders on both.
+// ---------------------------------------------------------------------------
+testCase('F-024/F-025: the --json render path refuses an inconsistent report exactly as the text path does', () => {
+  const request = resolveValidationPlanRequest({ storyId: 'B-a745', tier: 'fast' });
+  const input = planInput();
+  const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+  const report = buildValidationPlanReport({ request, storyPhase: 'DEV', input, result });
+  assert.equal(report.status, 'plan');
+
+  // A consistent report renders on BOTH paths, and the JSON path emits the report itself.
+  const json = renderValidationPlanReport(report, { json: true, explain: false });
+  assert.deepEqual(JSON.parse(json), JSON.parse(JSON.stringify(report)), 'the JSON path must emit the report unchanged');
+  assert.doesNotThrow(() => renderValidationPlanReport(report, { json: false, explain: true }));
+  assert.equal(
+    renderValidationPlanReport(report, { json: false, explain: true }),
+    renderValidationPlanText(report, true),
+    'the text path must be the same render whichever entry point is used',
+  );
+
+  const forgeries: Array<{ label: string; forged: unknown; expect: RegExp }> = [
+    {
+      label: 'status: plan over an empty universe with no escalation reason',
+      forged: { ...report, counts: { selected: 0, total: 0 }, units: [], escalationReasons: [] },
+      expect: /status: plan/,
+    },
+    {
+      label: 'status: stop that still carries a selection',
+      forged: { ...report, status: 'stop' },
+      expect: /stop result may not carry plan-shaped facts/,
+    },
+    {
+      label: 'freshnessBinding "bound" with a null headHash',
+      forged: {
+        ...report,
+        freshnessBinding: {
+          status: 'bound',
+          headHash: null,
+          materialHash: 'material00000000000000000000000000000000',
+          storyFilesHash: 'storyfiles000000000000000000000000000000',
+        },
+      },
+      expect: /headHash/,
+    },
+    {
+      label: 'no freshnessBinding at all',
+      forged: (() => { const { freshnessBinding: _dropped, ...rest } = report; return rest; })(),
+      expect: /freshnessBinding/,
+    },
+  ];
+
+  for (const { label, forged, expect } of forgeries) {
+    let textError: unknown = null;
+    try {
+      renderValidationPlanReport(forged as Parameters<typeof renderValidationPlanReport>[0], { json: false, explain: true });
+    } catch (error) {
+      textError = error;
+    }
+    assert.ok(textError instanceof Error, `${label}: the text path must refuse the report`);
+    assert.match(textError.message, expect, `${label}: the text path must name the contradiction`);
+
+    let jsonError: unknown = null;
+    let emitted: string | null = null;
+    try {
+      emitted = renderValidationPlanReport(forged as Parameters<typeof renderValidationPlanReport>[0], { json: true, explain: false });
+    } catch (error) {
+      jsonError = error;
+    }
+    assert.ok(
+      jsonError instanceof Error,
+      `${label}: the --json path must refuse the report instead of emitting ${emitted === null ? 'nothing' : emitted.slice(0, 80)}`,
+    );
+    assert.equal(jsonError.message, textError.message, `${label}: both paths must throw the SAME message`);
   }
 });
 
