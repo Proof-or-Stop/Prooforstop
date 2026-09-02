@@ -35,6 +35,24 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-41c8:F-003",
+      "desc": "quality-cleanup: packages/main/src/core/story-workspace.ts:96 `StoryWorkspace.storyDir` is computed (via `store.storyDirPath(storyId)`) but never read by any of the four migrated call sites (session.ts, story-query.ts, validation-plan.ts, local-assurance-story-projection.ts) and never asserted in single-owner-extraction-smoke.ts (grep for `workspace.storyDir` across handlers + smoke returns zero hits, vs. every other field on the interface having at least one production consumer or a direct smoke assertion). It is dead weight on an already-large 11-field return shape that this same review was asked to check for size/readability; either wire a consumer or drop the field.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T15:01:39.710Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-003",
+      "_hash": "152e8b78ad158034e2bde1c37ecde40b9f9f9158094b4f58b58fed280d18de83",
+      "files": [
+        "packages/main/src/core/story-workspace.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
