@@ -1520,18 +1520,18 @@ const NON_CALLEE_KEYWORDS: ReadonlySet<string> = new Set(['if', 'for', 'while', 
 /** Receiving the context is the whole point of the CHK-003 helper; it is not a delegation. */
 const DELEGATION_EXEMPT_CALLEES: ReadonlySet<string> = new Set(['resolveStoryWorkspace']);
 
-/** Names the file uses for its HandlerContext: `ctx` plus every parameter typed HandlerContext. */
+/** Names the file uses for its HandlerContext: `ctx` plus every parameter typed HandlerContext (not `HandlerContext['store']` or `HandlerContext<...>`, which type a part of it -- F-011). */
 function contextNames(code: string): Set<string> {
   const names = new Set<string>(['ctx']);
-  const re = /([\w$]+)\s*:\s*HandlerContext\b/g;
+  const re = /([\w$]+)\s*:\s*HandlerContext\b(?![\[<])/g;
   for (let match = re.exec(code); match; match = re.exec(code)) names.add(match[1]!);
   return names;
 }
 
-/** Functions declared in this file (`function f(`, `const f = (...) =>`, `const f = x =>`); calls to them are scanned in place, not as delegations. */
+/** Functions declared in this file (`function f(`, `function f<T>(`, `const f = (...) =>`, `const f = x =>`); calls to them are scanned in place, not as delegations. */
 function localFunctionNames(code: string): Set<string> {
   const names = new Set<string>();
-  const fnRe = /\bfunction\s+([\w$]+)\s*\(/g;
+  const fnRe = /\bfunction\s+([\w$]+)\s*(?:<[^()]*?>\s*)?\(/g; // the optional generic clause may nest `<>` but not parentheses (F-011)
   for (let match = fnRe.exec(code); match; match = fnRe.exec(code)) names.add(match[1]!);
   const arrowRe = /\b(?:const|let|var)\s+([\w$]+)\s*=\s*(?:async\s+)?(?:\([^()]*\)\s*(?::[^=]*?)?=>|[\w$]+\s*=>)/g;
   for (let match = arrowRe.exec(code); match; match = arrowRe.exec(code)) names.add(match[1]!);
