@@ -1222,6 +1222,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-055",
+      "desc": "packages/main/src/core/prompt-envelope.ts:326-359 whole-source invariant lead laundering (high): the latest grammar correctly rejects F-053 pre-outcome and F-054 sentence/semicolon tails, but its boundedLead still accepts any 96-character text after an initial compare/verify/audit/check and before the Dynamic Finding authority noun. The production dist therefore signs affirmative authority clauses placed in that lead whenever the remainder is a valid invariant: `Verify this Story adds a new applicability verdict and compare the Dynamic Finding runtime before and after this change and verify it remains unchanged.`, `Audit a new applicability verdict now authoritative while checking the Dynamic Finding runtime before and after this change and verify it remains unchanged.`, and parenthetical, relative, concessive, conditional, and Unicode-em-dash variants all returned ACCEPTED. The exact CHK-003 safe comparison and full inventory wording remain admitted, while F-053/F-054 originals and post-invariant relative/conditional tails reject. This is a residual pre-digest authority bypass: whole-source validation is syntactic only at the tail and does not prove that the lead is invariant-only. Replace the arbitrary bounded lead/bridge with an allowlisted invariant grammar or apply semantic residue rejection to the complete source, and add the actor/authoritative plus parenthetical/relative/concessive/conditional/Unicode-lead mutations without a finite verb-list shortcut.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T07:41:11.020Z",
+      "reviewRound": "2026-09-02T07:38:07.147Z",
+      "reviewRunId": "B-9a49:RR-081",
+      "_hash": "fc037da20531f9a9989627ff0a7e49f4409f5925b2c28c33752a8817b1d6d2ee",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
