@@ -13642,6 +13642,36 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "1f1dfed102b7bf4800f88765fa54a67855d167e364bb5a69e4c45b95f70b888d"
+    },
+    {
+      "id": "B-5a15:RP-287",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue re-attestation of the RR-868 conclusions on HEAD 53ae7ebd31 (epoch RI-065). No concept deletion or replacement requiring cleanup; no blocker.\n\n(1) Whole-story deleted-export scan over main...HEAD (*.ts/*.mjs) yields exactly ONE removed exported declaration, preReviewCaseRequiresSemanticBinding: a signature widening 1-arg -> 3-arg, still exported at core/pre-review-live-proof.ts:139, with all three source call sites (pre-review-live-proof.ts:245, :270, pre-review-check.ts:210) passing the widened 3-arg form. Zero stale 1-arg calls, zero residue.\n\n(2) F-363 repair (commit 2d7a76e12f, the only substantive commit since RR-868) verified accurate and in lockstep across BOTH coupled copies. Per-file compat counts confirmed mechanically: core/closeout-trust.ts has isExactLegacyLocalOnlyDeliveryClaims 2 and LegacyLocalOnlyDeliveryClaims 2 by distinct-symbol decomposition; tasks/closeout-trust-smoke.ts has createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims, exactly as the repaired note now states. The non-divergence claim is confirmed: verification_evidence_refresh_stale is 4 on both main and HEAD and is absent from that file's main...HEAD diff.\n\n(3) B-cdf6:F-057 coupling intact: all four shared pinned fingerprints (3152baa8/03d1d617/51af0fd5/b2c006a5) appear exactly once in each registry with byte-identical 64-hex values.\n\n(4) The three new causal process facts (causal_execution_key_gate, causal_receipt_import_gate, causal_dependency_preflight_metrics_gate) are each declared exactly once in core/process-fact-registry.ts AND once in core/process-fact-levels.ts, with implementation present in core/causal-evidence.ts. The AST pin registry contains zero _gate tokens of any kind by design, so the 0-vs-3 split is architecture, not a coupling gap.\n\n(5) validation-executor.ts optional beforeLaunch hook is declared (:164), consumed (:1856), and wired from handlers/verifier.ts at 6 sites. No half-deleted concept.\n\nBoth TRUE guard exit codes 0, measured by redirect and not by pipe: scripts/verify-process-fact-contract.mjs exit 0 (\"Process fact contract verified\"); packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exit 0 (\"retired authority vocabulary guard PASS builds=815 cacheHits=2 fullAnalysis=1309 astCandidates=508 reachability=34\").\n\nPer instruction, validate --concept was NOT run (F-357: it exceeds the 7-minute ceiling on this 1426-commit merge diff, so the automated gate yields no signal); this targeted manual sweep is the substantive check. Pre-existing open F-351/F-355 are DEV-repairable pre-review staleness, not concept defects, and were not re-adjudicated. All files were inspected via targeted grep/sed regions and diff review rather than cover-to-cover reads, and the manifest records that honestly.",
+      "createdAt": "2026-09-02T13:46:09.051Z",
+      "reviewRound": "2026-09-02T10:34:38.494Z",
+      "reviewRunId": "B-5a15:RR-871",
+      "envelopeId": "6a26ed94c4c223e402fb0f13dfb40db527c6c0498e473a24cb107da68ce12fc5",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef857ddf3d17b84203a61516f3f19054e27ffd5cda59bf3b541ffe8ea2fd0b29"
     }
   ]
 }
