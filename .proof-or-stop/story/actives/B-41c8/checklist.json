@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Make the rename-aware diff reader parse NUL-delimited output and fail loudly on unparseable rows",
       "context": "core/evidence-freshness.ts changedFilesBetween / changedFilesBetweenRenameAware / changedFileStatusesBetweenRenameAware. RED fixtures: a rename of a path with a space, a non-ASCII path, and a path containing a quote character, each asserting BOTH sides survive; an unparseable row raises instead of being skipped. Keep the throw on an unresolvable ref and document it as the contract; audit callers for any catch-and-return-empty.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T13:48:22.936Z",
       "endTime": null,
       "relatedDocs": [
         "docs/dev/test-coverage.md"
