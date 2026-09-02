@@ -530,7 +530,7 @@
       "desc": "docs/audits/AGENTS-current-version-audit.md:82,88,93 and tests/AGENTS.verify.mjs:484-523 — WHY high acceptance blocker: F-021 was resolved with the claim that all 26 rows now carry exact authoritative path:line citations and the verifier binds each row source, but the citation policy validates only one primary sourcePath/sourcePattern reference per row and never validates any additional cited path, line existence, or substantive relevance. Independent in-memory probe changed the A20 second authority from `packages/main/src/handlers/phase-gates.ts:445` to irrelevant existing `package.json:1`; the implemented predicate still reports citationPolicyWouldAccept=true because `packages/main/src/core/machine.ts:692` remains. The fixed removal/vague probes do not cover this bypass. More importantly, the two actual A20 references point only to a DEV memory-preflight line and the scope-contract gate header, while the row claims ProofStory, acceptance topology, delivery/summary, and freshness authority; A09 cites only the required-agent constant while claiming six artifacts/preflight/repair, and A15 cites only `userSees` while claiming excludes/files/intent/related fields. Therefore the durable ledger still lacks exact authority for material parts of its claims, and final GREEN can survive bogus secondary citations. Validate every reference for existence, exact line, and expected source predicate; give each material claimed behavior a supporting exact citation; add a secondary-reference substitution mutation that must fail.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T02:10:29.062Z",
@@ -542,7 +542,11 @@
         "tests/AGENTS.verify.mjs"
       ],
       "signatureTag": "adversarial|md|docs-audits-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 6d33f19d binds complete ordered authority-reference sets for all 26 rows, validates every exact path and current line through source predicates, requires exact set equality, and rejects missing, vague, stale, duplicate, unexpected, irrelevant, or substituted references. Owner final run exits 0 and explicitly rejects A20 and A09 extra-reference replacement/removal mutations; commit 25837f85 only reorders the same real semantic check for bounded receipt capture.",
+      "resolvedAt": "2026-09-02T02:33:21.445Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d854:F-026",
