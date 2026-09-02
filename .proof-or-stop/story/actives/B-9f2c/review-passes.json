@@ -281,6 +281,41 @@
         "scanEscalationReason": null
       },
       "_hash": "bfe71253f440df554669a128b539074b19306e6d4b90a631ad928d7b0d19faa2"
+    },
+    {
+      "id": "B-9f2c:RP-010",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 2 concept review. Delta since RP-004 is exactly commit f4e9acdd21: one repoRead('test:graph-story-flag-smoke') RESOURCE_POLICY entry added to full-suite-runner.ts. Verified name string matches exactly across package.json script, test:serial-reference, RESOURCE_POLICY, and lattice.config.json. Directly called entriesFromSerialReference against built dist and confirmed unknownPolicy=[]; live npm test run confirmed it now progresses past prior 858ms abort point. Repo-wide grep finds only the four expected registration sites. No mass concept deletion/rename. No dangling-reference defects found; no blocker.",
+      "createdAt": "2026-09-02T14:34:34.925Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-013",
+      "envelopeId": "e79c98ba68130fcb28b0eadbb0433d282927a2406c2dffa9328a599e26b78c0d",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c74277d7187b1d782410539c20bfa69963cbbe155db5c1fe0b160b86ca36e734"
     }
   ]
 }
