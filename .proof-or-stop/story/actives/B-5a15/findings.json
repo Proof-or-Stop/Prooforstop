@@ -19647,6 +19647,21 @@
       "resolvedAt": "2026-09-02T16:44:39.261Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-366",
+      "desc": "packages/main/src/handlers/validate-concept.ts:103-121 defaultGitDiffReader/defaultGrepReader run `git diff --unified=1000000 main...HEAD` via execSync; on this story diff that command exceeds 239MB of stdout and fails with `spawnSync /bin/sh ENOBUFS` (reproduced directly with node execSync/execFileSync at maxBuffer up to 200MB -- raising maxBuffer alone does not fix it, this is a pipe/ENOBUFS ceiling, not the maxBuffer guard). checkConcept treats any git diff read failure as status=warn with recommendation=skip concept LLM reviewer (validate-concept.ts:1040-1052), so `proof-or-stop validate --concept` silently returns ok:true/skip for large diffs instead of failing closed or shrinking scope, and the mechanical residual-symbol scan this reviewer role is meant to backstop does not run at all for large-diff stories. Not caused by this story (validate-concept.ts is untouched by the B-5a15 diff) and not blocking B-5a15 acceptance since I performed the required manual concept-residue scan in this dispatch and found no stranded references. Recommend a follow-up story to either drop --unified=1000000 in favor of a bounded context window, or fail closed (not skip) when the diff reader itself errors on a real repo diff.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T21:26:33.538Z",
+      "reviewRound": "2026-09-02T21:18:15.582Z",
+      "reviewRunId": "B-5a15:RR-899",
+      "_hash": "44112beafa490f7195b34642c9f4554ccce51480beef353c1bab4b9dc685c5c8",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
