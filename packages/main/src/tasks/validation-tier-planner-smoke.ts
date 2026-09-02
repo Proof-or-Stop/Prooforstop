@@ -145,12 +145,14 @@ import {
 import { configuredValidationCommands, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
+  VALIDATION_STOP_REASON_CODES,
   VALIDATION_TIERS,
   VALIDATION_WIDENING_OUTCOMES,
   VALIDATION_WIDENING_REASONS,
   VALIDATION_WIDENING_REASON_CODES,
   assertValidationTier,
   assertValidationTierSelectionSubsetInvariant,
+  isValidationStopReasonCode,
   resolveValidationTierPlan,
   validationTierIsSubsetOf,
   validationTierRank,
@@ -1916,6 +1918,65 @@ testCase('an empty universe stops as empty_selection_unclassified rather than pa
 });
 
 // ---------------------------------------------------------------------------
+// (31b) B-a745 F-006 — THE TABLE IS THE ONLY SOURCE OF TRUTH FOR "THIS STOPS".
+//       The resolver used to branch on a hand-written pair of code names, which
+//       is a second copy of a fact the widening matrix already declares through
+//       `outcome: 'stop'`. F-001 changed which pin codes stop, so this is
+//       exactly the duplication a future edit would drift. These cases drive the
+//       resolver by ENUMERATING the table, so a row whose outcome becomes (or
+//       stops being) `stop` is honoured without editing the resolver at all.
+// ---------------------------------------------------------------------------
+testCase('the stop-code list is derived from the table and the resolver consults it', () => {
+  const derived = VALIDATION_WIDENING_REASON_CODES
+    .filter((code) => VALIDATION_WIDENING_REASONS[code].outcome === 'stop')
+    .sort();
+  assert.deepEqual([...VALIDATION_STOP_REASON_CODES].sort(), derived, 'the stop list must be derived, not written');
+  assert.ok(derived.length > 0, 'the table must declare at least one stop row for this case to mean anything');
+
+  for (const code of VALIDATION_WIDENING_REASON_CODES) {
+    assert.equal(
+      isValidationStopReasonCode(code),
+      VALIDATION_WIDENING_REASONS[code].outcome === 'stop',
+      `${code}: the predicate must agree with the table row, never with a second list`,
+    );
+  }
+  assert.equal(isValidationStopReasonCode('hash_snapshot_unavailable'), false, 'an unknown code is not a stop');
+  assert.equal(isValidationStopReasonCode(undefined), false);
+
+  // Drive the resolver through a schema-bypassing input for EVERY escalation
+  // code the collector can emit, and require the outcome to follow the table.
+  const collectorCodes = [
+    'changed_files_unavailable',
+    'hash_snapshot_unavailable',
+    'pinned_command_missing',
+    'pinned_command_ambiguous',
+    'pinned_command_non_inventory',
+  ] as const;
+  for (const code of collectorCodes) {
+    const input = {
+      ...planInput(),
+      escalations: [{ code, detail: `fixture escalation for ${code}` }],
+    } as StoryRelevanceInput;
+    const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+    if (isValidationStopReasonCode(code)) {
+      assert.equal(result.status, 'stop', `${code} declares outcome stop, so the resolver must stop`);
+      assert.equal(result.status === 'stop' && result.reason.code, code);
+    } else {
+      assert.notEqual(result.status, 'stop', `${code} does not declare outcome stop, so the resolver may not stop`);
+    }
+  }
+
+  // Both stop RETURNS are bound to the table, not only the escalation branch.
+  const emptyUniverse = planFor('repository-full', { routine: { sourceKind: 'configured', commands: [] } });
+  assert.equal(emptyUniverse.status, 'stop');
+  assert.ok(
+    emptyUniverse.status === 'stop' && isValidationStopReasonCode(emptyUniverse.reason.code),
+    'the empty-universe stop must carry a code the table declares as a stop',
+  );
+  assert.equal(emptyUniverse.status === 'stop' && emptyUniverse.reason.outcome, 'stop');
+});
+
+// ---------------------------------------------------------------------------
 // (32) HANDLER ENCODING CONVENTION — the planner core re-validates its inputs,
 //      because a schema constraint upstream is only the first line of defence.
 // ---------------------------------------------------------------------------
@@ -2774,6 +2835,7 @@ const DONEWHEN_COVERAGE: Array<{ item: string; doneWhen: string; cases: string[]
     'no input in the resolver space yields a reduced effective tier',
   ] },
   { item: 'CHK-004', doneWhen: 'an empty selection is a stop, not a pass', cases: [
+    'the stop-code list is derived from the table and the resolver consults it',
     'an empty universe stops as empty_selection_unclassified rather than passing empty',
   ] },
 
