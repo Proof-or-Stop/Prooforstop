@@ -487,7 +487,7 @@
       "desc": "packages/main/src/core/store.ts:574-581 — verified high integrity blocker: the ledger-authority join replaces only the first findings.json row returned by findIndex, so a duplicate unsigned mirror row with the same Finding id survives. Independent temp-project reproduction after a signed lifecycle resolution returned {count:2,statuses:[\"resolved\",\"open\"],recordIds:[\"<ledger-record>\",null]}; the stray unsigned open/high row can still be consumed by REVIEW gate filtering and falsely re-block a canonically resolved Finding. Ledger authority must collapse/remove every mirror row sharing a ledger-backed display id while preserving only distinct mirror-only legacy ids, and regression evidence must cover duplicate same-id rows both before and after a signed terminal transition.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T20:04:32.556Z",
@@ -499,7 +499,11 @@
         "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 5889c42f35f70ece64c025d59476afd64aa7959e: StoryStore.readFindings now collapses every compatibility mirror row sharing a ledger-backed display ID to the signed ledger projection while retaining distinct mirror-only legacy IDs. Independent current build and full Story3 smoke pass; selectors prove duplicateBefore=collapsed, duplicateAfter=collapsed, terminal=resolved, and legacyOnly=preserved.",
+      "resolvedAt": "2026-09-02T20:20:45.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
