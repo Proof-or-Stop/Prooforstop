@@ -348,26 +348,42 @@
           {
             "desc": "One helper in core/story-workspace.ts returns gitCwd via resolveGitCwd, a workspace-rooted StoryStore and workspace-loaded config, and the four named implementations call it instead of their own logic.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "The phase-terminal guard is an explicit option whose default matches each migrated caller's prior behaviour, and a fixture per migrated caller asserts DONE-story reads behave exactly as before.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off"
+            }
           },
           {
             "desc": "For each migrated caller, invoking from the story worktree and from the main checkout yields identical output, and a configured wrapper-root layout resolves the story worktree.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "The helper derives the state directory from core/brand-paths.ts; a fixture greps the helper for the retired literal state-dir spelling and asserts zero hits.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore"
+            }
           }
         ]
       },
@@ -377,7 +393,93 @@
         "headHash": "909b373d48af99032a273b23800eef0d529a639c",
         "attestedAt": "2026-09-02T14:31:20.144Z",
         "materialHash": "4350c6a171b0fcd537df4e388cf4e3782db7d780664b0c9d06b04e07734664bc"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "core/story-workspace.ts exports resolveStoryWorkspace returning gitCwd (via resolveGitCwd), a workspace-rooted store, workspace config and source; the structural case reads the four files and asserts delegation plus removal of their own logic; the helper cases assert linked-worktree and invocation-root resolution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "496c20713debef8cff5a0e82ac971a9cf626433aef077c362d33cf82fbee554c",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n# CHK-003 story workspace resolution is owned by core/story-workspace.ts\n[PASS] helper: from the main checkout an active story resolves to its linked worktree (gitCwd from resolveGitCwd, store and config rooted there, source=linked-worktree)\n[PASS] helper: from inside the story worktree the same story resolves to the same gitCwd with source=invocation-root (same tree)\n[PASS] guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off\n[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off\n[PASS] wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper\n[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore\n[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed\n[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout\n[PASS] validation_plan: DONE-story reads are unchanged (merged-and-removed reads the invocation root; a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour)\n[PASS] story_list: the projected phase and checklist are identical from the main checkout and from the story worktree, and a DONE story is read from main even with a residual worktree\n[PASS] session_brief: from the main checkout the active-story line carries authority:worktree and a cd hint; a DONE story with a residual worktree is not active\n[PASS] local assurance projection: rows agree from both roots, the wrapper-root layout resolves the worktree, and DONE-story reads are unchanged (residue still read, removed worktree falls back to main)\n28/28 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:32:21.703Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e32c0df2da35b96f2f0bf8f06f19f65cea99721d",
+          "materialHash": "4350c6a171b0fcd537df4e388cf4e3782db7d780664b0c9d06b04e07734664bc",
+          "storyFilesHash": "8f883880f3172f34748750767ac054e67e0cac5b50fb786db56368862af88d00",
+          "timestamp": "2026-09-02T14:32:44.337Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "terminalPhaseGuard is an explicit option; per-caller cases (validation_plan, story_list, session_brief, local assurance) assert DONE-story reads are unchanged from pre-CHK-003 behaviour.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "496c20713debef8cff5a0e82ac971a9cf626433aef077c362d33cf82fbee554c",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n# CHK-003 story workspace resolution is owned by core/story-workspace.ts\n[PASS] helper: from the main checkout an active story resolves to its linked worktree (gitCwd from resolveGitCwd, store and config rooted there, source=linked-worktree)\n[PASS] helper: from inside the story worktree the same story resolves to the same gitCwd with source=invocation-root (same tree)\n[PASS] guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off\n[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off\n[PASS] wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper\n[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore\n[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed\n[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout\n[PASS] validation_plan: DONE-story reads are unchanged (merged-and-removed reads the invocation root; a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour)\n[PASS] story_list: the projected phase and checklist are identical from the main checkout and from the story worktree, and a DONE story is read from main even with a residual worktree\n[PASS] session_brief: from the main checkout the active-story line carries authority:worktree and a cd hint; a DONE story with a residual worktree is not active\n[PASS] local assurance projection: rows agree from both roots, the wrapper-root layout resolves the worktree, and DONE-story reads are unchanged (residue still read, removed worktree falls back to main)\n28/28 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:32:29.439Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e32c0df2da35b96f2f0bf8f06f19f65cea99721d",
+          "materialHash": "4350c6a171b0fcd537df4e388cf4e3782db7d780664b0c9d06b04e07734664bc",
+          "storyFilesHash": "8f883880f3172f34748750767ac054e67e0cac5b50fb786db56368862af88d00",
+          "timestamp": "2026-09-02T14:32:44.337Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "story_list, session_brief and local-assurance cases assert the same from both roots; the wrapper-root case resolves the story worktree with gitRoot configured below the invocation root.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "496c20713debef8cff5a0e82ac971a9cf626433aef077c362d33cf82fbee554c",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n# CHK-003 story workspace resolution is owned by core/story-workspace.ts\n[PASS] helper: from the main checkout an active story resolves to its linked worktree (gitCwd from resolveGitCwd, store and config rooted there, source=linked-worktree)\n[PASS] helper: from inside the story worktree the same story resolves to the same gitCwd with source=invocation-root (same tree)\n[PASS] guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off\n[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off\n[PASS] wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper\n[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore\n[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed\n[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout\n[PASS] validation_plan: DONE-story reads are unchanged (merged-and-removed reads the invocation root; a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour)\n[PASS] story_list: the projected phase and checklist are identical from the main checkout and from the story worktree, and a DONE story is read from main even with a residual worktree\n[PASS] session_brief: from the main checkout the active-story line carries authority:worktree and a cd hint; a DONE story with a residual worktree is not active\n[PASS] local assurance projection: rows agree from both roots, the wrapper-root layout resolves the worktree, and DONE-story reads are unchanged (residue still read, removed worktree falls back to main)\n28/28 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:32:36.829Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e32c0df2da35b96f2f0bf8f06f19f65cea99721d",
+          "materialHash": "4350c6a171b0fcd537df4e388cf4e3782db7d780664b0c9d06b04e07734664bc",
+          "storyFilesHash": "8f883880f3172f34748750767ac054e67e0cac5b50fb786db56368862af88d00",
+          "timestamp": "2026-09-02T14:32:44.337Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Paths derive transitively through StoryStore.storyDirPath -> proof-or-stop-paths -> brand-paths; the case asserts neither the retired nor the canonical literal appears in the helper.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "496c20713debef8cff5a0e82ac971a9cf626433aef077c362d33cf82fbee554c",
+            "outputTail": "# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly\n[PASS] rename of a path with a space reports both sides through both reader functions\n[PASS] rename of a path with a non-ASCII reports both sides through both reader functions\n[PASS] rename of a path with a quote reports both sides through both reader functions\n[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)\n[PASS] a deleted path is still reported by all three readers\n[PASS] a copy record (C100) reports both sides through all three readers\n[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers\n[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas\n[PASS] an unresolvable ref still throws from all three readers (contract unchanged)\n[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it\n[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one\n[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }\n# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString\n[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry\n[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry\n[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)\n[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one\n# CHK-003 story workspace resolution is owned by core/story-workspace.ts\n[PASS] helper: from the main checkout an active story resolves to its linked worktree (gitCwd from resolveGitCwd, store and config rooted there, source=linked-worktree)\n[PASS] helper: from inside the story worktree the same story resolves to the same gitCwd with source=invocation-root (same tree)\n[PASS] guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off\n[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off\n[PASS] wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper\n[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore\n[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed\n[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout\n[PASS] validation_plan: DONE-story reads are unchanged (merged-and-removed reads the invocation root; a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour)\n[PASS] story_list: the projected phase and checklist are identical from the main checkout and from the story worktree, and a DONE story is read from main even with a residual worktree\n[PASS] session_brief: from the main checkout the active-story line carries authority:worktree and a cd hint; a DONE story with a residual worktree is not active\n[PASS] local assurance projection: rows agree from both roots, the wrapper-root layout resolves the worktree, and DONE-story reads are unchanged (residue still read, removed worktree falls back to main)\n28/28 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T14:32:44.220Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e32c0df2da35b96f2f0bf8f06f19f65cea99721d",
+          "materialHash": "4350c6a171b0fcd537df4e388cf4e3782db7d780664b0c9d06b04e07734664bc",
+          "storyFilesHash": "8f883880f3172f34748750767ac054e67e0cac5b50fb786db56368862af88d00",
+          "timestamp": "2026-09-02T14:32:44.337Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
