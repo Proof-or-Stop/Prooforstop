@@ -346,8 +346,8 @@
       "id": "CHK-006",
       "title": "Add the Story 1 fixture suite and wire it into the canonical test inventory",
       "context": "Plan 'Acceptance matrix' rows reachable in Story 1 plus its Story 1 exit line. Cover: provisional and declared identity, duplicate-id rejection, index-independence, digest change on inventory change, pin resolution with zero/duplicate/shell-vs-argv/cwd/env variants and a label rename whose id survives, collector seeds for rename and delete and unreadable diff, every fail-closed reason code reachable in this Story, all four source kinds, schema round-trip, and the read-only CLI. Each behavior lands RED first. Register the suite in the canonical membership authority (root test:serial-reference plus its RESOURCE_POLICY mapping) rather than a discovery manifest.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-02T02:30:22.297Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#acceptance-matrix",
