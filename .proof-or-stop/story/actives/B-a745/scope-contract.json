@@ -1,0 +1,68 @@
+{
+  "storyId": "B-a745",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/core/validation-relevance-input.ts",
+    "packages/main/src/core/validation-tier-planner.ts",
+    "packages/main/src/handlers/validation-plan.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/delivery-check.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+    "packages/main/src/smoke-manifest.json",
+    "packages/main/smoke-manifest.json"
+  ],
+  "scopeChangeReason": "B-a745 is Rollout Story 1 of the dynamic validation tiers plan and must not shrink any validation set or touch any lifecycle gate. The protected files are the gate and final-assurance owners this Story consumes but must never modify: the state machine and its guards, DONE-required validation, the shared freshness readers, and the delivery check. evidence-freshness.ts in particular is protected deliberately - the Story input collector must CONSUME its rename-aware readers, and any edit there would mean the collector re-derived changed files instead of reusing the single owner. The excluded paths are the plan document itself, which story B-ccf4 owns and which must not be copied into this branch, and the noncanonical smoke discovery manifests, which the test-runner consolidation plan forbids using as membership authority.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-02T01:18:45.889Z",
+  "updatedAt": "2026-09-02T01:18:45.889Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-command-identity.ts": "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/core/validation-relevance-input.ts": "packages/main/src/core/validation-relevance-input.ts",
+    "packages/main/src/core/validation-tier-planner.ts": "packages/main/src/core/validation-tier-planner.ts",
+    "packages/main/src/handlers/validation-plan.ts": "packages/main/src/handlers/validation-plan.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts": "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/delivery-check.ts": "packages/main/src/handlers/delivery-check.ts",
+    "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md": "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+    "packages/main/src/smoke-manifest.json": "smoke-manifest.json",
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json"
+  }
+}

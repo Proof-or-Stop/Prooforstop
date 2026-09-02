@@ -28,7 +28,7 @@ entry does not.
 **DependsOn**: none
 **Files**:
 - Create: `packages/main/src/core/validation-command-identity.ts`
-- Modify: `packages/main/src/core/validation-types.ts` (optional `id?: string` on `ValidationCommand`), `packages/main/src/handlers/verifier.ts` (parse `id` in `configuredValidationCommands`)
+- Modify: `packages/main/src/core/validation-types.ts` (optional `id?: string` on `ValidationCommand`), `packages/main/src/handlers/verifier.ts` (parse `id` in `configuredValidationCommands`), `packages/main/src/core/validation-evidence-reuse.ts` (EXPORT the existing per-command normalization so the id builder and the pin resolver reuse it instead of duplicating the shell/cwd/env rules; extract only, do not change the behaviour of `buildRoutineValidationIdentity`)
 - Test: `packages/main/src/tasks/validation-tier-planner-smoke.ts`
 
 **Design notes**:
