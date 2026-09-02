@@ -1306,6 +1306,100 @@ testCase('the REAL reader outside a git repository yields a bounded detail end t
   assert.equal(detail.includes('usage: git diff'), false, 'the real git usage dump must never reach the operator');
 });
 
+// ---------------------------------------------------------------------------
+// (20c) PLANNER PROSE IS BOUNDED TOO (B-a745 F-016). The collector already
+//       classifies a changed-file read failure into a bounded `reason` +
+//       `summary`; the planner then writes its OWN `changed_files_unavailable`
+//       escalation detail and was interpolating the raw `error` into it, so the
+//       operator-facing `detail:` line of `validation_plan` still carried git's
+//       whole usage dump. The raw error stays on the structured `changedFiles`
+//       object for diagnosis; the prose line must render the classification only.
+// ---------------------------------------------------------------------------
+const LONG_GIT_USAGE_DUMP = [
+  GIT_USAGE_DUMP,
+  '',
+  'Diff algorithm options',
+  '    --minimal             produce the smallest possible diff',
+  '    -w, --ignore-all-space',
+  '                          ignore whitespace when comparing lines',
+  '    -b, --ignore-space-change',
+  '                          ignore changes in amount of whitespace',
+  '    --ignore-space-at-eol',
+  '                          ignore changes in whitespace at EOL',
+  '    --ignore-cr-at-eol    ignore carrier-return at the end of line',
+  '    --ignore-blank-lines  ignore changes whose lines are all blank',
+  '    -I, --ignore-matching-lines <regex>',
+  '                          ignore changes whose all lines match <regex>',
+  '    --indent-heuristic    heuristic to shift diff hunk boundaries for easy reading',
+  '    --patience            generate diff using the "patience diff" algorithm',
+  '    --histogram           generate diff using the "histogram diff" algorithm',
+  '    --diff-algorithm <algorithm>',
+  '                          choose a diff algorithm',
+  '    --anchored <text>     generate diff using the "anchored diff" algorithm',
+  '    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words',
+  '    --word-diff-regex <regex>',
+  '                          use <regex> to decide what a word is',
+  '    --color-words[=<regex>]',
+  '                          equivalent to --word-diff=color --word-diff-regex=<regex>',
+  '    --color-moved[=<mode>]',
+  '                          moved lines of code are colored differently',
+  '    --color-moved-ws <mode>',
+  '                          how white spaces are ignored in --color-moved',
+  '',
+  'Other diff options',
+  '    --relative[=<prefix>]',
+  '                          when run from subdir, exclude changes outside and show relative paths',
+  '    -a, --text            treat all files as text',
+  '    -R                    swap two inputs, reverse the diff',
+  '    --exit-code           exit with 1 if there were differences, 0 otherwise',
+  '    --quiet               disable all output of the program',
+].join('\n');
+
+testCase('the planner renders a bounded changed_files_unavailable detail, never the raw git usage dump', () => {
+  assert.ok(LONG_GIT_USAGE_DUMP.split('\n').length >= 40, 'the fixture must be a realistic multi-screen dump');
+  const input = planInput({
+    readers: {
+      changedFileStatuses: () => {
+        throw new Error(LONG_GIT_USAGE_DUMP);
+      },
+      hashSnapshot: fixtureHashSnapshot,
+    },
+  });
+  const changed = unavailableChangedFiles(input);
+  assert.equal(changed.reason, 'not-a-git-repository');
+  assert.ok(changed.error.includes('--word-diff-regex'), 'the raw error must remain on the structured object for diagnosis');
+
+  const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+  assert.equal(result.status, 'plan');
+  const reason = result.escalationReasons.find((entry) => entry.code === 'changed_files_unavailable');
+  assert.ok(reason, 'the planner must still escalate the unreadable changed-file set');
+  const detail = reason!.detail;
+  assert.equal(detail.includes('\n'), false, `the planner detail must be ONE line, got:\n${detail}`);
+  assert.ok(detail.length <= 300, `the planner detail must stay readable, got ${detail.length} characters`);
+  assert.ok(detail.includes(changed.summary), `the detail must carry the bounded summary "${changed.summary}", got: ${detail}`);
+  assert.match(detail, /not-a-git-repository/, 'the detail must carry the machine classification');
+  for (const line of LONG_GIT_USAGE_DUMP.split('\n').map((entry) => entry.trim()).filter((entry) => entry.length > 12)) {
+    assert.equal(detail.includes(line), false, `a raw git usage line leaked into the planner detail: ${line}`);
+  }
+
+  // End to end through the renderer: the escalation stays one `detail:` line and
+  // the status discriminator is still a line of its own.
+  const request = resolveValidationPlanRequest({ storyId: 'B-a745', tier: 'fast' });
+  const rendered = renderValidationPlanText(
+    buildValidationPlanReport({ request, storyPhase: 'DEV', input, result }),
+    true,
+  );
+  const lines = rendered.split('\n');
+  assert.ok(lines.includes(VALIDATION_PLAN_STATUS_LINES.plan), 'the status line must remain a line of its own');
+  const detailLines = lines.filter((line) => line.startsWith('    detail: '));
+  assert.ok(detailLines.length >= result.escalationReasons.length, 'every escalation renders exactly one detail line');
+  for (const line of detailLines) {
+    assert.ok(line.length <= 320, `a rendered detail line is not one bounded line: ${line.length} characters`);
+  }
+  assert.equal(rendered.includes('usage: git diff'), false, 'the git usage dump must never reach the rendered output');
+  assert.equal(rendered.includes('--word-diff-regex'), false, 'the git usage dump must never reach the rendered output');
+});
+
 testCase('a hash snapshot failure is classified, not silently dropped', () => {
   const input = collect({
     readers: {
