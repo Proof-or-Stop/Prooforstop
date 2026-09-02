@@ -507,25 +507,135 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
   };
 }
 
-function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
+// B-e256 CHK-003: the global-core-realpath row must surface enough facts to
+// repoint a drifted `proof-or-stop` executable without guessing, and it must
+// only REPORT — doctor never mutates the host's global install.
+//   (1) realpath inside a `.worktrees/` checkout (or any non-canonical path)
+//       -> drift + exact `cd -- <canonical core root> && npm link` repoint
+//   (2) package.json bin target not executable -> exact `chmod +x <abs path>`
+//   (3) no global install -> informational (pass) row naming how to link one
+//   (4) canonical realpath + executable bin -> pass with realpath/version/mode
+interface GlobalCoreExecutableFacts {
+  binTarget: string | null;
+  binMode: string | null;
+  binTargetExists: boolean;
+  // null = unverifiable (no package.json / no `bin` field), never a warning by itself
+  executable: boolean | null;
+}
+
+function globalCoreRelinkCommand(canonicalCoreRoot: string): string {
+  return `cd -- ${shellQuote(canonicalCoreRoot)} && npm link`;
+}
+
+function pathSegments(path: string): string[] {
+  return resolve(path).split(/[\\/]+/).filter(Boolean);
+}
+
+function isWorktreeCheckoutPath(path: string): boolean {
+  return pathSegments(path).includes('.worktrees');
+}
+
+function formatFileMode(mode: number): string {
+  return `0${(mode & 0o777).toString(8)}`;
+}
+
+function inspectGlobalCoreExecutable(packageRoot: string): GlobalCoreExecutableFacts {
+  const unverifiable: GlobalCoreExecutableFacts = { binTarget: null, binMode: null, binTargetExists: false, executable: null };
+  const pkg = readPackageJson(packageRoot);
+  if (!pkg) return unverifiable;
+  const bin = pkg.bin;
+  const binRel = typeof bin === 'string'
+    ? bin
+    : bin && typeof bin === 'object' && typeof bin['proof-or-stop'] === 'string'
+      ? bin['proof-or-stop']
+      : null;
+  if (!binRel) return unverifiable;
+  const binTarget = resolve(packageRoot, binRel);
+  let stat;
+  try {
+    stat = statSync(binTarget);
+  } catch {
+    // PROBE: a declared bin target that does not exist is reported as missing, not thrown.
+    return { binTarget, binMode: null, binTargetExists: false, executable: false };
+  }
+  if (!stat.isFile()) return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: false, executable: false };
+  const executable = process.platform === 'win32' ? true : (stat.mode & 0o111) !== 0;
+  return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: true, executable };
+}
+
+function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
   const globalRoot = context.globalNpmRoot;
   const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
   const globalPackagePath = globalPackage?.path ?? null;
   const globalRealpath = globalPackage && globalPackage.exists ? safeRealpath(globalPackage.path) : null;
   const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
+  const relink = globalCoreRelinkCommand(expected);
   if (!globalPackage || !globalPackagePath || !globalRealpath) {
+    // (3) Informational: nothing to verify, but tell the operator exactly how to link one.
     return {
-      status: statusForDrift(severity),
-      actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME, packagePath: globalPackagePath, realpath: null },
+      status: 'pass',
+      actual: {
+        installed: false,
+        npmRoot: globalRoot,
+        packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME,
+        packagePath: globalPackagePath,
+        realpath: null,
+        version: null,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        worktreeCheckout: false,
+        remediation: relink,
+      },
       expected,
-      warnings: [`global ${CANONICAL_CORE_PACKAGE_NAME} could not be resolved from \`npm root -g\``],
+      details: [
+        `global ${CANONICAL_CORE_PACKAGE_NAME} is not installed (informational; \`npm root -g\` has no ${CANONICAL_CORE_PACKAGE_NAME}); link one with: ${relink}`,
+      ],
     };
   }
-  const status = samePath(globalRealpath, expected) ? 'pass' : statusForDrift(severity);
-  const warnings = status === 'pass' ? [] : [`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`];
+  const version = readPackageJson(globalRealpath)?.version;
+  const executableFacts = inspectGlobalCoreExecutable(globalRealpath);
+  const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
+  const pathMatches = samePath(globalRealpath, expected);
+  const warnings: string[] = [];
+  const remediations: string[] = [];
+  if (!pathMatches) {
+    // (1) Drift: keep the historical explanatory line, then the exact repoint command.
+    warnings.push(`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`);
+    if (worktreeCheckout) {
+      warnings.push(`global realpath is inside a \`.worktrees/\` checkout; it will break when that worktree is removed or rebuilt`);
+    }
+    warnings.push(`repoint: ${relink}`);
+    remediations.push(relink);
+  }
+  if (executableFacts.executable === false && executableFacts.binTarget) {
+    // (2) The bin symlink resolves here but the target cannot be executed.
+    if (!executableFacts.binTargetExists) {
+      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+      warnings.push(`global bin target ${executableFacts.binTarget} does not exist; rebuild: ${rebuild}`);
+      remediations.push(rebuild);
+    } else {
+      const chmod = `chmod +x ${shellQuote(executableFacts.binTarget)}`;
+      warnings.push(`global bin target ${executableFacts.binTarget} is not executable (mode ${executableFacts.binMode}); fix: ${chmod}`);
+      remediations.push(chmod);
+    }
+  }
+  const status = warnings.length === 0 ? 'pass' : statusForDrift(severity);
   return {
     status,
-    actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName, packagePath: globalPackagePath, realpath: globalRealpath },
+    actual: {
+      installed: true,
+      npmRoot: globalRoot,
+      packageName: globalPackage.packageName,
+      packagePath: globalPackagePath,
+      realpath: globalRealpath,
+      version: typeof version === 'string' ? version : null,
+      binTarget: executableFacts.binTarget,
+      binMode: executableFacts.binMode,
+      executable: executableFacts.executable,
+      worktreeCheckout,
+      remediation: remediations.length > 0 ? remediations.join(' && ') : null,
+    },
     expected,
     ...(warnings.length > 0 ? { warnings } : {}),
   };
@@ -1229,7 +1339,13 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
   }
   if (result.outputKey === 'globalCoreRealpath') {
     const actual = result.actual as any;
-    return String(actual?.realpath ?? 'missing');
+    if (!actual?.realpath) {
+      const hint = typeof actual?.remediation === 'string' ? ` (informational; link one with: ${actual.remediation})` : '';
+      return `not installed${hint}`;
+    }
+    const mode = actual?.binMode ?? (actual?.binTarget ? 'missing' : 'unverified');
+    const executable = actual?.executable === null || actual?.executable === undefined ? 'unverified' : actual.executable ? 'yes' : 'no';
+    return `${actual.realpath} version=${actual?.version ?? 'unknown'} mode=${mode} executable=${executable}`;
   }
   if (result.outputKey === 'projectLocalBin') {
     const actual = result.actual as any;
