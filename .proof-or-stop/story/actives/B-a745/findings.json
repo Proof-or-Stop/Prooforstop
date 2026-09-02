@@ -562,7 +562,7 @@
       "desc": "B-a745:F-023 resolvedReason (findings.json) does not honour the pasted-output half of the two-rule discipline this Story adopted at F-013 (\"no count or command is asserted in prose unless its actual output was pasted\") and reaffirmed at F-021. Its OWNER VERIFICATION line states two specific quantitative facts as prose, not pasted command output: the commandSetDigest value `eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661`, and \"this repository declares no cwd on any of its 121 commands\" -- neither is shown as a labelled command plus its literal terminal output, unlike F-022's adjacent OWNER VERIFICATION in the same review round, which pastes `status: plan` / `selected: 121 of 121 validation unit(s)` / `freshnessBinding: bound (...)` / `commandSetDigest: ...` as discrete lines from an actual run. I independently re-ran both checks this round (`validation_plan --storyId=B-a745 --tier=fast` prints commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661; a script over proof-or-stop.config.json.validate.commands confirms 121 total, 0 with cwd, 0 absolute) and both values are CORRECT -- so this is not a false claim, only a process-rule shortfall: a bare digest/count asserted from memory or computation notes rather than pasted CLI output. Low severity because non-mechanical and does not misstate code behaviour, matching the precedent set by this Story's own F-021 resolution for the same class of gap.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-02T09:42:07.908Z",
@@ -573,7 +573,11 @@
         ".proof-or-stop/story/actives/B-a745/findings.json"
       ],
       "signatureTag": "missing|json|a745-resolvedreason-findings",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted. The F-023 resolution asserted the real-inventory digest and the 121-commands/0-cwd count as prose, which met the artifact rule but not the pasted-output rule adopted at F-021. The values were independently confirmed correct by the concept lane, so this is a form defect, not a false fact; it is still an instance because the rule exists precisely so that correctness does not depend on the reader trusting me. F-023 has been re-recorded with the literal commands and their literal output, run in this worktree ('121 0' and the commandSetDigest line). No code changed.",
+      "resolvedAt": "2026-09-02T09:55:10.172Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
