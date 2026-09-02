@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add stable validation command identity and a normalized command-set digest",
       "context": "Plan sections 'Stable command identity' and Story 1 exit. ValidationCommand (packages/main/src/core/validation-types.ts) has label/command/args/cwd/env/optional/timeoutMs/resources but no id. Add an optional declared `id`, a deterministic provisional id derived from the normalized executable tuple for legacy commands, duplicate-id rejection, and a commandSetDigest over the normalized inventory. Identity must never be inferred from array index, and existing `focus` tags must be kept for compatibility but excluded from relevance computation.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-02T01:21:33.389Z",
-      "endTime": null,
+      "endTime": "2026-09-02T01:36:14.850Z",
       "relatedDocs": [
         "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md#stable-command-identity",
         "CLAUDE.md#handler-encoding-conventions"
@@ -67,6 +67,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6be6c17c39d7f9ca5d862c2d6ca70b02e7bfb940621bf9d01c968bb5443f16c4",
+        "storyFilesHash": "b65908c9ff22c33b7b7ea58dba76c5ac63a54d31f0bcb18cbf29a41802ec9496",
+        "headHash": "4b547f43e0c49718ba5234d41b7615866c72a797",
+        "attestedAt": "2026-09-02T01:36:15.035Z",
+        "materialHash": "03d427df543ac279a11b51e8393d7659953746acb8391117ab62e80aff1ffdfd"
       }
     },
     {
