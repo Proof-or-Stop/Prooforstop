@@ -798,8 +798,10 @@ function assertVersionSync(repositoryRoot: string): void {
   const installedVersion = /Proof-or-Stop (\d+\.\d+\.\d+)/.exec(installed.stdout)?.[1];
   assert.ok(installedVersion === expected || installedVersion === previous,
     `installed CLI version ${installedVersion ?? installed.stdout.trim()} is neither ${expected} nor the pre-merge ${previous}`);
+  // installedCli=true reports that the installed-binary assertion above held;
+  // installedState says which of the two legitimate versions it observed.
   const installedState = installedVersion === expected ? 'bumped' : 'main-checkout-pending-merge';
-  console.log(`green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=${installedState}`);
+  console.log(`green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=${installedState}`);
 }
 
 function assertCleanPackInstall(repositoryRoot: string): void {
