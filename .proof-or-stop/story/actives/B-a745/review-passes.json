@@ -271,6 +271,26 @@
         "scanEscalationReason": null
       },
       "_hash": "9ea1bb1feae9aa9fd624ef2ebebaa200a39275fee18c2debecc7f5c67340e17a"
+    },
+    {
+      "id": "B-a745:RP-011",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round 4 re-review of F-016/F-017/F-018, re-bound after concurrent commits landed mid-review (a comment-only F-020 fix to validation-command-identity.ts plus another lanes review_pass_set; re-verified this src diff is comment-only and validation_plan still reports the same commandSetDigest). F-016 (bounded prose): forced not-a-git-repository and unknown-revision through the REAL collector+planner+renderer end to end (a mkdtemp non-git dir and a fresh git-init repo with zero commits, one configured command). Both renders keep status: plan as an intact single line, and the changed_files_unavailable detail is exactly one line, correctly classified (not-a-git-repository / unknown-revision), carrying the bounded plain-language summary with no git usage dump. Ran the committed smoke suite (validation-tier-planner-smoke.js), which also drives the git-unavailable (ENOENT) branch and confirms every classification path stays <=200/300 chars, single line, never leaks raw stderr; suite PASS. Inverse check: forced two realistic real-world errors NOT matching the three named regexes (permission-denied cwd read failure, git index.lock contention) and confirmed both correctly fall through to reason=unknown while still surfacing the actual first-line message (e.g. Permission denied) in the bounded detail -- nothing lands in unknown that should have a named classification, and unknown itself stays actionable rather than opaque. F-017 (portable ids): confirmed narrowPortableValidationCommandTuple/buildValidationCommandInventory take no platform argument in the current source; on this macOS host validation_plan --storyId=B-a745 --tier=fast prints status: plan, selected: 121 of 121 validation unit(s), commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 -- byte-identical to the digest recorded in F-017s resolution, re-confirmed again after the concurrent F-020 comment-only commit and a fresh build. proof-or-stop.config.json declares zero shell:true commands, matching the claim. F-018 (dirty-worktree honesty, deferred): made an uncommitted edit to README.md (a file with zero presence in this storys main...HEAD diff) and reran validation_plan --explain; grepped the full rendered output for any mention of the file, dirty/uncommitted/staged/unstaged/untracked, or workspace_snapshot_changed -- zero hits. status stayed plan, selected 121 of 121, completely unaffected and completely silent about the dirty state; reverted the edit and confirmed git status clean again. This matches F-018s own dismissal text exactly (silent, not deceptive: the tool makes no completeness claim about local changes, and because Story 1 never prunes -- always repository-full or a stop -- the silence cannot cause an incorrect narrower selection; the gap is honestly recorded and deferred to the committed draft docs/story/drafts/planner-worktree-overlay-seeds). No operator is misled into believing something was excluded that should not have been, because nothing is ever excluded in this Story regardless of what the silence hides.",
+      "createdAt": "2026-09-02T08:49:55.829Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-019",
+      "envelopeId": "9c27cb62d6d3fa95e18cf13648e5282e1b5ed660d09abbea8c50eac20f200783",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa5b57a6be7fccc956fa0e79d1b358a381e49063c1408c4a499e040abbf4d002"
     }
   ]
 }
