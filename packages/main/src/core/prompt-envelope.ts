@@ -320,8 +320,31 @@ function isExplicitFailClosedQuotedFixture(text: string): boolean {
 }
 
 function isExplicitRejectedAuthorityStatement(text: string): boolean {
-  const normalized = normalizeTriageAuthorityText(text);
-  return /^reject\s+.+\s+as\s+an\s+invalid\s+(?:authority\s+)?statement[.!?]*$/u.test(normalized);
+  const wrapper = /^reject\s+([\s\S]+?)\s+as\s+an\s+invalid\s+(?:authority\s+)?statement[.!?]*$/iu.exec(text.trim());
+  if (!wrapper) return false;
+  let claim = wrapper[1].trim();
+  const quotePairs = new Map([
+    ['`', '`'],
+    ['"', '"'],
+    ["'", "'"],
+    ['“', '”'],
+    ['‘', '’'],
+  ]);
+  const closingQuote = quotePairs.get(claim[0]);
+  if (closingQuote !== undefined) {
+    if (!claim.endsWith(closingQuote) || claim.length < 3) return false;
+    claim = claim.slice(1, -1).trim();
+  }
+  // The rejection wrapper is metadata for one atomic authority claim. It is
+  // never a whole-source escape hatch for punctuation- or clause-separated
+  // statements that must each be evaluated by the normal fail-closed guard.
+  if (claim.length === 0 || claim.length > 240) return false;
+  if (/[.!?;:\r\n。！？；：]/u.test(claim)) return false;
+  return !/\b(?:and|but|however|yet|although|while|then|therefore)\b/iu.test(claim);
+}
+
+function isBoundedSignedDispositionInspection(segment: string): boolean {
+  return /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u.test(segment);
 }
 
 function isCanonicalTriageInventorySegment(segment: string): boolean {
@@ -495,11 +518,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     }
 
     const unauthorizedActor = /\b(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\b/u;
-    const signedDispositionInspection = unauthorizedActor.test(segment)
-      && deferral.test(segment)
-      && /\b(?:inspect|read|audit|verify|consume)\w*\b/u.test(segment)
-      && /\bsigned\b/u.test(segment)
-      && !/\b(?:mint|signs|signing|supply|supplies|supplying|approve|approves|approving|authorize|authorizes|authorizing|issue|issues|issuing|create|creates|creating|generate|generates|generating|fabricate|fabricates|fabricating)\b/u.test(segment);
+    const signedDispositionInspection = isBoundedSignedDispositionInspection(segment);
     if (!signedDispositionInspection
       && hasConceptPair(segment, unauthorizedActor, deferral)
       && !controlledConceptPairIsExplicitlyNegative(segment, unauthorizedActor, deferral)) {
