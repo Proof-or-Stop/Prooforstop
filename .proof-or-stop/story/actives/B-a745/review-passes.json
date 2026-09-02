@@ -217,6 +217,34 @@
         "scanEscalationReason": null
       },
       "_hash": "df98ca30ac2e922aa7a3c8a4de2dd33078527d0654d8b79b0ba6e33c9bcf99a3"
+    },
+    {
+      "id": "B-a745:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 3 concept/residue + owner-prose audit, story-level. (A) validate --concept: only the 10 already-adjudicated splitShellWords residuals from prior rounds; no new deleted symbol or dangler from the F-010 gitCwd/store/config refactor (validation-plan.ts) or the F-011 comment-only fix (validation-command-identity.ts) -- diffed both commits, no exported symbol removed, only local var rename store->workspace/root->projectRoot. (B) F-010: independently re-ran the owner reproduction live (worktree cwd + real main checkout, same dist, storyId=B-a745): status=plan, unclassifiedInputs=19 both sides, byte-identical selectionDigest across both cwds today (literal digest differs from the cited 89378a5996d8... because head has moved 20+ commits since, expected drift not a discrepancy); confirmed resolveGitCwd + resolveStoryWorkspace wired in at validation-plan.ts:620-650; smoke suite F-010 fixtures pass live, CHK-006 RED-before-GREEN guard passes. F-010 claim holds at its stated width. F-011: filed B-a745:F-013 (medium, open, non-blocking under balanced-profile round-1 rules) -- the resolution and the resulting permanent comment both claim this contradiction is filed with spec owner B-ccf4 to reconcile, which is unverifiable: no gap_log entry (activity.jsonl has exactly one gap_log call, my own --help probe), no B-META-framework-audit reference, no B-ccf4-side artifact, no matching git history, no story doc mentions an actual filing. This is a 3rd unverified specific claim from this owner in this story (after F-008, F-009), the first not self-caught, now baked into permanent source. The self-contradiction framing is defensible but incomplete: CHK-002:edge:0 (this story own approved intent) and the spec own every pin resolves or selection stops invariant both independently support the stop reading Codex took; the CHK-005:happy:0 circularity is the stronger honest justification for the F-001 reversal than spec self-contradiction alone. No new blocking finding this round: F-013 is medium/open, not in this round blocking set, left for main-agent triage.",
+      "createdAt": "2026-09-02T08:06:10.286Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-010",
+      "envelopeId": "a71323ddc2fcd7ae8252976051d8c8ae83a2476a10c4f6a847f9b642408a88c4",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/delivery-check.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json",
+          ".worktrees/B-ccf4/docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "30d5c036e0f62cfbf2d7f40d47bea5fff2e4b9474b4eb4b1ff5a319aed4abe18"
     }
   ]
 }
