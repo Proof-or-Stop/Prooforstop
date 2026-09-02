@@ -636,6 +636,25 @@
       ],
       "signatureTag": "edge|mjs|tests-agents-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d854:F-030",
+      "desc": "docs/audits/AGENTS-current-version-audit.md:92 and tests/AGENTS.verify.mjs:125-136 — WHY high acceptance blocker, distinct from F-028: A19 materially claims a signed reviewer run/pass/finding flow, but its new pass/finding authority entries stop at command registration and schema fields. `review_pass_set` has a required reviewRunId field at packages/main/src/cli/command-catalog.ts:672, yet the actual signed current-run validation is performed by packages/main/src/handlers/finding.ts:360. More critically, `finding_add` declares reviewRunId optional at command-catalog.ts:2089 because main findings may omit it; the reviewer-only requirement is enforced by packages/main/src/handlers/finding.ts:519-525. AUTHORITY_BY_ROW never reads either handler predicate, so removing reviewer current-run enforcement would still leave A19 authority policy, all 12 new citation mutations, and final GREEN unchanged. A command field existing is not evidence that the signed reviewer binding is enforced. Add exact handler authorities for pass and reviewer finding current-run validation, bind them in the audit cell, and add removal/replacement mutations for both runtime-enforcement references.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T02:53:14.787Z",
+      "reviewRound": "2026-09-02T02:50:09.498Z",
+      "reviewRunId": "B-d854:RR-017",
+      "_hash": "b7bedad9d857b7f3296f2d7ec1e18fa7bfad91c003bcaf1e09314df7bbaa1f77",
+      "files": [
+        "docs/audits/AGENTS-current-version-audit.md",
+        "tests/AGENTS.verify.mjs"
+      ],
+      "signatureTag": "adversarial|md|docs-audits-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
