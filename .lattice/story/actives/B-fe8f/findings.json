@@ -378,6 +378,23 @@
       "resolvedReason": "Commit 6278c7a2277692b2c4a8e0fbc0a347be6a8c9d5e requires exact signed lifecycle authority with current key, chain, operation, record coverage, and source CAS; current smoke proves unsigned=open, badSignature=open, altered=open, signed=resolved, exactCas=true.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-017",
+      "desc": "packages/main/src/core/store.ts:572 — ledger-authoritative Finding can be shadowed by unsigned findings.json bytes when the mirror row reuses the signed Finding id but deletes or changes recordId. readFindings finds the id, skips replacement because recordId mismatches, and returns the forged terminal status; reproduction built current HEAD, created one signed open ledger Finding, rewrote only its compatibility mirror to status=resolved while deleting recordId, and observed {status:resolved,recordId:null,ledgerRows:1}. This restores the lifecycle-authority bypass fixed in F016 and can make REVIEW/TEST gates consume an unsigned closure.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-02T00:58:53.856Z",
+      "reviewRound": "2026-09-02T00:54:51.339Z",
+      "reviewRunId": "B-fe8f:RR-014",
+      "_hash": "e77124b6c2558143339752147869b1ebf20df5fbe4ea8b50ea0a5aaf4f646378",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtje1deq_15g1_d7876fd8c92d41a59e7a14d0e83267fc",
+      "ledgerCommitReceiptId": "lrc_mtje1deq_15g1_d4282734eeaf4116a2ec23921aac7562"
     }
   ]
 }
