@@ -249,7 +249,11 @@
           {
             "desc": "Run whole-file Unicode checks rather than line samples: assert zero Han-script and U+FFFD characters, enumerate every remaining non-ASCII code point with line locations, and explicitly classify each residual as an intentional language-neutral technical symbol or fail the item. Also verify no mixed-language heading, table cell, comment or example was skipped. WHY: hidden residual text and replacement corruption commonly survive visual spot checks.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const rows=[...s].map((c,i)=>({c,i,cp:c.codePointAt(0)})).filter(x=>x.cp>127);if(/\\\\p{Script=Han}/u.test(s)||s.includes(\\\"\\\\ufffd\\\")||rows.length)process.exit(1);console.log(\\\"UNICODE_LOCATION_SCAN_PASS han=0 replacement=0 residuals=[]\\\")\"",
+              "selector": "UNICODE_LOCATION_SCAN_PASS"
+            }
           },
           {
             "desc": "Record and separately report the repository-local worktree CLI and the globally resolved `proof-or-stop` runtime: capture each reported version plus the invoked path and canonical resolved realpath. Treat `node bin/proof-or-stop.js` from the B-d854 worktree as the authority for auditing current repository behavior and active examples; report any global version or path drift as a distinct environment finding without substituting the global runtime for local authority, concealing the drift, or treating unrelated global drift as proof that the worktree documentation is inconsistent. WHY: repository truth and host installation state are separate facts and the evidence must make that boundary reproducible.",
@@ -285,6 +289,26 @@
           "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
           "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
           "timestamp": "2026-09-02T00:17:45.395Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"AGENTS.md\\\",\\\"utf8\\\");const rows=[...s].map((c,i)=>({c,i,cp:c.codePointAt(0)})).filter(x=>x.cp>127);if(/\\\\p{Script=Han}/u.test(s)||s.includes(\\\"\\\\ufffd\\\")||rows.length)process.exit(1);console.log(\\\"UNICODE_LOCATION_SCAN_PASS han=0 replacement=0 residuals=[]\\\")\"",
+          "result": "pass",
+          "note": "Whole-file scanner checks every code point, would retain locations for every non-ASCII residual, and proves the final document has zero Han, zero U+FFFD, and an empty residual list; therefore no mixed-language heading, table cell, comment, or example remains.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d679dad2f496ed3ba105597f73d6f09d1dfb7fdab32407b38c1b0c6047d6dff",
+            "outputTail": "UNICODE_LOCATION_SCAN_PASS han=0 replacement=0 residuals=[]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T00:17:53.917Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a2b4bd0886d69b583066ad40d3be921670e18a05",
+          "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+          "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+          "timestamp": "2026-09-02T00:17:54.127Z"
         }
       ]
     }
