@@ -1062,6 +1062,36 @@
         "scanEscalationReason": null
       },
       "_hash": "bbc5cfdf2c74757e5c3806cbd5224a5b861efadca72afbbb1059b169734d1e85"
+    },
+    {
+      "id": "B-9f2c:RP-036",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-signature under RI-005 after RI-004 invalidation (OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, unrelated to code). Confirmed via git diff 74b9aeafea -- packages/ that zero source has changed since RP-035; only .proof-or-stop/ metadata moved (scope ack, acceptance-basis regen, finding resolutions, evidence refresh). Re-verified handlers/graph.ts: GraphArgs.story is optional (no .default()); assertGraphStoryExists validation (line ~533) runs before both the --json early return (~541) and startServer (~571); graphStorySuggestions ranks deterministically (prefix band, then Levenshtein distance, then id.localeCompare tiebreak); the deep-link URL uses encodeURIComponent(story), not raw interpolation. command-catalog.ts registers story as plain z.string().optional() with the default documented in the description, matching the open/json flags convention. npx tsc --noEmit -p packages/main exits 0. Reviewed F-010 (topology critic, high, resolved/fixed): the coverage-gap half concerns packages/graph/scripts/verify-missing-assets-fail.mjs being absent from scope-contract.json despite three DEV/REVIEW repair rounds (dcf54ecff3, 4912d8390a, 22eb158523, 0c9253c5be) -- this is my own prior finding trail (F-006 fixed, F-008 fixed, F-009 accepted_risk with the spawnSync-has-no-timeout rationale I strengthened last pass, unchanged and still correct: grep confirms no timeout on the production spawnSync call). The fifth acknowledgement now recorded in scope-contract.json is candid about the lateness (\"That omission was mine and the critic was right to flag it\"), ties every edit to an externally-forced contract change (main commit 3aa57145d8 changed the handler contract this verifier asserted), and matches the acknowledged-expansion mechanism used for the other four out-of-scope paths in this story. This is a scope-contract/process gap, not a code-quality defect in the file itself, does not touch security or data integrity, and does not distort any gate outcome (the acceptance-basis/rollout staleness the critic also flagged was independently closed by regeneration). No new code-quality finding this round.",
+      "createdAt": "2026-09-03T07:27:44.738Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-064",
+      "envelopeId": "573bbf56df6ff26c947506e3c7faff72377ac9d5fda23449c92588c9313538c7",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c54b3931704ffd1f96a3b4d2f2a975c421ee0a8f929bf89b09ce57484a64186"
     }
   ]
 }
