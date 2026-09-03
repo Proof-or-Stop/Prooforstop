@@ -835,6 +835,35 @@
       },
       "readDiagnostics": [],
       "_hash": "362cb36022cc4542a86dae9d24ffa9579ec8ab5710931817a343aef9f22aa187"
+    },
+    {
+      "id": "B-fe8f:RP-026",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 16 test-coverage review passed on current committed bindings. All 71 must intents have exactly one current mechanical passing receipt with zero gaps, waivers, duplicates, non-mechanical records, or failed selectors. Fresh execution of the RED harness proves the historical baseline failure, current GREEN success, corrupted-relation rejection, unchanged assertion, and zero remaining contract gaps. A focused source-extracted negative-control probe proves the immutable legacy selector is absent for both currentGreenPasses=false and corrupted-relation acceptance, while remaining present only for the fully valid current GREEN relation. The committed diff is whitespace-clean and no open high or critical finding remains.",
+      "createdAt": "2026-09-03T13:32:52.003Z",
+      "reviewRound": "2026-09-03T13:27:50.557Z",
+      "reviewRunId": "B-fe8f:RR-054",
+      "envelopeId": "930f00afdc9aac189153480c46c888862cad8c9f74c7f2fdb04143e1ae449f61",
+      "writerSessionId": "sess-60dca796ce9134eb0a3c85af5049d05d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "AGENTS.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/test-evidence.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dee5f60e00af2e6c5fb98f53d3856c09067a272a53fe735a32b182f8fb9891be"
     }
   ]
 }
