@@ -2736,6 +2736,95 @@
       "incrementalContextBytes": 15133,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-docs",
+      "storyId": "B-9f2c",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-9f2c:RR-036",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "lane": "proof-or-stop-review-docs",
+      "dispatchPromptDigest": "ca7172ca5ba2e8a9bd8f3030d04dead36660011ff0be6142b31973dd6a0d6d47",
+      "hostRenderIdentityDigest": "c222029ef96ec0d7dcdbed31f6bd75be35b143f4d7d137ad137e79989f875c59",
+      "createdAt": "2026-09-03T03:32:28.202Z",
+      "headHash": "597ec32848bd80c102a834447df885988f723c30",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "e9fb06480633efbd54237ede4b07264bef3d8c8b32e9f5da89f57eeebe3ae7d5",
+      "roleRenderDigest": "8b0f64626bbb476080250a21aa2d1ece23beca5ccb9d432918733d402c0b8ab5",
+      "contextMode": "full",
+      "contextDigest": "0c5720b8327df75b7c20eb1cc315310f4db8f94a666bd4ff486bfbd652e481bb",
+      "materialHash": "6e5c3b9983df1f153f5c8ee270321f095ce5913f9d3e6937731d32f4c240487d",
+      "storyFilesHash": "f746f43eec105b8ac2bcc056fc893b15d16d7c93113858906b1d40acecc6580f",
+      "policyHash": "64c3c50ce42412f2118b4c49d158ebe68bf5437ad2cd5014d5170df7bb53f5d6",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "f839d59d8c385569fba0de835c26ec908a93ae2f2c364b16a8cb2540fc03c55d",
+      "knownExecutionEnvironmentDigest": "2558a09f743459b5397442b71096509ff2c3738fb299dc5001c3c263f88f6228",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "adc22ad545228d4ec5c7b13827d2a60df2dc219d5a2d3e211b650ea7055b4996",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "216e2731b9836b853152eac81f1b5decfca37c9d84af6834222886d6b28bf648",
+      "bytes": 23457,
+      "lines": 162,
+      "estimatedTokens": 5865,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "59eee3dfc862d1b888717c50135fadeb3935831f16a9911d4f343488748187c1",
+      "priorPassRef": "B-9f2c:RP-023",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "47f6a4a5f7ee06c6924e5927b13c631df5bc379cc80ea01598e7eb67a4acd983",
+      "impactedFilesDigest": "87aa81a75f226a28195468709f05f4c9d9bca3eaae6a7fe4251b50118f916637",
+      "taskSemanticDigest": "ec67dfaca8660b96bae543a42b096b0f299e3f3ce99b8759ef91c1d1afd5a501",
+      "findingProjection": [
+        {
+          "id": "B-9f2c:F-001",
+          "createdAt": "2026-09-02T08:40:36.688Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "CHK-002 adversarial:0 was authored from a false premise and one of its two clauses is unsatisfiable on this branch. The intent text reads 'the local d3 hard-failure branch in scripts/build-web.mjs survives the port AND dossier.js is concatenated after app.js, not before'. The d3 hard-failure change exists only as an uncommitted edit in the MAIN checkout; it is not committed on story/B-9f2c and it is not upstream either. Verified two ways: grep -c 'd3 is missing' packages/graph/scripts/build-web.mjs returns 0 on this branch, and the CHK-002 implementer independently reported build-web.mjs is now byte-identical to upstream. So no work on this branch can either satisfy or violate that clause. The load-order clause is the real risk and IS proven: build-web.mjs concatenates app.js at line 33, playback.js at 36 and dossier.js at 40, and the recorded evidence for this intent pins that ordering with a negative control. No evidence was fabricated for the d3 clause; the implementer recorded its voiding in the evidence note. Deliberately NOT fixed by rewriting the intent: verificationIntent is frozen after PLAN by design, and checklist_update correctly refused the edit. Rewriting a frozen intent mid-DEV to match what was actually built is exactly the self-absolution the freeze exists to prevent. Filing this instead so the mismatch is auditable rather than silently reworded."
+        },
+        {
+          "id": "B-9f2c:F-002",
+          "createdAt": "2026-09-02T14:34:58.295Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:111-115 (section 'Test-surface placement') states 'Two test lists in this repository are separately maintained, and neither is a subset of the other: validate.commands in the project config, and test:serial-reference in the root package.json.' This is incomplete: packages/main/src/tasks/full-suite-runner.ts's RESOURCE_POLICY (lines 116-159) is a THIRD fail-closed membership authority -- entriesFromSerialReference (full-suite-runner.ts:216-227) throws 'canonical inventory mismatch unknownPolicy=[...]' and aborts the whole suite (called at line 590 of main(), before any test entry is scheduled) if a test:serial-reference member has no RESOURCE_POLICY entry. This story's own CHK-005 checklist context explicitly modeled its plan on this doc's 'TWO separate test-surface lists' framing and, as a direct consequence, registered the new graph-story-flag-smoke task in validate.commands and test:serial-reference but not in RESOURCE_POLICY -- causing npm test to abort in 858ms with exactly the unknownPolicy error the code comments describe, which blocked done_required_validate and forced a TEST->DEV->REVIEW bounce (fixed in commit f4e9acdd21). The code's own comments at full-suite-runner.ts:145-146 and :151-153 record that this identical trap was already hit twice before by other stories (B-49ed, B-cdf6), meaning the canonical decision doc has been silently incomplete across at least three incidents. A future implementer who reads only this doc (as CHK-005 did) will reproduce the same suite-aborting failure. Severity high: this is the specific reproducible-bug-inducing doc gap the review task explicitly asked to check for, and the doc is the canonical decision reference cited by this story's own checklist relatedDocs."
+        },
+        {
+          "id": "B-9f2c:F-003",
+          "createdAt": "2026-09-02T14:41:02.468Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/graph-story-flag-smoke.ts CHK-005:adversarial:0 pinned command only re-verifies lattice.config.json validate.commands and package.json (test:<name> script + test:serial-reference membership) -- it never reads packages/main/src/tasks/full-suite-runner.ts's RESOURCE_POLICY, the THIRD fail-closed membership authority that was the actual root cause of the done_required_validate failure this round (npm test aborted in 858ms with 'canonical inventory mismatch unknownPolicy=[test:graph-story-flag-smoke]', fixed in f4e9acdd21). Negative control on a scratch copy (git show HEAD:packages/main/src/tasks/full-suite-runner.ts with the RESOURCE_POLICY repoRead('test:graph-story-flag-smoke') line at line 159 removed, never touching the tracked file) confirms the pinned adversarial command still prints SELECTOR_BOTH_SURFACES_REGISTERED and exits 0 against the real repo's lattice.config.json/package.json, i.e. it is a false positive for exactly the class of regression it claims to guard against ('the task is registered in BOTH surfaces, so membership in one list is never mistaken for coverage by the other'). The CHK-005 verificationIntent wording is frozen after PLAN so it cannot be reworded now (same disposition as F-001); this finding records the gap so the pinned probe (or a follow-up story) can add a third assertion reading RESOURCE_POLICY membership, matching the corrected 'three membership authorities' text just landed in docs/requirements/decisions/graph-command-migration.md by F-002. Not blocking: the live defect is already fixed (f4e9acdd21) and independently confirmed by the commit chain through done_required_validate; this is a test-completeness gap in the regression guard, not a currently-failing check."
+        },
+        {
+          "id": "B-9f2c:F-004",
+          "createdAt": "2026-09-02T14:53:40.640Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:196-200 still says 'the six tasks run through TWO separately-maintained mechanisms, the same split the \"Test-surface placement\" section above describes' -- but the F-002 fix (commit 527de168c1) rewrote that section to describe THREE membership authorities (validate.commands, test:serial-reference, RESOURCE_POLICY), not two. This paragraph was not updated in the same fix, so the doc now cross-references its own earlier section with a framing that section no longer has, and the claim is also inaccurate on its own terms: test:process-fact-contract (one of the six tasks this paragraph is about) IS registered in RESOURCE_POLICY (packages/main/src/tasks/full-suite-runner.ts:180), so it participates in all three authorities, not 'only through test:serial-reference' as implied by the two-mechanism framing. This is exactly the kind of stale cross-reference the CLAUDE.md global preference on fanning out corrections warns about: fixing one occurrence of a wrong fact while leaving a second occurrence in the same file. Severity medium: this is process-fact documentation drift within a decisions doc that CHK-005's relatedDocs cites as the trap-prevention source, so a future story reading only this later paragraph could re-inherit the same two-authority misunderstanding that already caused three prior incidents (B-cdf6, B-49ed, B-9f2c CHK-005)."
+        }
+      ],
+      "findingProjectionDigest": "5bcb326218f1472784fd521b85827a4f465a29b4cfe41af679460bc903da5980",
+      "reviewBasisDigest": "23524a908103bfc3ae7eeddaf76f86d3ee69cc250416da6a5a59cb877accb00b",
+      "incrementalContextDigest": "05a69df8e1ecf7c8def6d2883fee51fdc10ce7e9c73e51b3126d6d9dc532d110",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 23457,
+      "incrementalContextBytes": 15133,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }
