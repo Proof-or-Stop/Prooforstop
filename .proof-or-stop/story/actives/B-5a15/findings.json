@@ -20128,6 +20128,43 @@
       ],
       "signatureTag": "missing|mjs|file-prior-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-381",
+      "desc": "Planned fix ordering for F-374/F-380 (finalize -> DEV -> rebuild basis -> rollout -> live-proof -> pre_review_check -> re-earn CHK-004:happy:2/3 LAST -> REVIEW) will NOT converge as written: pre_review_check must run strictly LAST, after the two should receipts are re-earned, not before them. Two independent mechanical traps confirmed by reading pre-review-check.ts: (1) storyFilesHash trap -- pre_review_check freezes basis.binding.storyFilesHash from the PLAN-phase acceptance_basis_generate artifact (pre-review-check.ts:348,387) and evidenceState() requires an EXACT match evidence.storyFilesHash === storyFilesHash (pre-review-check.ts:111,115,119) with no material-only tolerance; verification_evidence_add/verification_evidence_batch_add call autoCommitStoryMetadata (checklist.ts:2440,2579) which moves HEAD, and evidenceHashes() (checklist.ts:308-320) stamps storyFilesHash from the HEAD immediately BEFORE that call's own auto-commit -- i.e. whatever commit the rollout/live-proof/pre-review steps left behind, not the earlier basis-generation commit. So re-earning the two receipts after pre_review_check necessarily stamps a storyFilesHash that mismatches basis.binding.storyFilesHash, and the very next pre_review_check_read will report PR_EVIDENCE_STALE / PR_POSITIVE_EVIDENCE_MISSING for exactly those two receipts. (2) cutoffAt trap -- pre_review_check freezes issuedAt as cutoffAt (pre-review-check.ts:398) and evidenceState() requires evidence.timestamp < cutoff to count as current (pre-review-check.ts:117-119); any evidence timestamped after pre_review_check was issued falls into afterCutoff and triggers PR_CUTOFF_UNBOUND (pre-review-check.ts:363). Re-earning receipts LAST is necessarily after cutoffAt. Conclusion: correct order is rebuild basis -> rollout -> live-proof -> re-earn CHK-004:happy:2/3 receipts -> pre_review_check LAST (mirroring the same acceptance_basis_generate-before-pre_review_check discipline CLAUDE.md already documents for F-435/F-438, extended one more hop down the chain). If pre_review_check runs before the receipts are earned, the plan reproduces the exact same PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED failure this round, costing another full REVIEW round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T04:01:11.120Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-910",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8a466d292d73771586a1f71caffa91dce110895acdedda038f71d7bd23dbee09",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|planned-ordering-finalize",
+      "signatureTagSource": "auto"
     }
   ]
 }
