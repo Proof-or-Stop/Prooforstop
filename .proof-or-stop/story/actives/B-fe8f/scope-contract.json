@@ -208,10 +208,27 @@
       "phase": "DEV",
       "headHash": "42d53b36010fd9d1d3f57b885c76c6abf8f47a3a",
       "materialHash": "cd7b333358dde5573fbe3e1a729e8025c33d69ab7ee4f1c6fe5c629c450b371f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-fe8f CHK-001 added one validate.commands entry, so the existing real-inventory contract requires a mechanical commandSetDigest re-pin; no validation-planner behavior is changed.",
+      "timestamp": "2026-09-03T19:19:45.813Z",
+      "paths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "16dd8f619c1fc85274338af3c5b381ea1f260e75",
+      "materialHash": "e2c78a9f38dd24ee93d7f0ed82157f9ad417abc4e9c03ec2e78bd4a0dbe80016",
+      "hunkDigest": "b4a751b0b17b599a3de40cdb241dcfd909810d4c1b4c9c0a212cd5b40d82c616"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-02T19:53:08.181Z",
+  "updatedAt": "2026-09-03T19:19:45.813Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -267,6 +284,7 @@
     "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json": ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json"
+    ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json": ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts"
   }
 }
