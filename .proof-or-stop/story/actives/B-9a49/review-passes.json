@@ -1324,6 +1324,37 @@
         "scanEscalationReason": null
       },
       "_hash": "d957429929a8c447b66ae092b1b0d2058f9ec44b180c3b925aa641d59e141f68"
+    },
+    {
+      "id": "B-9a49:RP-034",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review: diff shows one const relocated (roleById), no deleted exports/functions in main...HEAD per validate --concept (no deleted exports). No dangling residual references found.",
+      "createdAt": "2026-09-03T17:35:37.456Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-137",
+      "envelopeId": "bac6e819a747e3ab49d3a5655093c5e5519b7efde304ece1a7b7cf2738aa604b",
+      "writerSessionId": "sess-4f69fdb5f41ab88fe87f4f372584d005",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f179f3f586e606609cc9f10e8ab0cf8db66cef0c611401c089059f332c8f1a2d"
     }
   ]
 }
