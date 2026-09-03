@@ -52,6 +52,24 @@
       ],
       "signatureTag": "edge|ts|edge-evidence-vacuous",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dc2e:F-003",
+      "desc": "quality: .proof-or-stop/story/actives/B-dc2e/plan.md:3 states \"Every smoke's default output stays under 11000 characters\" but packages/main/src/tasks/validation-tier-planner-smoke.ts default stdout is measured at 10822 chars (node packages/main/dist/tasks/validation-tier-planner-smoke.js), a 178-char / 1.6% margin, and no assertion in the file enforces this bound (contrast single-owner-extraction-smoke.ts, which has an explicit self-bound assertion for its own output length). A small future addition to this 3760+-line smoke silently breaks the documented plan.md convention with nothing catching it; the executor's hard trimOutput cap (MAX_OUTPUT_CHARS=12000, core/validation-executor.ts:40) still has 1178 chars of headroom, so this is a maintainability/fragility gap, not an active truncation bug.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T05:25:25.603Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-002",
+      "_hash": "9ef84ca885470720961e70852149911464fb07cc414c824a79bff0751d7e2cdc",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-proof-stop",
+      "signatureTagSource": "auto"
     }
   ]
 }
