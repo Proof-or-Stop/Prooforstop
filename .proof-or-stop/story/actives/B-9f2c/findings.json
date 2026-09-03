@@ -157,7 +157,7 @@
       "desc": "Recorded on behalf of the test-coverage lane, which found it but could not register it because the tree was dirty with the in-flight F-006 fix at the time. Two residual limits in verify-missing-assets-fail.mjs after the F-005 strengthening, both real, neither blocking. (1) DELIBERATE STUB: the recovery branch's four checks (parses as HTML, contains openStoryDossier, at least 100000 bytes, d3.min.js present) can all be satisfied simultaneously by a hand-crafted stub that is padded past the size floor, contains the literal marker string, and is paired with a d3.min.js copied from a stale earlier build. The reviewer demonstrated this on a scratchpad script and it produces zero failures. The F-005 strengthening raised the bar substantially (four content assertions replacing an existsSync-plus-substring match) but did not close it to zero; closing it fully would require deriving the expected content from the build output rather than asserting fixed markers. (2) PRESENT-BUT-STALE IS UNTESTED BY CONSTRUCTION: ensureGraphClientBuilt only rebuilds when app.html or d3.min.js is MISSING (`if (existsSync(appHtml) && existsSync(d3Bundle)) return;` at handlers/graph.ts:81) and never checks staleness against current source, while this verifier only exercises the path where app.html was renamed away. So a present-but-stale client is outside what this script can observe, by design of both sides rather than by oversight. DEFERRED per CLAUDE.md defect triage rather than fixed: low severity, not a regression of this story's acceptance scope, and not gate-distorting, because production code independently re-checks both files before returning and the shipped CLI cannot reach the stub scenario without someone deliberately fabricating assets. Follow-up for a dedicated story: assert the rebuilt page against a digest derived from the build inputs instead of fixed markers, and decide separately whether ensureGraphClientBuilt should detect staleness rather than only absence.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-03T06:29:26.469Z",
@@ -167,7 +167,11 @@
         "packages/graph/scripts/verify-missing-assets-fail.mjs"
       ],
       "signatureTag": "adversarial|mjs|recorded-behalf-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Deferred deliberately, with evidence, per CLAUDE.md defect triage. Both residual limits are real and were independently demonstrated by the test-coverage lane: a hand-crafted stub padded past the size floor, containing the openStoryDossier marker, and paired with a stale d3.min.js satisfies all four recovery-branch checks; and the present-but-stale client path is untestable by this script by construction, since ensureGraphClientBuilt rebuilds only on ABSENCE (handlers/graph.ts:81 returns early when both files exist) and never checks staleness, while the verifier only exercises the renamed-away path. Deferral is justified on the triage criteria rather than convenience: severity is low, neither limit is a regression of this story's acceptance scope, and neither distorts a gate, because production code independently re-checks both required files before returning and the shipped CLI cannot reach the stub scenario without someone deliberately fabricating assets. Fixing it properly means asserting the rebuilt page against a digest derived from the build inputs instead of fixed markers, and separately deciding whether ensureGraphClientBuilt should detect staleness rather than only absence -- both are design changes to code this story does not own, and belong in a dedicated story rather than in unbounded scope creep here. The analysis, the reviewer's reproduction and the named follow-up are recorded on the finding so this is a handoff rather than a dropped defect.",
+      "resolvedAt": "2026-09-03T06:31:44.676Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
