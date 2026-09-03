@@ -1,0 +1,56 @@
+{
+  "storyId": "B-dc2e",
+  "changes": "packages/main/src/tasks/validation-protocol-smoke.ts: fixed (the fixture, not the assertion, was wrong: proofOrStop.md is a migration rewrite of lattice.md, not a case-only variant) and registered in package.json (test:validation-protocol script and test:serial-reference chain), full-suite-runner.ts RESOURCE_POLICY and proof-or-stop.config.json validate.commands; a sweep classifies all 362 packages/main/src/tasks files (registered, kept-unregistered with a printed reason, reached by path). packages/main/src/tasks/observability-snapshot-smoke.ts: regex derived from OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION, registered as test:observability-snapshot. packages/main/src/tasks/full-suite-runner-smoke.ts: evaluateRealInventory evaluates the live test:serial-reference and test:serial-reference-prefix chains against the live RESOURCE_POLICY, fails on a removed row, and prints the membership line only after the prefix-stale edge assertion and a discriminating control pass. packages/main/src/core/red-green-commit-guard.ts (new, pure): RED-before-GREEN over CHK-nnn and F-nnn ids, No-RED: marker with a 30-character reason, story-qualified prior-RED allowance; validation-tier-planner-smoke.ts wires it over main..HEAD with a --grep-bounded strict git query (64 MB maxBuffer, raises on failure), collapses sections by default (VALIDATION_TIER_PLANNER_VERBOSE=1) and asserts its default output stays under 11000 chars. packages/main/src/handlers/cross-host-review.ts: persists a bounded findings array for both hosts (50 findings; title 200, file 300, description and fix 1000 chars) with a visible truncation marker and truncatedFields, true findingCount kept, exposed by --json; raw provider stdout is never persisted.",
+  "usage": "npm run test:validation-protocol, npm run test:observability-snapshot, node packages/main/dist/tasks/full-suite-runner-smoke.js, node packages/main/dist/tasks/validation-tier-planner-smoke.js (VALIDATION_TIER_PLANNER_VERBOSE=1 for per-case lines), node packages/main/dist/tasks/cross-host-review-smoke.js. Commit subjects for story work: RED(CHK-nnn): / GREEN(CHK-nnn): and RED(F-nnn): / GREEN(F-nnn):; a legitimate no-RED fix carries a body line No-RED: <reason of 30+ characters>; a GREEN may rely on a RED from merged history only with a story-qualified id such as GREEN(B-dc2e:F-001).",
+  "expectedOutcome": "Each of the four smokes ends with its PASS line and each carries a committed mutation that fails on the defect it guards: the orphan registration case, the removed RESOURCE_POLICY row, the squashed RED and the unrelated-story RED collision, and the dropped host-B findings and raw-stdout sentinel.",
+  "actualTranscript": "validation-protocol-smoke: passed (registration, refusal of an unregistered member, 362-file sweep with 0 unclassified, CASE_MISMATCH detection); full-suite-runner-smoke: PASS (168 assertions, real inventory and both mutations); validation-tier-planner-smoke: PASS with the RED-before-GREEN guard line, default output 2519 chars; cross-host-review-smoke: passed (28 checks, findings persisted, truncation visible, sentinel absent). DONE-required validation PASS. Review escalation full-3x2: four local lanes plus three agy host reviews, the third of which first returned FAIL on the priorRedIds ENOBUFS defect, fixed as F-007 and F-008, then PASS.",
+  "outcomeDiff": "No difference between expected and actual.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Six legacy task modules under packages/main/src/tasks are kept unregistered with printed reasons (legacy @task pipeline pinned by the silent-catch baseline; a hand-run generator; a fixture loader) and belong to a dead-code cleanup. The RED guard is a commit-subject convention: it cannot tie a RED subject to a real failing run, so a fabricated RED still passes; the story-qualified allowance only removes cross-story collisions. Load-flaky heartbeat smokes seen in the C story's gates are recorded in dev-memory for a later owner, not changed here.",
+  "pitfalls": "Four implementers worked one worktree in parallel; disjoint files and per-path git add kept it clean, but the tier-planner digest pin had to be re-pinned after CHK-001 registered a new command. The pinned CHK-002 edge selector was vacuous until the print was moved behind the edge assertion (pins are immutable, so the line text could not change). The prior-RED allowance went through two designs: merge-base history first (F-006), then story-qualified ids only after the behavior lane showed an unrelated story's RED(CHK-001) satisfying a branch GREEN and the agy host showed the unbounded git log overflowing maxBuffer into a silently empty set (F-007, F-008). Three REVIEW rounds, eight findings.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 54914779
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27911
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 569251
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 3952336
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 6725701
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 6197432
+    }
+  },
+  "totalDurationMs": 72388401,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-03T09:24:59.671Z",
+  "updatedAt": "2026-09-03T09:24:59.671Z"
+}
