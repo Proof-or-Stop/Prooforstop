@@ -20575,6 +20575,23 @@
       ],
       "signatureTag": "missing|ts|consolidated-supersedes-zero",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-398",
+      "desc": "SCOPE CORRECTION to B-5a15:F-397 (same family, not a new defect — filed as an addendum because a reviewer cannot amend my finding and I should not leave F-397's instance list materially wrong for the follow-up story). The concept lane re-derived certificationDomainForPath against 60+ probe paths using the live compiled rules table and showed F-397's named instance list undercounts. I verified the correction myself: CITATION.cff, LICENSE, and .gitignore are all git-tracked AND classify to zero rules, so each would abort deriveCertificationDomainInputHashes for any story that touches them — exactly the same all-or-nothing failure F-397 describes. That triples the known live instance count (F-397 named src/app.ts, packages/graph/src/*, packages/main/templates/agents/*). Structural cause confirmed by the lane: every rule requires either an explicit root-filename allowlist entry (the package.json family, or AGENTS|CLAUDE|README) or a directory prefix, so ANY other shape fails closed. Plausible-future shapes the lane named for follow-up scope: packages/graph/{index.html,vite.config.ts}, .github/workflows/*, Dockerfile, .env*, and any future packages/main/templates/<non-agents-dir>/* (templates/ currently holds only agents/, so no live sibling gap today but the shape recurs). Recommended handling unchanged from F-397 and now better scoped: decide whether unclassifiable paths should fail closed for the whole story or classify to a default domain — the latter looks preferable given how many ordinary repo-root files are currently unclassifiable. Deferred, non-blocking, unclaimed by any checklist item: no gate this story's acceptance depends on consumes these paths, since none is in this story's diff.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-03T10:20:47.311Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "_hash": "421634b2448c5518a6bacda4d33c66541e12a7f1c4fdc91f127b7233f1c49528",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|scope-correction-5a15",
+      "signatureTagSource": "auto"
     }
   ]
 }
