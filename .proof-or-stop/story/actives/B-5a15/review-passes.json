@@ -15465,6 +15465,28 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "5a1f1a24d77deb34e84874a4d385f963ea3a89b68b27479025c1fc9fc0d3bbd9"
+    },
+    {
+      "id": "B-5a15:RP-338",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Incremental pass on commit d16cdeeec8 (only source change since RR-939/RP-336): git show --stat confirms exactly runtime-artifact-registry.ts, certification-window.ts, certification-window-smoke.ts touched (80 insertions, 2 deletions). Two symbol changes in the diff, both fully accounted for with zero residue: 1. stateDirPrefix('dev-memory/experience.jsonl') -> stateDirExact(same tail) at runtime-artifact-registry.ts:234 -- grepped all stateDirPrefix/stateDirExact call sites repo-wide, no stray reference to the old prefix form for this entry, and stateDirPrefix remains legitimately used elsewhere for genuine directory-tail matchers (runtime/, dev-memory/finish-decisions/, traces/, locks/, usage/, learning/, artifacts/baseline/, benchmarks/memory-playbook/), so this is a correct one-line semantic fix not a deletion needing propagation. 2. const CERTIFICATION_DOMAIN_PATH_RULES -> export const at certification-window.ts:143: grepped repo-wide for the symbol name, found exactly one definition and one consumer (the new certification-window-smoke.ts F-393 guard) plus two pre-existing comment references (runtime-artifact-registry.ts:217, certification-window.ts:110) -- no name collision, no second export of the same identifier anywhere. Verified certificationDomainForPath, the classifier, is NOT exported, only the data table is, matching the commit's stated design and the F-393 finding resolution text exactly. No other symbols deleted or renamed in this commit; git show diff has only 2 removed lines total, both covered above. tsc --noEmit -p packages/main/tsconfig.json clean. F-394 (certification-window-smoke.ts registered in no runner) verified independently: grep of packages/main/package.json, full-suite-runner.ts, and validate.ts/validate-*.ts for the filename returns zero hits, confirming the finding's claim. Traced its F-142 fixture failure mechanically: the fixture writes/adds src/app.ts and tests/app.test.ts at lines 939/964/972, and src/app.ts matches zero entries in CERTIFICATION_DOMAIN_PATH_RULES, confirmed by evaluating the exported rules array against the literal string. This is the SAME family as the pre-existing zero-match gaps I flagged in RR-939: packages/graph/src, templates/agents, hypothetical newpkg/src -- all are story-owned paths outside every declared prefix (packages/main/src, excluding tasks; packages/main tests or src/tasks; bin, scripts, .githooks, packages utils or lab; packages star scripts; docs; AGENTS/CLAUDE/README; or a manifest filename), so certificationDomainForPath fails closed to undefined for all of them identically. F-394 is not a new/distinct defect class; it is the same zero-match-path family surfacing through a different symptom, a smoke fixture hitting the gap instead of a real story file. Recommend consolidating under one architectural gap rather than tracking separately, leaving that call to the reporter per their request. F-390 (validate-concept.ts ENOBUFS warn-and-skip) checked against story.currentReviewRound = 2026-09-03T09:03:49.640Z: F-390 reviewRound is 2026-09-03T09:03:49.640Z from RR-939, an EXACT match to the current round, and d16cdeeec8 touched none of validate-concept.ts -- so F-390 remains current and correctly open; not re-filed, no action taken. No concept deletion/replacement introduced a stranded reference this round.",
+      "createdAt": "2026-09-03T10:02:00.633Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-944",
+      "envelopeId": "3226a95daaadc6cfaf77aab2bddd7407faf498a7c00d7d552abd06ea9a401638",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe72257ea0536537a2a0c849ac83d89e5a0cff06ba1d285dcafba5a00fca1c4b"
     }
   ]
 }
