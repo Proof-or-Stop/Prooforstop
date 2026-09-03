@@ -15371,6 +15371,54 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "cd6095d705eb7c93b0ed682ba487425812a86f47c26fd7f70cd958c5910db5ca"
+    },
+    {
+      "id": "B-5a15:RP-336",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Incremental pass on commit 6bf7ce77a3 (only source change since RR-938/RP-333): verified git show --stat touches exactly runtime-artifact-registry.ts and certification-window.ts (40 insertions, 0 deletions, purely additive). Fix 1: new dev-memory-experience-log registry entry uses stateDirPrefix single-file matcher, cannot swallow siblings, mirrors already-trusted dev-memory-finish-decision exclusion pattern; materialHash exclude is architecturally consistent with dev-memory.ts module doc (non-authoritative, does not satisfy gate evidence). Fix 2: enumerated CERTIFICATION_DOMAIN_PATH_RULES against utils/lab/graph/newpkg/root scripts/bin/.githooks plus all 39 story-touched packages/bin/scripts paths -- zero double-matches, negative lookahead verified load-bearing and correct; pre-existing zero-match gaps (packages/graph/src, templates/agents, hypothetical newpkg/src) are untouched by this story and unrelated to the fix. No stranded references: commit is additive only, no deleted/renamed symbols in this or prior rounds diff. tsc --noEmit clean. F-385 was bound to stale round 2026-09-03T04:56:02.041Z (RR-921) vs current currentReviewRound 2026-09-03T09:03:49.640Z -- re-filed as F-390 under RR-939 per established chain-of-supersession pattern; defect confirmed still live and out of this story diff.",
+      "createdAt": "2026-09-03T09:09:47.784Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-939",
+      "envelopeId": "02d3412b647877ee140ff2f4da532b05e9e4e218be1c5edb9d91811cfbd6c920",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "448610dd361de80e5aac6142695849f07d54c53b240f8dc16388fb7291c42b5d"
     }
   ]
 }
