@@ -1390,6 +1390,38 @@
         "scanEscalationReason": null
       },
       "_hash": "52e96536f01e30424ad3a5b2d0b8ad5a8fe2e4613c011633fa85b6fe21ff9a5e"
+    },
+    {
+      "id": "B-9f2c:RP-046",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness-critic assessment for epoch B-9f2c:RI-006 (wave 1). Verified directly, not from prose: git diff 74b9aeafea..924e1926ef (RI-005 cutoff to RI-006 cutoff) touches zero files under packages/ and zero *.md files -- confirmed by wc -l on both filtered diffs (0/0) and by --stat, which lists only nine .proof-or-stop/story/actives/B-9f2c/* metadata files (review-inventory-epochs, review-passes, review-runs, prompt-envelopes, process-events/metrics, acceptance-rollout-report, index, dev-memory-preflight-ack). The four RI-006 lane passes (RP-042 quality, RP-043 docs, RP-044 concept, RP-045 test-coverage) all independently re-derived and stated this same empty-diff fact and are each bound to reviewRound 2026-09-03T07:43:58.222Z and frozen head 924e1926ef, matching the epoch cutoff exactly. Cross-checked full main...HEAD material footprint (47 files) against scope-contract.json's allowedModify/allowedCreate union plus its five acknowledged-expansion path lists (retired-authority-vocabulary-guard-smoke.ts, full-suite-runner.ts, graph-command-migration.md, two dev-memory paths, and verify-missing-assets-fail.mjs) plus .proof-or-stop story-metadata exemption: every changed file is covered, zero orphans. All ten findings (F-001..F-010) are resolved with strong evidence; none carry reviewRound 2026-09-03T07:43:58.222Z (RI-006's round), so the RI-006 wave's own raw finding set is empty -- findingDispositions=[] is correct, not a shortcut. F-009/F-010's claim that verify-missing-assets-fail.mjs is now acknowledged in scope-contract.json was independently confirmed by reading scope-contract.json directly (fifth acknowledgement entry present, phase=REVIEW, headHash 21b298bcb6, materialHash 3f9541ff... matching current cutoff). Cross-checked each RI-006 lane's readManifest.filesReadFully against the four acknowledged-expansion paths: quality (RP-042) and concept (RP-044) both read verify-missing-assets-fail.mjs fully; concept additionally reads full-suite-runner.ts and retired-authority-vocabulary-guard-smoke.ts fully; docs (RP-043) reads graph-command-migration.md fully. No acknowledged-expansion path lacks a full read from at least one required lane. Wave 4 acceptance-topology surfaces independently re-verified live (not from prompt claims): acceptance_basis is basisStatus=partial with 4 AT_UNMAPPED_SCOPE_REF diagnostics that are self-referential to the acceptance-topology mechanism's own process-fact wiring (paths naming acceptance_basis/acceptance_basis_generate/acceptance_topology_check/artifact:acceptance-basis.json as their own consumers), bound at materialHash 3f9541ff... matching current cutoff -- fresh, not stale. acceptance_topology_check returns authority=diagnostic_only, mode=observe, blocking=false, topologyState=legacy_missing on AB-001 -- explicitly non-blocking by the mechanism's own declared authority. pre_review_check_read returns PR_ARTIFACT_MISSING, authority=inadmissible, blocking=false -- confirmed pre_review_check is a DEV-phase-only optional campaign-tooling command (per its own --help ordering note and absence from machine.ts transition guards), never generated for this story because never required for its lifecycle path; this is not an acceptance-evidence gap. acceptance_rollout_report_read and acceptance_rollout_check both independently return ok=true, status=pass, mode=enforce, blocking=false, diagnostics=[], quorum=full-3x2, receipt=current, bound at materialHash 3f9541ff... matching current cutoff. Verified the full-3x2 claim structurally rather than trusting the label: 6 eligible pairs x 2 arms = 12 sourceRecords, each carrying an observationReceipt with checkInventory/mutationCommitSha/restorationCommitSha/controlRestored fields; host identity strings 'codex-cli' and 'claude-cli' both present verbatim in the raw JSON (not degraded to a single host); metrics show baselineReviewRounds=6, candidateReviewRounds=6, falsePassCount=0, falseBlockRate=0, mislabeled3x1Count=0, omissionDetectionRate=1, consistent with genuine 3 rounds x 2 hosts rather than a padded or relabeled 3x1. Conclusion: reviewer coverage for this epoch is genuinely complete. All four required lanes independently confirmed the zero-material-change fact for this specific bounce, all four acknowledged-expansion surfaces have at least one full read among the lane set, no changed file in main...HEAD lacks scope coverage, the raw finding set for this wave is empty, and Wave 4 acceptance-topology/rollout evidence is fresh, non-fabricated, and non-blocking where the mechanism itself declares it non-blocking.",
+      "createdAt": "2026-09-03T07:57:25.709Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-071",
+      "envelopeId": "4c71d2abac14059f8f869040b955b577d1343b0f6463fbf5f08a6d842e04ebcb",
+      "writerSessionId": "sess-f4542e36531f6e5551a25b315e01fabb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-rollout-report.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "66df3497969f35d5047de8b3687e1a91c0db238220de0126032612bf2bfd0125"
     }
   ]
 }
