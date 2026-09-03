@@ -20729,7 +20729,7 @@
       "desc": "fdb0837a8b added \"test:verifier-causal-preflight\" to package.json's test:serial-reference chain (fixing F-400) but did not add a matching RESOURCE_POLICY entry in packages/main/src/tasks/full-suite-runner.ts. entriesFromSerialReference() enumerates test:serial-reference as the sole membership authority and throws canonical inventory mismatch unknownPolicy=[test:verifier-causal-preflight] the moment any name in the chain has no policy[] entry (full-suite-runner.ts:207-217, comment at line 116-118: 'Membership authority is test:serial-reference; a member without a policy entry fails closed (unknownPolicy) before execution'). This throw happens in main() before any test runs (full-suite-runner.ts:579-582), so npm run test -- the root package.json test script that IS PRECERT_TEST_IDENTITY in certification-window.ts:53 -- now fails outright for every invocation at HEAD. Reproduced mechanically: node -e \"require('./packages/main/dist/tasks/full-suite-runner.js').entriesFromSerialReference(serialReference, pkg.scripts)\" throws exactly \"canonical inventory mismatch unknownPolicy=[test:verifier-causal-preflight] stalePolicy=[] missingScripts=[]\". The F-400 fix (correctly diagnosed and correctly must-fix per triage rules: it stops one piece of registered evidence from being false) introduced a new, more severe instance of the exact same class of defect it was fixing -- a story-owned edit to test:serial-reference membership without updating the second membership authority (RESOURCE_POLICY) that the full-suite-runner enforces, so the whole-suite entry point itself is now unable to start. Fix: add an isolated(\"test:verifier-causal-preflight\") entry to RESOURCE_POLICY in full-suite-runner.ts (verifier-causal-preflight-smoke.ts only reads the repo and spawns a child test process, same shape as the adjacent test:closeout-trust isolated() entry it was chained after) so entriesFromSerialReference stops throwing.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T10:34:52.386Z",
@@ -20759,7 +20759,9 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 1a243905ee. Reproduced before believing it: entriesFromSerialReference threw 'canonical inventory mismatch unknownPolicy=[test:verifier-causal-preflight]' in main() before any test executed, breaking npm test outright -- and that entry point is also PRECERT_TEST_IDENTITY (core/certification-window.ts:53), so it broke DONE-required precertification identity rather than merely one task's coverage. The lane's framing was exactly right and worth preserving: my F-400 fix reproduced F-400's own defect class (edit one membership authority, not the other) in the opposite direction and with a worse blast radius. Fix: isolated('test:verifier-causal-preflight') beside its precedent neighbour isolated('test:closeout-trust'). Verified unknownPolicy is now empty, and against the reference main() actually builds -- prefix + serial joined per full-suite-runner.ts:588 -- the inventory reconciles at 59 entries; npm test now runs past the inventory gate. One self-correction recorded: a leftover stalePolicy warning in my first check was an artefact of my testing an incomplete reference, not a defect, and reporting it would have been a phantom finding.",
+      "resolvedAt": "2026-09-03T10:40:01.341Z"
     },
     {
       "id": "B-5a15:F-403",
