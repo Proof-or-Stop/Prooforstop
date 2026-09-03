@@ -19951,7 +19951,7 @@
       "desc": "Supersedes B-5a15:F-375 (misattributed agent=main). packages/main/src/handlers/validate-concept.ts:103-121: checkConcept runs git diff --unified=1000000 main...HEAD via execSync; on a diff exceeding ~239MB this dies with spawnSync ENOBUFS (maxBuffer 200MB does not fix it -- pipe ceiling, not buffer size). Any execSync/diff-read failure is mapped to status=warn, recommendation=skip, so validate --concept silently no-ops on large diffs instead of failing closed. Re-filed from prior deferred finding across rounds; out of scope for this story, correctly deferred to a follow-up story.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T03:53:56.127Z",
@@ -19983,7 +19983,10 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "missing|ts|supersedes-5a15-misattributed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-384, the current-round re-file of the same deferred validate-concept.ts ENOBUFS warn-and-skip defect, bound to reviewRunId RR-917. The concept lane re-files this deferred out-of-scope finding each round so it does not drift into a stale binding and drop off finding_list; consolidating so the tracked instance is unambiguous. The defect itself remains open and correctly deferred as F-384.",
+      "resolvedAt": "2026-09-03T05:13:23.832Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-377",
