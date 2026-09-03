@@ -14457,6 +14457,40 @@
         "scanEscalationReason": null
       },
       "_hash": "eca429d68dda78e4a2be194e1642fa13ae53191601f7677e97ba5b6be58b1285"
+    },
+    {
+      "id": "B-5a15:RP-312",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Adversarially re-checked the F-371 fix in verify-missing-assets-fail.mjs against HEAD (only file changed since RR-905). Confirmed http.ts serves 500 (not 200) with plain-text body when app.html is missing, so branch (a) status!==200 check correctly rejects the never-served case and cannot be gamed by the existing error path; real app.html is 401KB with matching markup, far above the 1000-byte+regex floor, so the heuristic is not trivially satisfiable by a blank/placeholder page under current server behavior. Filed one new low-severity finding F-377 (stash-clobber in branch a: second renameSync at line 75 silently overwrites the true stashed original per verified Node semantics, so finally's \"prefer the stashed original\" clause is dead code in that branch) -- non-blocking, does not defeat the invariant the fix proves. Re-filed the correctly-deferred ENOBUFS finding as F-376 (superseding misattributed F-375). No stranded symbol references from this story's deletions/renames found in this pass.",
+      "createdAt": "2026-09-03T03:55:03.597Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-908",
+      "envelopeId": "0a2c6ad8929b6f450a5b9e40a556d283071e5d69e30225c6ecd8f40fe85966a2",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "334e4b82eeafa62f5965c6a0bdfec5511bf67a78af43b170e01b3b29d943cbb9"
     }
   ]
 }
