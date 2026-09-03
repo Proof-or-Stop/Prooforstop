@@ -287,21 +287,33 @@
           {
             "desc": "The guard derives CHK-nnn and F-nnn ids from commit subjects on main..HEAD and passes when every GREEN has a preceding RED for the same id.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason"
+            }
           }
         ],
         "edge": [
           {
             "desc": "A GREEN(F-nnn) commit whose body carries the documented no-RED marker with a reason of at least 30 characters passes; a marker without a reason fails.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "On a scratch branch where the RED(F-nnn) commit is squashed into the GREEN, the guard fails and names the id; the helper in core/red-green-commit-guard.ts is what the smoke calls.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007"
+            }
           }
         ]
       },
@@ -311,7 +323,72 @@
         "headHash": "e52b27edfb6cfb03cf99f3527b0ef02f638bc292",
         "attestedAt": "2026-09-03T04:51:49.181Z",
         "materialHash": "7b3c8f0aba1ac8f2e78b668afe8fcd3e1e66cfa53cc4c0de8a6135edbcc3df96"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "core/red-green-commit-guard.ts is a pure helper; the smoke runs it over main..HEAD, which holds this story's interleaved RED/GREEN(CHK-001..004) pairs.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3370c203413d4580f91ec7fc91acc5e71f3f655022a625d9ff84232a6defbea",
+            "outputTail": "put\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  a plan render and a stop render differ on the documented status discriminator\n  ok  every planner outcome renders only its own status line, and a forged plan status is refused\n  ok  F-024/F-025: the --json render path refuses an inconsistent report exactly as the text path does\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n  ok  F-010: validation_plan invoked from the main checkout plans the SAME tree as from the story worktree\n  ok  F-010: on a configured wrapper-root layout validation_plan reads the story worktree, not the non-git wrapper\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  F-022: a returned snapshot missing headHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing materialHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing storyFilesHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing headHash + materialHash + storyFilesHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: the thrown-reader path is still classified exactly as before\n  ok  F-022: a complete snapshot stays available with no hash escalation (no over-classification)\n  ok  F-022: the planner escalates an incomplete snapshot with a glossed hash_snapshot_unavailable reason\n  ok  F-022: the planner refuses a schema-bypassing \"available\" snapshot that carries a null binding\n  ok  F-022: the CLI report carries the freshness binding and discloses an unbound one\n  ok  F-022: the render invariant refuses status: plan with a null head / material / storyFiles binding\n  ok  F-022: the REAL reader on an unborn repository (git init, zero commits) never yields a plan with null bindings\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T05:13:34.057Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "e5b7e9990f3654bd9c368d660fe6fcae83c106c5",
+          "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b",
+          "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+          "timestamp": "2026-09-03T05:13:40.223Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Fixture cases: a No-RED: marker with a reason of at least 30 characters passes; a bare marker and a too-short reason are distinct violations.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3370c203413d4580f91ec7fc91acc5e71f3f655022a625d9ff84232a6defbea",
+            "outputTail": "put\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  a plan render and a stop render differ on the documented status discriminator\n  ok  every planner outcome renders only its own status line, and a forged plan status is refused\n  ok  F-024/F-025: the --json render path refuses an inconsistent report exactly as the text path does\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n  ok  F-010: validation_plan invoked from the main checkout plans the SAME tree as from the story worktree\n  ok  F-010: on a configured wrapper-root layout validation_plan reads the story worktree, not the non-git wrapper\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  F-022: a returned snapshot missing headHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing materialHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing storyFilesHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing headHash + materialHash + storyFilesHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: the thrown-reader path is still classified exactly as before\n  ok  F-022: a complete snapshot stays available with no hash escalation (no over-classification)\n  ok  F-022: the planner escalates an incomplete snapshot with a glossed hash_snapshot_unavailable reason\n  ok  F-022: the planner refuses a schema-bypassing \"available\" snapshot that carries a null binding\n  ok  F-022: the CLI report carries the freshness binding and discloses an unbound one\n  ok  F-022: the render invariant refuses status: plan with a null head / material / storyFiles binding\n  ok  F-022: the REAL reader on an unborn repository (git init, zero commits) never yields a plan with null bindings\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T05:13:37.081Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "e5b7e9990f3654bd9c368d660fe6fcae83c106c5",
+          "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b",
+          "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+          "timestamp": "2026-09-03T05:13:40.223Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "A temp git repository with the RED squashed into the GREEN fails with green_without_red naming F-007 (RED 77aa8df889 committed failing before the helper existed).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3370c203413d4580f91ec7fc91acc5e71f3f655022a625d9ff84232a6defbea",
+            "outputTail": "put\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  validation_plan --tier=fast prints every labelled field including finalAuthority: no\n  ok  the provisional-id migration warning reaches the operator instead of being swallowed\n  ok  without --explain the unit list is previewed, and --explain lists every unit\n  ok  the printed counts are derived at runtime, not written into the renderer\n  ok  a no-validator project reports no tier pass instead of an empty plan\n  ok  a plan render and a stop render differ on the documented status discriminator\n  ok  every planner outcome renders only its own status line, and a forged plan status is refused\n  ok  F-024/F-025: the --json render path refuses an inconsistent report exactly as the text path does\n  ok  validation_plan --json emits one parseable object carrying the same facts\n  ok  duration history from prior signed validation artifacts reaches the report with its basis\n  ok  a missing storyId and an unknown tier are each rejected BY NAME, never defaulted\n  ok  the catalog schema constrains storyId and tier as the first line of defence\n  ok  validation_plan is classified readOnly / none / all phases in command-policy\n  ok  invoking validation_plan leaves every byte under the project root identical\n  ok  no write / persist / execute / run flag is accepted, at the schema OR the handler\n  ok  a schema-bypassing invalid tier and empty storyId are rejected at handler AND core entry\n  ok  the CLI tier aliases map onto the canonical vocabulary and add no fourth tier\n  ok  F-010: validation_plan invoked from the main checkout plans the SAME tree as from the story worktree\n  ok  F-010: on a configured wrapper-root layout validation_plan reads the story worktree, not the non-git wrapper\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  F-022: a returned snapshot missing headHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing materialHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing storyFilesHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: a returned snapshot missing headHash + materialHash + storyFilesHash is hash_snapshot_unavailable and the detail names it\n  ok  F-022: the thrown-reader path is still classified exactly as before\n  ok  F-022: a complete snapshot stays available with no hash escalation (no over-classification)\n  ok  F-022: the planner escalates an incomplete snapshot with a glossed hash_snapshot_unavailable reason\n  ok  F-022: the planner refuses a schema-bypassing \"available\" snapshot that carries a null binding\n  ok  F-022: the CLI report carries the freshness binding and discloses an unbound one\n  ok  F-022: the render invariant refuses status: plan with a null head / material / storyFiles binding\n  ok  F-022: the REAL reader on an unborn repository (git init, zero commits) never yields a plan with null bindings\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T05:13:40.105Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "e5b7e9990f3654bd9c368d660fe6fcae83c106c5",
+          "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b",
+          "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+          "timestamp": "2026-09-03T05:13:40.224Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
