@@ -143,7 +143,43 @@
       "context": "handlers/cross-host-review.ts persists only stdoutDigest; findings exist in memory at diffFindings and findingCount. Persist title/severity/file/desc into the verdict JSON or register them through finding_add with the host as agent so they enter the resolve/dismiss lifecycle; never persist raw provider stdout. RED: a FAIL leaf with two findings must leave their text in a committed artifact.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "`node packages/main/dist/tasks/cross-host-review-smoke.js` prints `[PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact` and its final PASS line; `cross_host_review --json` output includes a findings array for host B with no raw stdout field.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cross-host-review-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A FAIL verdict from host B with two parsed findings persists their title, severity, file and description into the committed verdict JSON.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A PASS verdict persists an empty findings array, and finding text is bounded (each field capped) so a runaway provider cannot bloat the artifact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Raw provider stdout never appears in any persisted artifact: the smoke plants a sentinel string in the host output and asserts it is absent from the verdict JSON and the story tree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
