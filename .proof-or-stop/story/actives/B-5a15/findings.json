@@ -20842,6 +20842,37 @@
       ],
       "signatureTag": "missing|json|test-coverage-lane",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-405",
+      "desc": "Independent topology-critic assessment of F-401/F-404's pinned regression: packages/main/tests/causal-evidence.test.mjs:2649-2657 allow-lists only two multi-code AT_* combinations (AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE and AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING) as legitimate fail-closed states, but does not enumerate the single-code AT_SCOPE_BINDING_MISSING state that a scope_contract_acknowledge occurring strictly after acceptance_basis_generate legitimately produces. I independently reproduced this live: computed the current scope-contract digest with the production digestCanonicalJson (packages/main/dist/core/digest.js) over the live scope-contract.json and confirmed it does not equal acceptance-basis.json's basis.binding.scopeContractDigest (5be7cb91... stored vs 31634a78... current), confirming acceptance-basis-receipt.ts:139-141 correctly detects a real digest mismatch, not a false positive. verifyAcceptanceBasisReceipt (acceptance-basis-receipt.ts:150-152) collapses ANY diagnostic containing the substring 'scope-' into the single code AT_SCOPE_BINDING_MISSING via first-match priority, so a scope-contract-only drift (no closure-files drift) mechanically cannot ever produce the two-code combinations the test allow-lists -- the test's own classifier logic guarantees a bare AT_SCOPE_BINDING_MISSING is reachable whenever only the scope contract (not the closure) moved after basis generation, which is exactly the acknowledge-after-generate ordering command-policy.ts explicitly permits (acceptance_basis_generate.allowedPhases includes REVIEW precisely because a scope-contract change during REVIEW staleness-invalidates the basis). I conclude the allow-list under-enumerates a real, honestly-fail-closed state rather than the topology check being broken. This is NOT a REVIEW->TEST blocker: causal-evidence.test.mjs is exercised only via `npm test`/full-suite-runner (TEST-phase evidence), not by any of the REVIEW->TEST CLI preflight gates (channel/concept/lint/docs-drift/codex-adapter/english-artifacts/lattice-residue enumerated in review-preflight.ts), and evaluateReviewVerdict/canPassReviewGuard (machine.ts:819-949) never reads acceptance_topology_check, AT_* codes, or causal-evidence.test.mjs results -- only reviewer finding/pass validity via collectReviewerEvidenceState. Recommended fix (DEV-phase, out of this critic's write authority): either (a) add the bare 'AT_SCOPE_BINDING_MISSING' code to the allow-list at causal-evidence.test.mjs:2652-2655 with a comment explaining the scope-contract-only-drift case, or (b) regenerate the PLAN acceptance basis via acceptance_basis_generate (allowed in REVIEW per command-policy.ts:438) so the receipt's scopeContractDigest binds to the current scope-contract.json, which would make acceptance_topology_check report status=pass and bypass the allow-list question entirely. Deferring to the DEV-phase owner per CLAUDE.md defect-triage rule 3 (not blocking, not this story's REVIEW->TEST acceptance, already substantively tracked by F-401/F-404); recorded here to make explicit that the allow-list itself -- not just the underlying staleness -- is the mechanical gap, which F-401/F-404 do not state.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-03T12:56:56.221Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-965",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "605dc0dec46f459ea3b46f1916acd10c1eafb8ca48748ec1f7c5caaf8d882e6b",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/acceptance-basis-receipt.ts"
+      ],
+      "signatureTag": "missing|mjs|independent-topology-critic",
+      "signatureTagSource": "auto"
     }
   ]
 }
