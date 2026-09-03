@@ -107,8 +107,14 @@ try {
   // its built client, and never leave a stray stash behind.
   if (fs.existsSync(rebuiltStash)) fs.rmSync(rebuiltStash);
   if (fs.existsSync(stash)) {
-    // The genuine original always wins over anything the probe regenerated.
-    if (fs.existsSync(asset)) fs.rmSync(asset);
+    // The genuine original always wins over anything the probe regenerated, and a single
+    // renameSync is the whole restore. B-5a15:F-383 -- an earlier version of this fix did
+    // `rmSync(asset)` first, which opened an interruption window that did not exist before
+    // it: a crash/EBUSY/SIGKILL between the two calls left NO app.html at all, with the
+    // real 401KB original stranded under an invisible dotfile, and a re-run could not
+    // self-heal because the precondition check exits on the missing asset before ever
+    // looking at the stash. renameSync overwrites its destination atomically (verified),
+    // so the delete was never needed -- one call, no window.
     fs.renameSync(stash, asset);
   }
 }
