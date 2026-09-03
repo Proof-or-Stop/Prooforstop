@@ -36,6 +36,24 @@
       "signatureTag": "missing|ts|validation-tier-planner",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-09-03T22:33:11.433Z"
+    },
+    {
+      "id": "B-1482:F-003",
+      "desc": "review_run_start is unconditionally blocked for every REVIEW lane (concept/quality/test-coverage/docs/behavior) on this story: assertReviewerTaskContextAuthoritySafety in packages/main/src/core/prompt-envelope.ts throws severity used as sole ownership or scope authority at checklist.CHK-003.context. Root cause isolated by extracting the guard logic (lines 155-857 of prompt-envelope.ts) into a standalone harness: the single sentence \"Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_creates keyword scan elevates it, keep the elevation rather than dismissing it.\" trips TRIAGE_SEVERITY_SUBJECT (which includes the bare word priority) co-occurring within 260 chars with TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME (which includes the bare word story) in the same clause, via hasConceptPair in classifyControlledRelationSegment for the severity-story-responsibility spec — a false positive: the sentence is about story PRIORITY elevation policy (CLAUDE.md risk-keyword elevation), not about a Finding severity determining ownership/scope. No review-runs.json exists yet for this story (confirmed by directory listing), so no reviewer lane has been able to start a run; this is not specific to the concept lane. Acceptance-blocking: REVIEW cannot proceed for any lane until this guard false-positive is resolved or CHK-003.context is reworded. Repro: see standalone extraction of prompt-envelope.ts lines 155-857 tested against the literal CHK-003.context string, which reproduces the identical error text.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:39:41.054Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "88d0639049401d1b1dfe02269138cf3104d31546fcf2a3912526f5cb5ff0cf64",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        ".proof-or-stop/story/actives/B-1482/checklist.json"
+      ],
+      "signatureTag": "missing|ts|review-start-unconditionally",
+      "signatureTagSource": "auto"
     }
   ]
 }
