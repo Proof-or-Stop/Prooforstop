@@ -594,7 +594,7 @@
       "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:94-97,380-395 — CHK-001:edge:3 current-state regression coverage is not fail-closed. legacyPinnedNegativeControl eligibility omits currentGreenPasses, while simulatedCurrentRegression checks only the new currentGreenPasses token. A source-extracted mechanical probe of the committed renderer returned oldSelectorStillMatchesWhenCurrentGreenFails=true. Therefore the immutable old selector can still match a rendered currentGreenPasses=false state through nested compatibility text instead of requiring current GREEN success. Include currentGreenPasses in legacy-selector eligibility and add a negative assertion that the old selector is absent for the simulated current failure, while preserving the existing corrupted-relation-acceptance rejection control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T12:12:37.809Z",
@@ -605,7 +605,11 @@
         "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
       ],
       "signatureTag": "adversarial|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by proof-or-stop-implementer commit 025a128360382673e3edf74ecee51618bf16fd65. Independent test-coverage review run B-fe8f:RR-052 extracted the committed renderer and observed oldSelectorPresent=false for currentGreenPasses=false, oldSelectorPresent=false when corrupted-relation rejection was false, and oldSelectorPresent=true only for the current proven GREEN state. The complete RED/GREEN harness exited 0 with historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true and gaps=0.",
+      "resolvedAt": "2026-09-03T13:30:17.016Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
