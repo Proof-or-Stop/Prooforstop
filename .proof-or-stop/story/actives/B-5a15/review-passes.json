@@ -15999,6 +15999,37 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "ebeab6484116c0ee8abd525a66ad56fbd0ecade46aa277809bbd837eb944b0d1"
+    },
+    {
+      "id": "B-5a15:RP-353",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue scan over the current REVIEW round (round 2026-09-03T14:55:02.746Z, head 3223be3). git diff main...HEAD --stat -M shows zero renames; the diff is dominated by story metadata + a new fully-additive causal-evidence subsystem, so there is no deleted/replaced concept for those files. Scoped grep of removed (-) lines across packages/main/src, packages/graph/scripts, packages/main/tests, and scripts found only in-place refactors: normalizeEvidence, ReexecStamp, currentPreReviewInputForContext, preReviewCaseRequiresSemanticBinding all retain their exported names with extended signatures (verified every call site uses the current arity, zero stale 1-arg calls). The only true removals are 5 internal helper functions in acceptance-discovery-adapters.ts (isCallableDeclaration, sameFileCallableBody, sameFileCallableCallNames, sameFileCallableCalls, MAX_SAME_FILE_CALL_REACHABILITY_DEPTH) superseded by TS type-checker-based symbol resolution (sameFileCallableReachable/hasSameFileIncomingCall now take a checker param, both live and called consistently); grep across *.ts/*.md/*.mjs (excluding node_modules/dist/.git) for all 5 removed names returns zero residue. Independently verified the deferred_gate_evidence waiver used on CHK-004:happy:2/3 is a pre-existing framework waiverType (types.ts:1074, verification.ts:193, proofstory.ts:847 correctly excludes it from acceptance coverage), not a newly invented bypass concept. validate --concept CLI gate hit ENOBUFS on this story diff size, a known tooling limit not a residue signal; my manual scan is scoped to source/test/script files where concept deletion could occur. No concept-deletion residue found this round.",
+      "createdAt": "2026-09-03T15:00:37.581Z",
+      "reviewRound": "2026-09-03T14:55:02.746Z",
+      "reviewRunId": "B-5a15:RR-970",
+      "envelopeId": "5d234c868cc3cbedf6648e8ceb2eee826b463bbe27657a68c3f04085c3738e8c",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/lattice-evidence.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a47c5ae318ab6a881fb48658974377db1da36b00a43a67557aedddfbef438605"
     }
   ]
 }
