@@ -93,6 +93,34 @@
         "scanEscalationReason": null
       },
       "_hash": "ef556e6e67ea0531ca079f78ca34f97725e29d17b82b3da5d1cb6cffab017852"
+    },
+    {
+      "id": "B-dc2e:RP-004",
+      "agent": "proof-or-stop-review-concept",
+      "note": "F-008/F-007 residue sweep clean: helper header, smoke comment, and renamed testCase titles show no stale references to the pre-fix unqualified-id rule or the old whole-history/silent-null contract; gitOutput/gitOutputIn still catch-and-return-null as documented; no dangling refs to old fixture titles; plan.md CHK-003 predates F-007/F-008 (not drift); no mentions in docs/requirements or CLAUDE.md; git log --grep=claude --grep=codex main..HEAD is 0; rebuilt and ran validation-tier-planner-smoke.js, all cases pass including the RED-before-GREEN guard line and final PASS.",
+      "createdAt": "2026-09-03T06:23:54.350Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-010",
+      "envelopeId": "8d6424ca44ce5165f46e9ccd4f3ddb03765bdba87a6d52b72a6434cf8f3998de",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b77617dd9c833ab97f661fa23cd8723904b17ed548c23303988d33378394cdf"
     }
   ]
 }
