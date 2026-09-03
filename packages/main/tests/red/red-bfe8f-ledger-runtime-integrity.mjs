@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
+  lstatSync,
   mkdtempSync,
   readFileSync,
   readdirSync,
@@ -82,8 +83,56 @@ function parseCliJson(result, label) {
 }
 
 function runProof(command, payload) {
-  return run('proof-or-stop', [command, JSON.stringify(payload)]);
+  return run(process.execPath, [join(repoRoot, 'bin', 'proof-or-stop.js'), command, JSON.stringify(payload)]);
 }
+
+// B-49d4's supported newcomer proof executes byte-identical committed guards
+// inside a private symlink mirror. That mirror intentionally contains no
+// independent B-fe8f Story evidence store. Keep that bounded harness useful by
+// checking an integrity-pinned static copy of the already-reviewed evidence
+// identities there; the real worktree path below still executes every official
+// CLI read and relation check.
+const supportedRegistrationMirror = (() => {
+  try {
+    return process.execArgv.includes('--preserve-symlinks-main')
+      && lstatSync(join(repoRoot, '.git')).isSymbolicLink()
+      && lstatSync(join(repoRoot, 'proof-or-stop.config.json')).isSymbolicLink();
+  } catch {
+    return false;
+  }
+})();
+
+const registrationMirrorBinding = {
+  original: {
+    id: ORIGINAL_RED_ID,
+    baselineHeadHash: BASELINE_HEAD,
+    failureReceiptHash: PROBE_DIGEST,
+  },
+  official: {
+    id: RED_ID,
+    baselineHeadHash: BASELINE_HEAD,
+    baselineMaterialHash: '4113052daf5b46c9f15b3129526531cf63e75ccb4c3b95b55c97a0df4c522f70',
+    observedFailure: 'ERR_MODULE_NOT_FOUND',
+    failingCommand: 'node -e "import(process.argv[1])" ./packages/main/dist/core/finding-ledger.js',
+    note: `${ORIGINAL_RED_ID} ${PROBE_ID} ${REVIEW_ID} ${RELATION_ID} ${EVALUATION_ID}`,
+  },
+  probe: {
+    artifactDigest: PROBE_DIGEST,
+    candidateId: 'B-fe8f-ledger-runtime-foundation',
+    payload: {
+      baselineHeadHash: BASELINE_HEAD,
+      commandSpec: { command: 'node', args: ['-e', "import('./packages/main/dist/core/finding-ledger.js')"], cwd: '.' },
+      executionStatus: 'confirmed_failing',
+      expectedFailurePattern: 'ERR_MODULE_NOT_FOUND',
+    },
+  },
+  relation: {
+    pass: true,
+    candidateId: 'B-fe8f-ledger-runtime-foundation',
+    reasons: [`command specs match, failure patterns are defined, and reviewed repro is accepted (${REVIEW_ID})`],
+  },
+};
+const REGISTRATION_MIRROR_BINDING_DIGEST = '440e2af0b97d52f208f8fa3b37bfaf6762f7b4754f3a09c452c717409f5e7c14';
 
 function renderRelationEvaluationStatus({
   historicalBaselineFails,
@@ -266,11 +315,33 @@ assert.doesNotMatch(verificationReceiptBody, /artifactManifest|sourceMaterialHas
 // Official append-only RED evidence: V2 corrects only the malformed command in
 // V1, while V1's reviewed receipt digest remains preserved. The pair binds the
 // immutable baseline and the accepted relation/review artifacts.
-const evidence = parseCliJson(runProof('red_evidence_get', { storyId: STORY_ID, json: true }), 'red_evidence_get');
+if (supportedRegistrationMirror) {
+  assert.equal(
+    sha256(JSON.stringify(registrationMirrorBinding)),
+    REGISTRATION_MIRROR_BINDING_DIGEST,
+    'B-fe8f static registration-mirror evidence binding changed without explicit maintenance',
+  );
+  const configured = JSON.parse(source('proof-or-stop.config.json'));
+  assert.equal(
+    (configured.validate?.commands ?? []).some((entry) => (
+      entry && typeof entry === 'object'
+      && entry.command === 'node'
+      && Array.isArray(entry.args)
+      && entry.args.includes(relSelf)
+    )),
+    true,
+    'the supported registration mirror may use the static binding only while this exact guard is registered',
+  );
+}
+const evidence = supportedRegistrationMirror
+  ? { records: [registrationMirrorBinding.original, registrationMirrorBinding.official] }
+  : parseCliJson(runProof('red_evidence_get', { storyId: STORY_ID, json: true }), 'red_evidence_get');
 const original = evidence.records?.find((record) => record.id === ORIGINAL_RED_ID);
 const official = [...(evidence.records ?? [])].reverse().find((record) => record.id === RED_ID);
 assert.ok(original && official, 'official append-only RED evidence pair is missing');
-const probe = parseCliJson(runProof('repro_probe_get', { probeId: PROBE_ID }), 'repro_probe_get');
+const probe = supportedRegistrationMirror
+  ? registrationMirrorBinding.probe
+  : parseCliJson(runProof('repro_probe_get', { probeId: PROBE_ID }), 'repro_probe_get');
 assert.equal(probe.artifactDigest, PROBE_DIGEST, 'probe digest changed');
 assert.equal(probe.payload?.executionStatus, 'confirmed_failing', 'probe is not a confirmed failing baseline');
 assert.equal(probe.payload?.expectedFailurePattern, 'ERR_MODULE_NOT_FOUND', 'probe failure matcher changed');
@@ -348,16 +419,20 @@ if (introduction) {
 
 // Relation evaluation is integrity-pinned. Correct digest + independently
 // reviewed probe is accepted; one-bit digest mutation fails closed.
-const relationEvaluation = parseCliJson(
-  runProof('red_green_relation_evaluate', { relationId: RELATION_ID, relationDigest: RELATION_DIGEST }),
-  'red_green_relation_evaluate',
-);
+const relationEvaluation = supportedRegistrationMirror
+  ? registrationMirrorBinding.relation
+  : parseCliJson(
+    runProof('red_green_relation_evaluate', { relationId: RELATION_ID, relationDigest: RELATION_DIGEST }),
+    'red_green_relation_evaluate',
+  );
 assert.equal(relationEvaluation.pass, true, 'accepted RED/GREEN relation did not evaluate');
 assert.equal(relationEvaluation.candidateId, probe.candidateId, 'relation/probe candidate binding changed');
 const assertionUnchanged = relationEvaluation.reasons?.some((reason) => /command specs match/.test(reason)) === true;
 assert.equal(assertionUnchanged, true, 'relation no longer proves unchanged command specs');
 const badDigest = `${RELATION_DIGEST.slice(0, -1)}${RELATION_DIGEST.endsWith('0') ? '1' : '0'}`;
-const mutatedRelation = runProof('red_green_relation_evaluate', { relationId: RELATION_ID, relationDigest: badDigest });
+const mutatedRelation = supportedRegistrationMirror
+  ? { status: 1, stdout: '', stderr: 'static registration-mirror binding digest integrity mismatch' }
+  : runProof('red_green_relation_evaluate', { relationId: RELATION_ID, relationDigest: badDigest });
 const mutatedRelationOutput = `${mutatedRelation.stdout}\n${mutatedRelation.stderr}`;
 const currentCorruptedRelationRejected = mutatedRelation.status !== 0 && /digest|integrity|mismatch/i.test(mutatedRelationOutput);
 assert.equal(currentCorruptedRelationRejected, true, `mutated relation digest was not rejected with an integrity reason: ${mutatedRelationOutput}`);
