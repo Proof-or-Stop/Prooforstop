@@ -903,10 +903,26 @@ export function queryFindingLedger(
     if (!trust || !verifyFindingLedgerReceipt(receipt, trust)) {
       throw new FindingLedgerQueryRefusal('ledger_receipt_signature_invalid');
     }
+    const carrierRecords = persisted.recordIds.map((recordId) => recordsById.get(recordId));
+    if (carrierRecords.some((record) => !record)) {
+      throw new FindingLedgerQueryRefusal('ledger_incomplete');
+    }
+    const committedCarrierRequestDigest = canonicalHash({
+      operation: persisted.operation,
+      idempotencyKey: persisted.idempotencyKey,
+      records: carrierRecords.map((record) => ({
+        recordType: record!.recordType,
+        payload: record!.payload,
+        ...(record!.uniqueBindingKey ? { uniqueBindingKey: record!.uniqueBindingKey } : {}),
+      })),
+      ledgerSchemaEpoch: ledger.ledgerSchemaEpoch,
+      writerCapability: ledger.minimumWriterCapability,
+    });
     if (receipt.storyId !== storyId
       || receipt.receiptId !== persisted.receiptId
       || receipt.operation !== persisted.operation
       || receipt.idempotencyKey !== persisted.idempotencyKey
+      || persisted.requestDigest !== committedCarrierRequestDigest
       || canonicalHash(receipt.recordIds) !== canonicalHash(persisted.recordIds)
       || receipt.priorLedgerDigest !== persisted.priorLedgerDigest
       || receipt.committedLedgerDigest !== persisted.committedLedgerDigest

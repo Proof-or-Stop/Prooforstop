@@ -75,6 +75,107 @@ type SignedLedgerCommitReceipt = LedgerEnvelope<unknown>['receipts'][number] & {
   findingLedgerReceipt?: FindingLedgerReceipt;
 };
 
+interface LegacyFindingIdentityBindingPayload {
+  schemaVersion: 1;
+  bindingType: 'legacy-finding';
+  findingId: string;
+  findingHash: string;
+}
+
+function trustedLegacyFindingIdentityBinding(
+  ledger: LedgerEnvelope<unknown>,
+  storyId: string,
+  record: LedgerRecord<unknown>,
+  trust: FindingLedgerReceiptTrust | undefined,
+): LegacyFindingIdentityBindingPayload | undefined {
+  if (!trust || record.recordType !== 'legacy_identity_binding'
+    || !record.payload || typeof record.payload !== 'object') return undefined;
+  const payload = record.payload as LegacyFindingIdentityBindingPayload;
+  if (JSON.stringify(Object.keys(payload).sort()) !== JSON.stringify([
+    'bindingType', 'findingHash', 'findingId', 'schemaVersion',
+  ])
+    || payload.schemaVersion !== 1
+    || payload.bindingType !== 'legacy-finding'
+    || typeof payload.findingId !== 'string'
+    || !payload.findingId.trim()
+    || !/^[0-9a-f]{64}$/.test(payload.findingHash)
+    || record.uniqueBindingKey !== `legacy-finding:${payload.findingId}`) return undefined;
+
+  const recordIndex = ledger.records.findIndex((candidate) => candidate.recordId === record.recordId);
+  if (recordIndex < 0) return undefined;
+  const carriers = (ledger.receipts as SignedLedgerCommitReceipt[])
+    .filter((candidate) => candidate.recordIds.includes(record.recordId));
+  if (carriers.length !== 1) return undefined;
+  const carrier = carriers[0]!;
+  const signed = carrier.findingLedgerReceipt;
+  const requestRecords = [{
+    recordType: record.recordType,
+    payload: record.payload,
+    uniqueBindingKey: record.uniqueBindingKey,
+  }];
+  const expectedStorageRequestDigest = canonicalHash({
+    operation: 'append_legacy_identity_binding',
+    idempotencyKey: carrier.idempotencyKey,
+    records: requestRecords,
+    ledgerSchemaEpoch: ledger.ledgerSchemaEpoch,
+    writerCapability: ledger.minimumWriterCapability,
+  });
+  const expectedExactRequestDigest = canonicalHash({
+    storyId,
+    operation: 'append_legacy_identity_binding',
+    idempotencyKey: carrier.idempotencyKey,
+    records: requestRecords,
+    casBindings: [],
+  });
+  const expectedPriorDigest = canonicalHash(ledger.records.slice(0, recordIndex));
+  const expectedCommittedDigest = canonicalHash(ledger.records.slice(0, recordIndex + 1));
+  if (!signed || !verifyFindingLedgerReceipt(signed, trust)
+    || carrier.operation !== 'append_legacy_identity_binding'
+    || signed.operation !== 'append_legacy_identity_binding'
+    || signed.storyId !== storyId
+    || signed.receiptId !== carrier.receiptId
+    || signed.idempotencyKey !== carrier.idempotencyKey
+    || record.idempotencyKey !== carrier.idempotencyKey
+    || signed.recordIds.length !== 1
+    || signed.recordIds[0] !== record.recordId
+    || carrier.recordIds.length !== 1
+    || carrier.recordIds[0] !== record.recordId
+    || signed.casBindings.length !== 0
+    || carrier.requestDigest !== expectedStorageRequestDigest
+    || carrier.exactRequestDigest !== expectedExactRequestDigest
+    || signed.exactRequestDigest !== expectedExactRequestDigest
+    || record.priorDigest !== expectedPriorDigest
+    || carrier.priorLedgerDigest !== expectedPriorDigest
+    || signed.priorLedgerDigest !== expectedPriorDigest
+    || carrier.committedLedgerDigest !== expectedCommittedDigest
+    || signed.committedLedgerDigest !== expectedCommittedDigest
+    || signed.committedAt !== carrier.committedAt
+    || signed.writerSessionId !== carrier.writerSessionId
+    || signed.writerFenceToken !== carrier.writerFenceToken
+    || signed.replayed !== false
+    || carrier.replayed !== false) return undefined;
+  return payload;
+}
+
+function findingMatchesLegacyIdentityHash(
+  finding: FindingData['findings'][number],
+  findingHash: string,
+): boolean {
+  if (canonicalHash(finding) === findingHash) return true;
+  const original = { ...finding, status: 'open' as const };
+  delete original.recordId;
+  delete original.ledgerCommitReceiptId;
+  delete original.resolvedAt;
+  delete original.resolvedReason;
+  delete original.resolutionType;
+  delete original.resolveEvidenceStrength;
+  delete original.dismissedAt;
+  delete original.dismissReason;
+  delete original.dismissReasonType;
+  delete original.dismissEvidenceStrength;
+  return canonicalHash(original) === findingHash;
+}
+
 function isTrustedFindingLifecycleTransition(
   ledger: LedgerEnvelope<unknown>,
   storyId: string,
@@ -561,6 +662,7 @@ export class StoryStore {
     const lifecycleTrust = ledger.records.some((record) => record.recordType === 'finding_lifecycle_transition')
       ? currentFindingLedgerTrustFromWorkspace(this.projectRootValue)
       : undefined;
+    const trustedFindingRecordIds = new Set<string>();
     for (const record of ledger.records) {
       if (record.recordType !== 'finding' || !record.payload || typeof record.payload !== 'object') continue;
       const payload = record.payload as FindingData['findings'][number];
@@ -583,6 +685,25 @@ export class StoryStore {
           findingIndex === index || finding.id !== payload.id
         ));
       }
+      trustedFindingRecordIds.add(record.recordId);
+    }
+    for (const record of ledger.records) {
+      const binding = trustedLegacyFindingIdentityBinding(
+        ledger,
+        storyId,
+        record,
+        lifecycleTrust,
+      );
+      if (!binding) continue;
+      const matches = data.findings.filter((finding) => (
+        finding.id === binding.findingId
+        && findingMatchesLegacyIdentityHash(finding, binding.findingHash)
+      ));
+      if (matches.length !== 1) continue;
+      matches[0]!.recordId = record.recordId;
+      const receipt = ledger.receipts.find((candidate) => candidate.recordIds.includes(record.recordId));
+      if (receipt) matches[0]!.ledgerCommitReceiptId = receipt.receiptId;
+      trustedFindingRecordIds.add(record.recordId);
     }
     for (const record of ledger.records) {
       if (record.recordType !== 'finding_lifecycle_transition'
@@ -603,6 +724,7 @@ export class StoryStore {
       const finding = data.findings.find((candidate) => (
         candidate.id === transition.findingId
         && candidate.recordId === transition.findingRecordId
+        && trustedFindingRecordIds.has(candidate.recordId)
       ));
       if (!finding) continue;
       finding.status = transition.toStatus;

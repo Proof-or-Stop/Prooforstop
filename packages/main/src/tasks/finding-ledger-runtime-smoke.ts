@@ -463,6 +463,94 @@ function runFindingProjectionRegression(root: string): void {
   const query = queryFindingLedger(ledger, storyId, findingLedgerSignerFromWorkspace(root));
   assert.equal(query.signedRows, true);
   assert.equal(query.rows.every((row) => verifyFindingLedgerQueryRow(row, trust)), true);
+  const outerRequestDigestTamper = structuredClone(ledger);
+  outerRequestDigestTamper.receipts[0]!.requestDigest = '0'.repeat(64);
+  let outerRequestDigestAccepted = false;
+  try {
+    queryFindingLedger(outerRequestDigestTamper, storyId, findingLedgerSignerFromWorkspace(root));
+    outerRequestDigestAccepted = true;
+  } catch {
+    // Expected: the signed receipt must remain bound to the persisted carrier request.
+  }
+  if (outerRequestDigestAccepted) {
+    console.log('query.carrier_request_digest_binding: RED outerMutation=accepted');
+  }
+  assert.equal(
+    outerRequestDigestAccepted,
+    false,
+    'query accepted a current signed receipt after only the outer carrier requestDigest changed',
+  );
+  console.log('query.carrier_request_digest_binding: PASS outerMutation=refused legacyQuery=preserved');
+
+  const legacyCrashStoryId = 'B-LEGACY-LIFECYCLE-CRASH';
+  store.writeStory(legacyCrashStoryId, runtimeStory(legacyCrashStoryId));
+  const legacyOpenFinding: Finding = {
+    id: `${legacyCrashStoryId}:F-001`,
+    desc: 'legacy terminal transition crash-window regression',
+    severity: 'high',
+    category: 'edge',
+    status: 'open',
+  };
+  store.writeFindings(legacyCrashStoryId, { findings: [legacyOpenFinding] });
+  const legacyMirrorPath = store.storyFilePath(legacyCrashStoryId, 'findings.json');
+  const legacyMirrorBytes = readFileSync(legacyMirrorPath, 'utf8');
+  const originalWriteFindings = store.writeFindings.bind(store);
+  store.writeFindings = (candidateStoryId, candidate) => {
+    if (candidateStoryId === legacyCrashStoryId
+      && candidate.findings.some((finding) => finding.status === 'resolved')) {
+      throw new Error('injected omitted legacy mirror write');
+    }
+    originalWriteFindings(candidateStoryId, candidate);
+  };
+  const priorLegacyCrashAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
+  try {
+    assert.throws(() => handlers.finding_resolve({
+      storyId: legacyCrashStoryId,
+      findingId: legacyOpenFinding.id,
+      resolution: 'signed transition committed before legacy mirror write',
+      resolutionType: 'fixed',
+      resolveEvidenceStrength: 'strong',
+    }), /injected omitted legacy mirror write/);
+  } finally {
+    store.writeFindings = originalWriteFindings;
+    if (priorLegacyCrashAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = priorLegacyCrashAgent;
+  }
+  assert.equal(readFileSync(legacyMirrorPath, 'utf8'), legacyMirrorBytes);
+  const legacyCrashLedger = store.readFindingLedger<JsonValue>(legacyCrashStoryId);
+  const legacyIdentityBinding = legacyCrashLedger.records.find((record) => (
+    record.recordType === 'legacy_identity_binding'
+  ))!;
+  assert.ok(legacyIdentityBinding, 'kill-window fixture did not commit the legacy identity binding');
+  assert.equal(
+    legacyCrashLedger.records.filter((record) => record.recordType === 'finding_lifecycle_transition').length,
+    1,
+    'kill-window fixture did not commit exactly one signed lifecycle transition',
+  );
+  const legacyCrashProjection = store.readFindings(legacyCrashStoryId).findings[0]!;
+  if (legacyCrashProjection.status !== 'resolved') {
+    console.log(`finding.lifecycle_legacy_kill_window: RED durableTransition=1 mirrorWrite=omitted projected=${legacyCrashProjection.status}`);
+  }
+  assert.equal(
+    legacyCrashProjection.recordId,
+    legacyIdentityBinding.recordId,
+    'signed legacy identity binding did not recover the durable recordId after the mirror write was omitted',
+  );
+  assert.equal(
+    legacyCrashProjection.status,
+    'resolved',
+    'signed legacy terminal transition was lost after the mirror write was omitted',
+  );
+  originalWriteFindings(legacyCrashStoryId, {
+    findings: [{ ...legacyOpenFinding, desc: 'unsigned mirror relabel', recordId: legacyIdentityBinding.recordId }],
+  });
+  assert.equal(
+    store.readFindings(legacyCrashStoryId).findings[0]?.status,
+    'open',
+    'an unsigned mirror relabel must not acquire signed lifecycle authority',
+  );
+  console.log('finding.lifecycle_legacy_kill_window: PASS durableTransition=1 mirrorWrite=omitted projected=resolved unsignedMirror=open');
   console.log('finding.sparse_display_id: PASS next=F-004 reused=0 ledgerRows=1');
   const reviewerFindingEvents = store.readProcessEvents(storyId)
     .filter((event) => event.type === 'reviewer_finding' && event.findingId === `${storyId}:F-004`);
