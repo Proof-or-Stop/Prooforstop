@@ -3744,15 +3744,94 @@ testCase('a temp repository with RED(F-007) squashed into its GREEN fails naming
   assert.match(describeRedGreenViolations(result), /F-007/, 'the failure text must name the finding id');
 });
 
+/**
+ * B-dc2e F-006: ids with a RED subject BEFORE the branch point, i.e. reachable
+ * from the merge-base of main and HEAD. `main..HEAD` excludes those commits, so
+ * a GREEN on the branch whose RED already sits on main must not be a false
+ * green_without_red. Git I/O stays here; the helper receives a plain set.
+ */
+function priorRedIds(cwd: string | null): ReadonlySet<string> {
+  const base = (cwd ? gitOutputIn(cwd, ['merge-base', 'main', 'HEAD']) : gitOutput(['merge-base', 'main', 'HEAD']))?.trim();
+  if (!base) return new Set();
+  const subjects = (cwd ? gitOutputIn(cwd, ['log', '--format=%s', base]) : gitOutput(['log', '--format=%s', base])) ?? '';
+  const ids = new Set<string>();
+  for (const subject of subjects.split('\n')) {
+    const parsed = parseRedGreenSubject(subject.trim());
+    if (parsed?.phase === 'RED') ids.add(parsed.id);
+  }
+  return ids;
+}
+
+/** The branch range `main..HEAD` through the helper, as the smoke's own guard consumes it. */
+function evaluateBranchRedGreen(cwd: string | null) {
+  return evaluateRedGreenCommitOrder(readRedGreenCommits(cwd, ['main..HEAD']));
+}
+
+testCase('a GREEN whose RED landed on main before the branch point is satisfied through priorRedIds', () => {
+  // The helper stays pure: the caller hands it the ids that have a RED subject in the
+  // branch point's history, and a GREEN for such an id counts as satisfied.
+  const evaluate = evaluateRedGreenCommitOrder as (
+    commits: readonly { subject: string; body?: string }[],
+    options?: { priorRedIds?: ReadonlySet<string> },
+  ) => ReturnType<typeof evaluateRedGreenCommitOrder>;
+  const mainSide = [{ subject: 'RED(CHK-001): a fixture fails, committed on main', body: '' }];
+  const prior = new Set(mainSide.map((commit) => parseRedGreenSubject(commit.subject)).filter((parsed) => parsed?.phase === 'RED').map((parsed) => parsed!.id));
+  const inRange = [{ subject: 'GREEN(CHK-001): the fix on the story branch', body: '' }];
+  assert.equal(evaluate(inRange).ok, false, 'the range alone genuinely lacks the RED, so without the prior set it still fails');
+  const satisfied = evaluate(inRange, { priorRedIds: prior });
+  assert.equal(satisfied.ok, true, `a GREEN whose id has a RED before the branch point must pass: ${describeRedGreenViolations(satisfied)}`);
+  assert.deepEqual(satisfied.violatingIds, []);
+  // An id with no RED anywhere is still a violation, prior set or not.
+  const other = evaluate([{ subject: 'GREEN(CHK-002): no RED anywhere', body: '' }], { priorRedIds: prior });
+  assert.equal(other.ok, false, 'a GREEN whose id is not in the prior set and has no RED in range must still fail');
+  assert.deepEqual(other.violatingIds, ['CHK-002']);
+  // The No-RED marker rule is unchanged: a bare marker fails even when a prior set is supplied.
+  const bareMarker = evaluate([{ subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED:\n' }], { priorRedIds: prior });
+  assert.equal(bareMarker.ok, false, 'No-RED without a reason must still fail');
+  assert.deepEqual(bareMarker.violatingIds, ['F-011']);
+});
+
+testCase('a temp repository with RED(CHK-001) on main before the branch point accepts the branch GREEN(CHK-001)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-prior-'));
+  temporaryRoots.push(root);
+  writeFixtureFile(root, 'README.md', '# red-green prior fixture\n');
+  fixtureGit(root, ['init', '-q']);
+  fixtureGit(root, ['checkout', '-q', '-B', 'main']);
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'base']);
+  writeFixtureFile(root, 'fixture.test.txt', 'expect: fails\n');
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'RED(CHK-001): the fixture fails, committed on main']);
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-fixture']);
+  writeFixtureFile(root, 'fix.txt', 'fixed\n');
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'GREEN(CHK-001): the fix on the story branch']);
+
+  const rangeOnly = readRedGreenCommits(root, ['main..HEAD']);
+  assert.deepEqual(rangeOnly.map((commit) => commit.subject), ['GREEN(CHK-001): the fix on the story branch'], 'main..HEAD excludes the RED that sits on main');
+  assert.deepEqual([...priorRedIds(root)], ['CHK-001'], 'the branch point history carries the RED id');
+  const accepted = evaluateBranchRedGreen(root);
+  assert.equal(accepted.ok, true, `the branch GREEN must be satisfied by the RED before the branch point: ${describeRedGreenViolations(accepted)}`);
+
+  // Control: a branch GREEN with no RED anywhere in history still fails, naming only itself.
+  writeFixtureFile(root, 'other.txt', 'other\n');
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'GREEN(CHK-002): no RED anywhere']);
+  const control = evaluateBranchRedGreen(root);
+  assert.equal(control.ok, false, 'a GREEN with no RED anywhere must still fail');
+  assert.deepEqual(control.violatingIds, ['CHK-002']);
+});
+
 testCase('main..HEAD passes the RED-before-GREEN helper', () => {
   const range = readRedGreenCommits(null, ['main..HEAD']);
   // Once merged the range is empty; fall back to the subject-filtered whole
   // history rather than passing vacuously.
-  const commits = range.some((commit) => parseRedGreenSubject(commit.subject) !== null)
+  const usingRange = range.some((commit) => parseRedGreenSubject(commit.subject) !== null);
+  const commits = usingRange
     ? range
     : readRedGreenCommits(null, ['-E', '--grep=^(RED|GREEN)\\(']);
   assert.ok(commits.length > 0, 'no RED/GREEN commits were readable; the ordering claim cannot be proven');
-  const result = evaluateRedGreenCommitOrder(commits);
+  const result = usingRange ? evaluateBranchRedGreen(null) : evaluateRedGreenCommitOrder(commits);
   assert.equal(result.ok, true, describeRedGreenViolations(result));
   console.log('[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason');
 });
