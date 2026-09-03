@@ -152,18 +152,32 @@ async function main(): Promise<void> {
   const livePrefixChain = livePackage.scripts['test:serial-reference-prefix'] ?? '';
   assert(liveMainChain.length > 0 && livePrefixChain.length > 0, 'real inventory reads both live serial-reference chains from root package.json');
   const livePolicy: Record<string, FullSuiteEntry> = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, item]));
-  const liveMembers = parseSerialReference(liveMainChain);
-  const liveEntries = entriesFromSerialReference(liveMainChain, livePackage.scripts, livePolicy);
-  validateInventory(liveEntries, liveMainChain, livePackage.scripts);
-  assert(liveEntries.length === liveMembers.length && liveMembers.every((name) => livePolicy[name] !== undefined),
+  // The canonical runner composes prefix + main before evaluating (see full-suite-runner
+  // main()). Against the main chain alone the prefix members legitimately read as
+  // stalePolicy, so that reading is asserted as the expected edge rather than treated as
+  // drift, and membership is evaluated over the composed chain.
+  const livePrefixMembers = parseSerialReference(livePrefixChain);
+  let mainOnlyMessage = '';
+  try { entriesFromSerialReference(liveMainChain, livePackage.scripts, livePolicy); } catch (error) { mainOnlyMessage = error instanceof Error ? error.message : String(error); }
+  assertWithDetail(mainOnlyMessage.includes(`unknownPolicy=[] stalePolicy=[${livePrefixMembers.join(',')}] missingScripts=[]`),
+    'real inventory: against the main chain alone exactly the test:serial-reference-prefix members read as stalePolicy', `message=${mainOnlyMessage || '<no throw>'}`);
+  const liveChain = [livePrefixChain, liveMainChain].join(' && ');
+  const liveMembers = parseSerialReference(liveChain);
+  const liveEntries = entriesFromSerialReference(liveChain, livePackage.scripts, livePolicy);
+  validateInventory(liveEntries, liveChain, livePackage.scripts);
+  assert(liveEntries.length === liveMembers.length && liveMembers.every((name) => livePolicy[name] !== undefined)
+    && livePrefixMembers.every((name) => liveEntries.some((item) => item.name === name)),
     'real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row');
   process.stdout.write('[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row\n');
 
-  const removedRow = liveMembers[0]!;
+  // Mutation on a scratch copy of the live policy: drop the first main-chain member's
+  // row (independent of members appended later) and require the composed evaluation to
+  // fail naming exactly that row, with nothing else reported stale.
+  const removedRow = parseSerialReference(liveMainChain)[0]!;
   const scratchPolicy: Record<string, FullSuiteEntry> = { ...livePolicy };
   delete scratchPolicy[removedRow];
   let mutationMessage = '';
-  try { entriesFromSerialReference(liveMainChain, livePackage.scripts, scratchPolicy); } catch (error) { mutationMessage = error instanceof Error ? error.message : String(error); }
+  try { entriesFromSerialReference(liveChain, livePackage.scripts, scratchPolicy); } catch (error) { mutationMessage = error instanceof Error ? error.message : String(error); }
   const mutationNamesRow = mutationMessage.includes(`unknownPolicy=[${removedRow}]`) && mutationMessage.includes('stalePolicy=[]');
   observations.mutationBites.realPolicyRowRemoval = mutationNamesRow;
   assertWithDetail(mutationNamesRow, 'real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership', `removed=${removedRow}; message=${mutationMessage || '<no throw>'}`);
