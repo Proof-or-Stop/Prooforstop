@@ -19755,6 +19755,47 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-371",
+      "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:55-63 - the rewritten branch (a) ('rebuilt-on-demand') never proves the server actually SERVED the rebuilt client over HTTP, though the file's own docstring states the invariant is 'never serve a client-less page'. It only checks (1) fs.existsSync(asset) after the child process exits/times out, and (2) that captured stdout/stderr contains the literal substring 'building browser client'. That log line is emitted unconditionally at graph.ts:113, inside ensureGraphClientBuilt(), BEFORE startServer() is ever called (graph.ts:427) -- so it is printed on every rebuild attempt regardless of whether the subsequent HTTP server actually starts or serves anything. The verifier issues zero HTTP requests (grep for fetch/http.get/http.request/curl in the file returns nothing) and never asserts on exitCode in branch (a). Concretely: if ensureGraphClientBuilt() succeeds (asset regenerated, log line printed) but the following startServer() call then fails for any reason (port bind failure, thrown error inside app.getStatus(), etc.), the child process exits non-zero, but fs.existsSync(asset) is already true from the completed rebuild step, so the verifier takes branch (a), sees the expected log line, records zero failures, and prints PASS ('missing client handled by rebuilt-on-demand: never served a client-less page') -- even though nothing was ever served. In the normal successful path the verifier's own execFileSync has only a 60s timeout while `graph` blocks forever once serving (per its own docstring: 'stays pending for the lifetime of the served process'), so the child is killed by timeout in the success case too, and the check still never confirms an actual HTTP response was returned. This is a real narrowing versus the pre-rewrite check, which at least asserted refusal-before-listening in the single mechanism it covered; the new branch (a) has no equivalent proof for its mechanism. Recommend: in branch (a), issue an actual GET to the served port (e.g. http://localhost:PORT/) and assert a 200 with non-empty HTML body containing an app marker, in addition to the current disk-existence and log-substring checks, before declaring PASS.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T03:40:03.960Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-905",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ae55fe0ec25e2f8edb379ca9c5c068098dbb105384d2886b24cec46056ae7d95",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
