@@ -178,9 +178,9 @@
       "epochId": "B-9f2c:RI-003",
       "storyId": "B-9f2c",
       "reviewRound": "2026-09-03T03:25:44.738Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-09-03T06:32:36.957Z",
-      "updatedAt": "2026-09-03T06:32:36.957Z",
+      "updatedAt": "2026-09-03T06:49:54.163Z",
       "cutoff": {
         "headHash": "6a4a25469931bd9d75a98fa1f53b86b0593fe3e9",
         "materialHash": "f9b672bf98451e9470365c90fb528e622526cdbccb96ef901abbc8e18f313a3e",
@@ -197,7 +197,56 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "163e378b711f4d5f6baa3e83dc1e5a6ad465318bb1fa57996a25626262ee7072"
+      "invalidation": {
+        "detectedAt": "2026-09-03T06:49:54.163Z",
+        "oldMaterialHash": "f9b672bf98451e9470365c90fb528e622526cdbccb96ef901abbc8e18f313a3e",
+        "currentMaterialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+        "oldStoryFilesHash": "dfd567b9f640106a74d33cf239d93f58bf20666da166d385f482cd380f24a62f",
+        "currentStoryFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "a5a28ef57607df8ae1938ca8973e6a0f665abe986c99c0fbe9f463513be761d6",
+        "currentScopeDigest": "9a892e6b0131780d5e51c53126e32abe0496f95205fda19eb561ce90602dab1f",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage",
+          "proof-or-stop-review-docs"
+        ],
+        "currentRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage",
+          "proof-or-stop-review-docs"
+        ]
+      },
+      "terminalRunSequenceBoundary": 54,
+      "_hash": "33c6d37791c09b4cd6f8c722fce1af8302865810d281c1d01c5af4d717004103"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-9f2c:RI-004",
+      "storyId": "B-9f2c",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-03T06:49:55.082Z",
+      "updatedAt": "2026-09-03T06:49:55.082Z",
+      "cutoff": {
+        "headHash": "c06f9f841acd34a1af761f2548a4658c15516768",
+        "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+        "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978"
+      },
+      "scopeDigest": "9a892e6b0131780d5e51c53126e32abe0496f95205fda19eb561ce90602dab1f",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage",
+        "proof-or-stop-review-docs"
+      ],
+      "initialRunSequenceBoundary": 54,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "2abf31ef11923f4343697980f426a8f21cb15ba85228da7dcc65257fdf1e2ea8"
     }
   ],
   "receipts": [
