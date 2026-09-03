@@ -626,6 +626,48 @@
         "scanEscalationReason": null
       },
       "_hash": "8c0abb70adad542e35ab7873940a6a3d0f127a25947b262e53f4fae396c54144"
+    },
+    {
+      "id": "B-fe8f:RP-022",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 13 test-coverage review found no blocker or advisory. All 71/71 must verification intents have one direct mechanical PASS receipt, zero waivers, exact pinned commands and unique stable selectors, and current material/story-files bindings. Independent current execution passed the complete Story 3 smoke, immutable RED harness, and process-fact contract. Commit 0d29f4223ce46b10c099acc6c5043b8d5136d6c2 is included and remains the last change to the runtime carrier predicate/test: its end-to-end RED-to-GREEN regression rejects both outer operation and outer requestDigest tampering with stable selector runtime.carrier_outer_identity: PASS operation=refused requestDigest=refused. F-014 through F-023 regression markers remain green, including exact signed request digests, replay relabel refusal, lifecycle mirror/authority collapse, artifact symlink races, load-bearing facade contracts, and legacy query-only compatibility. The same smoke also proves 100-way unique append/replay, crash/fence/CAS/lock behavior, runtime freshness/tamper, dependency gates, rollback, deterministic queries, and offline clean installation of @proof-or-stop/lab.",
+      "createdAt": "2026-09-03T02:59:44.949Z",
+      "reviewRound": "2026-09-03T01:37:49.444Z",
+      "reviewRunId": "B-fe8f:RR-043",
+      "envelopeId": "9979ee14fb65c76127b506987df3679e8dec8f7e6c4cdbd8e50a82582846ceb4",
+      "writerSessionId": "sess-60dca796ce9134eb0a3c85af5049d05d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/test-evidence.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed8dec9f939cb7bb45867d6af458ca676b853ecf071064586ddd0db3df6d4bec"
     }
   ]
 }
