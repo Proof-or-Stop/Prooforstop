@@ -20487,7 +20487,7 @@
       "desc": "All 53 verificationEvidence rows across CHK-001..CHK-005 are bound to stale storyFilesHash 8e57bba89949 (from source commit d16cdeeec8, which modified causal-evidence.ts / runtime-artifact-registry.ts / certification-window.ts / certification-window-smoke.ts after the evidence was earned); current storyFilesHash is d535628105e8. Confirmed read-only via verification_evidence_refresh_stale --dryRun: reports Stale verification evidence for B-5a15: 53 (one line per intentRef, all pointing at d16cdee), and the milestone brief lists M1-M5 all Blocked with explicit risk text: stale storyFilesHash 8e57bba89949 (current d535628105e8). This is the exact F-388 failure mode: coverage earned against a prior HEAD does not carry forward across a SOURCE commit that moved storyFilesHash, even though the d16cdeeec8 fix (dev-memory matcher tightening + certification rule mutual-exclusivity guard) is itself plausible and targeted. No mechanical evidence currently proves coverage at the current HEAD; a pass here would misreport prior-run conclusions as still valid against a HEAD they never ran against.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T09:50:18.220Z",
@@ -20501,7 +20501,9 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "missing|mjs|verificationevidence-rows-across",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed correct before acting on it, and the refusal to record a pass was the right call. Verified independently: current storyFilesHash is d535628105e8fb2a while all 53 receipts carry 8e57bba899496b0c, and buildVerificationCoverage reports covered=0 required=51 missingRequired=51. Cause is exactly as the lane diagnosed: d16cdeeec8 is a SOURCE commit (the F-392 dev-memory matcher tightening and the F-393 mutual-exclusivity guard), so it moved storyFilesHash and no receipt re-ran against the new tree. This is the F-388 failure mode I had explicitly asked the lane to watch for, and without its refusal I would have advanced on stale evidence while believing 53/53 -- the same mistake F-388 caught earlier in this story. Remediated by re-earning all 53 receipts against the current HEAD in the established order (refresh_stale to break the F-247 deadlock, then one verification_evidence_batch_add, then pre_review_check last), with the acceptance chain rebuilt first where required.",
+      "resolvedAt": "2026-09-03T09:51:13.185Z"
     }
   ]
 }
