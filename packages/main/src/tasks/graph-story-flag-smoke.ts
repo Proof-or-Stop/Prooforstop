@@ -230,7 +230,13 @@ async function waitFor(cond: () => boolean, what: string, timeoutMs = 10_000): P
     mkdirSync(join(stubPkg, 'dist'), { recursive: true });
     mkdirSync(join(stubPkg, 'assets'), { recursive: true });
     // The handler refuses to serve without a built client, so the fixture provides one.
+    // BOTH files are required: ensureGraphClientBuilt checks app.html AND d3.min.js,
+    // because a build run without dependencies still emits app.html while omitting d3,
+    // and the page then silently falls back to a different rendering path. Stubbing only
+    // app.html sends the handler down its npm install / npm run build recovery path
+    // against this minimal fixture package, which throws instead of failing cleanly.
     writeFileSync(join(stubPkg, 'assets', 'app.html'), '<!doctype html><title>stub</title>');
+    writeFileSync(join(stubPkg, 'assets', 'd3.min.js'), '/* stub d3 */');
     writeFileSync(
       join(stubPkg, 'package.json'),
       // `type: module` is not decoration: without it Node emits a MODULE_TYPELESS_PACKAGE_JSON
