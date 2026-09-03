@@ -69,7 +69,7 @@
       "desc": "packages/main/src/core/runtime-environment-checks.ts:1576-1587 defaultCompiledCoreVersionProbe (the production probe actually wired by default at line 248) has two branches -- the readFileSync catch (unbuilt/missing dist/core/proof-or-stop-brand.js, ENOENT) and the COMPILED_CORE_VERSION_RE non-match (partially built or unparsable content) -- that are never exercised by any test using the DEFAULT probe. packages/main/tests/global-core-realpath.test.mjs case 29 (around lines 950-970) only injects a compiledCoreVersionProbe STUB via extraOptions to simulate a probe failure; writeCorePackage/makeRepoWithWorktree never pass compiledVersion:null (which would skip writing the brand file) or malformed brand-file content, so the real function's own ENOENT and unparsable-content error messages are dead-in-tests. Separately, unlike its sibling BRAND_EXPORT_RE in core/version-bump.ts (which the doc comment at lines 1562-1573 claims this is the same regex shape as), this probe applies COMPILED_CORE_VERSION_RE with no comment-stripping and no duplicate/ambiguous-match guard -- version-bump.ts throws on more than one match (version-bump.ts:213-218) precisely because a second export-shaped occurrence (e.g. in a comment) would let exec() silently pick the wrong one; defaultCompiledCoreVersionProbe has no equivalent check, so a future brand-file comment change that happens to contain export-shaped text would silently report the wrong compiled version rather than failing loudly. Low risk today (no such occurrence exists in the real file) but it is exactly the untested/unguarded shape this round was asked to scrutinize.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T21:12:59.786Z",
@@ -77,7 +77,8 @@
       "reviewRunId": "B-e256:RR-021",
       "_hash": "6ded48bf4458c908fc6c02b834637e73e38fddc9e8caf7c50197ade449d7d6e5",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-e256:F-004@47382c6"
     }
   ]
 }
