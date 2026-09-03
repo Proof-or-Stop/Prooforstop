@@ -553,7 +553,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:1358-1375 — high integrity blocker: verifyRuntimeReceiptCarrier validates the nested signed receipt operation but never requires receipt.operation === carrier.operation and never recomputes or otherwise validates the outer carrier requestDigest against its persisted request. A full valid RuntimeEvidenceReceipt/current-key ledger reproduction returned {runtimeCurrent:true,carrierAccepted:true,wouldReturnVerified:true} after changing only outer operation from append_runtime_receipt to append_finding, and the same all-true result after changing only outer requestDigest; finding_runtime_evidence_verify composes exactly those two predicates before returning verified, while finding_ledger_query rejects the operation mismatch. packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1494-1584 covers nested signature and signed exactRequestDigest omission but not either outer-field mutation. Require the runtime consumer to reject signed/raw operation mismatch and bind the raw requestDigest to the persisted request, with end-to-end regressions for both tamper cases.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T01:27:00.461Z",
@@ -561,7 +561,11 @@
       "reviewRunId": "B-fe8f:RR-040",
       "_hash": "674dfd45539f4a412327538ca5dd043fcc6284f6857a9c4410387ddedb5b5a29",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 0d29f4223ce46b10c099acc6c5043b8d5136d6c2. verifyRuntimeReceiptCarrier now requires the outer carrier operation to equal the signed nested receipt operation and recomputes the outer requestDigest from the exact persisted carrier records, ledger schema epoch, and writer capability. Independent owner verification passed build, process/runtime fact contracts, the complete Story3 matrix, and selector runtime.carrier_outer_identity: PASS operation=refused requestDigest=refused while retaining the F-023 signed exactRequestDigest and legacy query-only behavior.",
+      "resolvedAt": "2026-09-03T01:38:18.829Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
