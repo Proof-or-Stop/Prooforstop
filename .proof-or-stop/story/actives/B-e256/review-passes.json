@@ -235,6 +235,35 @@
         "scanEscalationReason": null
       },
       "_hash": "fe37f7fec38cac5018700f6c189a345471a57c2975901086022a8e3253bb0094"
+    },
+    {
+      "id": "B-e256:RP-010",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 9 re-review after TEST->DEV->REVIEW bounce to reconcile shadow-mode scope contract. No material change since round-8 pass per review_incremental_context. scope_contract_check pass, 0 unacknowledged violations. Diff of validation-tier-planner-smoke.ts matches stated scopeChangeReason exactly (literal digest pin replaced by structural cwd-neutral assertion + non-vacuity case). tsc, smoke script, and global-core-realpath test all pass. No quality issues.",
+      "createdAt": "2026-09-03T09:29:58.035Z",
+      "reviewRound": "2026-09-03T09:25:53.335Z",
+      "reviewRunId": "B-e256:RR-016",
+      "envelopeId": "a39ee8a320efd06d722aaeefa0cf5dd599b52f9c44d9cb12ebe481c4c0e6b571",
+      "writerSessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2fcbd81ee224511e4ae09367c3e55b85239cf8af36f66f2e2b5d399ebc99c884"
     }
   ]
 }
