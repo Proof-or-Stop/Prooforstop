@@ -1,13 +1,13 @@
 {
   "storyId": "B-9a49",
-  "generatedAt": "2026-09-03T13:07:15.261Z",
+  "generatedAt": "2026-09-03T13:09:13.380Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 6,
     "reviewRounds": 22,
-    "findings": 71,
+    "findings": 72,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,7 +27,7 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": 1,
+          "value": 0.984,
           "unit": "ratio",
           "confidence": "medium",
           "sources": [
@@ -227,7 +227,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 159,
+          "value": 162,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
-          "value": 57,
+          "value": 58,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -299,7 +299,7 @@
     },
     "reviewDiscipline": {
       "effective": {
-        "value": true,
+        "value": false,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 71,
+          "value": 72,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -326,7 +326,7 @@
           ]
         },
         "criticalResolvedBeforeTest": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "high",
           "sources": [
