@@ -1185,8 +1185,8 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node bin/proof-or-stop.js --version",
-              "selector": "Proof-or-Stop 0.3.271"
+              "command": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));const v=read('package.json').version;const vals=[v,read('package-lock.json').packages[''].version,read('packages/main/package.json').version,read('packages/main/package-lock.json').packages[''].version];const src=fs.readFileSync('packages/main/src/core/proof-or-stop-brand.ts','utf8');const dist=fs.readFileSync('packages/main/dist/core/proof-or-stop-brand.js','utf8');const cli=cp.execFileSync(process.execPath,['bin/proof-or-stop.js','--version'],{encoding:'utf8'}).trim();if(!vals.every(x=>x===v)||!src.includes(\"PROOF_OR_STOP_CLI_VERSION = '\"+v+\"'\")||!dist.includes(\"PROOF_OR_STOP_CLI_VERSION = '\"+v+\"'\")||!cli.includes(v))throw new Error('version mismatch '+JSON.stringify({vals,cli}));console.log('version sync: PASS '+v)\"",
+              "selector": "version sync: PASS"
             }
           }
         ],
