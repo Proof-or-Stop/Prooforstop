@@ -259,6 +259,55 @@
       "resolvedAt": "2026-09-03T06:57:27.573Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-010",
+      "desc": "Independent topology-critic read (RR-060) confirms acceptance topology and rollout gates are currently failing/incomplete, not just advisory: (1) acceptance_basis status=invalid basisStatus=partial receiptVerification.ok=false with AT_SCOPE_BINDING_MISSING, stale binding (headHash 85bbdb67.../storyFilesHash e47e57bc2... vs current head cec7df5041.../storyFilesHash 022146876a...), AT_CLOSURE_FILES_STALE, and 4x AT_UNMAPPED_SCOPE_REF. (2) acceptance_topology_check returns structuralPass=false status=inconclusive topologyState=legacy_missing. (3) acceptance_rollout_check and acceptance_rollout_report_read both return status=fail ok=false blocking=true mode=enforce diagnostics=[AR_REPORT_STALE] receipt=stale -- the signed rollout receipt (verdict=pass) is bound to headHash a96207e49c.../storyFilesHash f746f43e..., which does not match current head/storyFilesHash, so the live enforce-mode gate fails even though the underlying campaign data (mislabeled3x1Count=0, falsePassCount=0, falseBlockCount=0, genuine 3 rounds x 2 hosts codex-cli+claude-cli per pair) was clean at issuance. (4) Coverage gap: packages/graph/scripts/verify-missing-assets-fail.mjs changed 139 lines this story (three repair rounds; the quality lane's own signed F-008/F-009 findings, both bound to the current epoch's reviewRound, prove the quality lane did read this file at line-level depth) but the file is absent from scope-contract.json allowedModify/acknowledgements, scope-check.json, and acceptance-basis.json scopeRefs/excludedPathRefs -- a genuinely untracked material file at the scope-topology layer. No post-PLAN proof-or-stop-review-scope-plan re-approval exists for this or the other three DEV/REVIEW-phase scope expansions (retired-authority-vocabulary-guard-smoke.ts, full-suite-runner.ts, graph-command-migration.md); those three carry only self-authored main-agent acknowledgements in scope-contract.json, which do not satisfy a separately-signed scope-plan approval. These are live, currently-reproducible gate failures (not resolved-and-historical), so the review-inventory wave cannot be certified complete on the acceptance-topology/rollout dimension regardless of the four lane PASSes on concept/docs/test-coverage/quality.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-03T07:16:17.957Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-060",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-check.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/index.json",
+          ".proof-or-stop/story/actives/B-9f2c/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-9f2c/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a3cc0cbb0073851322c7d2f73e338afddf8e343a10594775bc7b7bcfc120d07e",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs",
+        ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-9f2c/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-9f2c/scope-contract.json"
+      ],
+      "signatureTag": "missing|mjs|independent-topology-critic",
+      "signatureTagSource": "auto"
     }
   ]
 }
