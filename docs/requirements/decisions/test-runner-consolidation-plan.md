@@ -29,8 +29,8 @@ smoke/coverage use cases.
 
 Exclusive path claims may additionally declare runner-cleanable ownership. The
 runner records each canonical target's pre-spawn existence, type, and owner
-marker, limits targets to the exact project `.lattice/runtime` and
-`.lattice/locks` subtrees, rejects any pre-existing/symlinked/out-of-bound target
+marker, limits targets to the exact project `.proof-or-stop/runtime` and
+`.proof-or-stop/locks` subtrees, rejects any pre-existing/symlinked/out-of-bound target
 before spawn, and uses a per-launch ownership token. PASS requires every declared
 owned target already absent. FAIL, TIMEOUT, and INTERRUPT remove a target only
 when it was absent before launch and now carries the exact launch token; an empty,

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9ff1",
+  "sourceText": "Drive the trusted-RED-evidence subsystem spec to implementation, decomposed into nine leaves (.lattice/tmp/w2-decomposition.json). W2d is Workstream 2 area 4: the section 1.1 assertion envelope schema and every field validation rule, the section 1.3 quantified minimum-specificity rule, the exact section 1.11.4 entropy formula, and assertionDigest - terminating at a read-only operator pre-flight so an inadmissible envelope is caught before a run is spent.",
+  "normalizedOutcome": "red_evidence_envelope_check exists and is read-only; an inadmissible envelope is rejected with the correct section 1.6 tag, and an admissible one reports its assertionDigest, matched binding and resolved policyDigest.",
+  "acceptanceClaim": "The committed envelope smoke passes, covering the schema rules, the three specificity rules, the exact entropy formula, the assertionDigest scope in both directions, the binding check, the tagged rejection matrix and the admissible-envelope success output.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:c507b826b949e425701e304d0f076e07a2069e14851dfdf8cf2cd60443bc242e",
+  "createdAt": "2026-08-13T16:29:26.861Z",
+  "updatedAt": "2026-08-13T16:29:26.861Z"
+}

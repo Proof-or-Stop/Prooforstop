@@ -2,8 +2,8 @@
 /**
  * Claude Code PreToolUse(Bash) hook: english-only artifact guard (warn-only).
  *
- * Layer 1 of the Lattice / Koala english-only-artifacts policy (B-5f42). It
- * inspects Bash commands BEFORE they run and, when a git commit or a Lattice
+ * Layer 1 of the ProofOrStop / Koala english-only-artifacts policy (B-5f42). It
+ * inspects Bash commands BEFORE they run and, when a git commit or a ProofOrStop
  * story-metadata command carries CJK (Han) characters, writes an English
  * warning to stderr. It NEVER blocks: it always exits 0. The hard stop is the
  * diff/story-scoped validate gate in the REVIEW->TEST preflight (layer 2).
@@ -11,7 +11,7 @@
  * Exit 0 always — warn-only, never exit 2.
  *
  * Graceful degradation: any error / malformed / empty stdin causes a silent
- * pass-through (exit 0), exactly like lattice-scope-pretool.cjs, so a hook bug
+ * pass-through (exit 0), exactly like proof-or-stop-scope-pretool.cjs, so a hook bug
  * can never trap the agent.
  *
  * SELF-CONTAINED: this hook does NOT require the compiled dist. Its CJK
@@ -20,7 +20,7 @@
  * packages/main/src/core/cjk-detect.ts (CJK Unified Ideographs U+4E00..U+9FFF
  * plus Extension A U+3400..U+4DBF); a keep-in-sync test asserts the equality.
  *
- * Managed by the Lattice / koala framework: this token is kept verbatim so
+ * Managed by the ProofOrStop / koala framework: this token is kept verbatim so
  * downstream managed-asset ownership recognizes this generated hook.
  */
 'use strict';
@@ -31,7 +31,7 @@ const CJK_RANGES = [
   { start: 0x3400, end: 0x4dbf }, // CJK Unified Ideographs Extension A
 ];
 
-// Lattice story-metadata commands that are author-controlled artifacts.
+// ProofOrStop story-metadata commands that are author-controlled artifacts.
 const STORY_METADATA_COMMANDS = new Set([
   'story_create',
   'checklist_add',
@@ -75,14 +75,14 @@ function parseHookInput(raw) {
 
 /**
  * True only for `git commit ...` or `<bin> <story-metadata-cmd> ...`, where `<bin>` is
- * the canonical `proof-or-stop` or the retained deprecated `lattice` alias. Both are
+ * the canonical `proof-or-stop` or the retained deprecated `proof-or-stop` alias. Both are
  * matched because B-cdf6 renamed the bin additively: the old name still runs, so a CJK
  * metadata command invoked either way must still warn.
  * Narrow and high-signal: other Bash commands are ignored.
  */
 function isGuardedCommand(command) {
   if (/(^|[;&|]|\s)git\s+commit(\s|$)/.test(command)) return true;
-  const cli = command.match(/(?:^|[;&|]|\s)(?:proof-or-stop|lattice)\s+([a-z_]+)/);
+  const cli = command.match(/(?:^|[;&|]|\s)(?:proof-or-stop|proofOrStop)\s+([a-z_]+)/);
   if (cli && STORY_METADATA_COMMANDS.has(cli[1])) return true;
   return false;
 }

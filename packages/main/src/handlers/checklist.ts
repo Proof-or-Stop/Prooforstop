@@ -56,7 +56,7 @@ import {
 
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
-  'lattice-review-story-init',
+  'proof-or-stop-review-story-init',
   'product-reviewer',
 ]);
 
@@ -157,8 +157,8 @@ export function renderSlimChecklist(storyId: string, cl: ChecklistData): Record<
  * B-6812 CHK-001: delegates to the shared `withMkdirLock` primitive.
  *
  * B-d877 R3 FIX B: the lock dir is relocated OUT of the git-tracked story dir to
- * the gitignored shared `.lattice/locks/checklist/<id>-checklist.lock` so the
- * universal holder.json can never be committed inside `.lattice/story/actives/`
+ * the gitignored shared `.proof-or-stop/locks/checklist/<id>-checklist.lock` so the
+ * universal holder.json can never be committed inside `.proof-or-stop/story/actives/`
  * and dirty the tree. External behavior (mutual exclusion) is unchanged.
  */
 function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
@@ -683,7 +683,7 @@ const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
 // 21-24 min, so the run was KILLED mid-flight, no verdict line was ever printed, and the
 // refusal named only [receipt_selector_absent] — a multi-attempt guessing game with no
 // hint that a ceiling existed. The framework already knows this command legitimately
-// needs longer: lattice.config.json gives the same `npm test` a 7200000ms budget as a
+// needs longer: proof-or-stop.config.json gives the same `npm test` a 7200000ms budget as a
 // DONE-required command. Only the evidence path disagreed.
 //
 // FIX (two parts): (1) a DISTINCT [receipt_command_timeout] refusal naming the elapsed
@@ -1363,8 +1363,17 @@ type ReexecStamp = {
   result?: 'pass' | 'fail';
   mechanical: true;
   receipt: VerificationExecutionReceipt;
+  /** Exact execution-semantics key used to prevent reuse after a concurrent pin/provenance change. */
+  executionKey: string;
   causalReceipt: CausalEvidenceReceipt;
   causalPreflight: NonNullable<EnforceAndStampResult['causalPreflight']>;
+};
+
+type StaleReexecCandidate = {
+  item: ChecklistItem;
+  input: EvidenceWriteInput;
+  executionKey: string;
+  rowKey: string;
 };
 
 type CausalRefreshCommitter = (
@@ -1421,6 +1430,68 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
 }
 
 /**
+ * Build the exact semantic identity of one stale pinned re-execution. The key is
+ * deliberately stricter than command equality: selector, intent/evidence kind,
+ * cwd, effective timeout, and the audited timeout provenance must all match.
+ * This keeps dedupe inside one refresh invocation without weakening immutable-pin
+ * or timeout-boundary enforcement for any individual intent.
+ */
+function staleReexecCandidate(
+  root: string,
+  refreshGitCwd: string,
+  item: ChecklistItem,
+  intentRef: string,
+  evidence: VerificationEvidence | undefined,
+): StaleReexecCandidate | undefined {
+  const resolved = resolveIntentForRef(item, intentRef);
+  const pin = resolved?.intent.verification;
+  if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) return undefined;
+
+  const kind = intentTypeToEvidenceKind(resolved.intent.type);
+  const priorOverride = evidence?.receipt?.timeoutOverride;
+  const input: EvidenceWriteInput = {
+    intentRef,
+    kind,
+    command: pin.command,
+    selector: pin.selector,
+    result: 'pass',
+    ...(priorOverride
+      ? { commandTimeoutMs: priorOverride.timeoutMs, commandTimeoutReason: priorOverride.reason }
+      : {}),
+  };
+  // Validate every row's carried override before grouping. An invalid row remains
+  // ungrouped and therefore takes the existing demotion path.
+  const validatedOverride = resolveEvidenceCommandTimeout('verification evidence refused', input);
+  const configuredTimeoutMs = validatedOverride
+    ? undefined
+    : resolvePinnedCommandTimeoutMs(root, pin.command);
+  const effectiveTimeoutMs = validatedOverride?.timeoutMs
+    ?? configuredTimeoutMs
+    ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const executionKey = JSON.stringify({
+    version: 1,
+    command: pin.command,
+    selector: pin.selector,
+    intentType: resolved.intent.type,
+    evidenceKind: kind,
+    cwd: refreshGitCwd,
+    effectiveTimeoutMs,
+    timeoutProvenance: priorOverride
+      ? {
+          source: 'carried-receipt-override',
+          timeoutMs: validatedOverride?.timeoutMs,
+          reason: validatedOverride?.reason,
+          priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
+        }
+      : {
+          source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
+          configuredTimeoutMs: configuredTimeoutMs ?? null,
+        },
+  });
+  return { item, input, executionKey, rowKey: `${item.id}::${intentRef}` };
+}
+
+/**
  * B-1507 CHK-002: the SINGLE synchronous write core for a stale refresh, run under the
  * checklist lock. For each stale row it does exactly ONE of two things:
  *   - `reexecByKey` has a pass-stamp for the row (its pinned command was RE-RUN and
@@ -1458,7 +1529,22 @@ function writeStaleRefresh(
       lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
       if (opts.dryRun || !item || idx < 0 || !ev) continue;
       const reexec = reexecByKey.get(`${entry.itemId}::${entry.intentRef}`);
+      let currentExecutionKey: string | undefined;
       if (reexec) {
+        try {
+          currentExecutionKey = staleReexecCandidate(
+            root,
+            computed.refreshGitCwd,
+            item,
+            entry.intentRef,
+            ev,
+          )?.executionKey;
+        } catch {
+          // A concurrently changed/invalid timeout provenance cannot consume a
+          // receipt earned under the pre-lock snapshot; leave it on demotion.
+        }
+      }
+      if (reexec && currentExecutionKey === reexec.executionKey) {
         // B-1507 CHK-002: the pinned command was RE-RUN and PASSED through the same
         // enforceAndStampEvidence refusal path. Bind the FRESH receipt to the CURRENT
         // head/material so the row stays mechanical:true covered — no demotion.
@@ -2016,7 +2102,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       // USER is retained below for human audit attribution, but it is not a
       // dispatched-agent identity. Only an explicit actor/agent or
-      // PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) participates in registry authorization.
+      // PROOF_OR_STOP_AGENT (deprecated alias PROOF_OR_STOP_AGENT) participates in registry authorization.
       const authority = resolveAgentMutationAuthority({
         command: 'checklist_update',
         payloadActors: [args.agent, args.actor],
@@ -2751,8 +2837,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       // Re-execute pinned executable rows OUTSIDE the checklist lock (execution is
-      // async; the write body is synchronous). Only a real mechanical pass records a
-      // stamp; every failure path leaves the key absent so the write demotes the row.
+      // async; the write body is synchronous). Rows with byte-identical execution
+      // semantics share one invocation, but each row is independently pin/provenance
+      // validated before grouping and again under the write lock before consuming the
+      // shared receipt. Only a real mechanical pass records stamps for the group;
+      // every failure leaves every grouped row absent so all take the demotion path.
       const reexecByKey = new Map<string, ReexecStamp>();
       // B-5a15: identical pinned commands share one immutable execution result during
       // a refresh, while enforceAndStampEvidence still evaluates each intent's own
@@ -2771,6 +2860,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         return result;
       };
       if (!args.dryRun) {
+        const groups = new Map<string, { representative: StaleReexecCandidate; rowKeys: string[] }>();
         for (const entry of computed.stale) {
           const item = computed.cl.items.find(i => i.id === entry.itemId);
           if (!item) continue;
@@ -2782,6 +2872,17 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           // selector contract used by verification_evidence_add.
           if (!resolved || !pin) continue;
           const kind = intentTypeToEvidenceKind(resolved.intent.type);
+          // Origin (B-022e) factored the per-row re-exec inputs into
+          // staleReexecCandidate(); our refresh body consumes candidate.item /
+          // candidate.input, so derive it here rather than duplicating the logic.
+          const candidate = staleReexecCandidate(
+            root,
+            computed.refreshGitCwd,
+            item,
+            entry.intentRef,
+            entry.evidence,
+          );
+          if (!candidate) continue;
           // B-cdf6 (B-META F-012): CARRY FORWARD the budget the stale receipt was
           // originally earned under. Without this, a receipt legitimately earned under a
           // raised ceiling would be re-run under the 270s default, get KILLED, and be
@@ -2793,13 +2894,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           const priorOverride = entry.evidence?.receipt?.timeoutOverride;
           try {
             const stamp = await enforceAndStampEvidence(
-              item,
-              {
-                intentRef: entry.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass',
-                ...(priorOverride
-                  ? { commandTimeoutMs: priorOverride.timeoutMs, commandTimeoutReason: priorOverride.reason }
-                  : {}),
-              },
+              candidate.item,
+              candidate.input,
               {
                 runCommand,
                 preflightFacts: causalPreflightFactsFor(args.storyId, computed.refreshGitCwd),
@@ -2818,6 +2914,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                 ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
                 mechanical: true,
                 receipt: stamp.evidencePatch.receipt,
+                executionKey: candidate.executionKey,
                 causalReceipt: stamp.causalReceipt,
                 causalPreflight: stamp.causalPreflight,
               });
@@ -2825,7 +2922,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             // A non-mechanical / receiptless stamp is not a real pass → leave for demote.
           } catch {
             // exit != 0 / selector absent / command unavailable / not allowlisted /
-            // resolution error: leave the row on the demote path. NO laundering.
+            // resolution error: leave ALL rows sharing this exact key on the demote
+            // path. NO laundering and no per-row retry that could exceed the watchdog.
           }
         }
       }

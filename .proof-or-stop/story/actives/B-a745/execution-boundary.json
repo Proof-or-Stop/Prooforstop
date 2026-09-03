@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a745",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc --noEmit -p packages/main",
+    "npx tsx *",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [
+    "Agent",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/dev",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/schemas",
+    "packages/main/src/tasks",
+    "packages/main/templates",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "git restore *",
+    "proof-or-stop release_approve_push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "excludedPaths": [
+    ".githooks",
+    ".proof-or-stop/story/actives/B-ccf4",
+    ".worktrees",
+    "node_modules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Read-only planner work plus its fixtures. No command in this story executes project validation commands on behalf of the planner: validation_plan is read-only by contract. Direct edits under .proof-or-stop/story are forbidden by CLAUDE.md rule 8; all story state changes go through the proof-or-stop CLI, which is why proof-or-stop * is allowed while the story directories are not listed as allowed paths. .worktrees and the B-ccf4 story directory are blocked because B-ccf4 owns the plan document and must not be advanced or edited by this story; the plan file may be READ from that worktree.",
+  "createdAt": "2026-09-02T00:54:20.292Z",
+  "updatedAt": "2026-09-02T00:54:20.292Z",
+  "_hash": "8a1e63fa9578efc2d6edab5d4196f7645505b150bf3e0cfc8c91cac13b7966e5"
+}

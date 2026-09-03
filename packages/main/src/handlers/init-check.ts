@@ -35,6 +35,9 @@ import {
   blockingInitCheckIssues,
   computeBackgroundHash,
   computeChecklistHash,
+  computeInitCheckVerdictHash,
+  describeInitCheckSignatureDomain,
+  initCheckHashMatches,
   signInitCheck,
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
@@ -54,16 +57,22 @@ export {
   blockingInitCheckIssues,
   computeBackgroundHash,
   computeChecklistHash,
+  computeInitCheckVerdictHash,
   signInitCheck,
   recomputeInitCheckHash,
 };
+// The B-8df9 CHK-003 trust helpers (initCheckHashMatches / initCheckSignatureIsValid)
+// are deliberately NOT re-exported here: this block exists for callers that predate the
+// core/ split, and no such caller can reference a function introduced after it. New code
+// imports them from core/init-check-gate.ts directly, which is the layering the module
+// comment prescribes.
 
 /** B-95d8 CHK-001: minimum length for a manual fallback attestation reason. */
 export const INIT_CHECK_FALLBACK_REASON_MIN = 30;
 
 function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
   // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
-  // shared `.lattice/locks/init-check/<id>-init-check.lock`.
+  // shared `.proof-or-stop/locks/init-check/<id>-init-check.lock`.
   const lockDir = store.runtimeLockDirPath(storyId, 'init-check', 'init-check');
   return withMkdirLock(lockDir, fn, { label: 'init-check metadata' });
 }
@@ -129,17 +138,75 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
       const checklistHash = computeChecklistHash(items);
 
-      // 4) invoke the signing function (shares signInitCheck with recomputeInitCheckHash — single source of truth)
-      const _hash = signInitCheck(args.storyId, backgroundHash, title, description, checklistHash, reviewRound);
-
-      // 5) construct InitCheckData and persist to disk
+      // 4) construct InitCheckData (the verdict is part of the signature domain since
+      //    B-8df9 CHK-002, so the record must exist BEFORE it can be signed)
       const checkedAt = new Date().toISOString();
       const agentId = normalizeAgentId(authority.actor);
+
+      // B-8df9 CHK-003 — the carry-forward is the LAST laundering path, and it is closed here.
+      //
+      // CHK-002 made a hand-edited init-check.json fail its own signature, so the gate now
+      // refuses it as init_check_tampered. But this handler COPIES the previous file's
+      // agentResults into the record it is about to sign: without the check below, one
+      // ordinary reviewer call would take reviewer records nobody ever wrote, carry them
+      // into a fresh record, and RE-SIGN them into validity. Tamper once, wait for any
+      // legitimate call, and the tampering is laundered into a valid signature.
+      //
+      // `store.readInitCheck` is an unverified read by decision (see its contract note);
+      // this is the point at which reading becomes TRUSTING, so the verification belongs
+      // here rather than there. The predecessor is verified against EXACTLY the snapshot
+      // this write is signed over — the same backgroundHash / title / description /
+      // checklistHash / reviewRound computed above — so the property carried forward is
+      // precise: these records were signed by this tool, over the same story content we are
+      // signing now. Anything else (hand-edited verdict, a record signed under an older
+      // signature domain, a verdict recorded against story content that has since changed,
+      // a blank _hash) is UNTRUSTED and is dropped rather than re-signed.
+      //
+      // Dropping, not throwing: the caller's own verdict is legitimate and is still
+      // recorded, and the gate then reports the resulting gap honestly (a missing required
+      // reviewer must simply run again). Refusing the write would instead leave the routine
+      // case — a reviewer recorded a verdict, the story text was then edited — with no
+      // ordinary way forward, only deleting the artifact by hand or spending the audited
+      // init_check_repair fallback, both far heavier than the situation warrants.
       const previous = store.readInitCheck(args.storyId);
-      const agentResults = previous ? initCheckAgentResults(previous).filter(
+      const expectedPreviousHash = previous
+        ? signInitCheck(
+          args.storyId,
+          backgroundHash,
+          title,
+          description,
+          checklistHash,
+          reviewRound,
+          computeInitCheckVerdictHash(previous),
+        )
+        : '';
+      const previousTrusted = initCheckHashMatches(previous, expectedPreviousHash);
+      const agentResults = previousTrusted && previous ? initCheckAgentResults(previous).filter(
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
       ) : [];
+      const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous) : [];
       agentResults.push({ agentId, checkedAt, issues });
+
+      // Name the corruption. Silently discarding another reviewer's record would be
+      // indistinguishable from that reviewer never having run, which is the confusion this
+      // whole gate exists to remove. Advisory text goes to stderr (B-6812) so a caller that
+      // pipes stdout still sees it; a short marker also rides the return value because the
+      // dropped coverage is a fact about the record just written, not commentary on it.
+      let untrustedNotice = '';
+      if (previous && !previousTrusted) {
+        const dropped = droppedResults.map(r => r.agentId || '<unknown>');
+        const storedHash = typeof previous._hash === 'string' ? previous._hash.trim() : '';
+        untrustedNotice = `; dropped ${dropped.length} unverifiable prior reviewer record(s): ${dropped.join(', ') || '<none>'}`;
+        process.stderr.write(
+          `⚠ init_check_set ${args.storyId}: the existing init-check.json does NOT verify against its own signature ` +
+          `(stored _hash=${storedHash ? storedHash.slice(0, 12) : '<absent>'}, expected=${expectedPreviousHash.slice(0, 12)}; ` +
+          `signed components: ${describeInitCheckSignatureDomain()}).\n` +
+          `  Its recorded reviewer results were DROPPED rather than carried into this newly signed record, ` +
+          `so tampered or stale coverage cannot be re-signed into validity: ${dropped.join(', ') || '<none>'}\n` +
+          `  Only ${agentId}'s result is recorded now; every other required reviewer must run init_check_set again. ` +
+          `[init_check_untrusted_carry_forward]\n`,
+        );
+      }
 
       const data: InitCheckData = {
         storyId: args.storyId,
@@ -148,8 +215,22 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         agentId,
         issues,
         agentResults,
-        _hash,
+        _hash: '',
       };
+
+      // 5) sign the record being written and persist it. The verdict hash is computed from
+      //    `data` itself rather than from copies of its fields, so what is signed and what is
+      //    stored cannot drift apart. Shares signInitCheck with recomputeInitCheckHash —
+      //    single source of truth for the domain.
+      data._hash = signInitCheck(
+        args.storyId,
+        backgroundHash,
+        title,
+        description,
+        checklistHash,
+        reviewRound,
+        computeInitCheckVerdictHash(data),
+      );
       store.writeInitCheck(args.storyId, data);
 
       // 6) return value contains issue counts bucketed by severity (advisory mode: critical does not block here either,
@@ -165,7 +246,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
       const missing = missingRequiredInitCheckAgents(data);
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_set');
-      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
+      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
       });
     },
 
@@ -177,8 +258,9 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
      * `canEnterInitCheck` / `getGuardFailureReason` accept — WITHOUT weakening the gate:
      *
      *  - The signature is computed by the SAME `signInitCheck` over the SAME domain
-     *    (background/title/description/checklist). Editing any signed story content
-     *    afterwards still triggers `init_check_tampered` (the recompute diverges).
+     *    (INIT_CHECK_SIGNATURE_DOMAIN, which since B-8df9 CHK-002 also covers the
+     *    reviewer verdict). Editing any signed content afterwards — including the
+     *    attested issues — still triggers `init_check_tampered` (the recompute diverges).
      *  - Required-reviewer coverage is satisfied by recording each required agent as
      *    `<required>@fallback`; `initCheckAgentMatches` accepts the `<required>@`
      *    prefix, so missingRequiredInitCheckAgents is empty, while the `@fallback`
@@ -256,7 +338,6 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
           // checklist absent → empty array hash (matches recomputeInitCheckHash).
         }
         const checklistHash = computeChecklistHash(items);
-        const _hash = signInitCheck(args.storyId, backgroundHash, title, description, checklistHash, reviewRound);
 
         // 3) Required-reviewer coverage via `<required>@fallback` records. The bare
         //    operator-supplied issues land on the story-init record (so they flow
@@ -310,8 +391,20 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
             ...(headHash ? { headHash } : {}),
             ...(materialHash ? { materialHash } : {}),
           },
-          _hash,
+          _hash: '',
         };
+        // Sign the record being written: the verdict (agentResults + issues) is part of the
+        // domain since B-8df9 CHK-002, so signing must follow construction. The `fallback`
+        // block stays OUT of the domain (audit/surface metadata, unchanged by this story).
+        data._hash = signInitCheck(
+          args.storyId,
+          backgroundHash,
+          title,
+          description,
+          checklistHash,
+          reviewRound,
+          computeInitCheckVerdictHash(data),
+        );
         store.writeInitCheck(args.storyId, data);
 
         // 5) Durable audit event in the process timeline (advisory; init-check.json

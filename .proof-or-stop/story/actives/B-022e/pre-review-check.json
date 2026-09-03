@@ -1,0 +1,982 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-022e",
+  "mode": "observe",
+  "cutoffAt": "2026-08-31T13:23:17.710Z",
+  "planBasisDigest": "sha256:e17542f8b5f59b92933a91c871d113b79117931bac3ef7596fd5d9fe3c20909f",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-022e",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:e17542f8b5f59b92933a91c871d113b79117931bac3ef7596fd5d9fe3c20909f",
+      "status": "partial",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "proof-or-stop pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          ],
+          "coverageClaim": "partial",
+          "blindSpots": [
+            "source file is unreadable or disappeared: .claude/**",
+            "source file is unreadable or disappeared: .codex/**",
+            "source file is unreadable or disappeared: .githooks/**",
+            "source file is unreadable or disappeared: .github/**",
+            "source file is unreadable or disappeared: .proof-or-stop-codex/**",
+            "source file is unreadable or disappeared: .proof-or-stop/**",
+            "source file is unreadable or disappeared: bin/**",
+            "source file is unreadable or disappeared: packages/**",
+            "source file is unreadable or disappeared: scripts/**"
+          ],
+          "provenanceRefs": [
+            "source-file:packages/main/src/cli/command-catalog.ts:sha256:af23691e8a2e4aaa0839e98466bcb9882b21930bfd96bccfe43facc380876eb0",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:107e6bd9c7b42f9ab4157d18ba8672feb666d190a414803ee0b6085cfa05b532",
+            "source-file:packages/main/src/registry.ts:sha256:151f49109e21de48f73e0f00e928944e4c3b5871081188c543ac06f470484b6e",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:handler_dispatch_inventory:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:file:.claude/**",
+              "scope:file:.codex/**",
+              "scope:file:.githooks/**",
+              "scope:file:.github/**",
+              "scope:file:.proof-or-stop-codex/**",
+              "scope:file:.proof-or-stop/**",
+              "scope:file:AGENTS.md",
+              "scope:file:CLAUDE.md",
+              "scope:file:README.md",
+              "scope:file:bin/**",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/**",
+              "scope:file:proof-or-stop.config.json",
+              "scope:file:scripts/**",
+              "scope:file:scripts/verify-entrypoints.mjs",
+              "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "scope:file:scripts/verify-runtime-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:c83260814cd5e2ae5c239c2b92a20c0f8de25ab0b8525da52300aab02d084be0"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          ],
+          "coverageClaim": "partial",
+          "blindSpots": [
+            "source file is unreadable or disappeared: .claude/**",
+            "source file is unreadable or disappeared: .codex/**",
+            "source file is unreadable or disappeared: .githooks/**",
+            "source file is unreadable or disappeared: .github/**",
+            "source file is unreadable or disappeared: .proof-or-stop-codex/**",
+            "source file is unreadable or disappeared: .proof-or-stop/**",
+            "source file is unreadable or disappeared: bin/**",
+            "source file is unreadable or disappeared: packages/**",
+            "source file is unreadable or disappeared: scripts/**"
+          ],
+          "provenanceRefs": [
+            "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+            "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+            "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+            "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+            "process-fact:artifact:pre-review-check.json:b0d932560f345ed4130e89e7674f3e61967bf107d592f0e0082ba2186bc5aad4",
+            "process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0",
+            "process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe",
+            "source-file:packages/main/src/core/acceptance-topology.ts:sha256:cf5ddf03d88f4d3ccaaa8537c29a3d198bd7a20daa898542b884c44eeaa2d106",
+            "source-file:packages/main/src/core/pre-review-check.ts:sha256:28e89124f11b0b6bb144ca60881f7087bf7a36b102cb9ee08c523e5a8fed7780",
+            "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:107e6bd9c7b42f9ab4157d18ba8672feb666d190a414803ee0b6085cfa05b532",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:cee4043eb935e6a2dd85539dfc4dc68d06c7832ddb682f8805b1d6fdfb00c351",
+            "source-file:packages/main/src/registry.ts:sha256:151f49109e21de48f73e0f00e928944e4c3b5871081188c543ac06f470484b6e",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:96219fd27b384786c9140b1a9ab6a583ec0e9bfa313136e64095d249f55129de"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:process_fact_registry:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:file:.claude/**",
+              "scope:file:.codex/**",
+              "scope:file:.githooks/**",
+              "scope:file:.github/**",
+              "scope:file:.proof-or-stop-codex/**",
+              "scope:file:.proof-or-stop/**",
+              "scope:file:AGENTS.md",
+              "scope:file:CLAUDE.md",
+              "scope:file:README.md",
+              "scope:file:bin/**",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/**",
+              "scope:file:proof-or-stop.config.json",
+              "scope:file:scripts/**",
+              "scope:file:scripts/verify-entrypoints.mjs",
+              "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "scope:file:scripts/verify-runtime-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:51b277854b9991e06a08c718c728b50ed1a389fcd31be9ba27121c08b95a1f7c"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "runtime-fact-registry:sha256:57cf460f1e8b2f9597d9553fc4fc1fa024cb96daaba7082d9be21883084201a0",
+            "runtime-trace:story:B-022e:bounded"
+          ],
+          "asymmetryPolicy": {
+            "kind": "bounded_non_exhaustive",
+            "policyRef": "policy:bounded-runtime:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:file:.claude/**",
+              "scope:file:.codex/**",
+              "scope:file:.githooks/**",
+              "scope:file:.github/**",
+              "scope:file:.proof-or-stop-codex/**",
+              "scope:file:.proof-or-stop/**",
+              "scope:file:AGENTS.md",
+              "scope:file:CLAUDE.md",
+              "scope:file:README.md",
+              "scope:file:bin/**",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/**",
+              "scope:file:proof-or-stop.config.json",
+              "scope:file:scripts/**",
+              "scope:file:scripts/verify-entrypoints.mjs",
+              "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "scope:file:scripts/verify-runtime-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:a1eb54414212d883217e732bc6a1788d11797f0f35cb344be0d55196a9d7eb83"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:file:.claude/**",
+            "scope:file:.codex/**",
+            "scope:file:.githooks/**",
+            "scope:file:.github/**",
+            "scope:file:.proof-or-stop-codex/**",
+            "scope:file:.proof-or-stop/**",
+            "scope:file:AGENTS.md",
+            "scope:file:CLAUDE.md",
+            "scope:file:README.md",
+            "scope:file:bin/**",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/**",
+            "scope:file:proof-or-stop.config.json",
+            "scope:file:scripts/**",
+            "scope:file:scripts/verify-entrypoints.mjs",
+            "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+            "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+            "scope:file:scripts/verify-runtime-fact-contract.mjs",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:scope_contract:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:file:.claude/**",
+              "scope:file:.codex/**",
+              "scope:file:.githooks/**",
+              "scope:file:.github/**",
+              "scope:file:.proof-or-stop-codex/**",
+              "scope:file:.proof-or-stop/**",
+              "scope:file:AGENTS.md",
+              "scope:file:CLAUDE.md",
+              "scope:file:README.md",
+              "scope:file:bin/**",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/**",
+              "scope:file:proof-or-stop.config.json",
+              "scope:file:scripts/**",
+              "scope:file:scripts/verify-entrypoints.mjs",
+              "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "scope:file:scripts/verify-runtime-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:e14c84965e8d66b6f3f564275b53875b8688f557b90e92788a4f278efe7a21db"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          ],
+          "coverageClaim": "partial",
+          "blindSpots": [
+            "source file is unreadable or disappeared: .claude/**",
+            "source file is unreadable or disappeared: .codex/**",
+            "source file is unreadable or disappeared: .githooks/**",
+            "source file is unreadable or disappeared: .github/**",
+            "source file is unreadable or disappeared: .proof-or-stop-codex/**",
+            "source file is unreadable or disappeared: .proof-or-stop/**",
+            "source file is unreadable or disappeared: bin/**",
+            "source file is unreadable or disappeared: packages/**",
+            "source file is unreadable or disappeared: scripts/**"
+          ],
+          "provenanceRefs": [
+            "source-file:.claude/**:uninspectable",
+            "source-file:.codex/**:uninspectable",
+            "source-file:.githooks/**:uninspectable",
+            "source-file:.github/**:uninspectable",
+            "source-file:.proof-or-stop-codex/**:uninspectable",
+            "source-file:.proof-or-stop/**:uninspectable",
+            "source-file:AGENTS.md:sha256:a0ab118af0884d163db93731f1fa9bdbd83e05e91c3c4b9af63708d180f63ce4",
+            "source-file:CLAUDE.md:sha256:1432e93a56f2a0b435af08e7f0f6aa1eae238de5cc065e1bdfc7b2ffa478610b",
+            "source-file:README.md:sha256:1e6afab272d828d00c4cd9221b80b3235578be4bb4638b61ffc95e5771e4b8cb",
+            "source-file:bin/**:uninspectable",
+            "source-file:docs/CLI.md:sha256:e78e9af196babd1f721c6d81280e2c739753395155a608e8e53fd78035a2c53e",
+            "source-file:docs/requirements/decisions/proof-or-stop-identity-cutover.md:sha256:59cf9c8599b8a8b127f1a69b2cb72f7b2d68d1044cbf002495bb0f2304bd2e33",
+            "source-file:package-lock.json:sha256:7d559ba0bbdcf12d8e9b3c581f4f3c376a5e89b91c8ae455afeab6192ed2082d",
+            "source-file:package.json:sha256:d992501f28d66a59e3297ed7196760ba554dda87607261957e6524c8a9f23e06",
+            "source-file:packages/**:uninspectable",
+            "source-file:packages/main/src/core/acceptance-topology.ts:sha256:cf5ddf03d88f4d3ccaaa8537c29a3d198bd7a20daa898542b884c44eeaa2d106",
+            "source-file:packages/main/src/core/pre-review-check.ts:sha256:28e89124f11b0b6bb144ca60881f7087bf7a36b102cb9ee08c523e5a8fed7780",
+            "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:107e6bd9c7b42f9ab4157d18ba8672feb666d190a414803ee0b6085cfa05b532",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:cee4043eb935e6a2dd85539dfc4dc68d06c7832ddb682f8805b1d6fdfb00c351",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:scripts/**:uninspectable",
+            "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
+            "source-file:scripts/verify-entrypoints.mjs:sha256:76898714bf68bd8b2e3a42b0ffb447a2064e777b6d041d3837014e686719304c",
+            "source-file:scripts/verify-global-lab-entrypoint.mjs:sha256:0dbc1aab87f005e762975884d0b5c1b07321ebf890c9139db418a46e820c4357",
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:96219fd27b384786c9140b1a9ab6a583ec0e9bfa313136e64095d249f55129de",
+            "source-file:scripts/verify-proof-or-stop-identity-cutover.mjs:sha256:d77889f6b45eb728d082b33378651ca7779d4b63b2d7b8aa29188aeeb8fb848f",
+            "source-file:scripts/verify-proof-or-stop-prompt-baseline.mjs:sha256:292b8420020b798c478d40e8cbc311c7623e1c9a48749ebf21bf683265a65762",
+            "source-file:scripts/verify-runtime-fact-contract.mjs:sha256:2022d8eef2d86f727dc0a067fc02e904370d84c229043246608d974c9c502ea4"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:static_call_graph:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:file:.claude/**",
+              "scope:file:.codex/**",
+              "scope:file:.githooks/**",
+              "scope:file:.github/**",
+              "scope:file:.proof-or-stop-codex/**",
+              "scope:file:.proof-or-stop/**",
+              "scope:file:AGENTS.md",
+              "scope:file:CLAUDE.md",
+              "scope:file:README.md",
+              "scope:file:bin/**",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/**",
+              "scope:file:proof-or-stop.config.json",
+              "scope:file:scripts/**",
+              "scope:file:scripts/verify-entrypoints.mjs",
+              "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "scope:file:scripts/verify-runtime-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:5aa9d2ad2c0919d2990b75ff7e139d89ed10246c332c5f50e73374e204fdf837"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:checklist:CHK-002",
+        "scope:checklist:CHK-003",
+        "scope:checklist:CHK-004",
+        "scope:checklist:CHK-005",
+        "scope:checklist:CHK-006",
+        "scope:checklist:CHK-007",
+        "scope:checklist:CHK-008",
+        "scope:file:.claude/**",
+        "scope:file:.codex/**",
+        "scope:file:.githooks/**",
+        "scope:file:.github/**",
+        "scope:file:.proof-or-stop-codex/**",
+        "scope:file:.proof-or-stop/**",
+        "scope:file:AGENTS.md",
+        "scope:file:CLAUDE.md",
+        "scope:file:README.md",
+        "scope:file:bin/**",
+        "scope:file:docs/CLI.md",
+        "scope:file:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "scope:file:package-lock.json",
+        "scope:file:package.json",
+        "scope:file:packages/**",
+        "scope:file:proof-or-stop.config.json",
+        "scope:file:scripts/**",
+        "scope:file:scripts/verify-entrypoints.mjs",
+        "scope:file:scripts/verify-global-lab-entrypoint.mjs",
+        "scope:file:scripts/verify-process-fact-contract.mjs",
+        "scope:file:scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "scope:file:scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "sourceInventoryRefs": [
+        "artifact:acceptance-basis.json",
+        "artifact:pre-review-check.json",
+        "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+        "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+        "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+        "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+        "process-fact:artifact:pre-review-check.json:b0d932560f345ed4130e89e7674f3e61967bf107d592f0e0082ba2186bc5aad4",
+        "process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0",
+        "process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe",
+        "source-file:closure:.claude/**",
+        "source-file:closure:.codex/**",
+        "source-file:closure:.githooks/**",
+        "source-file:closure:.github/**",
+        "source-file:closure:.proof-or-stop-codex/**",
+        "source-file:closure:.proof-or-stop/**",
+        "source-file:closure:AGENTS.md",
+        "source-file:closure:CLAUDE.md",
+        "source-file:closure:README.md",
+        "source-file:closure:bin/**",
+        "source-file:closure:docs/CLI.md",
+        "source-file:closure:docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "source-file:closure:package-lock.json",
+        "source-file:closure:package.json",
+        "source-file:closure:packages/**",
+        "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+        "source-file:closure:packages/main/src/core/pre-review-check.ts",
+        "source-file:closure:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:closure:packages/main/src/handlers/proofstory.ts",
+        "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:closure:proof-or-stop.config.json",
+        "source-file:closure:scripts/**",
+        "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source-file:closure:scripts/verify-entrypoints.mjs",
+        "source-file:closure:scripts/verify-global-lab-entrypoint.mjs",
+        "source-file:closure:scripts/verify-process-fact-contract.mjs",
+        "source-file:closure:scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "source-file:closure:scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "source-file:closure:scripts/verify-runtime-fact-contract.mjs",
+        "source-file:config:proof-or-stop.config.json",
+        "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:artifact%3Apre-review-check.json:packages/main/src/core/pre-review-check.ts",
+        "source-file:consumer:artifact%3Apre-review-check.json:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:pre_review_check:packages/main/src/core/pre-review-check.ts",
+        "source-file:consumer:pre_review_check:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
+        "source-file:consumer:pre_review_check_read:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+        "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+        "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+        "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts",
+        "source-file:producer:artifact%3Apre-review-check.json:packages/main/src/core/pre-review-check.ts",
+        "source-file:producer:artifact%3Apre-review-check.json:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:producer:artifact%3Apre-review-check.json:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source-file:producer:pre_review_check:packages/main/src/core/pre-review-check.ts",
+        "source-file:producer:pre_review_check:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:producer:pre_review_check:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
+        "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "plannedPathRecords": [],
+      "plannedActualReconciliations": [],
+      "enumeratedPathRefs": [
+        "path:process-fact:acceptance_basis->consumer:<audit-only>",
+        "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+        "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+      ],
+      "excludedPathRefs": [],
+      "blindSpots": [
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "snapshot-seal:snapshot_missing:inventory:.claude/**",
+        "snapshot-seal:snapshot_missing:inventory:.codex/**",
+        "snapshot-seal:snapshot_missing:inventory:.githooks/**",
+        "snapshot-seal:snapshot_missing:inventory:.github/**",
+        "snapshot-seal:snapshot_missing:inventory:.proof-or-stop-codex/**",
+        "snapshot-seal:snapshot_missing:inventory:.proof-or-stop/**",
+        "snapshot-seal:snapshot_missing:inventory:bin/**",
+        "snapshot-seal:snapshot_missing:inventory:packages/**",
+        "snapshot-seal:snapshot_missing:inventory:scripts/**",
+        "snapshot-seal:snapshot_missing:source_file:.claude/**",
+        "snapshot-seal:snapshot_missing:source_file:.codex/**",
+        "snapshot-seal:snapshot_missing:source_file:.githooks/**",
+        "snapshot-seal:snapshot_missing:source_file:.github/**",
+        "snapshot-seal:snapshot_missing:source_file:.proof-or-stop-codex/**",
+        "snapshot-seal:snapshot_missing:source_file:.proof-or-stop/**",
+        "snapshot-seal:snapshot_missing:source_file:bin/**",
+        "snapshot-seal:snapshot_missing:source_file:packages/**",
+        "snapshot-seal:snapshot_missing:source_file:scripts/**",
+        "source file is unreadable or disappeared: .claude/**",
+        "source file is unreadable or disappeared: .codex/**",
+        "source file is unreadable or disappeared: .githooks/**",
+        "source file is unreadable or disappeared: .github/**",
+        "source file is unreadable or disappeared: .proof-or-stop-codex/**",
+        "source file is unreadable or disappeared: .proof-or-stop/**",
+        "source file is unreadable or disappeared: bin/**",
+        "source file is unreadable or disappeared: packages/**",
+        "source file is unreadable or disappeared: scripts/**"
+      ],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:2da79d4a90ae9c809155f1ba812cad67cba94bc7eb614af2c0888d66595710b0",
+        "inventoryDirectoryCount": 22,
+        "sourceSnapshotDigest": "sha256:24bb5fb421b682c44e4e48604a0fedb171f1a66ed8a989d90b335b947fdabf45",
+        "sourceSnapshotCount": 833,
+        "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
+        "status": "partial",
+        "issues": [
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": ".claude/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": ".codex/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": ".githooks/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": ".github/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": ".proof-or-stop-codex/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": ".proof-or-stop/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": "bin/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": "packages/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "inventory",
+            "canonicalRef": "scripts/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": ".claude/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": ".codex/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": ".githooks/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": ".github/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": ".proof-or-stop-codex/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": ".proof-or-stop/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": "bin/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": "packages/**"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "source_file",
+            "canonicalRef": "scripts/**"
+          }
+        ],
+        "sealDigest": "sha256:fb56c1528f56744f599e0647c7c4bf381632b00ea32dfbb409a18282ebfca498"
+      },
+      "binding": {
+        "headHash": "a00f1bd02dd5e46bc6d6851f3dd7c8af7eb50548",
+        "materialHash": "babed18eeb2cc7302624353a73c8cb24d3362ba6880cccaad8a9b87dba1fb190",
+        "storyFilesHash": "75fd57a4aa5613f78889c48f3a45e76a477de48495d8248af52d57a36f0b5049",
+        "scopeCheckDigest": "sha256:0b87fd6c28f91400a920b8b532c884a895035e71e2e0764bd71a9afc4431992d",
+        "scopeContractDigest": "sha256:70b1961bd1a9c6037cc6fc882bde05c3a0ada259d2ef0798ce34c881ff77348d",
+        "closureFilesHash": "sha256:20672f652ea98e9c406a3505d4a62d4bb77c130fdb006c9327ec2c455db58bb1"
+      },
+      "receiptRef": "receipt:coverage-basis:B-022e:pre_review:4efe18e57ee15811",
+      "basisDigest": "sha256:32c84ea8f3c1c97750cb441cf9e8c43b1c0773c6f683ddef05ac001291c605c0"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-022e:pre_review:4efe18e57ee15811",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
+      "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
+      "storyId": "B-022e",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:32c84ea8f3c1c97750cb441cf9e8c43b1c0773c6f683ddef05ac001291c605c0",
+      "topologyDigest": "sha256:4dc19d35eb49a667f7620b48fb9ddd67746274725eaa15380f7ac2750725468d",
+      "scopeCheckDigest": "sha256:0b87fd6c28f91400a920b8b532c884a895035e71e2e0764bd71a9afc4431992d",
+      "scopeContractDigest": "sha256:70b1961bd1a9c6037cc6fc882bde05c3a0ada259d2ef0798ce34c881ff77348d",
+      "headHash": "a00f1bd02dd5e46bc6d6851f3dd7c8af7eb50548",
+      "materialHash": "babed18eeb2cc7302624353a73c8cb24d3362ba6880cccaad8a9b87dba1fb190",
+      "storyFilesHash": "75fd57a4aa5613f78889c48f3a45e76a477de48495d8248af52d57a36f0b5049",
+      "closureFilesHash": "sha256:20672f652ea98e9c406a3505d4a62d4bb77c130fdb006c9327ec2c455db58bb1",
+      "sealDigest": "sha256:fb56c1528f56744f599e0647c7c4bf381632b00ea32dfbb409a18282ebfca498",
+      "workspaceIdentityDigest": "sha256:e2dafb0284047ed0ba30d55b1986344846bb668efbf7902c0469570ee58c0d60",
+      "signature": "PWiPHycuiUwW52n28yeCXZyDeM6vsmm3Mm9OV5u+Su37Vf7yXnMdRFuoAa24fIZnOuWaqI6rJLPUkoMOKmf8AA=="
+    }
+  },
+  "topologyDigest": "sha256:4dc19d35eb49a667f7620b48fb9ddd67746274725eaa15380f7ac2750725468d",
+  "scopeCheckDigest": "sha256:0b87fd6c28f91400a920b8b532c884a895035e71e2e0764bd71a9afc4431992d",
+  "scopeContractDigest": "sha256:70b1961bd1a9c6037cc6fc882bde05c3a0ada259d2ef0798ce34c881ff77348d",
+  "storyFilesHash": "75fd57a4aa5613f78889c48f3a45e76a477de48495d8248af52d57a36f0b5049",
+  "closureFilesHash": "sha256:20672f652ea98e9c406a3505d4a62d4bb77c130fdb006c9327ec2c455db58bb1",
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:612df8ea54a582f234c15781a1c6c0a405f7c3476eacacfad301aaa480edbc58"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:1c2186a3a6b16d8b135ac04a3a2269b3029963c4010c7ec30281cf9d83cef5f8"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:f885cf88c0a20b3628199eb308a98a58bfd0ab91d89cc0272c68bb64269a6ddc"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:a731f2432b8a87732619bce83b8fd097845385204388e6023104ea707b469d87"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:cd077b9d2286cc1ccd704d8d195b9d522ed465995cfa88c756fdb8605228e87d"
+    },
+    {
+      "intentRef": "CHK-002:edge:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:e644b2d0943e736cecce0adc52a626f37a9b7708ac3f607e653fce3fa01fab7d"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c85c1cc973ada15262ac45130e5894330e43a1e2ce7ccd2df07196d949230cc6"
+    },
+    {
+      "intentRef": "CHK-002:happy:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:3b4367f718f79dfb20bb00e2e7ac74e3a1a7d8c5b602b0d21de36a97dc77e4a6"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:6fda903f8f2c8cfb544153c70d0985d29416588113ecc7ca9300809fc1a33655"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:cea9d8f6bd27ee0a23a3a4751e04f43d7861a763e8d5290f1b5419280a7dfe00"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:9f57be25a5b0015d8b44c52554c09568b441d0073528330edf8692800d8666b4"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c2fcb88fee125e62813296d3aa7c09b6425e3be9ad64b05420b15797453cc274"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:578b91d8f589de5b443e36db2edd7e07a16cb745af4a3593c683e2448bc6b6ae"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:f0a31c8c0eb59dcee28786d53fde893be8ec50cf3e8a0b8b4a5a71e62366ef9a"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:74f44186e44938c0e4877d6ee8db2f80bcc5dbf76ca66fc7a8a645822670ba78"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:d852d0c1bd4904dde3c1b6f2112498d9df7614ecfed13e65188968b4be5822ac"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:6d011a87b6e6cabc171d6981797d2187dd3ba3f7aab1bbe3029f81120398977b"
+    },
+    {
+      "intentRef": "CHK-005:edge:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:412ab9bdf9ea72aae2fa681e6fb986c1eb2f8ea5470eeb3987eb9cf0c131e28b"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:72cf1d3f1b3d06cc90456ad41b6f6033ac439ca6f0c78de32af1354e4d03f4e4"
+    },
+    {
+      "intentRef": "CHK-005:happy:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:739d3155c10b48217cc9387185645d5e6d03a11f2dc266adfc808745fa828133"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:419d1579bde190ea97887dbca5a78808b59f0277f43fbd02d8a0cc5b849a6f27"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:b15dd72138a3c88c736d9c646851fcef9ff38dc636e8b29469e76ad635c943ad"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:a90697fd37779eadf8b0f376081438b4a6e9ce03e0ef85da179d1e21bb748cfb"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:ebf82c53f7f56a6faa8a607ccec9710403e618a8de6bab8eef0e136cb028ae34"
+    },
+    {
+      "intentRef": "CHK-007:edge:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:af068e33dee5fe3af11624dc07e9f07e9a0c15d480526b7236f3f21a4d05542e"
+    },
+    {
+      "intentRef": "CHK-007:happy:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:e64ec2cc03bfd268b1abb973e62e5c09034a9f72f5bf2341af52518696984029"
+    },
+    {
+      "intentRef": "CHK-007:pack-boundary-transcript:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 3,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:67db694208f486073d7fcb0d204204732ac2bcdde96f4b306c62354cf5c64fcf"
+    },
+    {
+      "intentRef": "CHK-008:adversarial:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:1f4f2876f037d0b7795f8340cf704c13c5ca4a29fc20e9cff38319d17b0b9b2c"
+    },
+    {
+      "intentRef": "CHK-008:edge:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:9698e61cbb955dfae6b1d2c50a59ac76942bfe11c7a804e7b88e8807b178e588"
+    },
+    {
+      "intentRef": "CHK-008:happy:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:139a199e140234ad7f69e90c9d7bc576fb34a4a934e9b84db418f0976e24bd45"
+    }
+  ],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-022e",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "",
+    "provenance": {
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
+    },
+    "bindingProofs": []
+  },
+  "codes": [
+    "PR_NEW_PATH_UNMAPPED",
+    "PR_COVERAGE_BASIS_CHANGED",
+    "PR_COVERAGE_INCONCLUSIVE",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE"
+  ],
+  "status": "inconclusive",
+  "issuedAt": "2026-08-31T13:23:17.710Z",
+  "signerPublicKey": "uendfEEh3WTk6SOX8NFS9CxZae6O6w72u/FrK9Zqu8s=",
+  "signature": "rDb308PMUeSp3F2j1uaZodGWOPQ4VY8pR0yowytncqjCc8hzzMxrF7TtmQTcb7UV/Kyh5rWfodYslKjhV3XcAw=="
+}

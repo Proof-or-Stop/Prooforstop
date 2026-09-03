@@ -61,7 +61,7 @@ generated or recommended without a host or agent namespace:
 | convergence | `proof-or-stop convergence_check` |
 
 Generated prompts may use the project-local wrapper form
-`node bin/lattice.js <command>` when local bootstrap is required. They must not
+`node bin/proof-or-stop.js <command>` when local bootstrap is required. They must not
 route these commands through a Codex adapter wrapper.
 
 ### Codex Adapter Commands
@@ -110,17 +110,17 @@ done:
 As of this plan, residual local wrapper guidance remains outside this document
 and must be treated as future cleanup, not completed work:
 
-- Diagnostic guidance still names `node bin/lattice-codex.js doctor` in
+- Diagnostic guidance still names `node bin/proof-or-stop-codex.js doctor` in
   `README.md`, `packages/main/src/init-assets.ts`, and generated
   `packages/main/dist/init-assets*`; the execution story must replace that
-  adapter diagnostic guidance with `node bin/lattice-codex.js codex_doctor` and
+  adapter diagnostic guidance with `node bin/proof-or-stop-codex.js codex_doctor` and
   then rebuild dist.
-- Workflow-wrapper guidance still names `node bin/lattice-codex.js session_brief`,
-  `node bin/lattice-codex.js aux_doc_list`, and
-  `node bin/lattice-codex.js story_create` in `README.md`; future cleanup must
-  replace those examples with the ordinary host-neutral `node bin/lattice.js ...`
+- Workflow-wrapper guidance still names `node bin/proof-or-stop-codex.js session_brief`,
+  `node bin/proof-or-stop-codex.js aux_doc_list`, and
+  `node bin/proof-or-stop-codex.js story_create` in `README.md`; future cleanup must
+  replace those examples with the ordinary host-neutral `node bin/proof-or-stop.js ...`
   workflow commands.
-- Adapter-check display-command text still names `node bin/lattice-codex.js session_brief`
+- Adapter-check display-command text still names `node bin/proof-or-stop-codex.js session_brief`
   in `packages/main/src/core/codex-adapter-checks.ts` and generated
   `packages/main/dist/core/codex-adapter-checks.js`; future cleanup must either
   narrow that display evidence or update source and regenerated dist together.
@@ -157,7 +157,7 @@ Suggested checklist:
 | Item | Intent | Likely files |
 | --- | --- | --- |
 | CHK-001 | Add or tighten the host-neutral command boundary in generated templates. | `packages/main/src/init-assets.ts`, generated dist output |
-| CHK-002 | Remove existing tracked docs guidance that routes workflow commands through Codex wrappers. | `README.md`, `.lattice-codex/README.md`, `.codex/README.md` if tracked |
+| CHK-002 | Remove existing tracked docs guidance that routes workflow commands through Codex wrappers. | `README.md`, `.proof-or-stop-codex/README.md`, `.codex/README.md` if tracked |
 | CHK-003 | Add regression coverage for forbidden namespace guidance and allowed adapter commands. | `packages/main/src/tasks/*smoke.ts` |
 | CHK-004 | Verify runtime CLI output after build/dist sync. | `packages/main/dist/**`, validation transcript |
 
@@ -179,7 +179,7 @@ Required scan surfaces:
 - `AGENTS.md`
 - `CLAUDE.md`
 - `README.md`
-- `.lattice-codex/`
+- `.proof-or-stop-codex/`
 - `.codex/`
 - `docs/`
 - `packages/main/src/`
@@ -189,7 +189,7 @@ Exclude story lifecycle storage and fixtures from manual editing:
 
 - `docs/story/**`
 - `tests/fixtures/**`
-- `.lattice/story/**` unless using Proof-or-Stop commands
+- `.proof-or-stop/story/**` unless using Proof-or-Stop commands
 
 Use scans that distinguish:
 
@@ -201,7 +201,7 @@ Use scans that distinguish:
 Important distinction:
 
 - `proof-or-stop codex verify` and `proof-or-stop codex doctor` are allowed adapter forms.
-- `node bin/lattice.js session_brief` and `node bin/lattice.js aux_doc_list`
+- `node bin/proof-or-stop.js session_brief` and `node bin/proof-or-stop.js aux_doc_list`
   are allowed local workflow forms.
 - Codex adapter wrapper guidance should not be used for generic workflow
   session recovery or document discovery.
@@ -211,16 +211,16 @@ Important distinction:
 For generated templates, prefer these rules:
 
 - Start/resume session:
-  `proof-or-stop session_brief`, or `node bin/lattice.js session_brief` when a local
+  `proof-or-stop session_brief`, or `node bin/proof-or-stop.js session_brief` when a local
   project wrapper is required.
 - Discover docs:
-  `proof-or-stop aux_doc_list`, or `node bin/lattice.js aux_doc_list` when a local
+  `proof-or-stop aux_doc_list`, or `node bin/proof-or-stop.js aux_doc_list` when a local
   project wrapper is required.
 - Codex adapter diagnostics:
   `proof-or-stop codex doctor`, `proof-or-stop codex_doctor`, or
-  `node bin/lattice-codex.js codex_doctor`.
+  `node bin/proof-or-stop-codex.js codex_doctor`.
 - Codex adapter verification:
-  `proof-or-stop codex verify` or `node bin/lattice-codex.js verify_codex`.
+  `proof-or-stop codex verify` or `node bin/proof-or-stop-codex.js verify_codex`.
 
 Do not recommend Codex adapter wrappers as the first command for ordinary
 workflow recovery. If heartbeat attribution is required, document it as
@@ -279,7 +279,7 @@ assertions if they clearly verify rejection behavior.
 
 ```bash
 rg -n --hidden 'proof-or-stop\s+codex\s+(session_brief|aux_doc_list|story_|checklist_|validate|review_|finding_|summary_set|delivery_check_set|convergence_check)' \
-  AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .lattice-codex .codex
+  AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .proof-or-stop-codex .codex
 ```
 
 Expected result:
@@ -295,15 +295,16 @@ diagnostics. Scan for that exact wrapper/argument combination and replace it
 with the adapter diagnostic command.
 
 ```bash
+# Retired-command rejection check
 rg -n --hidden 'lattice-codex\.js\s+doctor\b' \
-  README.md docs packages/main/src packages/main/dist .lattice-codex .codex
+  README.md docs packages/main/src packages/main/dist .proof-or-stop-codex .codex
 ```
 
 Expected result:
 
 - no business guidance hits;
-- preferred replacement is `node bin/lattice-codex.js codex_doctor`;
-- `node bin/lattice-codex.js verify_codex` remains valid for adapter evidence.
+- preferred replacement is `node bin/proof-or-stop-codex.js codex_doctor`;
+- `node bin/proof-or-stop-codex.js verify_codex` remains valid for adapter evidence.
 
 ### Runtime CLI Behavior
 
@@ -334,8 +335,8 @@ Allowed Codex adapter aliases must still work:
 ```bash
 proof-or-stop codex doctor --help
 proof-or-stop codex verify --help
-node bin/lattice-codex.js codex_doctor --help
-node bin/lattice-codex.js verify_codex --help
+node bin/proof-or-stop-codex.js codex_doctor --help
+node bin/proof-or-stop-codex.js verify_codex --help
 ```
 
 ### Build And Smoke Tests
@@ -346,13 +347,13 @@ Run at minimum:
 npm --prefix packages/main run build
 npm --prefix packages/main run test:legacy-lattice-compatibility-smoke
 npm --prefix packages/main run test:session-brief-prompt-sync-smoke
-node bin/lattice.js validate --story=<storyId> --json
+node bin/proof-or-stop.js validate --story=<storyId> --json
 ```
 
 If the story touches Codex adapter assets, also run:
 
 ```bash
-node bin/lattice.js verify_codex '{"storyId":"<storyId>"}'
+node bin/proof-or-stop.js verify_codex '{"storyId":"<storyId>"}'
 ```
 
 ## Review Checklist

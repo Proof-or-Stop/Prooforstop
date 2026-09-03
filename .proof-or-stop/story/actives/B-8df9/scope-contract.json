@@ -1,0 +1,67 @@
+{
+  "storyId": "B-8df9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/types.ts",
+    "lattice.config.json",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks/*.ts",
+    ".lattice/story/actives/B-8df9/*",
+    "docs/requirements/decisions/*.md",
+    "CLAUDE.md"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-b8df9-*.mjs",
+    ".lattice/story/actives/B-8df9/*"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/*.mjs",
+    "packages/main/src/tasks/*.ts",
+    "packages/main/tests/*.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+    "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/red-evidence/*",
+    "packages/main/src/core/draft-check-hash.ts",
+    "packages/main/src/core/delivery-check-hash.ts"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-08-01T12:55:27.978Z",
+  "updatedAt": "2026-08-01T12:55:27.978Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/init-check-gate.ts": "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/init-check.ts": "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/tasks/*.ts": "packages/main/src/tasks/*.ts",
+    ".lattice/story/actives/B-8df9/*": ".lattice/story/actives/B-8df9/*",
+    "docs/requirements/decisions/*.md": "docs/requirements/decisions/*.md",
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/tests/red/red-b8df9-*.mjs": "packages/main/tests/red/red-b8df9-*.mjs",
+    "packages/main/tests/red/*.mjs": "packages/main/tests/red/*.mjs",
+    "packages/main/tests/*.ts": "packages/main/tests/*.ts",
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+    "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+    "packages/main/src/core/red-evidence/*": "packages/main/src/core/red-evidence/*",
+    "packages/main/src/core/draft-check-hash.ts": "packages/main/src/core/draft-check-hash.ts",
+    "packages/main/src/core/delivery-check-hash.ts": "packages/main/src/core/delivery-check-hash.ts"
+  }
+}

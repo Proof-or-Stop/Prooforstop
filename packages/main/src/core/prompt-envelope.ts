@@ -21,7 +21,7 @@ import {
   type RoleContract,
   type RuntimeContract,
 } from './prompt-contracts.js';
-import { LATTICE_CLI_VERSION } from './lattice-brand.js';
+import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 import type { ChecklistData, ScopeContractData, StoryInfo } from './types.js';
 import { digestScopeContract } from './guard-session.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
@@ -256,7 +256,7 @@ export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {
     nodeVersion: process.version,
     platform: process.platform,
     architecture: process.arch,
-    cliVersion: LATTICE_CLI_VERSION,
+    cliVersion: PROOF_OR_STOP_CLI_VERSION,
     source: 'trusted-local-runtime',
   };
   validateKnownExecutionEnvironment(value);

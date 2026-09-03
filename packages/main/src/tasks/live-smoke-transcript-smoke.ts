@@ -52,18 +52,18 @@ function git(cwd: string, args: string[]): string {
 {
   const { root, ctx } = createFixture(checklistWithUserSees);
   const savedArgv1 = process.argv[1];
-  const savedMax = process.env.LATTICE_MAX_TIMEOUT_MS;
+  const savedMax = process.env.PROOF_OR_STOP_MAX_TIMEOUT_MS;
   try {
-    const observer = join(root, 'active-lattice-observer');
+    const observer = join(root, 'active-proof-or-stop-observer');
     writeFileSync(observer, [
       '#!/usr/bin/env node',
-      "process.stdout.write(JSON.stringify({ max: process.env.LATTICE_MAX_TIMEOUT_MS ?? null }));",
+      "process.stdout.write(JSON.stringify({ max: process.env.PROOF_OR_STOP_MAX_TIMEOUT_MS ?? null }));",
     ].join('\n') + '\n', 'utf8');
     chmodSync(observer, 0o755);
     process.argv[1] = observer;
     const handler = createMainRegistry(ctx).get('live_smoke_transcript');
 
-    delete process.env.LATTICE_MAX_TIMEOUT_MS;
+    delete process.env.PROOF_OR_STOP_MAX_TIMEOUT_MS;
     const derived = await handler!({
       storyId: STORY_ID,
       capture: `${observer} done_required_validate --storyId=${STORY_ID}`,
@@ -71,7 +71,7 @@ function git(cwd: string, args: string[]): string {
     }) as LiveSmokeTranscriptReport;
     assert.equal(JSON.parse(derived.actual?.stdout ?? '{}').max, '30000', 'default-derived nested max is forwarded to the trusted child');
 
-    process.env.LATTICE_MAX_TIMEOUT_MS = String(Number.MAX_SAFE_INTEGER);
+    process.env.PROOF_OR_STOP_MAX_TIMEOUT_MS = String(Number.MAX_SAFE_INTEGER);
     const saturated = await handler!({
       storyId: STORY_ID,
       capture: `${observer} done_required_validate --storyId=${STORY_ID}`,
@@ -84,8 +84,8 @@ function git(cwd: string, args: string[]): string {
     );
   } finally {
     process.argv[1] = savedArgv1;
-    if (savedMax === undefined) delete process.env.LATTICE_MAX_TIMEOUT_MS;
-    else process.env.LATTICE_MAX_TIMEOUT_MS = savedMax;
+    if (savedMax === undefined) delete process.env.PROOF_OR_STOP_MAX_TIMEOUT_MS;
+    else process.env.PROOF_OR_STOP_MAX_TIMEOUT_MS = savedMax;
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -102,7 +102,7 @@ function git(cwd: string, args: string[]): string {
         JSON.stringify({ storyId: STORY_ID, capture: 'sleep 5', json: true }),
       ], {
         cwd: root,
-        env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '100' },
+        env: { ...process.env, PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '100' },
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
         timeout: 5_000,
@@ -345,7 +345,7 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
       JSON.stringify({ storyId: STORY_ID, capture, json: true }),
     ], {
       cwd: root,
-      env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '2000' },
+      env: { ...process.env, PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '2000' },
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: true,
     });
@@ -460,11 +460,11 @@ function gitStatus(root: string): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n',
@@ -508,14 +508,14 @@ function createFixture(
   seedChecklist: () => ChecklistData,
   storyPhase: StoryInfo['phase'] = 'TEST',
 ): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-live-smoke-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-live-smoke-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# live smoke transcript smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -641,8 +641,8 @@ assert.equal(
     const storyDir = store.storyDirPath(STORY_ID);
     const beforeSnapshot = snapshotDir(root, storyDir);
     const invalidCases = [
-      { storyId: '../../outside', rogueDir: join(root, '.lattice', 'outside') },
-      { storyId: 'B-bad/leaf', rogueDir: join(root, '.lattice', 'story', 'actives', 'B-bad', 'leaf') },
+      { storyId: '../../outside', rogueDir: join(root, '.proof-or-stop', 'outside') },
+      { storyId: 'B-bad/leaf', rogueDir: join(root, '.proof-or-stop', 'story', 'actives', 'B-bad', 'leaf') },
     ];
 
     for (const { storyId, rogueDir } of invalidCases) {
@@ -781,15 +781,15 @@ assert.equal(
 
 {
   const { root } = createFixture(checklistWithUserSees);
-  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  const savedOverride = process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   const savedArgv1 = process.argv[1];
-  const phaseEnvName = 'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS';
+  const phaseEnvName = 'PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS';
   const savedPhaseTimeout = process.env[phaseEnvName];
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
       doneRequiredCommands: [{ label: 'long legal suite', command: 'npm', args: ['test'], timeoutMs: 120_000 }],
@@ -824,7 +824,7 @@ assert.equal(
       ` ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
       `${PRE_REVIEW_LIVE_PROOF_COMMAND} `,
       `${PRE_REVIEW_LIVE_PROOF_COMMAND} --extra`,
-      `LATTICE_SESSION_ID=stable ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
+      `PROOF_OR_STOP_SESSION_ID=stable ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
       `${PRE_REVIEW_LIVE_PROOF_COMMAND}; node extra.js`,
       `NODE_OPTIONS=--require=/tmp/attacker.cjs ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
     ]) {
@@ -833,12 +833,12 @@ assert.equal(
       assert.equal(budget.timeoutMs, 60_000, `near-miss canonical proof retains arbitrary-command ceiling: ${nearMiss}`);
     }
 
-    const direct = liveSmokeCaptureBudget(root, `LATTICE_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv);
+    const direct = liveSmokeCaptureBudget(root, `PROOF_OR_STOP_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv);
     assert.equal(direct.nestedMaxTimeoutMs, 150_000, 'direct DONE-required nested max derives command timeout plus validation grace');
     assert.equal(direct.timeoutMs, 153_000, 'direct DONE-required capture adds cleanup grace above the nested max');
     assert.equal(direct.recognizedCommand, 'done_required_validate');
 
-    const fakeProjectCli = join(root, 'bin', 'lattice.js');
+    const fakeProjectCli = join(root, 'bin', 'proofOrStop.js');
     mkdirSync(join(root, 'bin'), { recursive: true });
     writeFileSync(fakeProjectCli, '#!/bin/sh\nexit 0\n', 'utf8');
     chmodSync(fakeProjectCli, 0o755);
@@ -852,13 +852,13 @@ assert.equal(
 
     const nodeAliasBin = join(root, 'node-alias-bin');
     mkdirSync(nodeAliasBin, { recursive: true });
-    symlinkSync(process.execPath, join(nodeAliasBin, 'lattice'));
+    symlinkSync(process.execPath, join(nodeAliasBin, 'proof-or-stop'));
     const nodeAlias = liveSmokeCaptureBudget(
       root,
       doneRequiredCommand,
       { ...budgetEnv, PATH: `${nodeAliasBin}${delimiter}${budgetEnv.PATH ?? ''}` },
     );
-    assert.equal(nodeAlias.recognizedCommand, null, 'PATH lattice symlink to node cannot impersonate the active CLI');
+    assert.equal(nodeAlias.recognizedCommand, null, 'PATH proof-or-stop symlink to node cannot impersonate the active CLI');
     assert.equal(nodeAlias.timeoutMs, 60_000);
     assert.equal(
       commandCliMaxBudget(root, 'live_smoke_transcript', {
@@ -883,15 +883,15 @@ assert.equal(
       `PATH=/tmp/attacker ${doneRequiredCommand}`,
       `LD_PRELOAD=/tmp/attacker.so ${doneRequiredCommand}`,
       `NODE_OPTIONS=--require=/tmp/attacker.cjs ${doneRequiredCommand}`,
-      `LATTICE_MAX_TIMEOUT_MS=90000 ${doneRequiredCommand}`,
-      `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=75 ${doneRequiredCommand}`,
+      `PROOF_OR_STOP_MAX_TIMEOUT_MS=90000 ${doneRequiredCommand}`,
+      `PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=75 ${doneRequiredCommand}`,
     ]) {
       const budget = liveSmokeCaptureBudget(root, injected, budgetEnv);
       assert.equal(budget.timeoutMs, 60_000, `${injected.split('=')[0]} injection retains arbitrary-command ceiling`);
       assert.equal(budget.recognizedCommand, null);
     }
 
-    const inheritedMaxEnv = { ...budgetEnv, LATTICE_MAX_TIMEOUT_MS: '1000' };
+    const inheritedMaxEnv = { ...budgetEnv, PROOF_OR_STOP_MAX_TIMEOUT_MS: '1000' };
     const inheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, inheritedMaxEnv);
     assert.equal(inheritedMax.nestedMaxTimeoutMs, 1_000, 'nested closeout keeps inherited max as its business bound');
     assert.equal(inheritedMax.timeoutMs, 1_000 + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS, 'capture wrapper outlives nested max by cleanup grace');
@@ -911,7 +911,7 @@ assert.equal(
     );
     const saturatedEnv = {
       ...budgetEnv,
-      LATTICE_MAX_TIMEOUT_MS: String(Number.MAX_SAFE_INTEGER),
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: String(Number.MAX_SAFE_INTEGER),
     };
     const clampedInheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, saturatedEnv);
     const expectedSaturatedNested = NODE_TIMER_MAX_MS - LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS - 30_000;
@@ -932,10 +932,10 @@ assert.equal(
       'recognized saturated budgets preserve strict nested < capture < outer ordering',
     );
 
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
       doneRequiredCommands: [{ label: 'saturated configured suite', command: 'npm', args: ['test'], timeoutMs: Number.MAX_SAFE_INTEGER }],
@@ -956,17 +956,17 @@ assert.equal(
 
     const boundedHighOverride = liveSmokeCaptureBudget(root, 'node arbitrary.js', {
       ...budgetEnv,
-      LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '999999999',
+      PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '999999999',
     });
     assert.equal(boundedHighOverride.timeoutMs, 60_000, 'explicit override cannot raise arbitrary-command safety ceiling');
     const boundedLowOverride = liveSmokeCaptureBudget(root, doneRequiredCommand, {
       ...budgetEnv,
-      LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '75',
+      PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '75',
     });
     assert.equal(boundedLowOverride.timeoutMs, 75, 'explicit override may lower a recognized command budget for testing/operations');
   } finally {
-    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
-    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    if (savedOverride === undefined) delete process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
     process.argv[1] = savedArgv1;
     if (savedPhaseTimeout === undefined) delete process.env[phaseEnvName];
     else process.env[phaseEnvName] = savedPhaseTimeout;
@@ -979,7 +979,7 @@ assert.equal(
 
 {
   const { root, store, ctx } = createFixture(checklistWithUserSees);
-  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  const savedOverride = process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   try {
     const lockPath = validationExecutionLockPath(root, STORY_ID);
     const descendantPidPath = join(root, 'descendant.pid');
@@ -997,7 +997,7 @@ assert.equal(
       "process.on('SIGTERM', () => {});",
       "setInterval(() => {}, 1000);",
     ].join('\n') + '\n', 'utf8');
-    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '2000';
+    process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '2000';
     const handler = createMainRegistry(ctx).get('live_smoke_transcript');
     assert.ok(handler);
     const pidReady = new Promise<void>((resolveReady, rejectReady) => {
@@ -1065,8 +1065,8 @@ assert.equal(
     assert.equal(immediateRetry.actual?.exitCode, 0, 'capture can rerun immediately after timeout cleanup');
     assert.match(immediateRetry.actual?.stdout ?? '', new RegExp(`${MARKER}-RETRY`));
   } finally {
-    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
-    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    if (savedOverride === undefined) delete process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1075,7 +1075,7 @@ assert.equal(
 // separate live validator owned by another process/context.
 {
   const { root, ctx } = createFixture(checklistWithUserSees);
-  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  const savedOverride = process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   try {
     const lockPath = validationExecutionLockPath(root, STORY_ID);
     mkdirSync(lockPath, { recursive: true });
@@ -1087,7 +1087,7 @@ assert.equal(
     }, null, 2) + '\n', 'utf8');
     const scriptPath = join(root, 'unrelated-hang.cjs');
     writeFileSync(scriptPath, "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000);\n", 'utf8');
-    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '100';
+    process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '100';
     const handler = createMainRegistry(ctx).get('live_smoke_transcript');
     const report = await handler!({
       storyId: STORY_ID,
@@ -1097,8 +1097,8 @@ assert.equal(
     assert.equal(report.actual?.exitCode, null);
     assert.equal(existsSync(lockPath), true, 'timeout cleanup preserves a separately live validation lock');
   } finally {
-    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
-    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    if (savedOverride === undefined) delete process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.PROOF_OR_STOP_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1172,17 +1172,17 @@ assert.equal(
 
 {
   const { root, store } = createFixture(checklistWithUserSees);
-  const savedSession = process.env.LATTICE_SESSION_ID;
+  const savedSession = process.env.PROOF_OR_STOP_SESSION_ID;
   try {
     const storyDir = store.storyDirPath(STORY_ID);
-    process.env.LATTICE_SESSION_ID = 'sess-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
     resetSessionIdForTest();
     acquireOwnerLease(storyDir, { command: 'checklist_add', cwd: '/tmp/owner-worktree' });
     const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf8');
     const snapshotBefore = snapshotDir(root, storyDir);
     const statusBefore = gitStatus(root);
 
-    process.env.LATTICE_SESSION_ID = 'sess-intruder';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-intruder';
     resetSessionIdForTest();
 
     // Default read-only is ungated even on a foreign-owned story.
@@ -1208,8 +1208,8 @@ assert.equal(
     assert.equal(gitStatus(root), statusBefore, 'rejected owner gate leaves git status unchanged');
     assertNoAuthorityOrEvidenceArtifacts(store);
   } finally {
-    if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
-    else process.env.LATTICE_SESSION_ID = savedSession;
+    if (savedSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+    else process.env.PROOF_OR_STOP_SESSION_ID = savedSession;
     resetSessionIdForTest();
     rmSync(root, { recursive: true, force: true });
   }

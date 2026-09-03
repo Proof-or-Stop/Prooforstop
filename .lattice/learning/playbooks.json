@@ -1,0 +1,247 @@
+[
+  {
+    "check": "Before similar work, apply this DONE experience: Make reviewer and worker liveness background-aware instead of restarting after ten minutes | Current reviewer and worker guidance treats ten minutes without a result as stalled even though host-native agents may remain",
+    "id": "PBP-001",
+    "lineage": {
+      "sourceFindingId": "B-74af:DONE-EXPERIENCE",
+      "sourceSignature": "done_experience",
+      "sourceStoryId": "B-74af"
+    },
+    "pitfalls": [
+      "none — fully covered",
+      "Two closeout attempts reached explicit failure states under machine load: one transient root-suite exit and one ENFILE file-table overflow while several worktrees ran full suites concurrently. Wait for competing suites"
+    ],
+    "status": "candidate",
+    "title": "Playbook: DONE experience B-74af",
+    "trigger": {
+      "fileKinds": [],
+      "keywords": [
+        "1544",
+        "74af",
+        "actives",
+        "advice",
+        "after",
+        "agent",
+        "agents",
+        "alive"
+      ],
+      "storyPhases": [
+        "DONE",
+        "REVIEW"
+      ]
+    },
+    "usage": {
+      "dismissedHits": 0,
+      "resolvedHits": 0,
+      "surfacedCount": 0
+    },
+    "verification": [
+      ".lattice/story/actives/B-74af/background.md: verified",
+      ".lattice/story/actives/B-74af/plan.md#CHK-001: verified",
+      ".lattice/story/actives/B-74af/plan.md#CHK-002: verified",
+      ".lattice/story/actives/B-74af/plan.md#CHK-003: verified",
+      "CHK-001: Independent delivery run: node packages/main/dist/tasks/agent-liveness-suite-smoke.js; same execution session was polled until terminal exit 0; state matrix, foreground/background/unknown, consume-once and term",
+      "Claude transcript inspection showed foreground tasks completing after 61 to 98 minutes and explicit background tasks completing after 8 to 47 minutes. The final routine validation passed 93 of 93 commands in 855 seconds",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md: verified",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md: verified"
+    ]
+  },
+  {
+    "check": "Before similar work, apply this DONE experience: Run the complete root test suite safely in parallel in under five minutes | An isolated measurement at commit 58c7cdc showed that root npm test passed all 46 members on the measured B-cdf6 descendant but took 1688.9 sec",
+    "id": "PBP-002",
+    "lineage": {
+      "artifactReleaseId": "AR-14d0fb951ccfb2a97dbbe9d5",
+      "artifactSetDigest": "sha256:923000aa11199a20ea1cc4da43b5d21ce83bac1542e589aeb79e5acb26b7b95e",
+      "capabilityId": "docs-requirements-decisions",
+      "capabilityReleaseId": "PCR-5f6460f30558f0ab9b60abe0",
+      "capabilityVersion": "82b6af1850b5",
+      "sourceFindingId": "B-9812:DONE-EXPERIENCE",
+      "sourceSignature": "done_experience",
+      "sourceStoryId": "B-9812"
+    },
+    "pitfalls": [
+      "none — fully covered",
+      "The main pitfalls were stale material bindings after lifecycle metadata and a normal-exit grandchild leak; strict replay exposed both, final receipts were regenerated, and future changes to runner output or canonical me"
+    ],
+    "status": "candidate",
+    "title": "Playbook: DONE experience B-9812",
+    "trigger": {
+      "fileKinds": [],
+      "keywords": [
+        "1688",
+        "216146ms",
+        "220808ms",
+        "223474ms",
+        "58c7cdc",
+        "6c7d9210dc",
+        "9812",
+        "acceptance"
+      ],
+      "storyPhases": [
+        "DONE",
+        "REVIEW"
+      ]
+    },
+    "usage": {
+      "dismissedHits": 0,
+      "resolvedHits": 0,
+      "surfacedCount": 0
+    },
+    "verification": [
+      "CHK-001: Current TEST-phase replay at HEAD 6c7d9210dc emitted all 52 VERIFIED selectors and FULL_SUITE_CONTRACT=PASS; reports retain complete 47-member assertion and mutation inventories.",
+      "CHK-002: F053 real fixture starts an unref grandchild heartbeat, lets the parent exit zero, verifies the member remains PASS, then observes the heartbeat stop. This exact assertion appears in serial and all three jobs4",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md#runner-and-artifact-state: verified",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-4-measured-flat-cohort: verified",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#canonical-race-burn-in-execution-b-9812: verified",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution-b-9812: verified",
+      "Final same-material jobs=4 runs passed 47/47 in 216146ms, 220808ms, and 223474ms with launches=47, retries=0, identityDrift=false; serial oracle passed 47/47; F-053 heartbeat repro proved normal-exit descendants are rea",
+      "package.json#scripts.test: verified"
+    ]
+  },
+  {
+    "check": "Before similar work, apply this DONE experience: Rename the lattice CLI brand to proof-or-stop: bin, active docs, and brand-pinned gates | The command tool and product are being rebranded from lattice to proof-or-stop. Replace every lattice brand mention in ACTIVE doc",
+    "id": "PBP-003",
+    "lineage": {
+      "artifactReleaseId": "AR-e59540409403731eb3ba1a4a",
+      "artifactSetDigest": "sha256:18495e851d8cba879c0d9a5045e5b66319a625685d41a7abdff02f26d8900cd1",
+      "capabilityId": "docs",
+      "capabilityReleaseId": "PCR-839bf383d6bb43f1603a3d2a",
+      "capabilityVersion": "c4f05ad6064c",
+      "sourceFindingId": "B-cdf6:DONE-EXPERIENCE",
+      "sourceSignature": "done_experience",
+      "sourceStoryId": "B-cdf6"
+    },
+    "pitfalls": [
+      "(1) The 13 `lattice-*` agent role IDs are deliberately NOT renamed — they are subagent_type values and renaming them would break in-flight story spawns; the target `proof-or-stop-*` prefix is owned by proof-or-stop-agen",
+      "Cost me repeatedly, worth reading before the next rename-shaped story: (1) My own approximating regex is not the gate. I reported ~108 residue hits as measured when the gate counted 161/84. Run the gate function, never"
+    ],
+    "status": "candidate",
+    "title": "Playbook: DONE experience B-cdf6",
+    "trigger": {
+      "fileKinds": [],
+      "keywords": [
+        "1092fc5eeb521459",
+        "226s",
+        "above",
+        "acceptance",
+        "across",
+        "active",
+        "agent",
+        "allpass"
+      ],
+      "storyPhases": [
+        "DONE",
+        "REVIEW"
+      ]
+    },
+    "usage": {
+      "dismissedHits": 0,
+      "resolvedHits": 0,
+      "surfacedCount": 0
+    },
+    "verification": [
+      "`proof-or-stop --version` -> Proof-or-Stop 0.3.254. Both bin entrypoints resolve identically (28/28 entrypoint checks pass). Read-both verified by execution: readBrandEnv with LATTICE_AGENT -> old value, with PROOF_OR_S",
+      "docs/requirements/decisions/brand-rename-mapping.md / CLAUDE.md: recorded",
+      "docs/requirements/decisions/brand-rename-mapping.md#.lattice state dir: recorded",
+      "docs/requirements/decisions/brand-rename-mapping.md#LATTICE_* env vars: recorded",
+      "docs/requirements/decisions/brand-rename-mapping.md#LATTICE_PRODUCT_NAME: recorded",
+      "docs/requirements/decisions/brand-rename-mapping.md#role IDs: recorded",
+      "docs/requirements/decisions/brand-rename-mapping.md#salt literals: recorded",
+      "packages/main/package.json#bin: recorded"
+    ]
+  },
+  {
+    "check": "Before similar work, apply this DONE experience: Admit heavy certification only through a PRE_CERT CertificationWindow | U-01b. After B-3f3d freezes REVIEW inventory, expensive suites (done_required_validate, validate --full, lattice.config.json doneRequiredCommands)",
+    "id": "PBP-004",
+    "lineage": {
+      "sourceFindingId": "B-1e1f:DONE-EXPERIENCE",
+      "sourceSignature": "done_experience",
+      "sourceStoryId": "B-1e1f"
+    },
+    "pitfalls": [
+      "B-3f3d Review Inventory APIs are not on this branch; admit fail-closes instead of stub-always-admitting. Heavy certification still requires an admitted window after inventory lands.",
+      "REVIEW to TEST failed first on CJK relatedDocs then on six validate.commands (handler smokes needed a synthetic admitted window; vocab guard rejected non-literal require; process-fact mutation still searched lattice acc"
+    ],
+    "status": "candidate",
+    "title": "Playbook: DONE experience B-1e1f",
+    "trigger": {
+      "fileKinds": [],
+      "keywords": [
+        "1e1f",
+        "3f3d",
+        "900s",
+        "above",
+        "absent",
+        "acceptance",
+        "acceptanceamendment",
+        "added"
+      ],
+      "storyPhases": [
+        "DONE",
+        "REVIEW"
+      ]
+    },
+    "usage": {
+      "dismissedHits": 0,
+      "resolvedHits": 0,
+      "surfacedCount": 0
+    },
+    "verification": [
+      "certification_window_status on this branch prints State: BLOCKED (B-3f3d inventory APIs absent) and one Next: line. Handler-driven smokes fixture-admit, refuse premature done_required_validate/validate --full with [pre_",
+      "CHK-001: Independent node packages/main/dist/tasks/certification-window-smoke.js exit 0. Covers: signed window+receipt verify; tampered frozen identity fail-closed [pre_cert_window_tampered] with no State: ADMITTED; sta",
+      "CHK-002: Independent smoke evaluateCertificationWindowAdmit admits only the full inventory+merge+clean+coverage set; refuses missing APIs (B-cw23 [pre_cert_inventory_api_absent]), missing inventory (B-cw01/B-cw11 [pre_c",
+      "packages/main/src/cli/command-catalog.ts#certification_window_begin: verified",
+      "packages/main/src/cli/command-catalog.ts#certification_window_cancel: verified",
+      "packages/main/src/cli/command-catalog.ts#certification_window_status: verified",
+      "packages/main/src/core/command-policy.ts#certification_window_begin: verified",
+      "packages/main/src/core/process-fact-levels.ts#certification_window_begin: verified"
+    ]
+  },
+  {
+    "check": "Before similar work, apply this DONE experience: Require a host-adapter session to sign a topology-critic receipt | An implementer who also dispatches can currently mint a session id, record a dispatch event under it, hand that id to the critic subagent via LATTICE_SE",
+    "id": "PBP-005",
+    "lineage": {
+      "sourceFindingId": "B-49ed:DONE-EXPERIENCE",
+      "sourceSignature": "done_experience",
+      "sourceStoryId": "B-49ed"
+    },
+    "pitfalls": [
+      "independenceMatrix is still four textual !== comparisons (recorded as BUG-INDEPENDENCE-MATRIX-IS-TEXTUAL-ONLY). This machine is a single host, so review-assurance 3x2 needs degraded-single-host reviewer/host verdicts or",
+      "REVIEW to TEST validate failed because material-hash-large-tree-smoke assertions passed then success-path rmSync threw macOS ENOTEMPTY on a 6000-file tmpdir; isolated reruns passed. A second story_advance lost the trans"
+    ],
+    "status": "candidate",
+    "title": "Playbook: DONE experience B-49ed",
+    "trigger": {
+      "fileKinds": [],
+      "keywords": [
+        "3f3d",
+        "49ed",
+        "6000",
+        "accept",
+        "accepted",
+        "actives",
+        "adapter",
+        "adaptersessionenv"
+      ],
+      "storyPhases": [
+        "DONE",
+        "REVIEW"
+      ]
+    },
+    "usage": {
+      "dismissedHits": 0,
+      "resolvedHits": 0,
+      "surfacedCount": 0
+    },
+    "verification": [
+      ".lattice/story/actives/B-49ed/plan.md#CHK-001: recorded",
+      ".lattice/story/actives/B-49ed/plan.md#CHK-002: recorded",
+      ".lattice/story/actives/B-49ed/plan.md#CHK-003: recorded",
+      ".lattice/story/actives/B-49ed/plan.md#CHK-004: recorded",
+      ".lattice/story/actives/B-49ed/plan.md#CHK-005: recorded",
+      "CHK-001: Independently ran node packages/main/dist/tasks/topology-signing-source-guard-smoke.js on current HEAD: PASS. Covers: both roles refuse explicit-env/derived-ppid before dispatch lookup; both roles accept host-a",
+      "CHK-002: adapter-session-env.ts helper unsets both session-id env spellings and supplies provider+task+agent. Guard smoke assertion 4: spreading adapterSessionEnv over an inherited LATTICE_SESSION_ID still resolves sess",
+      "topology-signing-source-guard-smoke and signing-guard-mutation-proof-smoke pass. proof-or-stop validate --story=B-49ed passed 103/103 after the ENOTEMPTY teardown retry. story_advance reached TEST. done_prepare mergeMai"
+    ]
+  }
+]

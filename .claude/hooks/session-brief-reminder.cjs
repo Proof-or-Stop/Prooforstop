@@ -48,8 +48,8 @@ function freshnessThresholdMs() {
   const configured = Number(
     process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
       || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
-      || process.env.LATTICE_SESSION_BRIEF_FRESH_MINUTES
-      || process.env.LATTICE_SESSION_BRIEF_REMINDER_MINUTES
+      || process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
+      || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
       || DEFAULT_FRESH_MINUTES,
   );
   const minutes = Number.isFinite(configured) && configured > 0
@@ -62,14 +62,8 @@ function findRepoRoot(start) {
   let dir = path.resolve(String(start || process.cwd()));
   while (true) {
     if (
-      fs.existsSync(path.join(dir, PROOF_OR_STOP_STATE_DIR))
-      || fs.existsSync(path.join(dir, PROOF_OR_STOP_CONFIG_FILENAME))
-    ) {
-      return dir;
-    }
-    if (
-      fs.existsSync(path.join(dir, LEGACY_STATE_DIR))
-      || fs.existsSync(path.join(dir, LEGACY_CONFIG_FILENAME))
+      fs.existsSync(path.join(dir, '.proof-or-stop'))
+      || fs.existsSync(path.join(dir, 'proof-or-stop.config.json'))
       || fs.existsSync(path.join(dir, '.koala'))
       || fs.existsSync(path.join(dir, '.git'))
     ) {
@@ -92,12 +86,7 @@ function hasFreshSessionBrief(root, thresholdMs) {
 
 function activityFiles(root) {
   return [
-    // Canonical runtime activity is authoritative and must be read first.
-    path.join(root, PROOF_OR_STOP_STATE_DIR, 'activity.jsonl'),
-    ...storyActivityFiles(root, path.join(PROOF_OR_STOP_STATE_DIR, 'story', 'actives')),
-    // Legacy locations remain read-only fallbacks for older workspaces.
-    path.join(root, LEGACY_STATE_DIR, 'activity.jsonl'),
-    ...storyActivityFiles(root, path.join(LEGACY_STATE_DIR, 'story', 'actives')),
+    path.join(root, '.proof-or-stop', 'activity.jsonl'),
     path.join(root, '.koala', 'activity.jsonl'),
     path.join(root, 'docs', 'story', 'activity.jsonl'),
     ...storyActivityFiles(root, path.join('docs', 'story', 'actives')),

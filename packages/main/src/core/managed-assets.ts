@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PROOF_OR_STOP_BIN_NAMES } from './lattice-brand.js';
+import { PROOF_OR_STOP_BIN_NAMES } from './proof-or-stop-brand.js';
 import {
   ADAPTER_DIR_NAMES,
   MANIFEST_FILENAMES,
@@ -31,14 +31,14 @@ import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  LATTICE_DOT_DIR_MD_TEMPLATE,
-  LATTICE_MD_TEMPLATE,
+  PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE,
+  PROOF_OR_STOP_MD_TEMPLATE,
   getCodexHooks,
   getClaudeHooks,
   codexHookCommand,
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
-  LATTICE_SCOPE_PRETOOL_HOOK_FILE,
+  PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE,
   listAgentPromptFiles,
   migrateHookCommandEntries,
   renderCodexAgentContent,
@@ -54,8 +54,8 @@ import {
   type InitProfile,
 } from '../init-assets.js';
 import {
-  LATTICE_RUNTIME_IGNORE_BLOCK_END,
-  LATTICE_RUNTIME_IGNORE_BLOCK_START,
+  PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
+  PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './runtime-artifact-registry.js';
 import {
@@ -206,11 +206,12 @@ interface ManagedAssetPathInfo {
   actualRelPath?: string;
 }
 
-// B-cc10: was hardcoded '.lattice/managed-assets.json', so the runtime kept
+// B-cc10: was hardcoded '.proof-or-stop/managed-assets.json', so the runtime kept
 // recreating the DEPRECATED state dir after CHK-003's move — the directory
 // reappeared on every CLI invocation and repeatedly tripped the half-done
 // detector. Route it through the resolver like every other state path.
 const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
+
 
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -344,7 +345,7 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
   }
 
   const hooks = hookTemplateDir();
-  const template = hooks ? join(hooks, LATTICE_SCOPE_PRETOOL_HOOK_FILE) : '';
+  const template = hooks ? join(hooks, PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE) : '';
   if (!template || !existsSync(template)) return;
   removeGeneratedFileIfExact(
     root,
@@ -408,7 +409,7 @@ function isManagedPrompt(actual: string, file: string): boolean {
   const base = file.replace(/\.md$/, '');
   return containsManagedMarker(actual, 'document')
     || actual.includes(`name: ${base}`)
-    || actual.includes('name: lattice-');
+    || actual.includes('name: proof-or-stop-');
 }
 
 function hasHookCommand(entries: unknown, command: string): boolean {
@@ -515,9 +516,9 @@ function runtimeIgnoreMissing(existing: string | null): string[] {
 
 function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   return [
-    LATTICE_RUNTIME_IGNORE_BLOCK_START,
+    PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
     ...lines,
-    LATTICE_RUNTIME_IGNORE_BLOCK_END,
+    PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
   ].join('\n');
 }
 
@@ -548,12 +549,7 @@ export function detectManagedAssetProfile(root: string): InitProfile {
     (agents && hasManagedMarkers(agents))
       || adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
       || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
-      // B-cc10 CHK-006: this probed ONLY the deprecated `bin/lattice-codex.js`. Now that
-      // the alias is deleted, a canonical-only project (this repository included) has no
-      // codex wrapper this check can see, so profile detection could silently fall back to
-      // 'core' and stop managing adapter assets. Read BOTH names, canonical first.
       || existsSync(join(root, 'bin', 'proof-or-stop-codex.js'))
-      || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
     (claude && hasManagedMarkers(claude))
@@ -568,14 +564,14 @@ export function detectManagedAssetProfile(root: string): InitProfile {
 
 export function detectManagedAssetMode(root: string): InitAssetMode {
   // B-cc10 CHK-002: read-both state-dir + manifest spellings, canonical first.
-  // `.Lattice` stays an explicit extra entry — it is a case variant, not a brand
+  // `.proof-or-stop` stays an explicit extra entry — it is a case variant, not a brand
   // identity the resolver owns.
   const globalThinConfig = [
     ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
-    // B-cc10 CHK-004: the `.Lattice` case variant accepts BOTH manifest
-    // filenames; pinning the deprecated one made a migrated `.Lattice` root stop
+    // B-cc10 CHK-004: the `.proof-or-stop` case variant accepts BOTH manifest
+    // filenames; pinning the deprecated one made a migrated `.proof-or-stop` root stop
     // being detected as global-thin.
-    ...MANIFEST_FILENAMES.map(file => `.Lattice/${file}`),
+    ...MANIFEST_FILENAMES.map(file => `.proof-or-stop/${file}`),
   ].find(relPath => existsSync(join(root, relPath)));
   if (globalThinConfig) {
     const text = readText(root, globalThinConfig);
@@ -587,18 +583,13 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   ) {
     return 'full';
   }
-  // B-cc10 CHK-006: read-both, canonical first. Probing only the deleted alias meant a
-  // canonical-only local-bootstrap project was not classified as 'full'.
-  if (
-    existsSync(join(root, 'bin', 'proof-or-stop.js'))
-    || existsSync(join(root, 'bin', 'lattice.js'))
-  ) {
+  if (existsSync(join(root, 'bin', 'proof-or-stop.js'))) {
     return 'full';
   }
-  // Full-mode: LATTICE.md presence (any casing) implies non-global-thin project
+  // Full-mode: PROOF_OR_STOP.md presence (any casing) implies non-global-thin project
   try {
     const lcNames = readdirSync(root).map(e => e.toLowerCase());
-    if (lcNames.includes('lattice.md')) return 'full';
+    if (lcNames.includes('proof_or_stop.md')) return 'full';
   } catch {}
   return 'global-thin';
 }
@@ -632,7 +623,7 @@ function wholeFile(
   return { id, relPath, kind: 'whole-file', expectedContent, ownedWhen, executable, okWhen };
 }
 
-function isLatticeSelfRepoBootstrap(actual: string, root: string): boolean {
+function isProofOrStopSelfRepoBootstrap(actual: string, root: string): boolean {
   if (!actual.includes("import { runLocalBootstrap } from './bootstrap-runner.js'")) return false;
   if (!actual.includes('runLocalBootstrap();')) return false;
   const bootstrap = readText(root, 'bin/bootstrap-runner.js');
@@ -657,8 +648,8 @@ function mentionsSessionBriefCommand(actual: string): boolean {
   return PROOF_OR_STOP_BIN_NAMES.some(bin => actual.includes(`${bin} session_brief`));
 }
 
-function isExpandedLatticeAgentsGuide(actual: string): boolean {
-  const currentLattice = actual.includes('# AGENTS.md')
+function isExpandedProofOrStopAgentsGuide(actual: string): boolean {
+  const currentProofOrStop = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
     && mentionsSessionBriefCommand(actual)
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
@@ -675,10 +666,10 @@ function isExpandedLatticeAgentsGuide(actual: string): boolean {
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
     && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
     && actual.includes('Fail-fast policy');
-  return currentLattice || english || legacyChinese;
+  return currentProofOrStop || english || legacyChinese;
 }
 
-function isExpandedLatticeOverview(actual: string): boolean {
+function isExpandedProofOrStopOverview(actual: string): boolean {
   const english = actual.includes('# Proof-or-Stop Module Classification and Flow')
     && actual.includes('project execution and verification substrate')
     && actual.includes('verificationIntent')
@@ -694,7 +685,7 @@ function isExpandedLatticeOverview(actual: string): boolean {
   return english || chinese;
 }
 
-function isExpandedLatticeClaudeGuide(actual: string): boolean {
+function isExpandedProofOrStopClaudeGuide(actual: string): boolean {
   const english = actual.includes('# CLAUDE.md')
     && mentionsSessionBriefCommand(actual)
     && actual.includes('REVIEW→TEST')
@@ -727,22 +718,22 @@ export function listManagedAssetDefinitions(
   // canonical one. WRITES use the canonical name only; the ownership recognizers
   // still accept BOTH spellings so an already-installed project is classified as
   // syncable rather than STALE_LOCAL_EDIT.
-  const dotDirGuideRel = `${PROOF_OR_STOP_STATE_DIR}/Lattice.md`;
+  const dotDirGuideRel = `${PROOF_OR_STOP_STATE_DIR}/Proof-or-Stop.md`;
   const guideMentionsAnyStateDir = (actual: string): boolean =>
-    STATE_DIR_NAMES.some((dir) => actual.includes(`${dir}/Lattice.md`));
+    STATE_DIR_NAMES.some((dir) => actual.includes(`${dir}/Proof-or-Stop.md`));
   if (isGlobalThin) {
     const defs: ManagedAssetDefinition[] = [
       managedDoc(
         `doc:${dotDirGuideRel}`,
         dotDirGuideRel,
-        LATTICE_DOT_DIR_MD_TEMPLATE,
+        PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE,
         actual => guideMentionsAnyStateDir(actual)
           // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
-          // guide doc still carries the pre-rename `lattice codex verify` literal.
+          // guide doc still carries the pre-rename `proof-or-stop codex verify` literal.
           // Recognizing only the canonical spelling would reclassify every existing
           // install as STALE_LOCAL_EDIT and refuse to sync it.
           || actual.includes('proof-or-stop codex verify')
-          || actual.includes('lattice codex verify'),
+          || actual.includes('proof-or-stop codex verify'),
       ),
       wholeFile(
         // B-cc10 CHK-004 + CHK-007: BOTH components now come from the resolver, so
@@ -776,11 +767,11 @@ export function listManagedAssetDefinitions(
           AGENTS_MD_GLOBAL_THIN_TEMPLATE,
           actual => guideMentionsAnyStateDir(actual)
           // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
-          // guide doc still carries the pre-rename `lattice codex verify` literal.
+          // guide doc still carries the pre-rename `proof-or-stop codex verify` literal.
           // Recognizing only the canonical spelling would reclassify every existing
           // install as STALE_LOCAL_EDIT and refuse to sync it.
           || actual.includes('proof-or-stop codex verify')
-          || actual.includes('lattice codex verify'),
+          || actual.includes('proof-or-stop codex verify'),
         ),
       );
     }
@@ -788,15 +779,15 @@ export function listManagedAssetDefinitions(
       defs.push(
         { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
         wholeFile(
-          '.codex/hooks:lattice-scope-pretool.cjs',
-          '.codex/hooks/lattice-scope-pretool.cjs',
+          '.codex/hooks:proof-or-stop-scope-pretool.cjs',
+          '.codex/hooks/proof-or-stop-scope-pretool.cjs',
           renderCodexPretoolScopeHookScript(),
           actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
           true,
         ),
         wholeFile(
-          '.codex/hooks:lattice-evidence-pretool.cjs',
-          '.codex/hooks/lattice-evidence-pretool.cjs',
+          '.codex/hooks:proof-or-stop-evidence-pretool.cjs',
+          '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
           renderCodexEvidencePretoolHookScript(),
           actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
           true,
@@ -810,7 +801,7 @@ export function listManagedAssetDefinitions(
           'CLAUDE.md',
           CLAUDE_MD_TEMPLATE,
           actual => actual.includes('Proof-or-Stop For Claude Code') || actual.includes('Claude Code subagents 位于'),
-          actual => isExpandedLatticeClaudeGuide(actual),
+          actual => isExpandedProofOrStopClaudeGuide(actual),
         ),
         { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
       );
@@ -820,49 +811,23 @@ export function listManagedAssetDefinitions(
 
   const defs: ManagedAssetDefinition[] = [
     managedDoc(
-      'doc:LATTICE.md',
-      'LATTICE.md',
-      LATTICE_MD_TEMPLATE,
+      'doc:PROOF_OR_STOP.md',
+      'PROOF_OR_STOP.md',
+      PROOF_OR_STOP_MD_TEMPLATE,
       actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
-      actual => isExpandedLatticeOverview(actual),
+      actual => isExpandedProofOrStopOverview(actual),
     ),
     // B-cdf6: `bin/proof-or-stop.js` is the canonical bootstrap that init writes, so it is
     // registered unconditionally and reported MISSING when absent, exactly as the old
-    // `bin/lattice.js` entry used to be.
+    // `bin/proofOrStop.js` entry used to be.
     wholeFile(
       'bin:proof-or-stop.js',
       'bin/proof-or-stop.js',
       renderProofOrStopBootstrapScript(root),
       actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
       true,
-      isLatticeSelfRepoBootstrap,
+      isProofOrStopSelfRepoBootstrap,
     ),
-    // The deprecated `bin/lattice.js` alias is registered ONLY WHEN IT EXISTS. It is a
-    // compatibility artifact, not a thing to create: init no longer generates it, so
-    // demanding it unconditionally would report a spurious MISSING on every freshly
-    // initialized project. Present-and-drifted is still worth reporting, so when the file
-    // IS there it gets the same drift checking as the canonical one.
-    //
-    // B-cc10 CHK-006: this repository's own alias was deleted, so this branch is now
-    // inert HERE (the presence probe simply fails) while still drift-checking a
-    // downstream project that legitimately still carries the old wrapper. The
-    // conditional shape is exactly why removing our own file needed no change here.
-    // B-cdf6: the presence probe must run against projectRoot, NOT root. `root`
-    // defaults to packageRoot() — where the CLI package is installed — so probing it
-    // asks "does the PACKAGE ship bin/lattice.js", which is never true. The alias
-    // therefore never registered for any project, and verify-entrypoints.mjs:698
-    // (which asserts the self-repo alias is recognized as an owned compatibility
-    // asset) failed even though bin/lattice.js is present and byte-correct here.
-    ...(managedAssetPathKind(projectRoot, 'bin/lattice.js') === 'file'
-      ? [wholeFile(
-          'bin:lattice.js',
-          'bin/lattice.js',
-          renderProofOrStopBootstrapScript(root),
-          actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-          true,
-          isLatticeSelfRepoBootstrap,
-        )]
-      : []),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
 
@@ -877,7 +842,7 @@ export function listManagedAssetDefinitions(
         'AGENTS.md',
         AGENTS_MD_TEMPLATE,
         actual => actual.includes('Codex / AGENTS') || actual.includes('Codex subagent prompts are located at'),
-        actual => isExpandedLatticeAgentsGuide(actual),
+        actual => isExpandedProofOrStopAgentsGuide(actual),
       ),
       // B-cdf6: canonical Codex wrapper is required; the deprecated alias is drift-checked
       // only when present (same contract as the bootstrap pair above).
@@ -886,28 +851,13 @@ export function listManagedAssetDefinitions(
         'bin/proof-or-stop-codex.js',
         renderProofOrStopCodexWrapperScript(),
         // B-cdf6:F-066 — this previously required the literal
-        // `LATTICE_ACTIVITY_SOURCE`, which the generator NEVER emits: it builds env
+        // `PROOF_OR_STOP_ACTIVITY_SOURCE`, which the generator NEVER emits: it builds env
         // names by concatenation (`'PROOF_OR_STOP_' + suffix`), so the full token
         // does not appear in the rendered text and the predicate was dead for its
         // stated purpose. Match the fragments the generator actually emits.
         actual => actual.includes(`setEnv('ACTIVITY_SOURCE'`) && actual.includes('local-wrapper'),
         true,
       ),
-      // B-cdf6: same projectRoot-vs-root defect as the bin/lattice.js alias above.
-      ...(managedAssetPathKind(projectRoot, 'bin/lattice-codex.js') === 'file'
-        ? [wholeFile(
-            'bin:lattice-codex.js',
-            'bin/lattice-codex.js',
-            renderProofOrStopCodexWrapperScript(),
-            // The retained alias may be a thin delegating shim rather than a copy of the
-            // generated wrapper, so ownership is recognized by EITHER shape.
-            // B-cdf6:F-066 — same dead-literal fix as the canonical wrapper above.
-            actual => (actual.includes(`setEnv('ACTIVITY_SOURCE'`) && actual.includes('local-wrapper'))
-              || actual.includes("import './proof-or-stop-codex.js'"),
-            true,
-            actual => actual.includes("import './proof-or-stop-codex.js'"),
-          )]
-        : []),
       // B-cc10 CHK-007: adapter-dir components are resolver-derived, matching the
       // `init` writers. They were literal DEPRECATED spellings while the manifest
       // filename already came from the resolver, so `check` tracked a directory
@@ -927,15 +877,15 @@ export function listManagedAssetDefinitions(
       ),
       { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
       wholeFile(
-        '.codex/hooks:lattice-scope-pretool.cjs',
-        '.codex/hooks/lattice-scope-pretool.cjs',
+        '.codex/hooks:proof-or-stop-scope-pretool.cjs',
+        '.codex/hooks/proof-or-stop-scope-pretool.cjs',
         renderCodexPretoolScopeHookScript(),
         actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
         true,
       ),
       wholeFile(
-        '.codex/hooks:lattice-evidence-pretool.cjs',
-        '.codex/hooks/lattice-evidence-pretool.cjs',
+        '.codex/hooks:proof-or-stop-evidence-pretool.cjs',
+        '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
         renderCodexEvidencePretoolHookScript(),
         actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
         true,
@@ -975,7 +925,7 @@ export function listManagedAssetDefinitions(
         'CLAUDE.md',
         CLAUDE_MD_TEMPLATE,
         actual => actual.includes('Proof-or-Stop For Claude Code') || actual.includes('Claude Code subagents are located at'),
-        actual => isExpandedLatticeClaudeGuide(actual),
+        actual => isExpandedProofOrStopClaudeGuide(actual),
       ),
       { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
     );
@@ -1013,7 +963,7 @@ export function listManagedAssetDefinitions(
           `.claude/hooks:${file}`,
           `.claude/hooks/${file}`,
           content,
-          actual => actual.includes('lattice') || actual.includes('LATTICE'),
+          actual => actual.includes('proof-or-stop') || actual.includes('PROOF_OR_STOP'),
         ));
       }
     }

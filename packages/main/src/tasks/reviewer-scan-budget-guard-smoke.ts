@@ -3,7 +3,7 @@
  * Reviewer scan-budget guard (B-cee5).
  *
  * Static regression guard for the token-stopgap contract: the scope-plan and
- * behavior reviewer prompts (template + .claude + .lattice-codex copies) must
+ * behavior reviewer prompts (template + .claude + .proof-or-stop-codex copies) must
  * not reintroduce unconditional full decisions-directory scan instructions,
  * and must keep the bounded memory/playbook preflight + candidateSpecSet +
  * scanEscalationReason wording. Escalation-path wording is explicitly allowed:
@@ -176,11 +176,11 @@ function assertSchemaExposesMechanicalReadInputs(command: string): void {
 }
 
 function initScopeCheckStore() {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-read-manifest-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-read-manifest-'));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   resetConfigCache();
@@ -226,12 +226,12 @@ function git(root: string, args: string[]): string {
 }
 
 function initReviewEvidenceStore() {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-read-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-read-evidence-'));
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'review-read-evidence-smoke', private: true }, null, 2));
@@ -245,7 +245,7 @@ function initReviewEvidenceStore() {
   }
   git(root, ['config', 'user.email', 'review-read-evidence@example.invalid']);
   git(root, ['config', 'user.name', 'Review Read Evidence Smoke']);
-  git(root, ['add', 'lattice.config.json', 'package.json', 'docs/requirements/decisions/a.md', 'docs/requirements/decisions/b.md']);
+  git(root, ['add', 'proof-or-stop.config.json', 'package.json', 'docs/requirements/decisions/a.md', 'docs/requirements/decisions/b.md']);
   git(root, ['commit', '-m', 'initial']);
 
   resetConfigCache();
@@ -382,7 +382,7 @@ function assertReviewPassReadManifestSigning(): void {
   const manifest = validManifest();
   const base = {
     id: 'B-readmanifest:RP-001',
-    agent: 'lattice-review-behavior',
+    agent: 'proof-or-stop-review-behavior',
     note: 'checked behavior and found no blocker',
     createdAt: '2026-07-10T10:05:00.000Z',
     reviewRound: '2026-07-10T10:01:00.000Z',
@@ -419,7 +419,7 @@ function assertHandlerAndSchemaRejection(): void {
   assert.throws(
     () => findingHandlers.review_pass_set({
       storyId,
-      agent: 'lattice-review-behavior',
+      agent: 'proof-or-stop-review-behavior',
       reviewRunId: 'RR-001',
       note: 'checked enough to reject missing manifest',
     } as any),
@@ -429,7 +429,7 @@ function assertHandlerAndSchemaRejection(): void {
   assert.throws(
     () => findingHandlers.review_pass_set({
       storyId,
-      agent: 'lattice-review-behavior',
+      agent: 'proof-or-stop-review-behavior',
       reviewRunId: 'RR-001',
       note: 'checked enough to reject malformed manifest',
       readManifest: { filesReadFully: ['docs/requirements/decisions/a.md'], filesTriagedByName: ['docs/requirements/decisions/a.md'], scanEscalationReason: null },
@@ -440,7 +440,7 @@ function assertHandlerAndSchemaRejection(): void {
 }
 
 function assertMechanicalReadLogAndDiagnostics(): void {
-  const reviewerContext = { agent: 'lattice-review-behavior' };
+  const reviewerContext = { agent: 'proof-or-stop-review-behavior' };
   const events = [
     captureReviewerReadEvent({ path: './docs/requirements/decisions/b.md', action: 'Read', tokenCount: 11 }, reviewerContext),
     captureReviewerReadEvent({ path: 'docs/requirements/decisions/a.md', readFully: true, tokenCount: 3 }, reviewerContext),

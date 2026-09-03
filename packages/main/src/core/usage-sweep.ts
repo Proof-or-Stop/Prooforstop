@@ -1,7 +1,7 @@
 /**
  * B-70e9 CHK-005 (M2): read-only retro-attribution usage sweep — pure core.
  *
- * Scans the host transcript stores that lattice-initiated (and foreign) LLM host
+ * Scans the host transcript stores that proof-or-stop-initiated (and foreign) LLM host
  * runs leave behind and produces a NON-AUTHORITATIVE attribution estimate:
  *
  *   - Codex rollouts:  <codexSessionsDir>/YYYY/MM/DD/rollout-<ts>-<uuid>.jsonl
@@ -78,10 +78,10 @@ export interface SweepSessionRow {
   /** Coarse origin bucket for the report. */
   originLabel: OriginLabel;
   /**
-   * Dumb, documented HINT (not attribution truth): the cwd looks like a lattice
+   * Dumb, documented HINT (not attribution truth): the cwd looks like a proofOrStop
    * worktree/root. True when cwd contains '/.worktrees/'. A hint only.
    */
-  latticeCwd: boolean;
+  proofOrStopCwd: boolean;
   firstTimestamp: string | null;
   lastTimestamp: string | null;
   usage: CodexUsageTotals | ClaudeUsageTotals | null;
@@ -272,8 +272,8 @@ function parseJsonLine(line: string): unknown | undefined {
   }
 }
 
-/** Dumb documented hint: does the cwd look like a lattice worktree/root? */
-export function isLatticeCwdHint(cwd: string | null): boolean {
+/** Dumb documented hint: does the cwd look like a proof-or-stop worktree/root? */
+export function isProofOrStopCwdHint(cwd: string | null): boolean {
   if (!cwd) return false;
   return cwd.includes('/.worktrees/');
 }
@@ -355,7 +355,7 @@ async function sweepOneCodexRollout(file: string): Promise<SweepSessionRow> {
     cwd,
     originator,
     originLabel,
-    latticeCwd: isLatticeCwdHint(cwd),
+    proofOrStopCwd: isProofOrStopCwdHint(cwd),
     firstTimestamp,
     lastTimestamp,
     usage: lastUsage,
@@ -436,7 +436,7 @@ async function sweepOneClaudeTranscript(file: string): Promise<SweepSessionRow> 
     cwd,
     originator: 'claude-code',
     originLabel: 'claude-code',
-    latticeCwd: isLatticeCwdHint(cwd),
+    proofOrStopCwd: isProofOrStopCwdHint(cwd),
     firstTimestamp,
     lastTimestamp,
     usage,

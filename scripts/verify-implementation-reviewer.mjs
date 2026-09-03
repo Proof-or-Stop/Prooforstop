@@ -2,8 +2,11 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { ADAPTER_DIR_NAMES } from '../packages/main/dist/core/brand-paths.js';
-import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identity.js';
+// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
+// read a path that no longer exists (ENOENT) or scan zero files.
+function adapterDirName(base) {
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
+}
 
 
 const root = process.cwd();

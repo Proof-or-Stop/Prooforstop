@@ -305,7 +305,7 @@ const VERSION_SOURCE_FILES = [
   'package-lock.json',
   'packages/main/package.json',
   'packages/main/package-lock.json',
-  'packages/main/src/core/lattice-brand.ts',
+  'packages/main/src/core/proof-or-stop-brand.ts',
 ] as const;
 
 const RUNTIME_PREFIXES = [
@@ -362,7 +362,7 @@ function gitMaybe(gitCwd: string, args: string[]): { ok: true; output: string } 
 function gitStatusRows(gitCwd: string): string[] {
   // Do not reuse git(): its full-output trim() strips the first porcelain row's
   // leading status space (" M path" -> "M path"), which shifts the fixed-width
-  // path offset and corrupts the first reported path (".lattice/x" -> "lattice/x").
+  // path offset and corrupts the first reported path (".proof-or-stop/x" -> "proofOrStop/x").
   const raw = childProcess.execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
     cwd: gitCwd,
     encoding: 'utf-8',
@@ -427,7 +427,7 @@ function isSameStoryLifecycleMetadataPath(ctx: HandlerContext, storyId: string, 
 
 function isDonePrepareAllowedInitialMetadataEntry(ctx: HandlerContext, storyId: string, entry: DirtyWorktreeEntry): boolean {
   const paths = dirtyEntryPaths(entry);
-  return entry.category === 'lattice_metadata_changes'
+  return entry.category === 'proof_or_stop_metadata_changes'
     && paths.length > 0
     && paths.every((path) => isStoryMetadataPath(path, ctx.root))
     && paths.every((path) => isSameStoryLifecycleMetadataPath(ctx, storyId, path));
@@ -481,7 +481,7 @@ function pathExistsOnMain(gitCwd: string, path: string): boolean {
 
 function dirtyCategoryLabel(entry: DirtyWorktreeEntry): string {
   switch (entry.category) {
-    case 'lattice_metadata_changes':
+    case 'proof_or_stop_metadata_changes':
       return 'Proof-or-Stop metadata outside the current-run safe lifecycle metadata set';
     case 'runtime_artifact_changes':
       return entry.runtimeArtifactId
@@ -689,7 +689,7 @@ function asText(value: unknown): string {
 
 function envPositiveInt(name: string, fallback: number): number {
   // readBrandEnv, not a raw lookup: accepts the canonical PROOF_OR_STOP_* spelling and
-  // still honours a deprecated LATTICE_* export of the same suffix.
+  // still honours a deprecated PROOF_OR_STOP_* export of the same suffix.
   const raw = readBrandEnv(name);
   if (!raw) return fallback;
   const parsed = Number(raw);
@@ -1371,7 +1371,7 @@ function isDocumentationOrMetadataPath(path: string): boolean {
   const lower = path.replace(/\\/g, '/').toLowerCase();
   return lower.startsWith('docs/')
     // B-cc10 CHK-007: read-both state-dir recognition. The previous
-    // `lower.startsWith('.lattice/')` matched only the deprecated spelling, so
+    // `lower.startsWith('.proof-or-stop/')` matched only the deprecated spelling, so
     // canonical state-dir paths stopped classifying as metadata after the rename.
     // Both accepted spellings are already lowercase, so testing the lowercased
     // path against the resolver is exact.
@@ -1412,16 +1412,16 @@ function readPackageVersion(root: string, relPath: string): string | undefined {
 }
 
 function readBrandVersion(root: string): string | undefined {
-  const path = join(root, 'packages/main/src/core/lattice-brand.ts');
+  const path = join(root, 'packages/main/src/core/proof-or-stop-brand.ts');
   if (!existsSync(path)) return undefined;
-  const match = readFileSync(path, 'utf-8').match(/LATTICE_CLI_VERSION\s*=\s*['"]([^'"]+)['"]/);
+  const match = readFileSync(path, 'utf-8').match(/PROOF_OR_STOP_CLI_VERSION\s*=\s*['"]([^'"]+)['"]/);
   return match?.[1];
 }
 
 function readVersionSources(root: string): Record<string, string> {
   const sources: Record<string, string> = {};
   for (const rel of VERSION_SOURCE_FILES) {
-    const value = rel.endsWith('lattice-brand.ts')
+    const value = rel.endsWith('proof-or-stop-brand.ts')
       ? readBrandVersion(root)
       : readPackageVersion(root, rel);
     if (value) sources[rel] = value;
@@ -1874,7 +1874,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     });
   }
   const initialAllowedMetadataSignatures = new Set(
-    initialDirtyClassification.groups.lattice_metadata_changes
+    initialDirtyClassification.groups.proof_or_stop_metadata_changes
       .filter((entry) => isDonePrepareAllowedInitialMetadataEntry(ctx, storyId, entry))
       .map((entry) => dirtyEntrySignature(gitCwd, entry)),
   );

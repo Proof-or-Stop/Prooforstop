@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
-import { DEPRECATED_CONFIG_FILENAME, PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
 import type { ResourceClaim } from './keyed-scheduler.js';
 import { validateResourceClaims } from './keyed-scheduler.js';
@@ -339,8 +339,10 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
   // below, and the temp-dir probe in the commit message, are the truth.)
   const source = injected
     ? 'injected' as const
-    : picked ? (picked.legacy ? DEPRECATED_CONFIG_FILENAME : PROOF_OR_STOP_CONFIG_FILENAME)
-    : DEPRECATED_CONFIG_FILENAME;
+    // Origin retired DEPRECATED_CONFIG_FILENAME: brand-paths.ts now lists only the
+    // canonical name in CONFIG_FILENAMES, and lattice.config.json is no longer tracked,
+    // so both former branches resolve to the canonical filename.
+    : PROOF_OR_STOP_CONFIG_FILENAME;
   return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source };
 }
 function validRelativePath(path: string): boolean {

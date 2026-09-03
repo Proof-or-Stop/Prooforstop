@@ -45,8 +45,8 @@ const storyId = 'B-ddp-smoke';
 const decisionTimestamp = '2026-06-14T00:00:00.000Z';
 const sessionEnv = {
   ...process.env,
-  LATTICE_SESSION_ID: 'decision-doc-promotion-smoke',
-  LATTICE_AGENT: 'decision-doc-promotion-smoke',
+  PROOF_OR_STOP_SESSION_ID: 'decision-doc-promotion-smoke',
+  PROOF_OR_STOP_AGENT: 'decision-doc-promotion-smoke',
 };
 
 function git(cwd: string, args: string[]): string {
@@ -173,13 +173,13 @@ function makeRepo(): { root: string; store: StoryStore } {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'decision-doc-promotion@example.test']);
   git(root, ['config', 'user.name', 'Decision Doc Promotion Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'src',
     rootDir: '.',
     outDir: 'dist',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -325,21 +325,21 @@ try {
     // Each canonical assertion is paired with a doesNotMatch on the deprecated
     // form so the help text cannot silently regress to teaching the old bin.
     assert.match(proposalHelp, /proof-or-stop decision_doc_proposal/);
-    assert.doesNotMatch(proposalHelp, /lattice decision_doc_proposal/);
+    assert.doesNotMatch(proposalHelp, /proof-or-stop decision_doc_proposal/);
     assert.match(proposalHelp, /Alias: proof-or-stop decision doc proposal/);
-    assert.doesNotMatch(proposalHelp, /Alias: lattice decision doc proposal/);
+    assert.doesNotMatch(proposalHelp, /Alias: proof-or-stop decision doc proposal/);
     assert.match(proposalHelp, /--slug/);
     assert.match(proposalHelp, /--verificationRequirements/);
 
     const previewHelp = runHelp(root, 'decision_doc_preview');
     assert.match(previewHelp, /proof-or-stop decision_doc_preview/);
-    assert.doesNotMatch(previewHelp, /lattice decision_doc_preview/);
+    assert.doesNotMatch(previewHelp, /proof-or-stop decision_doc_preview/);
     assert.match(previewHelp, /Read-only render/);
     assert.match(previewHelp, /--proposalId/);
 
     const saveHelp = runHelp(root, 'decision_doc_save');
     assert.match(saveHelp, /proof-or-stop decision_doc_save/);
-    assert.doesNotMatch(saveHelp, /lattice decision_doc_save/);
+    assert.doesNotMatch(saveHelp, /proof-or-stop decision_doc_save/);
     assert.match(saveHelp, /create\|update/);
     assert.match(saveHelp, /--confirm/);
     assert.match(saveHelp, /--expectedProposalDigest/);

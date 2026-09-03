@@ -30,7 +30,7 @@ import type {
   AcceptanceRolloutSourceRecordV1,
 } from './types.js';
 
-const ROLLOUT_KEY_FILE = 'lattice-acceptance-rollout-verifier-v1.key';
+const ROLLOUT_KEY_FILE = 'proof-or-stop-acceptance-rollout-verifier-v1.key';
 export const ACCEPTANCE_ROLLOUT_MIN_MATCHED_PAIRS = 3;
 export const ACCEPTANCE_ROLLOUT_ELIGIBILITY_VERSION = 'proofstory.acceptance_rollout_eligibility.v1' as const;
 export const ACCEPTANCE_ROLLOUT_THRESHOLD_VERSION = 'proofstory.acceptance_rollout_thresholds.v1' as const;
@@ -239,7 +239,7 @@ function replayProductionGateState(args: {
   });
   const run = (command: 'acceptance_topology_check' | 'pre_review_check_read'): Record<string, unknown> => {
     const output = execFileSync(process.execPath, [
-      // B-cc10 CHK-006: was `bin/lattice.js`, deleted with the deprecated aliases.
+      // B-cc10 CHK-006: was `bin/proofOrStop.js`, deleted with the deprecated aliases.
       join(args.cliRoot, 'bin/proof-or-stop.js'),
       '--root',
       args.evidenceGitCwd,

@@ -108,7 +108,7 @@ import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
 import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -691,7 +691,7 @@ export interface OutOfBandReopenAuditReconciliation {
  *      never a correctness one. core/story-transition-lock.ts documents
  *      `acquireStoryTransitionLock` as a
  *      "BEST-EFFORT ADVISORY CONTENTION-REDUCER, NOT the correctness guarantee",
- *      and `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1` turns its acquire
+ *      and `PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1` turns its acquire
  *      into a literal no-op (tasks/transition-integrity-smoke.ts sets exactly that to
  *      prove the atomic claim alone serializes a persist). A correctness claim
  *      resting on it would be FALSE under that env while every test stayed

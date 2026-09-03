@@ -267,7 +267,7 @@ function invalidHarnessReport(): FinalReportFixture {
 }
 
 function writeRun(root: string, report: FinalReportFixture) {
-  const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
+  const dir = join(root, '.proof-or-stop', 'artifacts', 'baseline', report.baselineId, report.runId);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'final-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
   const artifacts = report.artifacts as Record<string, unknown> | undefined;
@@ -328,7 +328,7 @@ function writeRun(root: string, report: FinalReportFixture) {
 }
 
 function writeProjectConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -341,7 +341,7 @@ function writeProjectConfig(root: string): void {
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-happy-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-happy-'));
   try {
     writeProjectConfig(root);
     for (const [baselineId, track, weight] of MINIMUM_SUITE) {
@@ -390,7 +390,7 @@ function writeProjectConfig(root: string): void {
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-missing-minimum-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-missing-minimum-'));
   try {
     writeProjectConfig(root);
     writeRun(root, authorityPassReport('NL-CLI-1', 'natural-language', 1));
@@ -410,7 +410,7 @@ function writeProjectConfig(root: string): void {
 }
 
 for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVerified', 'fullAuthorityDone'] as const) {
-  const root = mkdtempSync(join(tmpdir(), `lattice-baseline-suite-false-done-${forbiddenField}-`));
+  const root = mkdtempSync(join(tmpdir(), `proof-or-stop-baseline-suite-false-done-${forbiddenField}-`));
   try {
     writeProjectConfig(root);
     writeRun(root, {
@@ -461,7 +461,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-local-no-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-local-no-evidence-'));
   try {
     writeProjectConfig(root);
     writeRun(root, {
@@ -501,11 +501,11 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-summary-only-authority-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-summary-only-authority-'));
   try {
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
-    const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
+    const dir = join(root, '.proof-or-stop', 'artifacts', 'baseline', report.baselineId, report.runId);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'final-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
     writeFileSync(join(dir, 'gate-receipt.json'), JSON.stringify({
@@ -532,7 +532,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-missing-redevelopment-artifacts-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-missing-redevelopment-artifacts-'));
   try {
     writeProjectConfig(root);
     const report = authorityPassReport('RED-CLI-TS-PY-1', 'redevelopment', 4);
@@ -552,12 +552,12 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-host-missing-baseline-binding-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-host-missing-baseline-binding-'));
   try {
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
     writeRun(root, report);
-    const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
+    const dir = join(root, '.proof-or-stop', 'artifacts', 'baseline', report.baselineId, report.runId);
     writeFileSync(join(dir, 'host-verdicts.json'), JSON.stringify(hostVerdictsFixture(report.baselineId, report.runId, ['step-validate:evidence']), null, 2) + '\n', 'utf8');
     const suite = buildBaselineSuiteReport({
       root,
@@ -573,12 +573,12 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-host-uses-receipt-digest-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-host-uses-receipt-digest-'));
   try {
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
     writeRun(root, report);
-    const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
+    const dir = join(root, '.proof-or-stop', 'artifacts', 'baseline', report.baselineId, report.runId);
     const verdicts = hostVerdictsFixture(report.baselineId, report.runId, []);
     const evidenceIndex = JSON.parse(readFileSync(join(dir, 'evidence-index.json'), 'utf8')) as { evidenceRefs: string[] };
     for (const verdict of verdicts.verdicts as Array<Record<string, unknown>>) {
@@ -600,7 +600,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-status-uses-executor-digest-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-status-uses-executor-digest-'));
   try {
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
@@ -620,7 +620,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-invalid-product-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-invalid-product-'));
   try {
     writeProjectConfig(root);
     writeRun(root, {
@@ -642,7 +642,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-cli-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-cli-'));
   try {
     writeProjectConfig(root);
     for (const [baselineId, track, weight] of MINIMUM_SUITE) {
@@ -678,7 +678,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
       'baseline_run',
       '--baselineId=NL-CLI-1',
       '--runId=run-cli-local-review',
-      `--outputRoot=${join(root, '.lattice', 'artifacts', 'baseline-cli-arg-smoke')}`,
+      `--outputRoot=${join(root, '.proof-or-stop', 'artifacts', 'baseline-cli-arg-smoke')}`,
       '--localReviewEvidenceRefs=host-verdict:codex-local-review,host-verdict:claude-local-review',
       '--format=json',
     ], {
@@ -690,16 +690,16 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
     assert.equal(baselineRunParsed.outcome, 'PASS');
     assert.deepEqual(baselineRunParsed.local?.evidenceRefs, ['host-verdict:codex-local-review', 'host-verdict:claude-local-review']);
 
-    const outputDir = join(root, '.lattice', 'artifacts', 'baseline', 'suite-output');
+    const outputDir = join(root, '.proof-or-stop', 'artifacts', 'baseline', 'suite-output');
     const stdout = execFileSync(process.execPath, [
       cliPath,
       '--root',
       root,
-      'lattice',
+      'proof-or-stop',
       'baseline',
       'suite',
       'report',
-      '--reports=.lattice/artifacts/baseline',
+      '--reports=.proof-or-stop/artifacts/baseline',
       `--outputDir=${outputDir}`,
       '--format=json',
     ], {

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-83aa",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/core/done-oracle.ts, packages/main/src/handlers/phase-gates.ts, packages/main/src/handlers/verifier.ts, packages/main/src/handlers/session.ts: per-consumer classification (fail-closed / disclosed / tolerable) with regression fixtures",
+    "packages/main/src/core/evidence-freshness.ts: fail-closed handling of unreadable HEAD/materialHash in checkEvidenceFreshnessForGit and a shared missing-digest classifier beside captureEvidenceHashSnapshot",
+    "packages/main/src/core/lifecycle-readiness.ts: *_hash_unavailable rows blocking for target DONE",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts style fixtures for the classifier",
+    "packages/main/tests/red/red-partial-hash-snapshot-binding.mjs committed and registered in proof-or-stop.config.json"
+  ],
+  "excluded": [
+    "Any dev-memory, gap_log or global CLI change (owned by B-c86f, B-95bf, B-e256)",
+    "Changing the EvidenceHashSnapshot schema or making captureEvidenceHashSnapshot throw",
+    "Reworking review escalation / assurance floor quorum semantics"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User on 2026-09-02: run the two gate-layer stories first (B-83aa then B-c86f) and develop each through the normal process until DONE. Mode custom because the framework-generated repro-first background contains the word Authority, which the correctness_fix default keyword list rejects; the explicit excluded list below carries the anti-expansion intent.",
+  "createdAt": "2026-09-02T15:02:58.956Z",
+  "updatedAt": "2026-09-02T15:02:58.956Z",
+  "_hash": "a7172af1cb2abc79c1706878d41a732d568050b651ad7b121bf83002181f7dfe"
+}

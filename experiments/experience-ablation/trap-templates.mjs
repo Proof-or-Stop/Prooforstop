@@ -59,7 +59,7 @@ export const LEAKAGE_STRIP_LIST = {
     'gate evidence', 'reviewer lane', 'do not hardcode', 'never swallow',
   ],
   toolNames: [
-    'verify-lattice-residue', 'residue-oracle', 'ablation',
+    'verify-proof-or-stop-residue', 'residue-oracle', 'ablation',
   ],
   // The word 'trap' itself must never appear host-visible.
   meta: ['trap'],

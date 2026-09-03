@@ -135,7 +135,7 @@ ledger entry when it consumed budget, returned usage, or triggered a refusal.
 The intended local ledger path is:
 
 ```text
-.lattice/usage/llm-usage.jsonl
+.proof-or-stop/usage/llm-usage.jsonl
 ```
 
 This path is Proof-or-Stop runtime state. A future implementation must register it in
@@ -143,9 +143,9 @@ This path is Proof-or-Stop runtime state. A future implementation must register 
 to:
 
 - `id`: `llm-usage-ledger`;
-- `matchers`: exact `.lattice/usage/llm-usage.jsonl` or prefix
-  `.lattice/usage/` if the writer later needs adjacent usage-runtime files;
-- `ignorePatterns`: `.lattice/usage/`;
+- `matchers`: exact `.proof-or-stop/usage/llm-usage.jsonl` or prefix
+  `.proof-or-stop/usage/` if the writer later needs adjacent usage-runtime files;
+- `ignorePatterns`: `.proof-or-stop/usage/`;
 - `materialHash`: `exclude`;
 - `volatile`: `true`;
 - `repairableTrackedArtifact`: `true`;
@@ -154,10 +154,10 @@ to:
 
 The ledger is not process evidence, story evidence, validation evidence, or
 gate-consumed proof. It may help operators understand local usage and budget
-decisions, but it must not be read as lifecycle evidence under `.lattice/story/`
+decisions, but it must not be read as lifecycle evidence under `.proof-or-stop/story/`
 or as a replacement for signed Authority receipts. `doctor`, material-hash
 calculation, runtime artifact repair, and gitignore management should treat it
-the same way they treat other mutable runtime diagnostics under `.lattice/`.
+the same way they treat other mutable runtime diagnostics under `.proof-or-stop/`.
 
 ## Call and Attempt Correlation Semantics
 
@@ -584,7 +584,7 @@ Future implementation should be split into narrow slices:
 
 1. Ledger schema and writer:
    - define the JSONL schema and validators;
-   - write to `.lattice/usage/llm-usage.jsonl`;
+   - write to `.proof-or-stop/usage/llm-usage.jsonl`;
    - add the runtime artifact registry entry and gitignore behavior for that
      path;
    - add a single append-only writer choke-point that all provider dispatch flows
@@ -677,7 +677,7 @@ transcript content into the usage ledger.
 
 Targeted future tests:
 
-- runtime artifact policy classifies `.lattice/usage/llm-usage.jsonl` as
+- runtime artifact policy classifies `.proof-or-stop/usage/llm-usage.jsonl` as
   gitignored, `materialHash=exclude`, `volatile=true`, and
   `repairableTrackedArtifact=true`;
 - preflight estimate, blocked refusal, and postflight final records share stable
@@ -789,7 +789,7 @@ npm --prefix packages/main run test:llm-usage-ledger-authority-boundary
 
 - The ledger design distinguishes `provider-reported`, `prompt-size-estimate`,
   and `unavailable` usage in schema and behavior.
-- The ledger path is `.lattice/usage/llm-usage.jsonl` and is specified as a
+- The ledger path is `.proof-or-stop/usage/llm-usage.jsonl` and is specified as a
   runtime diagnostic artifact excluded from material hash, ignored by git, and
   repairable by runtime artifact tooling.
 - JSONL records include stable call and attempt ids, sequence,

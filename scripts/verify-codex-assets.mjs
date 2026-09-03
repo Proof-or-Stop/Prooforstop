@@ -92,17 +92,16 @@ assert(GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS === 600_000, 'heartbeat timeout 
 
 // CODEX_README_TEMPLATE is the default export; check for the CANONICAL wrapper commands.
 // B-cdf6: the generated guide must teach `bin/proof-or-stop-codex.js`, not the retained
-// deprecated `bin/lattice-codex.js` alias — a fresh init that still printed the old name
+// deprecated `bin/proof-or-stop-codex.js` alias — a fresh init that still printed the old name
 // would teach the retired brand to every new project.
 assert(CODEX_README_TEMPLATE.includes('node bin/proof-or-stop-codex.js session_brief'), 'template missing preferred wrapper command');
-assertNotIncludes(CODEX_README_TEMPLATE, 'node bin/lattice-codex.js session_brief', 'template deprecated wrapper invocation');
 assert(CODEX_README_TEMPLATE.includes(`${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`), 'template missing fallback command');
 assert(CODEX_README_TEMPLATE.includes(LOCAL_CODEX_VERIFY_COMMAND), 'template missing local verify_codex guidance');
 assert(CODEX_README_TEMPLATE.includes(LOCAL_MAIN_VERIFY_COMMAND), 'template missing main wrapper verify_codex guidance');
 assert(CODEX_README_TEMPLATE.includes(LOCAL_INIT_VERIFY_COMMAND), 'template missing init verification guidance');
 assert(CODEX_README_TEMPLATE.includes('node bin/proof-or-stop-codex.js doctor'), 'template missing Codex doctor guidance');
 assertNotIncludes(CODEX_README_TEMPLATE, 'node bin/koala-codex.js', 'template legacy Codex wrapper command');
-assertNotIncludes(CODEX_README_TEMPLATE, '.lattice-codex/koala.json', 'template legacy Codex manifest');
+assertNotIncludes(CODEX_README_TEMPLATE, '.proof-or-stop-codex/koala.json', 'template legacy Codex manifest');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala verify_codex`', 'template bare global verify guidance');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala init --verify-codex`', 'template bare global init guidance');
 assert(renderProofOrStopCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
@@ -165,7 +164,7 @@ function writeTempConfig(dir) {
 }
 
 function copyCodexAssetsToTemp() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-codex-assets-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-codex-assets-'));
   writeTempConfig(dir);
   mkdirSync(join(dir, 'bin'), { recursive: true });
   for (const rel of [
@@ -174,8 +173,6 @@ function copyCodexAssetsToTemp() {
     '.claude',
     'bin/proof-or-stop-codex.js',
     'bin/proof-or-stop.js',
-    // B-cc10 CHK-006: `bin/lattice-codex.js` / `bin/lattice.js` were deleted, so copying
-    // them here would throw ENOENT before any assertion ran.
     'bin/bootstrap-runner.js',
     'README.md',
     'AGENTS.md',
@@ -236,7 +233,10 @@ assertCheckFails(
     const checkResult = runCodexAdapterChecks(dir, { executeHeartbeats: false });
     const exclusions = checkResult.checks.find(check => check.id === 'excluded-assets');
     const nativeHooks = checkResult.checks.find(check => check.id === 'codex-native-hooks');
-    assert(checkResult.ok, 'managed Codex native hooks should pass adapter checks');
+    assert(
+      checkResult.ok,
+      `managed Codex native hooks should pass adapter checks: ${hardFailureIds(checkResult).join(', ')}\n${renderCodexAdapterChecks(checkResult)}`,
+    );
     assert(exclusions?.status === 'pass', `managed Codex native hooks should not count as excluded assets: ${exclusions?.detail}`);
     assert(nativeHooks?.status === 'pass', `Codex native hook check should pass: ${nativeHooks?.detail}`);
   } finally {
@@ -248,17 +248,12 @@ assertCheckFails(
   'excluded-assets',
   `forbidden ${canonicalCodexDir}/settings.json`,
 );
-// B-cdf6: the bootstrap sibling may be named `proof-or-stop.js` (canonical) OR
-// `lattice.js` (retained deprecated alias), so the adapter check only fails when NO
-// bootstrap name is present. Removing just one must NOT fail — that is the additive
-// compat property — so this negative test removes both.
 assertCheckFails(
   (dir) => {
     rmSync(join(dir, 'bin', 'proof-or-stop.js'), { force: true });
-    rmSync(join(dir, 'bin', 'lattice.js'), { force: true });
   },
   'local-wrapper',
-  'missing sibling local bootstrap under every accepted name',
+  'missing canonical sibling local bootstrap',
 );
 // Positive counterpart: dropping ONLY the deprecated alias keeps the adapter healthy.
 {
@@ -364,10 +359,10 @@ assertCheckFails(
 
 {
   const dir = copyCodexAssetsToTemp();
-  const previousPackaged = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
+  const previousPackaged = process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME;
   const previousPath = process.env.PATH;
   try {
-    process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
+    process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME = '1';
     process.env.PATH = '/definitely-no-global-koala';
     const checkResult = runCodexAdapterChecks(dir, {
       executeLocalHeartbeat: false,
@@ -381,8 +376,8 @@ assertCheckFails(
     assertIncludes(globalCheck.detail || '', 'skipped in packaged desktop runtime', 'packaged global fallback detail');
     assert(checkResult.ok, 'packaged global fallback warning should not be a hard failure');
   } finally {
-    if (previousPackaged === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
-    else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackaged;
+    if (previousPackaged === undefined) delete process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME = previousPackaged;
     if (previousPath === undefined) delete process.env.PATH;
     else process.env.PATH = previousPath;
     rmSync(dir, { recursive: true, force: true });
@@ -394,18 +389,18 @@ function shellQuote(value) {
 }
 
 function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
-  const fakeBin = mkdtempSync(join(tmpdir(), 'lattice-codex-fake-global-'));
+  const fakeBin = mkdtempSync(join(tmpdir(), 'proof-or-stop-codex-fake-global-'));
   const previousPath = process.env.PATH;
-  const previousEntrypoint = process.env.LATTICE_CODEX_ENTRYPOINT;
+  const previousEntrypoint = process.env.PROOF_OR_STOP_CODEX_ENTRYPOINT;
   try {
-    const fakeCli = join(fakeBin, 'lattice');
+    const fakeCli = join(fakeBin, 'proof-or-stop');
     writeFileSync(
       fakeCli,
       `#!/bin/sh\nexec ${shellQuote(process.execPath)} ${shellQuote(join(root, 'packages/main/dist/cli.js'))} "$@"\n`,
     );
     chmodSync(fakeCli, 0o755);
     process.env.PATH = `${fakeBin}:${previousPath || ''}`;
-    process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
+    process.env.PROOF_OR_STOP_CODEX_ENTRYPOINT = 'local-wrapper';
 
     // B-cdf6 (B-META F-013): this assertion runs the REAL `session_brief` against this
     // repository, whose cost scales with the number of active stories. Under the bare
@@ -429,8 +424,8 @@ function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
   } finally {
     if (previousPath === undefined) delete process.env.PATH;
     else process.env.PATH = previousPath;
-    if (previousEntrypoint === undefined) delete process.env.LATTICE_CODEX_ENTRYPOINT;
-    else process.env.LATTICE_CODEX_ENTRYPOINT = previousEntrypoint;
+    if (previousEntrypoint === undefined) delete process.env.PROOF_OR_STOP_CODEX_ENTRYPOINT;
+    else process.env.PROOF_OR_STOP_CODEX_ENTRYPOINT = previousEntrypoint;
     rmSync(fakeBin, { recursive: true, force: true });
   }
 }
@@ -439,7 +434,7 @@ assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint();
 
 // resolveCodexSessionBriefCommand: explicit wrapper candidate mapping tests
 function assertSessionBriefCommand(setup, expectedCommand, label) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-session-brief-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-session-brief-'));
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
     setup(dir);
@@ -460,34 +455,6 @@ assertSessionBriefCommand(
   (dir) => writeFileSync(join(dir, 'bin', 'proof-or-stop.js'), '// bootstrap'),
   'node bin/proof-or-stop.js session_brief',
   'canonical bootstrap-only fallback resolves to proof-or-stop session_brief',
-);
-
-// --- B-cc10 CHK-006: the deprecated wrapper names are REMOVED from the resolver.
-// B-cdf6 asserted the opposite (a checkout holding ONLY an old name was told to run that
-// old name). Now that the aliases are deleted, a directory holding only a deprecated name
-// is an unsupported layout, and the resolver must name the CANONICAL wrapper rather than
-// endorsing a retired one — pointing an operator at `bin/lattice-codex.js` would be
-// pointing them at a file this project no longer ships. ---
-assertSessionBriefCommand(
-  (dir) => writeFileSync(join(dir, 'bin', 'lattice-codex.js'), '// lattice-codex wrapper'),
-  'node bin/proof-or-stop-codex.js session_brief',
-  'deprecated lattice-codex wrapper no longer resolves to itself',
-);
-assertSessionBriefCommand(
-  (dir) => writeFileSync(join(dir, 'bin', 'lattice.js'), '// lattice bootstrap'),
-  'node bin/proof-or-stop-codex.js session_brief',
-  'deprecated lattice.js-only layout no longer resolves to itself',
-);
-
-// --- Canonical wins when BOTH names are present. (This was the state of this repo until
-// B-cc10 CHK-006 deleted the aliases; it remains a valid downstream-project layout.) ---
-assertSessionBriefCommand(
-  (dir) => {
-    writeFileSync(join(dir, 'bin', 'proof-or-stop-codex.js'), '// codex wrapper');
-    writeFileSync(join(dir, 'bin', 'lattice-codex.js'), '// deprecated alias');
-  },
-  'node bin/proof-or-stop-codex.js session_brief',
-  'canonical wrapper wins over the retained deprecated alias',
 );
 
 // --- Legacy koala names are still ignored; the default is now the canonical wrapper. ---
@@ -564,7 +531,7 @@ function assertGateStatus(setup, expectedStatus, label) {
     const gate = summarizeCodexEvidence(store, 'B-codex', dir);
     assert(gate.status === expectedStatus, `${label} expected ${expectedStatus}, got ${gate.status}: ${gate.detail}`);
     if (expectedStatus !== 'passing') {
-      assert(gate.command === LOCAL_CODEX_VERIFY_COMMAND, `${label} should remediate with resolved lattice wrapper command, got: ${gate.command}`);
+      assert(gate.command === LOCAL_CODEX_VERIFY_COMMAND, `${label} should remediate with resolved proof-or-stop wrapper command, got: ${gate.command}`);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });

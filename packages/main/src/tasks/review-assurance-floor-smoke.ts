@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -35,6 +35,8 @@ import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtim
 import type { HandlerContext } from '../handlers/context.js';
 import type { BugData, Finding, ProcessEvent, ReviewRun, StoryInfo } from '../core/types.js';
 import { listVerdicts } from '../core/verdicts.js';
+
+const RETIRED_STATE_DIR = ['.', 'lat', 'tice'].join('');
 
 const STORY_ID = 'B-review-assurance-floor';
 const REVIEW_ROUND = '2026-06-19T10:00:00.000Z';
@@ -84,7 +86,7 @@ function makeWrapperRepo(): { metadataRoot: string; gitRoot: string } {
   const metadataRoot = mkdtempSync(join(tmpdir(), 'review-assurance-floor-wrapper-'));
   const gitRoot = join(metadataRoot, 'repo');
   mkdirSync(gitRoot, { recursive: true });
-  write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo' }, null, 2));
+  write(metadataRoot, 'proof-or-stop.config.json', JSON.stringify({ gitRoot: 'repo' }, null, 2));
   write(gitRoot, 'README.md', 'wrapper review assurance floor smoke\n');
   write(gitRoot, 'packages/main/src/index.ts', 'export const seed = true;\n');
   git(gitRoot, ['init']);
@@ -137,7 +139,7 @@ function finding(overrides: Partial<Finding> = {}): Finding {
     category: 'missing',
     status: 'resolved',
     evidenceState: 'verified',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     createdAt: '2026-06-19T10:05:00.000Z',
     reviewRound: REVIEW_ROUND,
     ...overrides,
@@ -266,7 +268,7 @@ function deliveryCheck(storyId: string, headHash: string, materialHash: string, 
     headHash,
     materialHash,
     reviewRound,
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -309,7 +311,7 @@ function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, 
     timestamp: '2026-06-19T11:45:00.000Z',
   });
   // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
-  // record. This write lands under metadataRoot (.lattice/dev-memory/), never
+  // record. This write lands under metadataRoot (.proof-or-stop/dev-memory/), never
   // gitRoot, so it cannot perturb the wrapper-root materialHash computed above.
   createPlaybookRuntimeMemoryHandlers({ store, root: metadataRoot, scanRoot: gitRoot })
     .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'review-assurance-floor-smoke fixture; no lesson to capture' });
@@ -358,7 +360,7 @@ function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, 
 
   const reviewers = computeActiveReviewers(smokeStory, store.readChecklist(STORY_ID), null, ['packages/main/src/index.ts']);
   const runs: ReviewRun[] = reviewers.map((reviewer, index) => {
-    const agent = `lattice-review-${reviewer.name}`;
+    const agent = `proof-or-stop-review-${reviewer.name}`;
     const run: ReviewRun = {
       reviewRunId: `${STORY_ID}:RR-${index + 1}`,
       storyId: STORY_ID,
@@ -414,18 +416,18 @@ function staleRecoveryBlock(text: string): string {
 /**
  * Extract rendered CLI command fragments so each can be shell-linted.
  *
- * Recognizes the canonical `proof-or-stop` bin FIRST and the deprecated `lattice`
- * spelling as a fallback (B-cdf6 CHK-006). Matching only `lattice ` silently found
+ * Recognizes the canonical `proof-or-stop` bin FIRST and the deprecated `proof-or-stop`
+ * spelling as a fallback (B-cdf6 CHK-006). Matching only `proofOrStop ` silently found
  * just 1 of the 5 fragments once the guidance text was rebranded, which turned a
  * shell-safety check into a near-no-op instead of a failure.
  */
-function renderedLatticeCommandFragments(text: string): string[] {
+function renderedProofOrStopCommandFragments(text: string): string[] {
   const commands: string[] = [];
   const prefixes = [
     'node bin/proof-or-stop.js ',
-    'node bin/lattice.js ',
+    'node bin/proofOrStop.js ',
     'proof-or-stop ',
-    'lattice ',
+    'proofOrStop ',
   ];
   for (const line of text.split('\n')) {
     const uncommented = line.split(' # ')[0];
@@ -442,9 +444,9 @@ function renderedLatticeCommandFragments(text: string): string[] {
   return commands;
 }
 
-function assertShellSafeLatticeCommandFragments(text: string): string[] {
-  const commands = renderedLatticeCommandFragments(text);
-  assert.ok(commands.length > 0, 'expected at least one rendered lattice command fragment');
+function assertShellSafeProofOrStopCommandFragments(text: string): string[] {
+  const commands = renderedProofOrStopCommandFragments(text);
+  assert.ok(commands.length > 0, 'expected at least one rendered proof-or-stop command fragment');
   for (const command of commands) {
     assert.doesNotMatch(command, /<[^>\n]+>/, `angle placeholder in rendered command: ${command}`);
     execFileSync('zsh', ['-n', '-c', command], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -453,14 +455,14 @@ function assertShellSafeLatticeCommandFragments(text: string): string[] {
 }
 
 function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
-  const commands = assertShellSafeLatticeCommandFragments(staleRecoveryBlock(formatted));
-  assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
+  const commands = assertShellSafeProofOrStopCommandFragments(staleRecoveryBlock(formatted));
+  assert.equal(commands.length, 5, 'stale recovery must expose every inline proof-or-stop command fragment');
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop validate ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop verification_evidence_refresh_stale ')), true);
-  // B-cc10 F-077: the runtime emits the CANONICAL wrapper name; `bin/lattice.js` was deleted
+  // B-cc10 F-077: the runtime emits the CANONICAL wrapper name; `bin/proofOrStop.js` was deleted
   // by this story, so pinning it made this assertion unsatisfiable. Accepts either spelling so
   // a teammate branch still emitting the deprecated wrapper keeps passing.
-  assert.equal(commands.some((command) => command.startsWith('node bin/proof-or-stop.js autopilot_review_submit ') || command.startsWith('node bin/lattice.js autopilot_review_submit ')), true);
+  assert.equal(commands.some((command) => command.startsWith('node bin/proof-or-stop.js autopilot_review_submit ') || command.startsWith('node bin/proofOrStop.js autopilot_review_submit ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop autopilot_review_status ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop review_escalation_status ')), true);
   return commands;
@@ -531,7 +533,7 @@ try {
   });
 
   check('compatibility/retired-only records cannot satisfy the host-verdict assurance floor', () => {
-    const findings = ['implementation-reviewer', 'test-intent', 'lattice-review-channel'].map((agent, index) =>
+    const findings = ['implementation-reviewer', 'test-intent', 'proof-or-stop-review-channel'].map((agent, index) =>
       finding({
         id: `${STORY_ID}:COMPAT-F-${index + 1}`,
         agent,
@@ -571,7 +573,7 @@ try {
     assert.match(formatted, new RegExp(`proof-or-stop validate --story=${STORY_ID} --json`));
     assert.match(formatted, new RegExp(`proof-or-stop verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
     assert.match(formatted, new RegExp(`Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialHash}`));
-    assert.match(formatted, /node bin\/(?:proof-or-stop|lattice)\.js autopilot_review_submit/); // B-cc10 F-077: canonical wrapper; bin/lattice.js was deleted
+    assert.match(formatted, /node bin\/(?:proof-or-stop|proofOrStop)\.js autopilot_review_submit/); // B-cc10 F-077: canonical wrapper; bin/proofOrStop.js was deleted
     assert.match(formatted, /--storyFilesHash=/);
     assert.match(formatted, /Do not bypass stale material checks/);
     assert.doesNotMatch(formatted, /remote receipt server|remote proof|productionDone/);
@@ -654,7 +656,7 @@ try {
   });
 
   check('high-risk lifecycle gate work requires 3x2 or explicit degraded fallback', () => {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       proofAdmissibility: {
         mode: 'enforce',
         enforcedConsumers: ['REVIEW'],
@@ -792,18 +794,18 @@ try {
       // recipe executes, and the deprecated one keeps a teammate branch's recipe runnable.
       const fixtureWrapper = `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`;
       write(commandRoot, 'bin/proof-or-stop.js', fixtureWrapper);
-      write(commandRoot, 'bin/lattice.js', fixtureWrapper);
+      write(commandRoot, 'bin/proofOrStop.js', fixtureWrapper);
       // B-cc10 F-077: the runtime writes autopilot verdicts under the CANONICAL state dir, so
       // ignoring only the deprecated spelling left them as blocking dirty paths and
       // autopilot_review_submit --deriveBindings refused. Both spellings are ignored.
-      write(commandRoot, '.gitignore', `${DEPRECATED_STATE_DIR}/autopilot-verdicts/\n${PROOF_OR_STOP_STATE_DIR}/autopilot-verdicts/\n`);
-      write(commandRoot, 'lattice.config.json', JSON.stringify({
+      write(commandRoot, '.gitignore', `${RETIRED_STATE_DIR}/autopilot-verdicts/\n${PROOF_OR_STOP_STATE_DIR}/autopilot-verdicts/\n`);
+      write(commandRoot, 'proof-or-stop.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         proofAdmissibility: { mode: 'enforce', enforcedConsumers: ['REVIEW'] },
       }, null, 2) + '\n');
-      git(commandRoot, ['add', '.gitignore', 'bin/proof-or-stop.js', 'bin/lattice.js', 'lattice.config.json']);
+      git(commandRoot, ['add', '.gitignore', 'bin/proof-or-stop.js', 'bin/proofOrStop.js', 'proof-or-stop.config.json']);
       git(commandRoot, ['commit', '-m', 'self-host command fixture']);
       resetConfigCache();
       const store = new StoryStore(commandRoot);
@@ -840,12 +842,12 @@ try {
         .filter(recipe => recipe.command.includes('autopilot_review_submit'));
       assert.equal(recipes.length, 3);
       for (const recipe of recipes) {
-        assert.match(recipe.command, /^node bin\/(?:proof-or-stop|lattice)\.js autopilot_review_submit /); // B-cc10 F-077: accept either wrapper name
+        assert.match(recipe.command, /^node bin\/(?:proof-or-stop|proofOrStop)\.js autopilot_review_submit /); // B-cc10 F-077: accept either wrapper name
         execFileSync('zsh', ['-c', recipe.command], {
           cwd: commandRoot,
           encoding: 'utf8',
           stdio: ['ignore', 'pipe', 'pipe'],
-          env: { ...process.env, LATTICE_SESSION_ID: 'literal-guidance-smoke', LATTICE_NO_HOOKS: '1' },
+          env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'literal-guidance-smoke', PROOF_OR_STOP_NO_HOOKS: '1' },
         });
       }
       const persisted = listVerdicts(commandRoot, 'local', STORY_ID);

@@ -1981,7 +1981,7 @@
         ],
         "timeoutMs": 180000,
         "env": {
-          "LATTICE_VALIDATE_JOBS": "4"
+          "PROOF_OR_STOP_VALIDATE_JOBS": "4"
         },
         "resources": [
           {
@@ -2088,6 +2088,70 @@
       {
         "command": "node",
         "args": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "timeoutMs": 300000
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
         ],
         "timeoutMs": 180000,
@@ -2142,6 +2206,16 @@
           {
             "class": "git-common-dir",
             "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "package.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
             "access": "shared"
           }
         ]

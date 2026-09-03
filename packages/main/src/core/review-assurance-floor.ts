@@ -242,7 +242,7 @@ function donePrepareCommand(storyId?: string): string {
 
 function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null, round = 1): string {
   const id = storyRef(storyId);
-  return `node bin/proof-or-stop.js autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${LATTICE_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
+  return `node bin/proof-or-stop.js autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${PROOF_OR_STOP_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
 }
 
 function quorumSubmitCommand(storyId?: string): string {
@@ -759,7 +759,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   // supplied snapshot is freshness-validated (CX4 FIX A) and re-resolved on drift;
   // otherwise the floor builds one, using the caller's explicit changedFiles as
   // the classified set when provided.
-  // B-956f FIX 3: a malformed materialCode config / unreadable lattice.config.json
+  // B-956f FIX 3: a malformed materialCode config / unreadable proof-or-stop.config.json
   // now throws through resolveMaterialCodePolicy. Catch it at THIS evaluator
   // boundary and return a STRUCTURED failing outcome naming the file — never an
   // uncaught exception into the DONE-readiness callers (machine canFinishGuard/
@@ -779,7 +779,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     if (err instanceof MaterialCodePolicyError) {
       // B-956f FIX 3 (codex MED — wrong remediation for freshness failures): a
       // snapshot-freshness throw (a missing/unreadable gitCwd, or HEAD moving
-      // mid-build) is a WORKSPACE/GIT problem, NOT a lattice.config.json problem.
+      // mid-build) is a WORKSPACE/GIT problem, NOT a proof-or-stop.config.json problem.
       // Branch on the offendingKey so the structured outcome points at the right
       // fix — config remediation only for genuine config failures.
       const isFreshness = err.offendingKey === 'materialClassification.freshness';

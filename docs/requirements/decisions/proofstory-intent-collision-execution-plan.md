@@ -227,15 +227,15 @@ acceptance bindings and contract metadata, not the entire ProofStory state. The
 MVP persists split gate-consumed artifacts alongside that envelope:
 
 ```text
-.lattice/story/actives/<storyId>/proofstory.json
-.lattice/story/actives/<storyId>/original-intent-snapshot.json
-.lattice/story/actives/<storyId>/milestone-ledger.json
-.lattice/story/actives/<storyId>/slice-plan.json
-.lattice/story/actives/<storyId>/parent-ledger-rollup.json
-.lattice/story/actives/<storyId>/intent-collision.json
-.lattice/story/actives/<storyId>/scope-shrinkage-decision.json
-.lattice/story/actives/<storyId>/red-evidence.json
-.lattice/story/actives/<storyId>/spike.json
+.proof-or-stop/story/actives/<storyId>/proofstory.json
+.proof-or-stop/story/actives/<storyId>/original-intent-snapshot.json
+.proof-or-stop/story/actives/<storyId>/milestone-ledger.json
+.proof-or-stop/story/actives/<storyId>/slice-plan.json
+.proof-or-stop/story/actives/<storyId>/parent-ledger-rollup.json
+.proof-or-stop/story/actives/<storyId>/intent-collision.json
+.proof-or-stop/story/actives/<storyId>/scope-shrinkage-decision.json
+.proof-or-stop/story/actives/<storyId>/red-evidence.json
+.proof-or-stop/story/actives/<storyId>/spike.json
 ```
 
 Read-only diagnostics such as coverage, gate, review-completeness, and DONE
@@ -627,7 +627,7 @@ The gate should fail when:
       }
     ],
     "critic": {
-      "agent": "lattice-intent-critic",
+      "agent": "proof-or-stop-intent-critic",
       "round": "2026-06-29T00:00:00.000Z",
       "result": "pass"
     }
@@ -1072,15 +1072,15 @@ delivery_check_set
 Implemented MVP gate-consumed artifacts:
 
 ```text
-.lattice/story/actives/<storyId>/intent-collision.json
-.lattice/story/actives/<storyId>/proofstory.json
-.lattice/story/actives/<storyId>/original-intent-snapshot.json
-.lattice/story/actives/<storyId>/milestone-ledger.json
-.lattice/story/actives/<storyId>/slice-plan.json
-.lattice/story/actives/<storyId>/parent-ledger-rollup.json
-.lattice/story/actives/<storyId>/scope-shrinkage-decision.json
-.lattice/story/actives/<storyId>/red-evidence.json
-.lattice/story/actives/<storyId>/spike.json
+.proof-or-stop/story/actives/<storyId>/intent-collision.json
+.proof-or-stop/story/actives/<storyId>/proofstory.json
+.proof-or-stop/story/actives/<storyId>/original-intent-snapshot.json
+.proof-or-stop/story/actives/<storyId>/milestone-ledger.json
+.proof-or-stop/story/actives/<storyId>/slice-plan.json
+.proof-or-stop/story/actives/<storyId>/parent-ledger-rollup.json
+.proof-or-stop/story/actives/<storyId>/scope-shrinkage-decision.json
+.proof-or-stop/story/actives/<storyId>/red-evidence.json
+.proof-or-stop/story/actives/<storyId>/spike.json
 ```
 
 Read-only diagnostics such as `intent_coverage_check`,
@@ -1282,7 +1282,7 @@ Deliver:
 - documented REVIEW critic orchestration in active prompts;
 - `proofstory_review_completeness_check` as the MVP read-only completeness
   diagnostic;
-- future optional `lattice-review-completeness` lane or current provenance
+- future optional `proof-or-stop-review-completeness` lane or current provenance
   through existing real reviewer lanes;
 - gate behavior for critic-confirmed findings.
 

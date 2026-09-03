@@ -90,7 +90,7 @@ function assertSafePath(rawPath: string): string {
  * reuses the EXACT classifier vocabulary of dirty-worktree.ts
  * (`isStoryMetadataPath` / `isFixturePath` / `isMaterialSourcePath`, with config
  * files carried in `materialSourceFiles` by `dirtyWorktreeClassifierOptionsFromConfig`).
- * A path that classifies as material_source / fixture / lattice-metadata is
+ * A path that classifies as material_source / fixture / proof-or-stop-metadata is
  * rejected here so a bad declaration is caught at declare time instead of
  * silently surfacing as a mis-classification much later. The classifier reorder
  * remains the hard gate for hand-injected declared-artifacts.json entries.
@@ -169,7 +169,7 @@ export function createArtifactDeclareHandlers(ctx: HandlerContext): Record<strin
       const relatedIntent = assertSafeRelatedIntent(args?.relatedIntent);
 
       // 1b) Declarability gate (B-8db9 CHK-002): reject material/fixture/config/
-      //     lattice-metadata paths fail-fast, reusing the dirty-worktree classifier
+      //     proof-or-stop-metadata paths fail-fast, reusing the dirty-worktree classifier
       //     vocabulary so this layer cannot disagree with the CHK-001 hard gate.
       assertDeclarablePath(path, root);
 

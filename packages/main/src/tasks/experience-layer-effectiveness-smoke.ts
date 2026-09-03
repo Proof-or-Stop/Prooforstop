@@ -350,7 +350,7 @@ function run(): void {
     const after = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf-8' });
     const beforeSet = new Set(before.split('\n').map((l) => l.trim()).filter(Boolean));
     const introduced = after.split('\n').map((l) => l.trim()).filter(Boolean).filter((l) => !beforeSet.has(l));
-    const offending = introduced.filter((l) => /\.lattice[\\/]learning|activity\.jsonl/.test(l));
+    const offending = introduced.filter((l) => /\.proof-or-stop[\\/]learning|activity\.jsonl/.test(l));
     assert.deepEqual(offending, [], `read-only violated; new write(s): ${introduced.join(' | ')}`);
   });
 

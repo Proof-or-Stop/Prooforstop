@@ -61,7 +61,7 @@ const deletedExport = fileDiff(
   '',
 );
 const grepOutput = [
-  './.lattice/activity.jsonl:1:{"tool":"finding_add","args":{"desc":"audit_resources"}}',
+  './.proof-or-stop/activity.jsonl:1:{"tool":"finding_add","args":{"desc":"audit_resources"}}',
   './docs/story/actives/B-smoke/findings.json:2:"audit_resources residual"',
   './packages/main/tests/fixtures/concept.json:3:"audit_resources fixture mention"',
   './src/live.ts:4:export const stillThere = audit_resources();',
@@ -857,12 +857,12 @@ for (const malformedSide of [
 
 const unsupportedMetadata = [
   fileDiff(
-    '.lattice/story/actives/B-smoke/index.json',
+    '.proof-or-stop/story/actives/B-smoke/index.json',
     '{"phase":"DEV","looksLikeCode":"export function broken( {"}',
     '{"phase":"REVIEW","looksLikeCode":"class ["}',
   ),
   fileDiff(
-    '.lattice/story/actives/B-smoke/process-events.jsonl',
+    '.proof-or-stop/story/actives/B-smoke/process-events.jsonl',
     '{"detail":"function phantom( {"}',
     '{"detail":"const phantom = ("}',
   ),
@@ -872,7 +872,7 @@ const unsupportedMetadata = [
     '# Retained\nclass proseOnly [',
   ),
   fileDiff(
-    '.lattice-codex/lattice.json',
+    '.proof-or-stop-codex/proof-or-stop.json',
     '{"prompt":"async function promptText( {"}',
     '{"prompt":"const promptText = ("}',
   ),

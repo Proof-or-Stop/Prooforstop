@@ -53,7 +53,7 @@ function createStoryResumeHandlers(ctx: HandlerContext) {
       if (!isInteractiveAckAllowed(process.env, process.stdin.isTTY)) {
         throw new Error(
           `story_resume is refused: clearing a convergence-breaker freeze REQUIRES an interactive human session. ` +
-          `This looks like an autopilot / non-interactive / CI session (no TTY, or LATTICE_AUTOPILOT/CI set). ` +
+          `This looks like an autopilot / non-interactive / CI session (no TTY, or PROOF_OR_STOP_AUTOPILOT/CI set). ` +
           `A human must run this at a real terminal — the freeze exists to stop exactly the unattended loop that ` +
           `caused the B-f458 14-hour burn.`,
         );

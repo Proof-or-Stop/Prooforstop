@@ -139,23 +139,23 @@ function writeConfig(root: string, doneRequiredCommands?: unknown, proofAdmissib
   const config: Record<string, unknown> = {
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   };
   if (doneRequiredCommands !== undefined) config.doneRequiredCommands = doneRequiredCommands;
   if (proofAdmissibility !== undefined) config.proofAdmissibility = proofAdmissibility;
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2), 'utf-8');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify(config, null, 2), 'utf-8');
   resetConfigCache();
 }
 
 function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-required-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-required-'));
   writeConfig(root, doneRequiredCommands, proofAdmissibility);
   writeFileSync(join(root, 'README.md'), '# done required fixture\n', 'utf-8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -324,18 +324,18 @@ function assertDoneRequiredBlocked(
     };
     const ownerEnvironment = {
       ...common,
-      LATTICE_SESSION_ID: 'owner-session',
-      LATTICE_AGENT: 'main',
-      LATTICE_ACTIVITY_SOURCE: 'codex',
-      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'main',
+      PROOF_OR_STOP_SESSION_ID: 'owner-session',
+      PROOF_OR_STOP_AGENT: 'main',
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'main',
       CODEX_THREAD_ID: 'owner-thread',
     };
     const deliveryEnvironment = {
       ...common,
-      LATTICE_SESSION_ID: 'delivery-session',
-      LATTICE_AGENT: 'lattice-review-delivery',
-      LATTICE_ACTIVITY_SOURCE: 'codex',
-      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'lattice-review-delivery',
+      PROOF_OR_STOP_SESSION_ID: 'delivery-session',
+      PROOF_OR_STOP_AGENT: 'proof-or-stop-review-delivery',
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'proof-or-stop-review-delivery',
       CODEX_THREAD_ID: 'delivery-thread',
     };
     const policy = resolveDoneRequiredPolicy(root);
@@ -437,18 +437,18 @@ function assertDoneRequiredBlocked(
 
     const overlayOwner = effectiveValidationCommandEnvironment(
       ownerEnvironment,
-      { LATTICE_ACTIVITY_ROLE: 'explicit-owner-role' },
+      { PROOF_OR_STOP_ACTIVITY_ROLE: 'explicit-owner-role' },
       root,
       'linux',
     );
     const overlayReviewer = effectiveValidationCommandEnvironment(
       deliveryEnvironment,
-      { LATTICE_ACTIVITY_ROLE: 'explicit-reviewer-role' },
+      { PROOF_OR_STOP_ACTIVITY_ROLE: 'explicit-reviewer-role' },
       root,
       'linux',
     );
-    assert.equal(overlayOwner.LATTICE_ACTIVITY_ROLE, 'explicit-owner-role');
-    assert.equal(overlayReviewer.LATTICE_ACTIVITY_ROLE, 'explicit-reviewer-role');
+    assert.equal(overlayOwner.PROOF_OR_STOP_ACTIVITY_ROLE, 'explicit-owner-role');
+    assert.equal(overlayReviewer.PROOF_OR_STOP_ACTIVITY_ROLE, 'explicit-reviewer-role');
     assert.notDeepEqual(
       overlayOwner,
       overlayReviewer,
@@ -516,7 +516,7 @@ function assertDoneRequiredBlocked(
 // The effective timeout armed by the real runner must stay within Node's timer range.
 // Values above that range otherwise overflow to ~1ms and kill a healthy command immediately.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-timeout-cap-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-timeout-cap-'));
   try {
     const huge = await runValidationCommand({
       label: 'huge timeout remains legal',
@@ -547,7 +547,7 @@ function assertDoneRequiredBlocked(
 
 // Injected deadline seams deterministically cover before/after without relying on wall-clock races.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-deadline-seam-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-deadline-seam-'));
   try {
     const beforeDeadline = await runValidationCommand({
       label: 'before deadline', command: process.execPath, args: ['-e', 'process.exit(0)'], timeoutMs: 5_000,
@@ -635,7 +635,7 @@ function assertDoneRequiredBlocked(
     let reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
     assert.equal(reuse.reusable, true);
     assert.equal(reuse.lineage, 'exact-head');
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'commit trusted story metadata']);
     reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
     assert.equal(reuse.reusable, true);
@@ -712,14 +712,14 @@ function assertDoneRequiredBlocked(
   const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
   try {
     writeDoneEvidence(root, store);
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'commit evidence metadata']);
-    writeFileSync(join(root, '.lattice-story-like.json'), '{}\n', 'utf8');
-    git(root, ['add', '.lattice-story-like.json']);
+    writeFileSync(join(root, '.proof-or-stop-story-like.json'), '{}\n', 'utf8');
+    git(root, ['add', '.proof-or-stop-story-like.json']);
     git(root, ['commit', '-m', 'metadata-like path outside allowlist']);
     const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
     assert.equal(reuse.reusable, false);
-    assert.match(reuse.refusalReasons.join('\n'), /untrusted-lineage-path:\.lattice-story-like\.json/);
+    assert.match(reuse.refusalReasons.join('\n'), /untrusted-lineage-path:\.proof-or-stop-story-like\.json/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -735,7 +735,7 @@ function assertDoneRequiredBlocked(
   try {
     const originalReadme = '# done required fixture\n';
     writeDoneEvidence(root, store);
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'trusted evidence metadata']);
     writeFileSync(join(root, 'README.md'), '# temporary material mutation\n', 'utf8');
     git(root, ['add', 'README.md']);
@@ -743,9 +743,9 @@ function assertDoneRequiredBlocked(
     writeFileSync(join(root, 'README.md'), originalReadme, 'utf8');
     git(root, ['add', 'README.md']);
     git(root, ['commit', '-m', 'restore material bytes']);
-    git(root, ['mv', 'README.md', `.lattice/story/actives/${STORY_ID}/renamed-from-material.md`]);
+    git(root, ['mv', 'README.md', `.proof-or-stop/story/actives/${STORY_ID}/renamed-from-material.md`]);
     git(root, ['commit', '-m', 'rename material into metadata path']);
-    git(root, ['mv', `.lattice/story/actives/${STORY_ID}/renamed-from-material.md`, 'README.md']);
+    git(root, ['mv', `.proof-or-stop/story/actives/${STORY_ID}/renamed-from-material.md`, 'README.md']);
     git(root, ['commit', '-m', 'restore renamed material path']);
     const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
     // Net endpoint diff: README.md is byte-identical at the endpoint, so it is not listed
@@ -785,7 +785,7 @@ function assertDoneRequiredBlocked(
   const { root, store } = fixture([{ label: 'repair malformed', command: 'node', args: ['-e', 'process.exit(0)'] }]);
   const previousCwd = process.cwd();
   try {
-    const evidencePath = join(root, '.lattice/story/actives', STORY_ID, 'done-required-evidence.json');
+    const evidencePath = join(root, '.proof-or-stop/story/actives', STORY_ID, 'done-required-evidence.json');
     writeFileSync(evidencePath, '{"truncated":', 'utf8');
     const stale = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
     assert.equal(stale.reusable, false);

@@ -2,7 +2,7 @@
 /**
  * Non-authority baseline local certification smoke.
  *
- * Proves the baseline terminal contract from Lattice-baseline.md:
+ * Proves the baseline terminal contract from ProofOrStop-baseline.md:
  * local independent review evidence is required; localReviewCertified=true only
  * when that evidence exists; Authority server contact stays false; and a
  * non-authority run cannot report any Authority DONE flag.
@@ -26,7 +26,7 @@ import {
 const PASS_LINE =
   '✓ baseline local certification smoke passed: non-authority local review evidence required, zero Authority contact, false-DONE negatives pinned';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-local-cert-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-local-cert-'));
 
 try {
   // A passing non-authority baseline needs independent local review evidence.

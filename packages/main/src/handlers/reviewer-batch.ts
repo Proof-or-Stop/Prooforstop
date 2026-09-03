@@ -180,23 +180,9 @@ function assertBoundary(args: ReviewerBatchArgs): void {
  * prompt (falling back to "baseline" when absent).
  */
 function laneLaunchInstruction(storyId: string, lane: string, reason: string): string {
-  const canonicalLane = canonicalReviewerLane(lane);
-  if (!canonicalLane) {
-    throw new Error(`reviewer_batch: active lane "${lane}" is not registered in the agent dispatch registry`);
-  }
+  const name = lane.startsWith('proof-or-stop-review-') ? lane.slice('proof-or-stop-review-'.length) : lane;
   const why = reason && reason.trim() ? reason.trim() : 'baseline';
-  return `Agent({ subagent_type: "${canonicalLane}", prompt: "Review story ${storyId} (${why})" })`;
-}
-
-function incrementalContextForLane(
-  ctx: HandlerContext,
-  storyId: string,
-  lane: string,
-) {
-  const candidates = reviewerRoleReadIds(lane).map((role) =>
-    reviewIncrementalContext(ctx.store, ctx.root, storyId, role),
-  );
-  return candidates.find((candidate) => !candidate.isFirstPass) ?? candidates[0];
+  return `Agent({ subagent_type: "proof-or-stop-review-${name}", prompt: "Review story ${storyId} (${why})" })`;
 }
 
 /**
@@ -335,7 +321,7 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
       // review_incremental_context facts: prior verdict, bound headHash,
       // scopeChanged, and the material files changed since the lane's last pass.
       const canonicalLane = canonicalReviewerLane(reviewer.name) ?? reviewer.name;
-      const incremental = incrementalContextForLane(ctx, storyId, canonicalLane);
+      const incremental = reviewIncrementalContext(ctx.store, ctx.root, storyId, canonicalLane);
       const hasCurrentEvidence = laneHasCurrentRoundEvidence(evidenceState.valid, canonicalLane);
       const laneBlocking = blockingFindingsForLane(blockingFindings, canonicalLane);
       const state = classifyLaneState(hasCurrentEvidence, incremental.scopeChanged, laneBlocking);

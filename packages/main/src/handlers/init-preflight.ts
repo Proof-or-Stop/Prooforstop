@@ -31,7 +31,7 @@ type PrerequisiteStatus = 'PASS' | 'MISSING' | 'STALE' | 'BLOCKED' | 'ERROR';
 interface PrerequisiteRow {
   id: string;
   status: PrerequisiteStatus;
-  /** The exact `lattice …` command that resolves a MISSING/STALE/BLOCKED row (no fix on PASS / ERROR). */
+  /** The exact `proofOrStop …` command that resolves a MISSING/STALE/BLOCKED row (no fix on PASS / ERROR). */
   fix?: string;
   /** Human-readable detail (the throw message on ERROR, or a short note on the non-PASS state). */
   detail?: string;

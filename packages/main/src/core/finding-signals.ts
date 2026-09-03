@@ -280,7 +280,7 @@ export interface DeriveFromStoreOptions extends DeriveOptions {
   /** Restrict derivation to these story ids; default = all ids the store enumerates. */
   storyIds?: string[];
   /**
-   * Where to persist the cache (`.lattice/learning/` under this root). When
+   * Where to persist the cache (`.proof-or-stop/learning/` under this root). When
    * omitted the cache is derived but NOT written.
    */
   projectRoot?: string;

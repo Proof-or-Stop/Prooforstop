@@ -1,0 +1,818 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document the seven historical Finding problems and reproducible evidence",
+      "context": "Use current CLI-derived corpus figures and named historical Finding examples without directly reading Story storage files. Distinguish historical observations from claims about current unresolved behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/step3-review-budget-breaker-handoff.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-30T23:02:58.677Z",
+      "endTime": "2026-08-30T23:03:28.064Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:seven-problems",
+            "desc": "The canonical Markdown plan separately enumerates exactly seven historical Finding problem classes: review-volume/convergence cost; verified-but-not-current-Story responsibility; detector-signal noise; runtime-artifact freshness false positives; incorrect historical statement/supersession; concurrent ledger write loss; and weak/coarse historical recall. Every class states the observed failure, why the current model permits it, and at least one named Story/Finding or decision-document anchor.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:cli-corpus",
+            "desc": "The plan includes a dated, reproducible CLI-only corpus inventory and records the exact commands or a checked-in read-only query procedure used to derive every aggregate figure; rerunning it reconciles story-with-findings, total/status/severity counts and field-coverage denominators without directly parsing Story storage files.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:named-evidence",
+            "desc": "Named evidence covers the characteristic incidents: repeated sibling/root-cause findings or runaway review evidence for problem 1; B-cdf6:F-067 with its B-META route for problem 2; B-cdf6:F-070/B-META:F-035 for problem 3; B-cdf6:F-056/B-META:F-032 for problem 4; B-META:F-030/F-031 for problem 5; B-META:F-029 for problem 6; and current learning/signature audit output for problem 7. Each reference is retrievable through authorized CLI commands or an explicitly cited decision document.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:historical-vs-current",
+            "desc": "Every incident is labelled as a historical observation with its recorded outcome, and the text explicitly avoids claiming that an old open, resolved, dismissed, disproven, superseded, or routed Finding proves the same defect is currently unresolved. Where current behavior was not freshly reproduced, the document says so.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:metric-semantics",
+            "desc": "Corpus figures disclose projection and denominator semantics, including legacy evidenceState normalization and missing optional fields; reviewRun counts are not described as review-round counts; point-in-time figures include the query date/HEAD or an equivalent freshness qualifier.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:lineage-authority",
+            "desc": "The evidence section distinguishes raw Finding provenance, derived learning/signature records, and current gate evidence. It states that source-lineage identity prevents double counting but does not prove semantic defect equivalence, and that historical learning remains non-authoritative until current evidence is minted.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:no-storage-shortcut",
+            "desc": "A reviewer can reproduce the cited corpus and named records using proof-or-stop CLI surfaces such as story_list, finding_list, learning_validate, learning_effectiveness, signature_registry_list, and source_lineage_audit; neither the plan nor its verification procedure instructs readers to read or parse protected Story or Finding storage directly.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:no-seven-problem-overclaim",
+            "desc": "The problem and evidence section does not claim that an applicability field alone fixes all seven classes. It identifies which failures require candidate separation, defect identity and lineage, freshness and supersession, or ledger integrity, while reserving detailed architecture and delivery allocation for later sections.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:replay-and-contradiction",
+            "desc": "An independent reviewer reruns the documented CLI queries and checks every quoted Finding ID and outcome against authorized output. Any mismatched total, stale claim, missing record, supersession reversal, or contradiction between prose and source evidence fails this item rather than being accepted as illustrative prose.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:seven-problems",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:cli-corpus",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:named-evidence",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:historical-vs-current",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:metric-semantics",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:lineage-authority",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:no-storage-shortcut",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:no-seven-problem-overclaim",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:replay-and-contradiction",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed the seven historical problem and evidence sections remain unchanged and all historical artifacts remain non-authoritative.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Specify the four-component Dynamic Finding architecture and gate contract",
+      "context": "Define Candidate, verified Finding, applicability, routing, freshness, supersession, and ledger responsibilities; preserve the rule that historical learning is non-authoritative until current evidence is minted.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-30T23:02:59.444Z",
+      "endTime": "2026-08-30T23:03:28.844Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution-plan document defines exactly four responsibility components: Finding Ledger Integrity, Candidate and Defect Identity, Dynamic Applicability, and Freshness and Supersession. It shows the end-to-end flow from detector signal through verified Finding and a fresh applicability assessment to the gate, and gives each component explicit inputs, outputs, authority, and non-responsibilities.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The document specifies one gate contract in which only an open, evidence-blocking, severity-blocking Finding with a current signed assessment that is applicable, or fail-closed unknown where required, can block, while historical learning remains non-authoritative until current-Story evidence is minted.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The document defines DetectorSignal, CandidateFinding, verified Finding, canonical defect identity, applicability verdict, owner and routing, freshness binding, supersession, and batch disposition manifest, including which records are advisory and which are gate-consumed process facts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy Findings with no applicability assessment remain readable and are not rewritten in bulk. The plan states fallback behavior for missing, uncomputable, or stale assessments, including stricter treatment for high and critical unknowns.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Freshness semantics distinguish matching materialHash, materialHash-only drift with matching storyFilesHash, story-owned drift, scope drift, and runtime-artifact drift; accepted unrelated drift remains explicitly advisory rather than silently rebound.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Supersession and canonical-defect lookup preserve append-only historical records while returning the current canonical record, and source-lineage identity is explicitly not treated as proof of semantic defect equivalence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No detector hit, CandidateFinding, signatureTag, playbook, historical match, file-disjoint heuristic, or DONE outcome alone may block or unblock REVIEW, TEST, or DONE. Promotion to a gate-consumed conclusion requires fresh current-material evidence and designated reviewer and CLI authority.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Non-blocking verdicts cannot make a verified high or critical problem disappear: pre_existing_unaffected requires base and head evidence and no worsening, out_of_scope requires structured scope proof plus routing, duplicate requires a valid canonical owner, and stale or tampered assessments fail closed.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The architecture identifies one authoritative shared blocking predicate and all gate consumers that must use it, registers applicability and freshness as gate-consumed process facts, and requires atomic idempotent writes for Findings and assessments.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed exactly four components and three paths, with progress baseline entry and set explicitly hash-signed non-gate and only Story 1 L4 state gate-consumed.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decompose delivery into three implementation Stories with dependencies and acceptance criteria",
+      "context": "Map every one of the seven problems to an owning component and follow-up Story, define ordering and non-goals, and prevent a single oversized gate migration.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/step3-review-budget-breaker-handoff.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-30T23:03:00.144Z",
+      "endTime": "2026-08-30T23:03:29.622Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The canonical plan contains an explicit seven-problem ownership matrix in which P1 through P7 are each present, each row names its historical evidence, primary owning component, exact follow-up Story, direct-versus-mitigated coverage, and a falsifiable future acceptance result; verify seven unique problem IDs, all four exact component names, and all three exact Story names.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Each of the three exact implementation Story sections defines objective, included component responsibilities, directly solved and merely mitigated problems, deliverables, prerequisites, acceptance criteria, and non-goals. The dependency DAG is acyclic and distinguishes headline numbering from safe execution order, with ledger/runtime and identity/lineage prerequisites satisfied before applicability gate enforcement.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "A reconciliation section maps the four components into the three Stories without an orphan component, orphan problem, or duplicate primary owner, and states accurately that the complete program covers all seven problems while Dynamic Applicability alone does not.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For cross-cutting P1 and P3, the plan distinguishes direct solution, mitigation, and the existing review-convergence backstop: candidate filtering, canonical grouping, and batch applicability may reduce review work but must not promise to eliminate genuine defects or replace stall adjudication.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Because Freshness and Supersession spans two delivery Stories, the plan assigns historical supersession and canonical lookup to Finding Identity and Historical Lineage, runtime receipt and stale-artifact invalidation to Finding Ledger and Runtime Evidence Integrity, and documents the interface and dependency between them so neither half is unowned.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The plan permits staged observe or warn work only when it remains non-gating, but makes enforce rollout depend on atomic persistence, runtime freshness, identity and lineage, signed current-material assessments, process-fact registration, and fail-closed compatibility for legacy records. It must not imply that this specification Story creates the follow-up Stories or migrates the historical corpus.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject a decomposition that follows displayed Story numbering as execution order, contains a cyclic dependency, or allows Dynamic Finding Applicability to enforce a gate before ledger atomicity and runtime receipts are proven. The plan must expose actual dependency order and enforcement preconditions.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The three Story definitions collectively require reproducible negative tests for concurrent write loss and idempotent retry, candidate-versus-finding gate separation and canonical supersession, historical non-authority, base and head applicability and routed ownership, stale scope, material and runtime invalidation, tamper rejection, and unknown high or critical fail-closed behavior.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject scope expansion hidden inside the decomposition: this Story must not implement schemas or gates, bulk-rewrite legacy Findings, create the follow-up Stories, rename @lattice/lab, rebuild the existing convergence breaker, or claim that out-of-scope and duplicate findings cease to exist rather than being routed with evidence.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Because future Stories touch lifecycle gates and process facts, their acceptance and dependency text preserves the current review assurance floor, requires registry and contract-verifier coverage for new gate facts, and calls for merged-state combination review when parallel process-framework deliveries are combined.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed Story 3 to Story 2 to Story 1 ownership and mutation tests reject direct baseline gate consumers without changing exact CAS or re-attestation contracts.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Define migration rollout metrics and the @proof-or-stop/lab scope-change example",
+      "context": "Specify observe, warn, and enforce rollout, legacy compatibility, performance and safety metrics, and demonstrate historical out-of-scope becoming currently applicable using the lab package rename without implementing that rename.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-30T23:03:00.826Z",
+      "endTime": "2026-08-30T23:03:30.377Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:rollout-contract",
+            "desc": "The canonical Markdown plan defines observe, warn, and enforce as three explicit rollout states with entry criteria, permitted writes, gate authority, operator-visible output, rollback or kill-switch behavior, and exit criteria. Observe is read-only and non-gating; warn may emit advisory triage and reviewer overrides but cannot change lifecycle outcomes; enforce is allowed only after the prerequisite implementation Stories and process-fact contracts are proven.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:metrics-scorecard",
+            "desc": "The plan defines a reproducible rollout scorecard with numerator, denominator, collection command or checked-in read-only procedure, measurement window, and promotion or rollback threshold for safety, classification quality, review-effort reduction, and runtime cost. At minimum it measures false non-blocking high or critical verdicts, stale or tampered assessment rejection, unknown high or critical fail-closed behavior, candidate-to-verified conversion, duplicate or routed disposition accuracy, manual Finding operations, review cycles or elapsed review time, and p50 and p95 triage latency; point-in-time values are dated and are not durable constants.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:lab-scope-transition",
+            "desc": "The plan gives a stepwise @lattice/lab to @proof-or-stop/lab example that cites the historical B-cc10 decision which explicitly kept sibling package names out of scope, records the new operator request as a scope-changing fact, preserves the historical verdict, invalidates or remints the current assessment against the new scope, and produces verified plus applicable for the new rename Story without treating history alone as gate evidence.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:legacy-compatibility",
+            "desc": "The migration section states that the historical Finding corpus remains readable and append-only, receives no bulk rewrite, and is assessed lazily for a target Story. It defines behavior for legacy Findings with missing assessment, legacy evidenceState normalization, superseded canonical lookup, feature-state downgrade from enforce to warn, and recovery after rollback without losing Findings, assessments, routes, or audit lineage.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:enforcement-dependencies",
+            "desc": "The plan distinguishes displayed Story numbering from safe execution order and prevents enforce until atomic and idempotent ledger persistence, unique IDs, runtime-artifact receipts, canonical identity and supersession lookup, signed current-material applicability assessments, shared gate predicate registration, and compatibility behavior have passed their acceptance tests. Observe or warn may start earlier only while remaining non-authoritative and non-gating.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:metric-semantics",
+            "desc": "Every claimed time saving separates classifier compute cost, reviewer triage cost, genuine defect repair cost, and review convergence cost; it does not promise that Dynamic Finding reduces the number or repair time of genuinely applicable defects. Metrics disclose exclusions, sampled Story classes, lane-versus-round semantics, retries, and corpus or HEAD freshness.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:lab-package-resolution",
+            "desc": "The lab example separately identifies brand scope and package-resolution policy: renaming the package key does not prove that a clean install can resolve it. Future implementation acceptance must choose and verify a publish or local workspace/file-link contract and cover the lab package manifest, main dependency, lockfiles, exact-name verifier, and clean temporary install, while noting that local bootstrap may load by filesystem path and therefore is not proof of npm-name resolution.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:scope-boundary",
+            "desc": "The example explicitly does not implement or claim completion of the lab rename, does not retroactively edit B-cc10, and does not silently expand the request to @lattice/utils, the root package, signature salts, archived evidence, or other frozen identities. Any future expansion requires a new scope decision and a fresh applicability assessment.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:no-historical-authority",
+            "desc": "A historical Finding, DONE outcome, source-lineage match, signatureTag, playbook, package-name grep hit, or prior out-of-scope decision alone can neither block nor unblock the new Story. The lab transition and rollout rules require current scope evidence plus a signed fresh assessment; source lineage remains non-authoritative and proves provenance or dedup identity, not semantic defect equivalence.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:safety-floor",
+            "desc": "Reject any enforce proposal that permits a verified high or critical Finding to become non-blocking from file disjointness, model confidence, historical similarity, or an unowned out-of-scope verdict. The plan requires zero false non-blocking high or critical decisions in the reviewed adversarial qualification set, routes every non-blocking real issue to a valid owner, and fails closed on unknown, stale, unsigned, mismatched, or tampered assessments.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:rollback-proof",
+            "desc": "The rollout contains negative tests proving that disabling or rolling back enforcement restores the prior authoritative gate predicate rather than treating advisory records as evidence; repeated apply is idempotent; stale scope, story-owned material, and runtime artifact changes invalidate the right assessments; unrelated whole-tree drift is not silently self-classified; and no rollback deletes or rewrites historical records.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:reproducible-lab-example",
+            "desc": "An independent reviewer can verify the lab example from cited decision documents and current package and verifier surfaces and can demonstrate both transitions: old scope yields historical out-of-scope without rewriting that record, while explicit current scope containing @proof-or-stop/lab yields applicable. The item fails if the document calls the old exclusion an accidental missed rename, claims package installation succeeds without a clean-install witness, or changes repository package names as part of this specification Story.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:rollout-contract",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:metrics-scorecard",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:lab-scope-transition",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:legacy-compatibility",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:enforcement-dependencies",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:metric-semantics",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:lab-package-resolution",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:scope-boundary",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:no-historical-authority",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:safety-floor",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:rollback-proof",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:reproducible-lab-example",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "result": "pass",
+          "note": "Final incremental audit confirmed rollout, scorecard, risk, stopping and acceptance rules cover baseline authority-marker leakage while legacy and lab scope boundaries remain unchanged.",
+          "headHash": "4849288280568ac0ca8b559ee5e19f2dfb8c37b0",
+          "materialHash": "6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef",
+          "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+          "mechanical": false,
+          "timestamp": "2026-08-31T21:15:17.962Z"
+        }
+      ]
+    }
+  ]
+}

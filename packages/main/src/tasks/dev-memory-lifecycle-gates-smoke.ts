@@ -90,10 +90,10 @@ function git(root: string, args: string[]): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   }, null, 2) + '\n');
@@ -126,7 +126,7 @@ function syntheticStory(storyId: string, phase: StoryInfo['phase']): StoryInfo {
 
 /** A hermetic temp git repo + StoryStore + machine context for one DEV door. */
 function buildDoorRepo(storyId: string, phase: StoryInfo['phase']): { root: string; store: StoryStore; context: StoryMachineContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-devmem-door-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-devmem-door-'));
   writeConfig(root);
   write(root, 'README.md', 'dev-memory lifecycle gates smoke\n');
   git(root, ['init']);
@@ -176,7 +176,7 @@ function assertDoorRefusalThenPass(
     check(`CHK-001 ${doorLabel}: getGuardFailureReason tags missing_dev_memory_preflight_ack`,
       /\[missing_dev_memory_preflight_ack\]/.test(reasonBefore ?? ''));
     check(`CHK-001 ${doorLabel}: refusal message names the run-command hint`,
-      /(?:proof-or-stop|lattice) dev_memory_preflight_ack --storyId=/.test(reasonBefore ?? ''));
+      /(?:proof-or-stop|proofOrStop) dev_memory_preflight_ack --storyId=/.test(reasonBefore ?? ''));
 
     const out = ackHandler(root)({ storyId });
     check(`CHK-001 ${doorLabel}: dev_memory_preflight_ack writes the ack artifact`, /acknowledged/.test(out));
@@ -223,7 +223,7 @@ function assertAckFailClosedOnCorruption(): void {
   try {
     check('CHK-001 adversarial: gate false before any artifact exists', evaluateDevMemoryPreflightGate(storyId, store) === false);
 
-    const ackPath = `.lattice/story/actives/${storyId}/dev-memory-preflight-ack.json`;
+    const ackPath = `.proof-or-stop/story/actives/${storyId}/dev-memory-preflight-ack.json`;
 
     write(root, ackPath, '{}');
     check('CHK-001 adversarial: empty object {} treated as absent (fail-closed)', evaluateDevMemoryPreflightGate(storyId, store) === false);
@@ -261,7 +261,7 @@ function assertGenuineIoFaultPropagatesToDoorFailOpen(): void {
   const storyId = 'B-devmem-iofault';
   const { root, store } = buildDoorRepo(storyId, 'REVIEW');
   try {
-    const ackPath = join(root, '.lattice', 'story', 'actives', storyId, 'dev-memory-preflight-ack.json');
+    const ackPath = join(root, '.proof-or-stop', 'story', 'actives', storyId, 'dev-memory-preflight-ack.json');
     // Force EISDIR: make the ack path a directory instead of a file, so
     // readFileSync throws a genuine fs error, not ENOENT/SyntaxError.
     mkdirSync(ackPath, { recursive: true });
@@ -328,7 +328,7 @@ function assertReasonedDowngradeBypass(): void {
 // ─────────────────────────────────────────────────────────────────────────
 
 function mkFindingProject(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-devmem-finding-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-devmem-finding-'));
   writeConfig(root);
   return root;
 }
@@ -346,8 +346,8 @@ function extractFindingId(addOutput: string): string {
 }
 
 function assertFindingResolveAdvisory(): void {
-  const savedAgent = process.env.LATTICE_AGENT;
-  delete process.env.LATTICE_AGENT; // agent='main' avoids the reviewer review-run binding requirement
+  const savedAgent = process.env.PROOF_OR_STOP_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT; // agent='main' avoids the reviewer review-run binding requirement
   try {
     // ── happy path: advisory text present, commitHint preserved as a prefix ──
     {
@@ -437,8 +437,8 @@ function assertFindingResolveAdvisory(): void {
       }
     }
   } finally {
-    if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = savedAgent;
+    if (savedAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = savedAgent;
   }
 }
 
@@ -454,7 +454,7 @@ function assertFindingResolveAdvisory(): void {
  * the ONLY toggled blocking factor under test.
  */
 function buildDoneReadyFixture(storyId: string): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-devmem-done-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-devmem-done-'));
   writeConfig(root);
   write(root, 'README.md', '# dev-memory lifecycle gates smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const seed = true;\n');
@@ -493,7 +493,7 @@ function buildDoneReadyFixture(storyId: string): { root: string; store: StorySto
       hasUnresolvedTodos: false,
       summary: 'Smoke covers real DONE-gate behavior end to end.',
     },
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
   });
 
   return { root, store };
@@ -511,7 +511,7 @@ function assertDoneGateFinishDecision(): void {
     check('CHK-003 refusal: message tags missing_dev_memory_finish_decision',
       /\[missing_dev_memory_finish_decision\]/.test(reasonBefore ?? ''));
     check('CHK-003 refusal: message names the run-command hint',
-      /(?:proof-or-stop|lattice) dev_memory_finish_decision --storyId=/.test(reasonBefore ?? ''));
+      /(?:proof-or-stop|proofOrStop) dev_memory_finish_decision --storyId=/.test(reasonBefore ?? ''));
 
     const runtimeHandlers = createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') });
     const decisions: Array<{ decision: 'captured' | 'no-reusable-lesson' | 'defer-with-reason'; reason?: string }> = [

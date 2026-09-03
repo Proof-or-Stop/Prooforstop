@@ -2,7 +2,7 @@ import {
   PROOF_OR_STOP_BIN_NAMES,
   PROOF_OR_STOP_DEPRECATED_BIN,
   PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
-} from '../core/lattice-brand.js';
+} from '../core/proof-or-stop-brand.js';
 
 /**
  * Bin tokens this PARSER will strip when pasted redundantly as argv[0].
@@ -117,6 +117,7 @@ export interface AliasNormalizationResult {
   cmd: string | undefined;
   arg: string | undefined;
   canonicalAlias?: string;
+  displayAlias?: string;
   consumed?: 2 | 3 | 4;
   aliasStart: 0 | 1;
 }
@@ -151,6 +152,7 @@ export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationRes
     cmd: canonicalAlias,
     arg: normalizedArgv[1],
     canonicalAlias,
+    displayAlias: match.text,
     consumed: match.consumed,
     aliasStart,
   };

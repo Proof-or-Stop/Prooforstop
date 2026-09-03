@@ -119,7 +119,7 @@ function formatUsageLine(result: HostRunResult): string {
     }
     return `host_run refused: ${u.reason ?? result.refusalReason ?? 'blocked'}`;
   }
-  if (u.recorded === 'disabled') return 'usage ledger disabled (LATTICE_USAGE_LEDGER=0); no rows recorded';
+  if (u.recorded === 'disabled') return 'usage ledger disabled (PROOF_OR_STOP_USAGE_LEDGER=0); no rows recorded';
   if (u.recorded === 'provider-reported') {
     const recordId = u.recordId ? ` (recordId ${u.recordId})` : '';
     return `usage recorded: provider=${u.provider ?? 'unknown'} input=${u.input ?? 'null'} cacheRead=${u.cacheRead ?? 'null'} output=${u.output ?? 'null'}${recordId}`;

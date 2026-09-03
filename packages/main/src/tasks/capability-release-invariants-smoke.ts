@@ -28,7 +28,7 @@
  *    unchanged, and no 'helped' outcome is produced anywhere.
  *
  * Fully hermetic: every fixture lives in a mkdtemp dir; no live repo-root
- * .lattice state is read.
+ * .proof-or-stop state is read.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -159,7 +159,7 @@ try {
   check('M6: a candidate capability playbook is absent from MemoryFreshnessPack.results.playbookIds', () => {
     const packRoot = mkdtemp('capability-invariants-m6-pack-');
     cleanup.push(packRoot);
-    write(packRoot, 'lattice.config.json', '{}');
+    write(packRoot, 'proof-or-stop.config.json', '{}');
     const candidate = makeCapabilityPlaybook('candidate');
     writePlaybooks(packRoot, [candidate]);
     const pack = buildMemoryFreshnessPack({
@@ -186,7 +186,7 @@ try {
     // And it now appears in the MemoryFreshnessPack.results.playbookIds too.
     const packRoot = mkdtemp('capability-invariants-m6-active-');
     cleanup.push(packRoot);
-    write(packRoot, 'lattice.config.json', '{}');
+    write(packRoot, 'proof-or-stop.config.json', '{}');
     writePlaybooks(packRoot, [active]);
     const pack = buildMemoryFreshnessPack({
       projectRoot: packRoot,
@@ -200,7 +200,7 @@ try {
   check('M5: playbook_promotion_status surfaces a candidate\'s capability-release lineage (text + json)', () => {
     const statusRoot = mkdtemp('capability-invariants-m5-status-');
     cleanup.push(statusRoot);
-    write(statusRoot, 'lattice.config.json', '{}');
+    write(statusRoot, 'proof-or-stop.config.json', '{}');
     const candidate = makeCapabilityPlaybook('candidate');
     writePlaybooks(statusRoot, [candidate]);
 

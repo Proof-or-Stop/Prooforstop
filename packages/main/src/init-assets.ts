@@ -31,7 +31,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 <!-- proof-or-stop:start -->
 ## Proof-or-Stop
 
-- \`LATTICE.md\` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
+- \`PROOF_OR_STOP.md\` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
 - At the start of a new session, or when resuming interrupted work, run \`node bin/proof-or-stop.js session_brief\`.
 - Before acting, run \`node bin/proof-or-stop.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/proof-or-stop.js\` (or global \`proof-or-stop\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
@@ -44,12 +44,12 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 <!-- proof-or-stop:end -->
 `;
 
-export const LATTICE_MD_TEMPLATE = `# LATTICE.md
+export const PROOF_OR_STOP_MD_TEMPLATE = `# PROOF_OR_STOP.md
 
 <!-- proof-or-stop:start -->
 ## Proof-or-Stop
 
-\`LATTICE.md\` is the canonical, host-neutral Proof-or-Stop guide. New init profiles create or sync this file.
+\`PROOF_OR_STOP.md\` is the canonical, host-neutral Proof-or-Stop guide. New init profiles create or sync this file.
 
 - At the start of a new session, or when resuming interrupted work, run \`node bin/proof-or-stop.js session_brief\`.
 - Before acting, run \`node bin/proof-or-stop.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
@@ -69,7 +69,7 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 <!-- proof-or-stop:start -->
 ## Proof-or-Stop For Claude Code
 
-- \`LATTICE.md\` is the canonical, host-neutral Proof-or-Stop guide; Story lifecycle facts and shared rules derive from it.
+- \`PROOF_OR_STOP.md\` is the canonical, host-neutral Proof-or-Stop guide; Story lifecycle facts and shared rules derive from it.
 - Claude Code entrypoints should first run \`node bin/proof-or-stop.js session_brief\`; daily operations should use \`node bin/proof-or-stop.js\` or global \`proof-or-stop\`.
 - Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Claude Code subagents live in \`.claude/agents\`.
@@ -82,8 +82,8 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 // --- Global-thin asset templates ---
 // These are used when fresh init defaults to the global-thin asset mode.
-// The state directory holds project context (Lattice.md) and config
-// (proof-or-stop.json; the deprecated lattice.json is still read — B-cc10 CHK-004).
+// The state directory holds project context (Proof-or-Stop.md) and config
+// (proof-or-stop.json; the deprecated proof-or-stop.json is still read — B-cc10 CHK-004).
 // Executable Codex adapter behavior lives in the global Proof-or-Stop CLI; no local
 // bin shims are created.
 //
@@ -91,12 +91,12 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 // the resolver, so the text cannot tell a reader to open a directory that init no
 // longer creates.
 
-export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
+export const PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE = `# Proof-or-Stop.md
 
 <!-- proof-or-stop:start -->
 ## Proof-or-Stop
 
-\`${PROOF_OR_STOP_STATE_DIR}/Lattice.md\` is the canonical, host-neutral Proof-or-Stop project guide. This directory holds project-local Proof-or-Stop context and configuration.
+\`${PROOF_OR_STOP_STATE_DIR}/Proof-or-Stop.md\` is the canonical, host-neutral Proof-or-Stop project guide. This directory holds project-local Proof-or-Stop context and configuration.
 
 - At the start of a new session, or when resuming interrupted work, run \`proof-or-stop session_brief\`.
 - Before acting, run \`proof-or-stop aux_doc_list\` to inspect relevant docs.
@@ -114,7 +114,7 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 <!-- proof-or-stop:start -->
 ## Proof-or-Stop
 
-- \`${PROOF_OR_STOP_STATE_DIR}/Lattice.md\` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
+- \`${PROOF_OR_STOP_STATE_DIR}/Proof-or-Stop.md\` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
 - At the start of a new session, or when resuming interrupted work, run \`proof-or-stop session_brief\`.
 - Before acting, run \`proof-or-stop aux_doc_list\` to inspect relevant docs.
 - Use the global \`proof-or-stop\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
@@ -198,7 +198,7 @@ export const PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     'Run node bin/proof-or-stop-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
     // B-cc10 CHK-004: the manifest FILENAME comes from the resolver so this
     // generated note names the file `init` actually writes.
-    // B-cc10 F-016: the bin/lattice-codex.js mention was REMOVED. An earlier comment
+    // B-cc10 F-016: the bin/proof-or-stop-codex.js mention was REMOVED. An earlier comment
     // here said keeping it was "intentional" — true while the alias existed, false
     // once CHK-006 deleted it. This string materializes verbatim into the adapter
     // manifest, so it was telling users a nonexistent binary still works.
@@ -350,9 +350,6 @@ async function main() {
   const coreCliEngineCandidates = [
     join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
     join(projectRoot, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli-engine.js'),
-    // Deprecated scope kept as a READ fallback: a project installed before the
-    // '@lattice/core' -> '@proof-or-stop/core' rename must keep booting.
-    join(projectRoot, 'node_modules', '@lattice', 'core', 'dist', 'cli-engine.js'),
     join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
   ];
 
@@ -364,18 +361,14 @@ async function main() {
       process.exit(1);
     }
     await mod.runCli();
-    process.exit(0);
+    // Preserve a structured CLI failure. Unconditionally exiting 0 here hid
+    // verify_codex/validate failures from every generated project bootstrap.
+    process.exit(process.exitCode ?? 0);
   }
 
-  // Global bin names, canonical first. Read-both on purpose: a globally installed
-  // package built before the proof-or-stop rename exposes only \`lattice\`, so probing
-  // the canonical name alone would report "no global CLI" on a working machine.
-  //
   // Selection is by CAPABILITY, not merely by exit status: a core-only install exits 0
-  // from \`help\` but lacks aux_doc_list/verify_codex. Picking the first bin that merely
-  // ran would let a core-only \`proof-or-stop\` shadow a fully capable \`lattice\`, so the
-  // loop keeps looking and only falls back to the first probe for the error message.
-  const globalBinNames = ['proof-or-stop', 'lattice'];
+  // from \`help\` but lacks aux_doc_list/verify_codex.
+  const globalBinNames = ['proof-or-stop'];
   const isCapable = (out) => out.includes('aux_doc_list') && out.includes('verify_codex');
   let globalBin = globalBinNames[0];
   let probeOk = false;
@@ -437,16 +430,16 @@ export function renderCodexWrapperScript(): string {
 // explicitly-empty canonical value still wins.
 function setEnv(suffix, value) {
   process.env['PROOF_OR_STOP_' + suffix] = value;
-  process.env['LATTICE_' + suffix] = value;
+  process.env['PROOF_OR_STOP_' + suffix] = value;
 }
 function readEnv(suffix) {
   const canonical = process.env['PROOF_OR_STOP_' + suffix];
   if (canonical !== undefined) return canonical;
-  return process.env['LATTICE_' + suffix];
+  return process.env['PROOF_OR_STOP_' + suffix];
 }
 function deleteEnv(suffix) {
   delete process.env['PROOF_OR_STOP_' + suffix];
-  delete process.env['LATTICE_' + suffix];
+  delete process.env['PROOF_OR_STOP_' + suffix];
 }
 
 setEnv('ACTIVITY_SOURCE', 'codex');
@@ -477,9 +470,7 @@ async function main() {
     import('node:url'),
   ]);
   const binDir = dirname(process.argv[1] || '.');
-  // Sibling bootstrap names, canonical first. The deprecated \`lattice.js\` name is kept
-  // as a fallback so this wrapper also works in a project generated before the rename.
-  const bootstrapNames = ['proof-or-stop.js', 'lattice.js'];
+  const bootstrapNames = ['proof-or-stop.js'];
   const localBootstrap = bootstrapNames
     .map(name => join(binDir, name))
     .find(candidate => existsSync(candidate));
@@ -517,8 +508,8 @@ export function hookCommand(hookFile: string): string {
 export const PRETOOL_SCOPE_HOOK_MATCHER = 'Edit|Write|MultiEdit|NotebookEdit';
 export const CODEX_PRETOOL_SCOPE_HOOK_MATCHER = 'apply_patch|Edit|Write';
 export const LEGACY_SCOPE_PRETOOL_HOOK_FILE = 'scope-pretool.cjs';
-export const LATTICE_SCOPE_PRETOOL_HOOK_FILE = 'lattice-scope-pretool.cjs';
-// B-5f42: warn-only english-only artifact guard for Bash git-commit / lattice
+export const PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE = 'proof-or-stop-scope-pretool.cjs';
+// B-5f42: warn-only english-only artifact guard for Bash git-commit / proofOrStop
 // story-metadata commands. Layer 1 of the english-only policy (the hard stop is
 // the validate REVIEW->TEST gate). Matches Bash only; never blocks.
 export const PRETOOL_ENGLISH_ONLY_HOOK_MATCHER = 'Bash';
@@ -531,7 +522,7 @@ export const ENGLISH_ONLY_GUARD_HOOK_FILE = 'english-only-guard.cjs';
 // simply never fires (fail-open — never a false green). Claude ships fully.
 export const PRETOOL_EVIDENCE_HOOK_MATCHER = 'Bash';
 export const CODEX_PRETOOL_EVIDENCE_HOOK_MATCHER = 'shell|local_shell|exec_command';
-export const EVIDENCE_PRETOOL_HOOK_FILE = 'lattice-evidence-pretool.cjs';
+export const EVIDENCE_PRETOOL_HOOK_FILE = 'proof-or-stop-evidence-pretool.cjs';
 
 export function migrateHookCommandEntries(entries: unknown, oldCommand: string, newCommand: string): { entries: unknown; changed: boolean } {
   if (!Array.isArray(entries)) return { entries, changed: false };
@@ -561,7 +552,7 @@ export function getClaudeHooks() {
   return {
     UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
     PreToolUse: [
-      { matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE) }] },
+      { matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE) }] },
       { matcher: PRETOOL_ENGLISH_ONLY_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(ENGLISH_ONLY_GUARD_HOOK_FILE) }] },
       { matcher: PRETOOL_EVIDENCE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(EVIDENCE_PRETOOL_HOOK_FILE) }] },
     ],
@@ -581,7 +572,7 @@ export function getCodexHooks() {
         matcher: CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
         hooks: [{
           type: 'command',
-          command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
+          command: codexHookCommand(PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE),
           timeout: 30,
           statusMessage: 'Checking Proof-or-Stop scope',
         }],
@@ -714,21 +705,17 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
-  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
-  // generated before the rename only has bin/lattice.js, and a globally installed
-  // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
-    path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  for (const bin of ['proof-or-stop', 'lattice']) {
+  for (const bin of ['proof-or-stop']) {
     const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
       cwd: root,
       encoding: 'utf8',
@@ -871,21 +858,17 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
-  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
-  // generated before the rename only has bin/lattice.js, and a globally installed
-  // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
-    path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  for (const bin of ['proof-or-stop', 'lattice']) {
+  for (const bin of ['proof-or-stop']) {
     const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
       cwd: root,
       encoding: 'utf8',
@@ -913,8 +896,5 @@ export const renderLatticeProjectConfig = renderProofOrStopProjectConfig;
 /** @deprecated Use `PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST`. */
 export const LATTICE_CODEX_ADAPTER_MANIFEST = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST;
 /** @deprecated Use `renderProofOrStopBootstrapScript`. */
-export const renderLatticeBootstrapScript = renderProofOrStopBootstrapScript;
 /** @deprecated Use `renderProofOrStopCodexAdapterManifest`. */
-export const renderLatticeCodexAdapterManifest = renderProofOrStopCodexAdapterManifest;
 /** @deprecated Use `renderProofOrStopCodexWrapperScript`. */
-export const renderLatticeCodexWrapperScript = renderProofOrStopCodexWrapperScript;

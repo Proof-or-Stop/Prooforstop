@@ -12,7 +12,7 @@ import type {
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
-import { PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR } from './proof-or-stop-paths.js';
 import { CONFIG_FILENAMES, STATE_DIR_NAMES, resolveConfigFilename } from './brand-paths.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
@@ -420,7 +420,7 @@ export function enumerateBoundedSourceTree(
   };
 }
 
-const MAX_LATTICE_CONFIG_BYTES = 64 * 1024;
+const MAX_PROOF_OR_STOP_CONFIG_BYTES = 64 * 1024;
 
 /**
  * Which project-config spelling this snapshot should read (B-cc10 CHK-004).
@@ -454,7 +454,7 @@ function resolveSnapshotConfigFilename(context: SourceReadContext): string {
   };
   const resolved = resolveConfigFilename(
     (name) => presentByLstat(name)
-      || readSourceSafely(context, name, MAX_LATTICE_CONFIG_BYTES).text !== undefined,
+      || readSourceSafely(context, name, MAX_PROOF_OR_STOP_CONFIG_BYTES).text !== undefined,
   );
   // Probing a spelling that is simply ABSENT is not a blind spot — it is the
   // expected outcome for the name this project does not use. Drop those cached
@@ -465,7 +465,7 @@ function resolveSnapshotConfigFilename(context: SourceReadContext): string {
   // B-cc10 follow-up: only drop failures for names that are genuinely ABSENT. The
   // previous form deleted the cached failure for EVERY non-resolved spelling, which
   // also erased real blind spots — an existing-but-unreadable config (e.g. over
-  // MAX_LATTICE_CONFIG_BYTES) had its oversize failure silently discarded, so the
+  // MAX_PROOF_OR_STOP_CONFIG_BYTES) had its oversize failure silently discarded, so the
   // bounded-read blind spot never surfaced. Absence is expected; unreadable is not.
   for (const name of CONFIG_FILENAMES) {
     if (name === resolved) continue;
@@ -482,14 +482,14 @@ function resolveSnapshotConfigFilename(context: SourceReadContext): string {
 /**
  * Detect the TypeScript discovery profile from no-follow workspace snapshots.
  * A repository-level tsconfig remains valid; package layouts may instead put
- * the canonical tsconfig at lattice.config.scanRoot. Unsafe or ambiguous
+ * the canonical tsconfig at proofOrStop.config.scanRoot. Unsafe or ambiguous
  * config paths never become support authority.
  */
 export function detectAcceptanceDiscoverySupport(workspaceRoot: string): boolean {
   const rootContext = createSourceReadContext(workspaceRoot);
   if (readSourceSafely(rootContext, 'tsconfig.json').text !== undefined) return true;
   const configContext = createSourceReadContext(workspaceRoot);
-  const configRead = readSourceSafely(configContext, resolveSnapshotConfigFilename(configContext), MAX_LATTICE_CONFIG_BYTES);
+  const configRead = readSourceSafely(configContext, resolveSnapshotConfigFilename(configContext), MAX_PROOF_OR_STOP_CONFIG_BYTES);
   if (configRead.text === undefined) return false;
   try {
     const parsed = JSON.parse(configRead.text) as unknown;
@@ -510,7 +510,7 @@ function configuredSourceInventory(workspaceRoot: string, readContext: SourceRea
   let rawConfig: Record<string, unknown>;
   const configFilename = resolveSnapshotConfigFilename(readContext);
   try {
-    const read = readSourceSafely(readContext, configFilename, MAX_LATTICE_CONFIG_BYTES);
+    const read = readSourceSafely(readContext, configFilename, MAX_PROOF_OR_STOP_CONFIG_BYTES);
     if (read.text === undefined) throw new Error(read.blindSpot ?? 'safe config snapshot is unavailable');
     const parsed = JSON.parse(read.text) as unknown;
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('top-level value must be an object');
@@ -1185,7 +1185,7 @@ function topologyFactNames(input: AcceptanceDiscoveryInput): Set<string> {
 
 function generatedStoryArtifactDirectory(context: SourceReadContext, storyId: string): string | null {
   try {
-    const read = readSourceSafely(context, resolveSnapshotConfigFilename(context), MAX_LATTICE_CONFIG_BYTES);
+    const read = readSourceSafely(context, resolveSnapshotConfigFilename(context), MAX_PROOF_OR_STOP_CONFIG_BYTES);
     if (read.text === undefined) return null;
     const parsed = JSON.parse(read.text) as Record<string, unknown>;
     const configured = parsed.storyDir ?? PROOF_OR_STOP_STORY_DIR;
@@ -1381,7 +1381,7 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
     ]).concat(
       sourceFileRefs(graph.readContext.physicalRoot, graph.closureFiles).map(file => `source-file:closure:${file}`),
       // B-cc10 F-031: name the config spelling this project ACTUALLY has. This was a
-      // hardcoded 'lattice.config.json' sitting beside dynamically-derived siblings, so a
+      // hardcoded 'proof-or-stop.config.json' sitting beside dynamically-derived siblings, so a
       // canonical-only project inventoried a file it does not contain — producing a spurious
       // "lacks immutable bounded snapshot" blind spot that degraded the acceptance basis from
       // complete to partial. Masked in tests because every fixture used the deprecated name.

@@ -117,12 +117,12 @@ function seedSignals(root: string, signals: FindingSignal[]): void {
   writeFindingSignals(root, cacheOf(signals));
 }
 
-/** Minimal lattice.config.json so StoryStore + config resolve in the temp root. */
+/** Minimal proof-or-stop.config.json so StoryStore + config resolve in the temp root. */
 function writeProofOrStopConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));

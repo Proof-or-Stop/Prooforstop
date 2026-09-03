@@ -17,7 +17,7 @@
  *       and in REVIEW, and refused for an unfrozen INIT story (freeze gate).
  *   (d) Clean-INIT success path (B-804c:F-001): a genuine, fully-gated INIT story
  *       — frozen AND carrying a valid signed init-check.json (the
- *       lattice-review-story-init evidence, here via the controlled
+ *       proof-or-stop-review-story-init evidence, here via the controlled
  *       init_check_repair fallback) — advances through the REAL
  *       `story_advance --phase=INIT_CHECK` success path: phase ends at INIT_CHECK
  *       (advanced exactly once), the worktree exists on disk, and the story index
@@ -26,7 +26,7 @@
  *       tests above never exercise.
  *
  * Pattern mirrors worktree-repair-smoke.ts (self-contained node script, mkdtemp
- * git repo, execFileSync/spawn of dist/cli.js, lattice.config.json + .gitignore,
+ * git repo, execFileSync/spawn of dist/cli.js, proof-or-stop.config.json + .gitignore,
  * StoryStore seeding) and the frozen-story seeding from scope-anti-expansion-smoke.ts.
  */
 
@@ -63,18 +63,18 @@ function initRepo(prefix: string): string {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'init-check atomicity smoke\n');
@@ -168,7 +168,7 @@ function freezeStory(store: StoryStore, storyId: string): void {
 }
 
 function commitStories(root: string): void {
-  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['add', '.proof-or-stop/story/actives']);
   git(root, ['commit', '-m', 'add smoke story metadata']);
 }
 
@@ -176,7 +176,7 @@ function runProofOrStop(root: string, command: string, args: Record<string, unkn
   try {
     const stdout = execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -192,7 +192,7 @@ function runProofOrStop(root: string, command: string, args: Record<string, unkn
 
 // ── (a) + (c-unfrozen): an UNFROZEN INIT story aborts bootstrap and stays at INIT ──
 function assertFailedBootstrapLeavesPhaseAtInit(): void {
-  const root = initRepo('lattice-initcheck-atomic-partial-');
+  const root = initRepo('proof-or-stop-initcheck-atomic-partial-');
   try {
     const storyId = 'B-atomic';
     const store = new StoryStore(root);
@@ -224,7 +224,7 @@ function assertFailedBootstrapLeavesPhaseAtInit(): void {
 
 // ── (b): recovery — a frozen story stuck at INIT_CHECK with no worktree re-bootstraps ──
 function assertDevStartRecoversStuckInitCheckStory(): void {
-  const root = initRepo('lattice-initcheck-atomic-recover-');
+  const root = initRepo('proof-or-stop-initcheck-atomic-recover-');
   try {
     const storyId = 'B-stuck';
     const store = new StoryStore(root);
@@ -252,7 +252,7 @@ function assertDevStartRecoversStuckInitCheckStory(): void {
 
 // ── (c): guard refusals — terminal/REVIEW phases and unfrozen INIT are refused ──
 function assertDevStartRefusedInWrongPhases(): void {
-  const root = initRepo('lattice-initcheck-atomic-refuse-');
+  const root = initRepo('proof-or-stop-initcheck-atomic-refuse-');
   try {
     const store = new StoryStore(root);
     // DONE (terminal) story — handler allowedPhases gate rejects.
@@ -286,7 +286,7 @@ function assertDevStartRefusedInWrongPhases(): void {
 // ── (d): clean-INIT success path — a fully-gated INIT story advances via the REAL
 //        story_advance INIT_CHECK happy path (phase advanced once + worktree recorded) ──
 function assertCleanInitCheckAdvanceSucceeds(): void {
-  const root = initRepo('lattice-initcheck-atomic-success-');
+  const root = initRepo('proof-or-stop-initcheck-atomic-success-');
   try {
     // Use the real story_create CLI so the story has a genuine signed envelope
     // (background.md + index.json + checklist.json). init_check_repair signs over

@@ -36,7 +36,7 @@ function createProject(prefix) {
   const dir = mkdtempSync(join(tmpdir(), prefix));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -137,7 +137,7 @@ function decisionSucceedsWithoutPreMortem(projectRoot, storyId) {
 }
 
 function scenarioHappy() {
-  const p = createProject('lattice-risk-happy-');
+  const p = createProject('proof-or-stop-risk-happy-');
   const id = createStory(p, 'happy', 'low', 'Refactor the state machine guard logic so phase flow is correct.');
   let story = readStory(p, id);
   assert(story.priority === 'high', `happy: expected auto-elevation to high, got ${story.priority}`);
@@ -159,7 +159,7 @@ function scenarioHappy() {
 }
 
 function scenarioEdgeHigh() {
-  const p = createProject('lattice-risk-edge-high-');
+  const p = createProject('proof-or-stop-risk-edge-high-');
   const id = createStory(p, 'edge-high', 'high', 'Adjust the state machine guard logic for the gate.');
   let story = readStory(p, id);
   assert(story.priority === 'high', `edge-high: expected priority high, got ${story.priority}`);
@@ -173,7 +173,7 @@ function scenarioEdgeHigh() {
 }
 
 function scenarioEdgeCritical() {
-  const p = createProject('lattice-risk-edge-critical-');
+  const p = createProject('proof-or-stop-risk-edge-critical-');
   const id = createStory(p, 'edge-critical', 'critical', 'Touch the state machine guard logic near the gate.');
   let story = readStory(p, id);
   assert(story.priority === 'critical', `edge-critical: expected priority critical, got ${story.priority}`);
@@ -187,9 +187,9 @@ function scenarioEdgeCritical() {
 }
 
 function scenarioMulti() {
-  const p = createProject('lattice-risk-multi-');
-  // Two distinct categories: '状态机/门禁' (state machine) + '验证框架' (lattice validate).
-  const id = createStory(p, 'multi', 'low', 'Change the state machine guard logic and also the lattice validate fixture runner.');
+  const p = createProject('proof-or-stop-risk-multi-');
+  // Two distinct categories: '状态机/门禁' (state machine) + '验证框架' (proof-or-stop validate).
+  const id = createStory(p, 'multi', 'low', 'Change the state machine guard logic and also the proof-or-stop validate fixture runner.');
   let story = readStory(p, id);
   const cats = (story.riskSignals || []).map(r => r.category);
   assert(cats.length >= 2, `multi: expected >=2 categories, got ${JSON.stringify(cats)}`);
@@ -209,7 +209,7 @@ function scenarioMulti() {
 function scenarioAdversarial() {
   // (a) user-set critical with a FORGED/tampered priorityElevatedFrom='high' (>= high) -> no downgrade.
   {
-    const p = createProject('lattice-risk-adv-tampered-');
+    const p = createProject('proof-or-stop-risk-adv-tampered-');
     const id = createStory(p, 'adv-tampered', 'critical', 'Mentions the state machine guard logic.');
     const story = readStory(p, id);
     const cat = story.riskSignals[0].category;
@@ -221,8 +221,8 @@ function scenarioAdversarial() {
   }
   // (b) user-set critical with a GARBAGE priorityElevatedFrom -> no downgrade.
   {
-    const p = createProject('lattice-risk-adv-garbage-');
-    const id = createStory(p, 'adv-garbage', 'critical', 'Mentions the lattice validate fixture runner.');
+    const p = createProject('proof-or-stop-risk-adv-garbage-');
+    const id = createStory(p, 'adv-garbage', 'critical', 'Mentions the proof-or-stop validate fixture runner.');
     const story = readStory(p, id);
     const cat = story.riskSignals[0].category;
     story.priorityElevatedFrom = 'not-a-priority'; // invalid value
@@ -233,7 +233,7 @@ function scenarioAdversarial() {
   }
   // (c) user-set high, marker MISSING entirely -> no downgrade.
   {
-    const p = createProject('lattice-risk-adv-missing-');
+    const p = createProject('proof-or-stop-risk-adv-missing-');
     const id = createStory(p, 'adv-missing', 'high', 'Mentions the state machine guard logic.');
     const story = readStory(p, id);
     assert(story.priorityElevatedFrom === undefined, 'adversarial(missing): precondition: no marker for user-set high');
@@ -247,13 +247,13 @@ function scenarioAdversarial() {
 
 // === B-30b2 CHK-002: mention-vs-modify guidance is discoverable + honest ===
 
-const STORY_CREATE_GUIDANCE = '若为误报（仅提及未修改），可 lattice story_review_dismiss 完整回退';
+const STORY_CREATE_GUIDANCE = '若为误报（仅提及未修改），可 proof-or-stop story_review_dismiss 完整回退';
 
 // CHK-002 happy: a story_create that HITS a riskSignal surfaces the dismiss
 // escape hatch on stderr (must contain the exact discoverable phrase + the
 // story_review_dismiss command form with the freshly minted storyId).
 function scenarioGuidanceHit() {
-  const p = createProject('lattice-guide-hit-');
+  const p = createProject('proof-or-stop-guide-hit-');
   const { stderr, combined } = runCapture(p, 'story_create', {
     name: 'guide-hit',
     title: 'Guide hit',
@@ -279,7 +279,7 @@ function scenarioGuidanceHit() {
 // CHK-002 edge: a story_create that does NOT hit any riskSignal must NOT emit the
 // guidance (no false-positive noise on benign stories).
 function scenarioGuidanceMiss() {
-  const p = createProject('lattice-guide-miss-');
+  const p = createProject('proof-or-stop-guide-miss-');
   const { stderr, combined } = runCapture(p, 'story_create', {
     name: 'guide-miss',
     title: 'Guide miss',
@@ -307,9 +307,9 @@ function scenarioGuidanceMiss() {
 // (b) the promised "all auto-elevated dismissed -> rollback" must hold while a
 // partial dismiss does NOT roll back (claim "仅 dismiss 部分则不回退" is honest).
 function scenarioGuidanceHonest() {
-  const p = createProject('lattice-guide-honest-');
+  const p = createProject('proof-or-stop-guide-honest-');
   // Two distinct categories so we can test partial vs full dismiss.
-  const id = createStory(p, 'guide-honest', 'low', 'Change the state machine guard logic and also the lattice validate fixture runner.');
+  const id = createStory(p, 'guide-honest', 'low', 'Change the state machine guard logic and also the proof-or-stop validate fixture runner.');
   let story = readStory(p, id);
   const cats = (story.riskSignals || []).map(r => r.category);
   assert(cats.length >= 2, `guide-honest: expected >=2 categories, got ${JSON.stringify(cats)}`);

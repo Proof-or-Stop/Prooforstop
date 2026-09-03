@@ -3,8 +3,8 @@
  *
  * Design constraints (B-ad2c):
  *   - Storage: file-backed JSONL, never SQLite or binary blobs
- *   - Paths: project  → <projectRoot>/.lattice/dev-memory/experience.jsonl
- *            global   → ~/.lattice/dev-memory/experience.jsonl
+ *   - Paths: project  → <projectRoot>/.proof-or-stop/dev-memory/experience.jsonl
+ *            global   → ~/.proof-or-stop/dev-memory/experience.jsonl
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
  *   - Non-authoritative: entries CANNOT satisfy Proof-or-Stop gate evidence
  *   - No structured schema that looks like gate artifacts
@@ -22,7 +22,7 @@ import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { createHash } from 'crypto';
 import { hasProjectConfigFile } from './config.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 // ---------------------------------------------------------------------------
@@ -162,7 +162,7 @@ export function validateEntry(raw: unknown): { ok: true; entry: DevMemoryEntry }
 
 /**
  * Resolve the project-scoped experience file path.
- * Uses LATTICE_PROJECT_ROOT env or walks upward to find lattice.config.json.
+ * Uses PROOF_OR_STOP_PROJECT_ROOT env or walks upward to find proof-or-stop.config.json.
  * Deterministic — no Proof-or-Stop daemon required.
  */
 export function resolveProjectMemoryPath(projectRoot?: string): string {
@@ -189,7 +189,7 @@ export function resolveProjectMemoryReadPaths(projectRoot?: string): string[] {
 
 /**
  * Resolve the global experience file path.
- * Uses LATTICE_GLOBAL_MEMORY_DIR env override (useful in tests).
+ * Uses PROOF_OR_STOP_GLOBAL_MEMORY_DIR env override (useful in tests).
  */
 export function resolveGlobalMemoryPath(): string {
   const override = readBrandEnv('GLOBAL_MEMORY_DIR');

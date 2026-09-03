@@ -16,7 +16,7 @@
  *   C. verification_pin_guard_check (handlers/evidence-pin-guard.ts + the pure
  *      core): DENIES a mismatched --command (JSON-blob form) and a mismatched
  *      --selector (--k=v form); ALLOWS a matching write / verification_run /
- *      unpinned intent / non-lattice command; FAIL-OPEN on a nonexistent story or
+ *      unpinned intent / non-proof-or-stop command; FAIL-OPEN on a nonexistent story or
  *      unparseable input. Adversarial: the enforceAndStampEvidence HANDLER still
  *      refuses the same mismatch when the guard/hook is bypassed (seatbelt is
  *      non-load-bearing).
@@ -26,6 +26,9 @@
  *      confirmable in this environment (see PENDING-REAL-TOKEN below); the e2e
  *      asserts only that the documented CANDIDATE tokens (shell|local_shell|
  *      exec_command) fire — never a false green that Codex coverage is confirmed.
+ *   E. stale-refresh exact-semantics dedupe: identical command/selector/timeout
+ *      rows execute once and receive one cloned receipt per intent; selector or
+ *      timeout differences remain distinct; one shared failure demotes all rows.
  *
  * RED-first: each core assertion mutation-kills — reverting the corresponding
  * behavior (make refresh demote instead of re-execute; make the guard always-allow;
@@ -38,7 +41,7 @@
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -61,8 +64,8 @@ import type {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, '../../../..');
 const REAL_CLI = join(REPO_ROOT, 'packages', 'main', 'dist', 'cli.js');
-const CLAUDE_HOOK = join(REPO_ROOT, '.claude', 'hooks', 'lattice-evidence-pretool.cjs');
-const CODEX_HOOK = join(REPO_ROOT, '.codex', 'hooks', 'lattice-evidence-pretool.cjs');
+const CLAUDE_HOOK = join(REPO_ROOT, '.claude', 'hooks', 'proof-or-stop-evidence-pretool.cjs');
+const CODEX_HOOK = join(REPO_ROOT, '.codex', 'hooks', 'proof-or-stop-evidence-pretool.cjs');
 
 function sha256Hex(value: string): string {
   return createHash('sha256').update(value).digest('hex');
@@ -107,9 +110,9 @@ interface Env {
 
 /** Build an isolated temp git repo + story + single checklist item carrying `intents`. */
 function makeEnv(storyId: string, intents: VerificationIntentItem[]): Env {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-b1507-'));
-  write(root, 'lattice.config.json', JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b1507-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }, null, 2));
   // Causal execution keys require a resolved tool version. npm runs this smoke
   // with packages/main as process.cwd(), so seed the minimal manifest that the
@@ -387,7 +390,7 @@ async function partC(): Promise<void> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin the immutable verifier',
     });
 
-    const addBlob = (o: Record<string, unknown>) => `node bin/lattice.js verification_evidence_add ${JSON.stringify(o)}`;
+    const addBlob = (o: Record<string, unknown>) => `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify(o)}`;
 
     // C1: DENY — mismatched --command (JSON-blob form). selector matches; only command differs.
     const denyCmd = guardVerdict(env, {
@@ -397,7 +400,7 @@ async function partC(): Promise<void> {
 
     // C2: DENY — mismatched --selector (--k=v form). No --command; only the selector differs.
     const denySel = guardVerdict(env, {
-      commandString: `node bin/lattice.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
+      commandString: `node bin/proofOrStop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
     });
     assert.equal(denySel.verdict, 'deny', 'C2: mismatched --selector (--k=v) is DENIED');
 
@@ -409,7 +412,7 @@ async function partC(): Promise<void> {
 
     // C4: ALLOW — verification_run derives its command from the pin (nothing to mismatch).
     const allowRun = guardVerdict(env, {
-      commandString: `node bin/lattice.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
+      commandString: `node bin/proofOrStop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
     });
     assert.equal(allowRun.verdict, 'allow', 'C4: verification_run is ALLOWED');
 
@@ -419,10 +422,10 @@ async function partC(): Promise<void> {
     });
     assert.equal(allowUnpinned.verdict, 'allow', 'C5: unpinned intent is ALLOWED');
 
-    // C6: ALLOW (no-decision) — not a lattice evidence-write command at all.
-    const allowNonLattice = guardVerdict(env, { commandString: 'git status -s' });
-    assert.equal(allowNonLattice.verdict, 'allow', 'C6: non-lattice command is ALLOWED (no-decision)');
-    assert.equal(allowNonLattice.matched, false, 'C6: non-lattice command is not matched as an evidence write');
+    // C6: ALLOW (no-decision) — not a proof-or-stop evidence-write command at all.
+    const allowNonProofOrStop = guardVerdict(env, { commandString: 'git status -s' });
+    assert.equal(allowNonProofOrStop.verdict, 'allow', 'C6: non-proof-or-stop command is ALLOWED (no-decision)');
+    assert.equal(allowNonProofOrStop.matched, false, 'C6: non-proof-or-stop command is not matched as an evidence write');
 
     // C7: FAIL-OPEN — a WOULD-BE-deny (mismatched command) against a NONEXISTENT story:
     //     the store read fails → the seatbelt allows rather than blocking legitimate work.
@@ -467,8 +470,8 @@ function runHook(hookPath: string, root: string, toolName: string, command: stri
   const payload = JSON.stringify({ tool_name: toolName, tool_input: { command }, cwd: root });
   const r = spawnSync(process.execPath, [hookPath], {
     input: payload,
-    // LATTICE_PROJECT_ROOT pins the spawned CLI to THIS temp repo regardless of cwd walking.
-    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+    // PROOF_OR_STOP_PROJECT_ROOT pins the spawned CLI to THIS temp repo regardless of cwd walking.
+    env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
     encoding: 'utf8',
     timeout: 20000,
   });
@@ -485,8 +488,8 @@ async function partD(): Promise<string> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin for the hook e2e',
     });
 
-    const mismatchCmd = `node bin/lattice.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
-    const matchCmd = `node bin/lattice.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
+    const mismatchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
+    const matchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
 
     // D1: Claude Bash matcher — FULLY asserted (the real emitted tool_name is `Bash`).
     assert.equal(runHook(CLAUDE_HOOK, env.root, 'Bash', mismatchCmd), 2, 'D1: Claude Bash hook exits 2 (deny) on a mismatched evidence write');
@@ -515,6 +518,167 @@ async function partD(): Promise<string> {
   } finally { cleanup(env); }
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// E. stale refresh exact-semantics dedupe — real child-process execution count.
+// ════════════════════════════════════════════════════════════════════════════
+
+function externalVerifierCommand(counterPath: string, outputPath: string): string {
+  const script = [
+    `require('fs').appendFileSync(${JSON.stringify(counterPath)}, 'x')`,
+    `process.stdout.write(require('fs').readFileSync(${JSON.stringify(outputPath)}, 'utf8'))`,
+  ].join(';');
+  return `node -e ${JSON.stringify(script)}`;
+}
+
+function commitRefreshDrift(env: Env, label: string): void {
+  write(env.root, 'packages/main/src/refresh-drift.ts', `export const drift = ${JSON.stringify(label)};\n`);
+  git(env.root, ['add', 'packages/main/src/refresh-drift.ts']);
+  git(env.root, ['commit', '-m', `refresh drift ${label}`]);
+}
+
+async function seedPinnedReceipt(
+  env: Env,
+  args: {
+    intentRef: string;
+    command: string;
+    selector: string;
+    commandTimeoutMs?: number;
+    commandTimeoutReason?: string;
+  },
+): Promise<void> {
+  await env.handlers.verification_evidence_add({
+    storyId: env.storyId,
+    itemId: 'CHK-001',
+    intentRef: args.intentRef,
+    kind: 'integration_test',
+    command: args.command,
+    selector: args.selector,
+    result: 'pass',
+    note: `seed ${args.intentRef}`,
+    ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
+    ...(args.commandTimeoutReason ? { commandTimeoutReason: args.commandTimeoutReason } : {}),
+  });
+}
+
+function executionCount(counterPath: string): number {
+  return readFileSync(counterPath, 'utf8').length;
+}
+
+async function partE(): Promise<void> {
+  const externalRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-refresh-dedupe-'));
+  try {
+    // E1: two intents with one exact pin/provenance key execute once. Each row
+    // receives a cloned receipt whose timestamp and output digest describe that
+    // one real execution, rather than a fabricated per-intent pass.
+    {
+      const env = makeEnv('B-refresh-dedupe-same', [
+        intent('INT-SHARED-A', 'cli'),
+        intent('INT-SHARED-B', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'same-counter.txt');
+        const output = join(externalRoot, 'same-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'SHARED_OK\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-A', command, selector: 'SHARED_OK' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-B', command, selector: 'SHARED_OK' });
+        writeFileSync(counter, '');
+        commitRefreshDrift(env, 'same-key');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 1, 'E1: one exact execution key runs once for two stale rows');
+        const a = findEvidence(env, 'INT-SHARED-A');
+        const b = findEvidence(env, 'INT-SHARED-B');
+        assert.equal(a?.mechanical, true, 'E1: first shared row remains mechanical');
+        assert.equal(b?.mechanical, true, 'E1: second shared row remains mechanical');
+        assert.ok(a?.receipt && b?.receipt, 'E1: both rows receive receipts');
+        assert.deepEqual(a!.receipt, b!.receipt, 'E1: shared rows bind cloned facts from the same execution');
+        assert.match(a!.receipt!.executedAt, /^\d{4}-\d{2}-\d{2}T/u, 'E1: receipt timestamp is an ISO execution time');
+        assert.equal(a!.receipt!.outputDigest, sha256Hex('SHARED_OK\n'), 'E1: receipt digest binds the real shared output');
+      } finally { cleanup(env); }
+    }
+
+    // E2: selector and effective-timeout differences are execution semantics,
+    // not presentation metadata. Five distinct keys must produce five runs.
+    {
+      const env = makeEnv('B-refresh-dedupe-distinct', [
+        intent('INT-SELECTOR-A', 'cli'),
+        intent('INT-SELECTOR-B', 'cli'),
+        intent('INT-TIMEOUT-A', 'cli'),
+        intent('INT-TIMEOUT-B', 'cli'),
+        intent('INT-PROVENANCE-C', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'distinct-counter.txt');
+        const output = join(externalRoot, 'distinct-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'SELECTOR_A SELECTOR_B\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-A', command, selector: 'SELECTOR_A' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-B', command, selector: 'SELECTOR_B' });
+        await seedPinnedReceipt(env, {
+          intentRef: 'INT-TIMEOUT-A', command, selector: 'SELECTOR_A', commandTimeoutMs: 5000,
+          commandTimeoutReason: 'The dedupe smoke needs an attributable first timeout provenance.',
+        });
+        await seedPinnedReceipt(env, {
+          intentRef: 'INT-TIMEOUT-B', command, selector: 'SELECTOR_A', commandTimeoutMs: 7000,
+          commandTimeoutReason: 'The dedupe smoke needs an attributable second timeout provenance.',
+        });
+        await seedPinnedReceipt(env, {
+          intentRef: 'INT-PROVENANCE-C', command, selector: 'SELECTOR_A', commandTimeoutMs: 5000,
+          commandTimeoutReason: 'The dedupe smoke needs distinct provenance at the same timeout value.',
+        });
+        writeFileSync(counter, '');
+        commitRefreshDrift(env, 'distinct-keys');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 5, 'E2: different selector/effective-timeout/provenance keys never dedupe');
+        assert.equal(findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.timeoutMs, 5000,
+          'E2: first timeout provenance survives refresh');
+        assert.equal(findEvidence(env, 'INT-TIMEOUT-B')?.receipt?.timeoutOverride?.timeoutMs, 7000,
+          'E2: second timeout provenance survives refresh');
+        assert.notEqual(
+          findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.reason,
+          findEvidence(env, 'INT-PROVENANCE-C')?.receipt?.timeoutOverride?.reason,
+          'E2: same timeout with different audited provenance is not collapsed',
+        );
+      } finally { cleanup(env); }
+    }
+
+    // E3: a shared command that no longer emits the selector runs once, but its
+    // failure produces zero pass stamps. Every row sharing that key is demoted.
+    {
+      const env = makeEnv('B-refresh-dedupe-failure', [
+        intent('INT-FAIL-A', 'cli'),
+        intent('INT-FAIL-B', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'failure-counter.txt');
+        const output = join(externalRoot, 'failure-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'WAS_GOOD\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-FAIL-A', command, selector: 'WAS_GOOD' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-FAIL-B', command, selector: 'WAS_GOOD' });
+        writeFileSync(counter, '');
+        writeFileSync(output, 'NOW_BROKEN\n');
+        commitRefreshDrift(env, 'shared-failure');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 1, 'E3: one shared failing key is attempted once');
+        for (const ref of ['INT-FAIL-A', 'INT-FAIL-B']) {
+          const row = findEvidence(env, ref);
+          assert.equal(row?.mechanical, false, `E3: ${ref} is demoted after the shared failure`);
+          assert.equal(row?.receipt, undefined, `E3: ${ref} receives no fabricated pass receipt`);
+        }
+      } finally { cleanup(env); }
+    }
+  } finally {
+    rmSync(externalRoot, { recursive: true, force: true });
+  }
+}
+
 // ── Runner ──
 (async () => {
   await partA();
@@ -522,6 +686,7 @@ async function partD(): Promise<string> {
   await partB();
   await partC();
   const codexNote = await partD();
+  await partE();
   if (codexNote) console.log(codexNote);
   console.log('verification-run-and-guard-smoke: PASS');
 })().catch((e) => {

@@ -29,7 +29,7 @@ import type { BoundedProviderExecutor, ProviderExecResult } from '../providers/t
 
 type JsonObject = Record<string, any>;
 
-const root = '/tmp/lattice-repair-retry-smoke';
+const root = '/tmp/proof-or-stop-repair-retry-smoke';
 
 // --- shared helpers ----------------------------------------------------------
 

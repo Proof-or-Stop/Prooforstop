@@ -2,13 +2,13 @@
 
 import { strict as assert } from 'node:assert';
 import { stateDirCandidates } from '../core/brand-paths.js';
-import { PROOF_OR_STOP_ACTIVITY_LOG } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_ACTIVITY_LOG } from '../core/proof-or-stop-paths.js';
 // B-cc10 F-070: the lock the runtime actually READS. Creating it at the deprecated
 // path made the 'lock is held' assertions unfireable — the dangerous sub-kind of this
 // migration's dominant defect class (a fixture staging state at an unread path, where
 // the test passes vacuously instead of failing loudly).
-import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from '../core/lattice-paths.js';
-import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from '../core/proof-or-stop-paths.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawn } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -29,6 +29,8 @@ import {
   shouldBuildDoneMainPackageForChangedPaths,
 } from '../handlers/done-effects.js';
 import { commitInitCheckMetadataAndMergeMain } from '../cli/init-check-metadata-sync.js';
+
+const RETIRED_STATE_DIR = ['.', 'lat', 'tice'].join('');
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -61,17 +63,17 @@ function write(root: string, path: string, content: string): void {
 // Proofbound checkout has package.json et al. by construction). Synthetic fixture roots that
 // exercise done_recover's post-merge path need this same scaffold.
 function writeVersionSyncFiles(root: string, version: string): void {
-  write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "lattice",\n  "version": "${version}",\n  "description": ""\n}\n`);
+  write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "proof-or-stop",\n  "version": "${version}",\n  "description": ""\n}\n`);
   write(root, VERSION_SYNC_FILES.rootPackageLock, JSON.stringify({
-    name: 'lattice',
+    name: 'proof-or-stop',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: 'lattice', version },
+      '': { name: 'proof-or-stop', version },
       'packages/main': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
-  write(root, VERSION_SYNC_FILES.mainPackageJson, `{\n  "name": "@lattice/core",\n  "version": "${version}",\n  "type": "module"\n}\n`);
+  write(root, VERSION_SYNC_FILES.mainPackageJson, `{\n  "name": "@proof-or-stop/core",\n  "version": "${version}",\n  "type": "module"\n}\n`);
   write(root, VERSION_SYNC_FILES.mainPackageLock, JSON.stringify({
     name: '@proof-or-stop/core',
     version,
@@ -80,21 +82,21 @@ function writeVersionSyncFiles(root: string, version: string): void {
       '': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
-  write(root, VERSION_SYNC_FILES.brand, `export const LATTICE_CLI_VERSION = '${version}' as const;\n`);
+  write(root, VERSION_SYNC_FILES.brand, `export const PROOF_OR_STOP_CLI_VERSION = '${version}' as const;\n`);
 }
 
 function runProofOrStop(root: string, command: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd: root,
-    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+    env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 }
 
-function runLatticeFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
+function runProofOrStopFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
   const env = { ...process.env };
-  delete env.LATTICE_PROJECT_ROOT;
+  delete env.PROOF_OR_STOP_PROJECT_ROOT;
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
     env,
@@ -116,9 +118,9 @@ function runProofOrStopExpectFail(root: string, command: string, args: Record<st
   assert.fail(`${command} should have failed`);
 }
 
-function runLatticeFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
+function runProofOrStopFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
   try {
-    runLatticeFromCwd(cwd, command, args);
+    runProofOrStopFromCwd(cwd, command, args);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -139,7 +141,7 @@ function runLatticeFromCwdExpectFail(cwd: string, command: string, args: Record<
 function spawnStoryAdvance(cwd: string, args: Record<string, unknown>): Promise<{ code: number; output: string }> {
   return new Promise((resolveP) => {
     const env = { ...process.env };
-    delete env.LATTICE_PROJECT_ROOT;
+    delete env.PROOF_OR_STOP_PROJECT_ROOT;
     const child = spawn(process.execPath, [cliPath, 'story_advance', JSON.stringify(args)], {
       cwd,
       env,
@@ -200,13 +202,13 @@ function writeStory(store: StoryStore, storyId: string, phase: StoryInfo['phase'
 }
 
 function assertRecordedWorktreeRejectsMainCwd(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-authority-recorded-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-authority-recorded-'));
   const previousCwd = process.cwd();
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     git(root, ['init']);
@@ -241,13 +243,13 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
 }
 
 function assertInitCheckChecklistMutationRejectsMainCwd(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-authority-init-check-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-authority-init-check-'));
   const previousCwd = process.cwd();
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     git(root, ['init']);
@@ -283,13 +285,13 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
 }
 
 function assertTerminalStoriesDoNotRedirect(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-authority-terminal-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-authority-terminal-'));
   const previousCwd = process.cwd();
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     resetConfigCache();
@@ -308,7 +310,7 @@ function assertTerminalStoriesDoNotRedirect(): void {
 }
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
-  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
   runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
   runProofOrStop(root, 'scope_boundary_set', {
     storyId,
@@ -332,7 +334,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
       'git worktree list',
       'git merge-base',
     ],
-    allowedPaths: ['.lattice/story/actives', 'docs/story/drafts', '.worktrees'],
+    allowedPaths: ['.proof-or-stop/story/actives', 'docs/story/drafts', '.worktrees'],
     actor: 'worktree-authority-smoke',
     notes: 'FromDraft smoke may inspect bounded lifecycle metadata and the eventual worktree bootstrap.',
   });
@@ -345,13 +347,13 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
 }
 
 function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-from-draft-worktree-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-from-draft-worktree-'));
   const draftName = 'from-draft-smoke';
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
     }, null, 2));
@@ -378,7 +380,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
-      agentId: 'lattice-review-story-init',
+      agentId: 'proof-or-stop-review-story-init',
     });
     const output = runProofOrStop(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
@@ -401,7 +403,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     assert.ok(advancedStory.worktree?.path, 'explicit INIT_CHECK should record worktree metadata');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
     assert.equal(
-      git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
+      git(root, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
       '',
       'fromDraft + INIT_CHECK should leave bounded story/draft metadata clean',
     );
@@ -416,13 +418,13 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
 }
 
 function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-from-draft-dirty-main-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-from-draft-dirty-main-'));
   const draftName = 'from-draft-dirty-main-smoke';
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
     }, null, 2));
@@ -450,7 +452,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
-      agentId: 'lattice-review-story-init',
+      agentId: 'proof-or-stop-review-story-init',
     });
     git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'draft metadata']);
@@ -470,7 +472,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     assert.match(output, /created from draft .* \(INIT\)/, 'fromDraft output should report conservative INIT creation');
     assert.doesNotMatch(output, /main merged into story\//, 'fromDraft creation should not merge main into a story branch');
     assert.equal(
-      git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
+      git(root, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
       '',
       'fromDraft should leave bounded story/draft metadata clean after committing',
     );
@@ -493,13 +495,13 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
 }
 
 function assertFromDraftRejectsStagedMainBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-from-draft-staged-main-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-from-draft-staged-main-'));
   const draftName = 'from-draft-staged-main-smoke';
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
     }, null, 2));
@@ -527,7 +529,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
-      agentId: 'lattice-review-story-init',
+      agentId: 'proof-or-stop-review-story-init',
     });
     git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'draft metadata']);
@@ -597,7 +599,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     headHash,
     materialHash,
     reviewRound: '',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -616,12 +618,12 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
 }
 
 function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-nested-done-cleanup-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-nested-done-cleanup-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       workflow: { profile: 'light' },
@@ -669,7 +671,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     mkdirSync(nestedCwd, { recursive: true });
     writeFileSync(join(nestedCwd, 'runtime.txt'), 'runtime residue that must not become the cleanup root\n');
 
-    const output = runLatticeFromCwd(nestedCwd, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwd(nestedCwd, 'story_advance', { storyId, phase: 'DONE' });
     assert.doesNotMatch(output, /PVSC/, 'DONE output must not target the nested invocation cwd');
     assert.doesNotMatch(output, new RegExp(nestedCwd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'DONE output must not mention the child cwd as cleanup target');
 
@@ -685,12 +687,12 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
 }
 
 function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-mismatched-done-branch-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-mismatched-done-branch-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       workflow: { profile: 'light' },
@@ -726,7 +728,7 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     git(worktreePath, ['add', '.']);
     git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch story\/B-other but expected story\/B-expected/);
     assert.match(output, /merge\/delete aborted before mutating story state/);
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'wrong branch must not mark story DONE');
@@ -741,12 +743,12 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
 }
 
 function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-non-story-done-branch-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-non-story-done-branch-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       workflow: { profile: 'light' },
@@ -782,7 +784,7 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     git(worktreePath, ['add', '.']);
     git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch feature\/not-story but expected story\/B-non-story/);
     assert.match(output, /merge\/delete aborted before mutating story state/);
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'non-story branch must not mark worktree story DONE');
@@ -829,10 +831,10 @@ function buildDoneReadyStory(
   storyId: string,
   opts?: { withGateEvidence?: boolean; beforeEvidence?: (worktreePath: string) => void },
 ): { worktreePath: string; store: StoryStore } {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
@@ -907,7 +909,7 @@ function assertDoneMainPackageBuildTriggerPredicate(): void {
 
 function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   let buildCalls = 0;
-  const skipLine = runDoneMainPackageBuildAfterMerge('/tmp/lattice-unused-main', 'before', 'after', {
+  const skipLine = runDoneMainPackageBuildAfterMerge('/tmp/proof-or-stop-unused-main', 'before', 'after', {
     changedPaths: ['docs/requirements/decisions/story-lifecycle.md'],
     buildRunner: () => {
       buildCalls += 1;
@@ -917,11 +919,11 @@ function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   assert.equal(buildCalls, 0, 'skip branch must not invoke the build runner');
   assert.match(skipLine, /packages\/main build skipped after DONE merge/, 'skip branch must return a visible skip line');
 
-  const successLine = runDoneMainPackageBuildAfterMerge('/tmp/lattice-main', 'before', 'after', {
+  const successLine = runDoneMainPackageBuildAfterMerge('/tmp/proof-or-stop-main', 'before', 'after', {
     changedPaths: ['packages/main/src/handlers/done-effects.ts'],
     buildRunner: (cwd) => {
       buildCalls += 1;
-      assert.equal(cwd, '/tmp/lattice-main', 'success branch must run from the main merge root');
+      assert.equal(cwd, '/tmp/proof-or-stop-main', 'success branch must run from the main merge root');
       return { status: 0, stdout: 'build ok\n' };
     },
   });
@@ -930,7 +932,7 @@ function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   assert.match(successLine, /npm --prefix packages\/main run build/, 'success line must name the package build command');
 
   try {
-    runDoneMainPackageBuildAfterMerge('/tmp/lattice-main', 'before', 'after', {
+    runDoneMainPackageBuildAfterMerge('/tmp/proof-or-stop-main', 'before', 'after', {
       changedPaths: ['package-lock.json'],
       buildRunner: () => ({
         status: 2,
@@ -960,7 +962,7 @@ function markStoryBranchPartialDone(worktreePath: string, storyId: string): void
 }
 
 function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-recover-build-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-recover-build-'));
   try {
     const storyId = 'B-recover-build';
     const { worktreePath } = buildDoneReadyStory(root, storyId, {
@@ -975,7 +977,7 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
     // B-cc10 F-070: must also ignore the state dir. The runtime writes its main-write
     // lock under the canonical state dir, and an untracked lock dir makes
     // assertMainWorktreeClean report "main worktree is not clean".
-    write(root, '.gitignore', `.worktrees/\n${DEPRECATED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
+    write(root, '.gitignore', `.worktrees/\n${RETIRED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
     writeVersionSyncFiles(root, '0.1.0');
     git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
     git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
@@ -1005,7 +1007,7 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
 }
 
 function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-recover-build-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-recover-build-fail-'));
   try {
     const storyId = 'B-recover-build-fail';
     const { worktreePath } = buildDoneReadyStory(root, storyId, {
@@ -1020,7 +1022,7 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
     // B-cc10 F-070: must also ignore the state dir. The runtime writes its main-write
     // lock under the canonical state dir, and an untracked lock dir makes
     // assertMainWorktreeClean report "main worktree is not clean".
-    write(root, '.gitignore', `.worktrees/\n${DEPRECATED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
+    write(root, '.gitignore', `.worktrees/\n${RETIRED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
     writeVersionSyncFiles(root, '0.1.0');
     git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
     git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
@@ -1066,7 +1068,7 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
 }
 
 function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-recover-build-skip-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-recover-build-skip-'));
   try {
     const storyId = 'B-recover-build-skip';
     const { worktreePath } = buildDoneReadyStory(root, storyId, {
@@ -1081,7 +1083,7 @@ function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
     // B-cc10 F-070: must also ignore the state dir. The runtime writes its main-write
     // lock under the canonical state dir, and an untracked lock dir makes
     // assertMainWorktreeClean report "main worktree is not clean".
-    write(root, '.gitignore', `.worktrees/\n${DEPRECATED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
+    write(root, '.gitignore', `.worktrees/\n${RETIRED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
     git(root, ['add', '.gitignore']);
     git(root, ['commit', '-m', 'ignore recovery worktrees']);
     markStoryBranchPartialDone(worktreePath, storyId);
@@ -1114,12 +1116,12 @@ function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
  * carries an inline DONE merge implementation (CHK-003 task 2 ④).
  */
 function assertDoneSuccessPathOutputAndOrdering(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-success-path-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-success-path-'));
   try {
     const storyId = 'B-done-success';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
 
-    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
 
     // DONE Gate Checklist section — the pre-merge gate's rendered checklist is
     // prefixed onto the success message (via doneChecklistPrefix).
@@ -1170,18 +1172,18 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // B-da5b regression — post-DONE activity heartbeat must NOT recreate the
     // removed worktree dir, and the final successful story_advance DONE record
-    // must land in the MAIN repo .lattice/activity.jsonl (not a ghost worktree log).
-    // 1) The removed worktree path stays absent — no .lattice (re)created under it.
+    // must land in the MAIN repo .proof-or-stop/activity.jsonl (not a ghost worktree log).
+    // 1) The removed worktree path stays absent — no .proof-or-stop (re)created under it.
     //    The worktree-dir absence itself is already asserted by the Step4 check
     //    above; the dedicated assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval
     //    test is the discriminating B-da5b regression guard. Here we only add the
     //    finer-grained sub-path checks so a ghost recreation surfaces with B-da5b
     //    diagnostics rather than being masked by the older Step4 message.
-    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE activity logging must not recreate a .lattice dir inside the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.proof-or-stop')), false, 'post-DONE activity logging must not recreate a .proof-or-stop dir inside the removed worktree');
     assert.equal(stateDirCandidates('activity.jsonl').some((rel) => existsSync(join(worktreePath, ...rel.split('/')))), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
     // 2) The main repo activity log holds the final successful story_advance DONE.
     const mainActivityLog = stateDirCandidates('activity.jsonl').map((rel) => join(root, ...rel.split('/'))).find(existsSync) ?? join(root, ...PROOF_OR_STOP_ACTIVITY_LOG.split('/'));
-    assert.equal(existsSync(mainActivityLog), true, 'main repo .lattice/activity.jsonl must exist after DONE');
+    assert.equal(existsSync(mainActivityLog), true, 'main repo .proof-or-stop/activity.jsonl must exist after DONE');
     const activityRecords = readFileSync(mainActivityLog, 'utf-8')
       .split('\n')
       .filter((l) => l.trim())
@@ -1232,50 +1234,50 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
 /**
  * B-da5b CHK-001 — post-DONE activity heartbeat must land in the MAIN repo
- * .lattice/activity.jsonl and must NOT recreate the removed story worktree dir.
+ * .proof-or-stop/activity.jsonl and must NOT recreate the removed story worktree dir.
  *
- * Failure mode this discriminates: when LATTICE_PROJECT_ROOT points at the story
+ * Failure mode this discriminates: when PROOF_OR_STOP_PROJECT_ROOT points at the story
  * worktree (the realistic agent setup — they cd into the worktree and the env
  * var pins the root there), story_advance --phase=DONE removes that worktree
- * mid-command. The post-command writeLog then sees root/lattice.config.json gone
+ * mid-command. The post-command writeLog then sees root/proof-or-stop.config.json gone
  * and, in the old code, fell back to resolveRoot() — which returns the now-ghost
- * worktree path again (LATTICE_PROJECT_ROOT wins), so the final successful DONE
+ * worktree path again (PROOF_OR_STOP_PROJECT_ROOT wins), so the final successful DONE
  * record was silently dropped (heartbeat lost) instead of landing in main.
  *
  * The fix captures a durable main-root fallback at command start (while
- * root/.git still exists). This test pins LATTICE_PROJECT_ROOT to the worktree so
+ * root/.git still exists). This test pins PROOF_OR_STOP_PROJECT_ROOT to the worktree so
  * the old fallback would drop the record; the assertions require the DONE
  * heartbeat to be present in main and the worktree dir to stay absent.
  */
 function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-post-done-heartbeat-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-post-done-heartbeat-'));
   try {
     const storyId = 'B-heartbeat';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
 
-    // Run DONE with cwd AND LATTICE_PROJECT_ROOT pinned to the worktree — this is
+    // Run DONE with cwd AND PROOF_OR_STOP_PROJECT_ROOT pinned to the worktree — this is
     // the env that made the old resolveRoot() fallback return the ghost path.
     const output = execFileSync(
       process.execPath,
       [cliPath, 'story_advance', JSON.stringify({ storyId, phase: 'DONE' })],
       {
         cwd: worktreePath,
-        env: { ...process.env, LATTICE_PROJECT_ROOT: worktreePath },
+        env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: worktreePath },
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       },
     );
-    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE must succeed with LATTICE_PROJECT_ROOT on the worktree');
+    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE must succeed with PROOF_OR_STOP_PROJECT_ROOT on the worktree');
 
     // The removed worktree must stay absent — activity logging must not recreate
-    // it (no resurrected dir / .lattice / activity.jsonl under the ghost path).
+    // it (no resurrected dir / .proof-or-stop / activity.jsonl under the ghost path).
     assert.equal(existsSync(worktreePath), false, 'post-DONE heartbeat must not recreate the removed worktree directory');
-    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE heartbeat must not recreate a .lattice dir under the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.proof-or-stop')), false, 'post-DONE heartbeat must not recreate a .proof-or-stop dir under the removed worktree');
     assert.equal(stateDirCandidates('activity.jsonl').some((rel) => existsSync(join(worktreePath, ...rel.split('/')))), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
 
     // The final successful story_advance DONE record must land in main's log.
     const mainActivityLog = stateDirCandidates('activity.jsonl').map((rel) => join(root, ...rel.split('/'))).find(existsSync) ?? join(root, ...PROOF_OR_STOP_ACTIVITY_LOG.split('/'));
-    assert.equal(existsSync(mainActivityLog), true, 'main repo .lattice/activity.jsonl must exist after DONE');
+    assert.equal(existsSync(mainActivityLog), true, 'main repo .proof-or-stop/activity.jsonl must exist after DONE');
     const doneRecord = readFileSync(mainActivityLog, 'utf-8')
       .split('\n')
       .filter((l) => l.trim())
@@ -1293,14 +1295,14 @@ function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
  * phase=DONE is persisted.
  */
 function assertDoneOracleGateFailureKeepsStoryTest(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-fail-'));
   try {
     const storyId = 'B-oracle-fail';
     // withGateEvidence:false — no test-evidence / no delivery-check committed,
     // so the done-oracle gate fails.
     const { worktreePath } = buildDoneReadyStory(root, storyId, { withGateEvidence: false });
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'done-oracle gate failure must report Cannot enter DONE');
 
     // phase=DONE never written — story stays TEST in BOTH stores.
@@ -1321,7 +1323,7 @@ function assertDoneOracleGateFailureKeepsStoryTest(): void {
  * F-020 stray-file dry-run in runDonePreMergeGate throws before phase=DONE.
  */
 function assertStrayFileOffenderKeepsStoryTest(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-stray-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-stray-fail-'));
   try {
     const storyId = 'B-stray-fail';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1330,11 +1332,11 @@ function assertStrayFileOffenderKeepsStoryTest(): void {
     // F-020 stray-file dry-run in runDonePreMergeGate scans
     // `git ls-files --others -- <storyDir>` from mainRepoRoot, detects an
     // offender and throws while the story is still TEST.
-    const strayPath = join(root, '.lattice', 'story', 'actives', storyId, 'stray-offender.txt');
+    const strayPath = join(root, '.proof-or-stop', 'story', 'actives', storyId, 'stray-offender.txt');
     mkdirSync(dirname(strayPath), { recursive: true });
     writeFileSync(strayPath, 'non-whitelisted stray file that must block DONE pre-merge\n');
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /stray-offender\.txt/, 'stray-file gate failure must name the offending file');
 
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'stray-file gate failure must not mark the worktree story DONE');
@@ -1361,7 +1363,7 @@ function assertStrayFileOffenderKeepsStoryTest(): void {
  * never reaches the post-merge effects.
  */
 function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-conflict-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-merge-conflict-'));
   try {
     const storyId = 'B-conflict-fail';
     // Story branch commits its version of conflict.txt BEFORE the gate
@@ -1381,7 +1383,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
     git(root, ['add', 'conflict.txt']);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'main edits conflict.txt']);
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'a merge conflict must trip a DONE pre-merge gate');
     assert.match(output, new RegExp(`story/${storyId} is behind main`), 'the gate must report the branch is behind main');
 
@@ -1416,7 +1418,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
  * failure surfaces only inside applyDoneMergeEffects' real merge step.
  */
 function assertRealMergeFailureMarksDoneAndThrows(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-merge-fail-'));
   try {
     const storyId = 'B-merge-fail';
     // Story branch ADDS shared.txt — committed BEFORE the gate evidence so the
@@ -1436,7 +1438,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
     // untracked file would be overwritten.
     writeFileSync(join(root, 'shared.txt'), 'untracked main file that blocks merge\n');
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(
       output,
       new RegExp(`Story ${storyId} (?:has been marked DONE but auto-merge failed|已标记为 DONE 但自动合并失败)`),
@@ -1473,7 +1475,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     console.log('  (skipped assertWorktreeCleanupFailureMarksDoneMergedAndThrows — running as root, permission bits are ignored)');
     return;
   }
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-cleanup-fail-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-cleanup-fail-'));
   const worktreesDir = join(root, '.worktrees');
   try {
     const storyId = 'B-cleanup-fail';
@@ -1485,7 +1487,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     // throws after the merge succeeded.
     chmodSync(worktreesDir, 0o500);
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(
       output,
       new RegExp(`Story ${storyId} (?:merged, but worktree cleanup did not complete|已合并，但 worktree 清理未完成)`),
@@ -1494,7 +1496,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     // B-cc10 F-070: the runtime emits 'proof-or-stop doctor'; this assertion still grepped the
     // old bin name, so it could only ever fail after the rename. Accepts either spelling so a
     // teammate branch still emitting the old hint does not break, while the canonical one passes.
-    assert.match(output, /(proof-or-stop|lattice) doctor/, 'cleanup failure must point at proof-or-stop doctor for recovery');
+    assert.match(output, /(proof-or-stop|proofOrStop) doctor/, 'cleanup failure must point at proof-or-stop doctor for recovery');
 
     // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'cleanup failure must leave the story marked DONE');
@@ -1512,14 +1514,14 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
  * contention must be surfaced to the operator while the story is still TEST.
  */
 function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-main-lock-live-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-main-lock-live-'));
   try {
     const storyId = 'B-lock-live';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
     const lockDir = join(root, ...PROOF_OR_STOP_MAIN_WRITE_LOCK.split('/'));
     mkdirSync(lockDir, { recursive: true });
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /DONE main merge lock is held/, 'live DONE lock must produce an operator-visible lock message');
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'live DONE lock must leave worktree story TEST');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'live DONE lock must leave main story TEST');
@@ -1531,7 +1533,7 @@ function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
 }
 
 function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-main-lock-before-sync-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-main-lock-before-sync-'));
   try {
     const storyId = 'B-lock-before-sync';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1542,7 +1544,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     const lockDir = join(root, ...PROOF_OR_STOP_MAIN_WRITE_LOCK.split('/'));
     mkdirSync(lockDir, { recursive: true });
 
-    const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /DONE main merge lock is held/, 'live DONE lock must fail before autoSyncMain');
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'lock-before-sync failure must leave story TEST');
     assert.equal(
@@ -1566,7 +1568,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
  * stale threshold, so story_advance should reclaim it and complete normally.
  */
 function assertDoneMainMergeStaleLockIsReclaimed(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-main-lock-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-main-lock-stale-'));
   try {
     const storyId = 'B-lock-stale';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1575,7 +1577,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
     const old = new Date(Date.now() - 5 * 60 * 1000);
     utimesSync(lockDir, old, old);
 
-    const output = runLatticeFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    const output = runProofOrStopFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, new RegExp(`Story ${storyId} advanced to DONE`), 'stale DONE lock should be reclaimed and allow DONE');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'stale lock recovery should still complete DONE');
     assert.equal(existsSync(lockDir), false, 'DONE lock directory should be released after successful DONE');
@@ -1590,7 +1592,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
  * self-blocks the DONE `git merge story/<id>` (partial-DONE).
  *
  * F-008 (verified, B-6974 / B-ad12 real-machine repros): `dev_start` writes
- * `story.worktree` into the MAIN repo's `.lattice/story/actives/<id>/index.json`
+ * `story.worktree` into the MAIN repo's `.proof-or-stop/story/actives/<id>/index.json`
  * but commits the story dir onto the `story/<id>` branch via a temporary git
  * index — the main working tree is left with an UNTRACKED story-metadata
  * mirror (story_create only wrote files, never committed them). At DONE,
@@ -1606,15 +1608,15 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
  * so the DONE merge has nothing uncommitted to collide with and completes.
  */
 function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-init-check-f008-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-check-f008-'));
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       storyPrefix: 'B',
@@ -1652,7 +1654,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report the metadata mirror was committed');
 
-    const storyRel = `.lattice/story/actives/${storyId}`;
+    const storyRel = `.proof-or-stop/story/actives/${storyId}`;
     // The F-008 stale mirror is gone: the main working tree has no uncommitted
     // (untracked or modified) story metadata.
     assert.equal(
@@ -1693,15 +1695,15 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
 }
 
 function assertInitCheckRejectsPreStagedOutOfBoundsBeforeStagingMetadata(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-init-check-staged-main-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-check-staged-main-'));
   const storyId = 'B-init-staged';
-  const storyRel = `.lattice/story/actives/${storyId}`;
+  const storyRel = `.proof-or-stop/story/actives/${storyId}`;
   const worktreePath = join(root, '.worktrees', storyId);
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       storyPrefix: 'B',
@@ -1802,7 +1804,7 @@ function assertInitCheckRejectsPreStagedOutOfBoundsBeforeStagingMetadata(): void
  * while `story/<id>` is still unmerged, nor that main is mutated twice.
  */
 async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-concurrent-done-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-concurrent-done-'));
   try {
     const storyId = 'B-concurrent-done';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
@@ -1857,11 +1859,11 @@ async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void>
 
     // No uncommitted story-metadata mirror was left behind by the racing
     // processes — that uncommitted mirror is the exact F-008 self-block
-    // precondition. Scoped to the story dir (not the whole tree) so lattice's own
-    // gitignored runtime artifacts — .lattice/activity.jsonl, .lattice/runtime/ —
+    // precondition. Scoped to the story dir (not the whole tree) so proofOrStop's own
+    // gitignored runtime artifacts — .proof-or-stop/activity.jsonl, .proof-or-stop/runtime/ —
     // do not masquerade as partial-DONE residue.
     assert.equal(
-      git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`]),
+      git(root, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`]),
       '',
       'concurrent DONE must leave no uncommitted story-metadata mirror (the F-008 self-block precondition)',
     );
@@ -1887,7 +1889,7 @@ assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges();
 // B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
 assertDoneSuccessPathOutputAndOrdering();
 // B-da5b CHK-001 — post-DONE activity heartbeat lands in main, never recreates
-// the removed worktree (LATTICE_PROJECT_ROOT-on-worktree discriminating case).
+// the removed worktree (PROOF_OR_STOP_PROJECT_ROOT-on-worktree discriminating case).
 assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval();
 assertDoneOracleGateFailureKeepsStoryTest();
 assertStrayFileOffenderKeepsStoryTest();

@@ -1,0 +1,100 @@
+{
+  "principles": [
+    "A check must be bound to the property it guarantees, not to a fixed enumeration that drifts away from it",
+    "Fail closed: unverifiable data must be refused, never silently accepted",
+    "Do not deliver confidence beyond the evidence; a security fix that overstates what it proves is worse than none",
+    "Prefer removing a weakness over preserving a capability nobody exercises"
+  ],
+  "drivers": [
+    "The gate decides on agentResults and issues; the signature covers neither, so a hand-edited file is accepted with zero calls",
+    "637 existing files carry a _hash computed under the current domain; changing the domain invalidates all of them",
+    "Only 1 of those 637 is operationally gated (guard early-returns for non-INIT phases); 636 are audit-replay only",
+    "product-reviewer judged the 636 audit breaks near-zero cost in user terms: the files are inert and nobody replays them",
+    "~195 of 637 files carry an actor absent from AGENT_DISPATCH_REGISTRY, so no migration can re-sign the corpus through the handler"
+  ],
+  "options": [
+    {
+      "name": "A-extend-domain",
+      "pros": [
+        "One signature domain, no dual-path complexity and no version-downgrade surface",
+        "Directly binds the fields the gate actually decides on, so the check matches the property",
+        "The invalidated 636 are inert audit records whose replay nobody performs, so the headline cost is largely nominal",
+        "Verifying _hash on read closes the separate problem of unwritten data entering a re-signed file"
+      ],
+      "cons": [
+        "Invalidates the _hash of all 637 existing files at once",
+        "The one INIT-phase story must be re-reviewed or re-signed",
+        "Requires deciding what an absent agentResults field hashes to for five legacy files"
+      ]
+    },
+    {
+      "name": "B-side-attestation",
+      "pros": [
+        "Leaves every existing _hash valid; zero migration cost",
+        "Could carry richer attestation metadata than a hash allows"
+      ],
+      "cons": [
+        "Adds a second artifact that itself needs a signature, a writer path, and a gate consumer - strictly more surface than fixing the first one",
+        "Two records that can disagree, with no rule for which wins",
+        "Does not remove the original weakness; it layers over it, so the unsigned field is still unsigned"
+      ]
+    },
+    {
+      "name": "C-verify-only",
+      "pros": [
+        "Smallest possible change; touches only the read path",
+        "No corpus invalidation at all"
+      ],
+      "cons": [
+        "Does not fix the defect. The hash never covered agentResults, so a hand-edited file still recomputes to a MATCHING hash and verification passes it. This option is included because it is the intuitive minimal fix and is provably insufficient"
+      ]
+    },
+    {
+      "name": "D-version-gated",
+      "pros": [
+        "No audit-replay break: old files keep validating under the old domain, new files use the new one",
+        "Avoids re-signing anything, sidestepping the registry-invalid-actor problem entirely"
+      ],
+      "cons": [
+        "Creates a version-downgrade path: an editor sets schemaVersion back to the old value AND edits agentResults, and validation under the old domain passes. The fix would ship with a bypass built in",
+        "Permanent dual-domain complexity in the signing and verifying code, forever",
+        "Buys protection for audit replay that, by the product reviewer's judgement, nobody performs - paying a real new weakness for a benefit with no demonstrated consumer"
+      ]
+    }
+  ],
+  "chosen": "A-extend-domain",
+  "rationale": "Option D-version-gated is the option worth arguing against, because it looks strictly better: it preserves every existing signature and avoids the migration problem entirely. It is rejected because what it protects has no demonstrated consumer while what it costs is real. The 636 invalidated files belong to DONE and DISCARDED stories that the gate never reads (canEnterInitCheckGuard early-returns for non-INIT phases), and the product reviewer's judgement was that no user replays those audit chains. Against that, version-gating introduces a downgrade path: since the schemaVersion selects the validation domain, an editor who sets it back to the old value can edit agentResults under a domain that never covered it. Shipping an integrity fix with a documented bypass to preserve replay of records nobody replays is a bad trade. Option C-verify-only is included because it is the intuitive minimal fix and is provably insufficient: since the hash never covered the field, verifying it changes nothing for the tampered case - recording that explicitly matters because it is the fix a reader would otherwise reach for. Option B-side-attestation adds an artifact that needs its own signature and gate consumer, which is more surface than repairing the one that already exists, and leaves the unsigned field unsigned. Option A-extend-domain accepts a nominal cost to remove the weakness outright.",
+  "preMortem": [
+    {
+      "scenario": "CHK-001's execution refutes the premise: the tampered file does NOT advance, because some check outside the four we read already catches it",
+      "trigger": "CHK-001 runs the one-step tamper and the guard refuses",
+      "consequence": "CHK-002..006 would be built on a defect that does not exist, shipping churn and corpus invalidation for nothing",
+      "mitigation": "CHK-001 is explicitly permitted to refute and force a re-scope; every later item carries a CONDITIONAL ON CHK-001 clause. On refutation, stop and re-scope rather than proceeding"
+    },
+    {
+      "scenario": "The signature-domain change breaks the four smoke tests that assert single-caller accumulation, and they get 'fixed' by weakening the assertion",
+      "trigger": "init-check-required-agents-smoke and friends fail after the domain change",
+      "consequence": "The by-design behaviour EXP-001 established would be silently removed while everyone believes only a signature changed",
+      "mitigation": "Those four tests assert behaviour that must NOT change. If they fail, the change is wrong, not the tests. Any edit to them must be justified as a signature-mechanics update, never as an expectation change"
+    },
+    {
+      "scenario": "The one operationally-gated INIT story cannot be recovered after invalidation because its recorded actors are no longer registry-valid",
+      "trigger": "The single INIT-phase file is re-reviewed and init_check_set throws agent_dispatch_actor_unknown",
+      "consequence": "A live story becomes permanently stuck at INIT with no legal writer path",
+      "mitigation": "Identify that specific story BEFORE landing the change and confirm its actors are current; init_check_repair exists as an audited fallback if they are not"
+    },
+    {
+      "scenario": "The tamper message's parenthetical is not updated with the domain, so it enumerates a stale field list",
+      "trigger": "Domain grows to include agentResults/issues but core/machine.ts:1144 still says '(background/title/description/checklist were modified)'",
+      "consequence": "The error tells the user to look at fields that were not modified, sending them to debug the wrong thing - and reproduces this repo's recurring defect of an enumeration standing in for a property",
+      "mitigation": "Treat the message text as part of the domain change, covered by the same checklist item; prefer deriving the field list from the domain rather than restating it"
+    },
+    {
+      "scenario": "Verifying _hash on read makes the audit-only majority of the corpus unreadable rather than merely unverified",
+      "trigger": "readInitCheck is changed to throw on mismatch instead of refusing only the carry-forward",
+      "consequence": "Tools that display or audit historical stories break for 636 files, converting a nominal cost into a real one",
+      "mitigation": "Decide the read-vs-carry-forward distinction explicitly in CHK-003; refusing to TRUST is not the same as refusing to READ"
+    }
+  ],
+  "timestamp": "2026-07-27T22:23:35.740Z"
+}

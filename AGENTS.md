@@ -1,300 +1,274 @@
-<!-- lattice:start -->
 # AGENTS.md
 
-> Current lifecycle override: this branch uses the second Proof-or-Stop flow
-> `INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE`.
-> Older references below to `TEST_CASE`, `TEST_CASE_REVIEW`, `testIntent`,
-> fixture-only validation, or `test_auto` are legacy background. The current
-> replacement is `verificationIntent` on checklist items, `verificationEvidence`
-> recorded during DEV/REVIEW/TEST, coverage reviewer lane in REVIEW, and
-> routine `proof-or-stop validate` in TEST. When a project explicitly configures
-> `doneRequiredCommands` / a DONE-required policy, DONE also requires a fresh
-> `proof-or-stop done_required_validate --storyId=<id>` evidence artifact.
+<!-- proof-or-stop:start -->
+## Proof-or-Stop
 
-## 行为准则
+- `.proof-or-stop/Proof-or-Stop.md` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
+- At the start of a new session, or when resuming interrupted work, run `proof-or-stop session_brief`.
+- Before acting, run `proof-or-stop aux_doc_list` to inspect relevant docs.
+- Use the global `proof-or-stop` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local `main` and cleaning the worktree. Remote publish is default-denied; a human must run `proof-or-stop release_approve_push --confirm` for a short-lived one-shot approval before any `git push origin main`.
+- Codex adapter verification uses the global CLI: `proof-or-stop codex verify`. For diagnostics, run `proof-or-stop codex doctor`.
+- Run `proof-or-stop check` to check Proof-or-Stop managed asset/template drift; after review, use `proof-or-stop check --apply` to sync safe items.
 
-0. **每次新 session 或恢复中断工作时，第一个命令必须是 `proof-or-stop session_brief`**。它会输出 active story / phase / checklist / bug / 最近 activity / 推断的下一步，避免凭记忆瞎猜
-1. 任何需求先走完整 Story 流程，除非用户明确说"立刻改"或"快速修改"
-2. 行动前先 `proof-or-stop session_brief`（项目状态）+ `proof-or-stop aux_doc_list`（相关文档），再酌情 Read 关键文件。注意：全局安装的 Proof-or-Stop CLI **只有核心命令**（story / checklist / fixture / test / session_brief / summary / doctor），`aux_*` 系列（scan/detail/sync/trace/diagnose/doc_list/coverage/locate）需要 bootstrap 脚本才会加载——日常全局 `proof-or-stop` 命令下 `aux_scan` 会报"未知命令"。用 `aux_doc_list` 是已 bootstrap 的 CLI 开发环境下的路径
-3. 输出要简洁，但推理要彻底
-4. 优先编辑而不是重写整个文件
-5. 不要重复阅读已经读过的文件
-6. 在宣布完成前测试你的代码
-7. 不要有奉承的开场白或结束语
-8. 保持解决方案简单直接
-9. 用户指令始终覆盖此文件
-10. **禁止直接读写 `docs/story/` 和 `tests/fixtures/` 目录下的文件**。所有 story 操作走 `proof-or-stop story_*`/`proof-or-stop checklist_*`/`proof-or-stop bug_*` 命令，所有 fixture 操作走 `proof-or-stop fixture_*` 命令。直接 Read/Edit 这些 JSON 文件会绕过流程校验
-11. **工程完成 ≠ 任务完成**。一个 story 真正完成的标志是用户能从产品视角说"好了"，不是事件链路打通 / 测试通过 / 函数返回正确这些工程指标。详见底部「用户价值验收（优先于技术链路验证）」段。开发者必须既有程序思维又有产品思维，两边都完整才叫完成。
+<!-- proof-or-stop:end -->
 
-## 项目配置（proof-or-stop.config.json）
+## Repository-specific operating guide
+
+This English guide supplements the managed global-thin block above for the
+Proof-or-Stop repository. The repository-local CLI and implementation at the
+current checkout are authoritative when this guide, generated help, and runtime
+behavior disagree. Run `node bin/proof-or-stop.js --version` and command-specific
+`--help` before relying on remembered syntax. This revision was reconciled
+against repository-local Proof-or-Stop 0.3.270.
+
+The current lifecycle is:
+
+```text
+INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE
+```
+
+`TEST_CASE` and `TEST_CASE_REVIEW` are compatibility-only phases for old data.
+New Stories use checklist `verificationIntent`, tool-owned
+`verificationEvidence`, reviewer lanes in REVIEW, and `proof-or-stop validate`
+in TEST. A configured `doneRequiredCommands` policy additionally requires fresh
+DONE-required evidence.
+
+## Working rules
+
+1. The first command in every new or resumed session must be
+   `proof-or-stop session_brief`. It reports the active Story, phase, checklist,
+   bugs, owner lease, recent activity, memory preflight, scope protection, git
+   state, and the next recommended action.
+2. Before acting, run `proof-or-stop aux_doc_list` and then read only the
+   relevant truth sources. In 0.3.270, `aux_doc_list` and the other registered
+   `aux_*` commands are available from the repository-local CLI; do not repeat
+   the obsolete claim that all auxiliary commands require a separate bootstrap.
+3. Use the complete Story lifecycle unless the user explicitly requests an
+   immediate or quick edit and the CLI classifies the request as eligible.
+4. Keep output concise, reasoning thorough, and the implementation direct.
+5. Prefer a focused edit over an unrelated rewrite. Do not re-read files whose
+   relevant contents are already known unless freshness matters.
+6. Test or otherwise verify the result before announcing completion.
+7. Do not add flattering openings or closings.
+8. User instructions override this repository guide.
+9. Never directly write or mutate Story or fixture JSON. Story state lives under
+   `.proof-or-stop/story/actives`, and all Story, checklist, bug, finding,
+   evidence, and fixture mutations must go through the CLI. Direct JSON edits
+   bypass signatures, hashes, locks, receipts, and lifecycle validation. Prefer
+   CLI reads for ordinary state inspection. Read-only access to the bounded Story
+   inputs explicitly named by a canonical reviewer prompt is permitted when that
+   reviewer contract requires it; this exception grants no mutation authority.
+10. Engineering completion is not product completion. A Story is complete only
+    when the requested user-visible result is delivered and the applicable
+    technical and lifecycle evidence is current.
+
+### Defect triage and bounded scope
+
+Classify every newly discovered defect before changing scope.
+
+- Fix it in the current Story when it is critical or high severity, concerns
+  security, data integrity, or destructive compatibility, or blocks the current
+  Story's acceptance, REVIEW, TEST, or DONE gates.
+- For a medium or low severity defect outside the direct acceptance scope that
+  does not regress the user's core result and does not make lifecycle evidence
+  misleading, record a reproducible trace, evidence, impact, recommended action,
+  and follow-up owner in a finding, gap, or backlog record. Defer it without
+  expanding the current Story merely to make every signal green.
+- Deferral must be traceable, not verbal. If later evidence raises the severity
+  or turns the defect into an acceptance or lifecycle blocker, re-escalate it
+  into the current Story immediately.
+
+This rule replaces the former unbounded instruction to repair every nearby bug
+or infrastructure issue while working on a Story. Checklist items and scope
+artifacts are enforceable boundaries, not suggestions to ignore.
+
+## Project configuration
+
+The effective configuration is `proof-or-stop.config.json`. Its principal paths
+are:
 
 ```json
 {
-  "scanRoot": "packages/main",       // 代码扫描根目录
-  "rootDir": "src",                   // 源码目录（相对 scanRoot）
-  "outDir": "packages/main/dist",     // 编译输出
-  "testsDir": "packages/main/tests",  // 测试目录
-  "fixturesDir": "packages/main/tests/fixtures",  // fixture 文件目录
-  "storyDir": "docs/story/actives",   // Story 存储目录
-  "requirementsDir": "docs/requirements",  // 真相源目录
-  "storyPrefix": "B"                  // Story ID 前缀
+  "scanRoot": "packages/main",
+  "rootDir": "src",
+  "outDir": "packages/main/dist",
+  "testsDir": "packages/main/tests",
+  "fixturesDir": "packages/main/tests/fixtures",
+  "storyDir": ".proof-or-stop/story/actives",
+  "requirementsDir": "docs/requirements"
 }
 ```
 
-注意：`sourceFile` 路径不含 `scanRoot` 前缀，如填 `game-logic.ts` 不是 `packages/main/game-logic.ts`。
+Additional policy sections in the real file, including prompt envelopes,
+candidate-spec routing, material-code exclusions, ProofStory enforcement,
+admissibility, validation commands, and DONE-required commands, are also part of
+the effective contract. Do not substitute the abbreviated example above for the
+actual file. A `sourceFile` path is relative to `scanRoot`; for example, use
+`game-logic.ts`, not `packages/main/game-logic.ts`.
 
-## 架构原则
+## Architecture
 
-**数据、逻辑、渲染三层解耦**：
-- **数据层**：纯状态定义和存储，不含业务判断
-- **逻辑层**：纯业务规则，不依赖 DOM/IO/渲染
-- **渲染层**：尽可能轻薄，只映射状态到 UI
+Keep data, logic, and rendering separated:
 
-逻辑层可通过 fixture 测试覆盖，渲染层通过浏览器 trace 验证。新建函数时先判断属于哪一层。
+- The data layer defines and stores state without business decisions.
+- The logic layer implements business rules without DOM, rendering, or IO
+  dependencies where practical.
+- The rendering layer maps state to UI and remains thin.
 
-## 流程事实双层契约
+Exercise the logic layer with focused logic or integration verification. Verify
+rendering through browser-visible evidence when the user-facing behavior depends
+on it. Classify a new function before placing it.
 
-流程事实必须同时有两层保护：prompt 负责指路和约束角色行为，CLI / handler / gate 负责硬编码判定与兜底。只改 prompt 不算完成；只要事实会影响 phase、review、test、done 或审计，就必须能在代码入口被机械验证。
+## Two-layer process-fact contract
 
-这个原则只覆盖流程事实，不覆盖普通解释性文案。流程事实包括：phase / state transition、pass / no-issue 确认、finding 的 category / severity / role / agent 归属、review run / review pass、verificationEvidence、init / scope / delivery check、REVIEW / TEST / DONE gate 产物。普通设计说明、背景叙述、示例 prose 可以由 prompt / docs 表达，但不能被 gate 当作证据。
+Every fact that can affect phase transitions, review, test, DONE, or audit needs
+two protections: prompts guide role behavior, while CLI handlers and gates enforce
+the fact mechanically. A prompt-only change does not complete a process-fact
+change.
 
-典型落点：
-- reviewer 没有 finding 时，prompt 要求调用 `review_pass_set`；handler 仍要把 pass-only `finding_add` 转成 review pass，而不是写入 finding。
-- REVIEW reviewer 在提交 finding/pass 前，prompt 要求先调用 `review_run_start` 拿到 signed `reviewRunId`；handler/gate 必须验证 `reviewRunId` 指向当前 lane 最新、签名有效、reviewRound 匹配且 hash fresh 的 reviewer run。
-- finding category 的有效集合由 CLI schema + handler runtime 共同收窄；已知 legacy category 只做兼容归一到 `missing`，不能扩成新类别。
-- gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
-- `packages/main/src/core/process-fact-registry.ts` 是流程事实 registry：它从 `COMMAND_POLICIES` + `PROCESS_FACT_LEVELS` 组装 command facts，并显式登记 reviewer lane、artifact、required semantics。新增/修改 gate evidence、review lane、signed artifact、validation/review-pass/finding 语义时，必须同时更新 registry 和 `scripts/verify-process-fact-contract.mjs`，不能只改 prompt 或文档。
-- runtime / environment facts 不混入 process registry。`packages/main/src/core/runtime-fact-registry.ts` 只登记 CLI entrypoint、global core realpath、project-local bin、Node/package version、validate source、external-reference-policy 等运行环境事实；`doctor` 通过 `Runtime scan:` 展示，`scripts/verify-runtime-fact-contract.mjs` 负责防回退。外部项目对 Orchestrate 本地 symlink/realpath 期望只能 warn/advisory，不能 hard fail。`external-reference-policy` 是 bounded docs/config policy scan，不代表联网探活；localhost / 127.0.0.1 / ::1 视为 internal example。
-- runtime artifact paths 也有独立 registry。`packages/main/src/core/runtime-artifact-registry.ts` 只登记 CLI 运行时文件/日志/缓存（activity log、legacy activity log、runtime cache、trace cache、serve metadata、debug/browser logs）及其 gitignore/materialHash/repair 语义；`currentMaterialHash`、baseline risk、`story_sync_main`、`init` 和 `doctor` 必须消费这张表，不能各自硬编码 activity log 路径。story evidence path 是流程证据，不属于 runtime artifact。
+Process facts include phase transitions, pass or no-issue credentials, finding
+category/severity/role/agent, reviewer runs, reviewer passes, verification
+evidence, scope and delivery checks, and REVIEW/TEST/DONE artifacts. Ordinary
+design prose and examples may remain documentation, but gates must not treat
+free-form text such as "checks passed" as evidence.
 
-## Story 阶段流转
+- A reviewer with no blocker calls `review_pass_set`; pass-like text submitted
+  through `finding_add` is normalized by the handler rather than stored as a
+  finding.
+- A REVIEW reviewer calls `review_run_start` before recording a pass or finding.
+  Gates verify that the `reviewRunId` belongs to the correct lane and current
+  round, has a valid signature, and is fresh for the applicable hashes.
+- A signed PASS from the current review round may remain valid when it is bound
+  to a non-latest run on that lane, provided its material freshness and scope
+  checks still pass. This deliberately avoids invalidating sound PASS evidence
+  after a concurrent or retried `review_run_start`. The latest-run rejection is
+  retained for findings, so an older open finding cannot be hidden by a newer
+  pass on the same lane. No pass overrides material or scope drift, an invalid
+  binding, or a still-open blocking finding.
+- Finding categories are narrowed by both the CLI schema and runtime. Known
+  legacy categories may normalize to `missing`; they do not create new current
+  categories.
+- Gates consume structured signatures, hashes, receipts, evidence, and check
+  artifacts, never narrative claims alone.
+- `packages/main/src/core/process-fact-registry.ts` derives command facts from
+  `COMMAND_POLICIES` and `PROCESS_FACT_LEVELS` and explicitly registers reviewer
+  lanes, artifacts, and required semantics. Any changed gate evidence, signed
+  artifact, review lane, validation, reviewer-pass, or finding behavior must also
+  update the registry and `scripts/verify-process-fact-contract.mjs`.
+- Runtime and environment facts belong in
+  `packages/main/src/core/runtime-fact-registry.ts`, with regression protection in
+  `scripts/verify-runtime-fact-contract.mjs`. External-project local symlink or
+  realpath expectations are advisory, not hard failures. The bounded external
+  reference policy scans docs/config; it is not a network probe. Loopback hosts
+  are internal examples.
+- Runtime files, logs, and caches belong in
+  `packages/main/src/core/runtime-artifact-registry.ts`. Material hashing,
+  baseline risk, sync, init, and doctor behavior must consume that registry
+  instead of hard-coding paths. Story evidence is a process artifact, not a
+  runtime artifact.
 
-```
-INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
-       (创建 worktree)  ↑ cwd 门禁：必须在 worktree 里执行 proof-or-stop 命令 ↑
-```
+## Story lifecycle
 
-> 每次 `story_advance`、`checklist_update`、`proof-or-stop validate` 返回的 `hint` 会告诉你下一步做什么，不需要记忆状态跳转规则。
+Always use the `hint` and structured blocker output returned by
+`story_advance`, `checklist_update`, review commands, and `validate`. Generated
+help can lag a handler detail; the state machine and gate output are decisive.
 
-### 各阶段职责与 Agent 分工
-
-| 阶段 | 谁做 | 做什么 |
+| Phase | Primary actor | Required work |
 |---|---|---|
-| **INIT** | 主 agent | `story_create` 后停在这，story 文件在 main 分支上 |
-| **INIT_CHECK** | CLI 自动 | `story_advance INIT_CHECK` 创建 `.worktrees/B-xxx/` worktree，提示 cd |
-| **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
-| **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
-| **REVIEW** | reviewer / coverage reviewer lane | 先 `review_run_start` 建立当前 round reviewer run，再审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
-| **TEST** | CLI / 主 agent | 跑 routine `proof-or-stop validate`，写 validation evidence / bug / stale evidence 结果 |
-| **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过；若配置了 DONE-required policy，还必须有当前 HEAD 的 `done-required-evidence.json`），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
+| INIT | Main agent and INIT reviewers | Create or import the Story, preserve the four-section background, confirm scope/execution boundaries, and complete INIT review evidence. |
+| INIT_CHECK | CLI and main agent | Advance to INIT_CHECK to create the local Story branch/worktree, then enter that worktree. Complete INIT_CHECK gates before PLAN. |
+| PLAN | Main agent, verification-intent agent, scope reviewer | Record understanding and any required decision, define checklist fields and verification intent, save independent scope evidence, and pass adversarial Story review. |
+| DEV | Main agent | Modify scoped files, commit implementation, and record tool-owned verification evidence. Code or document implementation changes are allowed only here. |
+| REVIEW | Independent reviewer lanes | Start signed reviewer runs, inspect the committed diff and intent coverage, then record current passes or findings. Complete any configured independent-host quorum. |
+| TEST | Main agent and CLI | Run routine validation, resolve recorded bugs, refresh stale admissible evidence, and complete the delivery/summary prerequisites. |
+| DONE | CLI | Prepare convergence, validate current evidence and policy, merge to local main, run post-merge effects, and remove the Story worktree. |
 
-`TEST_CASE` / `TEST_CASE_REVIEW` 是 legacy 兼容 phase，只用于旧 story 可读性、迁移或维护；新 story 不应主动进入。
+### Story creation and INIT
 
-### Git Clean 门禁
+`story_create` requires a meaningful background unless `fromDraft` applies. The
+background has four Markdown sections named `Trigger Event`, `Key Insights`,
+`Solution Tradeoffs`, and `Conversational Texture`; each section needs at least
+50 characters, the total needs at least 300 characters, and the trigger needs a
+concrete Story/finding/checklist/commit/date identifier. Write these sections in
+English in this repository. Creation conservatively stops in INIT; it does not
+silently skip INIT or create the worktree.
 
-进入 REVIEW / TEST / DONE 前，`story_advance` 会按 phase gate 检查 `git status --porcelain`。
-有未 commit 的改动时先提交再推进；legacy `test_auto` 仍是 workspace-destructive 兼容命令，执行后可能 `git restore . && git clean -fd`，只能在维护旧 fixture 时谨慎使用。
+INIT to INIT_CHECK requires independent records from both
+`proof-or-stop-review-story-init` and `product-reviewer`; each reviewer persists
+its result through `init_check_set`. The gate consumes six facts/artifacts:
+`init-check.json`, `scope-boundary.json`, `execution-boundary.json`,
+`scope-freeze-check.json`, `scope-extension-proposals.json`, and
+`scope-discard-digest.json`. Use the read-only `init_preflight` command to inspect
+every prerequisite and its repair hint. The CLI does not automatically invent
+missing reviewer evidence. Only when the independent INIT reviewers cannot be
+spawned may an authorized operator use the explicit, acknowledged
+`init_check_repair` fallback with a substantive fallback reason; otherwise run
+both reviewers and repair the underlying scope artifact reported by the gate.
 
-→ 每次写完代码、文档或证据更新后，先 `git add + git commit`，再 `story_advance`。
+The checklist accepted at creation time is not limited to title and context.
+Current fields include `title`, `context`, `relatedDocs`, `userSees`, `excludes`,
+affected `files`, and structured `verificationIntent`. The main agent owns the
+requirement-facing fields. A verification-intent role may write only its allowed
+intent fields.
 
-### Worktree 自动管理
+Before creating another Story, check existing active and draft Stories. The
+handler normalizes names, performs duplicate/risk checks, and supports a
+deliberate `forceNew` override. Do not reproduce implementation constants for
+deduplication windows or keyword lists in policy prose; inspect the current
+handler when that behavior matters.
 
-支持多 session 并行开发：每个 story 一个独立 worktree，互不干扰。这里的并行是 **本地 git worktree + 本地分支**，不是 GitHub/origin 分支；agent 不要创建或 push 远端 feature branch。
+### INIT_CHECK and worktrees
 
-**完整生命周期**：
-
-1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件）
-2. `story_advance INIT_CHECK` → 自动创建 `.worktrees/B-xxx/`，分支 `story/B-xxx`
-3. **`cd .worktrees/B-xxx`**（必须切，否则下一步会被 cwd 门禁拒绝）
-4. `story_advance PLAN` → cwd 门禁通过，正式进入开发流程
-5. PLAN/DEV/REVIEW/TEST 全部在 worktree 里完成
-6. `story_advance --phase=TEST` → 进入 TEST，按 hint 运行 routine `proof-or-stop validate`；若配置了 `doneRequiredCommands` / DONE-required policy，DONE 前再运行 `proof-or-stop done_required_validate --storyId=<id>`
-7. `story_advance --phase=DONE` → 内部自动合并回本地 main 并清理 worktree（dev_finish/dev_merge 是内部 handler，无独立 CLI 入口）；如果需要远端发布，只在本地 main 干净且已验证后，由人类显式运行 `proof-or-stop release_approve_push --confirm` 创建短 TTL 一次性 approval，再手动 `git push origin main`
-
-**cwd 门禁**：PLAN 起所有 phase 的 `story_advance` 都会校验当前 cwd 是 story 的 worktree。不在 worktree 时报错并提示 cd。
-
-**Sub agent 工作目录约定**：sub agent（verification-intent；旧名 test-intent / test-case-reviewer 只作兼容）**不要**使用 Codex 的 `isolation: "worktree"`，否则它们的 Proof-or-Stop CLI 调用会落到独立分支，主 agent 看不到 checklist / `verificationIntent` 的更新。sub agent 直接在主 agent 的 story worktree 里跑即可。
-
-**配置**：worktree 路径默认 `.worktrees`，可在 `proof-or-stop.config.json` 的 `worktreeDir` 字段自定义。`.worktrees/` 自动加入 `.gitignore`。
-
-**远端写入纪律**：Proof-or-Stop 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `proof-or-stop release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
-
-**版本递增纪律**：每个会改变 Proof-or-Stop CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `LATTICE_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `proof-or-stop --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
-
-**Host DONE convergence / drift handling（DONE 收束纪律）**：并行 story 收束时按此操作，避免在 DONE 前反复撞。这是对既有机制的**投影**，规则源以下列决策文档为准、不在此重定义：`docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md`、`docs/requirements/decisions/story-files-hash-material-drift.md`、`docs/requirements/decisions/done-prepare-automation-execution-plan.md`、`docs/requirements/decisions/review-assurance-floor-execution-plan.md`，以及 `proof-or-stop done_prepare --help`。
-
-1. **TEST→DONE 先 done_prepare，不要直接撞 `story_advance DONE`**：先运行 `proof-or-stop done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate`（会 merge main、安全 refresh stale evidence、validate，并聚合下一步 blocker）；只有 `DONE prepare: PASS` 后再 `proof-or-stop story_advance --phase=DONE`。
-2. **Host 不自判 freshness**：读 `done_prepare` / freshness-reader 的分类结果，不要拿原始 hash 自己判 pass。
-3. **headHash-only drift** 通常是 metadata / provenance 移动，**不是**强重跑信号。
-4. **materialHash-only drift + storyFilesHash 不变**：unrelated whole-tree drift 候选（以下为当前 warn/advisory 投影，enforce 模式落地后可能收紧）：
-   > materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift. In current warn/advisory paths, Proof-or-Stop may downgrade this to re-attestation advisory instead of forcing full re-review/quorum. Host must follow done_prepare / freshness-reader output, not self-classify it as pass.
-5. **storyFilesHash drift** 才是 story-owned material drift 的**强信号**：review pass / quorum / delivery 可能需要重新绑定（消费方不同：reviewer-pass 严格，floor / escalation / delivery-check 在 storyFilesHash 不变时降级接受）。
-6. **done_prepare 不是万能豁免**：它能自动化 merge / refresh / validate / next-action，但**跳不过 related drift**——若 merge main 改到了当前 story-owned files（storyFilesHash 真变），仍需重 review / 重 quorum / 重 delivery。
-7. **metadata-only dirty** 的处理：
-   > Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged. Host must not manually bypass cleanTree.
-
-**Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.proof-or-stop-codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.proof-or-stop-codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
-
-**Codex adapter 验证**：改动 `.proof-or-stop-codex/`、`.claude/agents/`、Codex manifest / wrapper / telemetry / gate 相关代码后，必须运行 `node bin/proof-or-stop.js verify_codex`。该命令复用 doctor 的共享检查，验证 manifest drift、agent mirror、Codex native hook、local wrapper heartbeat、global fallback heartbeat、`.proof-or-stop-codex/settings.json` 排除项，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 写入 process-events。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会消费这条硬证据；缺失或 stale 时按提示运行本地 wrapper 命令。诊断 Codex adapter 时运行 `node bin/proof-or-stop.js doctor`。
-
-**DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor main story/B-xxx`），避免遗漏 main 的更新。如有冲突，在 worktree 里 `git merge main` 解决。
-
-### 多 session 写协调（设计真相源）
-
-Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical runtime lock path，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。其余步骤——story owner lease（step 2）、takeover UX、session_brief ownership rendering——**仍是已采纳的设计、运行时尚未实现**。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准；未实现步骤由后续 story 跟进。
-
-### TEST 阶段详细流程
-
-```
-proof-or-stop validate 执行
-  ├─ validation PASS → 写 validation evidence（含 HEAD/material hash）
-  ├─ validation FAIL → 写 bug/evidence，hint 回 DEV 修复
-  └─ verification coverage missing/stale → allPass:false，提示补 `verificationEvidence`
-→ validate PASS + bug fixed + DONE pre-check 全绿 → DONE
-→ 若项目配置 `doneRequiredCommands` / DONE-required policy：DONE 前必须运行 `proof-or-stop done_required_validate --storyId=<id>`，生成 `.lattice/story/actives/<storyId>/done-required-evidence.json`；该证据必须绑定当前 HEAD/materialHash/storyFilesHash，过期则阻塞
-→ 无 DONE-required policy：该路径仅 advisory，表示没有 full-suite DONE assurance，不应夸大为已跑全量套件
-→ 有 FAIL / stale / missing evidence → 回 DEV 或补对应证据后重跑 `proof-or-stop validate`
-```
-
-Legacy 背景：`test_auto` / `test_story` / `test_fixture` 只作为旧 fixture 兼容或维护入口，不是新 story 的标准验证流。
-
-### 三方制衡
-
-- **主 agent**：写需求（checklist item）+ 写代码 + 补 `verificationEvidence` + 修 bug
-- **verification-intent agent**：写验收标准（`verificationIntent`），对抗姿态逼出 edge/adversarial
-- **reviewer / coverage reviewer lane**：审实现和验收覆盖；coverage reviewer lane 不是 CLI 命令。先用 `review_run_start` 建当前 REVIEW round 的 signed run；无 blocker 时通过 `review_pass_set` + `reviewRunId` 记录 pass，有问题时用 `finding_add` + `reviewRunId` 独立记录 finding / delivery check
-
-主 agent 和 sub agent 是**同事关系**，不是上下级。共同目标是高质量完成任务。主 agent 是与人沟通的入口和主要参与者，但不是掌控者。reviewer 和 test-intent agent 有各自的判定权，主 agent 不应该绕过他们。
-
-**人的角色**：人是最终决策者。当 agent 之间有根本分歧（超过 5 轮）时，由人裁决。人也可以随时介入调整方向。
-
-### Finding evidenceState 证据状态模型（B-3fad）
-
-bug 通道有硬证据纪律（repro + rootCause + reproTest 齐了才能标 fixed），但 finding 通道原本可以直接 `finding_add` 一个未经复现的怀疑结论——一个只是怀疑的 finding 会表现得像 confirmed bug。B-3fad 给 `Finding` 加了 `evidenceState` 证据状态轴，让 finding 通道继承同样的纪律。
-
-`Finding.evidenceState` 取值：`suspected`（怀疑，未复现 / 缺源码证据）/ `verified`（已确认）/ `disproven`（已被反证，配套 `disprovenEvidence` 反证摘要 + 命令 + 源码引用）。
-
-**默认表（写死语义，不靠 prompt）**：
-
-| 来源 | 默认 evidenceState | Gate 行为 |
-|---|---|---|
-| reviewer `finding_add`（REVIEW 阶段） | `verified` | open critical/high 继续阻塞 REVIEW→TEST，行为不回归 |
-| reviewer 显式传 `evidenceState=suspected` | `suspected` | 不阻塞，只 advisory；**必须带 `uncertaintyReason`**，缺则报错 |
-| `gap_log` | `suspected` | 不阻塞任何 lifecycle gate（写的是长存 audit 容器） |
-| legacy finding 缺 `evidenceState` 字段 | gate 视同 `verified` | 兼容旧数据，不回归 |
-
-**Gate predicate（REVIEW→TEST blocking 判定，`core/advisory.ts` 的 `isFindingBlocking`）**：一条 finding 阻塞 REVIEW→TEST 当且仅当
-
-```
-status === 'open'
-&& (severity === 'critical' || severity === 'high')
-&& isEvidenceStateBlocking(evidenceState)   // evidenceState === 'verified' || evidenceState == null
-&& !isAdvisoryThisRound(severity, round)
-```
-
-即 `suspected` / `disproven` 的 finding 不进 blocking 区，只进 advisory；`verified` 或缺字段（legacy）的 open critical/high 才阻塞。该判定被 `storyMachine.canPassReview` 的 guard 和 `getGuardFailureReason` 文案两处共同消费——evidenceState 因此是 gate-consumed 流程事实，已登记进 `process-fact-levels.ts`（`runtime:finding_evidence_state_review_gate`，L4，gateConsumer=`storyMachine.canPassReview REVIEW to TEST gate`）。
-
-**`gap_log` 用法**：把人工发现的框架 gap 归档进 `B-META-framework-audit` 容器（不存在则自动 bootstrap），不需要 story worktree / reviewer / review round。
+The correct worktree sequence is:
 
 ```bash
-proof-or-stop gap_log '{"category":"missing","severity":"medium","evidence":"<gap 描述>","sourceRefs":["packages/main/src/foo.ts:42"]}'
+proof-or-stop story_advance --storyId=B-xxxx --phase=INIT_CHECK
+cd .worktrees/B-xxxx
+proof-or-stop story_advance --storyId=B-xxxx --phase=PLAN
 ```
 
-- 必填：`category`（`happy|edge|adversarial|missing`）/ `severity`（`critical|high|medium|low`）/ `evidence`（gap 描述）/ source（`sourceRefs` / `reproCommand` / `observedOutput` / `analysisNote` 至少一个）——缺任一报明确错误，不写（防 B-META 变垃圾桶）。
-- 默认 `evidenceState=suspected`；只有同时提供结构化 evidence 字段才允许 `verified`，否则即使传 `verified` 也强制降回 `suspected`（不能直接造一个 confirmed 结论）。
-- `gap_log` 不接受 `disproven`（反证应走 finding 流程）。
+INIT to INIT_CHECK creates the Story branch and worktree. The cwd gate begins
+when entering PLAN: PLAN and later lifecycle mutations must run inside that
+Story's worktree. Do not repeat the obsolete claim that PLAN to DEV creates the
+worktree.
 
-### Subagent 定义
+Tracked `.proof-or-stop-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` assets
+naturally appear in a new git worktree. If an entry asset is missing, first
+verify that the file was tracked at the commit from which the worktree was
+created.
 
-Codex subagent prompt 是 **Proof-or-Stop adapter 约定**，由 Proof-or-Stop tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.proof-or-stop-codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.proof-or-stop-codex/proof-or-stop.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.proof-or-stop-codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
+### Session ownership and write coordination
 
-```markdown
----
-name: test-case-reviewer
-description: legacy reviewer；当前审查 verificationIntent 覆盖和验证证据
-model: sonnet
-tools: Read, Glob, Grep, Bash
----
-（审查规则和输出格式要求）
-```
+Story owner leases, takeover UX, and `session_brief` owner rendering are
+implemented in 0.3.270. Treat an active foreign lease as read-only. Use
+`--takeover` only to recover a stale lease and `--forceTakeover` only as a
+deliberate human-authorized seizure of an active lease; neither happens
+implicitly because two sessions share a cwd.
 
-subagent 可调用 Proof-or-Stop CLI 命令（通过 Bash tool），能独立验证测试结果。
+Main-repository mutations use the shared main write lock and canonical runtime
+lock path. DONE, recovery, gap/audit writes, Story creation, and framework audit
+finding writes enforce idempotency under that lock. Use `doctor` for stuck-lock
+diagnostics. The design source for ownership and write leases remains
+`docs/requirements/decisions/session-ownership-and-write-leases.md`.
 
-## Proof-or-Stop CLI
+### PLAN artifacts and gate
 
-```bash
-proof-or-stop <command> '{"key":"value"}'   # 全局命令，任何目录可用
-proof-or-stop <command> --help              # 查看参数（出错时先查）
-proof-or-stop help                          # 列出所有命令
-proof-or-stop --root /path/to/project ...   # 指定项目根目录
-```
+Record a pre-context snapshot with `understanding_set` before freezing the plan.
+It must describe the task, observable outcome, facts, constraints, unresolved
+unknowns, and the files expected to change. `touchpoints` are material Story
+files, not every read-only truth source consulted during planning.
 
-**调用出错时先 `proof-or-stop <command> --help`**，不要靠记忆猜参数。
+For a nontrivial decision, use `decision_set` with 3-5 principles, 1-5 drivers,
+fair alternatives, a chosen option, rationale, and required pre-mortem entries.
+The normal form has at least two options with pros and cons. A deliberate
+`options: []` single-solution exit is also supported, but its rationale must be
+at least 50 characters and explicitly explain why alternatives were excluded or
+not enumerated. A single listed option must state in its cons why other
+alternatives are invalid. High-risk Stories require at least three complete
+pre-mortem scenarios.
 
-### 常用命令速查
-
-```bash
-# 创建 Story（有 checklist 时停在 PLAN，checklist 只写 title+context，verificationIntent 由 intent/reviewer flow 填）
-proof-or-stop story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"根因/参考方案"}]}'
-
-# 对抗审查（PLAN 阶段必须通过才能进 DEV）
-proof-or-stop story_review '{"storyId":"B-xxx"}'
-
-# 推进阶段（PLAN→DEV 时自动创建 .worktrees/B-xxx/，需 cd 进去开发）
-proof-or-stop story_advance '{"storyId":"B-xxx","phase":"DEV"}'
-
-# PLAN 阶段产物：理解快照 + 结构化决策
-proof-or-stop understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[...],"constraints":[...],"unknowns":[...],"touchpoints":[...]}'
-proof-or-stop understanding_get '{"storyId":"B-xxx"}'
-proof-or-stop decision_set '{"storyId":"B-xxx","principles":[...],"drivers":[...],"options":[{"name":"A","pros":[...],"cons":[...]},{"name":"B","pros":[...],"cons":[...]}],"chosen":"A","rationale":"...","preMortem":[{"scenario":"...","trigger":"...","consequence":"...","mitigation":"..."}]}'
-proof-or-stop decision_get '{"storyId":"B-xxx"}'
-
-# 5 轮 cap 触发后的人类介入（必须 human:true）
-proof-or-stop testintent_resume '{"storyId":"B-xxx","itemId":"CHK-001","lane":"happy","index":0,"reason":"...","human":true}'
-
-# routine story/checklist status (read-only; full output remains the default)
-proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
-proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
-
-# reload full output before evidence-sensitive conclusions or mutations
-proof-or-stop story_get '{"storyId":"B-xxx"}'
-proof-or-stop checklist_get '{"storyId":"B-xxx"}'
-proof-or-stop checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
-proof-or-stop checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationEvidence":[{"kind":"logic_test","intentRef":"CHK-001:happy:0","command":"npm test -- --runInBand","result":"pass","note":"npm test passed and covers CHK-001:happy:0"}]}'
-
-# 文档列表（PLAN 阶段挑 relatedDocs 用，扫 docs/ + requirements/ + 根目录的 Codex/README/AGENTS）
-proof-or-stop aux_doc_list                          # text 格式，按目录分组 + H1 标题 + 修改时间
-proof-or-stop aux_doc_list '{"format":"json"}'      # json 格式
-
-# 验证
-proof-or-stop validate --story=B-xxx                 # routine TEST 验证入口，写 validation evidence / bug / stale evidence 结果
-proof-or-stop done_required_validate --storyId=B-xxx # 仅当配置 doneRequiredCommands / DONE-required policy 时，DONE 前生成 blocking done-required-evidence.json；无 policy 时仅 advisory
-
-# 框架 gap 手动归档（不需要 worktree / reviewer / review round，任意目录可跑）
-proof-or-stop gap_log '{"category":"missing","severity":"medium","evidence":"<框架 gap 描述>","sourceRefs":["packages/main/src/...:行号"]}'
-
-# Legacy fixture/test 兼容维护（旧 story、迁移、诊断旧 fixture 时才用；不是新流程默认入口）
-proof-or-stop fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","run_type":"cli","file":"mcp/handlers/my","execute":"return $handlers.myTool({})","expect":true}]}'
-proof-or-stop test_auto                       # legacy 全量 fixture runner，可能执行 git restore/clean
-proof-or-stop test_story '{"storyId":"B-xxx"}'  # legacy story fixture runner
-proof-or-stop test_fixture '{"fixtureId":"uuid"}'  # legacy 单 fixture/链路 runner
-
-# 自动诊断（case fail 时定位根因）
-proof-or-stop aux_diagnose '{"caseName":"case名"}'  # lastPass trace diff + git diff → 根因 + 修复建议
-
-# 架构提取（基于 trace 数据）
-proof-or-stop aux_trace '{"format":"json"}'    # 输出业务逻辑线、函数影响图、覆盖盲区
-proof-or-stop aux_trace '{"format":"mermaid"}' # 输出 mermaid 流程图
-
-# 元数据辅助（需 bootstrap 启用；非全局 Proof-or-Stop CLI 下不可用）
-proof-or-stop aux_scan                        # 扫源码 @task 注释 + 校验
-proof-or-stop aux_detail '{"files":["foo.ts"]}'  # 按文件查函数签名/属性/import
-proof-or-stop aux_sync --direction=extract    # 从源码注释提取到 task.json
-```
-
-> ⚠ **aux_\* 命令的可用性**：全局 Proof-or-Stop CLI **只包含** main 包的核心命令。`aux_*` 在 utils 包里，需要通过 project bootstrap 脚本同时加载 utils 才可用。如果在 observer 仓库里 `proof-or-stop aux_scan` 报 "未知命令"，用 `proof-or-stop aux_doc_list`（也属 utils 但可能已注入）或直接用 `Glob`/`Grep` 替代。
-
-## Checklist 写法
+Every checklist item should define:
 
 ```json
 {
@@ -423,179 +397,374 @@ PLAN 阶段为非 trivial story 落 `decision_set`。schema：
 }
 ```
 
-- `type` 取值：`cli_blackbox`（CLI / 纯函数测试）、`browser_blackbox`（浏览器 UI）
-- type 由 test-intent agent 在 PLAN 阶段根据 testIntent 的操作对象判断
-- 每个 item 必须有 happy/edge/adversarial 三栏，填不满说明 item 拆得不对
+Use `relatedDocs` as a reminder, not a substitute for a scoped file declaration.
+The CLI surfaces related-document reminders during lifecycle work; whether the
+document requires a change remains a reasoned decision.
 
-### testIntent results（由 test-case-reviewer agent 记录）
+An independent scope-plan reviewer must save signed `scope-check.json` evidence
+through `scope_check_save`. The implementation agent must not self-sign it.
+Every `openQuestions` entry in that signed scope check must have a substantive
+written resolution before `story_review` can pass. The current handler-directed
+path is the registered `scope_question_resolve` command; the main agent owns the
+conclusion and should cite the controlling decision or checklist source rather
+than asking the scope reviewer to self-approve it.
 
-每条 testIntent 对应一个 `results` 数组，每次审核追加一条：
+For a new-scope Story whose checklist declares files, initialize the versioned
+scope contract from the plan with `scope_contract_init_from_plan`, or create it
+explicitly with `scope_contract_set`, then inspect it with
+`scope_contract_check`. A missing contract is an advisory, not a blocker, on the
+PLAN-to-DEV transition because it may still be created during DEV. It becomes a
+hard missing-scope-contract blocker when that new-scope Story enters REVIEW; the
+legacy no-file-declaration path remains backward compatible.
 
-```json
-{ "time": "...", "pass": true, "note": "说明", "role": "reviewer" }
-```
-
-- `note` 硬性格式：`file:line` 引用 + WHY + severity
-- `role` 由 CLI 从 `agent` 参数自动推断：`test-case-reviewer` → `reviewer`，`test-intent` → `intent`，其他 → `author`
-- results 只能通过 CLI 写入，不允许手动修改
-- results 永不删除，用于长期质量追踪
-- reviewer agent 启动时读 results 历史作为上下文
-
-#### 对话式审核
-
-results 数组支持多方对话。典型流程：
-
-1. reviewer 记 `pass=false`（如「框架限制：无法从 case 内部制造 dirty git state」）
-2. 主 agent 通过 `testintent_record` 回复（不带 `pass`，纯回复）��说明同意原因
-3. reviewer 读到主 agent 回复，自行判断是否合理，记最终 `pass=true` 或 `pass=false`
-
-**判定权始终在 reviewer**。主 agent 只提供上下文，不能越权判定。
-
-### 门禁与回退
-
-- CLI 检查每条 testIntent 的 results 中最后一条 `role="reviewer"` 的判定记录
-- 全部 `pass=true` → 允许 TEST_CASE_REVIEW → TEST
-- 有 `pass=false` → 回退 **DEV**（主 agent 根据 reviewer 反馈决定改代码还是改 case）
-- CLI 返回详细失败列表（哪些 case、note 内容），reviewer agent 原样转告主 agent
-
-### 5 轮 cap（segment-aware）
-
-`testintent_record` 对每条 testIntent 强制 5 轮 cap：当前段（不含被 `human-resume` 重置过的历史段）累计 reviewer/author 条数 ≥ 5 时拒绝再写。这是 hard gate，不是 soft 提醒。
-
-触发后正确反应：
-1. **优先反思**：5 轮还没达成共识说明 testIntent 描述本身有问题，或者 checklist item 拆错了。先改根，不要找绕路
-2. **让人裁决**：实在需要继续，让用户调 `proof-or-stop testintent_resume` 显式开新段（必须带 `human:true` 和 ≥ 5 字符的 `reason`）
+Run `story_review` after understanding, decision, checklist, ProofStory, signed
+scope-check resolution, scope-contract preparation, and memory-preflight
+requirements are ready. PLAN passes when
+`blockerCount` is zero. Advisory issues are intentionally possible, so total
+issue count is not a zero-only acceptance criterion. A quick-channel Story may
+make adversarial review optional only when the CLI says it is eligible; normal
+scope, intent, ownership, memory, and policy gates still apply.
 
 ```bash
-proof-or-stop testintent_resume '{
-  "storyId":"B-xxx",
-  "itemId":"CHK-001",
-  "lane":"happy",
-  "index":0,
-  "reason":"用户裁决：xxx 原因，继续审",
-  "human":true
-}'
+proof-or-stop scope_question_resolve '{"storyId":"B-xxxx","oqId":"OQ-1","resolution":"The approved scope follows the cited decision and excludes unrelated changes.","sourcePointers":["docs/requirements/example.md"]}'
+proof-or-stop scope_contract_init_from_plan --storyId=B-xxxx
+proof-or-stop scope_contract_check --storyId=B-xxxx --json
 ```
 
-主 agent 不应该自己调 `testintent_resume`——CLI 会拒绝 `human:false`，且 prompt 里"如果你是主 agent 在跑——这正是 cap 在保护你"是显式提醒。
+### DEV and checklist discipline
 
-### checklist item 拆解标准
-
-1. 有可观测的结果（用户能看到变化）
-2. 有明确的输入触发（操作/事件/时间）
-3. happy/edge/adversarial 三栏都能填满
-
-### 对抗审查
-
-checklist 写完后必须跑 `story_review` 对抗审查，审查通过（issueCount=0）才能进 DEV：
+Work on one item at a time:
 
 ```bash
-proof-or-stop story_review '{"storyId":"B-xxx"}'
+proof-or-stop checklist_update --storyId=B-xxxx --itemId=CHK-001 --status=in_progress
+# implement and verify
+git add AGENTS.md
+git commit -m "docs: update AGENTS guidance"
+proof-or-stop checklist_update --storyId=B-xxxx --itemId=CHK-001 --status=done
 ```
 
-story_review 检查：缺失/弱 `verificationIntent`、item 间交叉场景遗漏、真相源未覆盖的约束。
-审查结果自动写入 review.json，可追溯审了几轮、每轮发现什么。
+`title`, `context`, and `userSees` freeze at the configured lifecycle boundary;
+`verificationIntent` freezes from DEV. A scope change must use the authorized
+scope workflow rather than mutating frozen requirements. The direct
+`withdrawn` status is refused by `checklist_update`; the scope-shrinkage decision
+workflow is the authorized applier.
 
-## Legacy Fixture 写法（兼容 / 维护）
+Record verification with `verification_evidence_add` or its batch form. For an
+executable intent, provide an executable-plus-argv command and a selector that
+must appear in stdout. The CLI executes the command itself, derives pass/fail,
+and issues a tool-owned receipt. The first selector-bearing write immutably pins
+the exact command and selector for that intent. A later caller cannot replace
+the pin or claim a contradictory result. Raw shell is not accepted. A
+`nonMechanicalReason` is an attributable audit record and does not grant
+mechanical coverage. Use a bounded timeout override only with the required
+recorded reason.
 
-Fixture 命令族是 legacy 兼容层，保留给旧 story、迁移和维护场景。新流程默认用 checklist 上的 `verificationIntent` 描述验收，用 `checklist_update` 记录 `verificationEvidence`，在 TEST 阶段跑 `proof-or-stop validate`。
+Do not insert caller-authored hashes, timestamps, or fake receipts through raw
+checklist evidence. Reload full checklist/story output before evidence-sensitive
+conclusions or mutations.
 
-确实需要维护旧 fixture 时，用 legacy/compat `fixture_batch_add` 一次提交所有 case。每条 case 必须包含：
+### REVIEW and independent agents
 
-```json
-{
-  "name": "测试名称",
-  "run_type": "cli",
-  "file": "mcp/handlers/story",
-  "execute": "const _r = await $handlers.story_create({...}); $ctx.storyId = _r.match(/B-[a-f0-9]+/)[0]; return _r",
-  "expect": {"pattern": "created"},
-  "intentRef": "CHK-001:happy:0"
-}
+`reviewer_list --json` reports the current Story's opt-in roster. That roster is
+computed in real time from shared workflow policy plus Story risk signals,
+checklist/decision facts, and documentation touchpoints: concept, quality, and
+test-coverage are baseline lanes; behavior and docs are enabled only when their
+current triggers apply. Do not hard-code one universal roster or infer lane
+eligibility from a role-name prefix.
+
+`reviewer_batch` is a read-only launch plan. It reports which lanes need work and
+uses the same policy-computed opt-in path as `reviewer_list`. It prints
+host-orchestrator `Agent(...)` instructions; it never launches a reviewer, runs
+commands, writes evidence, or advances a phase. Do not pass its refused
+side-effect flags.
+
+`dispatch` validates a registered role and its story/item/finding/cluster target
+cardinality and prepares the role-specific dispatch surface. `agent_prompt`
+prints the canonical package-registry prompt. For migrated review roles it
+returns a body-free bootstrap whose first action is `review_run_start`; that
+command selects exactly one canonical role body. The host orchestrator, not a
+fictional CLI side effect, creates the actual subagent.
+
+A current reviewer flow is:
+
+1. The host launches the requested independent reviewer in the existing Story
+   worktree, without creating another isolated worktree.
+2. The reviewer calls `review_run_start` with its registered role and current
+   Story.
+3. The reviewer reads the bounded candidate truth sources, the committed Story
+   diff, and lane-specific evidence.
+4. The reviewer records a blocking or advisory finding through `finding_add`, or
+   records no-blocker evidence through `review_pass_set` using the returned
+   `reviewRunId` and a signed read manifest.
+5. A later material change, scope change, round change, or invalid read binding
+   requires another reviewer run and fresh pass.
+
+Coverage review is a reviewer lane, not a standalone verification command. Its
+current canonical role is `proof-or-stop-review-test-coverage`. The main agent,
+verification-intent agent, and reviewers are peers with independent authority.
+The human is the final arbiter when a substantive disagreement cannot converge
+after the configured review-loop limit.
+
+Where the configured policy requires cross-host assurance, first run
+`review_escalation_status`. Submit a voluntary local 3x2 host-verdict quorum with
+`quorum_submit` only after every required current reviewer pass exists. A valid
+standing quorum can survive unrelated main drift when `storyFilesHash` is
+unchanged and will reject a duplicate submission. Prompt-envelope freshness is
+a separate binding and may still require lane re-attestation. Never fabricate a
+second host identity or treat dispatch output as a host receipt.
+
+```bash
+proof-or-stop reviewer_list --storyId=B-xxxx --json
 ```
 
-### 字段说明
+`Finding.evidenceState` is `suspected`, `verified`, or `disproven`.
 
-| 字段 | 必填 | 说明 |
+| Source | Default | Gate effect |
 |---|---|---|
-| `name` | 是 | case 名称 |
-| `run_type` | 是 | `cli` 或 `browser` |
-| `file` | 是 | 源文件路径（相对 scanRoot，不含扩展名） |
-| `execute` | 是 | 函数体（agent 自己写 import + 调用逻辑） |
-| `expect` | 否 | 预期返回值（支持 `{pattern:"regex"}` 或精确匹配） |
-| `throws` | 否 | 预期抛出的错误（与 expect 互斥） |
-| `intentRef` | 否 | 关联旧 testIntent / 当前 verificationIntent（如 `CHK-001:happy:0`） |
-| `_id` | 自动 | uuid，legacy `fixture_batch_add` 自动生成，用于 bug 绑定和 legacy `test_fixture` 定位 |
-| `prevCaseId` | 自动 | 指向前一个 case 的 `_id`，批��添加时自动建立链关系 |
-| `nextCaseId` | 自动 | 指向后一个 case 的 `_id`，runner 按链拓扑执行 |
+| REVIEW `finding_add` | `verified` | An open critical/high finding blocks REVIEW to TEST unless the current round policy makes it advisory. |
+| Explicit suspected reviewer finding | `suspected` | Advisory only and requires an `uncertaintyReason`. |
+| `gap_log` | `suspected` | Long-lived framework-audit backlog; it does not block lifecycle gates. |
+| Legacy finding without the field | treated as `verified` | Preserves old blocking behavior. |
 
-### execute 中可用的变量
+The REVIEW blocking predicate requires an open finding, critical/high severity,
+a blocking evidence state, and no current-round advisory downgrade. Suspected
+and disproven findings do not block. Disproven findings need structured
+counter-evidence.
 
-- `$handlers` — 所有已注册工具（如 `$handlers.story_create({...})`）
-- `$root` — 项目根目录
-- `$ctx` — 跨 case 共享上下文（如 `$ctx.storyId`）
-- `$file` — 自动替换为编译后 .js 文件的 URL（需配合 `await import($file)`）
+Use `gap_log` for a nonblocking framework gap outside the current Story. It
+requires category, severity, evidence, and at least one structured source trace
+such as source refs, a reproduction command, observed output, or analysis note.
+It defaults to suspected; verified is retained only when structured evidence
+supports it. `gap_log` does not accept disproven findings. If the audit container
+cannot be extended safely, create a traceable draft/backlog through the CLI
+rather than editing metadata or bypassing provenance checks.
 
-### 链式 case
+### Git cleanliness and drift classification
 
-Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/nextCaseId` 链关系。
-链式 case 共享 `$ctx`，按链拓扑顺序执行，链尾才触发 `git restore` 清理。
-独立 case（无链关系）跑完立即清��。
+Commit material changes before entering REVIEW, TEST, or DONE. Do not assume all
+dirty files mean the same thing: lifecycle checks classify Story metadata,
+generated runtime artifacts, and material source/config/doc changes separately.
+Use `lifecycle_check`, `review_run_start`, `done_prepare`, and freshness-reader
+output as the classification authority. Do not manually bypass `cleanTree`,
+erase generated evidence, or self-declare a raw hash difference safe.
 
-```json
-{"name":"setup: 创建 story", "execute":"...", "_id":"auto", "nextCaseId":"auto"}
-{"name":"查询 story", "execute":"...", "_id":"auto", "prevCaseId":"auto"}
+- `headHash`-only drift is often metadata or provenance movement, but the CLI
+  decides whether re-attestation is sufficient.
+- `materialHash` drift with unchanged `storyFilesHash` can be unrelated
+  whole-tree drift. In advisory paths it may permit re-attestation instead of a
+  full re-review.
+- Changed `storyFilesHash` is the strong signal that Story-owned material moved;
+  reviewer passes, quorum, verification, and delivery evidence may need rebinding.
+
+Different consumers have different freshness rules. Follow the consumer's
+structured result instead of applying a universal shortcut.
+
+### TEST and DONE
+
+The routine TEST path is:
+
+```text
+proof-or-stop validate
+  -> PASS: persist validation evidence bound to current material
+  -> FAIL: persist classified failure/bug evidence and return to DEV
+  -> missing or stale intent coverage: fail with an evidence action
 ```
 
-维护旧 fixture 时，可用 legacy `proof-or-stop test_fixture '{"fixtureId":"<uuid>"}'` 按 `_id` 定位单个 case 或整条链测试。
+Use `proof-or-stop validate --story=B-xxxx` in TEST. A passing command alone is
+not enough: all required verification intent, bugs, review evidence, ProofStory
+artifacts, acceptance topology, delivery/summary checks, and freshness gates must
+also pass. If DONE-required policy is configured, run
+`proof-or-stop done_required_validate --storyId=B-xxxx`; its evidence must bind
+the current HEAD, material hash, and Story-files hash. Without that policy, the
+command is advisory and must not be described as full-suite assurance.
 
-### 常见错误
+Before DONE, run:
 
-1. **fixture 一次写对**：先想清楚所有 case 再 batch_add
-2. **checklist 逐项完成**：做完一项标一项 done
-3. **门禁失败时**：读错误信息里的 `→` 修复命令，直接执行
-4. **主 agent 不写旧 testIntent**：旧 testIntent 只作兼容背景；当前流程补 `verificationIntent`
+```bash
+proof-or-stop done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate
+```
 
-### 踩坑记录
+`done_prepare` is a conservative readiness assistant. It can merge main, safely
+refresh classified stale evidence, validate, and aggregate the next blockers;
+it never advances DONE and never mutates version files. Related Story-file drift
+still requires the appropriate re-review, re-quorum, re-verification, or
+re-delivery work. Advance to DONE only after the prepare result and every
+applicable lifecycle gate pass. The Story branch must contain current local main.
 
-1. **写完必须 commit 再推进**：legacy `test_auto` 会 `git restore . && git clean -fd`，未 commit 的代码和 fixture 会丢。已有 git clean 门禁拦截，但不要依赖门禁——养成写完就 commit 的习惯。
+DONE merges the Story to local main and performs post-merge effects. When watched
+CLI/runtime or capability-contract inputs changed, the DONE effect automatically
+patch-bumps and commits all synchronized version points. It skips the bump when
+no watched inputs changed, including ordinary documentation-only work. Do not
+manually bump a version merely because a Story completed, and do not ask
+`done_prepare` to bump it.
 
-2. **旧 fixture 断言从旧 testIntent / 当前 verificationIntent 反推，不从"怎么容易 pass"正推**：`return true`、宽泛 pattern（如 `"allPassed|totalCases"`）是无效断言。reviewer 会拒绝。execute 中应该直接调用被测函数、检查返回值的具体字段。
+Remote publication is a separate human-authorized action. Story branches are
+local implementation details and must not be pushed. After a clean, verified
+local main exists, a human may grant one exact-SHA, exact-main, short-lived
+approval with `proof-or-stop release_approve_push --confirm`, then perform the
+manual push.
 
-3. **reviewer 说 fail 就去改，不要反复解释**：reviewer 说"不是框架限制"的时候，应该立刻回 DEV 改代码，不要在 fixture 层面打补丁或写 testintent_record 解释。来回对话超过 2 轮说明方向错了。
+## Codex, Claude, and subagent assets
 
-4. **旧 fixture 提交前先本地维护验证**：维护 fixture 时才跑 legacy `test_auto`；新流程用项目原生命令产出 `verificationEvidence`，再跑 `proof-or-stop validate`。
+Proof-or-Stop adapter prompts are package/tooling conventions, not native Codex
+agent-file conventions. Global-thin mode resolves prompts through the package
+registry instead of requiring local prompt copies. Native Codex custom agents
+use lowercase `.codex/agents` or `~/.codex/agents` TOML assets. Native Codex hooks
+use lowercase `.codex/hooks.json` and `.codex/hooks`. Claude Code assets remain
+under `.claude`. Do not create a misleading `.proof-or-stop-codex/settings.json`.
 
-5. **fixture 的 execute 在 ESM 环境运行**：用 `await import("fs")` 不用 `require("fs")`。Windows 路径用 `$root.split("\\").join("/")` 不用 regex（JSON 转义地狱）。
+After changing adapter manifests, wrappers, hooks, prompt registry, telemetry, or
+gate integration, use the current adapter entrypoint shown by local help,
+normally `proof-or-stop codex verify`. Diagnose with `proof-or-stop codex doctor`.
+Do not use the retired local-wrapper spelling as the primary current instruction.
 
-6. **sub agent 的 prompt 也是代码**：写完要 review，不要等跑了 5 轮才发现 prompt 里让 reviewer 跑 legacy `test_auto`。
+A modern host-orchestrated reviewer example is conceptual, not a CLI command:
 
-### 主 agent 行为准则
+```text
+1. proof-or-stop reviewer_batch --storyId=B-xxxx --json
+2. Host launches each requested Agent in the existing Story worktree.
+3. Reviewer runs proof-or-stop review_run_start for its canonical role.
+4. Reviewer records finding_add or review_pass_set with current signed evidence.
+```
 
-- **主 agent 不是上帝视角**：不要试图掌控一切。reviewer 有判定权，test-intent agent 有对抗权。主 agent 的角色是写代码和测试，不是裁判。
-- **reviewer 是信号不是障碍**：reviewer fail 了，正确反应是"他说得对，我去改"，不是"怎么解释让他 pass"。把 reviewer 当障碍绕，只会制造更多轮次。
-- **三方制衡是设计不是形式**：reviewer fail 了不要想着怎么说服他 pass，而是思考他看到了什么你没看到的。
-- **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"。story 里发现的相关问题、顺手能修的 bug、reviewer 指出的实现缺失，都应该在当前 story 里一并处理。checklist 和 `verificationIntent` 是指引不是边界——做好一件事自然会衍生出相关的改动。
-- **跨 story 全局意识**：主 agent 在 story 中把控开发节奏，但不应该只看当前 story 的 checklist。修一个 feature 可能发现基础设施的 bug（如 DONE gate 缺检查、fixture runner 递归卡死），这些都应该一起修，不要留给"下一个 story"。
-- **5 轮上限**：同一 story 的 reviewer 对话超过 5 轮，停下来等人类裁决。超过 5 轮说明主 agent 和 reviewer 对需求理解有根本分歧，需要人类介入。
+Legacy `test-intent` and `test-case-reviewer` role names remain compatibility
+aliases where the registry accepts them, but new planning uses the
+`verification-intent` role and new review uses the current named reviewer lanes.
+The retired conversational test-intent mutation commands are unavailable and
+must not appear in runnable examples.
 
-## 规则
+## CLI usage
 
-- 所有 Story/fixture 操作通过 Proof-or-Stop CLI 完成，禁止直接读写 JSON
-- routine TEST 验证通过 `proof-or-stop validate` 执行；DEV 阶段用 `checklist_update` 记录 `verificationEvidence`
-- 若项目配置 `doneRequiredCommands` / DONE-required policy，DONE 前还必须运行 `proof-or-stop done_required_validate --storyId=<id>` 生成当前 HEAD 绑定的 `done-required-evidence.json`；无 policy 时该检查只是 advisory / no full-suite assurance
-- `test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是 legacy/compat/maintenance 入口，不作为新 story 的默认流程
-- 所有环境统一用 CLI
+```bash
+proof-or-stop <command> --help
+proof-or-stop help
+proof-or-stop --version
+proof-or-stop --root /path/to/project <command> ...
+```
 
-## Fail-fast policy（silent catch 分类约定）
+Prefer named CLI arguments for evidence-sensitive commands. JSON object input is
+also supported by many compatibility entrypoints. On any error, read the exact
+command help before changing arguments.
 
-修 CLI 框架内部代码时，新增的 `try ... catch` 必须在四个分类里挑一个，**不允许裸 silent**：
+Useful current commands include:
 
-| 分类 | 何时使用 | 处理方式 |
+```bash
+# Recover context and inspect relevant docs
+proof-or-stop session_brief
+proof-or-stop aux_doc_list --format=json
+
+# Inspect Story and checklist state
+proof-or-stop story_get --storyId=B-xxxx
+proof-or-stop checklist_get --storyId=B-xxxx
+
+# Plan review and lifecycle progression
+proof-or-stop story_review --storyId=B-xxxx --json
+proof-or-stop story_advance --storyId=B-xxxx --phase=DEV
+
+# Evidence and validation
+proof-or-stop verification_evidence_add --help
+proof-or-stop validate --story=B-xxxx
+proof-or-stop done_required_validate --storyId=B-xxxx
+
+# Review orchestration and diagnostics
+proof-or-stop reviewer_batch --storyId=B-xxxx --json
+proof-or-stop review_escalation_status --storyId=B-xxxx
+proof-or-stop codex doctor
+proof-or-stop doctor
+```
+
+### Preserved current command examples
+
+The following examples preserve the still-current commands from the previous
+guide. `tests/AGENTS.verify.mjs` binds every complete invocation to a case ledger:
+safe read-only examples run with `B-d854` and the current repository root,
+mutating examples are validated against the built `MAIN_TOOLS` Zod schema without
+being executed against this Story, and explicitly marked conceptual placeholders
+are syntax-checked but not executed.
+
+```bash
+# Safe read-only repository examples
+proof-or-stop aux_detail --files='["core/machine.ts"]'
+proof-or-stop aux_scan --format=json
+proof-or-stop aux_sync --direction=status
+proof-or-stop aux_trace --format=json
+proof-or-stop decision_get --storyId=B-xxxx
+proof-or-stop understanding_get --storyId=B-xxxx
+
+# Conceptual legacy-case placeholder: replace example-case with a real case name
+proof-or-stop aux_diagnose --caseName=example-case
+
+# Schema-validated PLAN mutations; do not execute them against an existing Story
+proof-or-stop understanding_set '{"storyId":"B-xxxx","task":"Describe the requested change","outcome":"State the observable result","facts":["Repository-local behavior is authoritative"],"constraints":["Stay within the approved scope"],"unknowns":[],"touchpoints":["AGENTS.md"]}'
+proof-or-stop decision_set '{"storyId":"B-xxxx","principles":["Preserve user value","Prefer mechanical evidence","Keep scope bounded"],"drivers":["Current runtime behavior"],"options":[{"name":"A","pros":["Focused"],"cons":["Requires precise evidence"]},{"name":"B","pros":["Broader coverage"],"cons":["Expands scope"]}],"chosen":"A","rationale":"Option A satisfies the requested outcome without unrelated expansion."}'
+
+# Schema-validated Story/backlog mutations; examples are never run by the verifier
+proof-or-stop story_create '{"name":"example-story","title":"Example Story","description":"Deliver a concrete observable repository result.","type":"feature","priority":"medium","background":"## Trigger Event\nOn 2026-09-02, B-example identified a concrete need requiring a reviewed Story.\n\n## Key Insights\nThe result has observable behavior, explicit scope, and verification needs that should be frozen before implementation.\n\n## Solution Tradeoffs\nKeep the Story focused on requested behavior and defer unrelated medium or low issues through the bounded policy.\n\n## Conversational Texture\nThe user expects evidence, concise status, and a product-visible result, so acceptance must preserve those expectations.","checklist":[{"title":"Deliver the observable result","context":"Bind implementation to the stated need"}]}'
+proof-or-stop gap_log '{"category":"missing","severity":"medium","evidence":"Documented nonblocking framework gap with a reproducible source trace.","sourceRefs":["packages/main/src/core/machine.ts:1"]}'
+
+# Legacy fixture maintenance; preview writes and replace conceptual identifiers
+proof-or-stop fixture_batch_add '{"fixturePath":"example","cases":[{"name":"example case","run_type":"cli","file":"core/machine","execute":"return true","expect":true}],"storyId":"B-xxxx","dryRun":true}'
+proof-or-stop test_story --storyId=B-xxxx
+proof-or-stop test_fixture --fixtureId=legacy-maintenance-fixture-id
+```
+
+`aux_detail` inspects signatures and imports for files relative to `scanRoot`.
+`aux_scan` checks source task annotations. `aux_sync` maintains annotation-derived
+metadata, and `status` is its read-only direction. `aux_trace` reports business
+paths, impact edges, and coverage gaps. `aux_diagnose` compares legacy-case trace
+and git evidence when a real case name is supplied. The `*_get` commands are
+read-only snapshots; their paired setters persist structured PLAN facts through
+the CLI. `gap_log` creates attributable deferred audit work. The fixture/test
+commands remain compatibility-only maintenance entrypoints, not the default
+verification path for a new Story.
+
+### Audit and verification
+
+The durable claim-by-claim audit is
+`docs/audits/AGENTS-current-version-audit.md`. Re-run the baseline RED and final
+GREEN checks with:
+
+```bash
+node tests/AGENTS.verify.mjs --baseline
+node tests/AGENTS.verify.mjs --final
+```
+
+The verifier also checks complete command examples, structure and technical
+tokens, normative lifecycle semantics with negative mutations, runtime
+path/version drift, Unicode purity, and the managed template block.
+
+## Legacy fixture compatibility
+
+Fixture commands and fixture-only validation are not the default flow for a new
+Story. Use them only to maintain old Stories, migrate fixture data, or diagnose a
+legacy runner. New Stories specify `verificationIntent`, earn tool-owned
+`verificationEvidence`, and use routine validation.
+
+A legacy fixture case may include `name`, `run_type`, `file`, `execute`,
+`expect` or mutually exclusive `throws`, an optional `intentRef`, and generated
+chain identifiers `_id`, `prevCaseId`, and `nextCaseId`. The source `file` is
+relative to `scanRoot` and omits the extension. The runner exposes `$handlers`,
+`$root`, `$ctx`, and `$file`. Chained cases share `$ctx`, execute in topology
+order, and clean up at the chain tail. Use `await import($file)` in the ESM
+environment. Assertions must test specific behavior, never a convenient
+unconditional result or broad success pattern.
+
+The workspace-destructive full legacy runner is `test_auto`. Preview it with
+`--dryRun`; every real run requires explicit `--confirm`. Commit valuable work
+first, inspect the plan, and use it only for legacy fixture maintenance. Current
+Story validation remains `validate`.
+
+## Fail-fast policy for caught errors
+
+When changing CLI framework code, every new `try ... catch` must use one of four
+explicit classes. Bare silent catches are forbidden.
+
+| Class | Appropriate use | Required behavior |
 |---|---|---|
-| **DEBUG** | 日志 / 进度上报失败 | 保留 silent，可加 `// debug:` 注释 |
-| **PROBE** | 探测类（文件/分支/git config 不存在） | 保留 silent，返回 `null`/默认值 |
-| **PERSIST** | writeLog / persistPending / save 失败 | 调 `reportHealthIssue('persist:xxx', e, ctx)` |
-| **MUTATION** | git / fs.writeFileSync / spawn 失败 | `throw new Error(...)`，让上层感知 |
+| DEBUG | Logging or progress reporting fails | Silence is allowed; add a `debug:` comment when useful. |
+| PROBE | An optional file, branch, config, or capability probe misses | Return `null` or a documented default. |
+| PERSIST | A log or pending-state persistence operation fails | Call `reportHealthIssue('persist:...', error, context)`. |
+| MUTATION | Git mutation, file write, or spawned operation fails | Throw a contextual error to the caller. |
 
 `reportHealthIssue` 在 `core/health.ts`，往 CLI health log append 一条记录，**自身永不抛错**。用户跑 `proof-or-stop doctor` 可以看到所有 PERSIST 失败 + 按分类汇总。
 

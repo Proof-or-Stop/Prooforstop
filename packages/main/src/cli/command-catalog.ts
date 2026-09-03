@@ -359,6 +359,10 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_reconcile', description: 'Detect and repair zombie Stories or terminal worktree residue (default dry run)', schema: {
     dryRun: z.boolean().optional().describe('true=report only; false=perform repair (default true).'),
   }},
+  { name: 'identity_state_migrate', description: 'One-shot, digest-verified migration of one exact story from retired state storage to canonical Proof-or-Stop storage', schema: {
+    id: z.string().describe('Exact story id to migrate.'),
+    confirm: z.boolean().optional().describe('Required true to perform the migration; omitted is dry-run.'),
+  }},
   { name: 'story_discard', description: 'Discard a Story: clean up its worktree and branch, then mark it DISCARDED', schema: {
     storyId: z.string().describe('Story ID'),
     reason: z.string().optional().describe('Discard reason (written to event log).'),
@@ -1228,7 +1232,7 @@ Behavior:
   }},
   { name: 'live_smoke_transcript', description: 'Explicit live-smoke transcript producer: default is read-only status (expected userSees output, current transcript artifact status, V1 live-smoke readiness row). --capture="<command>" runs ONLY that one provided command (runCommands) and records the actual transcript; --write persists the expected-vs-actual artifact (writeEvidence, ownership/scope gated). --capture and --write are independent. Never advances phase, launches reviewers, widens local assurance, writes verificationEvidence/delivery checks, or accepts a metadata-only waiver.', schema: {
     storyId: z.string().describe('Story ID'),
-    capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command in an isolated process group with a bounded timeout and record stdout/stderr/exit as the actual transcript. Direct DONE-required/done_prepare captures derive their legal configured budget only when the lattice executable resolves to the exact active CLI realpath and the optional inline environment is limited to PROOF_OR_STOP_SESSION_ID (the deprecated LATTICE_SESSION_ID spelling is also accepted); project paths never self-authorize. Every inherited or default/config/phase-derived nested max remains the business bound while capture/outer wrappers add bounded cleanup grace; a Node-timer-saturated bound is reduced to reserve both grace layers and preserve strict ordering. Timeout cleanup remains referenced until a structured terminal is emitted. Arbitrary, shell-composed, or executable-injected commands retain the fixed safety ceiling. Never derives or appends a command. Capture alone persists nothing.'),
+    capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command in an isolated process group with a bounded timeout and record stdout/stderr/exit as the actual transcript. Direct DONE-required/done_prepare captures derive their legal configured budget only when the proof-or-stop executable resolves to the exact active CLI realpath and the optional inline environment is limited to PROOF_OR_STOP_SESSION_ID (the deprecated PROOF_OR_STOP_SESSION_ID spelling is also accepted); project paths never self-authorize. Every inherited or default/config/phase-derived nested max remains the business bound while capture/outer wrappers add bounded cleanup grace; a Node-timer-saturated bound is reduced to reserve both grace layers and preserve strict ordering. Timeout cleanup remains referenced until a structured terminal is emitted. Arbitrary, shell-composed, or executable-injected commands retain the fixed safety ceiling. Never derives or appends a command. Capture alone persists nothing.'),
     write: z.boolean().optional().describe('Opt-in artifact writer: persist the expected-vs-actual transcript to <storyDir>/evidence/live-smoke-transcript.json. Ownership/scope gated. Write alone runs no command. Independent of --capture.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -1271,7 +1275,7 @@ Behavior:
     mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
     refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
     validate: z.boolean().optional().describe('Run proof-or-stop validate --story=<storyId> --json before DONE closure projection (default true).'),
-    build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global lattice.'),
+    build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global proofOrStop.'),
     dryRun: z.boolean().optional().describe('Inspect and report planned steps without mutating git, evidence, build outputs, or version files.'),
     json: z.boolean().optional().describe('Return a JSON object; progress still uses the CLI liveness side channel.'),
     autoCloseGeneratedMetadata: z.boolean().optional().describe('Opt-in: commit only current-run generated DONE/test lifecycle metadata after manifest safety checks (default false).'),
@@ -1400,7 +1404,7 @@ Behavior:
     claimId: z.string().optional().describe('Claim id, for example CLAIM-PRODUCTION-SAFETY'),
     requestedClaim: z.string().optional().describe('Human requested claim wording to evaluate'),
     runId: z.string().optional().describe('Optional report run id when writing a claim report'),
-    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     output: z.string().optional().describe('Optional JSON output path; also writes a sibling .md report'),
     outputDir: z.string().optional().describe('Optional directory for claim-report.json/md'),
     writeReport: z.boolean().optional().describe('Write the canonical claim-report.json/md under the baseline artifacts root'),
@@ -1412,7 +1416,7 @@ Behavior:
     claimId: z.string().optional().describe('Claim id; CLAIM-ENGINEERING-DEV or CLAIM-LOOP-ENGINEERING can unlock here'),
     requestedClaim: z.string().optional().describe('Human requested claim wording to evaluate'),
     runId: z.string().optional().describe('Optional report run id when writing a claim report'),
-    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     output: z.string().optional().describe('Optional JSON output path; also writes a sibling .md report'),
     outputDir: z.string().optional().describe('Optional directory for claim-report.json/md'),
     writeReport: z.boolean().optional().describe('Write the canonical claim-report.json/md under the baseline artifacts root'),
@@ -1492,11 +1496,11 @@ Behavior:
     host: z.string().describe('Host profile id to show guidance for'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'lattice_config_doctor', description: 'Report Proof-or-Stop 0.3.8 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: proof-or-stop config doctor', schema: {
+  { name: 'proof_or_stop_config_doctor', description: 'Report Proof-or-Stop 0.3.8 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: proof-or-stop config doctor', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'lattice_config_repair', description: 'Explicit operator-confirmed wrapper-root repair: validates --set-git-root stays under the metadata root and is a git repository root, then writes only the gitRoot field of the existing project config when --confirm is given; without --confirm it is a non-mutating preview. Alias: proof-or-stop config repair', schema: {
+  { name: 'proof_or_stop_config_repair', description: 'Explicit operator-confirmed wrapper-root repair: validates --set-git-root stays under the metadata root and is a git repository root, then writes only the gitRoot field of the existing project config when --confirm is given; without --confirm it is a non-mutating preview. Alias: proof-or-stop config repair', schema: {
     setGitRoot: z.string().optional().describe('Relative directory under the metadata root that is the git repository root (use --set-git-root=<dir>); required, never guessed'),
     confirm: z.boolean().optional().describe('Required to write; without --confirm the command previews the change and prints the exact confirm command'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1511,7 +1515,7 @@ Behavior:
   { name: 'baseline_run', description: 'Run one executable Proof-or-Stop baseline scenario and write required final-report artifacts. Alias: proof-or-stop baseline run', schema: {
     baselineId: z.string().describe('Baseline scenario id (NL-*/RED-* baseline suite, or legacy ENG-/AUTH-/CLAIM-* Baseline 2-5 id)'),
     runId: z.string().optional().describe('Optional run id'),
-    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     formal: z.boolean().optional().describe('Produce a formal Engineering or Loop Engineering final report after proof refs validate'),
     suiteRunId: z.string().optional().describe('Formal suite run id binding'),
     claimTarget: z.string().optional().describe('Formal claim target binding; must be engineering or loop-engineering'),
@@ -1556,7 +1560,7 @@ Behavior:
   }},
   { name: 'baseline_suite', description: 'Aggregate baseline_run final-report artifacts into rates and false-DONE checks. Alias: proof-or-stop baseline suite', schema: {
     layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).optional().describe('Legacy Baseline 2-5 layer to aggregate'),
-    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     reportsRoot: z.string().optional().describe('Root directory to scan for final-report.json files'),
     reportFiles: z.union([z.array(z.string()), z.string()]).optional().describe('Explicit final-report.json files, array or comma-separated'),
     outputDir: z.string().optional().describe('Directory for baseline-suite-report artifacts'),
@@ -1565,7 +1569,7 @@ Behavior:
   }},
   { name: 'baseline_suite_report', description: 'Aggregate Proof-or-Stop baseline final-report.json files and write baseline-suite-report.json/md. Alias: proof-or-stop baseline suite report', schema: {
     layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).optional().describe('Legacy Baseline 2-5 layer to aggregate'),
-    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     reports: z.union([z.string(), z.array(z.string())]).optional().describe('Comma-separated final-report.json files or directories; defaults to the command report root'),
     outputDir: z.string().optional().describe('Directory for baseline-suite-report.json and baseline-suite-report.md (default command report root)'),
     suiteId: z.string().optional().describe('Suite id to include in the report (default minimum-baseline-suite)'),
@@ -2061,7 +2065,7 @@ Behavior:
     upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Proof-or-Stop templates; equivalent to --apply.'),
     reviewLocalEdits: z.boolean().optional().describe('Output structured manual review summary for STALE_LOCAL_EDIT.'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('Override auto-detected init profile.'),
-    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .proof-or-stop-codex/agents, thin=use prompt registry.'),
   }},
 
   // Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).
@@ -2230,7 +2234,7 @@ Behavior:
   }},
 
   // B-4f46 CHK-003: signature-registry (Experience Layer Phase 1b). AUDIT-ONLY catalog
-  // of finding signatureTags under .lattice/learning/. No gate reads it.
+  // of finding signatureTags under .proof-or-stop/learning/. No gate reads it.
   { name: 'signature_registry_list', description: 'List signature-registry tags + statuses (audit-only)', schema: {
     storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
   }},
@@ -2255,7 +2259,7 @@ Behavior:
 
   // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle. Distil a
   // resolved finding into a human-approved candidate playbook. NEVER files findings
-  // or touches gates; writes only under .lattice/learning/. Approve fails closed on
+  // or touches gates; writes only under .proof-or-stop/learning/. Approve fails closed on
   // a stale --expectedProposalDigest (decision-doc pattern); status is candidate,
   // NOT active. Activate is the explicit active-runtime boundary and fails closed
   // on --expectedPlaybookDigest.
@@ -2422,10 +2426,10 @@ Behavior:
     top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
   }},
   // B-4eb6 (Experience Layer ③.1): learning_scan derives + PERSISTS the advisory
-  // finding-signals cache (.lattice/learning/finding-signals.json) the Phase 1.5
+  // finding-signals cache (.proof-or-stop/learning/finding-signals.json) the Phase 1.5
   // hint loader reads. It WRITES the cache (not read-only — NOT in READ_ONLY_COMMANDS)
   // but reads findings via the store read ports only and touches no gate.
-  { name: 'learning_scan', description: 'Derive and persist the advisory finding-signals cache (.lattice/learning/finding-signals.json) that powers review experience hints; writes the cache, reads findings via store ports, touches no gate', schema: {
+  { name: 'learning_scan', description: 'Derive and persist the advisory finding-signals cache (.proof-or-stop/learning/finding-signals.json) that powers review experience hints; writes the cache, reads findings via store ports, touches no gate', schema: {
     json: z.boolean().optional().describe('Emit a machine-readable summary { written, path, signals, schemaVersion, updatedAt } as JSON.'),
     story: z.string().optional().describe('Restrict derivation to a single story id.'),
   }},
@@ -2613,6 +2617,23 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     role: z.string().describe('Reviewer short name (concept / quality / test-coverage / behavior / docs).'),
     json: z.boolean().optional().describe('Output structured JSON (role, isFirstPass, scopeChanged, priorHeadHash, priorVerdict, changedFiles).'),
+  }},
+
+  // B-a745 CHK-005: read-only Story-relevance validation planner. Explain-only:
+  // it executes no validation command, writes no artifact, and is final
+  // authority for nothing. There is deliberately NO --focus flag here; the
+  // --focus / --tier mutual rejection belongs to `validate --tier`.
+  { name: 'validation_plan', description: 'Read-only: explain which validation units a Story tier would run, why, and at what estimated cost. Executes nothing, writes nothing, and is never final authority.', schema: {
+    // The custom missing-value messages exist so the SCHEMA path and the HANDLER
+    // path refuse an omitted argument in the same words. Both layers are real:
+    // zod is the first line of defence on the CLI path, and the handler
+    // re-validates for every caller that never met a schema.
+    storyId: z.string({ error: (issue) => (issue.input === undefined ? 'validation_plan: storyId is required (for example --storyId=B-a745)' : undefined) }).trim().min(1).describe('Story ID (required; never defaulted).'),
+    tier: z.string({ error: (issue) => (issue.input === undefined ? 'validation_plan: tier is required (one of fast, intermediate, full)' : undefined) }).trim().min(1).describe('Requested tier: fast / intermediate / full (required; never defaulted).'),
+    explain: z.boolean().optional().describe('List every unit and every unclassified input instead of a preview.'),
+    json: z.boolean().optional().describe('Emit one structured JSON object carrying the same facts as the human output.'),
+    persist: z.never().optional().describe('Not a flag; validation_plan persists nothing. Passing --persist is rejected by CLI validation.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
 
   // Workflow profile
@@ -3307,11 +3328,11 @@ Behavior:
     maxEntries: z.number().optional().describe('Maximum number of entries to include (default: 5).'),
     maxLines: z.number().optional().describe('Line budget (default: 60).'),
     reason: z.string().optional().describe('Reasoned-downgrade explanation (>=5 chars), required only when the preflight pack build itself throws.'),
-    actor: z.string().optional().describe('Acknowledging actor (default: LATTICE_AGENT/USER env or "main-agent").'),
+    actor: z.string().optional().describe('Acknowledging actor (default: PROOF_OR_STOP_AGENT/USER env or "main-agent").'),
   }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
     storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proof-or-Stop sessions.'),
-    storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
+    storyDir: z.string().optional().describe('Story directory root path (default <root>/.proof-or-stop/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
   }},
@@ -3423,6 +3444,20 @@ Behavior:
     reason: z.string().min(1).describe('Human-readable reason (whitespace-normalized into the operation key).'),
     agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias.'),
+  }},
+  { name: 'red_evidence_envelope_check', description: 'W2d: READ-ONLY admissibility pre-flight for a candidate RED assertion envelope (§1.1). Validates matcher schema bounds, the §1.3 minimum-specificity rules, the §1.1.2 exit-class and adapter-linkage compatibility, the §1.1.3 supplementary-artifact path syntax, and the assertion against the story COMMITTED target binding, reporting §1.6-tagged rejections (R1-1/R1-2/R1-3/R1-5/R1-6) BEFORE a run is spent. On an admissible envelope it reports the computed assertionDigest, the matched binding reference, and the resolved policyDigest. It executes no envelope. Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness. In particular an inadmissible envelope is reported by THROWING, and cli-engine.ts prints that report TWICE — once before and once after it awaits the onError hooks, which run only when the hooks map has an exact red_evidence_envelope_check key or a * key.', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    assertionFile: z.string().min(1).describe('Path to the candidate §1.1 assertion envelope JSON (absolute, or resolved against the project root).'),
+    json: z.boolean().optional().describe('Output deterministic structured JSON.'),
+    status: z.never().optional().describe('Forbidden: admissibility is validator-derived.'),
+    verdict: z.never().optional().describe('Forbidden: callers cannot submit a verdict.'),
+    rejections: z.never().optional().describe('Forbidden: rejections are validator-derived.'),
+    assertionDigest: z.never().optional().describe('Forbidden: the assertion digest is recomputed, never accepted from a caller.'),
+    policyDigest: z.never().optional().describe('Forbidden: the policy digest comes from the resolved policy snapshot.'),
+    binding: z.never().optional().describe('Forbidden: the target binding is read from the committed tree.'),
+    evidence: z.never().optional().describe('Not supported: this check consumes and produces no evidence.'),
+    write: z.never().optional().describe('Not supported: the command is read-only.'),
+    apply: z.never().optional().describe('Not supported: the command applies no change.'),
   }},
 
 ];

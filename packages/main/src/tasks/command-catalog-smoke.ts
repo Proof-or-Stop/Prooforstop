@@ -48,7 +48,7 @@ function runCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -61,7 +61,7 @@ function runDistCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -74,7 +74,7 @@ function runDistCliProbe(args: string[]): { status: number | null; stdout: strin
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
   return {
@@ -87,7 +87,7 @@ function runDistCliProbe(args: string[]): { status: number | null; stdout: strin
 const duplicateNames = toolNames.filter((name, index) => toolNames.indexOf(name) !== index);
 assert.deepEqual([...new Set(duplicateNames)], [], 'MAIN_TOOLS must not contain duplicate commands');
 
-assert.deepEqual(toolNames.slice(0, 9), [
+assert.deepEqual(toolNames.slice(0, 10), [
   'story_create',
   'story_advance',
   'story_update',
@@ -96,10 +96,11 @@ assert.deepEqual(toolNames.slice(0, 9), [
   'story_list',
   'story_resolve',
   'story_reconcile',
+  'identity_state_migrate',
   'story_discard',
 ], 'MAIN_TOOLS leading command order changed');
 
-assert.deepEqual(toolNames.slice(-9), [
+assert.deepEqual(toolNames.slice(-10), [
   'spike_record',
   'spike_review_set',
   'red_green_relation_create',
@@ -107,10 +108,12 @@ assert.deepEqual(toolNames.slice(-9), [
   'regression_matrix_review_set',
   'story_create_from_repro',
   // W2b (B-e10d): red_evidence_binding_set; W2c (B-506e): the two chain-control
-  // commands are appended as the trailing commands.
+  // commands; W2d (B-9ff1): the read-only envelope pre-flight. Appended as the
+  // trailing commands.
   'red_evidence_binding_set',
   'red_evidence_quarantine',
   'red_evidence_recover',
+  'red_evidence_envelope_check',
 ], 'MAIN_TOOLS trailing command order changed');
 
 for (const command of [
@@ -154,7 +157,7 @@ for (const identifier of ['itemId', 'findingId', 'clusterId'] as const) {
 }
 // The dispatch agentType enum is derived from AGENT_DISPATCH_ACCEPTED_TYPES, which
 // deliberately omits agents that are retired from runtime dispatch (e.g.
-// lattice-review-channel, kept in the registry only for historical classification).
+// proof-or-stop-review-channel, kept in the registry only for historical classification).
 // Guard bidirectional consistency between the public schema and that registry so
 // neither a stale non-dispatchable agent leaks into the enum, nor a retired lane is
 // wrongly accepted.
@@ -290,7 +293,7 @@ assert.match(helpOutput, /Proof-or-Stop/, 'help should carry Proof-or-Stop brand
 // deliberately the pre-rename spelling and must NOT be normalized — normalizing it
 // would make this line assert the absence of the CURRENT brand, inverting the guard.
 assert.doesNotMatch(helpOutput, /Proofbound/, 'help must not print the legacy Proofbound product name anywhere');
-assert.doesNotMatch(helpOutput, /Usage: lattice /, 'help must not teach the deprecated bin as the usage form');
+assert.doesNotMatch(helpOutput, /Usage: proofOrStop /, 'help must not teach the deprecated bin as the usage form');
 assert.match(helpOutput, /host_runtime_probe/, 'proof-or-stop help should include host runtime commands');
 assert.match(runCli(['help', '--full']), /antigravity/, 'proof-or-stop help --full should include antigravity host text');
 

@@ -2,7 +2,7 @@
  * B-253e CHK-002 / CHK-004 / CHK-006: the single append-only writer for the LLM
  * usage ledger — the completeness choke-point.
  *
- * This module is the ONLY code that writes `.lattice/usage/llm-usage.jsonl`.
+ * This module is the ONLY code that writes `.proof-or-stop/usage/llm-usage.jsonl`.
  * `fs` access to the ledger is private to this module: callers hand a record to
  * `appendUsageRecord` and never touch the file directly. The smoke test asserts
  * no other module under `core/` references the ledger path or appends to it.
@@ -10,8 +10,8 @@
  * Responsibilities (per "JSONL Ledger Record Shape", "Required record
  * constraints", "Completeness Guarantee", "Privacy Constraints"):
  *   - opt-out gate (CHK-006): default ON; a strict no-op when the flag is set
- *     OFF (LATTICE_USAGE_LEDGER=0) — writes nothing and creates no file/directory;
- *   - ensure `.lattice/usage/` exists;
+ *     OFF (PROOF_OR_STOP_USAGE_LEDGER=0) — writes nothing and creates no file/directory;
+ *   - ensure `.proof-or-stop/usage/` exists;
  *   - validate the record (CHK-001) and reject privacy/secret/raw-content and
  *     stored-total fields (CHK-004) before any write;
  *   - compute `recordHash` over the canonical record minus `recordHash`, and
@@ -43,7 +43,7 @@ import {
   validateUsageLedgerRecord,
 } from './record.js';
 import { readBrandEnv } from '../brand-env.js';
-import { PROOF_OR_STOP_DIR } from '../lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../proof-or-stop-paths.js';
 
 /** Relative path of the ledger from the project root. */
 export const USAGE_LEDGER_DIR = join(PROOF_OR_STOP_DIR, 'usage');
@@ -57,7 +57,7 @@ export const USAGE_LEDGER_RELATIVE_PATH = join(USAGE_LEDGER_DIR, USAGE_LEDGER_FI
 export const GENESIS_PREVIOUS_HASH = null;
 
 /**
- * Ledger enable flag (CHK-006). Default ON; set LATTICE_USAGE_LEDGER=0 to disable.
+ * Ledger enable flag (CHK-006). Default ON; set PROOF_OR_STOP_USAGE_LEDGER=0 to disable.
  * When the flag is UNSET the ledger is active by default; the explicit escape
  * hatch ('0'/'false'/'off'/'no'/'') restores the byte-identical legacy
  * default-off behavior (a strict no-op writer + the original spawn args + an
@@ -111,7 +111,7 @@ export function resolveLedgerPath(projectRoot: string): string {
 //   (a) owner.json is present/valid and its pid is DEAD (process.kill(pid,0)
 //       throws ESRCH), regardless of lock age; or
 //   (b) owner.json is missing or unreadable/corrupt AND the dir mtime exceeds
-//       the orphan backstop (LATTICE_USAGE_LEDGER_LOCK_STALE_MS) — this covers
+//       the orphan backstop (PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS) — this covers
 //       exactly the mkdir-then-crash-before-owner-write window (plus external
 //       corruption), where pid liveness is unknowable.
 // A LIVE pid with a valid owner.json is NEVER reclaimed, no matter how old the
@@ -129,9 +129,9 @@ export const USAGE_LEDGER_LOCK_SUFFIX = '.lock';
 /** Owner file written inside the lock dir by the acquirer (F-018). */
 export const USAGE_LEDGER_LOCK_OWNER_FILENAME = 'owner.json';
 
-/** Bounded total wait for the lock (env LATTICE_USAGE_LEDGER_LOCK_WAIT_MS). */
+/** Bounded total wait for the lock (env PROOF_OR_STOP_USAGE_LEDGER_LOCK_WAIT_MS). */
 const DEFAULT_LOCK_WAIT_MS = 5_000;
-/** Orphan backstop (env LATTICE_USAGE_LEDGER_LOCK_STALE_MS). F-018: this age
+/** Orphan backstop (env PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS). F-018: this age
  * threshold applies ONLY to ownerless/corrupt locks — the holder crashed
  * between mkdir and recording owner.json, so pid liveness is unknowable and
  * mtime age is the only signal left. Locks with a valid owner.json are
@@ -417,10 +417,10 @@ export interface AppendOptions {
  *     cannot forge or inject a hash;
  *   - F-012/F-018: serializes the read-last-hash -> append section behind a
  *     cross-process mkdir lock (sibling `llm-usage.jsonl.lock/` dir; bounded
- *     wait LATTICE_USAGE_LEDGER_LOCK_WAIT_MS). Reclaim is OWNERSHIP-AWARE:
+ *     wait PROOF_OR_STOP_USAGE_LEDGER_LOCK_WAIT_MS). Reclaim is OWNERSHIP-AWARE:
  *     the acquirer records owner.json (pid + release token); a held lock is
  *     reclaimed only on holder pid death, or — for ownerless/corrupt locks —
- *     past the LATTICE_USAGE_LEDGER_LOCK_STALE_MS orphan backstop; a live
+ *     past the PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS orphan backstop; a live
  *     holder is never stolen. On bounded-wait exhaustion it THROWS
  *     (skip-not-corrupt) instead of appending off a stale predecessor;
  *   - appends one newline-terminated JSON line; never edits prior lines.

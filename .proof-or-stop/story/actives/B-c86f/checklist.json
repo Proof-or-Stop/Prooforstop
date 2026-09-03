@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify the whole dev-memory root as non-material in the runtime artifact registry",
+      "context": "Probe rp-mtk45qx1-nj8w3o, review rr-mtk4a0j3-age5w9; transcripts + green-2-candidate.md in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects. core/runtime-artifact-registry.ts entry dev-memory-finish-decision: widen matchers from stateDirPrefix(dev-memory/finish-decisions/) to stateDirPrefix(dev-memory/) (brand-path derived, never a literal), keep ignorePatterns empty so the records stay git-tracked, keep the B-a7c5 F-005 rationale comment, rename/describe the entry as the dev-memory root.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "proof-or-stop validate --json shows materialHash and storyFilesHash unchanged after committing .proof-or-stop/dev-memory/experience.jsonl, and isMaterialExcludedPath(.proof-or-stop/dev-memory/experience.jsonl) returns true",
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-dev-memory-material.mjs"
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Commit red-dev-memory-material.mjs as a registered red test that is GREEN after CHK-001",
+      "context": "Copy the script from .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects to packages/main/tests/red/, register it in proof-or-stop.config.json next to the other red tests, run it in the worktree; it must exit 0 only because CHK-001 landed (on main it still exits 1 with 3 desired properties not met).",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-c86f/background.md"
+      ],
+      "userSees": "GREEN red-dev-memory-material: dev_memory_capture + dev_memory_finish_decision leave materialHash and storyFilesHash unchanged",
+      "files": {
+        "modify": [
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-dev-memory-material.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-dev-memory-material.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document the closeout ordering in the DONE convergence guidance and reconcile with B-f6fb lesson survival",
+      "context": "CLAUDE.md Host DONE convergence section and docs/requirements/decisions/done-prepare-automation-execution-plan.md: state that dev-memory records are lifecycle metadata for hashing and that recording the finish decision after evidence exists is safe. If B-f6fb (lessons surviving DONE) lands first, make sure a lesson is both preserved and non-material.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-c86f/background.md"
+      ],
+      "userSees": "CLAUDE.md names dev-memory records as non-material in the DONE convergence section",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

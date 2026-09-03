@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export type BaselineExpectedOutcome = 'PASS' | 'EXPECTED_BLOCK';
 export type BaselineOutcome = BaselineExpectedOutcome | 'FAIL' | 'INVALID';

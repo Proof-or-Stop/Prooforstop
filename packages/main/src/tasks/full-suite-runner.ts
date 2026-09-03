@@ -74,7 +74,7 @@ export function observedOutputSignatures(output: string): string[] {
     // Structured summary fields are parsed below. Hashing their raw JSON would
     // duplicate those facts and make formatting or timing-only metadata part of
     // the semantic output inventory.
-    .filter(line => !line.startsWith('LATTICE_FULL_SUITE_SUMMARY='))
+    .filter(line => !line.startsWith('PROOF_OR_STOP_FULL_SUITE_SUMMARY='))
     .map(line => normalizeStressReceipt(line)
     .replace(/^- B-[0-9a-f]{4}(?= \[[A-Z_]+\] )/, '- B-<fixture>')
     .replace(/\b(?:headHash|materialHash|storyFilesHash|digest)=?["']?[0-9a-f]{40,64}\b/gi, '<identity>')
@@ -129,12 +129,13 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   ]),
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
-  repoRead('test:lattice-residue'),
+  repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference
   // name without a policy entry fails closed (unknownPolicy) before execution.
   repoRead('test:residue-inject-repro'), repoRead('test:retired-authority-vocabulary-guard'),
   repoRead('test:brand-path-resolver-smoke'), repoRead('test:config-filename-migration-smoke'),
   repoRead('test:core-package-rename'), repoRead('test:state-dir-migration'),
+  repoRead('test:identity-state-migrate-atomicity'),
   repoRead('test:migration-contract'),
   repoRead('test:proof-or-stop-prompt-baseline'),
   // B-cdf6: both added to test:serial-reference by this story. Membership authority is
@@ -202,13 +203,21 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // letting the default 120s cap turn it into a scheduler false negative.
   isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { timeoutMs: 450_000, priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
-  // The acceptance rollout launches twelve production child processes (three
-  // at a time) and creates/commits a temporary Story repository for each pair.
-  // It is therefore a heavy fan-out member even though its own fixed-path
-  // footprint is isolated.  Sharing the existing exclusive heavy-smoke claim
-  // prevents it from overlapping with the other high-fan-out members, where
-  // process pressure can make a child exit before emitting its receipt.
-  isolatedHeavy('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  // B-a745 CHK-006: the Story 1 fixture suite. Membership authority is the root
+  // test:serial-reference chain; this policy row is the SEPARATE mandatory mapping and
+  // its absence fails the whole suite closed as unknownPolicy rather than skipping the
+  // member. The suite only reads the repository and its own runner-owned temp roots --
+  // it spawns no CLI and holds no exclusive path, port or lock -- so repoRead is correct.
+  repoRead('test:validation-tier-planner'),
+  // B-41c8 CHK-004: the single-owner extraction suite (NUL-delimited rename reader,
+  // canonical legacy command parse, story-workspace resolver, resolveGitCwd call-site
+  // audit). Same three-authority rule as above: this row is mandatory or the whole
+  // suite fails closed as unknownPolicy. The suite reads the repository (handlers
+  // source, root package.json, proof-or-stop.config.json, this file) and writes only
+  // runner-owned temp roots -- the aliased-import audit fixture lives in a temp dir,
+  // never in the live handlers directory -- so repoRead is correct.
+  repoRead('test:single-owner-extraction'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);
@@ -422,8 +431,8 @@ export function validateJsonOutputPath(cwd: string, path: string, ownedOutputRoo
   if (lexicalInside || canonicalInside) throw new Error('--json-output must be outside the project root');
   if (ownedOutputRoot) {
     const canonicalOwned = canonicalFilesystemPath(cwd, ownedOutputRoot, true);
-    if (pathIsContained(projectRoot, canonicalOwned) || pathIsContained(canonicalOwned, projectRoot)) throw new Error('LATTICE_FULL_SUITE_OUTPUT_ROOT must be external to and disjoint from the project root');
-    if (!pathIsContained(canonicalOwned, canonicalTarget)) throw new Error('--json-output escapes LATTICE_FULL_SUITE_OUTPUT_ROOT');
+    if (pathIsContained(projectRoot, canonicalOwned) || pathIsContained(canonicalOwned, projectRoot)) throw new Error('PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT must be external to and disjoint from the project root');
+    if (!pathIsContained(canonicalOwned, canonicalTarget)) throw new Error('--json-output escapes PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT');
   }
   return canonicalTarget;
 }
@@ -471,7 +480,7 @@ export function resetInterruptForTest(): void { defaultRunState.interruptSignal 
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
   const started = performance.now();
-  const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
+  const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
   const preexisting = cleanupManifest.filter(target => target.existedBefore);
   if (preexisting.length) {
@@ -486,7 +495,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
     const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, LATTICE_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+      env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     onSpawn?.(); state.activeChildren.add(child);
     let output = '';
@@ -523,9 +532,9 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       }
       const timing = usePosixTime && existsSync(timingPath) ? readFileSync(timingPath, 'utf8') : '';
       const cpuMatch = timing.match(/^real\s+[0-9.]+\s*\nuser\s+([0-9.]+)\s*\nsys\s+([0-9.]+)\s*$/);
-      const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
+      const markerLine = output.split(/\r?\n/).find(line => line.startsWith('PROOF_OR_STOP_FULL_SUITE_SUMMARY='));
       let marker: { assertions?: string[]; mutations?: string[] } | undefined;
-      try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
+      try { marker = markerLine ? JSON.parse(markerLine.slice('PROOF_OR_STOP_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
       const status = state.interruptError || completionCleanupError ? 'FAIL' : state.interruptSignal || state.cancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
       const reason = state.interruptError ? `interrupt cleanup failed: ${state.interruptError.message}`
         : completionCleanupError ? `completion cleanup failed: ${completionCleanupError.message}`
@@ -600,7 +609,7 @@ async function main(): Promise<void> {
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
   const jobs = args.jobs ?? defaultJobs();
   const startIdentity = readIdentity(cwd);
-  const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.LATTICE_FULL_SUITE_OUTPUT_ROOT) : undefined;
+  const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT) : undefined;
   const wallStartedAt = new Date().toISOString();
   const started = performance.now();
   let processLaunchCount = 0;

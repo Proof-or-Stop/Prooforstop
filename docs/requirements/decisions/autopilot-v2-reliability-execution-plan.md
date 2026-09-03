@@ -76,14 +76,14 @@ problem as a model-capability one. This program closes that gap inside the produ
 
 | Capability | v1 state | Evidence (file:line) |
 |---|---|---|
-| `autopilot_resume` | **Always REFUSED** — `stale_state` if >15 min, else `unsafe_state`; both return `status:'refused'`. "autopilot v1 does not safely resume host-native runs." Crash ⇒ full restart. | `packages/main/src/handlers/lattice-autopilot.ts:1179-1203` |
+| `autopilot_resume` | **Always REFUSED** — `stale_state` if >15 min, else `unsafe_state`; both return `status:'refused'`. "autopilot v1 does not safely resume host-native runs." Crash ⇒ full restart. | `packages/main/src/handlers/proof-or-stop-autopilot.ts:1179-1203` |
 | **C1 health-aware pause/resume** | **PARTIAL** — `callWithRetry` (detects 429/503/529/timeout/network/overload/rate, exponential backoff ≤5×) exists but lives ONLY in the open-ended Claude CLI provider and is **not wired into the autopilot step executor**, which uses `execFileSync` and stops the run on a failed step. | retry: `packages/main/src/providers/claude-cli.ts:200-231`; executor: `packages/main/src/.../autopilot-executor.ts` (`defaultRunner` ~206-224, sequential loop ~388-605, step-failed stop ~552-556) |
-| **C2 idempotent resume** | **MISSING** — no per-step/per-phase checkpoint, no identity-keyed skip, no double-run hazard guard. `run.json` records `iterations[]`/`events[]` but resume never uses them to skip completed work. | `lattice-autopilot.ts` AutopilotRunRecord ~120-160, resume ~1179-1203 |
+| **C2 idempotent resume** | **MISSING** — no per-step/per-phase checkpoint, no identity-keyed skip, no double-run hazard guard. `run.json` records `iterations[]`/`events[]` but resume never uses them to skip completed work. | `proof-or-stop-autopilot.ts` AutopilotRunRecord ~120-160, resume ~1179-1203 |
 | **C3 adaptive throttle** | **MISSING** — strictly sequential loop; no runtime concurrency/backoff. `maxConcurrentReview` is a PLANNING gate, not a runtime throttle. | executor loop ~516-558; `audit-config.ts:63-65` |
-| **C5 process-level parallelism** | **MISSING** — in-process synchronous `execFileSync`/`spawnSync`; steps serialized (the SAME fake-concurrency constraint the fleet hit). A TEST smoke (`story-create-concurrency-smoke.ts`) already spawns OS child processes for exactly this reason, but there is no production pool. | executor ~206-224, 516-558; dispatch `lattice-dispatch.ts` |
+| **C5 process-level parallelism** | **MISSING** — in-process synchronous `execFileSync`/`spawnSync`; steps serialized (the SAME fake-concurrency constraint the fleet hit). A TEST smoke (`story-create-concurrency-smoke.ts`) already spawns OS child processes for exactly this reason, but there is no production pool. | executor ~206-224, 516-558; dispatch `proof-or-stop-dispatch.ts` |
 
-State persistence DOES exist: phase state in `.lattice/story/actives/<id>/index.json` and the
-autopilot run record in `.lattice/autopilot-runs/<runId>/run.json` survive a crash — but nothing
+State persistence DOES exist: phase state in `.proof-or-stop/story/actives/<id>/index.json` and the
+autopilot run record in `.proof-or-stop/autopilot-runs/<runId>/run.json` survive a crash — but nothing
 consumes them to resume.
 
 ### 2.1 Audit issues converted into implementation rules
@@ -108,13 +108,13 @@ integrity habits, but it must not overload ledgers that have a different subject
 
 | Existing state/ledger | Current role | Why it is not the M1 resume source-of-truth |
 |---|---|---|
-| `.lattice/usage/llm-usage.jsonl` | Append-only, hash-chained LLM usage diagnostic ledger. | It accounts for provider usage and budget. It is runtime diagnostic data, not ordered autopilot step state. |
-| `.lattice/evidence/ledger/observed.jsonl` | Evidence artifact observation audit. | The Evidence Platform architecture explicitly treats it as append-only audit, not source-of-truth. |
-| `.lattice/story/actives/<storyId>/process-events.jsonl` | Story lifecycle/process-fact event history. | It records lifecycle facts, not autopilot per-step dispatch identity or skip/resume admissibility. |
-| `.lattice/autopilot-runs/<runId>/run.json` | Current autopilot readable snapshot. | It survives ordinary writes, but it is a snapshot only. A crash can leave it stale relative to the last completed step unless backed by an authoritative per-run checkpoint ledger. |
+| `.proof-or-stop/usage/llm-usage.jsonl` | Append-only, hash-chained LLM usage diagnostic ledger. | It accounts for provider usage and budget. It is runtime diagnostic data, not ordered autopilot step state. |
+| `.proof-or-stop/evidence/ledger/observed.jsonl` | Evidence artifact observation audit. | The Evidence Platform architecture explicitly treats it as append-only audit, not source-of-truth. |
+| `.proof-or-stop/story/actives/<storyId>/process-events.jsonl` | Story lifecycle/process-fact event history. | It records lifecycle facts, not autopilot per-step dispatch identity or skip/resume admissibility. |
+| `.proof-or-stop/autopilot-runs/<runId>/run.json` | Current autopilot readable snapshot. | It survives ordinary writes, but it is a snapshot only. A crash can leave it stale relative to the last completed step unless backed by an authoritative per-run checkpoint ledger. |
 
 M1 therefore adds an **autopilot-local checkpoint ledger** under
-`.lattice/autopilot-runs/<runId>/` (exact filename chosen by implementation, for example
+`.proof-or-stop/autopilot-runs/<runId>/` (exact filename chosen by implementation, for example
 `checkpoint-events.jsonl`). It should follow existing ledger discipline: append-only writes,
 strict schema, canonical identity, optional hash chaining, corruption detection, and a single
 writer chokepoint. `run.json` remains the status/watch projection derived from that ledger.
@@ -224,7 +224,7 @@ verifying existing artifacts, or explicitly reported as duplicate external cost 
   resume approval rather than silent skip.
 - After each step completes, persist its checkpoint event atomically (append-then-fsync; never a
   positional count that voids/skips would desynchronize), then update `run.json` as a projection.
-- Rewrite `autopilot_resume` (`lattice-autopilot.ts:1179-1203`) to: load and replay the
+- Rewrite `autopilot_resume` (`proof-or-stop-autopilot.ts:1179-1203`) to: load and replay the
   checkpoint ledger → read the frozen plan → recompute the current plan only for compatibility →
   skip steps whose checkpoint is committed `done` and admissible → resume at the first non-`done`
   step. Resume only at step boundaries; a step interrupted mid-flight (no `done` checkpoint) is
@@ -246,7 +246,7 @@ verifying existing artifacts, or explicitly reported as duplicate external cost 
   as an uncommitted at-least-once step and record the duplicate external cost boundary.
 - `autopilot_resume` no longer returns `refused` for a healthy non-stale record.
 
-**Files.** `handlers/lattice-autopilot.ts` (record schema + resume), `.../autopilot-executor.ts`
+**Files.** `handlers/proof-or-stop-autopilot.ts` (record schema + resume), `.../autopilot-executor.ts`
 (checkpoint write per step). No lifecycle-gate surgery.
 
 ---
@@ -302,7 +302,7 @@ by `autopilot_watch`, a host/supervisor wrapper, CI, or a human invoking `autopi
 **Files.** provider/runtime adapters for `claude-code`, `codex`, and `antigravity`/`agy`
 (plus legacy `gemini` only where compatibility still exists), `providers/<shared>`,
 `.../autopilot-executor.ts` (pause-on-transient), `core/health.ts` (categories),
-`handlers/lattice-autopilot.ts` (status=paused).
+`handlers/proof-or-stop-autopilot.ts` (status=paused).
 
 ---
 
@@ -325,7 +325,7 @@ rate-limit signals — turning the planning-only `maxConcurrentReview` into a re
 - M3 + M4 integration: under induced 429s in the real process pool, actual live concurrent
   dispatches drop and later recover; never exceeds `--maxConcurrentLive`.
 
-**Files.** `core/lattice-dispatch.ts` (throttle), `cli/command-schemas.ts` (`--maxConcurrentLive`).
+**Files.** `core/proof-or-stop-dispatch.ts` (throttle), `cli/command-schemas.ts` (`--maxConcurrentLive`).
 
 ---
 
@@ -352,7 +352,7 @@ checkpoint run count == 1; concurrent workers cannot claim the same pending step
 claim cannot commit after a newer fencing token; a mid-run kill + resume still touches each
 committed unit once.
 
-**Files.** `core/<process-pool>.ts`, `core/lattice-dispatch.ts`.
+**Files.** `core/<process-pool>.ts`, `core/proof-or-stop-dispatch.ts`.
 
 ---
 
@@ -377,7 +377,7 @@ committed unit once.
 4. **M3 (C3)** — adaptive throttle. Gated.
 5. **M4 (C5)** — OS-process pool. Gated. Last (needs M1's idempotence to be safe).
 
-Each milestone is its own Proof-or-Stop story (DEV via `lattice-implementer`, full 2-host review).
+Each milestone is its own Proof-or-Stop story (DEV via `proof-or-stop-implementer`, full 2-host review).
 M1-M4 now have a deterministic product-level smoke surface under
 `packages/main/src/tasks/autopilot-v2-reliability-smoke.ts`. Future stories may deepen the live
 process-pool runner, but must keep these semantics: committed admissible `done` checkpoints are
@@ -392,15 +392,15 @@ semantically load-bearing.
 
 | Item | Implementation status | Acceptance evidence |
 |---|---|---|
-| M1 checkpoint/resume | Present before B-320f and preserved. The checkpoint ledger remains authoritative and `run.json` remains a readable projection. | Existing `packages/main/src/core/lattice-autopilot.ts` checkpoint ledger and `autopilot_resume` replay path are unchanged in structure; B-320f only adds health events around pause/resume. |
+| M1 checkpoint/resume | Present before B-320f and preserved. The checkpoint ledger remains authoritative and `run.json` remains a readable projection. | Existing `packages/main/src/core/proof-or-stop-autopilot.ts` checkpoint ledger and `autopilot_resume` replay path are unchanged in structure; B-320f only adds health events around pause/resume. |
 | M2 health-aware pause/resume | Implemented as shared classification/state helpers plus minimal `autopilot_run` integration at dispatch failure boundaries. Provider-side retryable 429/503/529/overload/network failures become provider-health states; quota/auth/policy/terminal errors are non-transient. Dispatch/runtime timeout remains the local `stopReason: timeout` boundary unless a future provider-specific timeout signal is deliberately reclassified. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` asserts `health_probe`, `provider_unhealthy`, `waiting_for_provider_health`, `paused_requires_resume`, `health_recovered`, and `resumed` event semantics. |
 | M3 adaptive throttle | Implemented as deterministic local throttle state with bounded `maxConcurrentLive`, permit checks, `throttle_hold`, `throttle_raise`, and `throttle_backoff`. | Smoke asserts bounded concurrency, raise on stable windows, backoff on provider failures, and hold behavior. |
 | M4 process-pool safety | Implemented as deterministic claim/lease/fencing state semantics for worker-owned step execution. Duplicate live claims are refused; expired leases can be reclaimed; stale fencing tokens cannot complete a step. | Smoke asserts duplicate live claim refusal, expired lease reclaim, stale fencing-token refusal, successful completion by the current owner, and refusal after completion. |
-| Host baseline | Current host-neutral baseline is Codex, Claude Code, and Antigravity. `agy` is an alias for Antigravity. Gemini is legacy/deprecated compatibility only. | `HOST_RUNTIME_BASELINE` is exported from `packages/main/src/core/lattice-dispatch.ts`; smoke asserts the current and legacy sets. |
+| Host baseline | Current host-neutral baseline is Codex, Claude Code, and Antigravity. `agy` is an alias for Antigravity. Gemini is legacy/deprecated compatibility only. | `HOST_RUNTIME_BASELINE` is exported from `packages/main/src/core/proof-or-stop-dispatch.ts`; smoke asserts the current and legacy sets. |
 | Documentation acceptance | Updated. The document no longer overclaims exactly-once behavior and explicitly distinguishes wrapper keepalive from product restart-safe resume. | This table records the B-320f acceptance surface and expected verification commands. |
 | Build | PASS in B-320f DEV. | `npm --prefix packages/main run build` |
 | Reliability smoke | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` prints `autopilot-v2-reliability smoke PASS`. |
 | Regression smokes | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-resume-smoke.js`; `node packages/main/dist/tasks/autopilot-run-smoke.js`. These protect M1 replay, existing Authority-boundary behavior, full-autopilot bounded retry, budget-capped fail-closed behavior, and local dispatch guard classification. |
-| Version and CLI entrypoint | PASS in B-320f DEV. | `node packages/main/dist/tasks/lattice-cli-migration-smoke.js`; `node packages/main/dist/cli.js --version` prints `Proof-or-Stop CLI 0.3.103`. |
+| Version and CLI entrypoint | PASS in B-320f DEV. | `node packages/main/dist/tasks/proof-or-stop-cli-migration-smoke.js`; `node packages/main/dist/cli.js --version` prints `Proof-or-Stop CLI 0.3.103`. |
 | Routine validate | Required in TEST phase, not advanced by this DEV task. | `proof-or-stop validate --story=B-320f` after phase advancement to TEST. |
 | DONE | Not performed by this DEV task. | DONE requires the normal Proof-or-Stop review/test/DONE flow and any configured DONE-required evidence. |

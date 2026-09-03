@@ -4,7 +4,7 @@ import { join } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
-import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
 import {
   PROOF_OR_STOP_CONFIG_FILENAME as CANONICAL_CONFIG_FILENAME,
@@ -16,7 +16,7 @@ import {
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
  *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
- *   - 项目级覆盖文件为 `<projectRoot>/.lattice/audit-config.json`
+ *   - 项目级覆盖文件为 `<projectRoot>/.proof-or-stop/audit-config.json`
  *   - 详见 CLAUDE.md「框架自省 audit 配置」
  *
  * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
@@ -25,7 +25,7 @@ import {
 export { _resolveAuditConfig as resolveAuditConfig };
 export type { AuditConfig };
 
-export interface LatticeFlowConfig {
+export interface ProofOrStopFlowConfig {
   defaults: Record<string, Record<string, unknown>>;
   patterns: Array<{ field: string; regex: string }>;
 }
@@ -217,7 +217,7 @@ export interface ProofOrStopConfig {
     astAnchors?: 'off' | 'warn' | 'enforce';
   };
   storyPrefix: string;
-  flows: LatticeFlowConfig;
+  flows: ProofOrStopFlowConfig;
   wrappersDir?: string;
   /** 项目语言：js（默认）或 python */
   language?: 'js' | 'python';
@@ -313,12 +313,6 @@ export interface ProofOrStopConfig {
     itemStale?: number;
     /** 距离上次任意 proof-or-stop 命令多久算 idle（默认 60） */
     idleProofOrStop?: number;
-    /**
-     * @deprecated B-cdf6:F-016 — pre-rename spelling of `idleProofOrStop`, kept readable so an
-     * existing `lattice.config.json` written before the rename keeps working. `resolveThresholds`
-     * in core/stale-detector.ts reads both, preferring the canonical name. Do not use in new work.
-     */
-    idleLattice?: number;
     /** open bug 多久没修算超期（默认 1440=24h） */
     bugStale?: number;
   };
@@ -340,9 +334,8 @@ export interface ProofOrStopConfig {
 /**
  * @deprecated Use `ProofOrStopConfig`. Retained as a durable alias, not a temporary
  * migration aid: this repository is multi-developer, and a teammate branch written
- * against `LatticeConfig` must keep compiling when it merges. Never remove.
+ * against `ProofOrStopConfig` must keep compiling when it merges. Never remove.
  */
-export type LatticeConfig = ProofOrStopConfig;
 
 export const DEFAULT_CANDIDATE_HOST_STARTUP_TIMEOUT_MS = 10_000;
 export const DEFAULT_CANDIDATE_HOST_TOTAL_TIMEOUT_MS = 120_000;
@@ -369,7 +362,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'lifecycle_orchestrate', // P8 (CAPSTONE): read-only top-level lifecycle orchestration; composes the prior read-only layers (V1 + P2-P7) into one phase-aware view via their read-only default path, consolidates blockers/next-actions, emits the next story_advance as a PRINTED string (never executed); runs no command, writes no evidence, advances no phase
     'done_prepare',  // pre-DONE readiness assistant; handler fail-closes outside TEST before mutation
     'done_required_validate', // opt-in DONE-required validation evidence writer; advisory when no policy exists
-    'story_get', 'story_list', 'story_reconcile', 'story_discard',
+    'story_get', 'story_list', 'story_reconcile', 'identity_state_migrate', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
     'frozen_claim_drift_check', // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory; allowed in any phase, writes nothing
@@ -390,20 +383,22 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
-    'summary_set',   // 全局：DONE 前强制落总结，lattice short-path story 也需要
+    'summary_set',   // 全局：DONE 前强制落总结，proof-or-stop short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', 'verification_run', // verification evidence is metadata, allowed across phases for reviewer/test handoff (verification_run executes the pinned verifier + writes the receipt)
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
     'artifact_release_*', // read-only non-runtime artifact release provenance inspection
     'capability_release_*', // read-only non-runtime product capability release provenance inspection
-    'capability_release_backfill', // B-c389 M8: intentionally all-phase MUTATING migration command (records/commits non_authoritative capability releases into .lattice/capability-releases.jsonl + enriches under-bound candidate lineage under the learning-store lock); declared allowedPhases:all mainSharedMutating in command-policy; listed explicitly so it is no longer covered only by the read-only 'capability_release_*' wildcard's (stale-for-a-writer) inspection comment; behaviour unchanged (still all-phase); non_authoritative, never gate evidence
+    'capability_release_backfill', // B-c389 M8: intentionally all-phase MUTATING migration command (records/commits non_authoritative capability releases into .proof-or-stop/capability-releases.jsonl + enriches under-bound candidate lineage under the learning-store lock); declared allowedPhases:all mainSharedMutating in command-policy; listed explicitly so it is no longer covered only by the read-only 'capability_release_*' wildcard's (stale-for-a-writer) inspection comment; behaviour unchanged (still all-phase); non_authoritative, never gate evidence
     'repro_*', 'spike_record', 'spike_review_set', 'red_green_relation_*', 'regression_matrix_review_set', 'story_create_from_repro', // B-0aa1: candidate-only repro-first intake commands; evidence-candidate scope only, never DONE or release proof
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
     'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_topology_check', 'acceptance_basis', 'pre_review_check_read', 'acceptance_rollout_report_read', 'acceptance_rollout_check', 'topology_critic_receipt_check',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
+    'red_evidence_envelope_check', // W2d (B-9ff1): read-only §1.1 envelope admissibility pre-flight; command-policy declares allowedPhases:all readOnly, so every phase bucket must reach it. It executes no envelope. Canonical scope sentence, used verbatim at every site that states this guarantee: Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness
+
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'parent_roadmap_status', 'parent_roadmap_evaluate', // Parent-roadmap totality diagnostics; read-only and no server-backed completion semantics
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection
@@ -416,6 +411,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
     'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
     'review_incremental_context', // B-f675 CHK-002: read-only incremental review context, any phase
+    'validation_plan', // B-a745 CHK-005: read-only Story-relevance validation planner (explain-only), any phase; executes no validation command and writes nothing
     'story_draft',   // B-9975: draft 操作全阶段可用（不分配 story id）
     'story_draft_list',
     'story_draft_discard',
@@ -434,8 +430,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
     'candidate_spec_rollout_check', // B-8038: read-only quality/cost promotion projection
     'usage_sweep', // B-70e9 M2: read-only NON-AUTHORITATIVE retro-attribution usage sweep over host transcript stores; streams ~/.codex + ~/.claude, no ledger backfill, no gate evidence, writes nothing unless --out is passed (inside project root)
-    'lattice_config_doctor', // Proof-or-Stop 0.3.6: CLI-first migration/config status; no Mac App dependency
-    'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
+    'proof_or_stop_config_doctor', // Proof-or-Stop 0.3.6: CLI-first migration/config status; no Mac App dependency
+    'proof_or_stop_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence
     'rollout_check', // Proof-or-Stop 0.3.6: read-only cross-project rollout diagnostics
     'baseline_run', 'baseline_suite', 'baseline_suite_report', // Proof-or-Stop baseline execution and suite reporting; writes baseline artifacts only
@@ -467,13 +463,13 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'recall',  // B-7561: read-only structured-field Story Recall over the existing story_list scan (Experience Layer Phase 3); declared allowedPhases:all readOnly in command-policy; writes nothing / no derived index; no gate reads it
     'learning_validate',  // B-a2e3: read-only / advisory Experience Layer referential re-validation (valid-rate / drift-rate vs HEAD); declared allowedPhases:all readOnly in command-policy; writes nothing / no persist; no gate reads it
     'learning_effectiveness',  // B-c06a: read-only / advisory Experience Layer effectiveness metric (per-story hint predictive value + ON/OFF arm comparison); declared allowedPhases:all readOnly in command-policy; writes nothing / no persist; no gate reads it
-    'learning_scan',  // B-4eb6: out-of-band Experience Layer ③.1 maintenance WRITER; derives + persists the advisory finding-signals cache under .lattice/learning/ for the Phase 1.5 hint loader; declared allowedPhases:all mainSharedMutating in command-policy; reads findings via store ports; no gate reads it
+    'learning_scan',  // B-4eb6: out-of-band Experience Layer ③.1 maintenance WRITER; derives + persists the advisory finding-signals cache under .proof-or-stop/learning/ for the Phase 1.5 hint loader; declared allowedPhases:all mainSharedMutating in command-policy; reads findings via store ports; no gate reads it
     'story_resume',  // B-bbaf CHK-003: human-only ack that clears a convergence-breaker freeze; a freeze can occur at story_advance in ANY phase, so the ack must be available in every phase (declared allowedPhases:all storyScopedMutating in command-policy; refused under autopilot/non-interactive)
   ],
   INIT: [
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
     'story_update', 'checklist_update',
-    'init_check_set', // B-e71f CHK-003: lattice-review-story-init reviewer 在 INIT 阶段写 init-check.json
+    'init_check_set', // B-e71f CHK-003: proof-or-stop-review-story-init reviewer 在 INIT 阶段写 init-check.json
     'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
     'scope_boundary_set', 'execution_boundary_set',
     'scope_freeze_check',
@@ -703,7 +699,6 @@ function warnDeprecatedConfigFilename(root: string, filename: string): void {
  */
 export const PROOF_OR_STOP_CONFIG_FILENAME = CANONICAL_CONFIG_FILENAME;
 /** @deprecated Use `PROOF_OR_STOP_CONFIG_FILENAME`. */
-export const LATTICE_CONFIG_FILENAME = PROOF_OR_STOP_CONFIG_FILENAME;
 /**
  * Project config filenames that define an active Proof-or-Stop project root,
  * canonical FIRST so canonical-wins falls out of iteration order.
@@ -727,18 +722,18 @@ export function hasProjectConfigFile(dir: string): boolean {
  *
  * B-cc10 CHK-002: the state-dir spelling and the manifest filename both come
  * from the read-both resolver, so this probe follows the rename automatically
- * and accepts a deprecated-spelled manifest during migration. `.Lattice` stays
+ * and accepts a deprecated-spelled manifest during migration. `.proof-or-stop` stays
  * an explicit extra entry: it is a case variant kept for case-sensitive
  * filesystems, not a brand identity the resolver owns.
  */
 const GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS: readonly string[] = [
   ...MANIFEST_FILENAMES.flatMap((file) => stateDirCandidates(file)),
   // B-cc10 CHK-004: the case variant must accept BOTH manifest filenames too.
-  // Pinning it to the deprecated filename would mean a `.Lattice` root whose
+  // Pinning it to the deprecated filename would mean a `.proof-or-stop` root whose
   // manifest HAD been migrated stopped being recognized as global-thin — the
   // rename would break the newer layout while the older one kept working, which
   // is the backwards B-cdf6 failure direction.
-  ...MANIFEST_FILENAMES.map((file) => join('.Lattice', file)),
+  ...MANIFEST_FILENAMES.map((file) => join('.proof-or-stop', file)),
 ].filter((value, index, all) => all.indexOf(value) === index);
 
 function isJsonRecord(value: unknown): value is Record<string, unknown> {
@@ -798,7 +793,7 @@ function findProjectRootByMarker(startDir: string): string | null {
   return null;
 }
 
-/** Search upward from cwd for lattice.config.json, return the project root directory. */
+/** Search upward from cwd for proof-or-stop.config.json, return the project root directory. */
 function resolveProjectRoot(): string {
   const envRoot = readBrandEnv('PROJECT_ROOT');
   if (envRoot) return envRoot;
@@ -810,7 +805,7 @@ function resolveProjectRoot(): string {
  * that decides whether to rethrow it.
  *
  * B-cc10 CHK-004: these two were previously two independent hardcoded
- * `lattice.config.json` literals — precisely the B-cdf6 F-065/F-061 regression
+ * `proof-or-stop.config.json` literals — precisely the B-cdf6 F-065/F-061 regression
  * shape, where a brand literal inside a COMPARISON drifts away from the literal
  * used to build the value it compares against. Renaming only the message would
  * have made the filter silently stop matching, downgrading a hard duplicate-key
@@ -929,8 +924,8 @@ export function loadConfig(projectRoot?: string): ProofOrStopConfig {
   // make a deprecated-spelled config silently invisible after the rename (the
   // project would load defaults instead of erroring — a silent behaviour change).
   const picked = pickProjectConfigPath(root);
-  const latticePath = picked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
-  const latticeExists = picked !== null;
+  const proofOrStopPath = picked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
+  const proofOrStopExists = picked !== null;
 
   // B-cc10 CHK-004: notice ONLY when the deprecated spelling is what actually
   // resolved. A project holding only the canonical filename must stay silent,
@@ -940,9 +935,9 @@ export function loadConfig(projectRoot?: string): ProofOrStopConfig {
 
   let userConfig: Partial<ProofOrStopConfig> = {};
   let chosenPath: string | null = null;
-  if (latticeExists) {
-    chosenPath = latticePath;
-    const rawConfig = readFileSync(latticePath, 'utf-8');
+  if (proofOrStopExists) {
+    chosenPath = proofOrStopPath;
+    const rawConfig = readFileSync(proofOrStopPath, 'utf-8');
     assertNoDuplicatePromptEnvelopeRoleKeys(rawConfig);
     try {
       userConfig = JSON.parse(rawConfig);

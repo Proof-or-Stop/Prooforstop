@@ -1,0 +1,649 @@
+{
+  "passes": [
+    {
+      "id": "B-d854:RP-001",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No blocking concept finding. F-021 through F-024 are resolved: the audit has the exact M01-M24 plus L01-L02 mapping with row-specific RED predicates and exact path:line authorities; baseline exits 1 with 26/26 RED and final exits 0 with 26/26 GREEN; AGENTS.md and audit/verifier Unicode scans show zero Han, replacement, and non-ASCII residue; Claude and Agy provenance is durably bound by session/conversation identifiers, artifact hashes, ordinal/byte receipts, and local implementation remains authoritative. The bounded-scope defect rule explicitly replaces unbounded fix-everything language. M14 correctly covers substantive scope-question resolution plus advisory PLAN and blocking REVIEW scope-contract semantics; M19 correctly covers policy-computed reviewer roster, opt-in lanes, batch dispatch, signed pass/finding, and quorum prerequisites. Citation-removal and vague-citation mutations are rejected. F-026 records only non-blocking historical evidence-note count drift; exitCode=0 and CASE 46/FINAL GREEN output still prove the full 46-case ledger.",
+      "createdAt": "2026-09-02T02:11:17.507Z",
+      "reviewRound": "2026-09-02T02:05:53.737Z",
+      "reviewRunId": "B-d854:RR-011",
+      "envelopeId": "7addd8d3bb68b9564ef19b10f3ed0c1ff0c6ac291a35302baafb71f9ec870dcb",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8c11fdcd69ba50a3ed5f1f2e49466a7afe4622cccca26998255d19c488ab2ad"
+    },
+    {
+      "id": "B-d854:RP-002",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent quality review found no blocker. Baseline reproduced 26 of 26 RED rows and final reproduced 26 of 26 GREEN rows with exit 0 and 46 command cases. Every A09, A15, and A20 authority reference resolves to the exact source predicate and the exact-set policy rejects irrelevant extra replacements and removals. semanticChecks validates the full prose digest and five real mutations before emitting receipt markers; later failures still make the process nonzero. Current mechanical evidence is bound to material commit 25837f85.",
+      "createdAt": "2026-09-02T02:37:01.037Z",
+      "reviewRound": "2026-09-02T02:32:58.340Z",
+      "reviewRunId": "B-d854:RR-014",
+      "envelopeId": "97bd29ac88121d2f0d43f5c780c8e4346db1c9786d0a56b8efdd9d57c10ed3fe",
+      "writerSessionId": "sess-aac71437ca642ff7cb06835b2c74cc4d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbd802b09a405b2e24ef4eaa0a9b03935e7fa4c83a0354e26901cf7b7488aa8e"
+    },
+    {
+      "id": "B-d854:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review passed on current material: all 10 must intents have fresh evidence (8 tool-executed receipts and 2 docs checks), all six unique pinned selectors are present in the persisted bounded output tails under the real 12k capture/4k tail semantics, baseline is exactly 26 unique RED rows with exit 1, final is 26 unique GREEN rows plus 46 unique command cases with exit 0, A19 exhaustively rejects 36 authority mutations across 18 sources, A26 rejects 8 across 4 sources, and semantic/structure/completeness/command plus Claude/Agy provenance checks all bite. No blocker remains.",
+      "createdAt": "2026-09-02T03:10:34.676Z",
+      "reviewRound": "2026-09-02T03:07:05.807Z",
+      "reviewRunId": "B-d854:RR-020",
+      "envelopeId": "ad84432919eabc183ad0a93cc76915f686a3ee29142cb4b513ced602fc447741",
+      "writerSessionId": "sess-0ff8c137b3ad0756419dad8e1e46dd9f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/init-assets.ts",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3313c59c1cd6effb32b0b75fceac5ca38eeb836c33be824770656295de101d5c"
+    },
+    {
+      "id": "B-d854:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final current test-coverage review passed: all 10 must intents have fresh evidence (8 mechanical, 2 docs, zero gaps or waivers); all six unique pinned selectors are present in the real receipt output tails. The immutable historical VERSION_AND_REALPATH_DRIFT selector is explicitly bound to initial-audit versions and prior receipt digest while the same run separately reports current live REALPATH_DRIFT and rejects missing-context or historical-as-current mutations. Authority policy is 26 rows/98 entries/62 runtime, exhaustive mutation is 98 removals plus 98 irrelevant replacements (196 total), baseline is 26 RED exit 1, and final is 26 GREEN plus 46 unique command cases exit 0. No blocker remains.",
+      "createdAt": "2026-09-02T08:13:00.882Z",
+      "reviewRound": "2026-09-02T08:08:06.830Z",
+      "reviewRunId": "B-d854:RR-024",
+      "envelopeId": "ea6c41700dd4dc39a1e0983e2dacbe17a4ea37a73d5aa0f9708103d491706d98",
+      "writerSessionId": "sess-0ff8c137b3ad0756419dad8e1e46dd9f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/init-assets.ts",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3b342cde72bf0bef5adb18f1f4126c597d4418d6772ed3bb56bb9798b7233d9"
+    },
+    {
+      "id": "B-d854:RP-005",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: verified all 10 must verificationIntent entries against 10 fresh evidence records (8 mechanical and 2 docs), actual receipt outputTail selectors, independent 26/26 RED and GREEN runs, 104 authority entries with 208 citation mutations, six source semantic mutations, Unicode scans, and Claude/Agy artifact bindings; no gaps or waivers.",
+      "createdAt": "2026-09-02T08:48:38.426Z",
+      "reviewRound": "2026-09-02T08:41:59.853Z",
+      "reviewRunId": "B-d854:RR-029",
+      "envelopeId": "c36518323bf0c0fe15b51c9a9d284beac5fc9c65daadcfecae588d089ecbc335",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "5618d3fb52a54f1200a7eebe426ee2096e7369a75403bfb237fb39289cb080b6"
+    },
+    {
+      "id": "B-d854:RP-006",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept blocker. Independently verified the explicitly bounded 13-row and 40-chain semantic model: all 66 executable producer, guard, consumer, and branch endpoints are mandatory under removal or inversion; A21 binds classifier invocation, classification production, blocking-set production, and the actual nonempty blocking branch. The audit limits its claim to declared composite chains. Historical runtime evidence proves only the immutable initial classification while current runtime is recomputed live. Full verification also proves exact 26 RED and 26 GREEN mapping, complete English translation, bounded-scope policy replacement, exhaustive citations, and durable Claude and Agy review provenance.",
+      "createdAt": "2026-09-02T09:29:26.874Z",
+      "reviewRound": "2026-09-02T09:23:21.650Z",
+      "reviewRunId": "B-d854:RR-034",
+      "envelopeId": "5c12ca4647e72e38bc3adc0cb8109cfd59ff4eb2f4ace933652e8dab0b1ae8ba",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c1260b9da2fd9ce2c255e5c3eb0e86a7e87054d7b9b7f000983f01366beebdf4"
+    },
+    {
+      "id": "B-d854:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final coverage review passed: all 10 must intents have current material/storyFiles-bound evidence (8 mechanical, 2 docs, no gaps or waivers); each of the 8 actual canonical receipt tails is 4000 bytes, untruncated, and contains all 18/18 acceptance selectors. Independently verified receipt-window policy exit 0, baseline 26/26 RED exit 1, final 26/26 GREEN exit 0, current direct global runtime 0.3.271/EXIT_0 with VERSION_AND_REALPATH_DRIFT, 43 authority chains, 69 source mutations, 137 chain swaps, and bound Claude/Agy artifacts.",
+      "createdAt": "2026-09-02T12:56:46.601Z",
+      "reviewRound": "2026-09-02T12:52:01.904Z",
+      "reviewRunId": "B-d854:RR-040",
+      "envelopeId": "a1e7ee89227abe26fa66e77eba349633b095f436584619c53e7f7eee4610e5d4",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "d549b6219d8cbac0558c0d02600c7d041bb87f6b0e46c34f1409f45d80b9d570"
+    },
+    {
+      "id": "B-d854:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept blocker. Verified d52a500 keeps the repository-local Node CLI as the sole mandatory behavior authority, while the global entrypoint is dynamically inspected and report-only. The prior real EACCES path is represented as directOutcome EACCES with NODE_FALLBACK and EXECUTABILITY drift; the current executable path passes directly and reports only live version and realpath drift. Neither state changes the 26-of-26 AGENTS consistency conclusion. Runtime concealment and authority-substitution mutations are rejected, executable same-version and aligned simulations pass, the immutable historical classification remains commit/blob/digest-bound and rejects historical-as-current relabeling, the 18-of-18 receipt window passes, and the complete final verifier exits zero.",
+      "createdAt": "2026-09-02T12:57:47.123Z",
+      "reviewRound": "2026-09-02T12:52:01.904Z",
+      "reviewRunId": "B-d854:RR-038",
+      "envelopeId": "0c1cd7048458095625d1c1d2b7f558ec7c80bbd401573d77c2fd91f5e799a328",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b72157bd78e5707032f143706327f10e2ba252a03f265a81fbdf33883227bd33"
+    },
+    {
+      "id": "B-d854:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept blocker. Verified commit 6ac3238 makes the global direct and Node-fallback version sources mutually exclusive. A direct EXIT_0 must retain a direct version and prove fallback status null, fallback outcome NOT_USED, and no fallback version; a failed direct path must retain no direct version and select the successful fallback result. The verifier rejects direct-plus-fallback double success and an inconsistent fallback state. The live runtime report remains dynamic and report-only, the local repository CLI remains the sole behavior authority, the unchanged audit wording still accurately says fallback is used only when direct execution is unavailable, the 18-of-18 receipt window passes, and the complete final verifier remains 26-of-26 GREEN.",
+      "createdAt": "2026-09-02T13:12:03.691Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-041",
+      "envelopeId": "58a5c062f7d101f58142b27af34130dedc602fdf47503c026dc63daabaa63709",
+      "writerSessionId": "sess-cbf3c129f00e8de07020952df666d219",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3184190b74eecec1595e023627593092901b1caea7877ec94b3fc2094226720"
+    },
+    {
+      "id": "B-d854:RP-010",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Narrow final coverage review passed: 10/10 must intents have fresh evidence (8 mechanical, 2 docs, no gaps or waivers); canonical CLI shows every 4000-byte mechanical receipt tail contains all 18/18 current selectors, including the expanded runtime exclusivity mutation marker; receipt-window and final exit 0, baseline proves 26/26 RED with exit 1.",
+      "createdAt": "2026-09-02T13:13:10.786Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-043",
+      "envelopeId": "101dbc58fdb0857c8065c8922eaf7def92b82b65658150c15ddc8a7831b90072",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "78b3eb8739d65dc6b6227ac06293567c4fda9a04b06ee86908bbe92aa01b5a90"
+    },
+    {
+      "id": "B-d854:RP-011",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Narrow final quality review independently rejected the exact F-043 direct-plus-fallback double-success state and an inconsistent fallback outcome, accepted the live DIRECT path and a valid simulated NODE_FALLBACK path, reconfirmed F-040 cross-chain swap rejection, and reran baseline, full final, runtime policy, authority/semantic-chain policies, and the dynamic 18-selector receipt window with no blocker.",
+      "createdAt": "2026-09-02T13:14:09.395Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-042",
+      "envelopeId": "22e4300c9fe1d694ba0fff97518ef75882cd4a27a8d8809c8141d1d5b8521a6d",
+      "writerSessionId": "sess-aac71437ca642ff7cb06835b2c74cc4d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3a88f2a266f6c27f46ba5e9b40c9a04cb5e2cef34598a02dd6e4f5054d2553e6"
+    },
+    {
+      "id": "B-d854:RP-012",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Final docs review GREEN. Independently verified the root AGENTS.md is fully English and replaces the former unbounded fix-all rule with the exact bounded defect triage rule: current-Story critical/high, security, data-integrity, destructive-compatibility, and lifecycle/acceptance blockers are fixed now; medium/low non-blockers require durable reproduction/evidence/impact/recommendation/ownership and are deferred, with escalation back into scope when evidence raises severity or blocks acceptance. The 26-row audit is readable and complete; baseline reports expected RED rows=26/26 exit=1, final reports GREEN rows=26/26 exit=0, Unicode han=0 ufffd=0 nonAscii=0, and the command ledger is 46/46. Exact authority evidence is mutation-protected: 117 cited entries, 234 citation mutations, 14 composite rows, 43 semantic chains, 69 executable endpoint mutations, and 137 chain-swap mutations all pass. Runtime wording correctly distinguishes dynamically rerunnable current classification (repository-local authority plus machine-local global entrypoint state) from the immutable historical receipt, without claiming unretained historical version/path details. Claude and Agy evidence is explicitly machine-local and durably bound; Agy binds ordinal/thread/turn/item/command/cwd/prompt/stdout/session fields and rejects mutation. The verifier output matches the report. No distinct docs blocker remains beyond the now-resolved F-036 through F-043 series.",
+      "createdAt": "2026-09-02T13:16:07.740Z",
+      "reviewRound": "2026-09-02T13:08:56.613Z",
+      "reviewRunId": "B-d854:RR-044",
+      "envelopeId": "c5e885c6099b9a2569a2432cc119478087c668e290093f57c049187842fe4ba3",
+      "writerSessionId": "sess-344f8d2efea524142dd9d1f57515ecf5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a935b42e9ff5ef6d66b18fd9f4e05906bcca7a7ba653d42f60133304bfbf7d12"
+    },
+    {
+      "id": "B-d854:RP-013",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-14 narrow quality review verified commit 354ffbdab127ab2940a5d25a9ee28f7fb960c479: the test_fixture example parses through the exact 46-case command ledger and real registered help/schema path, its command line is explicitly legacy-maintenance-qualified, the AGENTS SHA e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 matches the durable audit and verifier bindings, all five focused contract tests exit 0, and the final AGENTS verifier exits 0 with adversarial mutations rejected. No quality blocker remains.",
+      "createdAt": "2026-09-02T14:07:23.837Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-045",
+      "envelopeId": "d2abfcfdf9cc92fcc5b1de93aca68c3e4502a3bd990452237c0e1be88a7ccfd5",
+      "writerSessionId": "sess-aac71437ca642ff7cb06835b2c74cc4d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "414de78fad7c5e144b22b66c3a65ad69e55d8806dc5e9c758b6cb1e1d8da3f39"
+    },
+    {
+      "id": "B-d854:RP-014",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 14 target commit 354ffbdab127ab2940a5d25a9ee28f7fb960c479 is GREEN. Target commit symbol extraction found 0 declarations, so the pure docs fallback compared 3 affected documentation paragraphs: the AGENTS.md legacy fixture maintenance example block, the audit artifact binding block, and the audit command ledger explanation. The test_fixture value is unambiguously conceptual and legacy: it sits under the Legacy fixture maintenance heading with explicit instructions to preview writes and replace conceptual identifiers, uses the self describing placeholder legacy-maintenance-fixture-id, and the following prose says fixture and test commands are compatibility only maintenance entrypoints rather than the default new Story verification path. Authority agrees: command-policy.ts marks test_fixture as legacy and dangerousMutating, command-catalog.ts accepts fixtureId as a string, the real repository local test_fixture help succeeds and requires a string fixtureId, and the verifier classifies test_fixture as conceptual, checks real help, and validates the exact payload through MAIN_TOOLS without executing it. Git diff syntax checking passes. The commit AGENTS.md SHA-256 is e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26, exactly matching both audit references and EXPECTED_AGENTS_SHA. Fresh final verification exited 0 with 26 of 26 GREEN, command ledger 46 of 46, and han=0, ufffd=0, nonAscii=0 for AGENTS.md, the audit report, and the verifier. No documentation inconsistency or promised but undelivered behavior was found.",
+      "createdAt": "2026-09-02T14:08:27.082Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-047",
+      "envelopeId": "4fefa4101f6de98adb41777ad8411bc8bde3ecdb6f4bb47b44e0ec980e1da3d4",
+      "writerSessionId": "sess-344f8d2efea524142dd9d1f57515ecf5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/test-fixture.ts"
+        ],
+        "scanEscalationReason": "Target commit has zero changed declarations; pure document fallback was bounded to changed paragraphs, related document references, and the authoritative test_fixture schema, policy, handler, and final verifier."
+      },
+      "_hash": "4b2eb872d65462e077fea76c6e5c2f6d2666ae760734955b65c9b28b835e2fb7"
+    },
+    {
+      "id": "B-d854:RP-015",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 14 coverage review passed: 10 of 10 must intents have fresh evidence; all 8 mechanical receipts are exit 0, selectorMatched, 4000-byte tails with 18 of 18 current selectors; the five formerly failing contract tests now exit 0; baseline is 26 of 26 RED and final is 26 of 26 GREEN, including Unicode and Claude/Agy provenance checks.",
+      "createdAt": "2026-09-02T14:10:51.629Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-046",
+      "envelopeId": "ea59bee01168ed4e94436e9992972f159e69f33c54561b3cc3ca3539e9fcd949",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "bb7fadfbd5d43ea4c3e49b032ce99d3dfaee1dcab36eaf511f40bc434b9fdda8"
+    },
+    {
+      "id": "B-d854:RP-016",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No current-scope blocker in commit 354ffbd. The only concept replacement is the example fixtureId: legacy-maintenance-fixture-id is self-identifying, remains inside the explicitly labeled Legacy fixture maintenance block, and is schema-valid but never executed because the verifier classifies test_fixture as a conceptual template. Repository authority marks test_fixture legacy/dangerousMutating; its help requires a string fixtureId. The old zero UUID had no same-line legacy token, while the replacement does; fresh process-fact verification and full AGENTS verifier pass (26/26 GREEN, 46/46 command ledger, final SHA e9f71ee). Both audit SHA references and the verifier constant exactly match the committed AGENTS.md digest. One unrelated identity-cutover failure was recorded separately as suspected nonblocking F-044 for follow-up.",
+      "createdAt": "2026-09-02T14:14:28.390Z",
+      "reviewRound": "2026-09-02T14:01:36.353Z",
+      "reviewRunId": "B-d854:RR-048",
+      "envelopeId": "d526a0a8284745085ea4346d5ea1470c3fdef4b4586af1ec020d0ab24952db67",
+      "writerSessionId": "sess-82ac37c743cc03b78f8f116a632e96a6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "495e2abe7134b5c60bc9dd1daeaddbd4583d3e09fa5f3172a2a8753be2fb051f"
+    },
+    {
+      "id": "B-d854:RP-017",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 16 test-coverage review passed. F-047 root cause is fixed by rebinding A19 to command-catalog.ts:3097. All 10 must intents have current passing evidence at material c6aa9fb and storyFiles 99411d1; all 8 mechanical receipts are exit 0, selectorMatched, 4000-byte tails with 18 of 18 selectors. Fresh final verifier exits 0 with 26 of 26 GREEN, command ledger 46 of 46, citation mutation 117 plus 117, source authority 14 rows 43 chains 69 endpoints, semantic swaps 137, Unicode and external provenance checks.",
+      "createdAt": "2026-09-02T16:31:24.727Z",
+      "reviewRound": "2026-09-02T16:28:06.672Z",
+      "reviewRunId": "B-d854:RR-054",
+      "envelopeId": "8007ce49dbb3058c52f88c2878cf2699659bb24c6fcc2c2e6a59df19cc3220a6",
+      "writerSessionId": "sess-1f3b78c4d576bf61a2b681d0e4b79032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1343c946f47ca9146001cd8c00f2498901138ee7aa7227ba8b8f9feba1b6752"
+    },
+    {
+      "id": "B-d854:RP-018",
+      "agent": "proof-or-stop-review-quality",
+      "note": "No quality blockers on current Story material. Commit b4c2452234 correctly rebinds A19 quorum-submit authority to command-catalog.ts:3097; F-045 is fixed and F-046/F-047 are correctly resolved as duplicates. All 10 verification records match current material/story-files hashes, all 8 mechanical receipts are exit 0 with matched selectors, authority and semantic-chain policies pass, and a fresh full verifier exits 0 with 26/26 GREEN, 46/46 command cases, Unicode zero, and bound external-review provenance. The integrated verifier has no syntax, unused import/definition, empty-catch, or diff-check defect observed.",
+      "createdAt": "2026-09-02T16:31:48.353Z",
+      "reviewRound": "2026-09-02T16:28:06.672Z",
+      "reviewRunId": "B-d854:RR-052",
+      "envelopeId": "a5086f0020bdbe96f029c72bcadbb0cb103901a2c01425a8225d1fe8ab4c3176",
+      "writerSessionId": "sess-e4a4f9413009025b851bf1bd6470fc1d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "68bb4df4f024fc7b00b1140a6764e462111871e00f56d894e64888bac51015e1"
+    },
+    {
+      "id": "B-d854:RP-019",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 16 docs review GREEN. The mandated broad declaration regex extracted 300 names from the integrated diff, almost entirely verifier local constants and helpers rather than public API exports. Review therefore bounded comparison to 6 material documentation sections: AGENTS working rules, lifecycle and CLI guidance, the audit artifact binding, the A19 authority ledger, and the Claude and Agy provenance section, together with the corresponding verifier and current authority definitions. F-046 is fixed: A19 now cites quorum-submit-registration at packages/main/src/cli/command-catalog.ts:3097 and that exact current definition is present. Fresh final verification exited 0 with all 26 audit rows GREEN, 117 exact citation entries and 234 citation mutations passing, 14 modeled rows with 43 chains and 69 endpoint mutations passing, and 137 semantic chain swaps rejected. English completeness is clean for AGENTS.md, the audit report, and the verifier: han=0, ufffd=0, nonAscii=0. The AGENTS SHA e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 matches the report and verifier constant. Claude provenance is LOCAL with transcript hash and session verified; Agy provenance is LOCAL with ordinal, bytes, hash, command, cwd, prompt, and session verified, and all command/cwd/invocation/promptHash mutations rejected. All 10 verification intents have exactly one passing evidence record bound to current materialHash c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89 and storyFilesHash 99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61. Git diff syntax checking passes. No documentation blocker or promised but undelivered behavior remains.",
+      "createdAt": "2026-09-02T16:32:07.501Z",
+      "reviewRound": "2026-09-02T16:28:06.672Z",
+      "reviewRunId": "B-d854:RR-053",
+      "envelopeId": "3690a14c9d74076965b7b5ea1fe826220965af0a8e127eee2eba5e85abaa7668",
+      "writerSessionId": "sess-344f8d2efea524142dd9d1f57515ecf5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "scanEscalationReason": "The integrated diff declaration regex reports many verifier private helpers, so review was bounded to Story owned documentation, current exact authority bindings, provenance checks, and the complete final verifier."
+      },
+      "_hash": "acaa9ff49c917810b5f2c0f14b84abd2c6f2254047c1cd8f05c366fdc801e221"
+    },
+    {
+      "id": "B-d854:RP-020",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Story-level concept review found no blocking residue. The user-visible audit and full-English translation are delivered; all 26 baseline defects reproduce RED and all 26 final rows reproduce GREEN; bounded defect triage explicitly replaces unbounded nearby repair; current versus compatibility-only guidance is locally distinguished; Claude and Agy provenance verifies; and A19 now binds quorum_submit to command-catalog.ts:3097. Repository-wide legacy-name hits are compatibility, baseline, fixture, or unrelated excluded-document references rather than residue in the scoped AGENTS.md deliverable.",
+      "createdAt": "2026-09-02T16:38:10.134Z",
+      "reviewRound": "2026-09-02T16:28:06.672Z",
+      "reviewRunId": "B-d854:RR-055",
+      "envelopeId": "6a21b2a4a19ca4ac0686d4d4c1ca19fb624b3ae552596e9394db63b581797fc4",
+      "writerSessionId": "sess-65ba067a4e4d9d6f04f03f00b9ee7dc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-d854/background.md",
+          ".proof-or-stop/story/actives/B-d854/checklist.json",
+          ".proof-or-stop/story/actives/B-d854/plan.md",
+          "AGENTS.md",
+          "docs/audits/AGENTS-current-version-audit.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "15b7bd28de4758a1d2791527a07ece5739a43daf039b8e3a63f0b2399e50643f"
+    }
+  ]
+}

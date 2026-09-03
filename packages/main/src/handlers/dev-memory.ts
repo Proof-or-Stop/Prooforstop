@@ -40,7 +40,7 @@ import type { DevMemoryPreflightAckData } from '../core/types.js';
 function actorFrom(value: string | undefined): string {
   const explicit = value?.trim();
   if (explicit) return explicit;
-  return process.env.LATTICE_AGENT || process.env.USER || 'main-agent';
+  return process.env.PROOF_OR_STOP_AGENT || process.env.USER || 'main-agent';
 }
 
 // ---------------------------------------------------------------------------

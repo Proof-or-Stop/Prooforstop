@@ -11,14 +11,14 @@ import {
   type BaselineExpectedOutcome,
   type BaselineId,
 } from '../core/baseline.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import {
   buildBaselineSuiteReport as buildLegacyBaselineSuiteReport,
   renderBaselineRunText as renderLegacyBaselineRunText,
   renderBaselineSuiteText as renderLegacyBaselineSuiteText,
   runBaseline as runLegacyBaseline,
   type BaselineLayer,
-} from '../core/lattice-baseline.js';
+} from '../core/proof-or-stop-baseline.js';
 
 type JsonArgs = { json?: boolean; format?: 'text' | 'json' };
 

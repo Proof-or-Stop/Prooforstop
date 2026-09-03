@@ -79,10 +79,10 @@ type CliResult = {
 
 // Phase-specific override wins global, which wins the command-derived legal budget.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-budget-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-prepare-budget-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
-      scanRoot: '.', rootDir: '.', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
+      scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
       validate: { commands: [{ command: 'node', timeoutMs: 300_000 }] },
       doneRequiredCommands: [{ command: 'node', timeoutMs: 1_200_000 }],
     }));
@@ -91,31 +91,31 @@ type CliResult = {
     assert.equal(derived.timeoutMs, 1_230_000);
     assert.equal(commandCliMaxBudget(root, 'done_required_validate', {}).timeoutMs, 1_230_000);
     const phaseValues = {
-      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '101000',
-      LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '102000',
-      LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS: '103000',
-      LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '104000',
-      LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS: '105000',
-      LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS: '106000',
+      PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '101000',
+      PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '102000',
+      PROOF_OR_STOP_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS: '103000',
+      PROOF_OR_STOP_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '104000',
+      PROOF_OR_STOP_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS: '105000',
+      PROOF_OR_STOP_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS: '106000',
     } as const;
-    const envNames = ['LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS', ...Object.keys(phaseValues)] as const;
+    const envNames = ['PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS', ...Object.keys(phaseValues)] as const;
     const previous = new Map(envNames.map((name) => [name, process.env[name]]));
     try {
-      delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+      delete process.env.PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS;
       for (const [name, value] of Object.entries(phaseValues)) process.env[name] = value;
-      assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).source, 'phase-env');
+      assert.equal(donePreparePhaseBudget(root, 'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).source, 'phase-env');
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 951_000, 'routine 330000 + all six required closeout phases exactly once');
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 520_000, 'validate=false excludes routine and DONE-required phase but retains all five closeout phases');
 
       for (const name of Object.keys(phaseValues)) delete process.env[name];
-      process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = '200000';
+      process.env.PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS = '200000';
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 1_530_000, 'required global override: routine 330000 + all six phases at 200000');
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 1_000_000, 'required validate=false: five phases at global 200000');
-      delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+      delete process.env.PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS;
       for (const [name, value] of Object.entries(phaseValues)) process.env[name] = value;
 
-      write(root, 'lattice.config.json', JSON.stringify({
-        scanRoot: '.', rootDir: '.', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+      write(root, 'proof-or-stop.config.json', JSON.stringify({
+        scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
         validate: { commands: [{ command: 'node', timeoutMs: 300_000 }] },
       }));
       resetConfigCache();
@@ -123,7 +123,7 @@ type CliResult = {
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 520_000, 'no-policy validate=false still counts each of five closeout phases exactly once');
 
       for (const name of Object.keys(phaseValues)) delete process.env[name];
-      process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = '200000';
+      process.env.PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS = '200000';
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 1_330_000, 'global override: routine 330000 + five phases at 200000');
       assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 1_000_000, 'global override: five phases at 200000 with validation disabled');
     } finally {
@@ -213,7 +213,7 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
     materialHash,
     ...(storyFilesHash ? { storyFilesHash } : {}),
     reviewRound: NOW,
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -223,13 +223,13 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
 }
 
 function setupFixture(options: FixtureOptions = {}): Fixture {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-heartbeat-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-prepare-heartbeat-'));
   const config: Record<string, unknown> = {
     scanRoot: '.',
     rootDir: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
     staleThresholds: {
@@ -256,11 +256,11 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       timeoutMs: 2000,
     }];
   }
-  write(root, 'lattice.config.json', JSON.stringify(config, null, 2) + '\n');
+  write(root, 'proof-or-stop.config.json', JSON.stringify(config, null, 2) + '\n');
   write(root, '.gitignore', [
-    '.lattice/activity.jsonl',
-    '.lattice/learning/runtime-memory-pack-cache/',
-    '.lattice/locks/',
+    '.proof-or-stop/activity.jsonl',
+    '.proof-or-stop/learning/runtime-memory-pack-cache/',
+    '.proof-or-stop/locks/',
     '',
   ].join('\n'));
   write(root, 'README.md', '# done_prepare closeout heartbeat fixture\n');
@@ -319,16 +319,15 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
 }
 
 function runCli(root: string, args: string[], env: Record<string, string> = {}): CliResult {
+  const inheritedEnv = stripCanonicalBrandEnvTwins(
+    { ...process.env },
+    ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+  );
   const result = spawnSync(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    // B-cdf6:F-071 — a PROOF_OR_STOP_* value exported by whoever runs this suite
-    // outranks the LATTICE_*-only pins the call sites below pass in, because
-    // readBrandEnv resolves the canonical name first. Neutralize the canonical
-    // twins of the knobs this smoke controls so its pins are authoritative.
-    env: stripCanonicalBrandEnvTwins(
-      { ...process.env, ...env },
-      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
-    ),
+    // Strip caller-owned canonical knobs first, then install this scenario's
+    // canonical pins. Stripping after composition would erase the fixture itself.
+    env: { ...inheritedEnv, ...env },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 10_000,
@@ -395,7 +394,7 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
     assert.equal(reusedJson.timeoutLayer, null);
     assert.ok(!reused.stderr.includes(DONE_REQUIRED_PROGRESS_LABEL), 'reused receipt must skip DONE-required command execution');
 
-    const evidencePath = join(reusableFixture.root, `.lattice/story/actives/${reusableFixture.storyId}/done-required-evidence.json`);
+    const evidencePath = join(reusableFixture.root, `.proof-or-stop/story/actives/${reusableFixture.storyId}/done-required-evidence.json`);
     const beforeDisabled = JSON.parse(readFileSync(evidencePath, 'utf8')) as { endedAt?: string };
     const disabled = runCli(reusableFixture.root, [
       ...donePrepareRealValidateArgs(reusableFixture.storyId, true),
@@ -417,7 +416,7 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
     seedDoneRequiredViaCli(descendantFixture.root, descendantFixture.storyId);
     write(
       descendantFixture.root,
-      `.lattice/story/actives/${descendantFixture.storyId}/background.md`,
+      `.proof-or-stop/story/actives/${descendantFixture.storyId}/background.md`,
       '# trusted metadata-only descendant\n',
     );
     commitAll(descendantFixture.root, 'add trusted story metadata descendant');
@@ -437,7 +436,7 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
   for (const basis of ['missing', 'fresh', 'stale'] as const) {
     const fixture = setupFixture({ realValidate: true });
     try {
-      const evidencePath = join(fixture.root, `.lattice/story/actives/${fixture.storyId}/done-required-evidence.json`);
+      const evidencePath = join(fixture.root, `.proof-or-stop/story/actives/${fixture.storyId}/done-required-evidence.json`);
       if (basis !== 'missing') seedDoneRequiredViaCli(fixture.root, fixture.storyId);
       if (basis === 'stale') {
         write(fixture.root, 'README.md', '# stale material\n');
@@ -458,7 +457,7 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
 
   const malformed = setupFixture({ realValidate: true });
   try {
-    const evidencePath = join(malformed.root, `.lattice/story/actives/${malformed.storyId}/done-required-evidence.json`);
+    const evidencePath = join(malformed.root, `.proof-or-stop/story/actives/${malformed.storyId}/done-required-evidence.json`);
     writeFileSync(evidencePath, '{"truncated":', 'utf8');
     const before = readFileSync(evidencePath, 'utf8');
     const observed = runCli(malformed.root, donePrepareFlagArgs(malformed.storyId, true));
@@ -499,17 +498,17 @@ function assertPostValidationCloseoutCliTimeouts(): void {
   for (const testCase of cases) {
     const fixture = setupFixture();
     try {
-      const storyDir = `.lattice/story/actives/${fixture.storyId}`;
+      const storyDir = `.proof-or-stop/story/actives/${fixture.storyId}`;
       const before = readTreeSnapshot(fixture.root, storyDir);
       const baseline = JSON.parse(runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true)).stdout);
       assert.equal(baseline.disposition, 'skipped_explicitly');
       assert.equal(baseline.result, 'not_run');
       const result = runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true), {
-        LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
-        LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
-        LATTICE_DONE_PREPARE_HEARTBEAT_MS: testCase.heartbeatMs,
-        LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-        LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE: 'doneClosure',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: testCase.maxMs,
+        PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: testCase.heartbeatMs,
+        PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_DONE_PREPARE_SMOKE_HANG_PHASE: 'doneClosure',
       });
       assert.equal(result.status, 1, `post-validation ${testCase.layer} timeout must exit nonzero`);
       const parsed = JSON.parse(result.stdout);
@@ -526,9 +525,9 @@ function assertPostValidationCloseoutCliTimeouts(): void {
       assert.equal((result.stdout.match(/"schemaVersion"/g) ?? []).length, 1, 'watchdog timeout emits one terminal JSON object');
 
       const retry = runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true), {
-        LATTICE_IDLE_TIMEOUT_MS: '1000',
-        LATTICE_MAX_TIMEOUT_MS: '5000',
-        LATTICE_DONE_PREPARE_HEARTBEAT_MS: '50',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '50',
       });
       assert.equal(retry.status, 0, `${testCase.layer} timeout must leave no child/lock/timer that blocks immediate rerun`);
       assert.equal(JSON.parse(retry.stdout).status, 'pass');
@@ -542,11 +541,11 @@ function assertDryRunCloseoutTimeoutOmitsUnobservedValidationFields(): void {
   const fixture = setupFixture();
   try {
     const result = runCli(fixture.root, donePrepareValidateDryRunArgs(fixture.storyId), {
-      LATTICE_IDLE_TIMEOUT_MS: '500',
-      LATTICE_MAX_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '2000',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE: 'doneClosure',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '500',
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '2000',
+      PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_HANG_PHASE: 'doneClosure',
     });
     assert.equal(result.status, 1, 'validate=true dryRun closeout timeout must exit nonzero');
     const parsed = JSON.parse(result.stdout);
@@ -612,7 +611,7 @@ function assertHumanCliProgress(root: string, storyId: string): void {
   assert.ok(result.stdout.startsWith('DONE prepare: PASS'), `human stdout should keep final transcript:\n${result.stdout}`);
   assertProgressLabels(result.stderr);
   assert.ok(!result.stdout.includes('done_prepare progress:'), 'human final transcript should not duplicate side-channel progress');
-  assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'dry-run progress must not depend on activity-root logging');
+  assert.ok(!existsSync(join(root, '.proof-or-stop', 'activity.jsonl')), 'dry-run progress must not depend on activity-root logging');
 }
 
 function assertJsonStdoutParseable(root: string, storyId: string): void {
@@ -644,10 +643,10 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
   const { root, storyId } = setupFixture({ realValidate: true, doneRequiredDelayMs: 160 });
   try {
     const result = runCli(root, donePrepareRealValidateArgs(storyId, true), {
-      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '3000',
-      LATTICE_VALIDATE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '3000',
+      PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '20',
     });
     assert.equal(result.status, 0, `converged real-validate done_prepare should return PASS JSON:\n${result.stderr}\n${result.stdout}`);
     assertProgressLabels(result.stderr, REQUIRED_REAL_VALIDATE_PROGRESS_LABELS);
@@ -711,17 +710,17 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
   const { root, storyId } = setupFixture({ realValidate: true, doneRequiredDelayMs: childDurationMs });
   try {
     const descendantPidFile = join(root, 'phase-descendant.pid');
-    const configPath = join(root, 'lattice.config.json');
+    const configPath = join(root, 'proof-or-stop.config.json');
     const config = JSON.parse(readFileSync(configPath, 'utf8')) as { doneRequiredCommands: Array<{ args: string[] }> };
     config.doneRequiredCommands[0].args = ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(descendantPidFile)},String(c.pid));setTimeout(()=>process.exit(0),${childDurationMs})`];
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
     writeFileSync(join(root, '.gitignore'), `${readFileSync(join(root, '.gitignore'), 'utf8')}phase-descendant.pid\n`, 'utf8');
     commitAll(root, 'configure phase-timeout descendant fixture');
     const result = runCli(root, donePrepareRealValidateArgs(storyId, true), {
-      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '500',
-      LATTICE_VALIDATE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '500',
+      PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '20',
     });
     assert.equal(result.status, 1, `phase-timeout done_prepare should return blocked JSON and exit nonzero:\n${result.stderr}\n${result.stdout}`);
     assert.ok(
@@ -759,7 +758,7 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
     assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'DONE-required phase abort must kill the descendant process tree before returning');
 
     await sleep(childDurationMs + 250);
-    const evidencePath = join(root, '.lattice', 'story', 'actives', storyId, 'done-required-evidence.json');
+    const evidencePath = join(root, '.proof-or-stop', 'story', 'actives', storyId, 'done-required-evidence.json');
     if (existsSync(evidencePath)) {
       const evidence = JSON.parse(readFileSync(evidencePath, 'utf8')) as { status?: string };
       assert.notEqual(
@@ -769,8 +768,8 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
       );
     }
     const retry = runCli(root, ['done_required_validate', '--storyId', storyId, '--json'], {
-      LATTICE_MAX_TIMEOUT_MS: '5000',
-      LATTICE_VALIDATE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '20',
     });
     assert.equal(JSON.parse(retry.stdout).result, 'pass', 'phase timeout must release process tree/lock/timers for immediate rerun');
   } finally {
@@ -783,14 +782,14 @@ async function assertHungPhaseFailsClosed(): Promise<void> {
   const oldCwd = process.cwd();
   try {
     process.chdir(root);
-    const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const storySnapshotBefore = readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`);
     const logs: string[] = [];
     const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg)));
     const transcript = await withEnv({
-      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
-      LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE: 'runtimeChange',
+      PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_HANG_PHASE: 'runtimeChange',
     }, async () => String(await prepare.done_prepare({
       storyId,
       mergeMain: false,
@@ -810,11 +809,11 @@ async function assertHungPhaseFailsClosed(): Promise<void> {
     assert.match(transcript, /heartbeat output is diagnostic only and does not extend the phase deadline/);
     assert.ok(!transcript.includes('DonePreparePhaseTimeoutError'), 'timeout should not leak an opaque stack/class name');
     assert.deepEqual(
-      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`),
       storySnapshotBefore,
       'progress and timeout diagnostics must not write gate evidence or story metadata',
     );
-    assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'direct handler progress does not depend on activity-root logging');
+    assert.ok(!existsSync(join(root, '.proof-or-stop', 'activity.jsonl')), 'direct handler progress does not depend on activity-root logging');
   } finally {
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
@@ -826,7 +825,7 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
   const oldCwd = process.cwd();
   try {
     process.chdir(root);
-    const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const storySnapshotBefore = readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`);
     const logs: string[] = [];
     let phaseStartedAt = 0;
     const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => {
@@ -834,12 +833,12 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
       if (msg === 'done_prepare progress: computing runtime-change status') phaseStartedAt = Date.now();
     }));
     const transcript = await withEnv({
-      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
-      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'runtimeChange',
-      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND: 'execFileSync',
-      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'runtimeChange',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND: 'execFileSync',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
     }, async () => String(await prepare.done_prepare({
       storyId,
       mergeMain: false,
@@ -860,11 +859,11 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
     assert.match(transcript, /heartbeat output is diagnostic only and does not extend the phase deadline/);
     assert.ok(!transcript.includes('ETIMEDOUT'), 'sync child timeout should be attributed to the done_prepare phase');
     assert.deepEqual(
-      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`),
       storySnapshotBefore,
       'sync child timeout diagnostics must not write gate evidence or story metadata',
     );
-    assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'sync timeout progress does not depend on activity-root logging');
+    assert.ok(!existsSync(join(root, '.proof-or-stop', 'activity.jsonl')), 'sync timeout progress does not depend on activity-root logging');
     assert.doesNotThrow(
       () => execFileSync(process.execPath, ['-e', ''], { stdio: 'ignore', timeout: 1_000 }),
       'sync timeout must reap the child and restore execFileSync before returning',
@@ -880,7 +879,7 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
   const oldCwd = process.cwd();
   try {
     process.chdir(root);
-    const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const storySnapshotBefore = readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`);
     const logs: string[] = [];
     let phaseStartedAt = 0;
     const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => {
@@ -888,12 +887,12 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
       if (msg === 'done_prepare progress: evaluating DONE closure') phaseStartedAt = Date.now();
     }));
     const transcript = await withEnv({
-      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '120',
-      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'doneClosure',
-      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND: 'execSync',
-      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS: '20',
+      PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '120',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'doneClosure',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND: 'execSync',
+      PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
     }, async () => String(await prepare.done_prepare({
       storyId,
       mergeMain: false,
@@ -914,11 +913,11 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
     assert.match(transcript, /heartbeat output is diagnostic only and does not extend the phase deadline/);
     assert.ok(!transcript.includes('ETIMEDOUT'), 'execSync child timeout should be attributed to the done_prepare phase');
     assert.deepEqual(
-      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`),
       storySnapshotBefore,
       'execSync timeout diagnostics must not write gate evidence or story metadata',
     );
-    assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'execSync timeout progress does not depend on activity-root logging');
+    assert.ok(!existsSync(join(root, '.proof-or-stop', 'activity.jsonl')), 'execSync timeout progress does not depend on activity-root logging');
     assert.doesNotThrow(
       () => execSync(`${JSON.stringify(process.execPath)} -e ""`, { stdio: 'ignore', timeout: 1_000 }),
       'sync timeout must reap the child and restore execSync before returning',

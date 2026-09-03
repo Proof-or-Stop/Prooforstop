@@ -94,15 +94,15 @@ function normalizeMode(value: unknown): AgentAssetResolutionMode | null {
 function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
   // B-cc10 CHK-002: probe every accepted state-dir / adapter-dir / manifest
   // spelling, canonical first, so the asset-mode hint still resolves across the
-  // rename. `.Lattice` stays explicit — a case variant, not a brand identity.
+  // rename. `.proof-or-stop` stays explicit — a case variant, not a brand identity.
   const candidates = [
     ...MANIFEST_FILENAMES.flatMap(file =>
       stateDirCandidates(file).map(rel => join(projectRoot, rel))),
-    // B-cc10 CHK-004: the `.Lattice` case variant must accept BOTH manifest
-    // filenames. Pinning the deprecated one meant a `.Lattice` root whose
+    // B-cc10 CHK-004: the `.proof-or-stop` case variant must accept BOTH manifest
+    // filenames. Pinning the deprecated one meant a `.proof-or-stop` root whose
     // manifest HAD been migrated stopped resolving — the rename breaking the
     // newer layout while the older kept working (backwards B-cdf6 direction).
-    ...MANIFEST_FILENAMES.map(file => join(projectRoot, '.Lattice', file)),
+    ...MANIFEST_FILENAMES.map(file => join(projectRoot, '.proof-or-stop', file)),
     ...adapterManifestCandidates().map(rel => join(projectRoot, rel)),
   ].filter((value, index, all) => all.indexOf(value) === index);
   for (const candidate of candidates) {
@@ -121,7 +121,7 @@ function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
       // spelling would silently fail this branch and fall through to the wrong
       // asset mode.
       adapterManifestCandidates().includes(normalizeRel(relative(projectRoot, candidate))) &&
-      isCodexAdapterManifestOwner(parsed.adapterOwner) &&
+      parsed.adapterOwner === 'proof-or-stop' &&
       parsed.adapterKind === 'codex' &&
       parsed.promptMode === undefined
     ) {

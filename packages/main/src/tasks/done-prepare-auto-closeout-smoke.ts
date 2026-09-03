@@ -175,7 +175,7 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
     materialHash,
     ...(storyFilesHash ? { storyFilesHash } : {}),
     reviewRound: NOW,
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -185,7 +185,7 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
 }
 
 function setupFixture(options: FixtureOptions = {}): Fixture {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-auto-closeout-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-prepare-auto-closeout-'));
   const unsafeScript = [
     "const fs = require('fs');",
     "fs.mkdirSync('docs', { recursive: true });",
@@ -196,7 +196,7 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
     rootDir: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
     validate: {
@@ -220,7 +220,7 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       bugStale: 10_000_000,
     },
   };
-  write(root, 'lattice.config.json', JSON.stringify(config, null, 2) + '\n');
+  write(root, 'proof-or-stop.config.json', JSON.stringify(config, null, 2) + '\n');
   // B-cc10 F-074: these ignore rules covered ONLY the deprecated state dir, but the runtime
   // now writes activity / learning cache / locks under the CANONICAL one. The uncovered
   // canonical cache file then read as untracked and blocked cleanTree ('DONE prepare:
@@ -357,7 +357,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
   const restoreSpy = installCommandSpy(observed);
   try {
     process.chdir(root);
-    const deliveryBefore = readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8');
+    const deliveryBefore = readFileSync(join(root, '.proof-or-stop', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8');
     const beforeHead = git(root, ['rev-parse', 'HEAD']);
     const logs: string[] = [];
     const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg))).done_prepare({
@@ -382,7 +382,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     // immediately before `DONE:` across a line break, which the retired-authority
     // vocabulary guard correctly flagged as banned phrasing. Reworded, not exempted.)
     assert.match(transcript, /proof-or-stop story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
-    assert.doesNotMatch(transcript, /\blattice story_advance /);
+    assert.doesNotMatch(transcript, /\bproofOrStop story_advance /);
     assert.ok(logs.some((line) => line.includes('done_prepare convergence: retained review across trusted validation metadata advance')), 'trusted metadata advance is logged to the side channel');
     assert.equal(git(root, ['status', '--porcelain']), '', 'auto-closeout leaves the worktree clean');
     assert.notEqual(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE, 'one-pass closeout must not create the legacy synthetic auto-close commit');
@@ -392,10 +392,10 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
       .filter(Boolean)
       .sort();
     assert.deepEqual(committedFiles, [
-      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
-      `.lattice/story/actives/${storyId}/done-required-evidence.json`,
-      `.lattice/story/actives/${storyId}/process-events.jsonl`,
-      `.lattice/story/actives/${storyId}/test-evidence.json`,
+      `.proof-or-stop/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+      `.proof-or-stop/story/actives/${storyId}/done-required-evidence.json`,
+      `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`,
+      `.proof-or-stop/story/actives/${storyId}/test-evidence.json`,
     ]);
     const evidenceStore = new StoryStore(root);
     const evidence = evidenceStore.readDoneRequiredEvidence(storyId) as any;
@@ -403,7 +403,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     assert.equal(evidenceStore.readTestEvidence(storyId)?.commandExecution?.commandCount, 1, 'routine validation suite executes exactly once');
     assert.equal(evidence.receipts?.length, 1, 'DONE-required suite executes exactly once');
     assert.equal(
-      readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8'),
+      readFileSync(join(root, '.proof-or-stop', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8'),
       deliveryBefore,
       'done_prepare must not self-sign or rewrite delivery-check evidence',
     );
@@ -437,9 +437,9 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     assert.deepEqual(
       git(root, ['diff', '--name-only', `${reuseHeadBefore}..HEAD`]).split('\n').filter(Boolean).sort(),
       [
-        `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
-        `.lattice/story/actives/${storyId}/process-events.jsonl`,
-        `.lattice/story/actives/${storyId}/test-evidence.json`,
+        `.proof-or-stop/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+        `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`,
+        `.proof-or-stop/story/actives/${storyId}/test-evidence.json`,
       ],
       'reused validation atomically closes only its canonical PASS, terminal, and receipt',
     );
@@ -535,10 +535,10 @@ async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
 
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const safePaths = [
-      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
-      `.lattice/story/actives/${storyId}/done-required-evidence.json`,
-      `.lattice/story/actives/${storyId}/process-events.jsonl`,
-      `.lattice/story/actives/${storyId}/test-evidence.json`,
+      `.proof-or-stop/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+      `.proof-or-stop/story/actives/${storyId}/done-required-evidence.json`,
+      `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`,
+      `.proof-or-stop/story/actives/${storyId}/test-evidence.json`,
     ];
     const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
       storyId,
@@ -582,20 +582,20 @@ async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
 function assertPreexistingLifecycleMetadataIsUnsafe(): void {
   const { root, storyId } = setupFixture();
   try {
-    const testEvidencePath = `.lattice/story/actives/${storyId}/test-evidence.json`;
+    const testEvidencePath = `.proof-or-stop/story/actives/${storyId}/test-evidence.json`;
     write(root, testEvidencePath, JSON.stringify({ preexisting: true }, null, 2) + '\n');
     const rows = gitStatusRowsForDonePrepareGeneratedMetadata(root);
     assert.match(rows.join('\n'), /test-evidence\.json/, 'fixture must have pre-existing lifecycle metadata dirt');
     const baseline = captureDonePrepareGeneratedMetadataBaseline({
       root,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       storyId,
       initialDirtyRows: rows,
     });
     const manifest = buildDonePrepareGeneratedMetadataManifest({
       root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       statusRows: rows,
     });
@@ -614,10 +614,10 @@ function assertPreexistingLifecycleMetadataIsUnsafe(): void {
 function assertProcessEventBindingIsExactAndFailClosed(): void {
   const { root, storyId } = setupFixture();
   try {
-    const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const processEventsPath = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
     const baseline = captureDonePrepareGeneratedMetadataBaseline({
       root,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       storyId,
       initialDirtyRows: [],
     });
@@ -656,7 +656,7 @@ function assertProcessEventBindingIsExactAndFailClosed(): void {
       return buildDonePrepareGeneratedMetadataManifest({
         root,
         storyId,
-        storyDirRel: '.lattice/story/actives',
+        storyDirRel: '.proof-or-stop/story/actives',
         baseline,
         statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
         expectedProcessEventBinding: expected,
@@ -706,10 +706,10 @@ function assertIndexValidationClosesMutationWindows(): void {
   for (const seam of ['beforeAdd', 'afterAddBeforeCommit'] as const) {
     const { root, storyId } = setupFixture();
     try {
-      const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+      const processEventsPath = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
       const baseline = captureDonePrepareGeneratedMetadataBaseline({
         root,
-        storyDirRel: '.lattice/story/actives',
+        storyDirRel: '.proof-or-stop/story/actives',
         storyId,
         initialDirtyRows: [],
       });
@@ -756,7 +756,7 @@ function assertIndexValidationClosesMutationWindows(): void {
         root,
         gitCwd: root,
         storyId,
-        storyDirRel: '.lattice/story/actives',
+        storyDirRel: '.proof-or-stop/story/actives',
         baseline,
         expectedProcessEventBinding: expected,
         testHooks: { [seam]: mutate },
@@ -784,10 +784,10 @@ function isolatedCommitCandidate(): Fixture & {
   validContent: string;
 } {
   const fixture = setupFixture();
-  const processEventsPath = `.lattice/story/actives/${fixture.storyId}/process-events.jsonl`;
+  const processEventsPath = `.proof-or-stop/story/actives/${fixture.storyId}/process-events.jsonl`;
   const baseline = captureDonePrepareGeneratedMetadataBaseline({
     root: fixture.root,
-    storyDirRel: '.lattice/story/actives',
+    storyDirRel: '.proof-or-stop/story/actives',
     storyId: fixture.storyId,
     initialDirtyRows: [],
   });
@@ -852,7 +852,7 @@ function assertIsolatedTreeExcludesSharedIndexRaces(): void {
       root,
       gitCwd: root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       expectedProcessEventBinding: expected,
       testHooks: {
@@ -904,7 +904,7 @@ function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
       root,
       gitCwd: root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       expectedProcessEventBinding: expected,
       testHooks: {
@@ -988,7 +988,7 @@ function assertIsolatedIndexPathSetIsExact(): void {
         root,
         gitCwd: root,
         storyId,
-        storyDirRel: '.lattice/story/actives',
+        storyDirRel: '.proof-or-stop/story/actives',
         baseline,
         expectedProcessEventBinding: expected,
         testHooks: {
@@ -1031,7 +1031,7 @@ function assertCommitMessageHooksAndPostCommitSemantics(): void {
       root,
       gitCwd: root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       expectedProcessEventBinding: expected,
     });
@@ -1055,7 +1055,7 @@ function assertCommitMsgRejectionIsFailClosed(): void {
       root,
       gitCwd: root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       expectedProcessEventBinding: expected,
       testHooks: {
@@ -1089,7 +1089,7 @@ function assertSigningConfigPropagatesAndFailsClosed(): void {
       root,
       gitCwd: root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       expectedProcessEventBinding: expected,
       testHooks: {
@@ -1119,10 +1119,10 @@ function assertDeletesAndRenamesAreUnsafe(): void {
   for (const mode of ['delete', 'rename'] as const) {
     const { root, storyId } = setupFixture();
     try {
-      const testEvidencePath = `.lattice/story/actives/${storyId}/test-evidence.json`;
+      const testEvidencePath = `.proof-or-stop/story/actives/${storyId}/test-evidence.json`;
       const baseline = captureDonePrepareGeneratedMetadataBaseline({
         root,
-        storyDirRel: '.lattice/story/actives',
+        storyDirRel: '.proof-or-stop/story/actives',
         storyId,
         initialDirtyRows: [],
       });
@@ -1134,7 +1134,7 @@ function assertDeletesAndRenamesAreUnsafe(): void {
       const manifest = buildDonePrepareGeneratedMetadataManifest({
         root,
         storyId,
-        storyDirRel: '.lattice/story/actives',
+        storyDirRel: '.proof-or-stop/story/actives',
         baseline,
         statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
       });
@@ -1168,7 +1168,7 @@ function assertMissingHashesRefuseReuse(): void {
       storyId,
       store,
       basis,
-      generatedMetadataPaths: [`.lattice/story/actives/${storyId}/test-evidence.json`],
+      generatedMetadataPaths: [`.proof-or-stop/story/actives/${storyId}/test-evidence.json`],
     });
     assert.equal(result.ok, false, 'missing material/story hashes must not be eligible for validation reuse');
     assert.match(result.reasons.join('\n'), /test-evidence materialHash does not match current materialHash/);
@@ -1198,12 +1198,12 @@ async function assertReuseRefusesConfigAndMaterialDrift(): Promise<void> {
     assert.ok(basis.doneRequiredEvidence, 'drift refusal fixture must have DONE-required evidence before drift');
     const reuseRecordBeforeDrift = JSON.stringify((store.readDoneRequiredEvidence(storyId) as any)?.donePrepareValidationReuse ?? null);
     write(root, 'README.md', '# done_prepare auto-closeout fixture changed\n');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: '.',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
       validate: {
@@ -1221,7 +1221,7 @@ async function assertReuseRefusesConfigAndMaterialDrift(): Promise<void> {
         timeoutMs: 2000,
       }],
     }, null, 2) + '\n');
-    git(root, ['add', 'README.md', 'lattice.config.json']);
+    git(root, ['add', 'README.md', 'proof-or-stop.config.json']);
     git(root, ['commit', '-m', 'drift material and validation config']);
     resetConfigCache();
 
@@ -1231,7 +1231,7 @@ async function assertReuseRefusesConfigAndMaterialDrift(): Promise<void> {
       storyId,
       store,
       basis,
-      generatedMetadataPaths: [`.lattice/story/actives/${storyId}/test-evidence.json`],
+      generatedMetadataPaths: [`.proof-or-stop/story/actives/${storyId}/test-evidence.json`],
     });
     assert.equal(result.ok, false, 'material/config drift must not be eligible for validation reuse');
     const reasons = result.reasons.join('\n');

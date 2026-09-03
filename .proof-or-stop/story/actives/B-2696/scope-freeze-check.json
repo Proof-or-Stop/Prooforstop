@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2696",
+  "checkedAt": "2026-09-03T09:58:31.337Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "475d2bce724a55d2f069584c2d3aca1dc361cb7f5866981cc5332e8a7fab585c",
+  "executionBoundaryHash": "9d20352d78f5d8d53909875abeec63082eb6363bc4ab8a51212e59adcf365447",
+  "freshnessHash": "a18e9779a48107020fc6362f41fdb19bd4201bf9b9e7c2b7dc6560b3db55ecb4",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing how agent prompt assets are generated, resolved or shadowed, or running proof-or-stop init --upgrade",
+    "Changing the docs/story path exclusion in core/audit-scan.ts or any behavior of the existing docs-drift preflight gate",
+    "Correcting documents other than CLAUDE.md",
+    "customerKeyRef",
+    "Enabling core.hooksPath in the operator local git config, which is an operator action and not a repository change",
+    "Layer4",
+    "Mechanically guarding semantic staleness where a cited line still exists but no longer contains what the prose describes",
+    "repair UX",
+    "Translating CLAUDE.md sections this story does not otherwise correct"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing how agent prompt assets are generated, resolved or shadowed, or running proof-or-stop init --upgrade",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing how agent prompt assets are generated, resolved or shadowed, or running proof-or-stop init --upgrade",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the docs/story path exclusion in core/audit-scan.ts or any behavior of the existing docs-drift preflight gate",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the docs/story path exclusion in core/audit-scan.ts or any behavior of the existing docs-drift preflight gate",
+      "excluded": true
+    },
+    {
+      "keyword": "Correcting documents other than CLAUDE.md",
+      "source": "scopeBoundary.excluded",
+      "text": "Correcting documents other than CLAUDE.md",
+      "excluded": true
+    },
+    {
+      "keyword": "Enabling core.hooksPath in the operator local git config, which is an operator action and not a repository change",
+      "source": "scopeBoundary.excluded",
+      "text": "Enabling core.hooksPath in the operator local git config, which is an operator action and not a repository change",
+      "excluded": true
+    },
+    {
+      "keyword": "Mechanically guarding semantic staleness where a cited line still exists but no longer contains what the prose describes",
+      "source": "scopeBoundary.excluded",
+      "text": "Mechanically guarding semantic staleness where a cited line still exists but no longer contains what the prose describes",
+      "excluded": true
+    },
+    {
+      "keyword": "Translating CLAUDE.md sections this story does not otherwise correct",
+      "source": "scopeBoundary.excluded",
+      "text": "Translating CLAUDE.md sections this story does not otherwise correct",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "24960abe8a40c3737210d38d04bf8721dc1bdcd0aef7728bc0f1120554d9a8aa"
+}

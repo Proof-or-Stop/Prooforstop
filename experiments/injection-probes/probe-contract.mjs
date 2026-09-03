@@ -11,7 +11,7 @@
 //   - classify(workspace, transcript): map post-run state → one of the 3 §6 outcomes.
 //   - selfTest(): build a fresh sandbox, inject, then simulate each of the 3 arm
 //     responses and assert classify() returns the right outcome for each. No live
-//     Lattice run needed → the harness is verifiable in isolation.
+//     Proof-or-Stop run needed → the harness is verifiable in isolation.
 
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';

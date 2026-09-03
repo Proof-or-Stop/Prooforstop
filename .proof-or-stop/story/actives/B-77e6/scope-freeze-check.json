@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-77e6",
+  "checkedAt": "2026-09-02T13:38:06.998Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "10dda6de53f90201216dc8508fcd623815ae0de2542396766835e27c793e50c6",
+  "executionBoundaryHash": "1a811d4733711895afaa0317b116fd424d66baa1340054eaafb90dd7dbb03b5b",
+  "freshnessHash": "fb48acc60c3dd1766fe4da7d12c5938f6a6c9b46486b1b4ae6fb7c0eb5c0b1ae",
+  "effectiveExcludedKeywords": [
+    "Any behaviour change in a migrated handler beyond where it reads story metadata and config from",
+    "Changing the shared resolver's contract or the audit's classification rules (owned by the single-owner extraction story)",
+    "gap_log migration, evidence re-pin policy, test-and-guard credibility items",
+    "Handlers the audit does not flag"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any behaviour change in a migrated handler beyond where it reads story metadata and config from",
+      "source": "scopeBoundary.excluded",
+      "text": "Any behaviour change in a migrated handler beyond where it reads story metadata and config from",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the shared resolver's contract or the audit's classification rules (owned by the single-owner extraction story)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the shared resolver's contract or the audit's classification rules (owned by the single-owner extraction story)",
+      "excluded": true
+    },
+    {
+      "keyword": "gap_log migration, evidence re-pin policy, test-and-guard credibility items",
+      "source": "scopeBoundary.excluded",
+      "text": "gap_log migration, evidence re-pin policy, test-and-guard credibility items",
+      "excluded": true
+    },
+    {
+      "keyword": "Handlers the audit does not flag",
+      "source": "scopeBoundary.excluded",
+      "text": "Handlers the audit does not flag",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "916e0974a4b96b13a51cc3b36821f26ded32a63c76cb978ee6fc580e5e9a6dac"
+}

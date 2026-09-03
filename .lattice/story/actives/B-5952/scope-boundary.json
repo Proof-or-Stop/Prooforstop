@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5952",
+  "mode": "custom",
+  "allowed": [
+    "Annotate the one historical @lattice/core sentence in docs/requirements/decisions/dynamic-finding-system-execution-plan.md with its @proof-or-stop/core replacement so the existing root package-rename verifier passes.",
+    "Change only the Unix Codex global-CLI discovery path from login-shell to non-login-shell behavior so caller PATH is preserved; Windows behavior remains unchanged.",
+    "Repair only the six reproducible clean-main TEST blockers in canonical config root discovery, legacy fixture storyDir, and Codex heartbeat timeout classification.",
+    "Restore the finite 808 instrumentation ceiling with absolute cap 850 for the causally measured 804-build inventory."
+  ],
+  "excluded": [
+    "Any other Dynamic Finding decision-document change or any B-3434 decision semantic change.",
+    "Medium/low nonblocking diagnostics or cleanup not required for B-5952 acceptance, REVIEW, TEST, or DONE.",
+    "Production handlers, CLI sources, Windows CLI discovery, and unrelated runtime behavior changes."
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly directed: do not expand scope; repair this main-branch baseline problem before completing B-2220. Custom mode avoids the correctness_fix default Authority keyword colliding with the existing retired-authority title while preserving the exact allowed/excluded entries.",
+  "createdAt": "2026-08-31T14:26:51.021Z",
+  "updatedAt": "2026-08-31T14:26:51.021Z",
+  "_hash": "45527893faa6f412dca607d2b3f6639bdd1b807b4096daeb23a15e2210b70f88"
+}

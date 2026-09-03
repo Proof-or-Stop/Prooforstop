@@ -45,14 +45,14 @@ const MAX_OUTPUT_CHARS = 12000;
  * `timeoutMs`. This is a TOTAL WALL-CLOCK ceiling per command — distinct from the
  * cli-engine global watchdog, which fires only after ~300s of NO OUTPUT (idle). Kept
  * strictly BELOW that global watchdog (300_000ms = 5*60*1000; overridable via the
- * LATTICE_IDLE_TIMEOUT_MS env var) so a hung/slow command is killed and ATTRIBUTED
+ * PROOF_OR_STOP_IDLE_TIMEOUT_MS env var) so a hung/slow command is killed and ATTRIBUTED
  * (exit 124) here first, instead of the global watchdog silently force-exiting the whole
  * validate (which never re-stamps test-evidence.materialHash and silently blocks DONE for
  * every story). It is also kept ABOVE the observed full-validation incident envelope
  * (~171s) with margin; a command that genuinely needs longer can raise
- * `lattice.config.json` validate.commands[].timeoutMs (the build is pinned there to 290s
+ * `proof-or-stop.config.json` validate.commands[].timeoutMs (the build is pinned there to 290s
  * to keep near-watchdog headroom for a cold-cache compile). NOTE: lowering
- * LATTICE_IDLE_TIMEOUT_MS below this default would invert the invariant — an advanced,
+ * PROOF_OR_STOP_IDLE_TIMEOUT_MS below this default would invert the invariant — an advanced,
  * non-default override the operator owns.
  */
 export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
@@ -126,12 +126,10 @@ function readRuntimeTraceFragments(traceFile: string): {
  * witnessed by a tool-executed receipt: the evidence path always ran the pinned command
  * under {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS} (270s) while that suite takes 21-24
  * min, so the run was KILLED and no verdict was ever printed. The framework already knew
- * this command legitimately needs longer — lattice.config.json gives the same `npm test`
- * a 7200000ms budget as a DONE-required command. The complete story-aware historical
- * replay is also an admissible pinned witness, however: it executes 50 isolated
- * historical Stories plus paired full/dynamic comparisons and can legitimately exceed
- * two hours. The bounded six-hour ceiling covers that real assurance campaign while a
- * request ABOVE the cap is still REFUSED, never silently clamped.
+ * this command legitimately needs longer — proof-or-stop.config.json gives the same `npm test`
+ * a 7200000ms budget as a DONE-required command — so the cap is set to exactly that
+ * value: the longest budget the framework itself sanctions. A request ABOVE the cap is
+ * REFUSED, never silently clamped.
  *
  * Canonical single source of truth: the CLI schema (`command-catalog.ts`) and the handler
  * enforcement boundary (`handlers/checklist.ts`) both import THIS constant, so the Zod
@@ -158,7 +156,7 @@ export interface ExecuteValidationPlanOptions {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
-  /** Scheduler worker count; overrides LATTICE_VALIDATE_JOBS. See {@link resolveValidatePlanJobs}. */
+  /** Scheduler worker count; overrides PROOF_OR_STOP_VALIDATE_JOBS. See {@link resolveValidatePlanJobs}. */
   jobs?: number;
   /** Refuse each child launch if the caller's preflight snapshot is no longer valid. */
   beforeLaunch?: () => void;
@@ -188,7 +186,7 @@ export const DEFAULT_VALIDATE_PLAN_JOBS = 4;
 
 /**
  * Resolve the scheduler worker count: explicit `jobs` option, else the
- * `LATTICE_VALIDATE_JOBS` env var, else {@link DEFAULT_VALIDATE_PLAN_JOBS}.
+ * `PROOF_OR_STOP_VALIDATE_JOBS` env var, else {@link DEFAULT_VALIDATE_PLAN_JOBS}.
  *
  * A PRESENT but unparseable / out-of-range value is REFUSED rather than
  * silently replaced by the default: an operator who sets this has a reason, and
@@ -205,9 +203,9 @@ export function resolveValidatePlanJobs(env: NodeJS.ProcessEnv = process.env, ov
     }
     return override;
   }
-  const raw = env.LATTICE_VALIDATE_JOBS?.trim();
+  const raw = env.PROOF_OR_STOP_VALIDATE_JOBS?.trim();
   if (!raw) return DEFAULT_VALIDATE_PLAN_JOBS;
-  return parsePositiveInteger(raw, 'LATTICE_VALIDATE_JOBS');
+  return parsePositiveInteger(raw, 'PROOF_OR_STOP_VALIDATE_JOBS');
 }
 
 /**
@@ -254,7 +252,7 @@ function formatTimeoutDiagnostics(
     `  timeout diagnostic: command ${commandIndex}/${totalCommands} "${command.label}" exceeded configured timeoutMs=${timeout} after elapsedMs=${result.durationMs}.`,
     `  command: ${command.command}`,
     `  args: ${JSON.stringify(command.args)}`,
-    '  If this command legitimately needs longer, raise lattice.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
+    '  If this command legitimately needs longer, raise proof-or-stop.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
   ];
 }
 
@@ -390,7 +388,7 @@ export function formatValidationEvidenceAdvisory(persisted: PersistedValidationE
     + `${Math.round(VALIDATION_EVIDENCE_ADVISORY_FRACTION * 100)}% of the `
     + `${formatBytes(VALIDATION_EVIDENCE_READ_CEILING_BYTES)} metadata read ceiling.`;
   if (persisted.state === 'advisory') {
-    return `${head} The file grows with the number of lattice.config.json validate.commands entries; `
+    return `${head} The file grows with the number of proof-or-stop.config.json validate.commands entries; `
       + `it is bounded at ${formatBytes(VALIDATION_EVIDENCE_BOUND_BYTES)}.`;
   }
   const sizing = persisted.sizing;
@@ -1097,7 +1095,7 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
 
 // Task B-6326 + B-4b22: validation side-effect details share DONE gate dirty
 // ownership vocabulary AND route through dirty-gate-policy. When every polluted
-// path classifies as a passing category (lattice_metadata / runtime_artifact /
+// path classifies as a passing category (proof_or_stop_metadata / runtime_artifact /
 // declared_artifact), this:
 //   1. reports blocking=false (the caller writes it onto the pollution record,
 //      and executeValidationPlan reads that to keep allPass = true),
@@ -1215,7 +1213,7 @@ export function formatConcurrentWorktreePollutionDetails(
     ...pollution.attributions.map(
       (attribution) => `  ${attribution.path}: appeared during the windows of ${attribution.candidates.join(', ')}`,
     ),
-    '  attribution is the SET above, not any one of them: these commands ran concurrently, so the repo-wide before/after status probe cannot tell which one wrote the path. Re-run with LATTICE_VALIDATE_JOBS=1 to attribute it exactly.',
+    '  attribution is the SET above, not any one of them: these commands ran concurrently, so the repo-wide before/after status probe cannot tell which one wrote the path. Re-run with PROOF_OR_STOP_VALIDATE_JOBS=1 to attribute it exactly.',
   ];
 }
 
@@ -1544,7 +1542,7 @@ export function runValidationCommand(
  * B-ec67: executables a pinned verification command may use. A pinned command is
  * executable+argv, NEVER a raw shell program — so we constrain the leading token to
  * this small allowlist of test/runtime launchers. This is the enforcement analogue
- * of the lattice-dispatch command-authorization boundary (dispatch's per-policy
+ * of the proof-or-stop-dispatch command-authorization boundary (dispatch's per-policy
  * `commandAllowlist` authorizes whole command STRINGS under an unattended policy and
  * needs a DispatchPolicy in scope; that surface is not reusable for a synchronous
  * evidence write, so the pinned-command path keeps its own focused executable
@@ -1686,14 +1684,14 @@ export async function runSingleAllowlistedCommand(
  * entry in the plan — declared or not — and is therefore scheduled alone.
  *
  * The default is exclusive on purpose. Routine validate commands write under
- * `.lattice/`, rebuild `packages/main/dist`, take repository build/runtime
+ * `.proof-or-stop/`, rebuild `packages/main/dist`, take repository build/runtime
  * locks and drive git; an unclassified command that silently ran concurrently
  * would corrupt exactly the evidence validate exists to produce. Defaulting to
  * shared would assume the disjointness nobody has proven yet, and a declaration
  * is precisely the record of that proof. Under-declaring only costs latency.
  */
 export const VALIDATE_PLAN_BARRIER_CLAIM_CLASS = 'fixed-path' as const;
-export const VALIDATE_PLAN_BARRIER_CLAIM_KEY = '.lattice/runtime/validate-plan-barrier';
+export const VALIDATE_PLAN_BARRIER_CLAIM_KEY = '.proof-or-stop/runtime/validate-plan-barrier';
 
 /** One plan command as the keyed scheduler sees it. */
 export interface ValidationScheduleEntry extends SchedulableEntry {
@@ -1956,7 +1954,7 @@ export async function executeValidationPlan(
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
   const requiredInfraFailures = requiredFailures.filter((r) => r.failureKind === 'infra_failure');
   // Task B-4b22: pollution only counts as failure if dirty-gate-policy
-  // marked it blocking. Passing-only category pollution (lattice_metadata /
+  // marked it blocking. Passing-only category pollution (proof_or_stop_metadata /
   // runtime_artifact / declared_artifact) is allowed and audited.
   const pollutionFailures = commands.filter((r) => {
     if (!r.worktreePollution || r.worktreePollution.statusLines.length === 0) return false;

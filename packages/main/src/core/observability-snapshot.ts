@@ -404,4 +404,3 @@ export function buildObservabilitySnapshot(
  * branch importing the old symbol must keep compiling when it merges. Never remove.
  */
 /** @deprecated Use `ProofOrStopObservabilitySnapshot`. */
-export type LatticeObservabilitySnapshot = ProofOrStopObservabilitySnapshot;

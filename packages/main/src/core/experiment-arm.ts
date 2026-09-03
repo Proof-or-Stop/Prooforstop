@@ -6,7 +6,7 @@
 // blocked) and a treatment arm (pack shown), keyed by an EXPLICIT opt-in
 // experiment context. This leaf resolves that context from two env vars:
 // PROOF_OR_STOP_EXPERIMENT_ID + PROOF_OR_STOP_EXPERIMENT_ARM (the deprecated
-// LATTICE_* spellings are still accepted). BOTH must be set and valid,
+// PROOF_OR_STOP_* spellings are still accepted). BOTH must be set and valid,
 // otherwise the resolver returns null and every consumer must behave
 // byte-identically to production today (null = no experiment active). The arm
 // value must never reach prompt hashes or gate decisions — consumers enforce
@@ -51,7 +51,7 @@ function warnOnce(message: string): void {
  *
  * Goes through `readBrandEnvTrimmed` rather than a raw `env[name]` lookup so that an
  * operator (or a teammate's pre-rename branch) exporting the deprecated
- * `LATTICE_EXPERIMENT_ARM` / `LATTICE_EXPERIMENT_ID` spelling still opts into the
+ * `PROOF_OR_STOP_EXPERIMENT_ARM` / `PROOF_OR_STOP_EXPERIMENT_ID` spelling still opts into the
  * experiment. A raw lookup silently ignored the old names once the constants above were
  * renamed, which is a behaviour change disguised as a rename.
  */

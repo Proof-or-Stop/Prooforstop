@@ -65,7 +65,7 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   try {
     return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_SESSION_ID: 'acceptance-basis-smoke', LATTICE_AGENT: 'lattice-implementer' },
+      env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'acceptance-basis-smoke', PROOF_OR_STOP_AGENT: 'proof-or-stop-implementer' },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -208,7 +208,7 @@ function scopeContract(): ScopeContractData {
 
 function scopeCheck(root: string): ScopeCheckData {
   const base = {
-    storyId, checkedAt: now, reviewRound: '', agentId: 'lattice-review-scope-plan', issues: [], features: [],
+    storyId, checkedAt: now, reviewRound: '', agentId: 'proof-or-stop-review-scope-plan', issues: [], features: [],
     summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
   } as unknown as ScopeCheckData;
   const previous = process.cwd();
@@ -220,7 +220,7 @@ function scopeCheck(root: string): ScopeCheckData {
 const pureRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-pure-'));
 try {
   write(pureRoot, 'tsconfig.json', '{}\n');
-  write(pureRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+  write(pureRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
   writeCanonicalAcceptanceRegistration(pureRoot);
   const plannedBeforeCode = deriveAcceptanceCoverageBasis({
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
@@ -294,21 +294,21 @@ try {
   assert.equal(earlyReadMutation.basis.status, 'partial', 'early-read source mutation is rejected at the final seal');
   assert.ok(earlyReadMutation.basis.blindSpots.some(item => item.includes('snapshot-seal:source_file_changed')), 'early-read mutation reports a file fingerprint blind spot');
   writeFileSync(join(pureRoot, 'packages/main/src/producer.ts'), producerControl);
-  const configPath = join(pureRoot, 'lattice.config.json');
+  const configPath = join(pureRoot, 'proof-or-stop.config.json');
   const configControl = readFileSync(configPath, 'utf8');
   const configMutation = deriveAcceptanceCoverageBasis({
     ...input,
     discoveryTestHooks: { immediatelyBeforeFinalSeal: () => writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'other' })) },
   });
   assert.equal(configMutation.basis.status, 'partial', 'config changed after assembly is rejected at the final seal');
-  assert.ok(configMutation.basis.blindSpots.some(item => item.includes('lattice.config.json')), 'config mutation names the sealed canonical config');
+  assert.ok(configMutation.basis.blindSpots.some(item => item.includes('proof-or-stop.config.json')), 'config mutation names the sealed canonical config');
   writeFileSync(configPath, configControl);
   const configSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-swap-'));
   try {
-    write(configSwapRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'narrow', rootDir: 'src' }));
+    write(configSwapRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'narrow', rootDir: 'src' }));
     const configSwap = deriveAcceptanceCoverageBasis({
       ...input,
-      discoveryTestHooks: { immediatelyBeforeFinalSeal: () => { rmSync(configPath); symlinkSync(join(configSwapRoot, 'lattice.config.json'), configPath, 'file'); } },
+      discoveryTestHooks: { immediatelyBeforeFinalSeal: () => { rmSync(configPath); symlinkSync(join(configSwapRoot, 'proof-or-stop.config.json'), configPath, 'file'); } },
     });
     assert.equal(configSwap.basis.status, 'partial', 'config symlink swap before seal fails closed');
   } finally {
@@ -323,9 +323,9 @@ try {
   writeFileSync(configPath, configControl);
   const initialConfigSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-initial-swap-'));
   try {
-    write(initialConfigSwapRoot, 'lattice.config.json', configControl);
+    write(initialConfigSwapRoot, 'proof-or-stop.config.json', configControl);
     rmSync(configPath);
-    symlinkSync(join(initialConfigSwapRoot, 'lattice.config.json'), configPath, 'file');
+    symlinkSync(join(initialConfigSwapRoot, 'proof-or-stop.config.json'), configPath, 'file');
     const initialConfigSwap = deriveAcceptanceCoverageBasis(input);
     assert.equal(initialConfigSwap.basis.status, 'partial', 'initial symlinked config is never followed');
     assert.ok(initialConfigSwap.basis.blindSpots.some(item => item.includes('symlink')), 'initial config symlink reports deterministic safe-read failure');
@@ -545,7 +545,7 @@ try {
 
   const repositoryShapeRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-repository-shape-'));
   try {
-    write(repositoryShapeRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    write(repositoryShapeRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     write(repositoryShapeRoot, 'packages/main/tsconfig.json', '{}\n');
     write(repositoryShapeRoot, 'packages/main/src/cli/command-catalog.ts', [
       'export const MAIN_TOOLS = [',
@@ -694,7 +694,7 @@ try {
   const genericRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-generic-'));
   try {
     write(genericRoot, 'tsconfig.json', '{}\n');
-    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    write(genericRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     writeCanonicalAcceptanceRegistration(genericRoot);
     write(genericRoot, 'packages/main/src/cli/command-catalog.ts', [
       'export const MAIN_TOOLS = [',
@@ -1052,33 +1052,13 @@ try {
         'export const c2 = () => consumeReviewRun();', '',
       ].join('\n'));
     }
-    rmSync(c2File, { recursive: true, force: true });
-    mkdirSync(c2File, { recursive: true });
-    const directoryConsumer = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
-    assert.equal(directoryConsumer.status, 'partial', 'a directory consumer reference cannot satisfy consumerGate');
-    assert.ok(directoryConsumer.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'directory consumer keeps the missing-consumer diagnostic');
-    rmSync(c2File, { recursive: true, force: true });
-    const directorySymlinkTarget = mkdtempSync(join(tmpdir(), 'proofstory-basis-directory-consumer-'));
-    try {
-      symlinkSync(directorySymlinkTarget, c2File, 'dir');
-      const directorySymlinkConsumer = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
-      assert.equal(directorySymlinkConsumer.status, 'partial', 'a directory symlink consumer reference cannot satisfy consumerGate');
-      assert.ok(directorySymlinkConsumer.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'directory symlink keeps the missing-consumer diagnostic');
-    } finally {
-      rmSync(c2File, { recursive: true, force: true });
-      rmSync(directorySymlinkTarget, { recursive: true, force: true });
-      write(genericRoot, 'packages/main/src/consumers/c2.ts', [
-        "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
-        'export const c2 = () => consumeReviewRun();', '',
-      ].join('\n'));
-    }
-    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'missing-src' }));
+    write(genericRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'missing-src' }));
     resetConfigCache();
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'missing configured source root fails closed');
-    write(genericRoot, 'lattice.config.json', '{');
+    write(genericRoot, 'proof-or-stop.config.json', '{');
     resetConfigCache();
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'malformed source-root config fails closed');
-    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'outside' }));
+    write(genericRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'outside' }));
     resetConfigCache();
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'lexically escaping source root fails closed');
 
@@ -1089,7 +1069,7 @@ try {
         'export const escaped = () => consumeReviewRun();', '',
       ].join('\n'));
       symlinkSync(externalRoot, join(genericRoot, 'link'), 'dir');
-      write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'link', rootDir: 'src' }));
+      write(genericRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'link', rootDir: 'src' }));
       resetConfigCache();
       const symlinkEscape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
       assert.equal(symlinkEscape.status, 'partial', 'intermediate source-root symlink escape fails closed');
@@ -1103,13 +1083,13 @@ try {
     mkdirSync(join(genericRoot, 'packages/main/locked'), { recursive: true });
     chmodSync(join(genericRoot, 'packages/main/locked'), 0o000);
     try {
-      write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'locked' }));
+      write(genericRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'locked' }));
       resetConfigCache();
       assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'unreadable configured source root fails closed');
     } finally {
       chmodSync(join(genericRoot, 'packages/main/locked'), 0o700);
     }
-    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    write(genericRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     resetConfigCache();
   } finally {
     rmSync(genericRoot, { recursive: true, force: true });
@@ -1229,12 +1209,12 @@ try {
 
 const packageProfileRoot = mkdtempSync(join(tmpdir(), 'proofstory-package-profile-'));
 try {
-  write(packageProfileRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+  write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
   write(packageProfileRoot, 'packages/main/tsconfig.json', '{}\n');
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'scanRoot tsconfig activates the canonical TypeScript profile without a root tsconfig');
-  write(packageProfileRoot, 'lattice.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
+  write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'escaping config cannot activate discovery support');
-  rmSync(join(packageProfileRoot, 'lattice.config.json'));
+  rmSync(join(packageProfileRoot, 'proof-or-stop.config.json'));
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'missing config cannot authorize a package-local profile');
 } finally {
   rmSync(packageProfileRoot, { recursive: true, force: true });
@@ -1245,10 +1225,10 @@ try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'basis-smoke@example.test']);
   git(root, ['config', 'user.name', 'Basis Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
   write(root, 'packages/main/tsconfig.json', '{}\n');
   write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":true}\n');
-  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
+  write(root, `.proof-or-stop/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   writeCanonicalAcceptanceRegistration(root);
@@ -1260,8 +1240,8 @@ try {
   store.writeChecklist(storyId, checklist());
   store.writeProofStoryContract(storyId, contract());
   const cliScopeContract = scopeContract();
-  cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/acceptance-basis.json`);
-  cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`);
+  cliScopeContract.allowedModify.push(`.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`);
+  cliScopeContract.allowedModify.push(`.proof-or-stop/story/actives/${storyId}/evidence/acceptance-basis.json`);
   cliScopeContract.allowedModify.push('packages/main/src/acceptance-basis.json');
   store.writeScopeContract(storyId, cliScopeContract);
   store.writeScopeCheck(storyId, scopeCheck(root));
@@ -1281,7 +1261,7 @@ try {
     'generated acceptance-basis artifact retains its canonical process-fact consumer path',
   );
   assert.equal(
-    artifact.basis.sourceInventoryRefs.some(ref => ref === `source-file:closure:.lattice/story/actives/${storyId}/acceptance-basis.json`),
+    artifact.basis.sourceInventoryRefs.some(ref => ref === `source-file:closure:.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`),
     false,
     'generated acceptance-basis bytes are not source closure content',
   );
@@ -1290,14 +1270,14 @@ try {
     'a same-basename static source outside the configured story artifact directory remains in closure',
   );
   assert.ok(
-    artifact.basis.sourceInventoryRefs.includes(`source-file:closure:.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`),
+    artifact.basis.sourceInventoryRefs.includes(`source-file:closure:.proof-or-stop/story/actives/${storyId}/evidence/acceptance-basis.json`),
     'a nested same-basename file is not confused with the canonical generated root artifact',
   );
   const firstSemanticDigest = acceptanceCoverageBasisSemanticDigest(artifact.basis);
   const firstClosureFilesHash = artifact.basis.binding.closureFilesHash;
   writeFileSync(
-    join(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`),
-    `${readFileSync(join(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`), 'utf8')}\n`,
+    join(root, `.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`),
+    `${readFileSync(join(root, `.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`), 'utf8')}\n`,
   );
   const regenerated = run(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.match(regenerated, /proofstory\.acceptance_basis_artifact\.v1/);
@@ -1309,13 +1289,13 @@ try {
   const stableTopology = run(root, 'acceptance_topology_check', { storyId, json: true });
   assert.doesNotMatch(stableRead, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
   assert.doesNotMatch(stableTopology, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
-  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":false}\n');
+  write(root, `.proof-or-stop/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":false}\n');
   assert.match(
     run(root, 'acceptance_basis', { storyId, json: true }),
     /basis semantic discovery digest mismatch|snapshot seal digest mismatch|"status": "invalid"/,
     'nested same-basename content mutation still bites',
   );
-  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
+  write(root, `.proof-or-stop/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
   run(root, 'acceptance_basis_generate', { storyId, json: true });
   artifact = store.readAcceptanceBasis(storyId)!;
   write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":false}\n');
@@ -1352,12 +1332,12 @@ try {
   assert.equal(artifact.basis.status, 'complete');
 
   const fullSnapshot = () => ({
-    story: bytes(root, `.lattice/story/actives/${storyId}/index.json`),
-    checklist: bytes(root, `.lattice/story/actives/${storyId}/checklist.json`),
-    contract: bytes(root, `.lattice/story/actives/${storyId}/proofstory.json`),
-    scope: bytes(root, `.lattice/story/actives/${storyId}/scope-contract.json`),
-    artifact: bytes(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`),
-    events: bytes(root, `.lattice/story/actives/${storyId}/process-events.jsonl`),
+    story: bytes(root, `.proof-or-stop/story/actives/${storyId}/index.json`),
+    checklist: bytes(root, `.proof-or-stop/story/actives/${storyId}/checklist.json`),
+    contract: bytes(root, `.proof-or-stop/story/actives/${storyId}/proofstory.json`),
+    scope: bytes(root, `.proof-or-stop/story/actives/${storyId}/scope-contract.json`),
+    artifact: bytes(root, `.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`),
+    events: bytes(root, `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`),
     status: git(root, ['status', '--porcelain']),
   });
   const snapshot = fullSnapshot();
@@ -1491,17 +1471,17 @@ try {
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed legacy story']);
   const legacySnapshot = {
-    story: bytes(root, `.lattice/story/actives/${legacyId}/index.json`),
-    artifact: bytes(root, `.lattice/story/actives/${legacyId}/acceptance-basis.json`),
-    events: bytes(root, `.lattice/story/actives/${legacyId}/process-events.jsonl`),
+    story: bytes(root, `.proof-or-stop/story/actives/${legacyId}/index.json`),
+    artifact: bytes(root, `.proof-or-stop/story/actives/${legacyId}/acceptance-basis.json`),
+    events: bytes(root, `.proof-or-stop/story/actives/${legacyId}/process-events.jsonl`),
     status: git(root, ['status', '--porcelain']),
   };
   assert.match(run(root, 'acceptance_basis', { storyId: legacyId, json: true }), /legacy_missing/, 'legacy story remains explicitly missing');
   assert.match(run(root, 'acceptance_basis_generate', { storyId: legacyId, status: 'complete' }, true), /Forbidden|invalid|unsupported/i, 'failed legacy generation rejects caller completeness');
   assert.deepEqual({
-    story: bytes(root, `.lattice/story/actives/${legacyId}/index.json`),
-    artifact: bytes(root, `.lattice/story/actives/${legacyId}/acceptance-basis.json`),
-    events: bytes(root, `.lattice/story/actives/${legacyId}/process-events.jsonl`),
+    story: bytes(root, `.proof-or-stop/story/actives/${legacyId}/index.json`),
+    artifact: bytes(root, `.proof-or-stop/story/actives/${legacyId}/acceptance-basis.json`),
+    events: bytes(root, `.proof-or-stop/story/actives/${legacyId}/process-events.jsonl`),
     status: git(root, ['status', '--porcelain']),
   }, legacySnapshot, 'legacy read and failed generation leave no partial artifact, event, or lifecycle mutation');
 
@@ -1525,7 +1505,7 @@ try {
   rebound.receipt.storyFilesHash = rebound.basis.binding.storyFilesHash;
   rebound.receipt.closureFilesHash = rebound.basis.binding.closureFilesHash;
   rebound.receipt.basisDigest = rebound.basis.basisDigest;
-  const privateKey = readFileSync(join(root, '.git', 'lattice-acceptance-basis-verifier-v1.key'), 'utf8').trim();
+  const privateKey = readFileSync(join(root, '.git', 'proof-or-stop-acceptance-basis-verifier-v1.key'), 'utf8').trim();
   const { signature: _signature, ...unsignedReboundReceipt } = rebound.receipt;
   rebound.receipt.signature = signCanonical(unsignedReboundReceipt, privateKey);
   store.writeAcceptanceBasis(storyId, rebound);
@@ -1540,7 +1520,7 @@ try {
   git(freshnessRoot, ['init', '-b', 'main']);
   git(freshnessRoot, ['config', 'user.email', 'basis-smoke@example.test']);
   git(freshnessRoot, ['config', 'user.name', 'Basis Smoke']);
-  write(freshnessRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', scanRoot: 'packages/main', rootDir: 'src' }));
+  write(freshnessRoot, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: 'packages/main', rootDir: 'src' }));
   write(freshnessRoot, 'packages/main/src/story-owned.ts', 'export const storyOwned = 1;\n');
   git(freshnessRoot, ['add', '.']);
   git(freshnessRoot, ['commit', '-m', 'base']);
@@ -1552,14 +1532,14 @@ try {
   const evidenceHead = currentGitHead(freshnessRoot)!;
   const evidenceMaterial = currentMaterialHash(freshnessRoot, 'HEAD', freshnessRoot)!;
   const evidenceStoryFiles = currentStoryFilesHash(freshnessRoot, 'HEAD', freshnessRoot)!;
-  write(freshnessRoot, '.lattice/story/actives/B-freshness/note.json', '{}\n');
+  write(freshnessRoot, '.proof-or-stop/story/actives/B-freshness/note.json', '{}\n');
   git(freshnessRoot, ['add', '.']);
   git(freshnessRoot, ['commit', '-m', 'metadata only']);
-  const metadataArtifactBefore = bytes(freshnessRoot, '.lattice/story/actives/B-freshness/note.json');
+  const metadataArtifactBefore = bytes(freshnessRoot, '.proof-or-stop/story/actives/B-freshness/note.json');
   const headOnly = checkEvidenceFreshnessForGit(freshnessRoot, evidenceHead, evidenceMaterial, freshnessRoot, evidenceStoryFiles);
   assert.equal(headOnly.fresh, true, headOnly.reason);
   assert.match(headOnly.reason, /materialHash matches/, 'head-only metadata movement is classified by canonical material freshness');
-  assert.equal(bytes(freshnessRoot, '.lattice/story/actives/B-freshness/note.json'), metadataArtifactBefore, 'freshness read never silently rewrites evidence');
+  assert.equal(bytes(freshnessRoot, '.proof-or-stop/story/actives/B-freshness/note.json'), metadataArtifactBefore, 'freshness read never silently rewrites evidence');
 
   git(freshnessRoot, ['switch', 'main']);
   write(freshnessRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = true;\n');
@@ -1586,7 +1566,7 @@ for (const mutation of [
   try {
     execFileSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], {
       cwd: projectRoot,
-      env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
+      env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: mutation },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });

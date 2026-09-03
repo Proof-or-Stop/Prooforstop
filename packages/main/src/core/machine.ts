@@ -7,9 +7,9 @@ import { resolveWorkflowPolicy } from './workflow-policy.js';
 import type { Finding, ReviewLoopIteration, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
 import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
-import { safeReadScopeContract } from './lattice-parallel-wave.js';
+import { safeReadScopeContract } from './proof-or-stop-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
-import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, initCheckSignatureIsValid, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
@@ -502,8 +502,12 @@ export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
     if (getScopeAntiExpansionGuardFailureReason(context.storyId, context.store, context.projectRoot)) return false;
     const initCheck = context.store.readInitCheck(context.storyId);
     if (!initCheck) return false;
-    const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
-    return initCheck._hash === expected
+    // Verify against the SNAPSHOT already read, not a second read of the file: the
+    // verdict is inside the domain since B-8df9 CHK-002, so re-reading would leave a
+    // window in which the record that is hashed is not the record that is judged.
+    // The comparison rule itself is initCheckSignatureIsValid (B-8df9 CHK-003) — the
+    // same one the carry-forward crosses — so "trusted" cannot mean two things.
+    return initCheckSignatureIsValid(context.storyId, context.store, context.projectRoot, initCheck)
       && missingRequiredInitCheckAgents(initCheck).length === 0
       && blockingInitCheckIssues(initCheck).length === 0;
   } catch (err) {

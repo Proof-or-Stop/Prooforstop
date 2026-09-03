@@ -185,7 +185,7 @@ try {
       seq: 2, priorRecordDigest: ra.recordDigest, supersedes: ra.id,
       storyId: 'B-u', acceptanceTargetRef: 'AB-001',
       recoversRecordId: ra.id, referencedRecordDigest: ra.recordDigest, linkKind: 'quarantines' as const,
-      reason: 'bad', approvedBy: 'lattice-implementer@sess-x', operationKey: opKey, createdAt: NOW,
+      reason: 'bad', approvedBy: 'proof-or-stop-implementer@sess-x', operationKey: opKey, createdAt: NOW,
     };
     const q = { ...qDraft, recordDigest: computeRecordDigest(qDraft as unknown as Record<string, unknown>) } as RedEvidenceRecordV2;
     assert.ok(isControlRecordV2(q), 'quarantine is a control record');
@@ -432,7 +432,7 @@ try {
 
     // Quarantine the head → new head, records.length +1.
     const before = store.readRedEvidence(storyId)!.records.length;
-    quarantine({ storyId, recordId: ra.id, reason: 'flaky', agent: 'lattice-implementer' });
+    quarantine({ storyId, recordId: ra.id, reason: 'flaky', agent: 'proof-or-stop-implementer' });
     assert.equal(store.readRedEvidence(storyId)!.records.length, before + 1, 'quarantine appends exactly one record');
     const chain1 = partitionChain(store.readRedEvidence(storyId)!.records, storyId, 'M1');
     const head1 = resolveChainHead(chain1)!;
@@ -441,7 +441,7 @@ try {
     // Replay: the SAME quarantine (same operationKey) returns the existing record,
     // records.length UNCHANGED, nothing written.
     const lenAfterQ = store.readRedEvidence(storyId)!.records.length;
-    const replayMsg: string = quarantine({ storyId, recordId: ra.id, reason: 'flaky', agent: 'lattice-implementer' });
+    const replayMsg: string = quarantine({ storyId, recordId: ra.id, reason: 'flaky', agent: 'proof-or-stop-implementer' });
     assert.match(replayMsg, /replay/, 'a same-key quarantine replays');
     assert.equal(store.readRedEvidence(storyId)!.records.length, lenAfterQ, 'replay does NOT change records.length');
 
@@ -450,7 +450,7 @@ try {
     // quarantined red-assert is excluded from the dedupe search.
     const quarantinedRa = ra;
     assert.ok(isRetiredByQuarantine(quarantinedRa, chain1), 'the red-assert is retired-by-quarantine (excluded from dedupe scope)');
-    recover({ storyId, recordId: head1.id, reason: 'was fine', agent: 'lattice-implementer' });
+    recover({ storyId, recordId: head1.id, reason: 'was fine', agent: 'proof-or-stop-implementer' });
     const chain2 = partitionChain(store.readRedEvidence(storyId)!.records, storyId, 'M1');
     assert.ok(!isRetiredByQuarantine(quarantinedRa, chain2), 'after recover the original is back in the dedupe scope');
 
@@ -492,20 +492,20 @@ try {
     writeRecords(store, storyId, [ra]);
 
     // Recover of a non-quarantined head → REJECTED (recover requires a quarantine head).
-    assert.throws(() => recover({ storyId, recordId: ra.id, reason: 'x', agent: 'lattice-implementer' }),
+    assert.throws(() => recover({ storyId, recordId: ra.id, reason: 'x', agent: 'proof-or-stop-implementer' }),
       /reference|transition|not one of|head operation/i, 'recover of a red-assert head is rejected');
 
     // Quarantine of a NON-head record → REJECTED. Append a second red-assert head,
     // then try to quarantine the (now non-head) seq-1 record.
     const ra2 = synthRedAssert({ storyId, acceptanceTargetRef: 'M1', seq: 2, priorRecordDigest: ra.recordDigest, supersedes: ra.id });
     writeRecords(store, storyId, [ra, ra2]);
-    assert.throws(() => quarantine({ storyId, recordId: ra.id, reason: 'x', agent: 'lattice-implementer' }),
+    assert.throws(() => quarantine({ storyId, recordId: ra.id, reason: 'x', agent: 'proof-or-stop-implementer' }),
       /not the current chain head/i, 'quarantine of a non-head record is rejected');
 
     // F-010: a caller-supplied approvedBy is REJECTED (§4.1), not silently
     // ignored — nothing is written.
     const lenBeforeForge = store.readRedEvidence(storyId)!.records.length;
-    assert.throws(() => quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer', approvedBy: 'FORGED@evil' }),
+    assert.throws(() => quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'proof-or-stop-implementer', approvedBy: 'FORGED@evil' }),
       /approvedBy is derived/, 'a caller-supplied approvedBy is rejected, not silently ignored');
     assert.equal(store.readRedEvidence(storyId)!.records.length, lenBeforeForge, 'the rejected forged-approvedBy request writes nothing');
 
@@ -513,26 +513,26 @@ try {
     // NO caller approvedBy; ra2's stored bytes are UNCHANGED and the recorded
     // approvedBy is the derived <actor>@<sessionId>.
     const beforeBytes = recordCanonicalBytes(ra2);
-    quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer' });
+    quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'proof-or-stop-implementer' });
     const chainR = partitionChain(store.readRedEvidence(storyId)!.records, storyId, 'M1');
     const storedRa2 = chainR.find((r) => r.id === ra2.id)!;
     assert.equal(recordCanonicalBytes(storedRa2), beforeBytes, 'the retired record is BYTE-IDENTICAL after quarantine (§4.2 immutability)');
     const qHead = resolveChainHead(chainR)!;
-    assert.match((qHead as { approvedBy: string }).approvedBy, /^lattice-implementer@/, 'approvedBy = <actor>@<sessionId> (derived, not forged)');
+    assert.match((qHead as { approvedBy: string }).approvedBy, /^proof-or-stop-implementer@/, 'approvedBy = <actor>@<sessionId> (derived, not forged)');
 
     // Quarantine of an already-quarantined head → REJECTED.
-    assert.throws(() => quarantine({ storyId, recordId: qHead.id, reason: 'again', agent: 'lattice-implementer' }),
+    assert.throws(() => quarantine({ storyId, recordId: qHead.id, reason: 'again', agent: 'proof-or-stop-implementer' }),
       /head operation|not one of|transition/i, 'double-quarantine is rejected');
 
     // Recover the quarantine, then recover-of-a-recover → REJECTED.
-    recover({ storyId, recordId: qHead.id, reason: 'undo', agent: 'lattice-implementer' });
+    recover({ storyId, recordId: qHead.id, reason: 'undo', agent: 'proof-or-stop-implementer' });
     const recHead = resolveChainHead(partitionChain(store.readRedEvidence(storyId)!.records, storyId, 'M1'))!;
     assert.equal(recHead.operation, 'recover', 'recover is head');
-    assert.throws(() => recover({ storyId, recordId: recHead.id, reason: 'again', agent: 'lattice-implementer' }),
+    assert.throws(() => recover({ storyId, recordId: recHead.id, reason: 'again', agent: 'proof-or-stop-implementer' }),
       /head operation|not one of|transition/i, 'recover-of-a-recover is rejected');
 
     // Cross-story / phantom reference → REJECTED.
-    assert.throws(() => quarantine({ storyId, recordId: 'RED-does-not-exist', reason: 'x', agent: 'lattice-implementer' }),
+    assert.throws(() => quarantine({ storyId, recordId: 'RED-does-not-exist', reason: 'x', agent: 'proof-or-stop-implementer' }),
       /not a v2 chain record/i, 'a phantom recordId is rejected');
 
     // CHK-012 out-of-topology target → REJECTED, nothing written. A record whose
@@ -546,9 +546,9 @@ try {
     const outsider = synthRedAssert({ storyId: 'B-out', acceptanceTargetRef: 'NOT-A-TARGET', seq: 1, priorRecordDigest: null, supersedes: null });
     writeRecords(outStore, 'B-out', [outsider]);
     const lenOut = outStore.readRedEvidence('B-out')!.records.length;
-    assert.throws(() => outQ({ storyId: 'B-out', recordId: outsider.id, reason: 'x', agent: 'lattice-implementer' }),
+    assert.throws(() => outQ({ storyId: 'B-out', recordId: outsider.id, reason: 'x', agent: 'proof-or-stop-implementer' }),
       /not in expectedRedTargets/, 'quarantine of an out-of-topology target is rejected (CHK-012)');
-    assert.throws(() => outR({ storyId: 'B-out', recordId: outsider.id, reason: 'x', agent: 'lattice-implementer' }),
+    assert.throws(() => outR({ storyId: 'B-out', recordId: outsider.id, reason: 'x', agent: 'proof-or-stop-implementer' }),
       /not in expectedRedTargets/, 'recover of an out-of-topology target is rejected (CHK-012)');
     assert.equal(outStore.readRedEvidence('B-out')!.records.length, lenOut, 'nothing written on a membership rejection');
   }
@@ -568,7 +568,7 @@ try {
     const recover = registry.get('red_evidence_recover')!;
 
     // Empty chain: binding is settable.
-    bindingSet({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'lattice-implementer' });
+    bindingSet({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'proof-or-stop-implementer' });
 
     // A run record now exists on an unquarantined chain → the binding is FROZEN
     // (a second binding write REJECTS). (The M1 binding was already written above;
@@ -579,18 +579,18 @@ try {
     // path independently of the one-binding-per-target rule.
     const ra2 = synthRedAssert({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', seq: 1, priorRecordDigest: null, supersedes: null });
     writeRecords(store, storyId, [ra, ra2]);
-    assert.throws(() => bindingSet({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', adapterId: 'node-test@1', testCaseRef: 'node-test:c#d', agent: 'lattice-implementer' }),
+    assert.throws(() => bindingSet({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', adapterId: 'node-test@1', testCaseRef: 'node-test:c#d', agent: 'proof-or-stop-implementer' }),
       /FROZEN/, 'a binding is frozen once a run record exists on an unquarantined chain (§1.1.3)');
 
     // Quarantine the head → the binding UNFREEZES (settable again).
-    quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer' });
-    assert.doesNotThrow(() => bindingSet({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', adapterId: 'node-test@1', testCaseRef: 'node-test:e#f', agent: 'lattice-implementer' }),
+    quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'proof-or-stop-implementer' });
+    assert.doesNotThrow(() => bindingSet({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', adapterId: 'node-test@1', testCaseRef: 'node-test:e#f', agent: 'proof-or-stop-implementer' }),
       'quarantining the head unfreezes the binding');
 
     // Recover reinstates the run record → the binding RE-FREEZES.
     const qHead = resolveChainHead(partitionChain(store.readRedEvidence(storyId)!.records, storyId, 'CHK-001:happy:0'))!;
-    recover({ storyId, recordId: qHead.id, reason: 'undo', agent: 'lattice-implementer' });
-    assert.throws(() => bindingSet({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', adapterId: 'node-test@1', testCaseRef: 'node-test:g#h', agent: 'lattice-implementer' }),
+    recover({ storyId, recordId: qHead.id, reason: 'undo', agent: 'proof-or-stop-implementer' });
+    assert.throws(() => bindingSet({ storyId, acceptanceTargetRef: 'CHK-001:happy:0', adapterId: 'node-test@1', testCaseRef: 'node-test:g#h', agent: 'proof-or-stop-implementer' }),
       /FROZEN/, 'recovery reinstates the freeze (§1.1.3)');
   }
 
@@ -699,7 +699,7 @@ function makeControl(
     referencedRecordDigest,
     linkKind: operation === 'quarantine' ? ('quarantines' as const) : ('recovers' as const),
     reason,
-    approvedBy: 'lattice-implementer@sess-test',
+    approvedBy: 'proof-or-stop-implementer@sess-test',
     operationKey: key,
     createdAt: NOW,
   };
@@ -716,7 +716,7 @@ function raceWorkerSource(dist: string, root: string, storyId: string, recordId:
     `const quarantine = registry.get('red_evidence_quarantine');`,
     `const reason = process.argv[2];`,
     `try {`,
-    `  quarantine({ storyId: ${JSON.stringify(storyId)}, recordId: ${JSON.stringify(recordId)}, reason, agent: 'lattice-implementer' });`,
+    `  quarantine({ storyId: ${JSON.stringify(storyId)}, recordId: ${JSON.stringify(recordId)}, reason, agent: 'proof-or-stop-implementer' });`,
     `  process.exit(0);`,
     `} catch (e) {`,
     `  process.stderr.write(String(e && e.message || e));`,

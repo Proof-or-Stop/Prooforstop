@@ -33,7 +33,7 @@ import { z } from 'zod';
 function satisfyDevMemoryFinishDecision(root: string, store: StoryStore): void {
   createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
     .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'delivery-check-freshness-smoke fixture; no lesson to capture' });
-  // F-007 (round-4 quality finding): `.lattice/dev-memory/finish-decisions/` is
+  // F-007 (round-4 quality finding): `.proof-or-stop/dev-memory/finish-decisions/` is
   // now materialHash-EXCLUDED (B-a7c5 F-005 fix, core/runtime-artifact-registry.ts
   // id='dev-memory-finish-decision') -- writing/committing it does NOT perturb
   // materialHash either way, so this commit is no longer load-bearing for
@@ -43,8 +43,8 @@ function satisfyDevMemoryFinishDecision(root: string, store: StoryStore): void {
   // THIS file, but committing it keeps this fixture's own git history tidy and
   // matches the pre-F-005 baseline behavior this file's other assertions were
   // written against.
-  if (git(root, ['status', '--porcelain', '--', '.lattice/dev-memory'])) {
-    git(root, ['add', '.lattice/dev-memory']);
+  if (git(root, ['status', '--porcelain', '--', '.proof-or-stop/dev-memory'])) {
+    git(root, ['add', '.proof-or-stop/dev-memory']);
     git(root, ['commit', '-m', 'dev-memory finish decision']);
   }
 }
@@ -74,10 +74,10 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   }, null, 2) + '\n');
@@ -100,7 +100,7 @@ function createFixture(): { root: string; store: StoryStore } {
   write(root, 'packages/main/src/index.ts', 'export const deliveryFreshness = true;\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   // STORY-BRANCH topology: HEAD is ahead of main with a story-owned source file
@@ -182,7 +182,7 @@ function createMainFixture(): { root: string; store: StoryStore } {
   write(root, 'packages/main/src/index.ts', 'export const deliveryFreshness = true;\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
   // No story branch / no story-owned commit: HEAD == main, so the story-owned
   // diff vs main is empty and currentStoryFilesHash is the empty-set hash.
@@ -269,13 +269,13 @@ function deliveryCheckSet(root: string, store: StoryStore, docsPromises: DocsPro
     docsPromises,
     realMachineTests: realMachineTests(),
     closingSelfCheck: closingSelfCheck(),
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
   });
   assert.match(output, /Delivery check saved/, 'delivery_check_set should save the check');
   const data = store.readDeliveryCheck(STORY_ID);
   assert.ok(data, 'delivery_check_set must write delivery-check.json');
-  if (git(root, ['status', '--porcelain', '--', '.lattice'])) {
-    git(root, ['add', '.lattice']);
+  if (git(root, ['status', '--porcelain', '--', '.proof-or-stop'])) {
+    git(root, ['add', '.proof-or-stop']);
     git(root, ['commit', '-m', 'delivery metadata']);
   }
   return data;
@@ -289,7 +289,7 @@ function legacyDeliveryCheck(): DeliveryCheckData {
     storyId: STORY_ID,
     checkedAt: NOW,
     reviewRound: 'round-1',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests: machineTests,
     closingSelfCheck: selfCheck,
@@ -412,7 +412,7 @@ check('generated cross-product covers single-field and pairwise delivery-promise
         assert.throws(() => handlers.delivery_check_set({
           ...base,
           docsPromises: [promise] as unknown as DocsPromise[],
-          agentId: 'lattice-review-delivery',
+          agentId: 'proof-or-stop-review-delivery',
         }), /Blocked \[delivery_promise_outcome_contradiction\].*delivery-check was not written/);
         assert.equal(store.readDeliveryCheck(STORY_ID), null, `${row.id} must not write delivery-check.json`);
         assert.equal(git(root, ['status', '--porcelain']), beforeStatus, `${row.id} must not mutate story/process metadata`);
@@ -477,7 +477,7 @@ check('handler, machine readiness, and DONE oracle agree on every normalized out
         materialHash,
         storyFilesHash,
         reviewRound: 'round-1',
-        agentId: 'lattice-review-delivery',
+        agentId: 'proof-or-stop-review-delivery',
         docsPromises,
         realMachineTests: realMachineTests(),
         closingSelfCheck: closingSelfCheck(),
@@ -790,8 +790,8 @@ check('delivery_waiver_add re-sign preserves the signed storyFilesHash so the dr
       waiverReason,
     });
     assert.match(output, /Waiver added/, 'delivery_waiver_add should add the waiver');
-    if (git(root, ['status', '--porcelain', '--', '.lattice'])) {
-      git(root, ['add', '.lattice']);
+    if (git(root, ['status', '--porcelain', '--', '.proof-or-stop'])) {
+      git(root, ['add', '.proof-or-stop']);
       git(root, ['commit', '-m', 'waiver metadata']);
     }
 

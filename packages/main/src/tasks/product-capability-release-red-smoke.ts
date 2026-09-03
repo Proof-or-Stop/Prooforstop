@@ -12,7 +12,7 @@
  * seed with the capability release present, and asserts
  * `candidate.lineage.capabilityReleaseId === capabilityRelease.id`.
  *
- * It reads no live repo-root .lattice state, so it is hermetic and re-runnable.
+ * It reads no live repo-root .proof-or-stop state, so it is hermetic and re-runnable.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -50,7 +50,7 @@ const root = mkdtemp('capability-release-red-');
 // A B-785e-shaped artifact release row (fixture, not live).
 write(
   root,
-  '.lattice/artifact-releases.jsonl',
+  '.proof-or-stop/artifact-releases.jsonl',
   JSON.stringify({
     schemaVersion: 'proofbound.artifact-release.v1',
     id: 'AR-4e885ed0209e5a32330cdc33',

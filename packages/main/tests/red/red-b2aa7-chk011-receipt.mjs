@@ -45,7 +45,7 @@ const ARTIFACT = join(here, 'red-b2aa7-artifact-validation.mjs');
 const SECOND_SEED = 'B-2aa7/CHK-011/receipt/second-seed';
 
 // ── Fail-closed marker ledger ───────────────────────────────────────────────
-// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// `proof-or-stop validate` grades a command by its EXIT CODE alone. Printing a marker
 // only when a check holds is what makes the pinned selectors meaningful, but on
 // its own it makes this file a crash-detector when run by validate: a regression
 // would print fewer markers and STILL exit 0. Every marker below is therefore

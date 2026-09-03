@@ -6,6 +6,7 @@ import type { TestEvidenceData, VerificationCoverageReport } from './types.js';
 import type {
   RoutineValidationCommandExecution,
   RoutineValidationIdentity,
+  RoutineValidationIdentityCommand,
   RoutineValidationSourceKind,
   ValidationCommand,
   ValidationCommandResult,
@@ -100,6 +101,91 @@ function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv,
   return null;
 }
 
+/**
+ * The one shell rule. `node:child_process` uses an implicit command shell on
+ * Windows even when {@link ValidationCommand.shell} is false, so identity binds
+ * the ACTUAL execution principal.
+ *
+ * B-a745 CHK-001 extracted this from {@link buildRoutineValidationIdentity} so
+ * the stable command identity and the legacy pin resolver reuse it instead of
+ * declaring a second rule that could drift. Extraction only: the behaviour of
+ * `buildRoutineValidationIdentity` is unchanged.
+ */
+export function validationCommandUsesShell(
+  command: Pick<ValidationCommand, 'shell'>,
+  platform: NodeJS.Platform,
+): boolean {
+  return command.shell === true || platform === 'win32';
+}
+
+/**
+ * The one cwd resolution rule: an absolute `cwd` is taken as-is, a relative one
+ * resolves against the project root, and an absent one IS the project root.
+ *
+ * B-a745 CHK-001 extracted this from {@link buildRoutineValidationIdentity} for
+ * the same reason as {@link validationCommandUsesShell}. Extraction only.
+ */
+export function resolveValidationCommandCwd(
+  projectRoot: string,
+  command: Pick<ValidationCommand, 'cwd'>,
+): string {
+  return command.cwd
+    ? (isAbsolute(command.cwd) ? command.cwd : resolve(projectRoot, command.cwd))
+    : projectRoot;
+}
+
+/**
+ * The ONE per-command normalization. Everything that needs to compare two
+ * validation commands as EXECUTABLES goes through this: the routine reuse
+ * identity below, and (B-a745 CHK-002) the legacy pin resolver in
+ * `core/validation-command-identity.ts`.
+ *
+ * B-a745 CHK-001/CHK-002 extracted it out of {@link buildRoutineValidationIdentity}
+ * so a second copy of the cwd / shell / environment / executable rules can never
+ * drift into existence. Extraction only: the object this returns, field for
+ * field, is exactly what the identity used to build inline, so
+ * `buildRoutineValidationIdentity`'s digest is unchanged.
+ */
+export function normalizeRoutineValidationCommand(args: {
+  projectRoot: string;
+  command: ValidationCommand;
+  processEnvironment?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+}): RoutineValidationIdentityCommand {
+  const processEnvironment = args.processEnvironment ?? process.env;
+  const platform = args.platform ?? process.platform;
+  const command = args.command;
+  const cwd = resolveValidationCommandCwd(args.projectRoot, command);
+  const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
+  // node:child_process uses an implicit command shell on Windows even when
+  // ValidationCommand.shell is false. Bind identity to that actual execution
+  // principal (ComSpec/cmd.exe), not to a command that spawn never executes
+  // directly.
+  const usesShell = validationCommandUsesShell(command, platform);
+  const shellExecutableCommand = usesShell
+    ? platform === 'win32'
+      ? String(effectiveEnvironment.ComSpec ?? effectiveEnvironment.COMSPEC ?? 'cmd.exe')
+      : '/bin/sh'
+    : null;
+  const executable = resolveExecutable(command.command, cwd, effectiveEnvironment, platform);
+  const shellExecutable = shellExecutableCommand
+    ? resolveExecutable(shellExecutableCommand, cwd, effectiveEnvironment, platform)
+    : null;
+  return {
+    label: command.label,
+    command: command.command,
+    args: [...command.args],
+    cwd,
+    shell: usesShell,
+    timeoutMs: resolveCommandTimeoutMs(command),
+    optional: command.optional === true,
+    focus: [...(command.focus ?? [])],
+    effectiveEnvironmentDigest: validationIdentityDigest(effectiveEnvironment),
+    executableDigest: executable ? fileDigest(executable) : null,
+    shellExecutableDigest: shellExecutable ? fileDigest(shellExecutable) : null,
+  };
+}
+
 export function buildRoutineValidationIdentity(args: {
   projectRoot: string;
   sourceKind: RoutineValidationSourceKind;
@@ -115,41 +201,14 @@ export function buildRoutineValidationIdentity(args: {
 }): RoutineValidationIdentity {
   const processEnvironment = args.processEnvironment ?? process.env;
   const platform = args.platform ?? process.platform;
-  const commands = args.commands.map((command) => {
-    const cwd = command.cwd
-      ? (isAbsolute(command.cwd) ? command.cwd : resolve(args.projectRoot, command.cwd))
-      : args.projectRoot;
-    const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
-    // node:child_process uses an implicit command shell on Windows even when
-    // ValidationCommand.shell is false. Bind identity to that actual execution
-    // principal (ComSpec/cmd.exe), not to a command that spawn never executes
-    // directly.
-    const usesShell = command.shell === true || platform === 'win32';
-    const shellExecutableCommand = usesShell
-      ? platform === 'win32'
-        ? String(effectiveEnvironment.ComSpec ?? effectiveEnvironment.COMSPEC ?? 'cmd.exe')
-        : '/bin/sh'
-      : null;
-    const executable = resolveExecutable(command.command, cwd, effectiveEnvironment, platform);
-    const shellExecutable = shellExecutableCommand
-      ? resolveExecutable(shellExecutableCommand, cwd, effectiveEnvironment, platform)
-      : null;
-    return {
-      label: command.label,
-      command: command.command,
-      args: [...command.args],
-      cwd,
-      shell: usesShell,
-      timeoutMs: resolveCommandTimeoutMs(command),
-      optional: command.optional === true,
-      focus: [...(command.focus ?? [])],
-      effectiveEnvironmentDigest: validationIdentityDigest(effectiveEnvironment),
-      executableDigest: executable ? fileDigest(executable) : null,
-      shellExecutableDigest: shellExecutable ? fileDigest(shellExecutable) : null,
-    };
-  });
+  const commands = args.commands.map((command) => normalizeRoutineValidationCommand({
+    projectRoot: args.projectRoot,
+    command,
+    processEnvironment,
+    platform,
+  }));
   const unsigned = {
-    schema: 'lattice.routine-validation-identity' as const,
+    schema: 'proofOrStop.routine-validation-identity' as const,
     version: 1 as const,
     source: {
       kind: args.sourceKind,
@@ -175,7 +234,7 @@ export function buildRoutineValidationIdentity(args: {
 export function isCompleteRoutineValidationIdentity(value: unknown): value is RoutineValidationIdentity {
   if (!value || typeof value !== 'object') return false;
   const identity = value as RoutineValidationIdentity;
-  if (identity.schema !== 'lattice.routine-validation-identity' || identity.version !== 1) return false;
+  if (identity.schema !== 'proofOrStop.routine-validation-identity' || identity.version !== 1) return false;
   if (!identity.source || !['configured', 'fallback', 'validate-file', 'no-validator'].includes(identity.source.kind)) return false;
   if (!Array.isArray(identity.commands) || !identity.invocation || !identity.runtime) return false;
   if (typeof identity.source.inputDigest !== 'string' || identity.source.inputDigest.length !== 64) return false;
@@ -228,7 +287,7 @@ export function summarizeRoutineCommandExecution(
     ? 'infra_failure'
     : requiredFailureCount > 0 || semanticFailure ? 'validation_failure' : undefined;
   return {
-    schema: 'lattice.routine-validation-command-execution',
+    schema: 'proofOrStop.routine-validation-command-execution',
     version: 1,
     status: requiredFailureCount === 0 && !semanticFailure ? 'PASS' : 'FAIL',
     complete: results.length === expectedCommandCount,
@@ -245,7 +304,7 @@ export function isReusableCommandPass(
 ): value is RoutineValidationCommandExecution {
   if (!value || typeof value !== 'object') return false;
   const execution = value as RoutineValidationCommandExecution;
-  return execution.schema === 'lattice.routine-validation-command-execution'
+  return execution.schema === 'proofOrStop.routine-validation-command-execution'
     && execution.version === 1
     && execution.status === 'PASS'
     && execution.complete === true

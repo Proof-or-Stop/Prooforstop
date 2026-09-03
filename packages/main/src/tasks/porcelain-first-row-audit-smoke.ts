@@ -7,7 +7,7 @@
  * FULL `git status --porcelain` output strips the first row's leading status
  * space (" M path" -> "M path"), shifting the fixed-width path offset so the
  * first modified-tracked row's path loses its first character
- * (".lattice/x" -> "lattice/x") and prefix-based material/volatile
+ * (".proof-or-stop/x" -> "proofOrStop/x") and prefix-based material/volatile
  * classification misfires. Untracked "??" rows never start with a space, so
  * untracked-only fixtures cannot catch the class — every scenario here stages
  * a modified-TRACKED first row and asserts its shape before asserting
@@ -36,10 +36,10 @@ import { assertMaterialCleanForReview } from '../handlers/cross-host-review.js';
 import { readGitStatus } from '../handlers/session.js';
 import { gitPorcelainPaths } from '../handlers/story-query.js';
 
-// `.lattice/activity.jsonl` is an exact-match VOLATILE runtime artifact in the
+// `.proof-or-stop/activity.jsonl` is an exact-match VOLATILE runtime artifact in the
 // runtime-artifact registry, and sorts before `notes/` in porcelain output, so
 // it deterministically lands on the FIRST row.
-const VOLATILE_PATH = '.lattice/activity.jsonl';
+const VOLATILE_PATH = '.proof-or-stop/activity.jsonl';
 const MATERIAL_PATH = 'notes/keep.txt';
 
 function git(root: string, args: string[]): string {
@@ -108,7 +108,7 @@ withFixture('evidence-freshness: first-row volatile row excluded, material path 
   assert.deepEqual(
     snapshot.materialDirtyFiles,
     [MATERIAL_PATH],
-    `materialDirtyFiles must be exactly [${MATERIAL_PATH}] (no corrupted "lattice/..." entry, volatile excluded)`,
+    `materialDirtyFiles must be exactly [${MATERIAL_PATH}] (no corrupted "proofOrStop/..." entry, volatile excluded)`,
   );
 });
 
@@ -119,7 +119,7 @@ withFixture('evidence-freshness: clean tree yields empty materialDirtyFiles', (r
 
 // ── CHK-002: cross-host-review assertMaterialCleanForReview ────────────────
 
-withFixture('cross-host-review: .lattice-only first-row dirt passes the preflight', (root) => {
+withFixture('cross-host-review: .proof-or-stop-only first-row dirt passes the preflight', (root) => {
   write(root, VOLATILE_PATH, '{"seed":false}\n');
   assertFirstRowModifiedTracked(root, VOLATILE_PATH);
   assertMaterialCleanForReview(root); // must not throw
@@ -139,8 +139,8 @@ withFixture('cross-host-review: material row still refuses with the exact path',
       assert.match(err.message, /notes\/keep\.txt/, 'refusal must name the exact material path');
       assert.doesNotMatch(
         err.message,
-        /[^.]lattice\/activity\.jsonl/,
-        'refusal must not list a corrupted (dot-less) .lattice path as material',
+        /[^.]proofOrStop\/activity\.jsonl/,
+        'refusal must not list a corrupted (dot-less) .proof-or-stop path as material',
       );
       return true;
     },
@@ -172,7 +172,7 @@ withFixture('story-query: sync-main volatile filter drops the first-row volatile
   write(root, VOLATILE_PATH, '{"seed":false}\n');
   write(root, MATERIAL_PATH, 'edited\n');
   assertFirstRowModifiedTracked(root, VOLATILE_PATH);
-  // Mirrors the story_sync_main dirty preflight: corrupted "lattice/..." would
+  // Mirrors the story_sync_main dirty preflight: corrupted "proofOrStop/..." would
   // survive this filter and false-block the sync.
   const dirty = gitPorcelainPaths(root).filter((p) => !isVolatileRuntimeArtifactPath(p));
   assert.deepEqual(dirty, [MATERIAL_PATH]);

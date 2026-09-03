@@ -98,7 +98,7 @@ Dependency rule:
 
 - `lifecycle-control/consumption` may depend on the public Evidence Runtime /
   Proof Admissibility API.
-- It must not directly read `.lattice/evidence`, call concrete receipt
+- It must not directly read `.proof-or-stop/evidence`, call concrete receipt
   verifiers, recalculate scope/claim/consumer policy, or write
   `AdmissibilityEvaluationRow`.
 - `lifecycle-control/runtime` may depend on lifecycle, git/worktree, lock, and
@@ -182,7 +182,7 @@ safety booleans.
 Evidence Platform and Proof Admissibility define, and partially implement, the
 required evidence and admissibility boundaries:
 
-- shared `.lattice/evidence` object/ref storage;
+- shared `.proof-or-stop/evidence` object/ref storage;
 - candidate-only Repro/Spike evidence;
 - `story-evidence-binding` as an intake bridge, not DONE proof;
 - local/shadow/diagnostic evidence cannot claim `productionDone`;
@@ -236,7 +236,7 @@ renders it; it does not reimplement the decision.
 | Phase coherence | authoritative story metadata + mirror metadata + `lifecycle-registry.ts` | `coherent`, `mirror-drift`, `unknown` | mirror drift is absent, or reported as advisory with authoritative cwd |
 | Worktree health | git worktree state + `StoryReadinessReport` state-intake rows | `clean`, `dirty-material`, `dirty-metadata`, `missing`, `stale` | required worktree exists and phase-sensitive dirty state is acceptable |
 | Owner lease | `core/story-owner-lease.ts` | module-defined result, rendered as `owned`, `foreign-active`, `stale`, `missing` | current host owns or intentionally takes over through shipped lease audit |
-| Main write lock | `core/main-write-lock.ts` and canonical `.lattice/locks/main-write.lock/` | module-defined result, rendered as `free`, `active`, `stale` | main-affecting operations acquire the shipped lock |
+| Main write lock | `core/main-write-lock.ts` and canonical `.proof-or-stop/locks/main-write.lock/` | module-defined result, rendered as `free`, `active`, `stale` | main-affecting operations acquire the shipped lock |
 | Validation lock | `core/validation-execution-lock.ts` | module-defined result, rendered as `free`, `active`, `stale`, `self-reentry` | no active/stale/self lock blocks validation according to the shipped lock |
 | Dependency readiness | `StoryReadinessReport` state intake and package/runtime preflight rows | `ready`, `missing-deps`, `unknown` | required worktree dependencies exist before command execution |
 | Evidence freshness | `core/evidence-freshness.ts`, `core/evidence-stale-hint.ts`, and `done_prepare` bindings | existing classifier result only | host never self-classifies freshness; current classifier says usable |

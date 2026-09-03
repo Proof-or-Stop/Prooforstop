@@ -2,7 +2,7 @@
  * Task B-3506: Shared auto-commit helper for Proof-or-Stop metadata writes
  *
  * Extracted from packages/main/src/handlers/story-advance.ts:autoCommitStoryMetadata
- * (B-6326 lifecycle). All lattice CLI handlers that mutate files under the
+ * (B-6326 lifecycle). All proofOrStop CLI handlers that mutate files under the
  * configured story directory should call this AFTER a successful write so the
  * worktree-dirty gate stops blocking on Proof-or-Stop's own bookkeeping.
  *
@@ -40,7 +40,7 @@ import {
   type DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { loadConfig } from './config.js';
-import { PROOF_OR_STOP_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, normalizeRelPath } from './proof-or-stop-paths.js';
 import { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
@@ -71,17 +71,17 @@ export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ proof-or-stop metadata auto-co
  *
  * These are new writes at commit time, not reads of stored evidence, so the
  * corrected governing rule in docs/requirements/decisions/brand-rename-mapping.md
- * puts them squarely in the RENAMED class: "any `lattice` that has no effect on the
+ * puts them squarely in the RENAMED class: "any `proof-or-stop` that has no effect on the
  * past evidence chain must be refactored". The surface had zero rows in that
- * mapping table and is structurally invisible to verify-lattice-residue.mjs, whose
- * detectors match `lattice <subcommand>` CLI-invocation syntax rather than a
- * `lattice: <verb>` commit-message prefix — so nothing caught it until a reviewer
+ * mapping table and is structurally invisible to verify-proof-or-stop-residue.mjs, whose
+ * detectors match `proofOrStop <subcommand>` CLI-invocation syntax rather than a
+ * `proofOrStop: <verb>` commit-message prefix — so nothing caught it until a reviewer
  * read the story's own git log.
  */
 export const COMMIT_SUBJECT_PREFIX = 'proof-or-stop:';
 
 /** Deprecated subject prefix, still RECOGNIZED so pre-rename history keeps parsing. */
-export const DEPRECATED_COMMIT_SUBJECT_PREFIX = 'lattice:';
+export const DEPRECATED_COMMIT_SUBJECT_PREFIX = 'proofOrStop:';
 
 /**
  * Read-both matcher for runtime-authored commit subjects. Writers emit the
@@ -473,7 +473,7 @@ function snapshotDirtyClassification(projectRoot: string, gitCwd: string): Dirty
 
 function nonMetadataCounts(classification: DirtyWorktreeClassification): Array<{ category: DirtyWorktreeCategory; count: number }> {
   return DIRTY_WORKTREE_CATEGORIES
-    .filter(category => category !== 'lattice_metadata_changes')
+    .filter(category => category !== 'proof_or_stop_metadata_changes')
     .map(category => ({ category, count: classification.groups[category]?.length ?? 0 }))
     .filter(({ count }) => count > 0);
 }

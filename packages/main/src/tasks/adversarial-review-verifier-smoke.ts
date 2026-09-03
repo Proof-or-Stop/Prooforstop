@@ -128,7 +128,7 @@ check('composeDesc line=0 still cited (ends with "(line 0)")', composeDesc(line0
 // ── 3. toFindingAddArgs — shape + no-abstract-leak ───────────────────────────
 const majorArgs = toFindingAddArgs(majorFinding, {
   reviewRunId: 'RR-1',
-  agent: 'lattice-review-behavior',
+  agent: 'proof-or-stop-review-behavior',
   category: 'edge',
 });
 check('toFindingAddArgs(MAJOR).severity === high', majorArgs.severity === 'high');
@@ -136,7 +136,7 @@ check('toFindingAddArgs(MAJOR).desc === composeDesc(f)', majorArgs.desc === comp
 check('toFindingAddArgs(MAJOR).files === [file]', majorArgs.files.length === 1 && majorArgs.files[0] === 'a.ts');
 check('toFindingAddArgs(MAJOR).category === edge', majorArgs.category === 'edge');
 check('toFindingAddArgs(MAJOR).reviewRunId === RR-1', majorArgs.reviewRunId === 'RR-1');
-check('toFindingAddArgs(MAJOR).agent === lattice-review-behavior', majorArgs.agent === 'lattice-review-behavior');
+check('toFindingAddArgs(MAJOR).agent === proof-or-stop-review-behavior', majorArgs.agent === 'proof-or-stop-review-behavior');
 check(
   'toFindingAddArgs(MAJOR) has EXACTLY keys {severity,desc,files,category,reviewRunId,agent}',
   Object.keys(majorArgs).sort().join(',') === 'agent,category,desc,files,reviewRunId,severity',
@@ -148,7 +148,7 @@ check('MAJOR args.severity is NOT an abstract severity', !ABSTRACT_SEVERITIES.in
 // no-abstract-leak for BLOCKER -> critical
 const blockerArgs = toFindingAddArgs(blockerFinding, {
   reviewRunId: 'RR-2',
-  agent: 'lattice-review-concept',
+  agent: 'proof-or-stop-review-concept',
   category: 'adversarial',
 });
 check('toFindingAddArgs(BLOCKER).severity === critical', blockerArgs.severity === 'critical');
@@ -158,7 +158,7 @@ check('BLOCKER args.severity is NOT an abstract severity', !ABSTRACT_SEVERITIES.
 // no-abstract-leak for MINOR -> medium
 const minorArgs = toFindingAddArgs(minorFinding, {
   reviewRunId: 'RR-3',
-  agent: 'lattice-review-docs',
+  agent: 'proof-or-stop-review-docs',
   category: 'missing',
 });
 check('toFindingAddArgs(MINOR).severity === medium', minorArgs.severity === 'medium');
@@ -176,7 +176,7 @@ const spacedFileFinding: Finding = {
 };
 const spacedArgs = toFindingAddArgs(spacedFileFinding, {
   reviewRunId: 'R',
-  agent: 'lattice-review-quality',
+  agent: 'proof-or-stop-review-quality',
   category: 'happy',
 });
 check(
@@ -187,7 +187,7 @@ check(
 // FindingAddArgs object (idempotent, distinct ref, exact shape, non-Promise); the stronger
 // 'never calls finding_add' property is structurally guaranteed by the module having no I/O
 // imports and is best spied at the S4 boundary.
-const pureOpts = { reviewRunId: 'RR-pure', agent: 'lattice-review-behavior', category: 'happy' as const };
+const pureOpts = { reviewRunId: 'RR-pure', agent: 'proof-or-stop-review-behavior', category: 'happy' as const };
 const pureResultA = toFindingAddArgs(majorFinding, pureOpts);
 const pureResultB = toFindingAddArgs(majorFinding, pureOpts);
 const pureResult: unknown = pureResultA;

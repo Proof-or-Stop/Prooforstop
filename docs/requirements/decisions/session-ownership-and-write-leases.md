@@ -8,14 +8,14 @@ source — agents and the scope-plan reviewer should honor it.
 
 Owner-session identity amendment: B-a781 added
 `owner-session-contract-execution-plan.md` as the execution plan for migrating
-session identity to the canonical `LATTICE_SESSION_ID` host-adapter contract.
+session identity to the canonical `PROOF_OR_STOP_SESSION_ID` host-adapter contract.
 B-9089 implements that runtime contract: generic owner-lease and lifecycle code
 consume the host-neutral resolver facade, while Claude Code, Codex,
 Antigravity/agy, and future host signals are bridged at the adapter/dispatch
 boundary.
 
 - **Main write lock (rollout step 3) — implemented (B-f60c)**: a unified lock in
-  `core/main-write-lock.ts` over the canonical `.lattice/locks/main-write.lock/` path, held by
+  `core/main-write-lock.ts` over the canonical `.proof-or-stop/locks/main-write.lock/` path, held by
   DONE / done_recover / gap_log / audit / story_create / B-META finding writes, with
   idempotency enforced inside the lock and a doctor stuck-lock check.
 - **Story owner lease (rollout step 2) — implemented (B-c55d)**: the per-story owner lease
@@ -25,10 +25,10 @@ boundary.
   ownership-aware rejection errors, and `session_brief` ownership rendering.
 
 Current implementation resolves `sessionId` through the owner-session facade:
-`LATTICE_SESSION_ID` (`sessionSource: explicit-env`) → host adapter bridge
+`PROOF_OR_STOP_SESSION_ID` (`sessionSource: explicit-env`) → host adapter bridge
 (`host-adapter`) → local generated token fallback (`generated-token`) →
 `deriveLocalSessionId(hostname, worktree-root, ppid)` (`derived-ppid`). Legacy
-lease labels such as `lattice-env` and `claude-code-env` remain readable and are
+retired persisted lease labels such as `lattice-env` and `claude-code-env` remain readable and are
 normalized on read. The id is a local process-coordination id, never a
 cryptographic identity; ppid is only the degraded last-resort fallback because
 each tool call can spawn a fresh parent process under some hosts.
@@ -42,7 +42,7 @@ B-9089 extends them with the host-neutral owner-session contract.
 Before the implemented main write lock and story owner lease rollout, Proof-or-Stop
 supported parallel story worktrees but did not mechanically own write
 coordination across sessions. The remaining B-a781 work is narrower: migrate
-session identity resolution to the canonical host-adapter `LATTICE_SESSION_ID`
+session identity resolution to the canonical host-adapter `PROOF_OR_STOP_SESSION_ID`
 contract without regressing the implemented write-coordination baseline.
 
 The rollout was designed to prevent these failure modes:
@@ -166,13 +166,13 @@ Examples:
 
 Preferred storage:
 
-- story lease: `.lattice/story/actives/<storyId>/owner-lease.json`
-- main write lock: `.lattice/locks/main-write.lock/`
+- story lease: `.proof-or-stop/story/actives/<storyId>/owner-lease.json`
+- main write lock: `.proof-or-stop/locks/main-write.lock/`
 - command event trail: existing process-events/activity stream
 
-> Runtime note (B-f60c): `.lattice/locks/main-write.lock/` is the single canonical
+> Runtime note (B-f60c): `.proof-or-stop/locks/main-write.lock/` is the single canonical
 > main write lock path. The former DONE-specific merge serialization lock
-> `.lattice/runtime/done-main-merge.lock` has been retired with no back-compat
+> `.proof-or-stop/runtime/done-main-merge.lock` has been retired with no back-compat
 > alias — the DONE merge / `done_recover` critical sections now acquire the
 > unified lock at the path above. `story-lifecycle.md` references the same
 > canonical path; the two docs are synchronized.
@@ -254,14 +254,14 @@ Inside the relevant lock:
 - finding mutations reject duplicate active findings unless explicitly linked as `duplicate-of`.
 - DONE recovery detects already-merged branches and already-removed worktrees.
 
-## Read-Only Reviewer Mode (`LATTICE_REVIEWER_READONLY=1`)
+## Read-Only Reviewer Mode (`PROOF_OR_STOP_REVIEWER_READONLY=1`)
 
 The command classes above describe ownership coordination between *owner sessions*. A separate
 concern is **advisory external reviewers**: external Claude/Codex/Gemini processes delegated
 to inspect artifacts and return structured findings as text — they are not Proof-or-Stop gate
 reviewers and must not write lifecycle evidence directly.
 
-`LATTICE_REVIEWER_READONLY=1` is an opt-in guard for these advisory reviewer processes. It
+`PROOF_OR_STOP_REVIEWER_READONLY=1` is an opt-in guard for these advisory reviewer processes. It
 layers on top of the `CommandPolicy` / owner-lease architecture:
 
 - The guard runs **before** `enforceStoryOwnerLeaseGate` and before preCommand hooks, so a
@@ -269,13 +269,13 @@ layers on top of the `CommandPolicy` / owner-lease architecture:
   side-effect that requires mutating access.
 - Only `ownershipClass === 'readOnly'` commands (e.g. `session_brief`, `story_get`,
   `checklist_get`, `finding_list`) proceed. All other classes fail closed.
-- This mode does **not** change how normal Proof-or-Stop gate reviewers (`lattice-review-*`) work.
-  Those reviewers operate without `LATTICE_REVIEWER_READONLY=1` set and must be able to call
+- This mode does **not** change how normal Proof-or-Stop gate reviewers (`proof-or-stop-review-*`) work.
+  Those reviewers operate without `PROOF_OR_STOP_REVIEWER_READONLY=1` set and must be able to call
   `review_pass_set`, `finding_add`, `delivery_check_set`, etc.
 
 This section is the current active contract for reviewer read-only mode. Older
 reviewer-role background may describe the same separation concept, but must not
-override the `LATTICE_REVIEWER_READONLY=1` env name or the command class rules
+override the `PROOF_OR_STOP_REVIEWER_READONLY=1` env name or the command class rules
 documented here.
 
 ## Out of Scope

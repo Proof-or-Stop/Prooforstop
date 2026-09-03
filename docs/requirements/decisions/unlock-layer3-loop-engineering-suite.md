@@ -145,13 +145,13 @@ Engineering scenarios without the real-execution UDM baseline.
 All formal Layer 3 artifacts must be under:
 
 ```text
-.lattice/artifacts/baseline/layer3-loop-engineering-unlock
+.proof-or-stop/artifacts/baseline/layer3-loop-engineering-unlock
 ```
 
 Every baseline run must write:
 
 ```text
-.lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/<baseline-id>/<run-id>/
+.proof-or-stop/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/<baseline-id>/<run-id>/
 ```
 
 Required files:
@@ -545,7 +545,7 @@ The formal execution should use this sequence:
 | 1 | Refresh lower layers | Layer 1 and Layer 2 proof are fresh and unlocked for the target using the selected artifact roots, not an assumed default root. |
 | 2 | Verify Layer 3 formal evaluator path | The evaluator can authorize `loop-engineering` while keeping Production Safety and global Capability Claim locked; otherwise status is `BLOCKED: missing Layer 3 formal evaluator`. |
 | 3 | Create Layer 3 suite run id | `suiteRunId` is stable for all UDM baselines. |
-| 4 | Materialize UDM run directories | All artifacts are under `.lattice/artifacts/baseline/layer3-loop-engineering-unlock`. |
+| 4 | Materialize UDM run directories | All artifacts are under `.proof-or-stop/artifacts/baseline/layer3-loop-engineering-unlock`. |
 | 5 | Execute 10 UDM baselines | Each baseline has required files and final report. |
 | 6 | Run fail-closed traps | Open loop, stale evidence, missing review, missing validation, missing receipt, and false-DONE traps block. |
 | 7 | Run two-host review | Claude CLI and Codex CLI independently PASS or report real blockers. |

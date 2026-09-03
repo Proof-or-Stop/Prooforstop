@@ -7,4 +7,8 @@
  *   await runCli({ extraTools: utilsToolDefs });
  */
 export { register } from './register.js';
-export { utilsToolDefs } from './tool-defs.js';
+export {
+  utilsAllowedPhases,
+  utilsOwnershipClasses,
+  utilsToolDefs,
+} from './tool-defs.js';

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-022e",
+  "state": "confirmed",
+  "ledgerHash": "sha256:24f70532633a9602640c5891d5ca0f8edeb111d0426353781e362423c9df030d",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-IDENTITY-CUTOVER",
+      "claim": "All active package, CLI, env, path, config, runtime, prompt, and documentation identities are Proof-or-Stop only.",
+      "doneMeans": "Cutover verifier and clean-install transcript pass canonical positives and lattice/@lattice negatives.",
+      "requiredEvidence": [
+        "identity-cutover",
+        "clean-install",
+        "cli-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-007:happy:0",
+        "CHK-007:edge:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-AGENT-ROLE-CUTOVER",
+      "claim": "Every active lattice-named Agent role is renamed to proof-or-stop, including proof-or-stop-review-story-init, and old role IDs do not resolve or generate.",
+      "doneMeans": "Role registry, templates, frontmatter, config routing, generated assets, and negative lookup checks pass.",
+      "requiredEvidence": [
+        "role-registry",
+        "generated-assets",
+        "negative-resolution"
+      ],
+      "checklistRefs": [
+        "CHK-005",
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-HISTORICAL-INTEGRITY",
+      "claim": "Exact historical story, fixture, changelog, signature-salt, schema, and provenance bytes remain unchanged and verifiable.",
+      "doneMeans": "Named baseline paths retain identical SHA-256 digests and their signature verification results still pass.",
+      "requiredEvidence": [
+        "byte-digest",
+        "signature-verification",
+        "allowlist-mutation"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-005",
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:1",
+        "CHK-006:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-RED-GREEN-CLOSEOUT",
+      "claim": "The same committed acceptance target moves from reproducible RED to descendant GREEN and B-022e completes REVIEW, TEST, and DONE at version 0.3.268.",
+      "doneMeans": "red_evidence relation passes, all verification refs have evidence, required review/validation/DONE artifacts are fresh, and DONE merges locally.",
+      "requiredEvidence": [
+        "red-evidence",
+        "green-relation",
+        "review-pass",
+        "validation",
+        "done-required",
+        "done-prepare"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-007",
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-007:happy:0",
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-08-30T21:55:06.279Z",
+  "updatedAt": "2026-08-30T21:55:06.841Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260830214839",
+    "acceptedInterpretationHash": "sha256:e2272402fc1a3b7cf1546287d39526781428b3ae59a97345fdb4985d2a08cfd1",
+    "acceptedAt": "2026-08-30T21:55:06.841Z"
+  }
+}

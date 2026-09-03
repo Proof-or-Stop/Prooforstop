@@ -43,19 +43,19 @@ function initRepo(prefix: string): string {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
     '**/activity.jsonl',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'smoke\n');
@@ -128,7 +128,7 @@ async function runProofOrStop(root: string, command: string, args: Record<string
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root, ...envOverrides },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, ...envOverrides },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -153,10 +153,10 @@ async function startReviewRun(root: string, storyId: string, agent: string): Pro
   return extractReviewRunId(await runProofOrStop(root, 'review_run_start', { storyId, agent }));
 }
 
-async function runLatticeFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStopFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const env = { ...process.env };
-    delete env.LATTICE_PROJECT_ROOT;
+    delete env.PROOF_OR_STOP_PROJECT_ROOT;
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd,
       env,
@@ -175,7 +175,7 @@ async function runLatticeFromCwd(cwd: string, command: string, args: Record<stri
 }
 
 async function assertReviewPassConcurrentWrites(): Promise<void> {
-  const root = initRepo('lattice-review-pass-');
+  const root = initRepo('proof-or-stop-review-pass-');
   try {
     const storyId = 'B-pass';
     writeReviewStory(root, storyId);
@@ -198,7 +198,7 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
 }
 
 async function assertChecklistConcurrentUpdates(): Promise<void> {
-  const root = initRepo('lattice-checklist-concurrent-');
+  const root = initRepo('proof-or-stop-checklist-concurrent-');
   try {
     const storyId = 'B-check';
     writeChecklistConcurrencyStory(root, storyId, 'DEV');
@@ -218,7 +218,7 @@ async function assertChecklistConcurrentUpdates(): Promise<void> {
 }
 
 async function assertChecklistConcurrentVerificationIntentUpdates(): Promise<void> {
-  const root = initRepo('lattice-checklist-intent-concurrent-');
+  const root = initRepo('proof-or-stop-checklist-intent-concurrent-');
   try {
     const storyId = 'B-intent';
     writeChecklistConcurrencyStory(root, storyId, 'PLAN');
@@ -242,7 +242,7 @@ async function assertChecklistConcurrentVerificationIntentUpdates(): Promise<voi
 }
 
 async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
-  const root = initRepo('lattice-discard-worktree-');
+  const root = initRepo('proof-or-stop-discard-worktree-');
   try {
     const storyId = 'B-drop';
     const store = new StoryStore(root);
@@ -276,7 +276,7 @@ async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
 }
 
 async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
-  const root = initRepo('lattice-discard-residue-');
+  const root = initRepo('proof-or-stop-discard-residue-');
   try {
     const storyId = 'B-residue';
     const store = new StoryStore(root);
@@ -310,7 +310,7 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
 }
 
 async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
-  const root = initRepo('lattice-discard-prunable-');
+  const root = initRepo('proof-or-stop-discard-prunable-');
   try {
     const storyId = 'B-prunedrop';
     const store = new StoryStore(root);
@@ -351,7 +351,7 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
 }
 
 async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
-  const root = initRepo('lattice-discard-invalid-pointer-');
+  const root = initRepo('proof-or-stop-discard-invalid-pointer-');
   try {
     const storyId = 'B-badptr';
     const store = new StoryStore(root);
@@ -403,7 +403,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
 }
 
 async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
-  const root = initRepo('lattice-discard-invalid-cwd-');
+  const root = initRepo('proof-or-stop-discard-invalid-cwd-');
   try {
     const storyId = 'B-badcwd';
     const store = new StoryStore(root);
@@ -427,7 +427,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
       },
     });
     store.writeChecklist(storyId, { items: [] });
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
     git(root, ['branch', `story/${storyId}`]);
     const worktreePath = join(root, '.worktrees', storyId);
@@ -435,7 +435,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
     rmSync(join(root, '.git', 'worktrees', storyId), { recursive: true, force: true });
     writeFileSync(join(worktreePath, 'runtime.log'), 'stale residue\n');
 
-    const output = await runLatticeFromCwd(worktreePath, 'story_discard', {
+    const output = await runProofOrStopFromCwd(worktreePath, 'story_discard', {
       storyId,
       force: true,
       reason: 'smoke invalid cwd cleanup',
@@ -451,7 +451,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
 }
 
 async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
-  const root = initRepo('lattice-discard-fail-closed-');
+  const root = initRepo('proof-or-stop-discard-fail-closed-');
   const storyId = 'B-stuck';
   try {
     const store = new StoryStore(root);
@@ -492,19 +492,19 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
 }
 
 async function assertPurgeDropsSafeInitCommit(): Promise<void> {
-  const root = initRepo('lattice-discard-purge-');
+  const root = initRepo('proof-or-stop-discard-purge-');
   try {
     const before = git(root, ['rev-parse', 'HEAD']);
     const storyId = 'B-purge';
     writeReviewStory(root, storyId);
-    git(root, ['add', '.lattice/story/actives/B-purge']);
+    git(root, ['add', '.proof-or-stop/story/actives/B-purge']);
     git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
 
     const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
     assert.match(output, /main init commit safely rolled back/, 'purge should report a safe reset');
     assert.equal(git(root, ['rev-parse', 'HEAD']), before, 'safe init commit should be reset');
-    assert.equal(existsSync(join(root, '.lattice', 'story', 'actives', storyId)), false);
+    assert.equal(existsSync(join(root, '.proof-or-stop', 'story', 'actives', storyId)), false);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -528,11 +528,11 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
  * including the unrelated later commit, is preserved).
  */
 async function assertPurgeTombstonesBuriedSafeInitCommit(): Promise<void> {
-  const root = initRepo('lattice-discard-purge-buried-');
+  const root = initRepo('proof-or-stop-discard-purge-buried-');
   try {
     const storyId = 'B-buried';
     writeReviewStory(root, storyId);
-    git(root, ['add', '.lattice/story/actives/B-buried']);
+    git(root, ['add', '.proof-or-stop/story/actives/B-buried']);
     git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
     const initCommit = git(root, ['rev-parse', 'HEAD']);
 
@@ -549,7 +549,7 @@ async function assertPurgeTombstonesBuriedSafeInitCommit(): Promise<void> {
     assert.doesNotMatch(output, /main init commit safely rolled back/, 'buried init commit must NOT be safe-reset');
     assert.match(output, /discard metadata committed/, 'buried path must tombstone-commit the deletion');
     // (b) the story metadata dir is gone.
-    assert.equal(existsSync(join(root, '.lattice', 'story', 'actives', storyId)), false, 'story metadata dir must be removed');
+    assert.equal(existsSync(join(root, '.proof-or-stop', 'story', 'actives', storyId)), false, 'story metadata dir must be removed');
     // (c) the main checkout is clean — no tracked-but-deleted dirty state.
     assert.equal(git(root, ['status', '--porcelain']), '', 'main checkout must be clean after a buried-init tombstone discard');
     // (d) the buried init commit was NOT HEAD~1-reset: history above it is preserved.
@@ -576,7 +576,7 @@ function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
 }
 
 function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
-  const root = initRepo('lattice-channel-main-owner-');
+  const root = initRepo('proof-or-stop-channel-main-owner-');
   try {
     const storyId = 'B-channel';
     const store = new StoryStore(root);
@@ -605,7 +605,7 @@ function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
         endTime: now,
       })),
     });
-    write(root, '.lattice/story/actives/B-channel/plan.md', [
+    write(root, '.proof-or-stop/story/actives/B-channel/plan.md', [
       '# Plan: B-channel',
       ...ids.flatMap(id => [
         '',
@@ -636,7 +636,7 @@ function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
 }
 
 async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise<void> {
-  const root = initRepo('lattice-init-dispatch-timeout-');
+  const root = initRepo('proof-or-stop-init-dispatch-timeout-');
   try {
     const storyId = 'B-init';
     const now = '2026-04-30T10:00:00.000Z';
@@ -675,7 +675,7 @@ async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise
 }
 
 async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
-  const root = initRepo('lattice-item-dispatch-event-');
+  const root = initRepo('proof-or-stop-item-dispatch-event-');
   try {
     const storyId = 'B-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'DEV');
@@ -705,7 +705,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
 }
 
 async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<void> {
-  const root = initRepo('lattice-reviewer-item-dispatch-');
+  const root = initRepo('proof-or-stop-reviewer-item-dispatch-');
   try {
     const storyId = 'B-review-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
@@ -772,7 +772,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
 }
 
 async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
-  const root = initRepo('lattice-doctor-worktree-repair-');
+  const root = initRepo('proof-or-stop-doctor-worktree-repair-');
   try {
     const store = new StoryStore(root);
     const now = '2026-04-30T10:00:00.000Z';
@@ -791,7 +791,7 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
         events: [],
       });
     }
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'add terminal story metadata']);
 
     git(root, ['branch', 'story/B-termreg']);
@@ -825,7 +825,7 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
 }
 
 function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
-  const root = initRepo('lattice-stray-generated-review-metadata-');
+  const root = initRepo('proof-or-stop-stray-generated-review-metadata-');
   try {
     const storyId = 'B-stray';
     const now = '2026-04-30T10:00:00.000Z';
@@ -842,13 +842,13 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
       endedAt: null,
       events: [],
     });
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'add story metadata']);
 
     assert(STRAY_FILE_WHITELIST.includes('init-self-check.json'), 'init-self-check.json should be a precise whitelist entry');
     assert(STRAY_FILE_WHITELIST.includes('review-passes.json'), 'review-passes.json should be a precise whitelist entry');
-    const initSelfCheckPath = join(root, '.lattice/story/actives', storyId, 'init-self-check.json');
-    const reviewPassesPath = join(root, '.lattice/story/actives', storyId, 'review-passes.json');
+    const initSelfCheckPath = join(root, '.proof-or-stop/story/actives', storyId, 'init-self-check.json');
+    const reviewPassesPath = join(root, '.proof-or-stop/story/actives', storyId, 'review-passes.json');
     writeFileSync(initSelfCheckPath, '{"reviewers":[]}\n');
     writeFileSync(reviewPassesPath, '{"passes":[]}\n');
     const report = cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId));
@@ -857,7 +857,7 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
     assert(report.some(line => line.includes('init-self-check.json')), 'cleanup report should name init-self-check.json');
     assert(report.some(line => line.includes('review-passes.json')), 'cleanup report should name review-passes.json');
 
-    const draftPath = join(root, '.lattice/story/actives', storyId, 'operator-note.txt');
+    const draftPath = join(root, '.proof-or-stop/story/actives', storyId, 'operator-note.txt');
     writeFileSync(draftPath, 'manual draft\n');
     assert.throws(
       () => cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId)),

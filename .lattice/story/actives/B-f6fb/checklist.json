@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce the loss end to end without any manual commit",
+      "context": "Drive a story fixture through dev_memory_capture and then to DONE with no manual git add of .lattice/dev-memory/experience.jsonl, and show the captured entry is absent from main afterwards. B-def6 existing smoke deliberately commits the ledger first (to assert materialHash stability across a real commit), so it cannot see this path. The reproduction must exist before any fix.",
+      "relatedDocs": [
+        "CLAUDE.md#worktree-生命周期"
+      ],
+      "userSees": "A test that fails today, printing that the captured entry id is missing from the ledger on main after DONE completed successfully.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Decide whether materialHash exclusion and dirty non-blocking should remain a single registry grant",
+      "context": "RuntimeArtifactRegistryEntry currently ties materialHash exclude and non-blocking dirty classification together; findRuntimeArtifactEntry drives both isMaterialExcludedRuntimeArtifactPath and the dirty-worktree category at dirty-worktree.ts line 204. The dev-memory ledger wants the first but arguably not the second. Decide whether to separate them or to guarantee durability another way, and record the rejected option.",
+      "relatedDocs": [
+        "CLAUDE.md#worktree-生命周期"
+      ],
+      "userSees": "A recorded decision naming the chosen mechanism and why the other options were rejected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement the chosen durability guarantee",
+      "context": "Whichever option is chosen, a captured lesson must survive DONE. If the fix writes during DONE, be careful that it does not move HEAD in a way that invalidates already-signed delivery-check or test-evidence freshness — that exact regression is documented in the dev-memory-finish-decision entry comment in runtime-artifact-registry.ts, which records that auto-committing was tried and reverted for this reason.",
+      "relatedDocs": [
+        "CLAUDE.md#worktree-生命周期"
+      ],
+      "userSees": "After DONE, the captured entry is present in the ledger on main with no manual git step.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

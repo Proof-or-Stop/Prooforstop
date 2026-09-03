@@ -80,7 +80,7 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
   }
 }
 
-const LEDGER_ENV = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const LEDGER_ENV = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 const MODEL = 'claude-opus-4-8';
 
 /** Build a correlation handle for a fresh estimate (supersedes nothing). */

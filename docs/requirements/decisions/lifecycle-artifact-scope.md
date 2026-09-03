@@ -4,19 +4,19 @@
 **Scope**: scope-contract enforcement when a Proof-or-Stop command writes a story-scoped
 metadata artifact during DEV / REVIEW / TEST / DONE.
 
-Legacy Proof-or-Stop path note: the old hidden Proof-or-Stop story tree is intentionally not
-named here as a runnable path. It is retired and rejected wherever this policy
-describes current lifecycle classification.
+Retired pre-cutover path spellings are intentionally not named here as runnable
+paths. They are rejected wherever this policy describes current lifecycle
+classification.
 
 ## Why this exists
 
 Proof-or-Stop lifecycle CLI commands (`delivery_check_set`, `summary_set`,
 `scope_contract_set`, `finding_add`, `init_check_set`, …) write metadata files
-under `.lattice/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
-The retired hidden Proof-or-Stop story tree is no longer a recognized story-dir prefix. These
+under `.proof-or-stop/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
+The retired hidden pre-cutover story tree is no longer a recognized story-dir prefix. These
 writes are not implementation work — they are command-generated provenance.
 Before B-b9d0 the scope gate either failed-closed against them (blocking DONE)
-or fell back to a blanket legacy Lattice-directory exemption that let arbitrary,
+or fell back to a blanket retired-state-directory exemption that let arbitrary,
 unrelated files in that retired tree pass.
 
 This document fixes the policy in one place: lifecycle artifacts are a
@@ -39,12 +39,12 @@ order:
 1. **`classifyLifecycleArtifact(file, { storyId })`**
    – returns a hit only when the path matches:
    – a recognized story-dir prefix (`docs/story/actives/`,
-     `.lattice/story/actives/`, or a custom `storyDir`;
-     the retired hidden Proof-or-Stop story tree is not recognized),
+     `.proof-or-stop/story/actives/`, or a custom `storyDir`;
+     the retired hidden pre-cutover story tree is not recognized),
    – followed by a valid storyId segment,
    – followed by either a top-level terminal filename in
-     `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
-     `LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
+     `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
+     `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
      `packages/main/src/core/lifecycle-registry.ts`).
      The relative-path set is intentionally tiny: today it includes only the
      TEST transcript evidence paths `evidence/transcript-diff.md` and
@@ -56,13 +56,13 @@ order:
 
 2. **`isRuntimeArtifactPath(file)`**
    – returns true for paths registered in the runtime-artifact registry:
-     `.lattice/activity.jsonl`, `.lattice/runtime/...`, `.lattice/traces/...`,
-     `.lattice/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
-     `.lattice-tmp-*`, `lattice-debug.log`,
+     `.proof-or-stop/activity.jsonl`, `.proof-or-stop/runtime/...`, `.proof-or-stop/traces/...`,
+     `.proof-or-stop/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
+     `.proof-or-stop-tmp-*`, `proof-or-stop-debug.log`,
      `browser-test.log`, etc.
    – Used by scope to skip volatile runtime telemetry that Proof-or-Stop writes as a
-     side-effect of read/write commands. **This is NOT a blanket `.lattice/`
-     pass.** An arbitrary file like `.lattice/foo.json` does not match any registered runtime matcher and
+     side-effect of read/write commands. **This is NOT a blanket `.proof-or-stop/`
+     pass.** An arbitrary file like `.proof-or-stop/foo.json` does not match any registered runtime matcher and
      therefore falls through.
 
 3. **`classifySharedLifecycleMetadata(root, file)`**
@@ -86,7 +86,7 @@ order:
 4. **fall-through** → normal `allowedModify` / `allowedCreate` /
    `allowedTest` / `protectedFiles` / `explicitExcludes` enforcement applies.
    This includes ordinary source files and any unrecognized JSON under
-   `.lattice/`.
+   `.proof-or-stop/`.
 
 ## Adversarial invariant
 
@@ -94,12 +94,12 @@ Both reviewers and tests must continue to assert:
 
 - a product source file (e.g. `packages/main/src/handlers/foo.ts`) that is not
   in the contract still fails scope when unacknowledged;
-- an unknown `.lattice/foo.json` not registered in the runtime registry and not
+- an unknown `.proof-or-stop/foo.json` not registered in the runtime registry and not
   matching the lifecycle filename set still fails scope when unacknowledged;
 - removing or weakening rule (2) — for example reverting to
-  `if (file.startsWith('.lattice/')) continue;` — is a regression and must be
+  `if (file.startsWith('.proof-or-stop/')) continue;` — is a regression and must be
   flagged by the contract test.
-- an arbitrary `.lattice/foo.json`, nested story evidence note, undeclared
+- an arbitrary `.proof-or-stop/foo.json`, nested story evidence note, undeclared
   source file, direct story JSON edit, or direct fixture edit still fails closed
   unless a story's explicit scope and phase policy permits it through the
   supported CLI path.
@@ -128,7 +128,7 @@ Expected row families:
 ## Operational implications
 
 - `delivery_check_set` and `summary_set` may freely write
-  `.lattice/story/actives/<id>/delivery-check.json` and `summary.json` during
+  `.proof-or-stop/story/actives/<id>/delivery-check.json` and `summary.json` during
   TEST without expanding scope or triggering an `OUT_OF_SCOPE` violation.
 - INIT scope anti-expansion commands may write `scope-boundary.json`,
   `execution-boundary.json`, `scope-freeze-check.json`,
@@ -140,8 +140,8 @@ Expected row families:
   requires the machine guard to verify hashes, freshness, pending proposal
   state, excluded keyword hits, and repeat-discard mitigation.
 - User-value acceptance transcript commands may write
-  `.lattice/story/actives/<id>/evidence/transcript-diff.md` and
-  `.lattice/story/actives/<id>/evidence/live-smoke-transcript.json` during TEST
+  `.proof-or-stop/story/actives/<id>/evidence/transcript-diff.md` and
+  `.proof-or-stop/story/actives/<id>/evidence/live-smoke-transcript.json` during TEST
   as lifecycle transcript artifacts. These exemptions are path-specific;
   sibling files such as `evidence/notes.md` and arbitrary nested evidence still
   fall through to normal scope enforcement.
@@ -165,7 +165,7 @@ Mechanical evidence lives in:
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
   known lifecycle filenames plus `evidence/transcript-diff.md` and
   `evidence/live-smoke-transcript.json` under a story id, rejects arbitrary
-  files in the retired hidden Proof-or-Stop tree and nearby non-transcript evidence
+  files in the retired hidden pre-cutover tree and nearby non-transcript evidence
   files, includes the INIT scope anti-expansion artifact filenames, and rejects
   ordinary product source files when scope is unacknowledged.
 - `packages/main/src/tasks/lifecycle-registry-contract.ts` — home of the
@@ -173,7 +173,7 @@ Mechanical evidence lives in:
   classify as `kind='lifecycle'` under an active story dir) and the StoryStore
   write-set coverage invariant: every top-level story artifact filename derived
   from `core/store.ts` must be registered in
-  `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or listed in a named exemption
+  `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES` or listed in a named exemption
   constant (registered-or-exempted, named divergence per missing filename).
 - `packages/main/src/tasks/gap-log-smoke.ts` — asserts the independent B-META
   receipt chain, current-artifact binding, public-forgery rejection, and
@@ -198,36 +198,34 @@ Proof-or-Stop init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
-| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
-| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Proof-or-Stop package assets. These are the canonical prompt bodies. |
-| generated or materialized prompt caches | `.lattice-codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
+| project-local required assets | Default fresh init primary (global-thin): `.proof-or-stop/Proof-or-Stop.md`, `.proof-or-stop/proof-or-stop.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `PROOF_OR_STOP.md`, `.proof-or-stop-codex/proof-or-stop.json`, `bin/proof-or-stop.js`, `bin/proof-or-stop-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.proof-or-stop/` assets; local wrappers are generated only in full/thin modes. |
+| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through the versioned prompt-registry schema | Versioned Proof-or-Stop package assets. These are the canonical prompt bodies. |
+| generated or materialized prompt caches | `.proof-or-stop-codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
 The phrase **registry-backed prompt assets** means project metadata points at the
 package prompt registry instead of treating every rendered agent prompt as a
 project-local required file. In global-thin mode (the default for new projects),
-`.lattice/lattice.json` carries the project config and asset mode declaration,
-and Codex adapter verification resolves the `.lattice/` manifest rather than
-requiring `.lattice-codex/` entries or local bin wrappers. In full/thin modes,
-`.lattice-codex/lattice.json` carries the prompt registry version and material hash.
-Legacy `.lattice-codex/lattice.json` files may remain archived or user-owned, but they are
-not active adapter inputs.
+`.proof-or-stop/proof-or-stop.json` carries the project config and asset mode declaration,
+and Codex adapter verification resolves the `.proof-or-stop/` manifest rather than
+requiring `.proof-or-stop-codex/` entries or local bin wrappers. In full/thin modes,
+`.proof-or-stop-codex/proof-or-stop.json` carries the prompt registry version and material hash.
+Retired adapter manifests may remain archived or user-owned, but they are not
+active adapter inputs.
 
 The Proof-or-Stop naming migration is a managed-asset naming contract only. It does
 not promote ordinary CLI output to receipt-backed authority and does not change
 Story lifecycle gates. `proof-or-stop` is the primary active runtime/product
-command; `lattice` is retained as a deprecated alias resolving to the same
-binary, so existing scripts and in-flight stories keep working. Both names are
-active entrypoints — neither is the sole command — and no additional runtime
-command is introduced.
-Fresh init must not generate `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, or
-`bin/lattice-codex.js`; compatibility checks do not treat those paths as active
+command. Retired command spellings do not resolve as aliases; scripts and
+in-flight stories must use the canonical command.
+Fresh init must not generate retired top-level guidance, adapter manifests, or
+wrapper names; compatibility checks do not treat those paths as active
 adapter or runtime inputs. Cleanup may remove a legacy-named asset only
 when its content exactly matches a generated template or manifest; user-owned
 legacy files are preserved.
 
 This is a **legacy mirror compatibility** change, not a host behavior removal.
-Legacy full-mode repositories may keep `.lattice-codex/agents` and `.claude/agents`.
-Thin-mode repositories may omit `.lattice-codex/agents` when the manifest selects
+Legacy full-mode repositories may keep `.proof-or-stop-codex/agents` and `.claude/agents`.
+Thin-mode repositories may omit `.proof-or-stop-codex/agents` when the manifest selects
 registry prompts. Claude Code host-local discovery can still use materialized
 `.claude/agents` where that host profile requires it.
 
@@ -259,11 +257,11 @@ the package registry.
 
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
-| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package registry host render: five-lane reviewer bootstrap or ordinary role body |
-| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | five active REVIEW lanes use `review_run_start`; ordinary roles including topology-critic use `proof-or-stop agent_prompt` |
+| Codex | `.proof-or-stop-codex/proof-or-stop.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package registry host render: reviewer bootstrap or ordinary role body |
+| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | migrated reviewers use `review_run_start`; ordinary roles use `proof-or-stop agent_prompt` |
 
 B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
-not materialize `.lattice-codex/agents`; it resolves prompts from the registry via its
+not materialize `.proof-or-stop-codex/agents`; it resolves prompts from the registry via its
 manifest. This policy does the host-neutral equivalent for **Claude**, which —
 unlike Codex — cannot resolve a subagent from a single manifest: Claude Code only
 discovers subagents from on-disk `.claude/agents/*.md` files and reads each file's
@@ -297,15 +295,15 @@ keeps one file per role, but that file is a **content-free shim**.
 
 3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
    16 shims are generated once into the user-global `~/.claude/agents` so Claude
-   Code resolves `subagent_type: lattice-*` for all projects from one place.
+   Code resolves `subagent_type: proof-or-stop-*` for all projects from one place.
    `proof-or-stop init` writes **zero** `.claude/agents` files into a project (fresh
-   tree stays `.lattice/Lattice.md` + `AGENTS.md`, plus any pre-existing
+   tree stays `.proof-or-stop/Proof-or-Stop.md` + `AGENTS.md`, plus any pre-existing
    `CLAUDE.md`). Shim frontmatter (`tools`) is derived from each registry
    template's frontmatter so the reviewer read-only sandbox is preserved.
 
 4. **`tools` sandbox is preserved.** Because the shim keeps the `tools:`
    frontmatter, the host still mechanically restricts each role (e.g.
-   `lattice-review-*` stay read-only). Thinning the body does not weaken the
+   `proof-or-stop-review-*` stay read-only). Thinning the body does not weaken the
    sandbox.
 
 5. **Migration is explicit, never silent (execution-plan Phase 4).** A normal
@@ -325,6 +323,6 @@ keeps one file per role, but that file is a **content-free shim**.
    the host-neutral state is diagnosable across projects.
 
 This realizes the runtime-owned principle in
-`lattice-runtime-owned-agent-assets-execution-plan.md` for both hosts: agent
+the runtime-owned agent assets execution plan for both hosts: agent
 prompt **content** belongs to the local Proof-or-Stop CLI runtime/registry, not to any
 host directory or business project; hosts hold only thin, content-free adapters.

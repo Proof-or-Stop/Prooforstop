@@ -4,7 +4,7 @@
  * extract-cli-engine-english-manifest.mjs
  *
  * Regenerates the line-level English-translation manifest for
- * packages/main/src/cli-engine.ts (lattice story B-a57f, Phase 0 — "Freeze the
+ * packages/main/src/cli-engine.ts (proof-or-stop story B-a57f, Phase 0 — "Freeze the
  * manifest").
  *
  * It scans the CURRENT cli-engine.ts source, emits one TSV row per

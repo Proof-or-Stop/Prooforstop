@@ -1,0 +1,20 @@
+{
+  "storyId": "B-022e",
+  "expected": "The verifier prints `PASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current` before production migration begins.",
+  "actual": {
+    "command": "node bin/proof-or-stop.js --version",
+    "exitCode": 0,
+    "stdout": "Proof-or-Stop 0.3.270\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-01T20:52:18.381Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "a082b776a5e085efc0564ff422df20c0265580f3",
+  "materialHash": "544685a87c4b1cd7bbcf5eff8d57fb26153cc01a1d3f4f0ca4b99f6fc2fda542"
+}

@@ -11,7 +11,7 @@
  *      fail-closed default. Nothing in a plan is silently parallelised.
  *   3. A claim naming an unrecognised resource class is REFUSED at declaration
  *      time (both in `resolveValidationCommandResources` and in the
- *      `lattice.config.json` parser), never dropped into a shared key.
+ *      `proof-or-stop.config.json` parser), never dropped into a shared key.
  *
  * Concurrency is proven by driving the real `runScheduled`, not by asserting on
  * `claimsConflict` alone: an entry records which other entries were live while
@@ -92,8 +92,8 @@ async function observeOverlap(plan, jobs) {
   const plan = {
     provider: 'b7dff-disjoint-declared',
     commands: [
-      command('declared A', [REPO_READ, { class: 'fixed-path', key: '.lattice/runtime/b7dff-probe-a', access: 'exclusive' }]),
-      command('declared B', [REPO_READ, { class: 'fixed-path', key: '.lattice/runtime/b7dff-probe-b', access: 'exclusive' }]),
+      command('declared A', [REPO_READ, { class: 'fixed-path', key: '.proof-or-stop/runtime/b7dff-probe-a', access: 'exclusive' }]),
+      command('declared B', [REPO_READ, { class: 'fixed-path', key: '.proof-or-stop/runtime/b7dff-probe-b', access: 'exclusive' }]),
     ],
   };
   const [a, b] = resolveValidationPlanEntries(plan);
@@ -199,7 +199,7 @@ async function observeOverlap(plan, jobs) {
     const root = mkdtempSync(join(tmpdir(), 'b7dff-claim-config-'));
     roots.push(root);
     writeFileSync(
-      join(root, 'lattice.config.json'),
+      join(root, 'proof-or-stop.config.json'),
       JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', validate: { commands: [{ command: 'node', args: ['x.js'], resources }] } }),
     );
     assertion(root);
@@ -209,7 +209,7 @@ async function observeOverlap(plan, jobs) {
       assert.throws(
         () => configuredValidationCommands(root),
         /unknown resource class for configured validate\.commands\[0\]: git-common-dir-ish/,
-        'lattice.config.json must not be able to register an unrecognised resource class',
+        'proof-or-stop.config.json must not be able to register an unrecognised resource class',
       );
       assertions++;
     });
@@ -229,7 +229,7 @@ async function observeOverlap(plan, jobs) {
   } finally {
     for (const root of roots) rmSync(root, { recursive: true, force: true });
   }
-  console.log('VI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class');
+  console.log('VI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG proof-or-stop.config.json cannot register an unrecognised resource class');
 }
 
 // ── 6. The real configured plan: every entry is classified ─────────────────
@@ -274,9 +274,9 @@ async function observeOverlap(plan, jobs) {
     ['npm --prefix packages/main run build',
       'rewrites packages/main/dist, the artifact every other node command in this plan executes'],
     ['node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js',
-      'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .lattice/activity.jsonl'],
+      'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
-      'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .lattice/activity.jsonl'],
+      'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/quorum-submit-smoke.js',
       'explicitly out of CHK-005 scope; splitting it is its own change'],
     ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',
@@ -290,7 +290,7 @@ async function observeOverlap(plan, jobs) {
     ['node packages/main/tests/red/red-1734-reader-race.mjs',
       'renames the repository packages/main/dist to dist.staging/dist.trash-* and takes the real build lock'],
     ['node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations',
-      'readOrCreatePrivateKey writes lattice-acceptance-rollout-verifier-v1.key into the git common dir with flag wx'],
+      'readOrCreatePrivateKey writes proof-or-stop-acceptance-rollout-verifier-v1.key into the git common dir with flag wx'],
   ]);
 
   const argvOf = (command) => [command.command, ...(command.args ?? [])].join(' ');

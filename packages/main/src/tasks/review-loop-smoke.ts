@@ -44,9 +44,9 @@ import { getGuardFailureReason } from '../core/machine.js';
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function makeRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-loop-smoke-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    storyDir: '.lattice/story/actives',
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-loop-smoke-'));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    storyDir: '.proof-or-stop/story/actives',
     storyPrefix: 'B',
   }));
   return root;
@@ -54,7 +54,7 @@ function makeRoot(): string {
 
 function makeStore(root: string, storyId: string): StoryStore {
   const store = new StoryStore(root);
-  const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
+  const storyDir = join(root, '.proof-or-stop', 'story', 'actives', storyId);
   mkdirSync(storyDir, { recursive: true });
   // Write minimal story so readStory does not throw during getGuardFailureReason.
   store.writeStory(storyId, {
@@ -346,7 +346,7 @@ console.log('\n[2] runReviewLoopGate gate behavior');
 
     test('gate fails closed when review loop records are unreadable', () => {
       const store = makeStore(root, 'B-corrupt');
-      writeFileSync(join(root, '.lattice', 'story', 'actives', 'B-corrupt', REVIEW_LOOP_FILENAME), '{bad json\n');
+      writeFileSync(join(root, '.proof-or-stop', 'story', 'actives', 'B-corrupt', REVIEW_LOOP_FILENAME), '{bad json\n');
       assert.throws(
         () => runReviewLoopGate('B-corrupt', store),
         /review_loop_record_error/,
@@ -414,7 +414,7 @@ console.log('\n[3] getGuardFailureReason TEST phase with open loop');
 
     test('returns fail-closed reason when review loop records are unreadable', () => {
       const store = makeStore(root, 'B-gfr-corrupt');
-      writeFileSync(join(root, '.lattice', 'story', 'actives', 'B-gfr-corrupt', REVIEW_LOOP_FILENAME), '{bad json\n');
+      writeFileSync(join(root, '.proof-or-stop', 'story', 'actives', 'B-gfr-corrupt', REVIEW_LOOP_FILENAME), '{bad json\n');
       const reason = getGuardFailureReason('B-gfr-corrupt', store, 'TEST', root);
       assert.ok(reason, 'should return a reason string');
       assert.match(reason!, /review_loop_record_error/);
@@ -488,7 +488,7 @@ test('review_loop_status JSON exposes active and latest fields', () => {
     // Mirror StoryStore.storyDirPath so resolution runs; with no worktree binding it falls
     // through to the metadata git root (resolutionSource !== story-worktree) and the cwd check
     // short-circuits, leaving the handler's own duplicate/rollback validation under test.
-    storyDirPath: (storyId: string) => join(process.cwd(), '.lattice', 'story', 'actives', storyId),
+    storyDirPath: (storyId: string) => join(process.cwd(), '.proof-or-stop', 'story', 'actives', storyId),
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   handlers.review_loop_start({
@@ -516,7 +516,7 @@ test('review_loop_start rejects duplicate explicit loopId', () => {
     // Mirror StoryStore.storyDirPath so resolution runs; with no worktree binding it falls
     // through to the metadata git root (resolutionSource !== story-worktree) and the cwd check
     // short-circuits, leaving the handler's own duplicate/rollback validation under test.
-    storyDirPath: (storyId: string) => join(process.cwd(), '.lattice', 'story', 'actives', storyId),
+    storyDirPath: (storyId: string) => join(process.cwd(), '.proof-or-stop', 'story', 'actives', storyId),
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   const args = {
@@ -545,7 +545,7 @@ test('review_loop_start rejects placeholder rollbackRef hashes', () => {
     // Mirror StoryStore.storyDirPath so resolution runs; with no worktree binding it falls
     // through to the metadata git root (resolutionSource !== story-worktree) and the cwd check
     // short-circuits, leaving the handler's own duplicate/rollback validation under test.
-    storyDirPath: (storyId: string) => join(process.cwd(), '.lattice', 'story', 'actives', storyId),
+    storyDirPath: (storyId: string) => join(process.cwd(), '.proof-or-stop', 'story', 'actives', storyId),
   };
   const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
   assert.throws(

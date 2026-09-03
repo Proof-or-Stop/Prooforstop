@@ -110,10 +110,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b8387-playbook-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -244,7 +244,7 @@ async function run(): Promise<void> {
   const savedEnv = { ...process.env };
   const savedCwd = process.cwd();
   const tmpRoots: string[] = [];
-  delete process.env.LATTICE_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
 
   try {
     // ─── LIFECYCLE: propose -> diff -> approve(correct digest) -> candidate ──────
@@ -479,17 +479,17 @@ async function run(): Promise<void> {
       assert.deepEqual(foreign, ['./finding.js'], 'the scanner must detect a planted foreign import');
     });
 
-    // ─── PERSISTENCE LOCATION: everything lives under .lattice/learning/ ─────────
-    check('persistence: proposals + playbooks live only under .lattice/learning/', () => {
+    // ─── PERSISTENCE LOCATION: everything lives under .proof-or-stop/learning/ ─────────
+    check('persistence: proposals + playbooks live only under .proof-or-stop/learning/', () => {
       const root = mkProject(); tmpRoots.push(root); process.chdir(root);
       const { ctx, store } = mkCtx(root);
       const h = createPlaybookHandlers(ctx);
       const storyId = 'B-loc'; const f = sampleFinding(storyId); seed(store, storyId, f);
       const pid = h.playbook_propose({ finding: f.id }).match(/proposal (\S+) staged/)![1];
-      assert.ok(existsSync(join(resolveProposalsDir(root), `${pid}.json`)), 'proposal under .lattice/learning/proposals/');
+      assert.ok(existsSync(join(resolveProposalsDir(root), `${pid}.json`)), 'proposal under .proof-or-stop/learning/proposals/');
       const digest = readProposal(root, pid)!.proposalDigest;
       h.playbook_approve({ proposalId: pid, expectedProposalDigest: digest });
-      assert.ok(existsSync(resolvePlaybooksPath(root)), 'playbooks.json under .lattice/learning/');
+      assert.ok(existsSync(resolvePlaybooksPath(root)), 'playbooks.json under .proof-or-stop/learning/');
       assert.ok(resolvePlaybooksPath(root).includes(LEARNING_DIR), `playbooks path is under ${LEARNING_DIR}/`);
     });
 

@@ -8,7 +8,7 @@ import { analyzeGap } from './gap-analyze.js';
 function findProjectRoot(): string {
   let dir = process.cwd();
   for (let i = 0; i < 8; i++) {
-    if (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'lattice.config.json'))) return dir;
+    if (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'proof-or-stop.config.json'))) return dir;
     const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
@@ -16,12 +16,12 @@ function findProjectRoot(): string {
 
   dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 8; i++) {
-    if (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'lattice.config.json'))) return dir;
+    if (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'proof-or-stop.config.json'))) return dir;
     const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
-  throw new Error('Could not locate proof-or-stop.config.json (or the deprecated lattice.config.json)');
+  throw new Error('Could not locate proof-or-stop.config.json (or the deprecated proof-or-stop.config.json)');
 }
 
 const root = findProjectRoot();

@@ -55,7 +55,7 @@ function run(
   try {
     return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_SESSION_ID: 'acceptance-topology-smoke', LATTICE_AGENT: agent },
+      env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'acceptance-topology-smoke', PROOF_OR_STOP_AGENT: agent },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -164,19 +164,19 @@ const schemaRoundTrip = verificationIntentSchema.parse(intent);
 assert.deepEqual(schemaRoundTrip, intent, 'valid planned declaration round-trips without changing stable IDs or semantics');
 assert.equal(verificationIntentSchema.parse({ happy: [{ id: 'LEGACY', desc: 'legacy', type: 'logic' }], edge: [], adversarial: [] }).happy[0].plannedPathDeclarations, undefined, 'legacy intent remains optional');
 assert.deepEqual(
-  acceptanceMatrixEvidenceProvenance({ kind: 'logic_test', command: `node bin/lattice.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
+  acceptanceMatrixEvidenceProvenance({ kind: 'logic_test', command: `node bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
   { kind: 'producer_command', producerCommand: 'acceptance_matrix' },
   'exact producer command token derives structured non-evidentiary provenance',
 );
 for (const command of [
   `proof-or-stop acceptance_matrix --storyId=${storyId}`,
-  `/usr/local/bin/lattice --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
-  `node bin/lattice.js acceptance_matrix --storyId=${storyId}`,
-  `/usr/bin/node ./bin/lattice.js --root=/tmp/proofbound acceptance_matrix --json`,
-  `node /Users/example/proofbound/bin/lattice.js --root /tmp/proofbound acceptance_matrix`,
-  `./bin/lattice.js acceptance_matrix --storyId=${storyId}`,
+  `/usr/local/bin/proof-or-stop --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
+  `node bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`,
+  `/usr/bin/node ./bin/proof-or-stop.js --root=/tmp/proofbound acceptance_matrix --json`,
+  `node /Users/example/proofbound/bin/proof-or-stop.js --root /tmp/proofbound acceptance_matrix`,
+  `./bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`,
 ]) {
-  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proof-or-Stop invocation is derived: ${command}`);
+  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `canonical Proof-or-Stop invocation is derived: ${command}`);
 }
 for (const command of [
   'rg acceptance_matrix packages/main/src/core/command-policy.ts',
@@ -184,7 +184,7 @@ for (const command of [
   'node cli-contract-test.mjs acceptance_matrix',
   'echo proof-or-stop acceptance_matrix',
   'proof-or-stop check acceptance_matrix',
-  'node bin/lattice.js help acceptance_matrix',
+  'node bin/proof-or-stop.js help acceptance_matrix',
 ]) {
   assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'independent assertion passed' }), false, `data/argument token is not producer provenance: ${command}`);
 }
@@ -227,9 +227,9 @@ for (const [label, changed] of [
   assert.notEqual(plannedPathDeclarationSnapshot(changedIntent), plannedPathDeclarationSnapshot(intent), `${label} mutation with stable IDs changes canonical declaration semantics`);
 }
 
-const handlerRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-handler-'));
+const handlerRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-topology-handler-'));
 try {
-  write(handlerRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }));
+  write(handlerRoot, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }));
   const store = new StoryStore(handlerRoot);
   store.writeStory(storyId, story());
   store.writeChecklist(storyId, checklist(false));
@@ -248,8 +248,8 @@ try {
   }), /planned_path_writer_not_authorized/);
   assert.equal(store.listStoryIds().filter(id => id !== storyId).length, 0, 'story_create rejection precedes partial Story persistence');
 
-  const savedAgent = process.env.LATTICE_AGENT;
-  process.env.LATTICE_AGENT = 'verification-intent';
+  const savedAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'verification-intent';
   try {
     const beforeInvalidRef = bytes();
     const mismatchIntent = {
@@ -261,7 +261,7 @@ try {
     checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: intent });
     assert.deepEqual(store.readChecklist(storyId).items[0].verificationIntent, intent, 'registered PLAN verification-intent flow persists declaration');
     const persistedBytes = bytes();
-    delete process.env.LATTICE_AGENT;
+    delete process.env.PROOF_OR_STOP_AGENT;
     assert.throws(
       () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: checklist(false).items[0].verificationIntent }),
       /planned_path_writer_not_authorized/,
@@ -278,7 +278,7 @@ try {
       'ordinary PLAN files update cannot retarget a declaration binding',
     );
     assert.equal(bytes(), persistedBytes, 'unauthorized file retarget is byte-atomic');
-    process.env.LATTICE_AGENT = 'verification-intent';
+    process.env.PROOF_OR_STOP_AGENT = 'verification-intent';
     const invalidFileCases: Array<[string, VerificationIntent, RegExp]> = [
       ['wrong item', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-002:files:create:0' } }] }] }, /planned_path_file_ref_wrong_item/],
       ['unsafe path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: '../producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
@@ -302,19 +302,19 @@ try {
     assert.throws(() => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: { ...intent, edge: [{ id: 'LATE', desc: 'late', type: 'logic' }] } }), /cannot be modified during the DEV phase/);
     assert.equal(bytes(), frozenBytes, 'post-PLAN mutation leaves frozen declaration bytes unchanged');
   } finally {
-    if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = savedAgent;
+    if (savedAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = savedAgent;
   }
 } finally {
   rmSync(handlerRoot, { recursive: true, force: true });
 }
 
-const writerCliRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-writer-cli-'));
+const writerCliRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-topology-writer-cli-'));
 try {
   git(writerCliRoot, ['init', '-b', 'main']);
   git(writerCliRoot, ['config', 'user.email', 'topology-writer@example.test']);
   git(writerCliRoot, ['config', 'user.name', 'Topology Writer Smoke']);
-  write(writerCliRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
+  write(writerCliRoot, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
   write(writerCliRoot, 'README.md', 'writer CLI smoke\n');
   resetConfigCache();
   const store = new StoryStore(writerCliRoot);
@@ -824,12 +824,12 @@ milestoneArgumentControl.items[0].verificationEvidence = [{
 const milestoneArgumentReport = buildMilestoneStatusReport({ story: story('DEV'), checklist: milestoneArgumentControl, milestoneLedger: matrixReplayLedger });
 assert.match(milestoneArgumentReport.milestones[0].statusDetail, /evidence=covered; requiredEvidence=covered/, 'milestone consumer accepts a non-producer search token');
 
-const cliRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-cli-'));
+const cliRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-topology-cli-'));
 try {
   git(cliRoot, ['init', '-b', 'main']);
   git(cliRoot, ['config', 'user.email', 'topology@example.test']);
   git(cliRoot, ['config', 'user.name', 'Topology Smoke']);
-  write(cliRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
+  write(cliRoot, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
   write(cliRoot, 'README.md', 'acceptance topology smoke\n');
   write(cliRoot, lifecycleFixtureFiles[0], 'export const lifecycleMachineFixture = true;\n');
   write(cliRoot, lifecycleFixtureFiles[1], 'export const lifecyclePhaseGateFixture = true;\n');

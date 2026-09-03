@@ -27,7 +27,7 @@
  *
  * Function-level + injectable: drives a synthetic in-memory StoryStore (only the
  * two methods the assess path reads — readStory + readFindings) so it runs
- * in-process without a real repo and without shelling out to the global lattice.
+ * in-process without a real repo and without shelling out to the global proofOrStop.
  */
 
 import { strict as assert } from 'node:assert';

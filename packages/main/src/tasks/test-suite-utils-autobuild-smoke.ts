@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 
 function findRepoRoot(start: string): string {
   let dir = start;
-  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) {
+  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'proof-or-stop.config.json')) && dir !== dirname(dir)) {
     dir = dirname(dir);
   }
   return dir;

@@ -27,7 +27,7 @@ sfh >= 1 ? ok('contract doc answers the storyFilesHash question') : fail('storyF
 
 // CHK-001 edge: EVERY migrated identity carries a verdict. Absence of any row is the failure.
 const IDENTS = ['bin/lattice.js', '.lattice/', '.lattice-codex/', 'lattice.config.json',
-  'lattice.json', '@lattice/core'];  // deprecated spellings this story retires (canonical: '@proof-or-stop/core')
+  'lattice.json', '@lattice/core'];  // deprecated spellings B-cc10 migrated; canonical package: '@proof-or-stop/core'
 const missing = IDENTS.filter((id) => !doc.includes(id));
 console.log(`identitiesWithoutRow=${missing.length}`);
 missing.length === 0

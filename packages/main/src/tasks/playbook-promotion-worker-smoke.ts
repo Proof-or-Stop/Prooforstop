@@ -3,7 +3,7 @@
  * B-6241 smoke: V1 playbook promotion worker loop (M3-M6 + M5.5 only).
  *
  * Runs in OS temp projects. It must not use the repository's live
- * `.lattice/learning` store and must not touch runtime-memory-index files.
+ * `.proof-or-stop/learning` store and must not touch runtime-memory-index files.
  */
 
 import assert from 'node:assert/strict';
@@ -75,10 +75,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b6241-playbook-promotion-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -211,7 +211,7 @@ function decisionFor(root: string, playbook: Playbook, action: PlaybookPromotion
 }
 
 function storySnapshot(root: string): string {
-  const dir = join(root, '.lattice', 'story');
+  const dir = join(root, '.proof-or-stop', 'story');
   if (!existsSync(dir)) return '<missing>';
   const rows: string[] = [];
   function walk(current: string): void {

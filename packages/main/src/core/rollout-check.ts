@@ -5,13 +5,12 @@ import { resolveAgentAssetResolution, summarizeAgentAssetResolution } from './ag
 import { runManagedAssetCheck, type ManagedAssetCheckResult, type ManagedAssetStatus } from './managed-assets.js';
 import { runRuntimeEnvironmentChecks, type RuntimeEnvironmentReport, type RuntimeFactStatus } from './runtime-environment-checks.js';
 import {
-  LATTICE_CLI_VERSION,
+  PROOF_OR_STOP_CLI_VERSION,
   PROOF_OR_STOP_PRODUCT_NAME,
   PROOF_OR_STOP_PRIMARY_BIN,
-  PROOF_OR_STOP_DEPRECATED_BIN,
   formatProofOrStopProductLine,
-} from './lattice-brand.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+} from './proof-or-stop-brand.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { CONFIG_FILENAMES } from './brand-paths.js';
 
 export type RolloutFormat = 'text' | 'json';
@@ -63,7 +62,7 @@ export interface RolloutCheckResult {
   schemaVersion: 'lattice.rollout_check.v1';
   product: {
     name: typeof PROOF_OR_STOP_PRODUCT_NAME;
-    version: typeof LATTICE_CLI_VERSION;
+    version: typeof PROOF_OR_STOP_CLI_VERSION;
     primaryBin: typeof PROOF_OR_STOP_PRIMARY_BIN;
   };
   readOnly: true;
@@ -99,7 +98,7 @@ const FORBIDDEN_ARGS = ['--apply', '--upgrade', '--repair', '--fix'] as const;
 
 const PRODUCT = {
   name: PROOF_OR_STOP_PRODUCT_NAME,
-  version: LATTICE_CLI_VERSION,
+  version: PROOF_OR_STOP_CLI_VERSION,
   primaryBin: PROOF_OR_STOP_PRIMARY_BIN,
 } as const;
 
@@ -161,13 +160,8 @@ function readPackageName(path: string): string | null {
   return typeof parsed?.name === 'string' ? parsed.name : null;
 }
 
-/**
- * B-cdf6 CHK-002: the bin map is now additive — `proof-or-stop` is canonical and
- * `lattice` is retained as a deprecated alias. Require the CANONICAL entry so a
- * package that only ships the deprecated alias is reported as needing a refresh,
- * while a package shipping both still passes.
- */
-function packageBinHasLattice(path: string): boolean {
+/** Require the sole canonical product bin. */
+function packageBinHasProofOrStop(path: string): boolean {
   const parsed = readJsonFile(path);
   const bin = parsed?.bin;
   return !!bin && typeof bin === 'object' &&
@@ -240,7 +234,7 @@ function looksLikeProject(dir: string): boolean {
     existsSync(join(dir, 'package.json')) ||
     existsSync(join(dir, 'AGENTS.md')) ||
     existsSync(join(dir, 'CLAUDE.md')) ||
-    existsSync(join(dir, 'LATTICE.md'));
+    existsSync(join(dir, 'PROOF_OR_STOP.md'));
 }
 
 function buildGitProbe(projectRoot: string): RolloutProjectGit {
@@ -298,31 +292,28 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const mainPackagePath = join(projectRoot, 'packages', 'main', 'package.json');
   const mainPackageVersion = readPackageVersion(mainPackagePath);
   const mainPackageName = readPackageName(mainPackagePath);
-  // B-cdf6 CHK-002: the canonical wrapper is bin/proof-or-stop.js; bin/lattice.js
-  // remains as a deprecated alias and is reported separately rather than gating.
-  const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_PRIMARY_BIN}.js`));
-  const hasDeprecatedWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_DEPRECATED_BIN}.js`));
-  const hasBinAliases = packageBinHasLattice(mainPackagePath);
-  // B-cc10 CHK-005: renamed @lattice/core -> @proof-or-stop/core. Accept both spellings.
+  const hasProofOrStopWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_PRIMARY_BIN}.js`));
+  const hasBinAliases = packageBinHasProofOrStop(mainPackagePath);
+  // B-cc10 CHK-005: renamed @proof-or-stop/core -> @proof-or-stop/core. Accept both spellings.
   // A miss here does NOT fail loudly: isSelfLayout=false short-circuits `ok` to true and
   // silently disarms the version-sync/wrapper check (the B-cdf6 regression class).
-  const isSelfLayout = mainPackageName === '@proof-or-stop/core' || mainPackageName === '@lattice/core';
+  const isSelfLayout = mainPackageName === '@proof-or-stop/core' || mainPackageName === '@proof-or-stop/core';
   const ok = isSelfLayout
-    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && hasBinAliases
+    ? rootPackageVersion === PROOF_OR_STOP_CLI_VERSION && mainPackageVersion === PROOF_OR_STOP_CLI_VERSION && hasProofOrStopWrapper && hasBinAliases
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; wrapper=${hasLatticeWrapper}; deprecatedAliasWrapper=${hasDeprecatedWrapper}; bin=${PROOF_OR_STOP_PRIMARY_BIN}:${hasBinAliases}`
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${PROOF_OR_STOP_CLI_VERSION}; wrapper=${hasProofOrStopWrapper}; bin=${PROOF_OR_STOP_PRIMARY_BIN}:${hasBinAliases}`
     : `external project; global ${formatProofOrStopProductLine()} can be used without a project-local JS wrapper`;
   return {
-    id: 'lattice_config_doctor',
+    id: 'proof_or_stop_config_doctor',
     label: `${PROOF_OR_STOP_PRODUCT_NAME} config doctor`,
     status,
-    command: `${PROOF_OR_STOP_PRIMARY_BIN} lattice_config_doctor --format=json`,
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} proof_or_stop_config_doctor --format=json`,
     executed: 'filesystem-probe',
     readOnly: true,
     detail,
-    ...(status === 'warn' ? { nextAction: `Refresh the local CLI package/wrappers, then rerun ${PROOF_OR_STOP_PRIMARY_BIN} lattice_config_doctor.` } : {}),
+    ...(status === 'warn' ? { nextAction: `Refresh the local CLI package/wrappers, then rerun ${PROOF_OR_STOP_PRIMARY_BIN} proof_or_stop_config_doctor.` } : {}),
   };
 }
 
@@ -396,13 +387,13 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
-  const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
+  const hasProofOrStopGuide = existsSync(join(projectRoot, 'PROOF_OR_STOP.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
   const hasStoryRoot = existsSync(join(projectRoot, PROOF_OR_STOP_DIR, 'story'));
-  const status: RolloutStatus = hasAgentGuide && hasLatticeGuide && hasStoryRoot ? 'pass' : 'warn';
+  const status: RolloutStatus = hasAgentGuide && hasProofOrStopGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
-    `LATTICE/CLAUDE guide=${hasLatticeGuide}`,
-    `.lattice/story=${hasStoryRoot}`,
+    `PROOF_OR_STOP/CLAUDE guide=${hasProofOrStopGuide}`,
+    `.proof-or-stop/story=${hasStoryRoot}`,
     `activeStories=${story.activeStoryCount}`,
   ];
   if (story.currentStoryId) parts.push(`current=${story.currentStoryId}:${story.currentPhase ?? 'unknown'}`);

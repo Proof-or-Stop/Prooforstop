@@ -1,6 +1,6 @@
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
-import { PROOF_OR_STOP_STORY_DIR_NAMES, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR_NAMES, LEGACY_DOCS_STORY_DIR } from './proof-or-stop-paths.js';
 
 const DEFAULT_STORY_METADATA_PREFIXES = [
   ...PROOF_OR_STOP_STORY_DIR_NAMES.map(dir => dir.replace(/\/actives$/, '') + '/'),

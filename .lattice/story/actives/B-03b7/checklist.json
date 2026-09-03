@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "RED: reproduce candidate-authority, identity, lineage, and recall failures",
+      "context": "Before implementation, create executable failing evidence showing raw detector signals crossing authority boundaries, repeated observations producing unstable or duplicate defects, historical corrections losing their predecessors, and recall/index queries missing or resurfacing invalid entries.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#92-story-2--finding-identity-and-historical-lineage"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Separate CandidateFinding signals from canonical defect authority",
+      "context": "Define CandidateFinding as non-authoritative detector output with detector provenance and normalized signal fields. Promotion to a canonical defect must be explicit, evidence-bound, deterministic, and unable to bypass later assessment or gate predicates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#92-story-2--finding-identity-and-historical-lineage"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement canonical defect identity and non-gate route receipts",
+      "context": "Create stable canonicalDefectId rules, bounded matching, collision isolation, and auditable routing receipts that remain non-authoritative until the applicability Story consumes them.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#92-story-2--finding-identity-and-historical-lineage"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement supersession chains and historical recall indexes",
+      "context": "Preserve immutable predecessor links, reject cycles or ambiguous forks, index current and historical observations, suppress superseded entries by default, and allow explicit lineage retrieval and correction audit.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#92-story-2--finding-identity-and-historical-lineage"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "GREEN: prove identity isolation, lineage correctness, and recall",
+      "context": "Turn every RED case GREEN and add adversarial collision, deterministic replay, concurrent promotion, CAS rejection, supersession-cycle, correction-chain, recall, migration, dependency-boundary, scorecard, and rollback verification.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#92-story-2--finding-identity-and-historical-lineage"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -188,7 +188,7 @@ async function main(): Promise<void> {
     assert.equal(u.outputTokens, 248, 'outputTokens = final');
     assert.equal(u.reasoningOutputTokens, 148, 'reasoningOutputTokens = final');
     assert.equal(a.originLabel, 'codex-exec', 'codex_exec originator → codex-exec label');
-    assert.equal(a.latticeCwd, true, 'worktree cwd → latticeCwd hint true');
+    assert.equal(a.proofOrStopCwd, true, 'worktree cwd → proofOrStopCwd hint true');
     assert.deepEqual(a.storyMentions, ['B-70e9', 'B-abcd'], 'B-70E9 and cwd B-70e9 dedupe to one; B-abcd added');
     assert.equal(a.parseErrors, 1, 'one malformed line counted, scan continued');
   });
@@ -498,17 +498,17 @@ async function main(): Promise<void> {
     // shouldWriteActivityLog reflects the same predicate: plain sweep writes no
     // activity row by default; a --out sweep is a write and IS logged. Save/restore
     // the readonly-record override so the assertion is deterministic regardless of env.
-    const prevOverride = process.env.LATTICE_ACTIVITY_RECORD_READONLY;
-    delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+    const prevOverride = process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
+    delete process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
     try {
       assert.equal(shouldWriteActivityLog('usage_sweep', {}), false, 'plain usage_sweep writes no activity log by default');
       assert.equal(shouldWriteActivityLog('usage_sweep', { out: 'reports/sweep.json' }), true, '--out usage_sweep writes an activity log (it is a write)');
       // The env override still forces a read-only activity row when explicitly requested.
-      process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
-      assert.equal(shouldWriteActivityLog('usage_sweep', {}), true, 'LATTICE_ACTIVITY_RECORD_READONLY=1 records read-only rows too');
+      process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY = '1';
+      assert.equal(shouldWriteActivityLog('usage_sweep', {}), true, 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 records read-only rows too');
     } finally {
-      if (prevOverride === undefined) delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
-      else process.env.LATTICE_ACTIVITY_RECORD_READONLY = prevOverride;
+      if (prevOverride === undefined) delete process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
+      else process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY = prevOverride;
     }
   });
 
@@ -516,7 +516,7 @@ async function main(): Promise<void> {
   // Third surface of the F-028 read-only contract (after hooks + activity log):
   // cli-engine's run() appended a codex process event to the STORY's
   // process-events.jsonl after EVERY successful command. Under
-  // LATTICE_ACTIVITY_SOURCE=codex with an inferred active story, a plain (no
+  // PROOF_OR_STOP_ACTIVITY_SOURCE=codex with an inferred active story, a plain (no
   // --out) usage_sweep therefore mutated story metadata against the zero-write
   // contract. This is the honest end-to-end (CLI-level) form the finding asks
   // for: drive the REAL built CLI against a fixture project on a `story/` branch
@@ -558,14 +558,14 @@ async function main(): Promise<void> {
     const eventsFile = join(fixtureStore.storyDirPath(storyId), 'process-events.jsonl');
     const readEvents = (): string | null => (existsSync(eventsFile) ? readFileSync(eventsFile, 'utf8') : null);
 
-    const childEnv: NodeJS.ProcessEnv = { ...process.env, LATTICE_ACTIVITY_SOURCE: 'codex', LATTICE_ACTIVITY_SESSION: 'f032-smoke' };
+    const childEnv: NodeJS.ProcessEnv = { ...process.env, PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', PROOF_OR_STOP_ACTIVITY_SESSION: 'f032-smoke' };
     // Neutralize env that could change the classification under the harness:
     // a read-only override would force an activity row, a reviewer-readonly flag
     // would refuse the --out write, and a stray project-root env is superseded
     // by --root anyway.
-    delete childEnv.LATTICE_ACTIVITY_RECORD_READONLY;
-    delete childEnv.LATTICE_REVIEWER_READONLY;
-    delete childEnv.LATTICE_PROJECT_ROOT;
+    delete childEnv.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
+    delete childEnv.PROOF_OR_STOP_REVIEWER_READONLY;
+    delete childEnv.PROOF_OR_STOP_PROJECT_ROOT;
     const runSweep = (extra: string[]): void => {
       execFileSync(process.execPath, [
         cli, '--root', fixtureRoot, 'usage_sweep', '--since=2026-07-01',

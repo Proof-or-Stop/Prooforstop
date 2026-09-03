@@ -1,0 +1,14 @@
+{
+  "name": "orphaned-commit-hash-citations",
+  "title": "Replace source comments that cite commit hashes orphaned by the history rewrite with stable story or item references",
+  "description": "On 2026-09-02 a harness-driven history rewrite (reflog entry strip attribution trailers) replaced every commit on main and on active story branches back to their common base with new hashes. Any source comment that cites a commit hash now points at a dangling object that git gc will eventually remove. Known instances found by the B-41c8 round-4 concept review: packages/main/src/handlers/story-query.ts:650 cites 288d359377 and packages/main/src/tasks/gitroot-cwd-contract-smoke.ts lines 74, 120, 233 and 352 cite d93b69b8f; neither is an ancestor of main. A repository-wide scan for 7-to-10 hex-digit tokens inside comments, checked with git merge-base --is-ancestor, will find the rest. Replace each with the story id and checklist item (B-xxxx CHK-nnn) or the commit subject, which survive rewrites, and add a residue check so new hash citations in comments are rejected.",
+  "type": "chore",
+  "priority": "low",
+  "keywords": [
+    "commit hash",
+    "comment",
+    "history rewrite",
+    "residue"
+  ],
+  "createdAt": "2026-09-02T17:00:53.035Z"
+}

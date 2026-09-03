@@ -16,7 +16,7 @@ export interface LabProjectConfig {
  * canonical-first ordering is what implements canonical-wins here, same as in the
  * core resolver.
  */
-const CONFIG_FILENAMES: readonly string[] = ['proof-or-stop.config.json', 'lattice.config.json'];
+const CONFIG_FILENAMES: readonly string[] = ['proof-or-stop.config.json', 'proof-or-stop.config.json'];
 
 export function loadLabProjectConfig(root: string): LabProjectConfig {
   const defaults: LabProjectConfig = {

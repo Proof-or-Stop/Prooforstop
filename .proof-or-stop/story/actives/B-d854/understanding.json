@@ -1,0 +1,26 @@
+{
+  "task": "Audit the root AGENTS.md against current Proof-or-Stop sources and translate the complete document into English.",
+  "outcome": "The root AGENTS.md is fully English, current operational guidance is corrected against repository-local authority, and reproducible RED/GREEN evidence proves the result.",
+  "facts": [
+    "The root AGENTS.md has 598 lines and contains 316 lines with Han characters before translation.",
+    "The repository-local CLI reports Proof-or-Stop 0.3.270, while the global proof-or-stop command currently resolves into another worktree and reports 0.3.271.",
+    "Current local CLI help rejects testintent_record and testintent_resume as unknown commands.",
+    "Current story_create requires a four-section background and creates a normal story in INIT.",
+    "docs/requirements/decisions/story-lifecycle.md is the authoritative current lifecycle source and requires INIT reviewers plus scope gates before INIT_CHECK."
+  ],
+  "constraints": [
+    "Only AGENTS.md may be materially edited.",
+    "Do not change code tokens, CLI identifiers, JSON keys, paths, or the normative meaning of still-current rules.",
+    "Preserve legacy material only when it is clearly identified as non-current compatibility background.",
+    "Use repository-local CLI/source as the version authority; report the global-runtime drift separately.",
+    "Do not directly edit story or fixture JSON.",
+    "Fix critical/high defects, security/data-integrity/destructive-compatibility risks, and any defect that blocks this Story acceptance, REVIEW, TEST, or DONE inside the current Story.",
+    "For medium/low non-blocking defects outside direct acceptance scope, record reproduction, evidence, impact, recommendation, and follow-up ownership before deferring; do not expand scope merely to make every signal green.",
+    "If later evidence upgrades a deferred defect or makes it an acceptance/lifecycle blocker, return it to the current Story immediately."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-09-01T23:55:00.866Z"
+}

@@ -34,7 +34,7 @@ import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readPr
 import { storyRuntimeLockPath } from './validation-execution-lock.js';
 import { acquireMkdirLock, withMkdirLock } from './mkdir-lock.js';
 import { loadConfig } from './config.js';
-import { LEGACY_DOCS_STORY_DIR, PROOF_OR_STOP_STORY_DIR_NAMES, uniqueRelPaths } from './lattice-paths.js';
+import { LEGACY_DOCS_STORY_DIR, PROOF_OR_STOP_STORY_DIR_NAMES, uniqueRelPaths } from './proof-or-stop-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 import type { PromptEnvelopeData } from './prompt-contracts.js';
 import {
@@ -89,7 +89,7 @@ export class StoryStore {
     // state-dir spelling, not just the older docs/ migration. PROOF_OR_STOP_STORY_DIR_NAMES
     // is the canonical read-side list (it already gates hash exclusion in
     // evidence-freshness.ts) but was never wired into discovery here, so a story
-    // directory merged in under the deprecated `.lattice/` spelling was invisible:
+    // directory merged in under the deprecated `.proof-or-stop/` spelling was invisible:
     // story_get returned {"story": null} at exit 0 while the files sat on disk.
     // Writes are unaffected — they still go only to the configured canonical dir.
     this.legacyBaseDirs = uniqueRelPaths([
@@ -107,7 +107,7 @@ export class StoryStore {
 
   /**
    * B-d877 R3 FIX B: resolve a per-story RUNTIME lock dir under the gitignored,
-   * shared `.lattice/locks/<category>/` prefix instead of inside the git-tracked
+   * shared `.proof-or-stop/locks/<category>/` prefix instead of inside the git-tracked
    * story metadata dir. Used by the checklist / finding / review-run / init-check
    * / prompt-envelope / process-event append locks so a transient `holder.json`
    * can never be committed inside the story dir and dirty the tree.
@@ -714,7 +714,7 @@ export class StoryStore {
     this.writeJson(storyId, 'test-runs.json', data);
   }
 
-  // ── Scope Check (B-d4d1: read scope-check.json written by lattice-review-scope-plan agent) ──
+  // ── Scope Check (B-d4d1: read scope-check.json written by proof-or-stop-review-scope-plan agent) ──
 
   readScopeCheck(storyId: string): ScopeCheckData | null {
     try {
@@ -742,8 +742,30 @@ export class StoryStore {
     this.writeJson(storyId, 'scope-check.json', data);
   }
 
-  // ── Init Check (B-e71f: read/write init-check.json written by lattice-review-story-init agent) ──
+  // ── Init Check (B-e71f: read/write init-check.json written by proof-or-stop-review-story-init agent) ──
 
+  /**
+   * UNVERIFIED read, BY DECISION (B-8df9 CHK-003) — returns whatever bytes are on disk,
+   * with the stored `_hash` NOT checked. Refusing to TRUST is not the same as refusing to
+   * READ, and this function deliberately does only the second-weakest of those:
+   *
+   *  - Verifying here is not even well-defined at this layer: the expected hash is a
+   *    function of the story's title / description / background.md / checklist / review
+   *    round, and the module that computes it (core/init-check-gate.ts) obtains all of
+   *    them THROUGH this store — `recomputeInitCheckHash` calls `readInitCheck` for the
+   *    persisted verdict it hashes, so a verifying read would recurse into its own verifier.
+   *  - Most callers are read-only surfaces — `story_get`, the INIT preflight report, the
+   *    session brief, the artifact-contract probe — and the gate's own tamper path is one
+   *    of them: it must hold the untrusted record in hand to be able to REPORT
+   *    `init_check_tampered` at all. Throwing here would make an unverifiable record
+   *    unreportable and would strand every historical file signed under an older domain.
+   *
+   * Consequently the trust boundary lives one layer up and is explicit: any caller that
+   * DECIDES on this record's contents (which reviewers are covered, which issues were
+   * raised, what gets carried into a re-signed file) must first pass it through
+   * `initCheckSignatureIsValid` / `initCheckHashMatches` in core/init-check-gate.ts.
+   * Rendering it is fine. Believing it is not.
+   */
   readInitCheck(storyId: string): InitCheckData | null {
     try {
       return this.readJson<InitCheckData>(storyId, 'init-check.json');
@@ -1347,7 +1369,7 @@ export class StoryStore {
   appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>) {
     const dir = this.storyDir(storyId);
     // B-d877 R3 FIX B: serialize the append on a RELOCATED lock under the
-    // gitignored shared `.lattice/locks/process-events/` prefix (not inside the
+    // gitignored shared `.proof-or-stop/locks/process-events/` prefix (not inside the
     // git-tracked story dir) so a transient holder.json can never be committed.
     return appendProcessEventFn(dir, event, this.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'));
   }

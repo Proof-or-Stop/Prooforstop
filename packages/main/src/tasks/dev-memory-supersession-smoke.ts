@@ -35,28 +35,28 @@ const globalFixtureEntries: DevMemoryEntry[] = [
   {
     id: 'globtx1',
     createdAt: '2026-06-30T00:00:00.000Z',
-    sourceAgent: 'lattice-smoke-global',
+    sourceAgent: 'proof-or-stop-smoke-global',
     category: 'workflow',
     scope: 'global',
     summary: 'Global host taxonomy stays available as advisory memory.',
     trigger: 'physical cleanup smoke fixture',
     lesson: 'Keep current Proof-or-Stop host taxonomy memory without retired brand references.',
     reusePrompt: 'Use current Proof-or-Stop host taxonomy memory as advisory context only.',
-    tags: ['proofbound', 'lattice', 'host-policy'],
+    tags: ['proofbound', 'proof-or-stop', 'host-policy'],
     gateEvidence: false,
     authority: 'non_authoritative',
   },
   {
     id: 'globst1',
     createdAt: '2026-06-30T00:00:01.000Z',
-    sourceAgent: 'lattice-smoke-global',
+    sourceAgent: 'proof-or-stop-smoke-global',
     category: 'tool-quirk',
     scope: 'global',
     summary: 'Global stale-doc lessons stay searchable as advisory memory.',
     trigger: 'physical cleanup smoke fixture',
-    lesson: 'Keep current Lattice stale-doc lessons available without retired brand references.',
-    reusePrompt: 'Use current Lattice stale-doc lessons as advisory context only.',
-    tags: ['proofbound', 'lattice', 'stale-doc'],
+    lesson: 'Keep current ProofOrStop stale-doc lessons available without retired brand references.',
+    reusePrompt: 'Use current ProofOrStop stale-doc lessons as advisory context only.',
+    tags: ['proofbound', 'proof-or-stop', 'stale-doc'],
     gateEvidence: false,
     authority: 'non_authoritative',
   },
@@ -104,21 +104,21 @@ function assertNonAuthoritative(label: string, entry: DevMemoryEntry): void {
 }
 
 function createGlobalMemoryFixture(): { dir: string; restore: () => void } {
-  const originalGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const originalGlobalMemoryDir = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
   const fixtureParent = originalGlobalMemoryDir || tmpdir();
   mkdirSync(fixtureParent, { recursive: true });
 
-  const dir = mkdtempSync(join(fixtureParent, 'lattice-global-memory-smoke-'));
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = dir;
+  const dir = mkdtempSync(join(fixtureParent, 'proof-or-stop-global-memory-smoke-'));
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = dir;
   writeEntries(resolveGlobalMemoryPath(), globalFixtureEntries);
 
   return {
     dir,
     restore: () => {
       if (originalGlobalMemoryDir === undefined) {
-        delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+        delete process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
       } else {
-        process.env.LATTICE_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
+        process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
       }
       rmSync(dir, { recursive: true, force: true });
     },
@@ -127,9 +127,9 @@ function createGlobalMemoryFixture(): { dir: string; restore: () => void } {
 
 function assertCurrentProjectMemory(entry: DevMemoryEntry): void {
   const guidance = [entry.summary, entry.trigger, entry.lesson, entry.reusePrompt].join(' ');
-  assert.match(guidance, /Proof-or-Stop|Lattice/, `${entry.id} should use current product names`);
+  assert.match(guidance, /Proof-or-Stop|ProofOrStop/, `${entry.id} should use current product names`);
   assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proof-or-Stop tags`);
-  assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
+  assert(entry.tags?.some(tag => tag === 'proof-or-stop' || tag.includes('proof-or-stop')), `${entry.id} should keep ProofOrStop tags`);
   assert(entry.tags?.some(tag => tag.startsWith('supersedes-')), `${entry.id} should keep supersession id context`);
   assertNonAuthoritative('project', entry);
 }
@@ -142,9 +142,9 @@ function assertHostPolicyMemory(entry: DevMemoryEntry): void {
 
 function assertCurrentGlobalMemory(entry: DevMemoryEntry): void {
   assert.equal(entry.scope, 'global', `${entry.id} should be a global memory row`);
-  assert.match(entryJson(entry), /Proof-or-Stop|Lattice/, `${entry.id} should use current product names`);
+  assert.match(entryJson(entry), /Proof-or-Stop|ProofOrStop/, `${entry.id} should use current product names`);
   assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proof-or-Stop tags`);
-  assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
+  assert(entry.tags?.some(tag => tag === 'proof-or-stop' || tag.includes('proof-or-stop')), `${entry.id} should keep ProofOrStop tags`);
   assertNonAuthoritative('global', entry);
 }
 
@@ -182,7 +182,7 @@ check('retired global rows are physically removed', () => {
   }
 });
 
-check('current Proof-or-Stop and Lattice project memories are preserved', () => {
+check('current Proof-or-Stop and ProofOrStop project memories are preserved', () => {
   assertEntriesPresent('project memory', projectEntries, projectCurrentIds);
   const projectById = entriesById(projectEntries);
   for (const id of projectCurrentIds) {
@@ -214,9 +214,9 @@ check('current global fixture memories are preserved', () => {
 
 check('current memory search still finds project guidance', () => {
   assertSearchFinds(projectEntries, 'Proof-or-Stop reviewer', ['34e97f9', 'ee3aef3']);
-  assertSearchFinds(projectEntries, 'Lattice delivery evidence', ['99aa6c7']);
+  assertSearchFinds(projectEntries, 'ProofOrStop delivery evidence', ['99aa6c7']);
   assertSearchFinds(projectEntries, 'Proof-or-Stop self-hosting CLI', ['148297b']);
-  assertSearchFinds(projectEntries, 'dev-memory preflight Lattice', ['7ffe281']);
+  assertSearchFinds(projectEntries, 'dev-memory preflight ProofOrStop', ['7ffe281']);
 });
 
 check('host policy search still finds preserved rows', () => {

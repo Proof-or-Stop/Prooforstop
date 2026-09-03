@@ -4,7 +4,7 @@
   "title": "Bind the INIT-check verdict into its signature so tampered coverage fails closed",
   "description": "The INIT_CHECK gate decides on agentResults and issues inside init-check.json, but signInitCheck does not take either as input, so hand-editing agentResults leaves _hash still valid and the gate accepts the tampered file with zero subsequent calls. readInitCheck also performs no _hash verification before the handler carries previous.agentResults forward. Prove the end-to-end behaviour by execution first, then cover the verdict fields with the signature and verify before trusting on read, choosing and arguing a migration position for a corpus in which roughly 30 percent of files carry an actor that is no longer registry-valid.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "init-check",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-07-27T22:11:10.313Z",
   "startedAt": "2026-07-27T22:11:10.313Z",
-  "endedAt": null,
+  "endedAt": "2026-08-19T18:54:33.603Z",
   "events": [
     {
       "phase": "INIT",
@@ -44,11 +44,172 @@
       "user": "Harmonygo",
       "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-27T22:21:17.679Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-01T13:52:47.242Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-03T04:20:08.235Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-03T04:20:08.235Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-03T04:27:32.508Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-03T04:28:05.903Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-03T04:28:05.903Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-03T04:28:18.305Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-03T04:28:18.305Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T16:53:48.395Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T16:53:53.247Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T16:57:33.941Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T17:25:16.913Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T17:25:22.275Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T17:46:49.851Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:28:48.075Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:28:53.184Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:46:50.103Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:54:33.603Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8df9-main-agent",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-8df9",
-    "branch": "story/B-8df9",
-    "createdAt": "2026-07-27T22:20:24.001Z"
-  }
+  "currentReviewRound": "2026-08-19T18:28:53.184Z"
 }

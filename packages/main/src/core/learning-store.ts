@@ -1,7 +1,7 @@
 /**
  * B-000c CHK-001: Experience Layer Phase 1a — the minimal learning-store.
  *
- * The ONLY code that touches `.lattice/learning/`. It ensures the directory,
+ * The ONLY code that touches `.proof-or-stop/learning/`. It ensures the directory,
  * resolves paths, and reads/writes the finding-signals cache with an atomic
  * write (temp file + rename) and a stable/canonical key order so re-writing
  * identical data is byte-identical (idempotent on disk; never a spurious diff).
@@ -17,8 +17,8 @@ import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
 // B-cc10 F-073 follow-up: import the state dir from the LEAF (./brand-paths.js), not from
-// ./lattice-paths.js. This module is held to a deliberate isolation bar — it may import only
-// leaf siblings, asserted by experience-layer-finding-signals-smoke.ts — and lattice-paths.ts
+// ./proof-or-stop-paths.js. This module is held to a deliberate isolation bar — it may import only
+// leaf siblings, asserted by experience-layer-finding-signals-smoke.ts — and proof-or-stop-paths.ts
 // is NOT a leaf (it imports ./brand-paths.js itself). PROOF_OR_STOP_DIR is just an alias of
 // PROOF_OR_STOP_STATE_DIR, so this is the same value with the bar preserved.
 import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
@@ -54,16 +54,16 @@ export const LEARNING_LOG_FILENAME = 'learning-log.jsonl';
 /**
  * B-4f46 CHK-003: signature-registry filename.
  *
- * This file lives under `.lattice/learning/`, which is already materialHash-EXCLUDED
+ * This file lives under `.proof-or-stop/learning/`, which is already materialHash-EXCLUDED
  * by the `experience-layer-learning-cache` runtime-artifact-registry entry
- * (it carries a `{ kind: 'prefix', value: '.lattice/learning/' }` matcher), so
+ * (it carries a `{ kind: 'prefix', value: '.proof-or-stop/learning/' }` matcher), so
  * writing it never makes evidence stale and never enters any gate's material hash.
  */
 export const SIGNATURE_REGISTRY_FILENAME = 'signature-registry.json';
 
 /**
  * B-8387 (Experience Layer Phase 2): approved-playbooks store filename. Lives
- * under `.lattice/learning/` (materialHash-EXCLUDED prefix — see the
+ * under `.proof-or-stop/learning/` (materialHash-EXCLUDED prefix — see the
  * SIGNATURE_REGISTRY_FILENAME note), so writing it never makes evidence stale.
  */
 export const PLAYBOOKS_FILENAME = 'playbooks.json';
@@ -83,7 +83,7 @@ export const PLAYBOOK_PROMOTION_HEALTH_FILENAME = 'playbook-promotion-health.jso
 export const PROPOSALS_DIRNAME = 'proposals';
 
 /**
- * Resolve the canonical MAIN-repo root that OWNS `.lattice/learning/`, even when
+ * Resolve the canonical MAIN-repo root that OWNS `.proof-or-stop/learning/`, even when
  * called from a linked git worktree.
  *
  * The Experience Layer's derived caches (finding-signals, signature-registry,
@@ -172,7 +172,7 @@ function resolveLearningRoot(searchOrigin: string): string {
   }
 }
 
-/** The repository root that owns the shared `.lattice/learning/` store. */
+/** The repository root that owns the shared `.proof-or-stop/learning/` store. */
 export function resolveLearningOwnerRoot(searchOrigin: string): string {
   return resolveLearningRoot(searchOrigin);
 }
@@ -180,7 +180,7 @@ export function resolveLearningOwnerRoot(searchOrigin: string): string {
 /**
  * Absolute learning directory under a project root. The root is first resolved to
  * the canonical main-repo root (see {@link resolveLearningRoot}) so a linked
- * worktree reaches the single shared `.lattice/learning/` cache. Every read and
+ * worktree reaches the single shared `.proof-or-stop/learning/` cache. Every read and
  * write path funnels through this one function, so they can never disagree.
  */
 export function resolveLearningDir(projectRoot: string): string {
@@ -222,7 +222,7 @@ export function resolvePlaybookPromotionHealthPath(projectRoot: string): string 
   return join(resolveLearningDir(projectRoot), PLAYBOOK_PROMOTION_HEALTH_FILENAME);
 }
 
-/** Absolute proposals directory (`.lattice/learning/proposals/`) under a root. */
+/** Absolute proposals directory (`.proof-or-stop/learning/proposals/`) under a root. */
 export function resolveProposalsDir(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), PROPOSALS_DIRNAME);
 }
@@ -242,7 +242,7 @@ export function resolveSignatureRegistryPath(projectRoot: string): string {
   return join(resolveLearningDir(projectRoot), SIGNATURE_REGISTRY_FILENAME);
 }
 
-/** Idempotently create `.lattice/learning/`. Returns the absolute directory. */
+/** Idempotently create `.proof-or-stop/learning/`. Returns the absolute directory. */
 export function ensureLearningDir(projectRoot: string): string {
   const dir = resolveLearningDir(projectRoot);
   mkdirSync(dir, { recursive: true });
@@ -344,7 +344,7 @@ const heldLearningStoreLocks = new Map<string, number>();
 
 /**
  * Dedicated learning-store serialization. It deliberately lives under
- * `.lattice/learning/` and does not acquire the lifecycle/main write lock.
+ * `.proof-or-stop/learning/` and does not acquire the lifecycle/main write lock.
  */
 export function withLearningStoreLock<T>(
   projectRoot: string,
@@ -391,7 +391,7 @@ export function withLearningStoreLock<T>(
 // ── B-4f46 CHK-003: Experience Layer Phase 1b — signature-registry ────────────
 //
 // A small, audit-only catalog of finding `signatureTag`s and their lifecycle
-// status. Lives under `.lattice/learning/` (materialHash-EXCLUDED — see
+// status. Lives under `.proof-or-stop/learning/` (materialHash-EXCLUDED — see
 // SIGNATURE_REGISTRY_FILENAME). NO gate reads it; it only catalogs/folds tags so
 // the Phase-1a finding-signals become more meaningful over time.
 
@@ -628,7 +628,7 @@ export function suggestNearActiveTag(projectRoot: string, tag: string): string |
 
 // ── B-8387 (Experience Layer Phase 2): playbooks + staged proposals ───────────
 //
-// Two file shapes under `.lattice/learning/`:
+// Two file shapes under `.proof-or-stop/learning/`:
 //   • playbooks.json — a flat array of approved Playbooks (status candidate+).
 //   • proposals/<id>.json — one staged PlaybookProposal per file.
 // Both use the same atomic writer (temp + post-write parse + rename) and
@@ -991,7 +991,7 @@ export function readPlaybookOutcomeEvents(projectRoot: string): PlaybookOutcomeE
   return out;
 }
 
-/** Append one validated, canonical JSONL outcome row under `.lattice/learning/`. */
+/** Append one validated, canonical JSONL outcome row under `.proof-or-stop/learning/`. */
 export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookOutcomeEvent): string {
   const validated = validatePlaybookOutcomeEvent(event);
   if (!validated.ok) throw new Error(`appendPlaybookOutcomeEvent: ${validated.error}`);

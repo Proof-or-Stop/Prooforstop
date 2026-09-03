@@ -1,0 +1,43 @@
+{
+  "storyId": "B-c86f",
+  "name": "dev-memory-records-count-as-material",
+  "title": "Classify committed dev-memory capture records as non-material so the DONE gate cannot invalidate its own evidence",
+  "description": "The DONE gate requires a dev_memory_finish_decision (missing_dev_memory_finish_decision blocks story_advance DONE) and the decision is expected to cite dev_memory_capture entries. Both write git-tracked files under .proof-or-stop/dev-memory/. RED (repro probe rp-mtk45qx1-nj8w3o, red-reviewed rr-mtk4a0j3-age5w9, script red-dev-memory-material.mjs driving the real handlers in a hermetic story branch) narrows the draft: step A committing only finish-decisions/<story>.json leaves materialHash and storyFilesHash unchanged (B-a7c5 F-005 already registers dev-memory/finish-decisions/ as materialHash exclude), but step B committing experience.jsonl written by dev_memory_capture moves BOTH hashes with no product source change, and isMaterialExcludedPath(.proof-or-stop/dev-memory/experience.jsonl) is false. On B-a745 that closeout commit (ddf9189cba) invalidated every reviewer pass envelope, every mechanical receipt, the 3x2 cross-host quorum, the DONE-required evidence and the certification window, forcing a TEST->DEV->REVIEW->TEST bounce. GREEN candidate proven on a scratch dist copy: widen the registry matcher from dev-memory/finish-decisions/ to the dev-memory root (records stay tracked, ignorePatterns stay empty); the script then exits 0 with both hashes byte-identical. Scope: make the whole dev-memory root non-material in core/runtime-artifact-registry.ts (derive the path via brand-paths, never a literal; keep the B-a7c5 rationale), reconcile with B-f6fb lesson survival if it lands first, commit the red script as packages/main/tests/red/red-dev-memory-material.mjs registered in proof-or-stop.config.json, and document the closeout ordering in the DONE convergence guidance.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-09-02T13:15:06.993Z",
+  "startedAt": "2026-09-02T13:15:06.993Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T13:15:07.777Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:13:30.756Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c86f",
+    "branch": "story/B-c86f",
+    "createdAt": "2026-09-02T15:13:27.860Z"
+  }
+}

@@ -46,11 +46,11 @@ import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
+const proofOrStopBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const cohortCaseMode = process.argv.includes('--rollout-cohort-case');
-const cohortArm = process.env.LATTICE_ROLLOUT_COHORT_ARM === 'candidate' ? 'candidate' : 'baseline';
-const cohortScenario = process.env.LATTICE_ROLLOUT_COHORT_SCENARIO ?? 'control';
-const storyId = process.env.LATTICE_ROLLOUT_COHORT_STORY_ID ?? 'B-pre-review-smoke';
+const cohortArm = process.env.PROOF_OR_STOP_ROLLOUT_COHORT_ARM === 'candidate' ? 'candidate' : 'baseline';
+const cohortScenario = process.env.PROOF_OR_STOP_ROLLOUT_COHORT_SCENARIO ?? 'control';
+const storyId = process.env.PROOF_OR_STOP_ROLLOUT_COHORT_STORY_ID ?? 'B-pre-review-smoke';
 const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
@@ -121,7 +121,7 @@ function isCanonicalRolloutSmokePass(output: string): boolean {
 function assertCanonicalRolloutSmokeTerminalContract(): void {
   assert.equal(isCanonicalRolloutSmokePass(`${CANONICAL_ROLLOUT_SMOKE_PASS}\n`), true,
     'focused rollout consumer must accept the exact canonical 58-assertion terminal line');
-  assert.equal(isCanonicalRolloutSmokePass(`LATTICE_FULL_SUITE_SUMMARY={"assertions":[]}\n${CANONICAL_ROLLOUT_SMOKE_PASS}\n`), true,
+  assert.equal(isCanonicalRolloutSmokePass(`PROOF_OR_STOP_FULL_SUITE_SUMMARY={"assertions":[]}\n${CANONICAL_ROLLOUT_SMOKE_PASS}\n`), true,
     'focused rollout consumer must accept the producer summary followed by the exact canonical terminal line');
   for (const rejectedOutput of [
     'ProofStory acceptance rollout smoke: PASS (57 assertions)',
@@ -155,7 +155,7 @@ if (criticDigestRenewalContractOnly) {
 
 if (scenarioMode) {
   const activeStoryId = activeScenarioStoryId;
-  if (!activeStoryId) throw new Error('--proof-scenarios requires --story=<id> or LATTICE_ACTIVE_STORY_ID');
+  if (!activeStoryId) throw new Error('--proof-scenarios requires --story=<id> or PROOF_OR_STOP_ACTIVE_STORY_ID');
   const activeContract = new StoryStore(repositoryRoot).readProofStoryContract(activeStoryId);
   if (!activeContract) throw new Error(`proof-scenarios contract missing for ${activeStoryId}`);
   for (const binding of activeContract.acceptanceBindings) {
@@ -203,6 +203,7 @@ function recordExecutedCase(unboundRecord: ExecutedCaseWithoutSourceRef): void {
 
 const rolloutPromptNames = [
   'proof-or-stop-implementer',
+
   'proof-or-stop-review-topology-critic',
   'proof-or-stop-review-concept',
   'proof-or-stop-review-quality',
@@ -500,20 +501,20 @@ function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohor
   if (cohort.schemaVersion !== 'proofstory.acceptance_rollout_cohort_input.v1'
     || cohort.generatedBy !== 'runProofStoryAcceptanceRolloutCohort'
     || cohort.runnerPath !== 'scripts/run-proofstory-acceptance-rollout-cohort.mjs') {
-    throw new Error('--cohort / LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE is not a registered cohort envelope');
+    throw new Error('--cohort / PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE is not a registered cohort envelope');
   }
   return cohort;
 }
 
 if (liveProofMode) {
-  const activeStoryId = activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID;
-  if (!activeStoryId) throw new Error('--live-proof requires --story=<id> or LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
+  const activeStoryId = activeStoryArgId || process.env.PROOF_OR_STOP_ACTIVE_STORY_ID;
+  if (!activeStoryId) throw new Error('--live-proof requires --story=<id> or PROOF_OR_STOP_ACTIVE_STORY_ID from live_smoke_transcript');
   const scenarioArgs = [fileURLToPath(import.meta.url), '--proof-scenarios'];
   if (cohortArgPath) scenarioArgs.push(`--cohort=${cohortArgPath}`);
   if (activeStoryArgId) scenarioArgs.push(`--story=${activeStoryArgId}`);
   const scenarioOutput = execFileSync(process.execPath, scenarioArgs, {
     cwd: repositoryRoot,
-    env: { ...process.env, LATTICE_PRE_REVIEW_SCENARIO_NESTED: '1' },
+    env: { ...process.env, PROOF_OR_STOP_PRE_REVIEW_SCENARIO_NESTED: '1' },
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
   });
@@ -550,7 +551,7 @@ function git(root: string, args: string[]): string {
  */
 function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'proof-or-stop-implementer', sessionTask = 'sess-pre-review-smoke'): string {
   try {
-    return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
+    return execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
       env: {
         ...process.env,
@@ -643,7 +644,7 @@ function scopeContract(): ScopeContractData {
 function scopeCheck(root: string): ScopeCheckData {
   const cwd = process.cwd(); process.chdir(root);
   try {
-    return { storyId, checkedAt: baseAt, reviewRound: '', agentId: 'lattice-review-scope-plan', issues: [], features: [], summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 }, _hash: signScopeCheck(storyId, baseAt, 0, 1, '') } as unknown as ScopeCheckData;
+    return { storyId, checkedAt: baseAt, reviewRound: '', agentId: 'proof-or-stop-review-scope-plan', issues: [], features: [], summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 }, _hash: signScopeCheck(storyId, baseAt, 0, 1, '') } as unknown as ScopeCheckData;
   } finally { process.chdir(cwd); }
 }
 function writeRegistration(root: string): void {
@@ -919,7 +920,7 @@ try {
     `${dir}/activity.jsonl`,
     `${dir}/locks/`,
   ]).join('\n') + '\n');
-  write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
@@ -952,7 +953,7 @@ try {
     const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
   }
-  write(root, `.lattice/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
+  write(root, `.proof-or-stop/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
   const directStoreBypass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(directStoreBypass.ok, false); assert.ok(directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'direct StoryStore/file writes have no canonical causal producer receipt');
   recordExecutedCase(['A-MUT-4', 'mutation', 'authority:direct-store-replay', 'authority-replay', 'direct StoryStore proof without causal receipt', 'PR_AUTHORITY_INADMISSIBLE', directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE') ? 'PR_AUTHORITY_INADMISSIBLE' : directStoreBypass.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
@@ -1353,15 +1354,15 @@ try {
     cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'production evidence writer refreshes current proof binding', nonMechanicalReason: 'production evidence rebind after config material change; not re-executed in this smoke fixture' }] });
     captureProof(fixtureProof);
   };
-  write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'enforce' } }));
-  git(root, ['add', 'lattice.config.json']); git(root, ['commit', '-m', 'enable flat enforce mode']); resetConfigCache();
+  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'enforce' } }));
+  git(root, ['add', 'proof-or-stop.config.json']); git(root, ['commit', '-m', 'enable flat enforce mode']); resetConfigCache();
   rebindEvidence(); cli(root, 'acceptance_basis_generate', { storyId, json: true });
   const enforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(enforce.blocking, true); assert.ok(enforce.codes.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'));
   recordExecutedCase(['A-MUT-15', 'mutation', 'critic:enforce-reattestation', 'critic-reattestation', 'enable enforce mode without a current independent critic receipt', 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED', enforce.codes.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED') ? 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED' : enforce.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   assert.throws(() => runPreReviewCheckGate(ctx, storyId), /executable pre-review gate blocked DEV admission/);
   if (!scenarioMode) {
-    cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
+    cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }, false, 'proof-or-stop-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
     cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
     const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.agentType === 'lattice-review-topology-critic').at(-1);
@@ -1389,8 +1390,8 @@ try {
     assert.match(runPreReviewCheckGate(restoredCtx, storyId), /mode=enforce; status=pass/);
   }
 
-  write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'warn' } }));
-  git(root, ['add', 'lattice.config.json']); git(root, ['commit', '-m', 'rollback flat mode to warn']); resetConfigCache();
+  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'warn' } }));
+  git(root, ['add', 'proof-or-stop.config.json']); git(root, ['commit', '-m', 'rollback flat mode to warn']); resetConfigCache();
   rebindEvidence(); cli(root, 'acceptance_basis_generate', { storyId, json: true });
   const warn = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(warn.blocking, false); assert.equal(warn.ok, true);
@@ -1569,7 +1570,7 @@ try {
       cwd: repositoryRoot,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, LATTICE_ROLLOUT_COHORT_INPUT_PATH: frozenCohortPath },
+      env: { ...process.env, PROOF_OR_STOP_ROLLOUT_COHORT_INPUT_PATH: frozenCohortPath },
     });
     const rolloutConsumerEvent = scenarioEvent('consumer-verified');
     assertCanonicalRolloutSmokeTerminalContract();

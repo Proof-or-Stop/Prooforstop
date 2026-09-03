@@ -42,10 +42,10 @@ function resolveSupportedAgentPath(baseDir, roleId) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-product-reviewer-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-product-reviewer-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',

@@ -28,11 +28,11 @@ function parseCliJson(text) {
 }
 
 function createTempProject(initialPrompt) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-lab-scoring-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-lab-scoring-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  mkdirSync(join(dir, '.lattice-codex', 'agents'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  mkdirSync(join(dir, '.proof-or-stop-codex', 'agents'), { recursive: true });
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -44,10 +44,10 @@ function createTempProject(initialPrompt) {
   }, null, 2));
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# temp project\n');
-  writeFileSync(join(dir, '.lattice-codex', 'agents', 'test-case-reviewer.md'), initialPrompt);
+  writeFileSync(join(dir, '.proof-or-stop-codex', 'agents', 'test-case-reviewer.md'), initialPrompt);
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proof-or-stop-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   run(dir, ['lab_create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
@@ -64,7 +64,7 @@ function readRunArtifacts(projectRoot) {
 }
 
 function rewritePrompt(projectRoot, prompt) {
-  writeFileSync(join(projectRoot, '.lattice-codex', 'agents', 'test-case-reviewer.md'), prompt);
+  writeFileSync(join(projectRoot, '.proof-or-stop-codex', 'agents', 'test-case-reviewer.md'), prompt);
 }
 
 const strongPrompt = [

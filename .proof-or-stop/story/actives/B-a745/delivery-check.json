@@ -1,0 +1,98 @@
+{
+  "storyId": "B-a745",
+  "checkedAt": "2026-09-02T11:56:25.569Z",
+  "headHash": "8ca1d99386cd05ddbdcd4b1633a3eb731cfa12d3",
+  "materialHash": "e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42",
+  "storyFilesHash": "d2a4873a428880673f096b74618a6b01841e270e651f11e77356d69b1a90d3ed",
+  "reviewRound": "2026-09-02T11:26:56.330Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "delivery-check.json (prior round, headHash 99aa4927391...) re-verification",
+      "promise": "No product code changed between the prior (now stale-bound) delivery check and this one: git diff <prior headHash>..HEAD --stat -- packages proof-or-stop.config.json package.json is empty, so the prior round's feature-level verification still describes the current code.",
+      "verifiedBy": "live re-execution",
+      "evidence": "Ran `git diff 99aa4927391fde3f4ef9ca61791dbc1aa5f5a0e7..HEAD --stat -- packages proof-or-stop.config.json package.json` myself: empty output. `git log 99aa4927391...HEAD --oneline` shows only 18 'proof-or-stop: record ... metadata' bookkeeping commits (validate/verification_run/review_pass_set/dev_memory/summary_set/delivery_check_set/certification_window_begin/done_required_validate/REVIEW/test-transition), none touching packages/ or config files. Also independently reproduced commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 live, byte-identical to every prior commit's pasted value, which is only possible if the command inventory truly did not change."
+    },
+    {
+      "docPath": "summary.json#limitations (CROSS-HOST QUORUM DISCLOSURE)",
+      "promise": "The gap flagged by the prior delivery check -- no durable record explaining why Codex is absent from the passing review-escalation quorum -- has been fixed: summary.json#limitations now contains a CROSS-HOST QUORUM DISCLOSURE paragraph pasting the Codex session-log line verbatim.",
+      "verifiedBy": "live re-execution",
+      "evidence": "Ran `summary_get` myself. limitations field now contains, verbatim: 'CROSS-HOST QUORUM DISCLOSURE: the DONE-gate quorum is claude-host-a plus agy-host-b (antigravity), 3 rounds x 2 hosts on the final material, not Codex. Codex ran four real cross-host rounds (B-a745-xhr-r1..r4): r1-r3 FAILED on earlier material and produced the fixed findings F-010, F-011, F-016, F-017, F-022, F-023; r4 on the final material recorded codex_review_abnormal_exit with exit code 1 and an empty stdout digest (e3b0c442...). The cause, pasted from the Codex session log rollout-2026-09-02T11-17-46-01a0619f-ef3f-7d00-9756-a44ae20ba6f6.jsonl: \"You've hit your usage limit. Visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Sep 7th, 2026 3:27 AM.\"' This is exactly the verbatim session-log paste the prior check's closingSelfCheck asked for. This part of the promise is DELIVERED and adequate as prose disclosure."
+    },
+    {
+      "docPath": "review_escalation_status (assuranceLevel: full-3x2 claim)",
+      "promise": "The spawn prompt asserted review_escalation_status now shows assuranceLevel: full-3x2 (claude + antigravity). This is checked independently, not accepted on the prompt's say-so.",
+      "verifiedBy": "live re-execution",
+      "evidence": "FALSE as of this live check. Ran `node packages/main/dist/cli.js review_escalation_status '{\"storyId\":\"B-a745\"}'` myself just now: it reports assuranceLevel: ordinary-review, ok: false, admissibilityStatus: local-review-incomplete, fullQuorum: 0/3 rounds x 2 hosts, and every one of the 8 quorum host-verdict files is listed as 'ignored ... materialDigest is stale'. Root cause, independently confirmed: the 6 passing quorum verdict files (B-a745-q-r1/r2/r3, files verdict-0c5e9783/12692a93/3f636054/7fd18e91/96c790e3-superseded/a9bfaf81/d6f3ad92) are all bound to materialDigest df3dc49244880182d6709c2017d7844138666fbad54f1831248b45057aa521d5 (issuedAt 2026-09-02T10:24:55Z), but the CURRENT materialHash after this round's metadata/bounce commits is e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42 -- confirmed identical across three independent live sources: review_escalation_status's own currentBinding, test-evidence.json's materialHash, and validation_plan's freshnessBinding. storyFilesHash also drifted (3da38ce9... -> d2a4873a...), which per this project's own drift-classification rule is the STRONG signal that story-owned material changed and review pass/quorum binding must be refreshed, not the benign 'materialHash-only, storyFilesHash-unchanged' case that can be downgraded to advisory. The 4 reviewer-lane re-passes this bounce produced (RP-021..RP-024, all at the current reviewRound 2026-09-02T11:26:56.330Z) satisfy the ordinary per-round reviewer gate, but they do NOT re-bind the separate cross-host quorum_submit verdicts, which remain stale. This promise is NOT currently true; the quorum must be re-submitted at the current material before DONE, or an explicit review_escalation_fallback_set must be recorded."
+    },
+    {
+      "docPath": "findings.json F-024..F-029",
+      "promise": "F-024/F-025 are a genuine fix of the --json/text render invariant, F-026 a dead-parameter cleanup, and F-028/F-029 are honestly logged as accepted_risk commit-message form defects (not falsely marked fixed) because rewriting commit history would invalidate every review-run/host-verdict binding on the branch.",
+      "verifiedBy": "diff/grep via finding_list",
+      "evidence": "Ran finding_list myself. F-024 (medium, missing) and F-025 (medium, adversarial) both show resolvedBy: 'B-a745:F-024@286a9b0' / 'B-a745:F-025@286a9b0', matching the commit message cited elsewhere in the record ('B-a745 GREEN: enforce the validation_plan status invariant at one render choke point'). F-026 (low, missing) shows resolvedBy 'B-a745:F-026@7e1f1c4', matching the dead-projectRoot-parameter commit. F-028 and F-029 both show resolutionType: accepted_risk (not fixed), status: resolved, evidenceState: verified, and their resolvedReason text explicitly states the true value was independently re-verified twice (commandSetDigest re-run live in-worktree) and explains why history was not rewritten. This matches the claim exactly; nothing here overclaims a code fix that did not happen."
+    },
+    {
+      "docPath": "story_draft_list (partial-hash-snapshot-treated-as-binding)",
+      "promise": "A third repository draft, partial-hash-snapshot-treated-as-binding, exists as the durable deferral artifact for the five other non-throwing-hash-snapshot consumers found by F-022.",
+      "verifiedBy": "live re-execution",
+      "evidence": "Ran `node packages/main/dist/cli.js story_draft_list` myself: output lists '- partial-hash-snapshot-treated-as-binding: Audit every consumer of the non-throwing evidence hash snapshot reader for partial snapshots treated as bindings' alongside the two drafts already verified in the prior delivery check (planner-worktree-overlay-seeds, reconcile-pin-resolution-rules-tiers-plan). Matches F-022's resolvedReason claim verbatim."
+    },
+    {
+      "docPath": "dev-memory finish decision (entries 06d4416, 90e7215)",
+      "promise": "A corrected dev-memory finish decision was recorded for this story, capturing two experience entries (06d4416, 90e7215).",
+      "verifiedBy": "diff/grep",
+      "evidence": "Read .proof-or-stop/dev-memory/finish-decisions/B-a745.json directly: decision: 'captured', capturedEntryIds: ['06d4416','90e7215'], recordedAt: 2026-09-02T11:26:51.025Z. Grepped .proof-or-stop/dev-memory/experience.jsonl for both ids: both entries exist with sourceStoryId B-a745, one an anti-pattern lesson about unverified durable-record claims, the other a tool-quirk lesson about the stale global CLI resolving into another worktree and the 300s idle watchdog. Both read as genuine, specific, non-generic lessons, not boilerplate."
+    },
+    {
+      "docPath": "scope-contract.json (dev-memory path acknowledgement)",
+      "promise": "A scope acknowledgement exists for the two dev-memory paths that expanded beyond plan.md's original Files sections.",
+      "verifiedBy": "diff/grep",
+      "evidence": "Read .proof-or-stop/story/actives/B-a745/scope-contract.json directly: an entry with assuranceLabel 'acknowledged-expansion', actor main-agent, paths ['.proof-or-stop/dev-memory/experience.jsonl','.proof-or-stop/dev-memory/finish-decisions/B-a745.json'], reason citing dev_memory_capture/dev_memory_finish_decision as framework-required lifecycle metadata rather than product source, bound to materialHash e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42 -- the CURRENT materialHash, confirmed fresh, not a stale leftover. NOTE (separate from this acknowledgement): `done_prepare` independently still lists both of these same paths as 'untrusted-lineage-path' refusal reasons for the DONE-required heavy-certification gate; scope-contract acknowledgement (a Files-scope concern) and certification lineage-trust (a provenance-trust concern for heavy cert) are two distinct gates and the former does not satisfy the latter."
+    },
+    {
+      "docPath": "validation_plan acceptance intent snapshot (repeat live re-execution)",
+      "promise": "node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast --explain and --json still literally reproduce requestedTier story-fast, effectiveTier repository-full, selected 121 of 121, finalAuthority: no, and freshnessBinding bound to the CURRENT material, not a stale one.",
+      "verifiedBy": "live re-execution",
+      "evidence": "Ran both --explain and --json myself just now. Text: 'requestedTier: story-fast (requested as \"fast\")', 'effectiveTier: repository-full', 'selected: 121 of 121 validation unit(s)', 'finalAuthority: no', 'freshnessBinding: bound (head 8ca1d99386cd05ddbdcd4b1633a3eb731cfa12d3, material e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42, storyFiles d2a4873a428880673f096b74618a6b01841e270e651f11e77356d69b1a90d3ed)'. --json: status='plan', requestedTier='story-fast', effectiveTier='repository-full', finalAuthority=false, freshnessBinding.status='bound' with the identical three hashes. commandSetDigest (eba363ed5cc493...) and selectionDigest (aeed68a65daa2f...) both reproduced. The materialHash matches test-evidence.json's materialHash exactly, so this is a genuinely current, not stale, binding."
+    },
+    {
+      "docPath": "test-evidence.json / done-required-evidence.json (current-material binding)",
+      "promise": "Both test-evidence.json and done-required-evidence.json are PASS and bound to the current material.",
+      "verifiedBy": "live re-execution + diff/grep",
+      "evidence": "PARTIALLY TRUE. test-evidence.json: status pass/allPass true, materialHash e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42 -- matches the current live materialHash exactly (confirmed via review_escalation_status and validation_plan above). This one IS current. done-required-evidence.json: status PASS but headHash 7d232cd7fcf0273dd8c74e3b50427772cb19e5ed / materialHash df3dc49244880182d6709c2017d7844138666fbad54f1831248b45057aa521d5 / storyFilesHash 3da38ce96624fc26ab219eaffb5010303cd934050c63c4742daf912c57160850 -- all THREE match the OLD (pre-bounce) material, not current. Ran `node packages/main/dist/cli.js done_prepare '{\"storyId\":\"B-a745\"}'` myself to confirm mechanically rather than by inspection alone: it reports 'DONE prepare: BLOCKED', reason [pre_cert_window_required], and the story's certification window B-a745:CW-002 transitioned from RUNNING to INVALIDATED with blockerDetail 'storyFilesHash changed' as a direct, live, mechanical side effect of that call (visible in `git diff .proof-or-stop/story/actives/B-a745/certification-window.json`). This half of the promise is NOT currently true: done-required-evidence.json is stale and must be refreshed via `proof-or-stop done_required_validate --storyId=B-a745` (which requires a fresh, non-invalidated certification window first) before another DONE attempt."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "No product code changed since the prior delivery check (confirmed via git diff, see docsPromises entry 1), so CHK-001's underlying test evidence (identity/commandSetDigest cases) is unchanged and remains valid; re-verified live: commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 reproduces byte-identical."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "No product code changed since the prior delivery check; the CHK-002:edge:0 permanent waiver and its two named fixtures were re-read directly and still exist verbatim in validation-tier-planner-smoke.ts as previously verified."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "No product code changed; verificationEvidence entries for CHK-003 are unchanged from the prior verified round."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "No product code changed; the fail-closed widening-matrix invariant (effectiveTier literal type) is unchanged, re-confirmed by validation_plan's live effectiveTier: repository-full output above."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "No product code changed; independently re-ran validation_plan --tier=fast (text and --json) live in this worktree this session -- output matches every claimed field, and freshnessBinding is now bound to the genuinely current material (see docsPromises entry above), which is a stronger check than the prior round could make since this round's material had actually moved."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "No product code changed; test-evidence.json (re-read this session) independently confirms a full `proof-or-stop validate` PASS at materialHash e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42, matching the current live materialHash exactly (fresher binding than the prior delivery check had). Verification intent coverage line inside it reads '34/34 covered (0 required missing)'."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "This is a re-verification, not a fresh review: git diff confirms zero product-code change since the prior (now stale-bound) delivery check, so the underlying CHK-001..CHK-006 feature delivery still holds and is re-confirmed live rather than copy-pasted. All four items this round's spawn prompt asked me to specifically check turned out mixed, not uniformly clean, which is exactly the closing-bias countermeasure this role exists for: (1) the CROSS-HOST QUORUM DISCLOSURE paragraph IS now present in summary.json and does paste the Codex quota line verbatim -- that specific gap from the prior check is fixed. (2) The prompt's claim that review_escalation_status now shows assuranceLevel: full-3x2 is FALSE as of this live check: the cross-host quorum verdicts (B-a745-q-r1/r2/r3) are bound to the pre-bounce materialHash and are now reported as stale by review_escalation_status itself (fullQuorum 0/3, assuranceLevel ordinary-review); only the four ordinary reviewer lanes (RP-021..RP-024) were re-bound to the current round, not the separate cross-host quorum. (3) F-024..F-029 are honestly recorded: two real fixes (F-024/F-025), one dead-code cleanup (F-026), and two accepted_risk commit-message form defects (F-028/F-029) that were correctly NOT force-fixed by rewriting immutable commit history, with the reasoning for that choice stated plainly rather than hidden. (4) done_prepare, re-run live by me, shows the story is currently BLOCKED for a different reason than delivery-check covers: the certification window (B-a745:CW-002) auto-invalidated (RUNNING -> INVALIDATED) the moment I probed it, because storyFilesHash drifted between the prior quorum submission and now, and done-required-evidence.json is correspondingly stale (bound to the old materialHash/headHash). With 29 findings (24 resolved, 5 dismissed, 0 open) and three TEST bounces, the record is unusually self-correcting rather than self-flattering (F-019/F-021/F-027/F-029 are each a reviewer or the story owner catching drift in their OWN prior correction, and F-028/F-029 explicitly refuse to overclaim a fix that would have cost more than it was worth) -- nothing in the summary's limitations or pitfalls prose reads as false against what I independently found. My one disagreement with the premise I was given: the story is NOT yet ready for a clean DONE attempt on this material. Before re-attempting DONE, the owner must (a) resubmit the cross-host quorum (quorum_submit or three fresh autopilot_review_submit rounds, or an explicit review_escalation_fallback_set) at the current materialHash e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42, and (b) re-run done_required_validate against a fresh, non-invalidated certification window. This delivery-check itself is accurate and current for the docs-promise/test-evidence scope it covers; it is not, by itself, sufficient signal that DONE will succeed on the next attempt."
+  },
+  "_hash": "2cb731c455e7da1d810301151f032ee683ef8e5e1f575832875671e8fa3888e0"
+}

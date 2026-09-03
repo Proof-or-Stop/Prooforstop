@@ -259,7 +259,7 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
 
 export function scan(scanRoot: string): TaskAnnotation[] {
   // 优先从 metadata store（task.json）读取，不再扫描源码
-  // 从 scanRoot 向上查找 lattice.config.json 确定项目根，再定位 docs/metadata/task.json
+  // 从 scanRoot 向上查找 proof-or-stop.config.json 确定项目根，再定位 docs/metadata/task.json
   let metadataPath = '';
   let searchDir = scanRoot;
   for (let i = 0; i < 10; i++) {

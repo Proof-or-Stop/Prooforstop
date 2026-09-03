@@ -93,16 +93,16 @@ function git(cwd: string, args: string[]): void {
 
 /** A fresh temp git repo whose config storyDir matches production (auto-commit safe). */
 function makeRoot(tag: string): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), `lattice-b7813-${tag}-`));
+  const root = mkdtempSync(join(tmpdir(), `proof-or-stop-b7813-${tag}-`));
   ROOTS.push(root);
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main', rootDir: 'src',
-      storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+      storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     }, null, 2),
   );
-  writeFileSync(join(root, '.gitignore'), '.lattice/tmp/\nnode_modules/\n');
+  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/tmp/\nnode_modules/\n');
   git(root, ['init', '-q', '-b', 'work']);
   git(root, ['config', 'user.email', 'smoke@noreply.local']);
   git(root, ['config', 'user.name', 'B7813 Smoke']);
@@ -448,9 +448,9 @@ const FROZEN_BUDGET_SPENT: BreakerState = {
 /** Run fn as if in an interactive human session (story_resume --ack gate). */
 function withInteractiveSession<T>(fn: () => T): T {
   const saved = {
-    CI: process.env.CI, AP: process.env.LATTICE_AUTOPILOT, NI: process.env.LATTICE_NON_INTERACTIVE,
+    CI: process.env.CI, AP: process.env.PROOF_OR_STOP_AUTOPILOT, NI: process.env.PROOF_OR_STOP_NON_INTERACTIVE,
   };
-  delete process.env.CI; delete process.env.LATTICE_AUTOPILOT; delete process.env.LATTICE_NON_INTERACTIVE;
+  delete process.env.CI; delete process.env.PROOF_OR_STOP_AUTOPILOT; delete process.env.PROOF_OR_STOP_NON_INTERACTIVE;
   const stdin = process.stdin as NodeJS.ReadStream & { isTTY?: boolean };
   const priorDesc = Object.getOwnPropertyDescriptor(stdin, 'isTTY');
   try {
@@ -460,8 +460,8 @@ function withInteractiveSession<T>(fn: () => T): T {
     if (priorDesc) Object.defineProperty(stdin, 'isTTY', priorDesc);
     else { try { delete (stdin as { isTTY?: boolean }).isTTY; } catch { (stdin as { isTTY?: boolean }).isTTY = undefined; } }
     if (saved.CI !== undefined) process.env.CI = saved.CI;
-    if (saved.AP !== undefined) process.env.LATTICE_AUTOPILOT = saved.AP;
-    if (saved.NI !== undefined) process.env.LATTICE_NON_INTERACTIVE = saved.NI;
+    if (saved.AP !== undefined) process.env.PROOF_OR_STOP_AUTOPILOT = saved.AP;
+    if (saved.NI !== undefined) process.env.PROOF_OR_STOP_NON_INTERACTIVE = saved.NI;
   }
 }
 
@@ -530,7 +530,7 @@ function partF(): void {
 // G. REAL CLI PHASE-GATE BOUNDARY (B-7813 F-001/F-002/F-003)
 // ════════════════════════════════════════════════════════════════════════════
 // dist/tasks/<this>.js -> dist/cli.js (the TS source ships alongside dist, so the
-// dist run resolves the built CLI entry the real `lattice` bin bootstraps into).
+// dist run resolves the built CLI entry the real `proof-or-stop` bin bootstraps into).
 const CLI_ENTRY = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 
 /** Run the REAL CLI in `root`; return merged stdout+stderr regardless of exit code. */

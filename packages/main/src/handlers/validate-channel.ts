@@ -41,7 +41,7 @@ export interface ChannelOffender {
 }
 
 export interface ChannelCheckResult {
-  provider: 'lattice-channel';
+  provider: 'proof-or-stop-channel';
   status: 'pass' | 'fail' | 'skipped';
   summary: string;
   details: string[];
@@ -192,8 +192,8 @@ function isImplementerAuthor(author: string): boolean {
 // "proof-or-stop: record B-cdf6 validate metadata" returned false while the old form
 // returned true. Both prefixes are accepted now — the deprecated one deliberately, so
 // pre-rename history keeps classifying correctly.
-export function isMetadataOnlyLatticeCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
-  return /^\s*(?:proof-or-stop|lattice):/.test(c.subject)
+export function isMetadataOnlyProofOrStopCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
+  return /^\s*(?:proof-or-stop|proofOrStop):/.test(c.subject)
     && Array.isArray(c.files)
     && c.files.length > 0
     && c.files.every(isStoryMetadataPath);
@@ -201,7 +201,7 @@ export function isMetadataOnlyLatticeCommit(c: Pick<ChannelOffender, 'subject' |
 
 export function isAcceptableCommit(c: ChannelOffender): boolean {
   if (isImplementerAuthor(c.author)) return true;
-  if (isMetadataOnlyLatticeCommit(c)) return true;
+  if (isMetadataOnlyProofOrStopCommit(c)) return true;
   return false;
 }
 
@@ -458,7 +458,7 @@ export function checkCommitAuthor(
   // story existence check
   if (!store.storyExists(storyId)) {
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'fail',
       summary: `story not found: ${storyId}`,
       details: [`${store.storyDirRel()}/${storyId}/index.json does not exist`],
@@ -470,7 +470,7 @@ export function checkCommitAuthor(
     story = store.readStory(storyId);
   } catch (e: any) {
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'fail',
       summary: `failed to read story: ${storyId}`,
       details: [String(e?.message ?? e)],
@@ -482,7 +482,7 @@ export function checkCommitAuthor(
     checklist = store.readChecklist(storyId);
   } catch (e: any) {
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'fail',
       summary: `failed to read checklist: ${storyId}`,
       details: [String(e?.message ?? e)],
@@ -500,7 +500,7 @@ export function checkCommitAuthor(
 
   if (!normal) {
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'skipped',
       summary: 'Non-normal channel does not check normal-channel dispatch/subagent evidence',
       details: [
@@ -517,7 +517,7 @@ export function checkCommitAuthor(
     raw = gitLogReader({ base, branch, projectRoot: gitCwd });
   } catch (e: any) {
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'fail',
       summary: `git log failed for ${base}..${branch}`,
       details: [String(e?.message ?? e)],
@@ -564,7 +564,7 @@ export function checkCommitAuthor(
   // but for back-compat (legacy test "no commits → pass"), skip the evidence check too when commits is 0.
   if (commits.length === 0) {
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'pass',
       summary: `no commits between ${base} and ${branch}`,
       details: [`Normal channel story=${storyId}, but no new commits in ${base}..${branch}`],
@@ -612,7 +612,7 @@ export function checkCommitAuthor(
           ? `Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal`
           : `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer (legacy lattice-implementer accepted) or metadata-only proof-or-stop/lattice CLI; dispatch/subagent_result evidence coverage complete`;
     return {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'pass',
       summary,
       details: [
@@ -653,7 +653,7 @@ export function checkCommitAuthor(
   }
 
   return {
-    provider: 'lattice-channel',
+    provider: 'proof-or-stop-channel',
     status: 'fail',
     summary: `Normal channel gate failure: ${summaryParts.join('; ')}`,
     details: failDetails,
@@ -684,7 +684,7 @@ export function runChannelGateCli(
 ): ChannelCliResult {
   if (!storyId || storyId.trim().length === 0) {
     const fail: ChannelCheckResult = {
-      provider: 'lattice-channel',
+      provider: 'proof-or-stop-channel',
       status: 'fail',
       summary: 'validate --channel requires the --story=B-xxx argument',
       details: ['Missing storyId: please use --story=<id> or --channel=<id>'],

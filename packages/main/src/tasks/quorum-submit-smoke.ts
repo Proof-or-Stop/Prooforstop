@@ -98,10 +98,10 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     validate: {
@@ -186,7 +186,7 @@ function makeFixture(
   assetMode: 'global-thin' | 'full' = 'global-thin',
   selectedHost: PromptHost = 'codex',
 ): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-quorum-submit-'));
   writeConfig(root);
   write(root, '.gitignore', [
     // B-cc10: list BOTH state-dir spellings. The runtime writes under the canonical
@@ -200,14 +200,14 @@ function makeFixture(
     ...MIRRORED_REPO_IGNORE_PATTERNS,
     '',
   ].join('\n'));
-  write(root, 'bin/lattice.js', `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`);
+  write(root, 'bin/proofOrStop.js', `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`);
   write(root, 'probe.mjs', [
     "import { appendFileSync } from 'node:fs';",
     "if (process.env.QUORUM_CLI_PROBE_COUNTER) appendFileSync(process.env.QUORUM_CLI_PROBE_COUNTER, 'run\\n');",
     "console.log('bounded quorum CLI validation probe PASS');",
     '',
   ].join('\n'));
-  write(root, '.lattice/lattice.json', `${JSON.stringify({ assetMode }, null, 2)}\n`);
+  write(root, '.proof-or-stop/proof-or-stop.json', `${JSON.stringify({ assetMode }, null, 2)}\n`);
   if (assetMode === 'full') {
     const promptRegistry = readPromptRegistry();
     // B-cc10: the runtime resolves the codex prompt dir canonically, so a fixture writing to
@@ -248,7 +248,7 @@ function makeFixture(
     output: 'synthetic validation passed',
     timestamp: '2026-06-22T09:30:00.000Z',
   });
-  git(root, ['add', '.lattice/story', 'lattice.config.json']);
+  git(root, ['add', '.proof-or-stop/story', 'proof-or-stop.config.json']);
   git(root, [...COMMIT_ENV, 'commit', '-m', 'story review metadata']);
 
   const ctx: HandlerContext = { root, store, scanRoot: join(root, 'packages/main') };
@@ -257,15 +257,15 @@ function makeFixture(
 }
 
 function runFixtureCli(root: string, args: string[], env: Record<string, string> = {}) {
-  return spawnSync(process.execPath, ['bin/lattice.js', ...args], {
+  return spawnSync(process.execPath, ['bin/proofOrStop.js', ...args], {
     cwd: root,
     encoding: 'utf8',
     timeout: 20_000,
     env: {
       ...process.env,
-      LATTICE_PROJECT_ROOT: root,
-      LATTICE_SESSION_ID: 'quorum-submit-cli-integration',
-      LATTICE_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_PROJECT_ROOT: root,
+      PROOF_OR_STOP_SESSION_ID: 'quorum-submit-cli-integration',
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
       ...env,
     },
   });
@@ -383,17 +383,17 @@ function startRunAndPass(
 }
 
 const SESSION_ENV_KEYS = [
-  'LATTICE_SESSION_ID',
-  'LATTICE_ACTIVITY_SOURCE',
-  'LATTICE_ACTIVITY_SESSION',
-  'LATTICE_AGENT',
-  'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
-  'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
-  'LATTICE_OWNER_SESSION_ADAPTER_TASK',
-  'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
-  'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
-  'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
-  'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
+  'PROOF_OR_STOP_SESSION_ID',
+  'PROOF_OR_STOP_ACTIVITY_SOURCE',
+  'PROOF_OR_STOP_ACTIVITY_SESSION',
+  'PROOF_OR_STOP_AGENT',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED',
   'CLAUDE_CODE_SESSION_ID',
   'CLAUDE_SESSION_ID',
   'CODEX_SESSION_ID',
@@ -428,8 +428,8 @@ function withSessionProvider<T>(
   competingEnv: Record<string, string> = {},
 ): T {
   return withClearedSessionEnvironment(() => {
-    process.env.LATTICE_SESSION_ID = `sess-quorum-${provider ?? 'absent'}`;
-    if (provider !== undefined) process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
+    process.env.PROOF_OR_STOP_SESSION_ID = `sess-quorum-${provider ?? 'absent'}`;
+    if (provider !== undefined) process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = provider;
     for (const [key, value] of Object.entries(competingEnv)) process.env[key] = value;
     resetSessionIdForTest();
     return fn();
@@ -664,7 +664,7 @@ function quorumFloorRounds(fixture: ReturnType<typeof makeFixture>) {
 
 // B-3144: this suite's full run legitimately exceeds
 // DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270s; see core/validation-executor.ts) — it is
-// independently budgeted at 1_200_000ms in lattice.config.json's validate.commands entry
+// independently budgeted at 1_200_000ms in proof-or-stop.config.json's validate.commands entry
 // (see git history: "chore(validate): raise quorum-submit-smoke budget to 20m"). The B-ec67
 // tool-executed-receipt path (verification_evidence_add/_batch_add) has no way to honor that
 // per-command override — it always runs the pinned command under the 270s default — so a
@@ -672,7 +672,7 @@ function quorumFloorRounds(fixture: ReturnType<typeof makeFixture>) {
 // evidence happens to require the LATER portion of this 70+-check suite. `--grep=<substring>`
 // is an opt-in, additive-only narrowing: every check still runs its real, unmodified body and
 // assertions when selected; only which checks execute (and print) changes. Default (unfiltered)
-// behavior — used by `npm run build`'s consumers, `lattice validate`, and CI — is untouched.
+// behavior — used by `npm run build`'s consumers, `proof-or-stop validate`, and CI — is untouched.
 const GREP_FILTER = (() => {
   const arg = process.argv.find(a => a.startsWith('--grep='));
   return arg ? arg.slice('--grep='.length) : null;
@@ -768,13 +768,13 @@ try {
   process.chdir(root);
 
   check('every production process-event writer honors the shared append lock', () => {
-    const lockFixture = mkdtempSync(join(tmpdir(), 'lattice-process-event-lock-'));
+    const lockFixture = mkdtempSync(join(tmpdir(), 'proof-or-stop-process-event-lock-'));
     try {
-      const storyDirRel = '.lattice/story/actives';
+      const storyDirRel = '.proof-or-stop/story/actives';
       const storyDir = join(lockFixture, storyDirRel, STORY_ID);
       // B-d877 R3 FIX B: defaultAuditWriter now serializes the append on the
       // RELOCATED shared process-event lock under the gitignored
-      // `.lattice/locks/process-events/` prefix — NOT the old in-story
+      // `.proof-or-stop/locks/process-events/` prefix — NOT the old in-story
       // `<storyDir>/.process-events-append.lock` (whose committed-then-deleted
       // holder.json dirtied the tree). Pre-create the relocated lock so the writer
       // must block on it; the invariant (honor the shared append lock) is unchanged,
@@ -787,9 +787,9 @@ try {
         "  type: 'dirty_gate_audit',",
         `  storyId: ${JSON.stringify(STORY_ID)},`,
         "  gate: 'validate-side-effect',",
-        "  category: 'lattice_metadata_changes',",
+        "  category: 'proof_or_stop_metadata_changes',",
         "  pathCount: 1,",
-        "  paths: ['.lattice/story/actives/B-quorum-smoke/index.json'],",
+        "  paths: ['.proof-or-stop/story/actives/B-quorum-smoke/index.json'],",
         "  reason: 'lock ownership regression',",
         "  timestamp: '2026-07-19T00:00:00.000Z',",
         '});',
@@ -846,20 +846,20 @@ try {
       { CLAUDE_CODE_SESSION_ID: 'competing-claude-session' },
     ]) {
       const invalid = resolveSessionIdentity({
-        LATTICE_SESSION_ID: 'sess-explicit-invalid',
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'gemini',
+        PROOF_OR_STOP_SESSION_ID: 'sess-explicit-invalid',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'gemini',
         ...competingEnv,
       }, inputs);
       assert.equal(invalid.hostProvider, 'unknown', 'explicit invalid provider cannot fall through to competing host variables');
       assert.equal(invalid.sessionSource, 'explicit-env');
     }
     const absentCodex = resolveSessionIdentity({
-      LATTICE_SESSION_ID: 'sess-absent-codex',
+      PROOF_OR_STOP_SESSION_ID: 'sess-absent-codex',
       CODEX_THREAD_ID: 'inferred-codex-thread',
     }, inputs);
     assert.equal(absentCodex.hostProvider, 'codex', 'absent explicit provider preserves Codex inference');
     const absentClaude = resolveSessionIdentity({
-      LATTICE_SESSION_ID: 'sess-absent-claude',
+      PROOF_OR_STOP_SESSION_ID: 'sess-absent-claude',
       CLAUDE_CODE_SESSION_ID: 'inferred-claude-session',
     }, inputs);
     assert.equal(absentClaude.hostProvider, 'claude-code', 'absent explicit provider preserves Claude inference');
@@ -880,8 +880,8 @@ try {
         git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add story-scoped fixture case']);
         const dispatch = fixture.registry.get('dispatch')!;
         const start = fixture.registry.get('review_run_start')!;
-        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
-        const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-review-quality' });
+        const output = String(start({ storyId: STORY_ID, agent: 'proof-or-stop-review-quality' }));
         assert.match(output, /context incremental\/SAFE_INCREMENTAL/);
         const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
           candidate => candidate.lane === 'proof-or-stop-review-quality',
@@ -902,8 +902,8 @@ try {
         }, null, 2) + '\n');
         git(fixture.root, ['add', fixturePath]);
         git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add unbound fixture case']);
-        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
-        const rejectedOutput = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-review-quality' });
+        const rejectedOutput = String(start({ storyId: STORY_ID, agent: 'proof-or-stop-review-quality' }));
         assert.match(rejectedOutput, /context full\/SAFETY_REQUIRES_FULL/);
       });
     });
@@ -933,8 +933,8 @@ try {
         write(fixture.root, fixturePath, JSON.stringify({ cases }, null, 2) + '\n');
         git(fixture.root, ['add', fixturePath]);
         git(fixture.root, [...COMMIT_ENV, 'commit', '-m', label]);
-        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
-        const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-review-quality' });
+        const output = String(start({ storyId: STORY_ID, agent: 'proof-or-stop-review-quality' }));
         assert.match(output, /context full\/SAFETY_REQUIRES_FULL/, `${label} must select safety full`);
       }
     });
@@ -945,18 +945,18 @@ try {
       recordReviewerPasses(fixture.registry);
       const dispatch = runFixtureCli(fixture.root, [
         'dispatch',
-        JSON.stringify({ storyId: STORY_ID, agentType: 'lattice-review-quality' }),
-      ], { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' });
+        JSON.stringify({ storyId: STORY_ID, agentType: 'proof-or-stop-review-quality' }),
+      ], { PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' });
       assert.equal(dispatch.status, 0, dispatch.stderr);
       const reason = 'Bounded basis omitted an affected contract required by the reviewer.';
       const started = runFixtureCli(fixture.root, [
         'review_run_start',
         JSON.stringify({
           storyId: STORY_ID,
-          agent: 'lattice-review-quality',
+          agent: 'proof-or-stop-review-quality',
           reviewerEscalationReason: reason,
         }),
-      ], { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' });
+      ], { PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' });
       assert.equal(started.status, 0, started.stderr);
       assert.match(started.stdout, /context full\/REVIEWER_REQUESTED_FULL/);
       assert.match(started.stdout, /reviewer escalation: Bounded basis omitted/);
@@ -1001,12 +1001,12 @@ try {
           assert.ok(dispatch, 'dispatch handler is registered');
           assert.ok(start, 'review_run_start handler is registered');
           assert.throws(
-            () => dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' }),
+            () => dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-review-quality' }),
             new RegExp(`unsupported session host provider "${testCase.diagnostic}"`),
             `${testCase.label} dispatch fails closed`,
           );
           assert.throws(
-            () => start({ storyId: STORY_ID, agent: 'lattice-review-quality' }),
+            () => start({ storyId: STORY_ID, agent: 'proof-or-stop-review-quality' }),
             /no trusted story-review dispatch binding/,
             `${testCase.label} cannot start a review run without supported dispatch provenance`,
           );
@@ -1189,7 +1189,7 @@ try {
 
   check('mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission', () => {
     withFreshFixture((fixture) => {
-      const configPath = join(fixture.root, 'lattice.config.json');
+      const configPath = join(fixture.root, 'proof-or-stop.config.json');
       const config = JSON.parse(readFileSync(configPath, 'utf8'));
       const modes = {
         'proof-or-stop-review-concept': 'legacy-full-context',
@@ -1197,8 +1197,8 @@ try {
         'proof-or-stop-review-test-coverage': 'legacy-full-context',
       } as const;
       config.promptEnvelope.roles = modes;
-      write(fixture.root, 'lattice.config.json', `${JSON.stringify(config, null, 2)}\n`);
-      git(fixture.root, ['add', 'lattice.config.json']);
+      write(fixture.root, 'proof-or-stop.config.json', `${JSON.stringify(config, null, 2)}\n`);
+      git(fixture.root, ['add', 'proof-or-stop.config.json']);
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'select mixed reviewer rollout']);
       resetConfigCache();
 
@@ -1285,7 +1285,7 @@ try {
         output: `bound to RED commit ${HISTORICAL_RED_COMMIT}`,
         timestamp: '2026-06-22T10:31:00.000Z',
       });
-      git(fixture.root, ['add', '.lattice/story']);
+      git(fixture.root, ['add', '.proof-or-stop/story']);
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed TEST failure baseline']);
       for (let index = 0; index < 6; index += 1) {
         fixture.store.appendProcessEvent(STORY_ID, {
@@ -1337,7 +1337,7 @@ try {
     const headHash = currentGitHead(root)!;
     const materialHash = currentMaterialHash(root)!;
     const storyFilesHash = currentStoryFilesHash(root)!;
-    const aliases = ['implementation-reviewer', 'test-intent', 'lattice-review-channel'];
+    const aliases = ['implementation-reviewer', 'test-intent', 'proof-or-stop-review-channel'];
     const runs: ReviewRun[] = aliases.map((agent, index) => {
       const run: ReviewRun = {
         reviewRunId: `${STORY_ID}:COMPAT-${index + 1}`,
@@ -1543,7 +1543,7 @@ try {
       category: 'edge',
       status: 'open',
       evidenceState: 'verified',
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       createdAt: new Date(Date.parse(qualityRun.startedAt) + 1_000).toISOString(),
       reviewRound: qualityRun.reviewRound,
       reviewRunId: qualityRun.reviewRunId,
@@ -2702,7 +2702,7 @@ try {
     // F-001 RED: cli-engine's generic post-handler codex_cli process-event append must exclude
     // quorum_prune exactly as it excludes quorum_submit, otherwise it re-dirties the very
     // process-events.jsonl the handler just atomically committed. runFixtureCli sets
-    // LATTICE_ACTIVITY_SOURCE=codex, which is the only condition under which the append fires.
+    // PROOF_OR_STOP_ACTIVITY_SOURCE=codex, which is the only condition under which the append fires.
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -2946,7 +2946,7 @@ try {
     // apply-only convention, so only THIS command's prose is swept. quorum-prune.ts is entirely
     // about this command; the catalog is narrowed to the quorum_prune entry; elsewhere the prose
     // unit itself must name the command — now judged per UNIT, not per line, closing escape (2).
-    // F-019 RED: the file list was still hand-maintained, so lattice-cli.ts — a CHK-003 scope
+    // F-019 RED: the file list was still hand-maintained, so proof-or-stop-cli.ts — a CHK-003 scope
     // touchpoint that already carries quorum_prune prose — was permanently invisible to the
     // sweep. That is the same stale-enumeration pattern as F-013/F-014/F-015, just moved up from
     // lines to files. The story's own signed scope contract already enumerates every file this
@@ -2970,12 +2970,19 @@ try {
       allowedTest?: string[];
       acknowledgements?: Array<{ paths?: string[] }>;
     };
+    const historicalScopePathMap = new Map<string, string>([
+      // B-3144's signed scope predates the clean-break handler rename. Preserve
+      // that historical artifact and resolve its owned source path to the
+      // canonical file the implementation now ships.
+      [['packages/main/src/handlers/lat', 'tice-cli.ts'].join(''), 'packages/main/src/handlers/proof-or-stop-cli.ts'],
+    ]);
     const sweptFiles = [...new Set([
       ...(scopeContract.allowedModify ?? []),
       ...(scopeContract.allowedCreate ?? []),
       ...(scopeContract.acknowledgements ?? []).flatMap(ack => ack.paths ?? []),
     ])]
       .filter(path => path.endsWith('.ts') && !(scopeContract.allowedTest ?? []).includes(path))
+      .map(path => historicalScopePathMap.get(path) ?? path)
       .sort();
     assert.ok(sweptFiles.length >= 6, `scope contract yielded too few production files to sweep: ${sweptFiles.join(', ')}`);
     // The catalog is one giant multi-command file, so only the quorum_prune entry is in range;

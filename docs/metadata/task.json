@@ -8,7 +8,7 @@
       "checklist": [
         "ADHOC-002"
       ],
-      "title": "lattice init 初始化命令",
+      "title": "proof-or-stop init 初始化命令",
       "type": "feature",
       "priority": "medium",
       "description": "在目标项目中初始化 lattice 开发框架：\n创建目录、生成 lattice.config.json、复制 skill、生成 CLAUDE.md 和 .mcp.json。",
@@ -48,7 +48,7 @@
       "title": "lattice CLI 统一入口",
       "type": "feature",
       "priority": "high",
-      "description": "统一 CLI 入口：lattice init / lattice test / lattice lint / lattice serve",
+      "description": "统一 CLI 入口：proof-or-stop init / proof-or-stop test / proof-or-stop lint / proof-or-stop serve",
       "changes": [
         "- [ADHOC-003] 新增 cli.ts",
         "/"

@@ -193,7 +193,7 @@ function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
     if (arg === '<prompt>') return prompt;
     if (arg === '<prompt-file>') {
       if (!promptFile) {
-        promptDir = mkdtempSync(join(tmpdir(), 'lattice-host-readiness-'));
+        promptDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-host-readiness-'));
         promptFile = join(promptDir, 'prompt.txt');
         writeFileSync(promptFile, prompt, { encoding: 'utf8', mode: 0o600 });
       }

@@ -201,7 +201,7 @@
       {
         "type": "missing_decision",
         "severity": "blocker",
-        "message": "高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: lattice decision_set '{...}'"
+        "message": "高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: proof-or-stop decision_set '{...}'"
       },
       {
         "type": "weak_outcome_transcript",
@@ -239,7 +239,7 @@
     },
     "truthDocsCount": 1,
     "_hint": "第 1 轮审查发现 2 个 blocker，请修复后再次 story_review",
-    "_reviewPrompt": "请审查以下 story 的 PLAN 阶段产物。重点检查:\n  1. understanding 是否真切（unknowns 是否被 facts 自相矛盾，touchpoints 是否真实）\n  2. decision 是否选择合理（为什么不选其他 option，rationale 是否呼应 drivers）\n  3. testIntent 是否覆盖 description + truth docs 中的所有场景\n  4. preMortem 是否列出了真实的失败模式（不是凑数）\n\n---\nStory: Real output story\nDescription: Verify real structured story_review output for gate/risk.\nPriority: high (riskSignals: 状态机/门禁)\n---\nUnderstanding Snapshot:\ntask: verify story review output\noutcome: > lattice story_review\n{ actionSummary, reviewPromptSummary }\nfacts:\n  - fact\nconstraints:\n  - constraint\nunknowns:\n  (none)\ntouchpoints:\n  - packages/main/src/handlers/story-review.ts\n---\nDecision: (not provided)\n---\nChecklist + TestIntent:\n- CHK-001: Implement gate output\n  (无 testIntent)\n---\nTruth Source (1 篇):\n# Truth\n\nUse structured review output.\n"
+    "_reviewPrompt": "请审查以下 story 的 PLAN 阶段产物。重点检查:\n  1. understanding 是否真切（unknowns 是否被 facts 自相矛盾，touchpoints 是否真实）\n  2. decision 是否选择合理（为什么不选其他 option，rationale 是否呼应 drivers）\n  3. testIntent 是否覆盖 description + truth docs 中的所有场景\n  4. preMortem 是否列出了真实的失败模式（不是凑数）\n\n---\nStory: Real output story\nDescription: Verify real structured story_review output for gate/risk.\nPriority: high (riskSignals: 状态机/门禁)\n---\nUnderstanding Snapshot:\ntask: verify story review output\noutcome: > proof-or-stop story_review\n{ actionSummary, reviewPromptSummary }\nfacts:\n  - fact\nconstraints:\n  - constraint\nunknowns:\n  (none)\ntouchpoints:\n  - packages/main/src/handlers/story-review.ts\n---\nDecision: (not provided)\n---\nChecklist + TestIntent:\n- CHK-001: Implement gate output\n  (无 testIntent)\n---\nTruth Source (1 篇):\n# Truth\n\nUse structured review output.\n"
   },
   "patchPreview": [
     "diff --git a/samples/story-review-output.json b/samples/story-review-output.json",
@@ -290,7 +290,7 @@
     "+    {",
     "+      \"type\": \"missing_decision\",",
     "+      \"severity\": \"blocker\",",
-    "+      \"message\": \"高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: lattice decision_set '{...}'\"",
+    "+      \"message\": \"高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: proof-or-stop decision_set '{...}'\"",
     "+    },",
     "     {",
     "-      \"timestamp\": \"2026-04-19T01:19:42.674Z\",",

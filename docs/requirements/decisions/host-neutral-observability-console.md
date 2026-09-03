@@ -44,10 +44,10 @@ Each row of the table below anchors to **code or a CLI that already exists** in 
 
 ```
 backing store (for understanding only, the adapter is forbidden to read it directly)
-├── Story store          .lattice/story/actives/B-xxx/{index.json, checklist.json,
+├── Story store          .proof-or-stop/story/actives/B-xxx/{index.json, checklist.json,
 │                          process-events.jsonl, delivery-check.json, test-evidence.json}
 ├── Worktree on-site      .worktrees/B-xxx/  + authority:{main|worktree} + mirror:{phase}
-└── Global heartbeat      .lattice/activity.jsonl / docs/story/activity.jsonl
+└── Global heartbeat      .proof-or-stop/activity.jsonl / docs/story/activity.jsonl
 
 The only authoritative way to read ── CLI L0 projection (the adapter consumes only this layer's --format=json)
     ├── session_brief / status              → ⚠ currently 【only returns Markdown, no --format=json】, see §2.1(0)
@@ -109,7 +109,7 @@ The adapter / dashboard / smoke can treat the following assumptions as a hard co
 | Analytics | **Capability & Authority Analytics** | token/cost → capability coverage / tier drift / productionDone-gap trend | `host_probe` + historical export |
 | Claude Config | **Host Registry / Conduit** | browsing the Claude config → the host adapter registry + conduit + rollout inspection | `host_list` / `conduit_status` / `rollout_check` |
 | Run Claude | **Dispatch Console** | running Claude → generating a task package for an overflow host (needs runner confirm, spawned=false) | `parallel_dispatch` (`requiresRunnerConfirmation=true`) |
-| Settings | **Authority Boundary & Pricing** | pricing → read-only display of the authority-boundary switch + pricing | `lattice_config_doctor` |
+| Settings | **Authority Boundary & Pricing** | pricing → read-only display of the authority-boundary switch + pricing | `proof_or_stop_config_doctor` |
 
 **New page**: **Recovery Console** (no reference-picture counterpart) — aggregates all `recoveryPoints` + `recoveryGuidance`, and gives a one-click resume path of `cd .worktrees/B-xxx` / re-running `story_export`.
 

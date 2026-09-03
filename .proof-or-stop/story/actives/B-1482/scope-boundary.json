@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1482",
+  "mode": "feature",
+  "allowed": [
+    "A decision record with at least three pre-mortems and the corresponding update to the Verification Intent / Evidence section of CLAUDE.md",
+    "Add a narrowing-only re-pin path in the evidence-add handler and the evidence-pin seatbelt hook source that accepts a new selector only when it is provably stricter than the pinned one, keeps both pins and both receipts visible, and records a reason",
+    "Fixing any critical or high defect discovered during this story, and any defect that blocks this story acceptance, REVIEW, TEST or DONE",
+    "Persist the selector text and command-tuple digest on every VerificationExecutionReceipt and expose them through checklist_get",
+    "RED-first fixtures for every behaviour above, including the exact B-a745 CHK-005:happy:0 case, registered in the canonical inventories",
+    "Refuse any loosening re-pin and any selector present in both a passing and a failing render of the pinned command as vacuous"
+  ],
+  "excluded": [
+    "Any replacement or deletion of an existing receipt; supersession must keep the prior receipt visible",
+    "Relaxing pin immutability for commands (only the selector may be narrowed; the pinned command stays immutable)",
+    "Retroactively rewriting receipts on stories other than the one being edited",
+    "The test-and-guard-credibility items and the single-owner extraction items, owned by their own stories"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User message 2026-09-02 accepted the grouping of deferred defects into stories; the INIT reviewer of the test-and-guard-credibility draft recommended that the evidence re-pin item be its own story because it changes an anti-evidence-shopping control, and the main agent split it out as this story. Its single-item nature is deliberate: narrowing must be the only allowed direction.",
+  "createdAt": "2026-09-02T13:36:12.880Z",
+  "updatedAt": "2026-09-02T13:36:12.880Z",
+  "_hash": "734b931e0a1c94036e65f4a8b410c20df70889188113f60e46d727c353828bd3"
+}

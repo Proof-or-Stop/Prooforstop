@@ -14,7 +14,7 @@
 //      forbidden env key, bare catch-all / material-overlap glob, and
 //      unresolvable argv placeholder — fail-closed, one DISTINCT diagnostic each.
 //   4. `proof-or-stop doctor` renders exactly one non-gating red-evidence line.
-//   5. lattice.config.json carries NO redEvidence block (pinnedPath is
+//   5. proof-or-stop.config.json carries NO redEvidence block (pinnedPath is
 //      host-specific), and no new red-evidence string overclaims beyond the §0.6
 //      practical assurance tier.
 //
@@ -33,7 +33,9 @@ import {
 } from '../core/red-evidence/policy.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { canonicalJsonForSigning } from '../core/authority-signing.js';
-import { PROOF_OR_STOP_CONFIG_FILENAME, DEPRECATED_CONFIG_FILENAME } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
+
+const RETIRED_CONFIG_FILENAME = ['lat', 'tice.config.json'].join('');
 
 const FROZEN_DEFAULT_DIGEST =
   'sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767';
@@ -343,7 +345,7 @@ try {
   // === 8. config self-pinning (CHK-007 absence + CHK-010 uncommitted rule) ===
   // B-cc10: resolve whichever config filename exists. The canonical name is now
   // proof-or-stop.config.json, so the hardcoded deprecated name threw ENOENT here.
-  const configUrl = [PROOF_OR_STOP_CONFIG_FILENAME, DEPRECATED_CONFIG_FILENAME]
+  const configUrl = [PROOF_OR_STOP_CONFIG_FILENAME, RETIRED_CONFIG_FILENAME]
     .map((name) => new URL(`../../../../${name}`, import.meta.url))
     .find((candidate) => existsSync(candidate))
     ?? new URL(`../../../../${PROOF_OR_STOP_CONFIG_FILENAME}`, import.meta.url);

@@ -473,8 +473,8 @@ for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-
 }
 assert.equal(resolveAgentDispatchType('product-reviewer').entry.allowedPhases[0], 'INIT');
 assert.throws(
-  () => resolveAgentDispatchType('lattice-review-channel'),
-  /retired agentType "lattice-review-channel"/,
+  () => resolveAgentDispatchType('proof-or-stop-review-channel'),
+  /retired agentType "proof-or-stop-review-channel"/,
   'retired prompt remains readable in the prompt registry but cannot be newly dispatched',
 );
 assert.equal(AGENT_DISPATCH_REGISTRY.some(entry => String(entry.canonicalName) === 'implementation-reviewer'), false);

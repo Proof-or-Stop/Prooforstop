@@ -56,10 +56,10 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     lifecycleControl: { runtimeEnforcement: 'warn' },
@@ -102,13 +102,13 @@ function checklist(): ChecklistData {
 }
 
 function createFixture(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lifecycle-control-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lifecycle-control-'));
   writeConfig(root);
   write(root, 'README.md', '# lifecycle control smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const value = true;\n');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);

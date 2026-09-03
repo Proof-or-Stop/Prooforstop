@@ -565,7 +565,7 @@ function expectBlock(
       requestedAt: '2026-07-19T00:00:00.000Z',
       freshnessDeadline: '2026-07-19T01:00:00.000Z',
     }),
-    /unsupported DONE-required CommandSpec schema lattice\.command-spec\.v3/,
+    /unsupported DONE-required CommandSpec schema proofOrStop\.command-spec\.v3/,
   );
   assert.throws(
     () => projectDoneRequiredReceiptToEnvironment({
@@ -580,7 +580,7 @@ function expectBlock(
       requestedAt: '2026-07-19T00:00:00.000Z',
       freshnessDeadline: '2026-07-19T01:00:00.000Z',
     }),
-    /current lattice\.command-spec\.v2; legacy lattice\.command-spec\.v1 accepted/,
+    /current proofOrStop\.command-spec\.v2; legacy proofOrStop\.command-spec\.v1 accepted/,
   );
   console.log('code-runtime execute-local receipt projection: PASS');
 }

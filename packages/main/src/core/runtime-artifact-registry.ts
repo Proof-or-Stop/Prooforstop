@@ -3,17 +3,17 @@
  * state" (materialHash exclusion, volatility, gitignore patterns, repairability).
  *
  * B-cc10 CHK-007: every state-directory path below is DERIVED from
- * `core/brand-paths.ts` instead of spelling `.lattice/` literally, and each
+ * `core/brand-paths.ts` instead of spelling `.proof-or-stop/` literally, and each
  * derivation expands to BOTH accepted spellings.
  *
  * WHY THIS IS A CORRECTNESS FIX, NOT A COSMETIC ONE
  * -------------------------------------------------
  * `listRuntimeArtifactIgnorePatterns()` is what generates the managed
- * `# lattice runtime artifacts (managed)` block in `.gitignore`. While every
+ * `# proof-or-stop runtime artifacts (managed)` block in `.gitignore`. While every
  * entry here was pinned to the DEPRECATED spelling, the runtime wrote to the
  * CANONICAL directory that no pattern covered. Measured before this fix:
  *
- *     git check-ignore .lattice/locks/x        -> ignored (.gitignore:28)
+ *     git check-ignore .proof-or-stop/locks/x        -> ignored (.gitignore:28)
  *     git check-ignore .proof-or-stop/locks/x  -> NOT ignored
  *
  * so `validate-execution-lock-smoke` failed with `unexpected_dirty_files=2` on
@@ -30,7 +30,6 @@
  */
 import {
   PROOF_OR_STOP_STATE_DIR,
-  DEPRECATED_STATE_DIR,
   STATE_DIR_NAMES,
 } from './brand-paths.js';
 
@@ -77,8 +76,8 @@ export interface RuntimeArtifactRegistryEntry {
   repairableTrackedArtifact: boolean;
 }
 
-export const LATTICE_RUNTIME_IGNORE_BLOCK_START = '# lattice runtime artifacts (managed)';
-export const LATTICE_RUNTIME_IGNORE_BLOCK_END = '# /lattice runtime artifacts (managed)';
+export const PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START = '# proof-or-stop runtime artifacts (managed)';
+export const PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END = '# /proof-or-stop runtime artifacts (managed)';
 
 function rx(value: string): RegExp {
   return new RegExp(value);
@@ -86,7 +85,7 @@ function rx(value: string): RegExp {
 
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
-    id: 'lattice-runtime-root-ignore',
+    id: 'proof-or-stop-runtime-root-ignore',
     description: `Ignore runtime state under the state directory (${STATE_DIR_NAMES.join(', ')}) while keeping tracked story evidence visible.`,
     matchers: [],
     // Order is load-bearing: within one spelling the broad ignore must precede
@@ -116,13 +115,13 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     // B-c55d CHK-001: the per-story owner lease (`owner-lease.json`) is process
     // metadata, not story evidence. It lives under the git-tracked
-    // `.lattice/story/actives/<id>/` subtree, so it MUST be ignored — an
+    // `.proof-or-stop/story/actives/<id>/` subtree, so it MUST be ignored — an
     // un-ignored lease file would surface as a dirty write and could block the
     // DONE `git merge story/<id>` (the F-008 failure mode). The `**/` ignore
     // pattern mirrors `runtime-activity-log` above, which ignores the equally
     // story-scoped `activity.jsonl`.
     id: 'runtime-story-owner-lease',
-    description: 'Per-story owner lease (local session ownership) written under .lattice/story/actives/<id>/.',
+    description: 'Per-story owner lease (local session ownership) written under .proof-or-stop/story/actives/<id>/.',
     matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)owner-lease\.json$`) }],
     ignorePatterns: ['**/owner-lease.json'],
     materialHash: 'exclude',
@@ -147,13 +146,13 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // (graduated freeze + auto-recovery budget), takeover-count.json (per-story
     // takeover counter), and gate-failure-counts.json (repeated-identical-gate-
     // failure counter) — are process/diagnostic metadata, NOT story evidence.
-    // They live under the git-tracked .lattice/story/actives/<id>/ subtree, so
+    // They live under the git-tracked .proof-or-stop/story/actives/<id>/ subtree, so
     // they MUST be ignored: an un-ignored breaker-state would surface as a dirty
     // write and could block the DONE `git merge story/<id>` (the F-008 failure
     // mode, exactly as for owner-lease.json above). materialHash-excluded so a
     // freeze/bump never perturbs currentMaterialHash and invalidates gate evidence.
     id: 'runtime-convergence-breaker-state',
-    description: 'Per-story convergence-breaker runtime state (freeze state + takeover/gate-failure counters) under .lattice/story/actives/<id>/.',
+    description: 'Per-story convergence-breaker runtime state (freeze state + takeover/gate-failure counters) under .proof-or-stop/story/actives/<id>/.',
     matchers: [
       { kind: 'regexp', value: rx(String.raw`(?:^|/)breaker-state\.json$`) },
       { kind: 'regexp', value: rx(String.raw`(?:^|/)takeover-count\.json$`) },
@@ -193,14 +192,14 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     // B-a7c5 F-005: dev_memory_finish_decision (core/playbook-runtime-memory.ts
-    // finishDecisionPath) writes OUTSIDE .lattice/story/actives/<storyId>/, so
+    // finishDecisionPath) writes OUTSIDE .proof-or-stop/story/actives/<storyId>/, so
     // autoCommitStoryMetadata (deliberately hard-scoped to the story dir --
     // its own anti-broadening preMortem #1 anchor) never covers it. Before this
     // entry existed, an uncommitted write here fell through classifyParsedRow
     // to `unexpected_dirty_files` (blocking) and stranded review_run_start and
     // other dirty-tree-sensitive gates -- found live during B-a7c5's own REVIEW
     // round 3. UNLIKE this registry's other entries, deliberately NO
-    // ignorePatterns: .lattice/dev-memory/** is explicitly un-ignored (see
+    // ignorePatterns: .proof-or-stop/dev-memory/** is explicitly un-ignored (see
     // .gitignore) because these records are meant to be git-tracked and shared
     // across agents/hosts, not ephemeral runtime state. materialHash:'exclude'
     // is still required so writing/refreshing this record can never perturb
@@ -267,7 +266,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     matchers: stateDirPrefix('locks/'),
     // B-cc10 F-062: `**/*.lock/` must be REGISTRY-owned, not hand-typed into .gitignore.
     // It lived only as a literal inside the generator-owned managed block, so
-    // mergeLatticeRuntimeIgnores() regenerated that block WITHOUT it — meaning the next
+    // mergeProofOrStopRuntimeIgnores() regenerated that block WITHOUT it — meaning the next
     // `init --upgrade` would delete the rule again (it had already been lost twice). The
     // pattern is deliberately state-dir-INDEPENDENT: transient <name>.lock/ dirs
     // (checklist/finding/review-run/init-check) each carry a holder.json token and appear
@@ -278,13 +277,13 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
-    // B-253e CHK-005: the local LLM usage ledger (.lattice/usage/llm-usage.jsonl)
+    // B-253e CHK-005: the local LLM usage ledger (.proof-or-stop/usage/llm-usage.jsonl)
     // is a mutable runtime diagnostic — budget accounting and operator
     // diagnostics, NOT story evidence, validation evidence, or gate-consumed
     // proof. doctor / material-hash / runtime-artifact repair / gitignore must
-    // treat it like other mutable runtime diagnostics under .lattice/. The
+    // treat it like other mutable runtime diagnostics under .proof-or-stop/. The
     // prefix matcher also covers future adjacent usage-runtime files under
-    // .lattice/usage/ without catching unrelated paths (e.g. story evidence).
+    // .proof-or-stop/usage/ without catching unrelated paths (e.g. story evidence).
     id: 'llm-usage-ledger',
     description: 'local LLM usage diagnostic ledger',
     matchers: [
@@ -298,13 +297,13 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     // B-000c CHK-003: the Experience Layer derived caches under
-    // .lattice/learning/ (finding-signals.json + learning-log.jsonl) are mutable
+    // .proof-or-stop/learning/ (finding-signals.json + learning-log.jsonl) are mutable
     // runtime diagnostics derived from existing findings — NOT story evidence,
     // validation evidence, or gate-consumed proof. They MUST be materialHash-
     // excluded so deriving/refreshing the cache never perturbs currentMaterialHash
     // and thus never invalidates a gate's evidence freshness. Mirrors the
     // llm-usage-ledger entry above; the prefix matcher also covers future
-    // adjacent learning-runtime files under .lattice/learning/.
+    // adjacent learning-runtime files under .proof-or-stop/learning/.
     id: 'experience-layer-learning-cache',
     description: 'Experience Layer derived finding-signals cache and learning log under <state-dir>/learning/.',
     matchers: [
@@ -320,51 +319,51 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'serve-metadata',
     description: 'Transient dev-server handshake file.',
-    // NOT derived, and not a bug: `.lattice-serve.json` is a SIBLING marker file,
+    // NOT derived, and not a bug: `.proof-or-stop-serve.json` is a SIBLING marker file,
     // not a path inside the state directory, and it is not one of the six
     // identities B-cc10 migrates. `verifier/serve.ts` and `verifier/dev-host.ts`
     // still write exactly this name, so the registry must keep matching it —
     // deriving it would rename the ignore pattern away from the file the runtime
     // actually creates. Same reasoning as `PROOF_OR_STOP_REPAIR_IGNORE` in
-    // `core/lattice-paths.ts`: renaming a sibling marker stays a separate,
+    // `core/proof-or-stop-paths.ts`: renaming a sibling marker stays a separate,
     // deliberate decision.
     matchers: [
-      { kind: 'exact', value: '.lattice-serve.json' },
+      { kind: 'exact', value: '.proof-or-stop-serve.json' },
     ],
-    ignorePatterns: ['.lattice-serve.json'],
+    ignorePatterns: ['.proof-or-stop-serve.json'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
   },
   {
-    id: 'lattice-authority-key-file',
+    id: 'proof-or-stop-authority-key-file',
     description: 'Internal Proof-or-Stop Authority key-management file; may contain local private key material.',
-    // The capitalized `.Lattice/` variant is retained deliberately: this file may
+    // The capitalized `.proof-or-stop/` variant is retained deliberately: this file may
     // hold private key material, so on a case-insensitive filesystem a
     // differently-cased path must never fall out of the ignore set. It is kept as
     // an explicit legacy literal rather than derived, because the canonical
     // spelling is all-lowercase and has no capitalized twin to generate.
     matchers: [
       ...stateDirExact('authority.md'),
-      { kind: 'exact', value: '.Lattice/authority.md' },
+      { kind: 'exact', value: '.proof-or-stop/authority.md' },
     ],
-    ignorePatterns: [...stateDirIgnore('authority.md'), '.Lattice/authority.md'],
+    ignorePatterns: [...stateDirIgnore('authority.md'), '.proof-or-stop/authority.md'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
   },
   {
-    id: 'lattice-baseline-artifacts',
+    id: 'proof-or-stop-baseline-artifacts',
     description: 'Proof-or-Stop baseline proof artifacts kept outside the material tree.',
-    // `.Lattice/` retained for the same case-insensitive-filesystem reason as the
+    // `.proof-or-stop/` retained for the same case-insensitive-filesystem reason as the
     // authority key file above.
     matchers: [
       ...stateDirPrefix('artifacts/baseline/'),
-      { kind: 'prefix', value: '.Lattice/artifacts/baseline/' },
+      { kind: 'prefix', value: '.proof-or-stop/artifacts/baseline/' },
     ],
     ignorePatterns: [
       ...stateDirIgnore('artifacts/baseline/'),
-      '.Lattice/artifacts/baseline/',
+      '.proof-or-stop/artifacts/baseline/',
     ],
     materialHash: 'exclude',
     volatile: true,
@@ -382,8 +381,8 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.lattice-tmp-[^/]+(?:/.*)?$`) }],
-    ignorePatterns: ['.lattice-tmp-*'],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.proof-or-stop-tmp-[^/]+(?:/.*)?$`) }],
+    ignorePatterns: ['.proof-or-stop-tmp-*'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -392,9 +391,9 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     id: 'debug-log',
     description: 'CLI debug log emitted in the repo root.',
     matchers: [
-      { kind: 'exact', value: 'lattice-debug.log' },
+      { kind: 'exact', value: 'proof-or-stop-debug.log' },
     ],
-    ignorePatterns: ['lattice-debug.log'],
+    ignorePatterns: ['proof-or-stop-debug.log'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

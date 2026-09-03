@@ -29,15 +29,15 @@ function makeRepoWithWorktree(base) {
 
 function makeGlobalRootLinkedTo(base, target) {
   const globalRoot = join(base, 'global', 'node_modules');
-  mkdirSync(join(globalRoot, '@lattice'), { recursive: true });
-  symlinkSync(target, join(globalRoot, '@lattice', 'core'), 'dir');
+  mkdirSync(join(globalRoot, '@proof-or-stop'), { recursive: true });
+  symlinkSync(target, join(globalRoot, '@proof-or-stop', 'core'), 'dir');
   return globalRoot;
 }
 
 function runChecks(base, corePackageRoot, globalRoot) {
   const projectRoot = join(base, 'fixture-project');
   mkdirSync(projectRoot, { recursive: true });
-  const bin = join(base, 'fake-lattice');
+  const bin = join(base, 'fake-proofOrStop');
   writeFileSync(bin, '#!/usr/bin/env node\n');
   return runRuntimeEnvironmentChecks(projectRoot, {
     commandResolver: () => bin,

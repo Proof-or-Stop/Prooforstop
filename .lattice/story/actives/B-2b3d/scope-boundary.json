@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2b3d",
+  "mode": "feature",
+  "allowed": [
+    "Implement the canonical run protocol: detached worktree under a fresh temp dir, prepare, PRE snapshot, execute, POST snapshot, assert, unconditional discard",
+    "Implement the four-tuple capture (headHash, materialHash, indexState, gitStatus) with each field computed by the single normative definition spec section 2.1 gives it",
+    "Implement the gitStatus byte-level filter with rename-aware entry consumption and the every-path-field exclusion rule",
+    "Implement the INVARIANCE assertion as exact string equality of all four fields, with R2-1 and R2-2 rejections",
+    "Implement the three PRE checks with distinct rejection tags: prep invariance (R2-4), operation-specific binding equality (R2-3), committed-tree binding lookup (R1-6)",
+    "Ship committed regressions registered in lattice.config.json validate.commands, each shown to fail against the pre-implementation tree",
+    "Store the tuple pair as runReceipt.pre / runReceipt.post per spec section 1.10"
+  ],
+  "excluded": [
+    "Editing another story's test surface, including packages/main/tests/validate-resource-claims.test.mjs (B-4f25)",
+    "Mid-run write monitoring or any claim stronger than net-state invariance; spec section 2.2 forbids describing the four-tuple as proof of zero mid-run writes",
+    "Redefining materialHash; this story CALLS currentMaterialHash from packages/main/src/core/evidence-freshness.ts and does not reimplement or alter it",
+    "Resolving the section 1 matcher-value bounds contradiction or the specificity-metric inversion; both are owned by B-595c and neither is a dependency of section 2",
+    "Retiring the v1 surface (red_evidence_create, redEvidenceRecordSatisfied); retirement is section 6's adoption point",
+    "Section 3 supersedes-chain integrity and the idempotency key; that is a separate leaf",
+    "Section 4 owner-gated quarantine and recover operations; a separate leaf",
+    "Section 5 gate-consumption query contract; a separate leaf and the W2/W3 boundary"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Derived from docs/requirements/decisions/red-evidence-subsystem-spec.md section 2 as the W2e leaf of Workstream 2, following B-9ff1 (section 1). Exclusions name the sibling leaves and the two follow-up stories that own adjacent defects, so this leaf does not absorb them.",
+  "createdAt": "2026-08-20T01:01:10.665Z",
+  "updatedAt": "2026-08-20T01:01:10.665Z",
+  "_hash": "87e85a8acff944daa9968098fdcacacf5976a6f61d93e1293944f3a73b8c2922"
+}

@@ -4,7 +4,7 @@
  * Root cause this closes:
  *   `story_create` writes a story's INIT metadata
  *   (`<storyDir>/<storyId>/index.json` etc.) into the SHARED main checkout as
- *   UNTRACKED files. The repo `.gitignore` allowlists `.lattice/story/actives/**`
+ *   UNTRACKED files. The repo `.gitignore` allowlists `.proof-or-stop/story/actives/**`
  *   (i.e. NOT ignored) — exactly the file class a plain `git clean -fd` removes.
  *   A story sitting in INIT therefore has its metadata committed to no branch, so
  *   a concurrent `git clean -fd` (or a wrong-branch checkout) on the shared
@@ -20,7 +20,7 @@
  * bootstrap leaves the working index stale, which means `git clean -fd` would
  * still treat the file as untracked and wipe it):
  *   git add -f -- <storyRel>  (stage into the working index; -f so a broad
- *                              `.lattice/` ignore never aborts)
+ *                              `.proof-or-stop/` ignore never aborts)
  *   git commit --only -- <storyRel>  (commit ONLY that pathspec — coexisting
  *                              staged changes are left untouched — and advance
  *                              the current branch HEAD).
@@ -124,7 +124,7 @@ export function createSafeInitCommitOnHead(args: SafeInitCommitArgs): SafeInitCo
     }
 
     // Stage ONLY the story dir into the WORKING index. force-add (`-f`) so a
-    // broad `.lattice/` ignore never aborts with "paths are ignored".
+    // broad `.proof-or-stop/` ignore never aborts with "paths are ignored".
     git(repoRoot, ['add', '-f', '--', storyRel]);
 
     // Double-check something actually staged (defends against `.gitignore`

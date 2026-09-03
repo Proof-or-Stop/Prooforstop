@@ -1,0 +1,39 @@
+{
+  "task": "Restore the bounded instrumentation baseline, the six reproducible validation blockers, and the one stranded historical core-package token exposed by DONE-required verification.",
+  "outcome": "User runs proof-or-stop validate and the DONE-required root suite for B-5952 and sees the retired-authority 804-build guard, all six former baseline failures, and the core package rename verifier pass, including a distinct heartbeat timeout diagnosis.",
+  "facts": [
+    "The retired-authority smoke reproduces 804 dynamic binding builds; its bounded ceiling repair is 808 with an absolute hard cap of 850.",
+    "The first full TEST run exposed six additional clean-main blockers: validate timeout, Codex heartbeat timeout, B-3434 blob buffer, red evidence envelope, W2d command readonly, and B-8df9 INIT_CHECK signature.",
+    "Four blockers were stale canonical-root configuration lookups after the proof-or-stop.config.json migration.",
+    "Two red-evidence fixtures wrote runtime metadata outside .lattice because their legacy lattice.config.json omitted storyDir; explicit fixture storyDir restores the intended non-empty .lattice manifest.",
+    "The heartbeat blocker is production-relevant: sh -lc rebuilt PATH and bypassed the injected CLI shim; sh -c preserves the caller environment.",
+    "Changing packages/main/src/core/codex-adapter-checks.ts makes fresh verify_codex evidence mandatory.",
+    "DONE-required root testing exposed one historical @lattice/core mention not paired with @proof-or-stop/core; the repository verifier fails before the one-line annotation and passes after it."
+  ],
+  "constraints": [
+    "Fix only the original ceiling regression, the six reproducible TEST blockers, and the exact DONE-required package-rename blocker; do not expand to unrelated diagnostics.",
+    "Keep an explicit finite dynamic-binding upper bound and preserve source/dist build binding.",
+    "Preserve legacy lattice.config.json fixture compatibility while repository-root discovery prefers proof-or-stop.config.json.",
+    "Limit production behavior change to non-login CLI discovery that preserves the caller PATH; Windows discovery is unchanged.",
+    "In the Dynamic Finding decision document, allow only the one-line historical core-package canonical pairing; do not change Dynamic Finding or B-3434 decision semantics, handlers, or CLI sources.",
+    "Run node bin/proof-or-stop.js verify_codex under the bound Node v26 environment before re-review."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+    "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/dist/core/codex-adapter-checks.js",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/tests/red/red-w2d-command-readonly.mjs",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "timestamp": "2026-08-31T14:15:21.807Z"
+}

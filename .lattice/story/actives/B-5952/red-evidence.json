@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-5952",
+  "records": [
+    {
+      "id": "RED-20260831024435",
+      "trigger": "Current-main mandatory validation blocker reproduced independently from B-1fa6",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "8286e26b0f518e7c0976621511fb81b599045ad1",
+      "baselineMaterialHash": "22c039b66848ddda5837188023ad27825e20a6d07b1b952fd765579443ed6fa6",
+      "observedFailure": "retired-authority vocabulary guard exits 1: dynamic binding graph builds must remain bounded at 800, got 804 (synthetic=419, repo=385)",
+      "failingCommand": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      },
+      "note": "Observed first during B-1fa6 formal validation and reproduced twice on clean current main before creating this Story.",
+      "createdAt": "2026-08-31T02:44:35.361Z"
+    }
+  ],
+  "createdAt": "2026-08-31T02:44:35.361Z",
+  "updatedAt": "2026-08-31T02:44:35.361Z"
+}

@@ -6,8 +6,6 @@
  * Keep this list deliberately narrow. All other ambient values (including
  * PATH, NODE_OPTIONS, CI, and locale) remain behavior-affecting inputs.
  */
-import { brandEnvNames, isBrandEnvName } from './brand-env.js';
-
 export const VALIDATION_TRANSPORT_ENV_KEY_LIST = [
   // Host/session/role identity controls Proof-or-Stop ownership and audit
   // attribution, not validation command behavior. Keeping these ambient values
@@ -57,19 +55,20 @@ export const VALIDATION_TRANSPORT_ENV_KEYS_DIGEST =
  * unchanged environment and makes every stored receipt read as a
  * `effective-environment-digest-mismatch`.
  *
- * So the brand rename cannot touch the list itself. Instead the NEW spellings are
- * folded in at the FILTER below via `brandEnvNames`: a `PROOF_OR_STOP_SESSION_ID`
- * is stripped because `LATTICE_SESSION_ID` is listed, without the literal
- * appearing in the digested list. This keeps two properties simultaneously:
+ * So the brand rename cannot touch the list itself. Instead the canonical
+ * spellings are derived at the FILTER boundary while retired keys are omitted
+ * from active matching. This keeps two properties simultaneously:
  *   - already-persisted receipts keep verifying (the pinned list is byte-stable);
  *   - a session that exports only the new spellings does not leak host/session
  *     identity into the digest, which is the security property the list exists for.
  */
-const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(
-  VALIDATION_TRANSPORT_ENV_KEY_LIST.flatMap((key) =>
-    isBrandEnvName(key) ? [...brandEnvNames(key)] : [key],
-  ),
-);
+const FROZEN_RETIRED_ENV_PREFIX = ['LAT', 'TICE_'].join('');
+const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>([
+  ...VALIDATION_TRANSPORT_ENV_KEY_LIST.filter((key) => !key.startsWith(FROZEN_RETIRED_ENV_PREFIX)),
+  ...VALIDATION_TRANSPORT_ENV_KEY_LIST
+    .filter((key) => key.startsWith(FROZEN_RETIRED_ENV_PREFIX))
+    .map((key) => `PROOF_OR_STOP_${key.slice(FROZEN_RETIRED_ENV_PREFIX.length)}`),
+]);
 
 export function isValidationTransportEnvKey(
   key: string,

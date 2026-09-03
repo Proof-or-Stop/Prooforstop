@@ -11,16 +11,16 @@ const EXPECTED_ARMS = ['legacy', 'modular'];
 const EXPECTED_HOSTS = ['codex-cli', 'claude-cli'];
 const EXPECTED_REPEATS = [1, 2, 3];
 const EXPECTED_ROLES = new Set([
-  'lattice-review-story-init', 'lattice-review-scope-plan', 'lattice-implementer',
-  'lattice-review-delivery', 'lattice-evaluator',
+  'proof-or-stop-review-story-init', 'proof-or-stop-review-scope-plan', 'proof-or-stop-implementer',
+  'proof-or-stop-review-delivery', 'proof-or-stop-evaluator',
 ]);
 const SAMPLE_ROLE = Object.freeze({
-  'clean-pass-01': 'lattice-review-story-init',
-  'clean-pass-02': 'lattice-review-scope-plan',
-  'critical-01': 'lattice-implementer',
-  'critical-02': 'lattice-evaluator',
-  'closeout-01': 'lattice-review-delivery',
-  'closeout-02': 'lattice-implementer',
+  'clean-pass-01': 'proof-or-stop-review-story-init',
+  'clean-pass-02': 'proof-or-stop-review-scope-plan',
+  'critical-01': 'proof-or-stop-implementer',
+  'critical-02': 'proof-or-stop-evaluator',
+  'closeout-01': 'proof-or-stop-review-delivery',
+  'closeout-02': 'proof-or-stop-implementer',
 });
 
 function digest(value) {
@@ -138,7 +138,7 @@ async function main() {
     && adjudication.campaignId === options.campaignId
     && typeof adjudication.adjudicatorId === 'string'
     && adjudication.adjudicatorId.trim().length > 0
-    && !['main', 'main-agent', 'lattice-implementer'].includes(adjudication.adjudicatorId.trim())
+    && !['main', 'main-agent', 'proof-or-stop-implementer'].includes(adjudication.adjudicatorId.trim())
     && typeof adjudication.method === 'string'
     && adjudication.method.trim().length > 0
     && typeof adjudication.evidenceDigest === 'string'

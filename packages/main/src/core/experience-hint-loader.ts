@@ -231,7 +231,7 @@ function readUsableSignals(cache: FindingSignalsCache | null): FindingSignal[] {
 /**
  * Load, rank, filter, and cap the advisory experience hints for a project.
  *
- * Reads `.lattice/learning/finding-signals.json` via the read-only learning-store
+ * Reads `.proof-or-stop/learning/finding-signals.json` via the read-only learning-store
  * (returns empty buckets when the file is absent or malformed — graceful cold
  * start). Pure given its inputs + `opts.now`; never throws on bad data.
  */

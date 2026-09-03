@@ -251,7 +251,7 @@ function multiEditInput(filePaths: string[]): PrewriteToolInput {
   const r = prewriteGuardCheck(
     makeContract({ storyId: 'B-scope' }),
     makeActiveSession({ storyId: 'B-scope' }),
-    writeInput('.lattice/story/actives/B-scope/summary.json'),
+    writeInput('.proof-or-stop/story/actives/B-scope/summary.json'),
   );
   assert.equal(r.deny, false, 'Write → lifecycle artifact summary → deny: false');
 }
@@ -262,7 +262,7 @@ function multiEditInput(filePaths: string[]): PrewriteToolInput {
   const r = prewriteGuardCheck(
     makeContract(),
     makeActiveSession(),
-    writeInput('.lattice/activity.jsonl'),
+    writeInput('.proof-or-stop/activity.jsonl'),
   );
   assert.equal(r.deny, false, 'Write → runtime activity log → deny: false');
 }
@@ -402,11 +402,11 @@ function multiEditInput(filePaths: string[]): PrewriteToolInput {
 
 function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }),
@@ -453,7 +453,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: out-of-scope file in diff → runScopeGate returns fail
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prewrite-gate-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -472,7 +472,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: protected file in diff → runScopeGate returns fail
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-protected-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prewrite-protected-gate-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -491,7 +491,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 // Gate test: REVIEW/TEST/DONE gates all fail for the same out-of-scope diff
 // Verifies the gate result can block all three lifecycle phases
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-all-phases-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prewrite-all-phases-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -510,7 +510,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: allowed diff only → runScopeGate returns pass
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-pass-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prewrite-pass-gate-'));
   try {
     const { store, storyId } = writeStoreStory(root);
 
@@ -523,14 +523,14 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 
 // Gate test: no contract → gate returns null (backward-compatible skip)
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-no-contract-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prewrite-no-contract-'));
   try {
     writeFileSync(
-      join(root, 'lattice.config.json'),
+      join(root, 'proof-or-stop.config.json'),
       JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
         storyPrefix: 'B',
       }),
@@ -566,7 +566,7 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
 // returns deny:true without touching the filesystem, proving the file is unchanged.
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prewrite-immutable-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prewrite-immutable-'));
   try {
     const protectedPath = join(root, 'src/protected.ts');
     mkdirSync(dirname(protectedPath), { recursive: true });

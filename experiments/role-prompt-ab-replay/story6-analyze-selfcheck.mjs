@@ -12,7 +12,7 @@ const runtime = path.join(here, 'runtime', 'story6');
 const campaignId = `selfcheck-provenance-${process.pid}`;
 const corpus = JSON.parse(await readFile(path.join(here, 'corpus.json'), 'utf8'));
 const sample = corpus.samples.find(row => row.id === 'clean-pass-01');
-const baseCell = { sampleId: sample.id, host: 'codex-cli', arm: 'legacy', repeat: 1, roleId: 'lattice-review-story-init', cellId: 'clean-pass-01.lattice-review-story-init.codex-cli.legacy.r1' };
+const baseCell = { sampleId: sample.id, host: 'codex-cli', arm: 'legacy', repeat: 1, roleId: 'proof-or-stop-review-story-init', cellId: 'clean-pass-01.proof-or-stop-review-story-init.codex-cli.legacy.r1' };
 const base = () => ({
   schemaVersion: 'proofbound.story6-live-ab-receipt.v1', campaignId,
   campaignBindingDigest: 'a'.repeat(64), cell: { ...baseCell },
@@ -138,7 +138,7 @@ try {
     ['schemaVersion', row => { row.schemaVersion = 'forged.v0'; }],
     ['campaignId', row => { row.campaignId = 'other-campaign'; }],
     ['bindingDigest', row => { row.campaignBindingDigest = 'short'; }],
-    ['role', row => { row.cell.roleId = 'lattice-evaluator'; }],
+    ['role', row => { row.cell.roleId = 'proof-or-stop-evaluator'; }],
     ['sample', row => { row.cell.sampleId = 'critical-01'; }],
     ['arm', row => { row.cell.arm = 'forged'; }],
     ['host', row => { row.cell.host = 'forged-cli'; }],

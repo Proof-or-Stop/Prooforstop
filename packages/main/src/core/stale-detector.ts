@@ -53,8 +53,8 @@ function resolveThresholds(root: string): StaleThresholds {
       phaseStale: typeof u.phaseStale === 'number' && u.phaseStale > 0 ? u.phaseStale : DEFAULT_STALE_THRESHOLDS.phaseStale,
       itemStale: typeof u.itemStale === 'number' && u.itemStale > 0 ? u.itemStale : DEFAULT_STALE_THRESHOLDS.itemStale,
       // B-cdf6:F-016 — READ-BOTH for a PERSISTED config field. This key was
-      // `staleThresholds.idleLattice` on main (introduced by B-fbca) and is readable from
-      // real pre-migration `lattice.config.json` files on disk today. Reading only the canonical name would
+      // `staleThresholds.idleProofOrStop` on main (introduced by B-fbca) and is readable from
+      // real `proof-or-stop.config.json` files on disk today. Reading only the new name would
       // SILENTLY ignore an existing project's configured value and fall back to the
       // 60-minute default with no warning — precisely the multi-developer
       // behaviour-change-on-merge that core/brand-env.ts prevents for env vars but does
@@ -63,8 +63,8 @@ function resolveThresholds(root: string): StaleThresholds {
       idleProofOrStop:
         typeof u.idleProofOrStop === 'number' && u.idleProofOrStop > 0
           ? u.idleProofOrStop
-          : typeof u.idleLattice === 'number' && u.idleLattice > 0
-            ? u.idleLattice
+          : typeof u.idleProofOrStop === 'number' && u.idleProofOrStop > 0
+            ? u.idleProofOrStop
             : DEFAULT_STALE_THRESHOLDS.idleProofOrStop,
       bugStale: typeof u.bugStale === 'number' && u.bugStale > 0 ? u.bugStale : DEFAULT_STALE_THRESHOLDS.bugStale,
     };

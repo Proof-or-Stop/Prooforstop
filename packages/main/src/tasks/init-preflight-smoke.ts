@@ -68,11 +68,11 @@ function gitStatus(root: string): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2) + '\n',
@@ -117,14 +117,14 @@ function baseChecklist(): ChecklistData {
 function createFixture(
   seed: (root: string, store: StoryStore) => void,
 ): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-init-preflight-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-preflight-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# init preflight smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -195,15 +195,18 @@ function writeGoodInitCheck(root: string, store: StoryStore): void {
     storyId: STORY_ID,
     checkedAt: NOW,
     reviewRound: '',
-    agentId: 'lattice-review-story-init',
+    agentId: 'proof-or-stop-review-story-init',
     issues: [],
     agentResults: [
-      { agentId: 'lattice-review-story-init', checkedAt: NOW, issues: [] },
+      { agentId: 'proof-or-stop-review-story-init', checkedAt: NOW, issues: [] },
       { agentId: 'product-reviewer', checkedAt: NOW, issues: [] },
     ],
     _hash: '',
   } as InitCheckData;
-  data._hash = recomputeInitCheckHash(STORY_ID, store, root);
+  // B-8df9 CHK-002: the reviewer verdict is part of the signature domain, so the record
+  // must be signed as a PRODUCER (over `data`) — recomputing against the file on disk
+  // would sign whatever verdict was persisted before this one.
+  data._hash = recomputeInitCheckHash(STORY_ID, store, root, data);
   store.writeInitCheck(STORY_ID, data);
 }
 
@@ -219,10 +222,10 @@ function writeTamperedInitCheck(root: string, store: StoryStore): void {
     storyId: STORY_ID,
     checkedAt: NOW,
     reviewRound: '',
-    agentId: 'lattice-review-story-init',
+    agentId: 'proof-or-stop-review-story-init',
     issues: [],
     agentResults: [
-      { agentId: 'lattice-review-story-init', checkedAt: NOW, issues: [] },
+      { agentId: 'proof-or-stop-review-story-init', checkedAt: NOW, issues: [] },
       { agentId: 'product-reviewer', checkedAt: NOW, issues: [] },
     ],
     _hash: 'deadbeef',
@@ -230,7 +233,7 @@ function writeTamperedInitCheck(root: string, store: StoryStore): void {
   // Confirm the tamper truly diverges from the recomputed digest the gate uses.
   assert.notEqual(
     data._hash,
-    recomputeInitCheckHash(STORY_ID, store, root),
+    recomputeInitCheckHash(STORY_ID, store, root, data),
     'tampered init-check _hash must not match its recomputed digest',
   );
   store.writeInitCheck(STORY_ID, data);

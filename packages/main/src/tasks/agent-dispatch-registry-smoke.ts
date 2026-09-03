@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -253,7 +253,7 @@ assert.throws(
       && !error.acceptedTypes.includes('test-intent'),
   'unknown agent type must return a typed error with accepted canonical and alias guidance',
 );
-for (const unknown of ['LATTICE-IMPLEMENTER', 'review-quality', 'lattice-review-']) {
+for (const unknown of ['PROOF_OR_STOP-IMPLEMENTER', 'review-quality', 'proof-or-stop-review-']) {
   assert.throws(
     () => resolveAgentDispatchType(unknown),
     (error: unknown) => error instanceof AgentDispatchRegistryError && error.code === 'unknown_agent_type',
@@ -278,7 +278,7 @@ assert.throws(
   'undeclared mutation authority must fail validation',
 );
 assert.throws(
-  () => validateAgentDispatchRegistry([sample, { ...sample, canonicalName: 'duplicate-role', aliases: ['lattice-implementer'] }]),
+  () => validateAgentDispatchRegistry([sample, { ...sample, canonicalName: 'duplicate-role', aliases: ['proof-or-stop-implementer'] }]),
   (error: unknown) => error instanceof AgentDispatchRegistryDefinitionError && /duplicate canonical name or alias/.test(error.message),
   'alias collisions must fail validation',
 );
@@ -368,7 +368,7 @@ assert.throws(
   'a new compatibility alias without an explicit coverage ledger entry must fail completeness',
 );
 
-for (const lane of ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'] as const) {
+for (const lane of ['proof-or-stop-review-concept', 'proof-or-stop-review-quality', 'proof-or-stop-review-test-coverage'] as const) {
   const entry = resolveAgentDispatchType(lane).entry;
   assert.equal(entry.targetCardinality, 'story-only', `${lane} lifecycle story hint must be accepted story-only`);
   assert.equal(validateAgentDispatchRequest({ agentType: lane, phase: 'REVIEW' }).entry, entry);
@@ -379,12 +379,12 @@ assert.throws(
   'verification-intent must fail before prompt generation outside PLAN',
 );
 assert.throws(
-  () => assertRegisteredAgentMutationAllowed('lattice-review-quality', 'checklist_update'),
+  () => assertRegisteredAgentMutationAllowed('proof-or-stop-review-quality', 'checklist_update'),
   /agent_dispatch_mutation_denied/,
   'reviewers must not receive checklist mutation authority',
 );
 assert.throws(
-  () => assertRegisteredAgentMutationAllowed('lattice-implementer', 'review_pass_set'),
+  () => assertRegisteredAgentMutationAllowed('proof-or-stop-implementer', 'review_pass_set'),
   /agent_dispatch_mutation_denied/,
   'implementers must not receive review-pass authority',
 );
@@ -424,15 +424,15 @@ assert.throws(
   'trusted-host payload attribution cannot override a registered dispatched env role',
 );
 assert.throws(
-  () => assertRegisteredAgentMutationAllowed('lattice-review-lookalike', 'finding_add'),
+  () => assertRegisteredAgentMutationAllowed('proof-or-stop-review-lookalike', 'finding_add'),
   /agent_dispatch_actor_unknown/,
   'every nonblank unknown actor must fail closed',
 );
-for (const payloadActor of ['human', 'lattice-review-quality', 'test-intent']) {
+for (const payloadActor of ['human', 'proof-or-stop-review-quality', 'test-intent']) {
   assert.throws(
     () => resolveAgentMutationAuthority({
       command: 'finding_add',
-      envActor: 'lattice-review-lookalike',
+      envActor: 'proof-or-stop-review-lookalike',
       payloadActors: [payloadActor],
     }),
     /agent_dispatch_actor_unknown/,
@@ -442,16 +442,29 @@ for (const payloadActor of ['human', 'lattice-review-quality', 'test-intent']) {
 
 const root = mkdtempSync(join(tmpdir(), 'agent-dispatch-consumer-smoke-'));
 try {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }));
   execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['checkout', '-qB', 'main'], { cwd: root });
   execFileSync('git', ['config', 'user.email', 'smoke@example.com'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Smoke'], { cwd: root });
-  execFileSync('git', ['add', 'lattice.config.json'], { cwd: root });
+  execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: root });
   execFileSync('git', [
     'commit', '-qm', 'smoke baseline',
-    '--author=lattice-implementer <lattice-implementer@noreply.local>',
+    '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>',
+  ], { cwd: root });
+  // Topology-authority dispatch is intentionally fail-closed on an empty
+  // story-owned diff. Exercise the complete registry on a real story branch
+  // with one committed production delta instead of weakening that gate for a
+  // synthetic HEAD==main fixture.
+  execFileSync('git', ['checkout', '-qb', 'story/B-dispatch-consumer'], { cwd: root });
+  mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+  writeFileSync(join(root, 'packages/main/src/example.ts'), 'export const dispatchConsumerSmoke = true;\n', 'utf8');
+  execFileSync('git', ['add', 'packages/main/src/example.ts'], { cwd: root });
+  execFileSync('git', [
+    'commit', '-qm', 'seed story-owned dispatch delta',
+    '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>',
   ], { cwd: root });
   const store = new StoryStore(root);
   const storyId = 'B-dispatch-consumer';
@@ -465,7 +478,7 @@ try {
   }] });
   store.writeFindings(storyId, { findings: [{
     id: `${storyId}:F-001`, desc: 'Synthetic dispatch finding', severity: 'high', category: 'missing',
-    status: 'open', agent: 'lattice-review-quality', files: ['packages/main/src/example.ts'],
+    status: 'open', agent: 'proof-or-stop-review-quality', files: ['packages/main/src/example.ts'],
   }] });
   store.writeClusters(storyId, { clusters: [{
     clusterId: 'CL-001', rootCause: 'Synthetic root cause', findingIds: [`${storyId}:F-001`],
@@ -494,8 +507,8 @@ try {
     assert.throws(invoke, /agent_dispatch_actor_unknown/, `${command} must fail closed for a nonblank unknown actor`);
     assert.equal(mutationState(), before, `${command} unknown-actor rejection must leave story state byte-equivalent`);
   };
-  const previousHostAgent = process.env.LATTICE_AGENT;
-  delete process.env.LATTICE_AGENT;
+  const previousHostAgent = process.env.PROOF_OR_STOP_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
   try {
     const hostCases: Array<{ label: string; agent?: string | null; expectedAgent: string }> = [
       { label: 'omitted', expectedAgent: 'main' },
@@ -542,25 +555,25 @@ try {
       }));
     }
   } finally {
-    if (previousHostAgent === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = previousHostAgent;
+    if (previousHostAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousHostAgent;
   }
   const assertSpoofRejectedWithoutMutation = (command: string, envAgent: string, invoke: () => unknown) => {
     const before = mutationState();
-    const savedAgent = process.env.LATTICE_AGENT;
-    process.env.LATTICE_AGENT = envAgent;
+    const savedAgent = process.env.PROOF_OR_STOP_AGENT;
+    process.env.PROOF_OR_STOP_AGENT = envAgent;
     try {
       assert.throws(invoke, /agent_dispatch_identity_conflict/, `${command} must reject env-vs-payload identity spoofing`);
       assert.equal(mutationState(), before, `${command} identity-spoof rejection must leave story state byte-equivalent`);
     } finally {
-      if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
-      else process.env.LATTICE_AGENT = savedAgent;
+      if (savedAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = savedAgent;
     }
   };
   const assertUnknownEnvSpoofRejectedWithoutMutation = (command: string, payloadAgent: string) => {
     const before = mutationState();
-    const savedAgent = process.env.LATTICE_AGENT;
-    process.env.LATTICE_AGENT = 'lattice-review-lookalike';
+    const savedAgent = process.env.PROOF_OR_STOP_AGENT;
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-lookalike';
     try {
       assert.throws(
         () => findingHandlers.finding_add({
@@ -575,30 +588,30 @@ try {
       );
       assert.equal(mutationState(), before, `${command} rejection must leave story state byte-equivalent`);
     } finally {
-      if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
-      else process.env.LATTICE_AGENT = savedAgent;
+      if (savedAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = savedAgent;
     }
   };
   assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + trusted-host payload', 'human');
-  assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + registered-role payload', 'lattice-review-quality');
+  assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + registered-role payload', 'proof-or-stop-review-quality');
   assertSpoofRejectedWithoutMutation('checklist_update', 'verification-intent', () => checklistHandlers.checklist_update({
     storyId, itemId: 'CHK-001', status: 'done', actor: 'human', agent: 'human',
   }));
-  assertSpoofRejectedWithoutMutation('finding_add', 'lattice-review-quality', () => findingHandlers.finding_add({
+  assertSpoofRejectedWithoutMutation('finding_add', 'proof-or-stop-review-quality', () => findingHandlers.finding_add({
     storyId, desc: 'spoofed host finding must not persist', severity: 'high', category: 'missing', agent: 'human',
   }));
-  assertSpoofRejectedWithoutMutation('review_pass_set', 'lattice-implementer', () => findingHandlers.review_pass_set({
-    storyId, agent: 'lattice-review-quality', note: 'spoofed reviewer pass must not persist', reviewRunId: 'RR-spoof',
+  assertSpoofRejectedWithoutMutation('review_pass_set', 'proof-or-stop-implementer', () => findingHandlers.review_pass_set({
+    storyId, agent: 'proof-or-stop-review-quality', note: 'spoofed reviewer pass must not persist', reviewRunId: 'RR-spoof',
     readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
   }));
-  assertSpoofRejectedWithoutMutation('review_run_start', 'lattice-implementer', () => reviewRunHandlers.review_run_start({
-    storyId, agent: 'lattice-review-quality',
+  assertSpoofRejectedWithoutMutation('review_run_start', 'proof-or-stop-implementer', () => reviewRunHandlers.review_run_start({
+    storyId, agent: 'proof-or-stop-review-quality',
   }));
-  assertSpoofRejectedWithoutMutation('init_check_set', 'lattice-implementer', () => initCheckHandlers.init_check_set({
-    storyId, issues: [], agent: 'lattice-review-story-init', agentId: 'lattice-review-story-init',
+  assertSpoofRejectedWithoutMutation('init_check_set', 'proof-or-stop-implementer', () => initCheckHandlers.init_check_set({
+    storyId, issues: [], agent: 'proof-or-stop-review-story-init', agentId: 'proof-or-stop-review-story-init',
   }));
-  assertSpoofRejectedWithoutMutation('delivery_check_set', 'lattice-implementer', () => deliveryCheckHandlers.delivery_check_set({
-    storyId, agentId: 'lattice-review-delivery', docsPromises: [], realMachineTests: [],
+  assertSpoofRejectedWithoutMutation('delivery_check_set', 'proof-or-stop-implementer', () => deliveryCheckHandlers.delivery_check_set({
+    storyId, agentId: 'proof-or-stop-review-delivery', docsPromises: [], realMachineTests: [],
     closingSelfCheck: { summary: 'spoofed delivery evidence must not persist' },
   }));
   for (const agentType of ['verification-intent']) {
@@ -651,12 +664,12 @@ try {
   }
   const beforeUnknown = store.readProcessEvents(storyId).length;
   assert.throws(
-    () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-lookalike' }),
+    () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-lookalike' }),
     /unknown agentType/,
   );
   assert.equal(store.readProcessEvents(storyId).length, beforeUnknown, 'unknown type must fail before dispatch side effects');
   assert.throws(
-    () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-quality' }),
+    () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'proof-or-stop-review-quality' }),
     /agent_dispatch_mutation_denied/,
     'reviewer checklist completion must be rejected by the real handler consumer',
   );
@@ -666,7 +679,7 @@ try {
     'legacy verification-intent identity must have no mutation authority',
   );
   assert.throws(
-    () => resolveReviewRunLane('lattice-implementer'),
+    () => resolveReviewRunLane('proof-or-stop-implementer'),
     /not a registered REVIEW reviewer/,
     'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
   );
@@ -685,7 +698,7 @@ try {
   assert.equal(JSON.stringify(store.readFindings(storyId)), findingsBeforeDenied, 'denied finding_add must have no side effect');
   assert.throws(
     () => findingHandlers.review_pass_set({
-      storyId, agent: 'lattice-implementer', note: 'must not persist a review pass',
+      storyId, agent: 'proof-or-stop-implementer', note: 'must not persist a review pass',
       reviewRunId: 'RR-denied', readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
     }),
     /agent_dispatch_mutation_denied/,
@@ -702,19 +715,19 @@ try {
   );
   assert.equal(store.readReviewPasses(storyId).passes.length, 0, 'main pass rejection must have no side effect');
   {
-    const savedAgent = process.env.LATTICE_AGENT;
-    process.env.LATTICE_AGENT = 'lattice-review-quality';
+    const savedAgent = process.env.PROOF_OR_STOP_AGENT;
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-quality';
     try {
       assert.throws(
         () => findingHandlers.review_pass_set({
-          storyId, agent: 'lattice-review-behavior', note: 'wrong lane must not sign another reviewer pass',
+          storyId, agent: 'proof-or-stop-review-behavior', note: 'wrong lane must not sign another reviewer pass',
           reviewRunId: 'RR-wrong-lane', readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
         }),
         /agent_dispatch_identity_conflict/,
         'one reviewer lane cannot submit a pass as another lane',
       );
       assert.throws(
-        () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-quality' }),
+        () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'proof-or-stop-review-quality' }),
         /agent_dispatch_mutation_denied/,
         'reviewer cannot take owner/implementer lifecycle mutation through the real checklist handler',
       );
@@ -726,39 +739,39 @@ try {
         'delivery evidence remains delivery-reviewer-only',
       );
     } finally {
-      if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
-      else process.env.LATTICE_AGENT = savedAgent;
+      if (savedAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = savedAgent;
     }
   }
   assert.equal(store.readReviewPasses(storyId).passes.length, 0, 'wrong-lane pass rejection must have no side effect');
   assert.throws(
-    () => reviewRunHandlers.review_run_start({ storyId, agent: 'lattice-implementer' }),
+    () => reviewRunHandlers.review_run_start({ storyId, agent: 'proof-or-stop-implementer' }),
     /agent_dispatch_mutation_denied/,
   );
   assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'denied review_run_start must have no side effect');
   assert.throws(
-    () => initCheckHandlers.init_check_set({ storyId, issues: [], agent: 'lattice-implementer' }),
+    () => initCheckHandlers.init_check_set({ storyId, issues: [], agent: 'proof-or-stop-implementer' }),
     /agent_dispatch_mutation_denied/,
   );
   assert.equal(store.readInitCheck(storyId), null, 'denied init_check_set must have no side effect');
   assertUnknownActorRejectedWithoutMutation('checklist_update', () => checklistHandlers.checklist_update({
-    storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-lookalike',
+    storyId, itemId: 'CHK-001', status: 'done', actor: 'proof-or-stop-review-lookalike',
   }));
   assertUnknownActorRejectedWithoutMutation('finding_add', () => findingHandlers.finding_add({
-    storyId, desc: 'must not persist', severity: 'high', category: 'missing', agent: 'lattice-review-lookalike',
+    storyId, desc: 'must not persist', severity: 'high', category: 'missing', agent: 'proof-or-stop-review-lookalike',
   }));
   assertUnknownActorRejectedWithoutMutation('review_pass_set', () => findingHandlers.review_pass_set({
-    storyId, agent: 'lattice-review-lookalike', note: 'must not persist an unknown actor review pass',
+    storyId, agent: 'proof-or-stop-review-lookalike', note: 'must not persist an unknown actor review pass',
     reviewRunId: 'RR-unknown', readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
   }));
   assertUnknownActorRejectedWithoutMutation('review_run_start', () => reviewRunHandlers.review_run_start({
-    storyId, agent: 'lattice-review-lookalike',
+    storyId, agent: 'proof-or-stop-review-lookalike',
   }));
   assertUnknownActorRejectedWithoutMutation('init_check_set', () => initCheckHandlers.init_check_set({
-    storyId, issues: [], agent: 'lattice-review-lookalike',
+    storyId, issues: [], agent: 'proof-or-stop-review-lookalike',
   }));
-  const previousAgent = process.env.LATTICE_AGENT;
-  process.env.LATTICE_AGENT = 'lattice-review-lookalike';
+  const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-lookalike';
   try {
     assertUnknownActorRejectedWithoutMutation('scope_check_save', () => scopeCheckHandlers.scope_check_save({
       storyId, features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
@@ -770,7 +783,7 @@ try {
     assertUnknownActorRejectedWithoutMutation('finding_resolve', () => findingHandlers.finding_resolve({
       storyId, findingId: `${storyId}:F-001`,
     }));
-    process.env.LATTICE_AGENT = 'test-intent';
+    process.env.PROOF_OR_STOP_AGENT = 'test-intent';
     assert.throws(
       () => scopeCheckHandlers.scope_check_save({
         storyId, features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
@@ -792,24 +805,24 @@ try {
     );
     assert.equal(JSON.stringify(store.readFindings(storyId)), findingsBeforeDenied, 'denied finding_resolve must have no side effect');
   } finally {
-    if (previousAgent === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = previousAgent;
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
   assert.equal(
-    captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'lattice-review-lookalike' }),
+    captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'proof-or-stop-review-lookalike' }),
     null,
     'prefix lookalikes must not produce reviewer read evidence',
   );
   assert.ok(
-    captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'lattice-review-quality' }),
+    captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'proof-or-stop-review-quality' }),
     'registered REVIEW lanes must retain reviewer read evidence authority',
   );
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW' });
-  const reviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-quality' }).prompt;
+  const reviewPrompt = handlers.dispatch({ storyId, agentType: 'proof-or-stop-review-quality' }).prompt;
   assert.match(reviewPrompt, /review story .* using the trusted context selected by review_run_start/);
   assert.doesNotMatch(reviewPrompt, /git commit|checklist_update/);
   assert.throws(
-    () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
+    () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-quality' }),
     /story-only; omit itemId/,
   );
   const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-topology-critic' }).prompt;

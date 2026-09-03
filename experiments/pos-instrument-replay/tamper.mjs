@@ -504,7 +504,7 @@ function generateCleanBaseline() {
   const root = mkdtempSync(join(tmpdir(), 'pos-tamper-clean-'));
   const dir = join(root, 'base');
   execFileSync(
-    'lattice',
+    'proof-or-stop',
     [
       'memory_playbook_baseline_generate',
       '--profile=small',

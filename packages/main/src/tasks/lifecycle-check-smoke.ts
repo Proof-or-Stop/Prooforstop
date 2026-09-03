@@ -46,11 +46,11 @@ function writeConfig(root: string): void {
 
 function writeConfigWithProfile(root: string, profile: 'light' | 'balanced'): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile },
       doneRequiredCommands: [
@@ -63,14 +63,14 @@ function writeConfigWithProfile(root: string, profile: 'light' | 'balanced'): vo
 }
 
 function createFixture(): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lifecycle-check-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lifecycle-check-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# lifecycle check smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -110,20 +110,20 @@ function createFixture(): { root: string; store: StoryStore; ctx: HandlerContext
       }],
     }],
   });
-  writeReviewerPass(root, store, 'lattice-review-concept');
+  writeReviewerPass(root, store, 'proof-or-stop-review-concept');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   return { root, store, ctx };
 }
 
 async function createDoneReadyFixture(): Promise<{ root: string; store: StoryStore; ctx: HandlerContext }> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lifecycle-check-ready-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lifecycle-check-ready-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfigWithProfile(root, 'light');
   writeFileSync(join(root, 'README.md'), '# lifecycle check ready smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const ready = true;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -200,7 +200,7 @@ async function createDoneReadyFixture(): Promise<{ root: string; store: StorySto
     headHash,
     materialHash,
     reviewRound: '',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -363,7 +363,7 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
       'missing DONE-required validation routes through done_prepare recovery',
     );
     assert.ok(
-      jsonReport.next.some((action) => action.command === `proof-or-stop review_run_start '{"storyId":"${STORY_ID}","agent":"lattice-review-quality"}'`),
+      jsonReport.next.some((action) => action.command === `proof-or-stop review_run_start '{"storyId":"${STORY_ID}","agent":"proof-or-stop-review-quality"}'`),
       'missing required reviewer lanes print exact review_run_start next command guidance',
     );
     assert.ok(

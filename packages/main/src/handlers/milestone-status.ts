@@ -51,7 +51,7 @@ function wantsJson(args: MilestoneStatusArgs | MilestoneCloseoutArgs): boolean {
 /**
  * B-7c05 CHK-001: JSON opt-in returns the frozen report object; otherwise the
  * text output is BRIEF by default and the full 7-column table is restored by
- * --full / LATTICE_BRIEF_OUTPUT=0.
+ * --full / PROOF_OR_STOP_BRIEF_OUTPUT=0.
  */
 function renderMilestoneStatus(report: MilestoneStatusReport, args: MilestoneStatusArgs): MilestoneStatusReport | string {
   if (wantsJson(args)) return report;

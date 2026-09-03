@@ -3,13 +3,13 @@
 /**
  * B-854c CHK-004 smoke (broadened by B-02a6 CHK-003): regression coverage for
  * the story-metadata data-loss invariant (ClawCreek incident — 19 stories lost
- * when a broad `.lattice/` ignore left the persistent metadata neither tracked
+ * when a broad `.proof-or-stop/` ignore left the persistent metadata neither tracked
  * nor protected; B-02a6 added the INIT-window case where an allowlisted but
  * UNCOMMITTED leaf is wiped by a plain `git clean -fd`).
  *
  * Three consumers of ONE shared pure predicate
  * (core/story-metadata-protection.ts) are covered against REAL temp git repos
- * with hand-written `.gitignore` fixtures (NOT the global `lattice` binary):
+ * with hand-written `.gitignore` fixtures (NOT the global `proof-or-stop` binary):
  *
  *   1. Predicate units — constructed bypassing any happy path (raw stubbed
  *      probes) so the broadened predicate (unsafe = !tracked) is asserted
@@ -20,7 +20,7 @@
  *        broad-ignore-untracked leaf → UNSAFE (ClawCreek — removed by -fdx);
  *        blank/whitespace leaf → throws.
  *   2. Bootstrap (real dev_start) — under non-ignoring .gitignore → metadata
- *      tracked after bootstrap, no warning; under broad `.lattice/` ignore →
+ *      tracked after bootstrap, no warning; under broad `.proof-or-stop/` ignore →
  *      bootstrap SUCCEEDS (no "paths are ignored" error) AND warning present;
  *      under negation allowlist → succeeds, no warning (no false positive).
  *   3. Doctor (real handler) — broad-ignore-untracked fixture → predicate flags
@@ -55,19 +55,19 @@ import {
   type StoryMetadataProbe,
 } from '../core/story-metadata-protection.js';
 
-const STORY_DIR_REL = '.lattice/story/actives';
+const STORY_DIR_REL = '.proof-or-stop/story/actives';
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
-process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+process.env.PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS = '0';
 
 const STORY_ID = 'B-test';
 const LEAF_REL = `${STORY_DIR_REL}/${STORY_ID}/index.json`;
 const NEGATION_ALLOWLIST = [
-  '.lattice/*',
-  '!.lattice/story/',
-  '.lattice/story/*',
-  '!.lattice/story/actives/',
-  '!.lattice/story/actives/**',
+  '.proof-or-stop/*',
+  '!.proof-or-stop/story/',
+  '.proof-or-stop/story/*',
+  '!.proof-or-stop/story/actives/',
+  '!.proof-or-stop/story/actives/**',
 ].join('\n');
 
 let passed = 0;
@@ -90,7 +90,7 @@ function initGitRepo(dir: string): void {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ storyDir: STORY_DIR_REL }, null, 2));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ storyDir: STORY_DIR_REL }, null, 2));
 }
 
 function writeStoryIndex(root: string, phase = 'DEV'): void {
@@ -124,11 +124,11 @@ function stubRunner(probe: StoryMetadataProbe): (leaf: string) => StoryMetadataP
  * B-0740 CHK-001: build a WRAPPER-ROOT fixture (metadataRoot != gitRoot).
  *
  *   <wrapper>/                       ← metadataRoot, NOT a git repo
- *     lattice.config.json            ← storyDir under repo/, gitRoot=repo
+ *     proof-or-stop.config.json            ← storyDir under repo/, gitRoot=repo
  *     repo/                          ← the real git repo (gitRoot)
- *       .gitignore (.lattice/)       ← broad ignore → leaf unsafe → needsRepair
- *       lattice.config.json          ← also present at gitRoot for store reads
- *       .lattice/story/actives/<id>/index.json
+ *       .gitignore (.proof-or-stop/)       ← broad ignore → leaf unsafe → needsRepair
+ *       proof-or-stop.config.json          ← also present at gitRoot for store reads
+ *       .proof-or-stop/story/actives/<id>/index.json
  *
  * `repairStoryMetadataAllowlist` ran `git rev-parse --show-toplevel` in cwd=root
  * (the non-git wrapper) → threw `fatal: not a git repository` → wrote:false. The
@@ -139,13 +139,13 @@ function buildWrapperRootFixture(wrapper: string): { wrapper: string; repo: stri
   const storyDirRel = `repo/${STORY_DIR_REL}`;
   mkdirSync(wrapper, { recursive: true });
   initGitRepo(repo);
-  // Broad `.lattice/` ignore → the leaf is ignored + untracked = the unsafe state.
-  writeFileSync(join(repo, '.gitignore'), '.lattice/\n');
-  // The store reads lattice.config.json from the metadataRoot (wrapper); the
+  // Broad `.proof-or-stop/` ignore → the leaf is ignored + untracked = the unsafe state.
+  writeFileSync(join(repo, '.gitignore'), '.proof-or-stop/\n');
+  // The store reads proof-or-stop.config.json from the metadataRoot (wrapper); the
   // configured gitRoot subdir + storyDir-inside-gitRoot makes resolveDoctorGitCwd
   // resolve to repo/ (the wrapper-root layout under test).
   writeFileSync(
-    join(wrapper, 'lattice.config.json'),
+    join(wrapper, 'proof-or-stop.config.json'),
     JSON.stringify({ storyDir: storyDirRel, gitRoot: 'repo' }, null, 2),
   );
   // Story leaf lives inside the gitRoot (lifecycle requirement) but is ignored.
@@ -173,7 +173,7 @@ function buildWrapperRootFixture(wrapper: string): { wrapper: string; repo: stri
   return { wrapper, repo };
 }
 
-const base = mkdtempSync(join(tmpdir(), 'lattice-metadata-protection-smoke-'));
+const base = mkdtempSync(join(tmpdir(), 'proof-or-stop-metadata-protection-smoke-'));
 
 console.log('story-metadata-protection smoke (B-854c CHK-004)');
 
@@ -238,7 +238,7 @@ try {
     // Simulate the CHK-002 safe-init commit: the INIT metadata leaf is committed
     // onto HEAD before dev_start (the production path), so it is a tracked,
     // clean-proof object — not an untracked leaf the broadened predicate flags.
-    git(root, ['add', '.gitignore', 'lattice.config.json', LEAF_REL]);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json', LEAF_REL]);
     git(root, ['commit', '-m', 'base']);
     const handlers = createWorktreeHandlers({ store: new StoryStore(root), root, scanRoot: root });
     const out = String(handlers.dev_start({ storyId: STORY_ID }));
@@ -248,14 +248,14 @@ try {
     assert.doesNotMatch(out, /DATA-LOSS/, 'a committed (tracked) leaf must not warn');
   });
 
-  // (b) broad `.lattice/` ignore → bootstrap SUCCEEDS + warning present.
-  await check('bootstrap: broad `.lattice/` ignore → succeeds (force-add) AND warning', async () => {
+  // (b) broad `.proof-or-stop/` ignore → bootstrap SUCCEEDS + warning present.
+  await check('bootstrap: broad `.proof-or-stop/` ignore → succeeds (force-add) AND warning', async () => {
     const root = join(base, 'boot-broad');
     initGitRepo(root);
-    writeFileSync(join(root, '.gitignore'), '.lattice/\n');
+    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n');
     writeConfig(root);
     writeStoryIndex(root);
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json']);
     git(root, ['commit', '-m', 'base']);
     const handlers = createWorktreeHandlers({ store: new StoryStore(root), root, scanRoot: root });
     // Must NOT throw "The following paths are ignored…": force-add committed it.
@@ -282,7 +282,7 @@ try {
     writeStoryIndex(root);
     // Commit the leaf onto HEAD (the CHK-002 safe-init invariant) so it is a
     // tracked object; an allowlisted-but-uncommitted leaf is now itself unsafe.
-    git(root, ['add', '.gitignore', 'lattice.config.json', LEAF_REL]);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json', LEAF_REL]);
     git(root, ['commit', '-m', 'base']);
     const handlers = createWorktreeHandlers({ store: new StoryStore(root), root, scanRoot: root });
     const out = String(handlers.dev_start({ storyId: STORY_ID }));
@@ -305,7 +305,7 @@ try {
     // NOTE: the leaf is deliberately NOT committed to HEAD (no safe-init commit),
     // so in the main checkout index it is allowlisted-not-ignored AND untracked —
     // exactly what a plain `git clean -fd` wipes (the B-02a6 INIT window).
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json']);
     git(root, ['commit', '-m', 'base']);
     // Fixture invariant (by construction of NEGATION_ALLOWLIST, shared with the
     // case (c) allowlist test): the leaf is re-included = NOT ignored. The
@@ -320,10 +320,10 @@ try {
   await check('doctor: broad-ignore-untracked fixture → unsafe + remediation + JSON unsafe', async () => {
     const root = join(base, 'doctor-unsafe');
     initGitRepo(root);
-    writeFileSync(join(root, '.gitignore'), '.lattice/\n');
+    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n');
     writeConfig(root);
     writeStoryIndex(root);
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json']);
     git(root, ['commit', '-m', 'base']);
     // leaf exists on disk but is ignored + never added → the data-loss state.
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
@@ -349,7 +349,7 @@ try {
     writeStoryIndex(root);
     // Commit only the config/.gitignore — the leaf is allowlisted (NOT ignored)
     // but left UNCOMMITTED = the B-02a6 INIT window a plain `git clean -fd` wipes.
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json']);
     git(root, ['commit', '-m', 'base']);
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
 
@@ -381,10 +381,10 @@ try {
   await check('doctor: --repair writes allowlist; leaf safe only AFTER commit; second --repair no-op', async () => {
     const root = join(base, 'doctor-repair');
     initGitRepo(root);
-    writeFileSync(join(root, '.gitignore'), '.lattice/\n');
+    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n');
     writeConfig(root);
     writeStoryIndex(root);
-    git(root, ['add', '.gitignore', 'lattice.config.json']);
+    git(root, ['add', '.gitignore', 'proof-or-stop.config.json']);
     git(root, ['commit', '-m', 'base']);
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
 
@@ -392,8 +392,8 @@ try {
     const repair1 = await handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
     assert.equal(repair1.storyMetadataProtection.repairWrote, true, 'first --repair must install the allowlist');
     const gitignoreAfter = readFileSync(join(root, '.gitignore'), 'utf-8');
-    assert.match(gitignoreAfter, /lattice runtime artifacts \(managed\)/, 'managed block markers present');
-    assert.ok(gitignoreAfter.includes('!.lattice/story/actives/**'), 'negation allowlist installed');
+    assert.match(gitignoreAfter, /proof-or-stop runtime artifacts \(managed\)/, 'managed block markers present');
+    assert.ok(gitignoreAfter.includes('!.proof-or-stop/story/actives/**'), 'negation allowlist installed');
     // B-02a6 CHK-003: after repair the leaf is no longer IGNORED, but it is still
     // UNCOMMITTED (untracked) → it is now precisely the INIT-window unsafe state
     // (allowlisted-not-ignored + untracked, removable by a plain `git clean -fd`).
@@ -464,8 +464,8 @@ try {
     );
     // The allowlist landed in the GITROOT's .gitignore, not the wrapper's.
     const gitignoreAfter = readFileSync(join(repo, '.gitignore'), 'utf-8');
-    assert.match(gitignoreAfter, /lattice runtime artifacts \(managed\)/, 'managed block markers present in gitRoot/.gitignore');
-    assert.ok(gitignoreAfter.includes('!.lattice/story/actives/**'), 'negation allowlist installed in gitRoot/.gitignore');
+    assert.match(gitignoreAfter, /proof-or-stop runtime artifacts \(managed\)/, 'managed block markers present in gitRoot/.gitignore');
+    assert.ok(gitignoreAfter.includes('!.proof-or-stop/story/actives/**'), 'negation allowlist installed in gitRoot/.gitignore');
     // B-02a6 CHK-003: same as the non-wrapper case — after repair the leaf is no
     // longer ignored but is still UNCOMMITTED (untracked) = INIT-window unsafe.
     assert.equal(block1.unsafe, true, 'wrapper-root: after --repair the uncommitted leaf is still unsafe (INIT window)');

@@ -78,9 +78,9 @@ function assertAuditBudgetBinding(role: string, response: any, event: any): any 
 const transcript: string[] = [];
 const root = mkdtempSync(join(tmpdir(), 'story6-acceptance-transcript-'));
 try {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+    storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     promptEnvelope: {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles: Object.fromEntries(roles.map(role => [role, 'legacy-full-context'])),
@@ -189,7 +189,7 @@ try {
     description: `Force a real over-limit full context without suppressing execution.\n${'x'.repeat(55_000)}`,
   } as never);
   const overResponse = JSON.parse(handlers.agent_prompt({
-    role: 'lattice-implementer', storyId, format: 'json', auditExperiment: true,
+    role: 'proof-or-stop-implementer', storyId, format: 'json', auditExperiment: true,
     experimentalModeOverride: 'full-envelope',
   }));
   const overPersisted = store.readPromptEnvelopes(storyId).envelopes.find(
@@ -199,14 +199,14 @@ try {
     event => event.promptEnvelopeId === overResponse.envelope.envelopeId,
   );
   assert.ok(overPersisted && verifyPromptEnvelopeIntegrity(overPersisted));
-  const overBudget = assertAuditBudgetBinding('lattice-implementer', overResponse, overEvent);
+  const overBudget = assertAuditBudgetBinding('proof-or-stop-implementer', overResponse, overEvent);
   assert.equal(overBudget.withinBudget, false);
   assert.equal(overBudget.violation, 'complex-role-budget');
   assert.equal(overBudget.correctnessExecution, 'continue-full');
   assert.equal(overBudget.baselineAccepted, false);
   assert.equal(overEvent?.budgetViolation, 'full');
   transcript.push(
-    `AUDIT_BUDGET role=lattice-implementer observation=over-limit bytes=${overBudget.bytes}`
+    `AUDIT_BUDGET role=proof-or-stop-implementer observation=over-limit bytes=${overBudget.bytes}`
     + ` estimatedTokens=${overBudget.estimatedTokens} limitBytes=${overBudget.limitBytes}`
     + ' budgetViolation=full'
     + ' fullExecuted=true baselineAccepted=false auditOnly=true canMintReviewEvidence=false',

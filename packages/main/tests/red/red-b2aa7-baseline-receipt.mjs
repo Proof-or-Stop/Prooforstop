@@ -52,7 +52,7 @@ const AUDIT_DOC = 'docs/requirements/decisions/red-evidence-legacy-v1-record-val
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
 
 // ── Fail-closed marker ledger ───────────────────────────────────────────────
-// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// `proof-or-stop validate` grades a command by its EXIT CODE alone. Printing a marker
 // only when a check holds is what makes the pinned selectors meaningful, but on
 // its own it makes this file a crash-detector when run by validate: a regression
 // would print fewer markers and STILL exit 0. Every marker below is therefore

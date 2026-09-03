@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-41c8",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc --noEmit -p packages/main",
+    "npx tsx *"
+  ],
+  "allowedTools": [
+    "Agent",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/dev",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "git restore *",
+    "proof-or-stop release_approve_push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "excludedPaths": [
+    ".githooks",
+    ".proof-or-stop/dev-memory",
+    ".worktrees",
+    "node_modules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use the worktree's own built CLI (node packages/main/dist/cli.js) for every Proof-or-Stop command; the global proof-or-stop binary resolves into a different story's worktree and is a stale build. Direct edits under .proof-or-stop/story are forbidden by CLAUDE.md rule 8; all story state changes go through the CLI. .proof-or-stop/dev-memory is blocked because committing dev-memory records currently counts as material and invalidates every gate binding (dev-memory-records-count-as-material draft); capture lessons only at the very end, immediately before the finish decision.",
+  "createdAt": "2026-09-02T13:27:48.825Z",
+  "updatedAt": "2026-09-02T13:27:48.825Z",
+  "_hash": "055f46b29113b91b626c618abdef225710f3be1d9afaf3872a2b506d68bd415b"
+}

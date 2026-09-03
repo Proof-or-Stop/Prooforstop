@@ -19,12 +19,12 @@ const projectRoot = resolve(here, '..');
 const execFileAsync = promisify(execFile);
 const MAX_COHORT_JOBS = 12;
 export function parseCohortJobs(value = '3') {
-  if (!/^[1-9]\d*$/.test(value)) throw new Error(`LATTICE_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
+  if (!/^[1-9]\d*$/.test(value)) throw new Error(`PROOF_OR_STOP_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
   const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed) || parsed > MAX_COHORT_JOBS) throw new Error(`LATTICE_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
+  if (!Number.isSafeInteger(parsed) || parsed > MAX_COHORT_JOBS) throw new Error(`PROOF_OR_STOP_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
   return parsed;
 }
-const productionCaseLimit = parseCohortJobs(process.env.LATTICE_ROLLOUT_COHORT_JOBS ?? '3');
+const productionCaseLimit = parseCohortJobs(process.env.PROOF_OR_STOP_ROLLOUT_COHORT_JOBS ?? '3');
 let productionCasesActive = 0;
 const productionCaseWaiters = [];
 
@@ -127,7 +127,7 @@ function makeSourceRecord(input) {
 }
 
 function materializeStory(root, record) {
-  const storyDir = join(root, '.lattice', 'story', 'actives', record.storyId);
+  const storyDir = join(root, '.proof-or-stop', 'story', 'actives', record.storyId);
   writeJson(join(storyDir, 'story.json'), {
     id: record.storyId,
     title: `Wave 4 cohort ${record.pairId} ${record.arm}`,
@@ -173,9 +173,9 @@ async function runProductionCase({ storyId, pairId, arm, scenario, completedAt }
     encoding: 'utf8',
     env: {
       ...process.env,
-      LATTICE_ROLLOUT_COHORT_STORY_ID: storyId,
-      LATTICE_ROLLOUT_COHORT_ARM: arm,
-      LATTICE_ROLLOUT_COHORT_SCENARIO: scenario,
+      PROOF_OR_STOP_ROLLOUT_COHORT_STORY_ID: storyId,
+      PROOF_OR_STOP_ROLLOUT_COHORT_ARM: arm,
+      PROOF_OR_STOP_ROLLOUT_COHORT_SCENARIO: scenario,
     },
     maxBuffer: 32 * 1024 * 1024,
   }));

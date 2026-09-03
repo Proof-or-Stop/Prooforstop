@@ -58,14 +58,14 @@ const parsed = parseSections(unicodeBodyBackground);
 assert.ok(parsed.sections.get('Trigger Event')?.includes('\u82f1\u6587\u89c4\u5219'), 'Unicode body text should be preserved under canonical heading');
 assert.ok(parsed.sections.get('Key Insights')?.includes('\u8bed\u4e49'), 'Unicode insight body text should be preserved');
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-language-compat-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-language-compat-'));
 try {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }));
 
@@ -118,17 +118,17 @@ try {
 
 // --- Source-aligned redevelopment: cross-language abstraction is pair-agnostic ---
 //
-// This drives the real `lattice` CLI through the deterministic redevelopment
+// This drives the real `proof-or-stop` CLI through the deterministic redevelopment
 // projection and proves the language-pair-agnostic evidence model end to end:
 // the SAME canonical operations and evidence schema serve multiple targets,
 // language ids stay abstract strings, target parity is never claimed without
 // target-runnable evidence, and missing adapters block or scoped_gap by policy.
-// See docs/requirements/decisions/lattice-authority-live-integration.md
+// See docs/requirements/decisions/proof-or-stop-authority-live-integration.md
 // (C2a-projection). The assertions are coupled to the executor projection, so if
 // the redevelopment evidence is ever removed this canary turns red.
 {
   const cliPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
-  const redevRoot = mkdtempSync(join(tmpdir(), 'lattice-redev-'));
+  const redevRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-redev-'));
   const cli = (args: string[]): Record<string, any> => {
     const out = execFileSync(process.execPath, [cliPath, '--root', redevRoot, ...args], {
       cwd: redevRoot,
@@ -142,7 +142,7 @@ try {
   const mappingPolicy = '{"allowedMappingKinds":["1:1","1:N","N:1","mapped_to_gap"],"requiresMappingRationale":true,"forbidOptimizationForItsOwnSake":true}';
   const parityPolicy = '{"allowedOracleKinds":["target_build","target_test","cli_golden"],"sourceOnlyBehavior":"gap","requiresTargetRunnableEvidence":true}';
   const redevArgs = (target: string, behavior: 'block' | 'scoped_gap', validTarget = true) => [
-    'lattice', 'planner', 'run',
+    'proof-or-stop', 'planner', 'run',
     '--workflow=source-aligned-redevelopment',
     `--request=Rewrite the source project into ${target} with behavior parity`,
     '--sourceRepo=source',
@@ -159,17 +159,17 @@ try {
     '--json',
   ];
   try {
-    writeFileSync(join(redevRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(redevRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2));
     mkdirSync(join(redevRoot, 'docs/requirements/decisions'), { recursive: true });
-    writeFileSync(join(redevRoot, 'docs/requirements/decisions/lattice-authority-live-integration.md'), '# Requirements\n');
+    writeFileSync(join(redevRoot, 'docs/requirements/decisions/proof-or-stop-authority-live-integration.md'), '# Requirements\n');
     mkdirSync(join(redevRoot, 'source/src'), { recursive: true });
     writeFileSync(join(redevRoot, 'source/src/index.ts'), 'export function add(a:number,b:number){ return a + b; }\n');
     writeFileSync(join(redevRoot, 'source/src/util.ts'), 'export const ZERO = 0;\n');

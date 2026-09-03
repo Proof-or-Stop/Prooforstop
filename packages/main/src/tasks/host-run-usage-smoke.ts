@@ -8,7 +8,7 @@
  *     (seq2 superseding) with the uncached-remainder mapping and the ORIGINAL
  *     payload digest; claude stream-json result -> provider-reported final +
  *     served model; agy -> unavailable (provider antigravity); codex turn.failed
- *     / no usage -> unavailable-with-reason; LATTICE_USAGE_LEDGER=0 byte-identical
+ *     / no usage -> unavailable-with-reason; PROOF_OR_STOP_USAGE_LEDGER=0 byte-identical
  *     (zero rows, zero dirs); host non-zero exit propagates; bounded parse buffer;
  *     prototype-pollution honesty.
  *   - CHK-002: reviewRunId->threadId, lane->subagentId, omitted -> null; phase
@@ -84,7 +84,7 @@
  *     B-3ddc (codex round-1 F2): parentheses in an error.message are neutralized
  *     ('(' -> '[', ')' -> ']') so the digest can never inject the enclosing
  *     turn_failed(...) delimiters (no-parens digest invariant).
- *   - CHK-003: the remaining lattice-initiated host spawns route through the same
+ *   - CHK-003: the remaining proof-or-stop-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
  *     excerpt; ledger OFF byte-identical). F-016: the repair also passes the SAME
@@ -220,7 +220,7 @@ function freshRoot(): string {
   return join(root, `case-${counter++}`);
 }
 
-const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const ON = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 
 // ---- Fake host outputs -----------------------------------------------------
 
@@ -807,18 +807,18 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
-  // CHK-001 edge: LATTICE_USAGE_LEDGER=0 -> byte-identical (zero rows, zero dirs)
+  // CHK-001 edge: PROOF_OR_STOP_USAGE_LEDGER=0 -> byte-identical (zero rows, zero dirs)
   // =========================================================================
   await checkAsync('CHK-001 edge: ledger OFF -> zero rows, zero dirs, run still spawns + exit propagates', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
     const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env: OFF }), { runner: makeRunner({ stdout: CODEX_STDOUT, exitCode: 2 }, sink) });
     assert.equal(sink.calls, 1, 'runner still invoked when ledger OFF');
     assert.equal(result.exitCode, 2, 'exit propagates when OFF');
     assert.equal(result.usageSummary.recorded, 'disabled');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file');
-    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .lattice dir created');
+    assert.equal(existsSync(join(sub, '.proof-or-stop')), false, 'no .proof-or-stop dir created');
     assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot dir created');
   });
 
@@ -884,7 +884,7 @@ async function main(): Promise<void> {
   await checkAsync('CHK-002 binding: reviewRunId->threadId, lane->subagentId, phase resolves from the configured store', async () => {
     const sub = freshRoot();
     const result = await runHostRun(
-      baseArgs({ root: sub, host: 'codex', storyId: 'B-70e9', reviewRunId: 'B-70e9:RR-001', lane: 'lattice-review-quality', agentType: 'reviewer' }),
+      baseArgs({ root: sub, host: 'codex', storyId: 'B-70e9', reviewRunId: 'B-70e9:RR-001', lane: 'proof-or-stop-review-quality', agentType: 'reviewer' }),
       { runner: makeRunner({ stdout: CODEX_STDOUT }), resolveStory: fakeStoreResolver({ 'B-70e9': 'REVIEW' }) },
     );
     assert.equal(result.phase, 'REVIEW', 'phase resolved from the configured store (no story-path read)');
@@ -892,7 +892,7 @@ async function main(): Promise<void> {
     assert.ok(records.length >= 1);
     for (const r of records) {
       assert.equal(r.threadId, 'B-70e9:RR-001');
-      assert.equal(r.subagentId, 'lattice-review-quality');
+      assert.equal(r.subagentId, 'proof-or-stop-review-quality');
       assert.equal(r.storyId, 'B-70e9');
       assert.equal(r.phase, 'REVIEW');
     }
@@ -940,7 +940,7 @@ async function main(): Promise<void> {
 
   // =========================================================================
   // F-005: story metadata resolves through the configured store, NOT a hard-coded
-  // .lattice/story/actives path; an explicit --phase never reads the store.
+  // .proof-or-stop/story/actives path; an explicit --phase never reads the store.
   // =========================================================================
   await checkAsync('F-005: explicit --phase is honored AS-IS with NO story-store read (fake resolver never consulted)', async () => {
     const sub = freshRoot();
@@ -964,7 +964,7 @@ async function main(): Promise<void> {
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     // The resolver would refuse B-9999 (unknown per the store), but --phase means
     // the store is never asked, so the host launches. Under the old hard-coded
-    // .lattice/story/actives read this was refused pre-spawn.
+    // .proof-or-stop/story/actives read this was refused pre-spawn.
     const result = await runHostRun(
       baseArgs({ root: sub, host: 'codex', storyId: 'B-9999', phase: 'REVIEW' }),
       { runner: makeRunner({ stdout: CODEX_STDOUT }, sink), resolveStory: fakeStoreResolver({ 'B-70e9': 'REVIEW' }) },
@@ -1333,7 +1333,7 @@ async function main(): Promise<void> {
 
   // =========================================================================
   // F-030: the SAME build-vs-append conflation, in the VOID codex/gemini
-  // sibling recordDispatchFinalForProvider (used by lattice-dispatch
+  // sibling recordDispatchFinalForProvider (used by proof-or-stop-dispatch
   // runBoundedRealLeafDispatch). The OLD code wrapped buildProviderRecord AND
   // appendUsageRecord in ONE try; a provider-reported record that BUILT fine
   // but whose ledger APPEND threw fell through to the unavailable-final branch,
@@ -1432,7 +1432,7 @@ async function main(): Promise<void> {
     const sub = freshRoot();
     seedCorruptLedger(sub);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const result = await runHostRun(baseArgs({ root: sub, host: 'claude', env }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }, sink) });
     // The refusal itself is unchanged: fail-closed, no spawn, nonzero exit.
     assert.equal(sink.calls, 0, 'runner NOT invoked over budget even with a failing ledger');
@@ -1489,7 +1489,7 @@ async function main(): Promise<void> {
     // (b) End-to-end through runHostRun (ledger ON, cap=1): a streaming fake
     // runner drives the core onChunk wrapper against a throwing passthrough dep.
     const sub = freshRoot();
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     let sinkCalls = 0;
     const passthrough: HostRunPassthrough = () => {
       sinkCalls += 1;
@@ -1569,8 +1569,8 @@ writeFileSync(RESULT, JSON.stringify({ passthroughError: obj.passthroughError ??
 
     const childEnv = {
       ...process.env,
-      LATTICE_USAGE_LEDGER: '1',
-      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      PROOF_OR_STOP_USAGE_LEDGER: '1',
+      PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1',
       F020_ROOT: sub,
       F020_RESULT: resultFile,
       F020_HANDLER_URL: new URL('../handlers/host-run.js', import.meta.url).href,
@@ -1664,8 +1664,8 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
 
     const childEnv = {
       ...process.env,
-      LATTICE_USAGE_LEDGER: '1',
-      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      PROOF_OR_STOP_USAGE_LEDGER: '1',
+      PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1',
       F023_ROOT: sub,
       F023_RESULT: resultFile,
       F023_HANDLER_URL: new URL('../handlers/host-run.js', import.meta.url).href,
@@ -1756,8 +1756,8 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
 
     const childEnv = {
       ...process.env,
-      LATTICE_USAGE_LEDGER: '1',
-      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      PROOF_OR_STOP_USAGE_LEDGER: '1',
+      PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1',
       F024_ROOT: sub,
       F024_RESULT: resultFile,
       F024_HANDLER_URL: new URL('../handlers/host-run.js', import.meta.url).href,
@@ -1806,7 +1806,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     try {
       process.chdir(elsewhere);
       // The smoke process now sits in a directory that is NOT the injected root
-      // — exactly the reported bug setup (`lattice --root <worktree> host_run`
+      // — exactly the reported bug setup (`proofOrStop --root <worktree> host_run`
       // invoked from somewhere else).
       assert.notEqual(realpathSync(sub), process.cwd(), 'precondition: caller cwd differs from the injected root');
       const sink: RunnerSink = { calls: 0, lastPlan: null };
@@ -1862,7 +1862,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   await checkAsync('CHK-007a budget: over-budget preflight refuses before spawn, writes blocked row (hard_budget_exceeded)', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked when over budget');
     assert.equal(result.blocked, true);
@@ -1881,7 +1881,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   });
 
   await checkAsync('CHK-007a budget (F-004): blocked rows are provider-honest — codex=openai, claude=anthropic (legacy shape byte-compat)', async () => {
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
 
     // codex budget refusal -> provider.name openai (was mis-attributed anthropic).
     const sub1 = freshRoot();
@@ -1956,7 +1956,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     const old = new Date(Date.now() - 7 * 60 * 60 * 1000); // ...whose slot looks ancient (7h > the 6h window)
     utimesSync(held, old, old);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked — the live slot was not stolen by age');
     assert.equal(result.blocked, true, 'the waiter refuses at cap instead of reclaiming a live run');
@@ -1971,7 +1971,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     mkdirSync(dir, { recursive: true });
     const orphan = join(dir, 'slot-0.json');
     writeFileSync(orphan, '', 'utf8'); // the crash-between-wx-create-and-meta-write window: no parseable meta
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
 
     // FRESH meta-less slot: possibly a holder mid-way through its meta write —
     // never stolen; the run refuses fail-closed.
@@ -2049,7 +2049,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // Full-run refusal under the held slot: an agy run with cap=1 must refuse
     // fail-closed with the blocked row attributed to antigravity (F-004).
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     const result = await runHostRun(baseArgs({ root: sub, host: 'agy', env }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked under contention refusal');
     assert.equal(result.blocked, true);
@@ -2085,13 +2085,13 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(writeSlotFileExclusive(file, { ...slotMeta('reclaimer-b'), token: 'reclaimer-b-token' }), false, 'losing wx re-create fails atomically');
   });
 
-  check('CHK-007b edge: LATTICE_HOST_RUN_MAX_CONCURRENT unset/invalid falls back to 4; valid honored', () => {
+  check('CHK-007b edge: PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT unset/invalid falls back to 4; valid honored', () => {
     assert.equal(resolveMaxConcurrent({} as NodeJS.ProcessEnv), 4);
-    assert.equal(resolveMaxConcurrent({ LATTICE_HOST_RUN_MAX_CONCURRENT: '0' } as NodeJS.ProcessEnv), 4);
-    assert.equal(resolveMaxConcurrent({ LATTICE_HOST_RUN_MAX_CONCURRENT: '-3' } as NodeJS.ProcessEnv), 4);
-    assert.equal(resolveMaxConcurrent({ LATTICE_HOST_RUN_MAX_CONCURRENT: 'abc' } as NodeJS.ProcessEnv), 4);
-    assert.equal(resolveMaxConcurrent({ LATTICE_HOST_RUN_MAX_CONCURRENT: '3.5' } as NodeJS.ProcessEnv), 4);
-    assert.equal(resolveMaxConcurrent({ LATTICE_HOST_RUN_MAX_CONCURRENT: '8' } as NodeJS.ProcessEnv), 8);
+    assert.equal(resolveMaxConcurrent({ PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '0' } as NodeJS.ProcessEnv), 4);
+    assert.equal(resolveMaxConcurrent({ PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '-3' } as NodeJS.ProcessEnv), 4);
+    assert.equal(resolveMaxConcurrent({ PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: 'abc' } as NodeJS.ProcessEnv), 4);
+    assert.equal(resolveMaxConcurrent({ PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '3.5' } as NodeJS.ProcessEnv), 4);
+    assert.equal(resolveMaxConcurrent({ PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '8' } as NodeJS.ProcessEnv), 8);
   });
 
   // =========================================================================
@@ -2146,9 +2146,9 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // would refuse an ON repair pre-spawn are NEVER consulted — the repair
     // spawns byte-identically and creates no dirs (so no slot registry either).
     const OFF = {
-      LATTICE_USAGE_LEDGER: '0',
-      LATTICE_HARD_BUDGET_TOKENS: '1',
-      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      PROOF_OR_STOP_USAGE_LEDGER: '0',
+      PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1',
+      PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1',
     } as NodeJS.ProcessEnv;
     // Capture an ON run's prompt arg to prove the OFF argv only DROPPED the ledger
     // flag (same prompt text), i.e. the ON path merely ADDED flags.
@@ -2171,7 +2171,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(offAttempt.command, 'claude -p <repair-prompt>', 'OFF command label byte-identical to today');
     assert.equal(offAttempt.stdoutExcerpt, plainStdout, 'OFF excerpt is the raw stdout (unchanged)');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file when OFF');
-    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .lattice dir when OFF');
+    assert.equal(existsSync(join(sub, '.proof-or-stop')), false, 'no .proof-or-stop dir when OFF');
     assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot registry when OFF (admission never ran)');
   });
 
@@ -2179,12 +2179,12 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   // F-016: the autopilot repair passes the SAME pre-spawn admission as host_run.
   // Against the old code both checks below fail loudly: the repair recorded the
   // preflight and then invoked the runner directly (sink.calls === 1, no blocked
-  // row, no slot ever held), so LATTICE_HARD_BUDGET_TOKENS and a saturated
-  // LATTICE_HOST_RUN_MAX_CONCURRENT could not stop an autopilot repair.
+  // row, no slot ever held), so PROOF_OR_STOP_HARD_BUDGET_TOKENS and a saturated
+  // PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT could not stop an autopilot repair.
   // =========================================================================
-  check('F-016 repair budget admission: ledger ON + LATTICE_HARD_BUDGET_TOKENS=1 refuses PRE-SPAWN (runner never invoked) + blocked row (hard_budget_exceeded, anthropic, autopilot-repair)', () => {
+  check('F-016 repair budget admission: ledger ON + PROOF_OR_STOP_HARD_BUDGET_TOKENS=1 refuses PRE-SPAWN (runner never invoked) + blocked row (hard_budget_exceeded, anthropic, autopilot-repair)', () => {
     const sub = freshRoot();
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const sink: RepairSink = { calls: 0, lastArgs: null };
     const attempt = runClaudeRepair(
       sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: '{}', stderr: '' }, sink),
@@ -2213,7 +2213,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   check('F-016 repair concurrency admission: saturated cap refuses pre-spawn (concurrency_cap_exceeded row, no spawn); OFF ignores the cap; slot HELD during a normal run and RELEASED after', () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     seedSlot(dir, 0, process.pid); // a live occupant saturates cap=1
 
     const sink: RepairSink = { calls: 0, lastArgs: null };
@@ -2238,7 +2238,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     const off = runClaudeRepair(
       sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: 'plain', stderr: '' }, sinkOff),
       repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'),
-      { LATTICE_USAGE_LEDGER: '0', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv,
+      { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv,
     );
     assert.equal(sinkOff.calls, 1, 'OFF: the repair spawns despite the saturated cap (no admission when OFF)');
     assert.equal(off.status, 'passed');
@@ -2321,13 +2321,13 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
 
     // Ledger OFF -> strict no-op (no rows, no dir).
     const sub3 = freshRoot();
-    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
     const rows3 = recordHostReadinessProbeUsage({
       root: sub3, storyId: 'B-70e9', phase: 'probe', hosts,
       env: OFF, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
     });
     assert.equal(rows3.length, 0, 'OFF -> no rows returned');
-    assert.equal(existsSync(join(sub3, '.lattice')), false, 'OFF -> no .lattice dir');
+    assert.equal(existsSync(join(sub3, '.proof-or-stop')), false, 'OFF -> no .proof-or-stop dir');
   });
 
   // =========================================================================
@@ -2394,14 +2394,14 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
 
     // OFF is still a strict no-op even with a spawning host present.
     const subOff = freshRoot();
-    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
     const offRows = recordHostReadinessProbeUsage({
       root: subOff, storyId: 'B-70e9', phase: 'REVIEW',
       hosts: [{ host: 'codex-attempted', failureKind: 'timeout', outputBytes: 0 }],
       env: OFF, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
     });
     assert.equal(offRows.length, 0, 'OFF -> no rows even for a spawned host');
-    assert.equal(existsSync(join(subOff, '.lattice')), false, 'OFF -> no .lattice dir');
+    assert.equal(existsSync(join(subOff, '.proof-or-stop')), false, 'OFF -> no .proof-or-stop dir');
   });
 
   // =========================================================================
@@ -2460,7 +2460,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // refuse an ON leaf pre-spawn are NEVER consulted — the leaf runs, creates
     // no dirs (so no slot registry), and adds zero rows.
     const sub2 = freshRoot();
-    const OFF = { LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     let calls2 = 0;
     const runner2: CodexReviewRunner = () => { calls2 += 1; return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false }; };
     const leaf2 = await runCodexReviewLeaf(
@@ -2478,12 +2478,12 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   // as host_run / the autopilot repair. Against the old leaf all three checks
   // fail loudly: the leaf recorded the preflight and then invoked the runner
   // directly (calls === 1, no blocked row, no slot ever held), so
-  // LATTICE_HARD_BUDGET_TOKENS and a saturated LATTICE_HOST_RUN_MAX_CONCURRENT
+  // PROOF_OR_STOP_HARD_BUDGET_TOKENS and a saturated PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT
   // could not stop the codex review spawn.
   // =========================================================================
-  await checkAsync('F-017 codex leaf budget admission: ledger ON + LATTICE_HARD_BUDGET_TOKENS=1 refuses PRE-SPAWN (runner never invoked) + blocked row (hard_budget_exceeded, openai) + synthesized blocked verdict', async () => {
+  await checkAsync('F-017 codex leaf budget admission: ledger ON + PROOF_OR_STOP_HARD_BUDGET_TOKENS=1 refuses PRE-SPAWN (runner never invoked) + blocked row (hard_budget_exceeded, openai) + synthesized blocked verdict', async () => {
     const sub = freshRoot();
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
     const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
     let calls = 0;
@@ -2514,7 +2514,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   await checkAsync('F-017 codex leaf concurrency admission: saturated cap refuses pre-spawn (concurrency_cap_exceeded row provider openai, no spawn) + synthesized blocked verdict', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     seedSlot(dir, 0, process.pid); // a live occupant saturates cap=1
     const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
     const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
@@ -2541,7 +2541,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   await checkAsync('F-017 codex leaf normal run: the admission slot is HELD during the run and RELEASED after (cap=1 re-admission succeeds)', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
     const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
     let slotHeldDuringRun = false;
@@ -2622,7 +2622,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
       '  const template = JSON.parse(process.env.F012_TEMPLATE);',
       '  for (let i = 0; i < Number(process.env.F012_APPENDS); i++) {',
       '    const record = { ...template, recordId: ids.mintRecordId(), ledgerCallId: ids.mintLedgerCallId(), attemptId: ids.mintAttemptId() };',
-      '    const res = writer.appendUsageRecord(process.env.F012_ROOT, record, { env: { LATTICE_USAGE_LEDGER: "1" } });',
+      '    const res = writer.appendUsageRecord(process.env.F012_ROOT, record, { env: { PROOF_OR_STOP_USAGE_LEDGER: "1" } });',
       '    if (!res.written) throw new Error("append reported not-written");',
       '  }',
       '})().catch((err) => { console.error(String((err && err.message) || err)); process.exit(1); });',
@@ -2673,9 +2673,9 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // out, never reclaimed within the bounded budget.
     mkdirSync(lockDir, { recursive: true });
     const env = {
-      LATTICE_USAGE_LEDGER: '1',
-      LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '50',
-      LATTICE_USAGE_LEDGER_LOCK_STALE_MS: '60000',
+      PROOF_OR_STOP_USAGE_LEDGER: '1',
+      PROOF_OR_STOP_USAGE_LEDGER_LOCK_WAIT_MS: '50',
+      PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS: '60000',
     } as NodeJS.ProcessEnv;
     assert.throws(
       () => appendUsageRecord(sub, minimalValidUsageRecord(), { env }),
@@ -2705,9 +2705,9 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     const old = new Date(Date.now() - 60_000);
     utimesSync(lockDir, old, old);
     const env = {
-      LATTICE_USAGE_LEDGER: '1',
-      LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '50',
-      LATTICE_USAGE_LEDGER_LOCK_STALE_MS: '1', // even an absurdly tiny backstop must not matter
+      PROOF_OR_STOP_USAGE_LEDGER: '1',
+      PROOF_OR_STOP_USAGE_LEDGER_LOCK_WAIT_MS: '50',
+      PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS: '1', // even an absurdly tiny backstop must not matter
     } as NodeJS.ProcessEnv;
     assert.throws(
       () => appendUsageRecord(sub, minimalValidUsageRecord(), { env }),
@@ -2738,8 +2738,8 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     );
     // FRESH mtime + a huge orphan backstop: pid death ALONE authorizes reclaim.
     const env = {
-      LATTICE_USAGE_LEDGER: '1',
-      LATTICE_USAGE_LEDGER_LOCK_STALE_MS: '3600000',
+      PROOF_OR_STOP_USAGE_LEDGER: '1',
+      PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS: '3600000',
     } as NodeJS.ProcessEnv;
     const res = appendUsageRecord(sub, minimalValidUsageRecord(), { env });
     assert.equal(res.written, true, 'the append reclaimed the dead holder lock and succeeded');
@@ -2795,7 +2795,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // writeFileSync(owner.json) fails EACCES (non-root) — exactly the
     // mkdir-succeeded-but-owner-write-failed branch. WAIT_MS=0 bounds the
     // retry loop to a single pass through that branch.
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '0' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_USAGE_LEDGER_LOCK_WAIT_MS: '0' } as NodeJS.ProcessEnv;
     const prevUmask = process.umask(0o277);
     let res: string | null;
     try {
@@ -2873,7 +2873,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
 
   await checkAsync('B-3aec abort cleanup: caller abort waits for close and runHostRun releases cap=1 slot for immediate reacquisition', async () => {
     const sub = freshRoot();
-    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     const controller = new AbortController();
     const runner: HostRunRunner = plan => defaultHostRunRunner({
       ...plan,
@@ -3035,7 +3035,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(trackedAbort.listenerCount(), 0, 'abort listener is removed at settlement');
 
     const releaseRoot = freshRoot();
-    const releaseEnv = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const releaseEnv = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     const releaseRace = deterministicHostRuntime();
     const releaseController = new AbortController();
     const releasePromise = runHostRun({
@@ -3061,7 +3061,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
       { script: 'process.stdout.write("ready\\n"); setInterval(() => {}, 1000)', startupTimeoutMs: 300, timeoutMs: 80, expected: 'total_timeout' },
     ] as const) {
       const sub = freshRoot();
-      const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+      const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
       const runner: HostRunRunner = plan => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', scenario.script] });
       const result = await runHostRun({ ...baseArgs({ root: sub, host: 'codex', env }), startupTimeoutMs: scenario.startupTimeoutMs, timeoutMs: scenario.timeoutMs }, { runner });
       assert.equal(result.timeoutKind, scenario.expected);

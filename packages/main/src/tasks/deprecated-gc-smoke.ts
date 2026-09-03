@@ -3,7 +3,7 @@
  *
  * Tests:
  *   1. resolveAuditConfig('balanced', projectRoot) returns deprecatedGcThreshold === 10 (default)
- *   2. resolveAuditConfig with .lattice/audit-config.json containing {"deprecatedGcThreshold": 5} returns 5
+ *   2. resolveAuditConfig with .proof-or-stop/audit-config.json containing {"deprecatedGcThreshold": 5} returns 5
  *   3. scanDeprecated(projectRoot) returns count >= 0 and Array.isArray(files) without throwing (real repo)
  *   4. Advisory wiring: count=12 > threshold=10 → hint includes "⚠ @deprecated GC: 12 annotation(s)"
  *   5. count=7 <= threshold=10 → advisory does NOT appear in hint
@@ -15,12 +15,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resolveAuditConfig } from '../core/audit-config.js';
 import { scanDeprecated } from '../core/audit-scan.js';
-// B-cc10 CHK-006 (B-cc10:F-001): this fixture hardcoded '.lattice' while
+// B-cc10 CHK-006 (B-cc10:F-001): this fixture hardcoded '.proof-or-stop' while
 // resolveAuditConfig reads PROOF_OR_STOP_DIR. Once CHK-003 moved the state dir the
 // fixture wrote one directory and production read another, so the override silently
 // never applied and the test failed with the DEFAULT threshold (10 !== 5). Importing
 // the same constant production uses is what keeps the two ends bound.
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 
 // ---------------------------------------------------------------------------
 // Test 1: default deprecatedGcThreshold = 10 for 'balanced' profile
@@ -37,7 +37,7 @@ function test1DefaultThreshold(): void {
 }
 
 // ---------------------------------------------------------------------------
-// Test 2: .lattice/audit-config.json override with deprecatedGcThreshold: 5
+// Test 2: .proof-or-stop/audit-config.json override with deprecatedGcThreshold: 5
 // ---------------------------------------------------------------------------
 function test2ConfigOverride(): void {
   const tmp = mkdtempSync(join(tmpdir(), 'deprecated-gc-smoke-'));

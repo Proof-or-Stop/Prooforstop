@@ -8,7 +8,7 @@
  * Root cause (pre-B-9dcb): captureReviewRunSnapshot / diagnoseReviewRunSnapshot
  * computed currentMaterialHash / currentStoryFilesHash with metadataRoot DEFAULTED
  * to the gitRoot (they only took projectRoot). On a wrapper-root layout the
- * lattice.config.json that declares a CUSTOM storyDir lives at the metadataRoot,
+ * proof-or-stop.config.json that declares a CUSTOM storyDir lives at the metadataRoot,
  * NOT the gitRoot — so loading config from the gitRoot silently missed the custom
  * storyDir and WRONGLY INCLUDED custom-storyDir metadata files in the material /
  * story hashes. Worse, the two REVIEW→TEST evidence-freshness recomputes
@@ -34,7 +34,7 @@
  *
  * Fixture (real disk, cleaned up):
  *   metadataRoot/                <- NON-git wrapper metadata root.
- *     lattice.config.json        <- { gitRoot: "repo", storyDir: "custom/story" }
+ *     proof-or-stop.config.json        <- { gitRoot: "repo", storyDir: "custom/story" }
  *   metadataRoot/repo/           <- the REAL inner git repo (gitRoot), branch main.
  *     src/keep.ts                <- a MATERIAL file (main), always hashed.
  *   story branch (ahead of main):
@@ -178,10 +178,10 @@ function signedReviewPass(storyId: string, id: string, agent: string, reviewRoun
 // a story branch ahead of main adds a material change + a custom-storyDir file.
 // ════════════════════════════════════════════════════════════════════════════
 function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: string } {
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-review-run-mr-wrapper-'));
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-run-mr-wrapper-'));
   // metadataRoot is deliberately NOT a git repo; the config (with the custom
   // storyDir) lives here, at the metadataRoot.
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), config('repo', CUSTOM_STORY_DIR), 'utf-8');
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), config('repo', CUSTOM_STORY_DIR), 'utf-8');
 
   const gitRoot = join(metadataRoot, 'repo');
   mkdirSync(join(gitRoot, 'src'), { recursive: true });
@@ -339,7 +339,7 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
     // projectRoot) is wired all the way through, not just the raw
     // checkEvidenceFreshnessForGit. ──
     const story = store.readStory(STORY_ID);
-    const agent = 'lattice-review-concept';
+    const agent = 'proof-or-stop-review-concept';
     const startedAt = story.currentReviewRound!;
     const workspaceBinding = buildReviewRunWorkspaceBinding({
       metadataRoot,
@@ -449,7 +449,7 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
 
     // Build + persist a LEGACY run: signed, current round, but NO workspaceBinding.
     const story = store.readStory(STORY_ID);
-    const agent = 'lattice-review-concept';
+    const agent = 'proof-or-stop-review-concept';
     const startedAt = story.currentReviewRound!;
     const runId = 'rr-mr-legacy-1';
     const _hash = signReviewRun(
@@ -556,9 +556,9 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-mr-plain-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-run-mr-plain-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), config(undefined, '.lattice/story/actives'), 'utf-8');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), config(undefined, '.proof-or-stop/story/actives'), 'utf-8');
     mkdirSync(join(root, 'src'), { recursive: true });
     git(root, ['init']);
     git(root, ['checkout', '-b', 'main']);
@@ -605,9 +605,9 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-mr-sig-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-run-mr-sig-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), config(undefined, '.lattice/story/actives'), 'utf-8');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), config(undefined, '.proof-or-stop/story/actives'), 'utf-8');
     mkdirSync(join(root, 'src'), { recursive: true });
     git(root, ['init']);
     git(root, ['checkout', '-b', 'main']);
@@ -652,7 +652,7 @@ function buildWrapperCustomStoryFixture(): { metadataRoot: string; gitRoot: stri
     // signReviewRun: fed each snapshot's headHash/materialHash + the bindingHash + storyFilesHash.
     const STORY = 'B-9dcb';
     const RUN = 'rr-mr-sig-1';
-    const AGENT = 'lattice-review-concept';
+    const AGENT = 'proof-or-stop-review-concept';
     const ROUND = '2026-07-01T00:00:00.000Z';
     const signWith = (snap: { headHash: string; materialHash: string; storyFilesHash?: string }) =>
       signReviewRun(

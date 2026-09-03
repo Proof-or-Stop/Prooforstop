@@ -66,9 +66,9 @@ import {
 } from '../core/certification-window.js';
 
 function makeRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-certification-window-smoke-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    storyDir: '.lattice/story/actives',
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-certification-window-smoke-'));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    storyDir: '.proof-or-stop/story/actives',
     storyPrefix: 'B',
   }));
   return root;
@@ -76,7 +76,7 @@ function makeRoot(): string {
 
 function makeStore(root: string, storyId: string, phase: 'DEV' | 'TEST' = 'DEV'): StoryStore {
   const store = new StoryStore(root);
-  mkdirSync(join(root, '.lattice', 'story', 'actives', storyId), { recursive: true });
+  mkdirSync(join(root, '.proof-or-stop', 'story', 'actives', storyId), { recursive: true });
   store.writeStory(storyId, {
     storyId,
     name: 'certification-window-smoke',
@@ -290,7 +290,7 @@ const signed = withSignedCertificationWindow({
 });
 tamperData.windows.push(signed);
 tamperStore.writeCertificationWindows(tamperStoryId, tamperData);
-const filePath = join(root, '.lattice', 'story', 'actives', tamperStoryId, CERTIFICATION_WINDOW_FILE);
+const filePath = join(root, '.proof-or-stop', 'story', 'actives', tamperStoryId, CERTIFICATION_WINDOW_FILE);
 const onDisk = JSON.parse(readFileSync(filePath, 'utf8')) as { windows: Array<Record<string, unknown>> };
 onDisk.windows[0].state = 'ADMITTED';
 onDisk.windows[0].frozen = { ...frozen, headHash: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' };
@@ -471,16 +471,16 @@ function git(cwd: string, args: string[]): string {
 }
 
 function makeGitRoot(): string {
-  const gitRoot = mkdtempSync(join(tmpdir(), 'lattice-certification-window-git-'));
+  const gitRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-certification-window-git-'));
   git(gitRoot, ['init', '-b', 'main']);
   git(gitRoot, ['config', 'user.email', 'cert-window@example.test']);
   git(gitRoot, ['config', 'user.name', 'cert-window']);
-  writeFileSync(join(gitRoot, 'lattice.config.json'), JSON.stringify({
-    storyDir: '.lattice/story/actives',
+  writeFileSync(join(gitRoot, 'proof-or-stop.config.json'), JSON.stringify({
+    storyDir: '.proof-or-stop/story/actives',
     storyPrefix: 'B',
   }));
   writeFileSync(join(gitRoot, 'README.md'), 'certification window smoke\n');
-  git(gitRoot, ['add', 'lattice.config.json', 'README.md']);
+  git(gitRoot, ['add', 'proof-or-stop.config.json', 'README.md']);
   git(gitRoot, ['commit', '-m', 'init']);
   return gitRoot;
 }
@@ -746,8 +746,8 @@ assert.equal(isOfficialHeavyValidateInvocation({ full: 'filter' }), true);
 
 const heavyMarker = 'HEAVY_RAN';
 function writeHeavyConfig(dir: string, commit = false): void {
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
-    storyDir: '.lattice/story/actives',
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
+    storyDir: '.proof-or-stop/story/actives',
     storyPrefix: 'B',
     doneRequiredCommands: [{
       label: 'spawn-detector',
@@ -757,7 +757,7 @@ function writeHeavyConfig(dir: string, commit = false): void {
     }],
   }));
   if (commit) {
-    git(dir, ['add', 'lattice.config.json']);
+    git(dir, ['add', 'proof-or-stop.config.json']);
     git(dir, ['commit', '-m', 'heavy detector config']);
   }
 }
@@ -923,8 +923,8 @@ assert.deepEqual(runningReceipt.frozen, runningWindow.frozen);
 assert.equal(runningReceipt.frozen.verifierIdentity, PRECERT_VERIFIER_IDENTITY);
 assert.equal(runningReceipt.frozen.testIdentity, PRECERT_TEST_IDENTITY);
 
-writeFileSync(join(replayRoot, '.lattice', 'story', 'actives', replayStoryId, 'note.md'), 'metadata-only\n');
-git(replayRoot, ['add', `.lattice/story/actives/${replayStoryId}/note.md`]);
+writeFileSync(join(replayRoot, '.proof-or-stop', 'story', 'actives', replayStoryId, 'note.md'), 'metadata-only\n');
+git(replayRoot, ['add', `.proof-or-stop/story/actives/${replayStoryId}/note.md`]);
 git(replayRoot, ['commit', '-m', 'metadata-only']);
 const metadataStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(metadataStatus, 'RUNNING');

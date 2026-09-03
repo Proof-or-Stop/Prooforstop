@@ -107,7 +107,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     'Intentionally-absent example `packages/main/src/handlers/intentional-absent.ts`.',
     '',
     '```bash',
-    'lattice not_a_real_command',
+    'proof-or-stop not_a_real_command',
     '```',
   ].join('\n');
 
@@ -173,7 +173,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   // Injected registry: the codex hook file is a GENERATED kind (codex-hooks).
   const result = runDocsDriftGate([md], REGISTRY, {
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     // Empty allowlist so the contradiction is NOT suppressed (proves detection).
     managedAssetAllowlist: new Set<string>(),
@@ -182,11 +182,11 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   assert.equal(result.status, 'fail', 'happy: forbidding a generated asset must fail the gate');
   assert.deepEqual(
     result.managedAssetContradictions,
-    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    [{ asset: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' }],
     `happy: the asset + kind must appear in managedAssetContradictions (got ${JSON.stringify(result.managedAssetContradictions)})`,
   );
   assert.ok(
-    result.summary.includes('.codex/hooks/lattice-scope-pretool.cjs') && result.summary.includes('codex-hooks'),
+    result.summary.includes('.codex/hooks/proof-or-stop-scope-pretool.cjs') && result.summary.includes('codex-hooks'),
     'happy: summary should name the asset + registry kind',
   );
 }
@@ -228,14 +228,14 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   const md = '# Doc\n\n不要创建 `.Codex/hooks`。\n';
   const result = runDocsDriftGate([md], REGISTRY, {
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     managedAssetAllowlist: new Set<string>(),
   });
   assert.equal(result.status, 'fail', 'edge: forbidding an ancestor dir of a generated asset must fail');
   assert.deepEqual(
     result.managedAssetContradictions,
-    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    [{ asset: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' }],
     'edge: ancestor-dir prohibition must flag the generated child asset',
   );
 }
@@ -249,7 +249,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   const md = '# Doc\n\n不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。\n';
   const result = runDocsDriftGate([md], REGISTRY, {
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     // Explicit allowlist (NOT the default) → suppressed via the seam.
     managedAssetAllowlist: new Set<string>(['.codex/hooks']),
@@ -269,14 +269,14 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   const md = '# Doc\n\n不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。\n';
   const result = runDocsDriftGate([md], REGISTRY, {
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     // No managedAssetAllowlist → DEFAULT (now empty) → contradiction must surface.
   });
   assert.equal(result.status, 'fail', 'B-d633: empty default allowlist must no longer suppress the .codex/hooks contradiction');
   assert.deepEqual(
     result.managedAssetContradictions,
-    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    [{ asset: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' }],
     'B-d633: the .codex/hooks prohibition must now be flagged via the empty default allowlist',
   );
 }
@@ -337,10 +337,10 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
 
 // ── (b) managed-asset-contradiction fixture (non-allowlisted generated kind) → fail ──
 {
-  const md = '# Doc\n\n不要创建 `.codex/hooks/lattice-scope-pretool.cjs`。\n';
+  const md = '# Doc\n\n不要创建 `.codex/hooks/proof-or-stop-scope-pretool.cjs`。\n';
   const result = runDocsDriftGate([md], REGISTRY, {
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     // Empty allowlist → the contradiction is NOT suppressed (proves detection).
     managedAssetAllowlist: new Set<string>(),
@@ -348,7 +348,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   assert.equal(result.status, 'fail', '(b) forbidding a non-allowlisted generated asset must fail');
   assert.deepEqual(
     result.managedAssetContradictions,
-    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    [{ asset: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' }],
     `(b) the asset must appear in managedAssetContradictions (got ${JSON.stringify(result.managedAssetContradictions)})`,
   );
 }
@@ -362,7 +362,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     '# Doc',
     '',
     'See `packages/main/src/handlers/validate-docs-drift.ts` for the gate.',
-    'The framework generates `.codex/hooks/lattice-scope-pretool.cjs` automatically.',
+    'The framework generates `.codex/hooks/proof-or-stop-scope-pretool.cjs` automatically.',
     '',
     '```bash',
     'proof-or-stop story_create',
@@ -374,7 +374,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     pathExists: () => true, // every referenced path exists on disk
     grepLiteral: () => true,
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     managedAssetAllowlist: new Set<string>(),
   });
@@ -401,7 +401,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     '',
     '```bash',
     'proof-or-stop story_create',
-    'lattice not_a_real_command',
+    'proof-or-stop not_a_real_command',
     '```',
   ].join('\n');
 
@@ -415,7 +415,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     pathExists: () => true,
     grepLiteral: () => true,
     managedAssetDefs: [
-      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+      { relPath: '.codex/hooks/proof-or-stop-scope-pretool.cjs', kind: 'codex-hooks' },
     ],
     managedAssetAllowlist: new Set<string>(),
   });

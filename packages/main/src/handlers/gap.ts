@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   The current default lattice CLI no longer exposes gap_analyze / convergence_check,
+ *   The current default proofOrStop CLI no longer exposes gap_analyze / convergence_check,
  *   but the underlying analyzeGap / checkConvergence implementations remain in tasks/gap-analyze.ts.
  *   This re-wires the two commands back into the main registry so that CLI help, dispatch, and DONE hints
  *   no longer reference a command the user cannot actually run.

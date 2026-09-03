@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-d854",
+  "sourceText": "根目录下这个文件 AGENTS.md，有两个问题：1，验证一下里面的Prompt是否和现在的版本内容一致性；提供证据证明。2，需要全部翻译为英文。",
+  "normalizedOutcome": "The root AGENTS.md is entirely in English and its current-behavior instructions match the repository-local Proof-or-Stop implementation and authoritative lifecycle sources, with reproducible evidence for every reported correction.",
+  "acceptanceClaim": "A Unicode scan finds no Han or replacement characters in AGENTS.md, current CLI command checks accept every active command shown, and cited source locations substantiate the lifecycle and prompt-contract claims.",
+  "keyRequirementIds": [
+    "REQ-001-consistency-audit",
+    "REQ-002-complete-english"
+  ],
+  "requestHash": "sha256:87b9955556fe6989f4796860490c3c5f370a2376962d6c7538d20b87930800d5",
+  "createdAt": "2026-09-01T22:59:50.855Z",
+  "updatedAt": "2026-09-01T22:59:50.855Z"
+}

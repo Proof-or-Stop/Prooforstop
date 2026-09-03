@@ -1,0 +1,129 @@
+{
+  "storyId": "B-a745",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/core/validation-relevance-input.ts",
+    "packages/main/src/core/validation-tier-planner.ts",
+    "packages/main/src/handlers/validation-plan.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/delivery-check.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+    "packages/main/src/smoke-manifest.json",
+    "packages/main/smoke-manifest.json"
+  ],
+  "scopeChangeReason": "B-a745 is Rollout Story 1 of the dynamic validation tiers plan and must not shrink any validation set or touch any lifecycle gate. The protected files are the gate and final-assurance owners this Story consumes but must never modify: the state machine and its guards, DONE-required validation, the shared freshness readers, and the delivery check. evidence-freshness.ts in particular is protected deliberately - the Story input collector must CONSUME its rename-aware readers, and any edit there would mean the collector re-derived changed files instead of reusing the single owner. The excluded paths are the plan document itself, which story B-ccf4 owns and which must not be copied into this branch, and the noncanonical smoke discovery manifests, which the test-runner consolidation plan forbids using as membership authority.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Registering ONE new read-only command (validation_plan, CHK-005) requires three cross-registries beyond the four files CHK-005 declared, and every one of them fails closed rather than defaulting, so the command is unusable without them. config.ts DEFAULT_PHASE_TOOLS: every phase refuses the command until it is listed. cli/activity-policy.ts READ_ONLY_COMMANDS: without the entry a command that is contractually read-only would write an activity heartbeat, which would contradict the read-only guarantee this Story ships and would break the store-equality fixture. process-fact-levels.ts: the lifecycle-registry-contract check fails with 'command validation_plan is in the registry command dimension but has no process-fact lifecycle level entry'; validation_plan is registered L0 because it consumes no gate evidence and produces none. These are not new capability and not scope growth: each is a single row naming the same command CHK-005 already declares, and none changes behaviour for any other command. The scope contract was written from plan.md's Files sections before this cross-registry requirement was known; it is recorded here rather than by silently widening the contract, so the extension stays auditable. No protected file was touched.",
+      "timestamp": "2026-09-02T02:54:55.246Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "29d251fcb922dccc633f41fe2d0a4a7a219f88e5",
+      "materialHash": "4cf9ce84d65d13da184794e473079af3179d3fc3666b2cbb1f3c201dfb89adca"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve finding B-a745:F-005, which was acceptance-blocking. CHK-006 registered the new suite in the root test:serial-reference chain and in RESOURCE_POLICY, but not in validate.commands, so every verification-evidence pin naming the suite was absent from the planner's command universe and the planner correctly stopped with pinned_command_missing instead of producing the plan named in this Story's acceptance claim. The change is one added entry, registering node packages/main/dist/tasks/validation-tier-planner-smoke.js alongside the 65 existing entries of exactly that shape, with resource claims (git-common-dir . shared, fixed-path package.json shared, fixed-path proof-or-stop.config.json shared) that the quality reviewer independently verified as true against what the suite actually touches: all real-repo access is reads, every write goes to a mkdtemp root cleaned at suite end, and it holds no port and no lock. This path was not in the scope contract because the contract was generated from plan.md's Files sections before the registration gap was discovered in REVIEW. Recorded here rather than by silently widening the contract, so the extension stays auditable. Command count went 120 to 121; no protected file was touched.",
+      "timestamp": "2026-09-02T03:59:21.588Z",
+      "paths": [
+        "proof-or-stop.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "95255497cc007e903c67b3f9b0125b7a40be8cc8",
+      "materialHash": "ec47e1b7720d94da623e532a08112ecbaf8c884faffc61da3596616c8b3c185f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Framework-written dev-memory artifacts produced by dev_memory_capture and dev_memory_finish_decision at story finish (entries 06d4416 and 90e7215, both sourced from B-a745), which the DONE gate requires via missing_dev_memory_finish_decision. They are lifecycle metadata, not product source, and were not in the scope contract because the contract was generated from plan.md Files sections before the finish-decision gate was encountered. No protected file was touched; no behaviour changes.",
+      "timestamp": "2026-09-02T11:26:51.808Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-a745.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl",
+        ".proof-or-stop/dev-memory/finish-decisions/B-a745.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ddf9189cba067f0a0506cbb26660dfe301258225",
+      "materialHash": "e0ee1f417e74c7a671db1f5401600bc53972d67e706a7148fd67347ac23b5e42"
+    }
+  ],
+  "createdAt": "2026-09-02T01:18:45.889Z",
+  "updatedAt": "2026-09-02T11:26:51.808Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-command-identity.ts": "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/core/validation-relevance-input.ts": "packages/main/src/core/validation-relevance-input.ts",
+    "packages/main/src/core/validation-tier-planner.ts": "packages/main/src/core/validation-tier-planner.ts",
+    "packages/main/src/handlers/validation-plan.ts": "packages/main/src/handlers/validation-plan.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts": "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/delivery-check.ts": "packages/main/src/handlers/delivery-check.ts",
+    "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md": "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+    "packages/main/src/smoke-manifest.json": "smoke-manifest.json",
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
+    ".proof-or-stop/dev-memory/finish-decisions/B-a745.json": ".proof-or-stop/dev-memory/finish-decisions/B-a745.json"
+  }
+}

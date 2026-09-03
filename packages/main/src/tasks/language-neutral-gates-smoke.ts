@@ -4,7 +4,7 @@
  *
  * Standalone task (not wired into a runner config — invoked directly like
  * transition-integrity-smoke). Covers EVERY verificationIntent lane in
- * .lattice/story/actives/B-956f/checklist.json (12 lanes across 4 CHKs):
+ * .proof-or-stop/story/actives/B-956f/checklist.json (12 lanes across 4 CHKs):
  *
  *   CHK-001 (policy service + hash-bound snapshot threaded into 3 consumers)
  *     happy       — .py/.rs/.go/.java/.cpp + cross-ecosystem manifests classify
@@ -132,7 +132,7 @@ function writeFile(root: string, rel: string, content: string): void {
   writeFileSync(abs, content);
 }
 /** Empty temp git repo on branch `main` (no commits yet). */
-function initRepo(prefix = 'lattice-lng-'): string {
+function initRepo(prefix = 'proof-or-stop-lng-'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   tempRoots.push(root);
   git(root, ['init', '-q']);
@@ -157,21 +157,21 @@ function makeGitRepo(base: Record<string, string>, changed: Record<string, strin
   return root;
 }
 /**
- * Temp project dir with a lattice.config.json but NO git tree (fresh
+ * Temp project dir with a proof-or-stop.config.json but NO git tree (fresh
  * policy/config caches). Note: an excludePaths-carrying config in a non-git
  * root now FAILS CLOSED at resolution (FIX E) — use makeGitConfigRoot for
  * fixtures that must resolve.
  */
 function makeConfigRoot(config: unknown): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lngcfg-'));
   tempRoots.push(root);
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify(config, null, 2));
   resetConfigCache();
   resetMaterialCodePolicyCache();
   return root;
 }
 /**
- * GIT-BACKED project root whose `main` base commit carries lattice.config.json
+ * GIT-BACKED project root whose `main` base commit carries proof-or-stop.config.json
  * (+ base files); when `changed` is non-empty a `feature` HEAD adds them. The
  * production resolve-time exclusion preflight (FIX E) can enumerate this tree.
  */
@@ -180,8 +180,8 @@ function makeGitConfigRoot(
   base: Record<string, string> = {},
   changed: Record<string, string> = {},
 ): string {
-  const root = initRepo('lattice-lngcfg-');
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2));
+  const root = initRepo('proof-or-stop-lngcfg-');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify(config, null, 2));
   for (const [p, c] of Object.entries(base)) writeFile(root, p, c);
   commitAll(root, 'base');
   if (Object.keys(changed).length > 0) {
@@ -195,7 +195,7 @@ function makeGitConfigRoot(
 }
 /**
  * B-956f FIX 1 (codex MED — wrapper-root path namespace): a git repo whose ROOT is
- * the git tree but whose lattice.config.json (+ project files) live in a SUBDIR
+ * the git tree but whose proof-or-stop.config.json (+ project files) live in a SUBDIR
  * (`<root>/<subdir>/`). Mirrors real wrapper-root deployments (ClawCreek precedent):
  * git operations run at the git root (gitCwd) and emit REPO-relative paths, while the
  * policy namespace is the config subdir (projectRoot) with PROJECT-relative
@@ -208,8 +208,8 @@ function makeWrapperRootConfigRoot(
   base: Record<string, string> = {},
   changed: Record<string, string> = {},
 ): { root: string; projectRoot: string } {
-  const root = initRepo('lattice-lngwrap-');
-  writeFile(root, `${subdir}/lattice.config.json`, JSON.stringify(config, null, 2));
+  const root = initRepo('proof-or-stop-lngwrap-');
+  writeFile(root, `${subdir}/proof-or-stop.config.json`, JSON.stringify(config, null, 2));
   for (const [p, c] of Object.entries(base)) writeFile(root, p, c);
   commitAll(root, 'base');
   if (Object.keys(changed).length > 0) {
@@ -368,11 +368,11 @@ check('CHK-002/edge: precedence pairs (docs>prefix, README vs shebang script, se
   assert.equal(classifyMaterialCodePath(segPolicy, 'src/x.py').materialCode, false, 'excludePaths src/ demotes src/x.py');
   assert.equal(classifyMaterialCodePath(segPolicy, 'src-old/x.py').materialCode, true, 'excludePaths src/ does NOT demote src-old/x.py');
 
-  // storyDir-aware metadata exclusion WITHOUT hardcoding .lattice.
+  // storyDir-aware metadata exclusion WITHOUT hardcoding .proof-or-stop.
   const customRoot = makeConfigRoot({ storyDir: 'custom-stories/actives' });
   const customPolicy = resolveMaterialCodePolicy(customRoot);
   assert.equal(classifyMaterialCodePath(customPolicy, 'custom-stories/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'a file under the resolved custom storyDir is excluded');
-  assert.equal(classifyMaterialCodePath(customPolicy, '.lattice/story/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'the default .lattice story metadata stays excluded too');
+  assert.equal(classifyMaterialCodePath(customPolicy, '.proof-or-stop/story/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'the default .proof-or-stop story metadata stays excluded too');
 });
 
 check('CHK-002/adversarial: manifest exclusion rejected at resolve AND by the PRODUCTION fs preflight; enumeration + malformed config fail closed', () => {
@@ -440,16 +440,16 @@ check('CHK-002/adversarial: manifest exclusion rejected at resolve AND by the PR
     'a non-object materialCode block fails closed naming the key',
   );
 
-  // (c2) FIX E adversarial: an UNPARSEABLE lattice.config.json fails CLOSED
+  // (c2) FIX E adversarial: an UNPARSEABLE proof-or-stop.config.json fails CLOSED
   // (parse error → MaterialCodePolicyError), never a silent default policy.
-  const badJsonRoot = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  const badJsonRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-lngcfg-'));
   tempRoots.push(badJsonRoot);
-  writeFileSync(join(badJsonRoot, 'lattice.config.json'), '{ "materialCode": { invalid');
+  writeFileSync(join(badJsonRoot, 'proof-or-stop.config.json'), '{ "materialCode": { invalid');
   resetConfigCache();
   resetMaterialCodePolicyCache();
   assert.throws(
     () => resolveMaterialCodePolicy(badJsonRoot),
-    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'lattice.config.json' && /fails closed/.test(err.message),
+    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'proof-or-stop.config.json' && /fails closed/.test(err.message),
     'a malformed JSON config file fails closed naming the file',
   );
 });
@@ -583,7 +583,7 @@ check('FIX-A/adversarial: config-drifted snapshot rejected + re-resolved by REAL
   // (2) config drift WITHOUT any commit: head/materialHash alone still look
   // "fresh" — the policyDigest-vs-live-config check catches it (and the
   // signature-keyed cache makes re-resolve a REAL config reload).
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ materialCode: {} }, null, 2));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ materialCode: {} }, null, 2));
   assert.equal(materialClassificationSnapshotStale(staleSnap), true, 'policy drift marks the snapshot stale');
 
   // (3) REAL consumer 1 — the floor re-resolves; src/app.py is material now.
@@ -822,32 +822,32 @@ check('FIX-2: a snapshot consumed with a nonexistent gitCwd throws a named fresh
   );
 });
 
-check('FIX-3(a): an unreadable lattice.config.json (EISDIR — not ENOENT) fails CLOSED naming the file (no silent defaults)', () => {
-  // A DIRECTORY named lattice.config.json is not "absent" — reading it throws
+check('FIX-3(a): an unreadable proof-or-stop.config.json (EISDIR — not ENOENT) fails CLOSED naming the file (no silent defaults)', () => {
+  // A DIRECTORY named proof-or-stop.config.json is not "absent" — reading it throws
   // EISDIR. The previous catch-all treated any read error as absent (fail-open,
   // silently dropping removeExtensions/excludePaths); now only ENOENT degrades.
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lngcfg-'));
   tempRoots.push(root);
-  mkdirSync(join(root, 'lattice.config.json'));
+  mkdirSync(join(root, 'proof-or-stop.config.json'));
   resetConfigCache();
   resetMaterialCodePolicyCache();
   assert.throws(
     () => resolveMaterialCodePolicy(root),
     (err: unknown) => err instanceof MaterialCodePolicyError
-      && err.offendingKey === 'lattice.config.json'
+      && err.offendingKey === 'proof-or-stop.config.json'
       && /could not be read/.test(err.message)
       && /fails closed/.test(err.message),
     'an unreadable (non-ENOENT) config file fails closed naming the file',
   );
 });
 
-check('FIX-3(b): a JSON-parse-broken config makes the FLOOR return a structured failing outcome naming lattice.config.json (no uncaught throw)', () => {
+check('FIX-3(b): a JSON-parse-broken config makes the FLOOR return a structured failing outcome naming proof-or-stop.config.json (no uncaught throw)', () => {
   // A broken config now throws through resolveMaterialCodePolicy into the floor.
   // The floor evaluator MUST catch it and return ok:false naming the file, not
   // crash the DONE-readiness callers with an unrelated-looking exception.
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lngcfg-'));
   tempRoots.push(root);
-  writeFileSync(join(root, 'lattice.config.json'), '{ "materialCode": { invalid');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), '{ "materialCode": { invalid');
   resetConfigCache();
   resetMaterialCodePolicyCache();
 
@@ -857,7 +857,7 @@ check('FIX-3(b): a JSON-parse-broken config makes the FLOOR return a structured 
   }, 'the floor evaluator does not throw on a malformed config');
   assert.equal(report!.ok, false, 'the floor blocks (fail closed) on a malformed config');
   assert.equal(report!.required, true, 'the floor marks the transition required');
-  assert.match(report!.reasons.join('\n'), /lattice\.config\.json/, 'the failing outcome names lattice.config.json');
+  assert.match(report!.reasons.join('\n'), /proofOrStop\.config\.json/, 'the failing outcome names proof-or-stop.config.json');
   assert.match(report!.reasons.join('\n'), /fails closed|not valid JSON/, 'the failing outcome explains the fail-closed config error');
 });
 
@@ -887,10 +887,10 @@ check('FIX-4: excludePaths:["dist/"] with a tracked dist/package.json resolves W
 
 // ─────────────────── R3 fix-round production-boundary checks ───────────────────
 
-check('R3-a: a JSON-broken lattice.config.json makes the PLAN/DEV repro gate return a structured "Cannot enter" failure naming the file (no raw throw)', () => {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+check('R3-a: a JSON-broken proof-or-stop.config.json makes the PLAN/DEV repro gate return a structured "Cannot enter" failure naming the file (no raw throw)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lngcfg-'));
   tempRoots.push(root);
-  writeFileSync(join(root, 'lattice.config.json'), '{ "materialCode": { invalid');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), '{ "materialCode": { invalid');
   resetConfigCache();
   resetMaterialCodePolicyCache();
   // readStory/readChecklist throwing is tolerated by the gate (story/checklist=null);
@@ -908,11 +908,11 @@ check('R3-a: a JSON-broken lattice.config.json makes the PLAN/DEV repro gate ret
     assert.ok(msg, `${phase} guard renders a failure message`);
     assert.match(msg!, new RegExp(`Cannot enter ${phase}:`), `${phase} keeps the "Cannot enter <PHASE>:" guard convention`);
     assert.match(msg!, /\[repro_first_material_policy_error\]/, 'keeps the "[reason_code]" convention');
-    assert.match(msg!, /lattice\.config\.json/, 'names the offending config file');
+    assert.match(msg!, /proofOrStop\.config\.json/, 'names the offending config file');
   }
 });
 
-check('R3-b: a freshness-failure structured floor outcome names workspace/git remediation, NOT lattice.config.json', () => {
+check('R3-b: a freshness-failure structured floor outcome names workspace/git remediation, NOT proof-or-stop.config.json', () => {
   const root = makeGitRepo({ 'src/app.ts': 'export const x = 1;\n' }, { 'src/app.ts': 'export const x = 2;\n' });
   const snap = buildMaterialClassificationSnapshot(root);
   assert.ok(snap.headHash && snap.materialHash, 'snapshot is git-bound');
@@ -927,7 +927,7 @@ check('R3-b: a freshness-failure structured floor outcome names workspace/git re
   const reasons = report!.reasons.join('\n');
   assert.match(reasons, /workspace\/git/, 'freshness remediation names workspace/git');
   assert.match(reasons, /cannot verify snapshot freshness/i, 'the reason names the freshness failure');
-  assert.doesNotMatch(reasons, /Fix lattice\.config\.json/, 'freshness must NOT give the config remediation');
+  assert.doesNotMatch(reasons, /Fix proofOrStop\.config\.json/, 'freshness must NOT give the config remediation');
 });
 
 check('R3-c: the exclusion preflight re-fires despite a warm config cache — committing a covered go.mod after a clean resolve rejects on the next resolve', () => {
@@ -1190,8 +1190,8 @@ check('R6: wrapper-root layout — classification translates git-root-relative d
  * project/legacy/old.py modified by the diff.
  */
 function makeR7WrapperFixture(): { root: string; projectRoot: string } {
-  const root = initRepo('lattice-lngwrap-');
-  writeFile(root, 'project/lattice.config.json', JSON.stringify({
+  const root = initRepo('proof-or-stop-lngwrap-');
+  writeFile(root, 'project/proof-or-stop.config.json', JSON.stringify({
     reproFirstPreflight: { mode: 'warn' },
     materialCode: { excludePaths: ['legacy/'] },
   }, null, 2));
@@ -1216,7 +1216,7 @@ check('R7-a: evaluateStoryEvidenceBindingGate (production call shape, NO manual 
   const store = {
     readStory: () => ({ storyId: 'B-lng-wrap', phase: 'DEV', type: 'bug', priority: 'medium', riskSignals: [] }),
     readChecklist: () => r7Checklist,
-    storyDirPath: (id: string) => join(projectRoot, '.lattice', 'story', 'actives', id),
+    storyDirPath: (id: string) => join(projectRoot, '.proof-or-stop', 'story', 'actives', id),
   } as any;
   const result = evaluateStoryEvidenceBindingGate(projectRoot, store, 'B-lng-wrap', { mode: 'enforce' });
   // Pre-FIX the snapshot held UNTRANSLATED repo-relative paths (project/bin/tool →
@@ -1360,7 +1360,7 @@ check('R8-a: story_review diagnostic builder (buildStoryReviewMaterialClassifica
       worktree: { path: repoBToplevel, branch: storyBranch },
     }),
     readChecklist: () => r7Checklist,
-    storyDirPath: (id: string) => join(projectRoot, '.lattice', 'story', 'actives', id),
+    storyDirPath: (id: string) => join(projectRoot, '.proof-or-stop', 'story', 'actives', id),
   } as any;
 
   // Precondition: the two resolutions genuinely differ (else R8-a would just

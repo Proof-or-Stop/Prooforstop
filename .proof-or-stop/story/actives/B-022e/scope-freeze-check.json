@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-022e",
+  "checkedAt": "2026-08-30T21:40:54.159Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "c96849b747647fa91e480bf1400fdeb8d6fbba480532cbe984baa2cec2f54642",
+  "executionBoundaryHash": "b6c7ea709a4afe21071c8f0c0bb3fcac6ab0034de61aeace75738321da33561e",
+  "freshnessHash": "c4c9c90c5bc3a633df287e6df1bd92d5a4394d3c133bb648f78ec1f916cfab13",
+  "effectiveExcludedKeywords": [
+    "Do not add deprecated lattice CLI aliases or runtime compatibility fallbacks",
+    "Do not edit historical Story artifacts or their recorded findings/evidence",
+    "Do not publish npm packages, push git branches, or create remote releases",
+    "Do not rewrite legacy migration inputs, compatibility fixtures, CHANGELOG release history, signature salts, schema literals, or provenance/hash-bound bytes merely to remove the old token"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not add deprecated lattice CLI aliases or runtime compatibility fallbacks",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not add deprecated lattice CLI aliases or runtime compatibility fallbacks",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not edit historical Story artifacts or their recorded findings/evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not edit historical Story artifacts or their recorded findings/evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not publish npm packages, push git branches, or create remote releases",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not publish npm packages, push git branches, or create remote releases",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rewrite legacy migration inputs, compatibility fixtures, CHANGELOG release history, signature salts, schema literals, or provenance/hash-bound bytes merely to remove the old token",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rewrite legacy migration inputs, compatibility fixtures, CHANGELOG release history, signature salts, schema literals, or provenance/hash-bound bytes merely to remove the old token",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4a5d00fbd1ee8acdbbb973f530a7a7c560da7fd1d5db58758d14c34c0416f0d8"
+}

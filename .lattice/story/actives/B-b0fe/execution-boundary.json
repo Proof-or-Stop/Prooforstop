@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b0fe",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+    "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js *",
+    "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+    "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset *",
+    "git restore *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "browser automation",
+    "network deployment"
+  ],
+  "excludedPaths": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Only the canonical adapter consumer and exact internal verifier authority may change. Generated dist is rebuilt, not hand-edited. Unknown actor and lookalike denial remain mandatory.",
+  "createdAt": "2026-08-31T03:44:02.933Z",
+  "updatedAt": "2026-08-31T03:44:02.933Z",
+  "_hash": "6b8bfd48448605511d4b0f08a2c5bac00bf3244e66d11e5a40fc1df704fd2da7"
+}

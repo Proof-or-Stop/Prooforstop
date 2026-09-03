@@ -1,0 +1,20 @@
+{
+  "storyId": "B-d854",
+  "expected": "The user sees \"Audit evidence: PASS\" with reproducible commands and source locations that distinguish current rules, compatibility background, and corrected inconsistencies.",
+  "actual": {
+    "command": "node tests/AGENTS.verify.mjs --authority-policy",
+    "exitCode": 0,
+    "stdout": "AUTHORITY_POLICY PASS rows=26 entries=117 runtime=81\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-02T17:58:04.505Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "fdbdb989902f019414378f72af4c00229301a9cf",
+  "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89"
+}

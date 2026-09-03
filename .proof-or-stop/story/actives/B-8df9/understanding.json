@@ -1,0 +1,43 @@
+{
+  "task": "The INIT_CHECK gate decides on agentResults and issues inside init-check.json, but signInitCheck takes neither as input, so a hand-edited file remains signature-valid and the gate accepts it with zero init_check_set calls. VERIFIED BY EXECUTION, not inferred.",
+  "outcome": "A maintainer who edits agentResults in .lattice/story/actives/B-xxxx/init-check.json to add reviewer coverage nobody produced, then runs the advance, sees the gate refuse:\n\n  $ lattice story_advance --storyId=B-xxxx --phase=INIT_CHECK\n  Cannot enter INIT_CHECK: init-check.json _hash mismatch (agentResults/issues/background/title/description/checklist were modified); please re-run the lattice-review-story-init agent. [init_check_tampered]\n\n  INIT_CHECK aborted: Story B-xxxx stays at INIT (phase not advanced; no worktree created).\n\nToday the identical command instead prints 'Story B-xxxx advanced to INIT_CHECK' and creates the worktree. The parenthetical currently reads '(background/title/description/checklist were modified)' and must grow with the domain, since it is itself a fixed enumeration standing in for a property.",
+  "facts": [
+    "EXECUTED PROOF (probe, 2 gate controls + 2 signature controls, 0 BROKEN): injecting a product-reviewer entry into agentResults with NO init_check_set call leaves the file signature-valid and the gate advances",
+    "EXECUTED PROOF: hand-erasing a recorded critical issue also leaves the file signature-valid and the gate advances, so issues is outside the domain too and fixing agentResults alone leaves an equivalent hole",
+    "EXECUTED CONTROL: editing an IN-DOMAIN field (title) DOES change the recomputed signature and IS rejected as init_check_tampered, ruling out the competing explanation that the signature check is simply dead",
+    "signInitCheck (core/init-check-gate.ts:133-143) signs storyId:backgroundHash:title:description:checklistHash:reviewRound:INIT_CHECK_SALT; agentResults and issues are absent",
+    "The existing tamper message at core/machine.ts:1144 enumerates the signature domain in its parenthetical, so the message text is bound to the domain and must change with it",
+    "store.readInitCheck (core/store.ts:566-572) is a bare readJson with no _hash verification; the carry-forward (handlers/init-check.ts:138-142) trusts it",
+    "IMPACT IS NARROWER THAN A FIRST READING SUGGESTS. Both tampering outcomes are ALREADY reachable through legal CLI calls: one caller can satisfy both required reviewers with two init_check_set calls, and a later call replaces a recorded critical issue with none. Both verified by execution. Tampering therefore grants NO capability that the legal path lacks",
+    "What tampering DOES add, measured: zero audit trail. A legal two-reviewer write left 9 durable records; the hand-injected second reviewer left 0. It also bypasses the actor registry, which refuses unregistered ids on the CLI path",
+    "Therefore the value of this story is audit integrity, not access control: a signed init-check.json currently implies tamper-evidence it does not deliver for the fields that matter",
+    "EXP-001's claim was RE-VERIFIED independently (4 samples, main x2 vs subagent x2): zero fields distinguish caller; the full environment digest is byte-identical and Lattice's derived sessionId is identical. PID/PPID vary per invocation for the SAME caller, so they carry no caller signal. The constraint against adding agentId validation is therefore sound",
+    "Measured at commit c59f9c0113: 637 init-check.json files; DONE 613 / DISCARDED 13 / INIT_CHECK 8 / INIT 1 / unreadable-index 2; only the INIT one is operationally gated (core/machine.ts:440 early-returns for non-INIT)",
+    "Six distinct on-disk agentResults shapes; ~195 of 637 files carry an actor absent from AGENT_DISPATCH_REGISTRY (chiefly the pre-rename koala-review-story-init), so no migration can re-sign the corpus through the handler"
+  ],
+  "constraints": [
+    "MUST NOT change whether one caller can invoke init_check_set twice with different registered agentIds. By design per EXP-001 (now independently re-verified) and asserted by four smoke tests",
+    "MUST NOT add agentId validation or caller-identity checks; the re-verification confirms no mechanical signal exists to validate against",
+    "MUST NOT attempt to re-sign the existing corpus by routing through the handler; ~195 files carry registry-invalid actors and would throw",
+    "MUST NOT touch packages/main/src/core/red-evidence/, red-w2c-v1-verdict-invariance.mjs, or red-b2aa7-chk007-receipt.mjs",
+    "MUST NOT push to any remote",
+    "MUST NOT claim, in any user-facing text or summary, that reviewer coverage becomes trustworthy. After this ships the gate proves only that the record was not edited outside the tool; a single caller can still legally self-satisfy both reviewer slots. Overstating this is worse than not fixing it"
+  ],
+  "unknowns": [
+    "What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues",
+    "Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/init-check-fallback-smoke.ts",
+    "packages/main/src/tasks/init-preflight-smoke.ts",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-08-01T12:49:58.520Z"
+}

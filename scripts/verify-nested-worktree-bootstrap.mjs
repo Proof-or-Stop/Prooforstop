@@ -5,7 +5,7 @@
 // project-root resolves to a LINKED WORKTREE never creates a nested
 // `<worktree>/.worktrees/B-new`.
 //
-// Faithful reproduction of the B-a4e3 incident: lattice was driven from inside
+// Faithful reproduction of the B-a4e3 incident: proof-or-stop was driven from inside
 // an existing story worktree, so cwd-upward project-root discovery made the
 // handler's `root` the linked worktree. The old resolver used
 // `git rev-parse --show-toplevel` (cwd=root) which, from a linked worktree,
@@ -25,9 +25,9 @@ const root = process.cwd();
 const cli = join(root, 'packages/main/dist/cli.js');
 const sessionEnv = {
   ...process.env,
-  LATTICE_SESSION_ID: 'nested-worktree-bootstrap-smoke',
+  PROOF_OR_STOP_SESSION_ID: 'nested-worktree-bootstrap-smoke',
 };
-delete sessionEnv.LATTICE_AGENT;
+delete sessionEnv.PROOF_OR_STOP_AGENT;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -49,10 +49,10 @@ function run(projectRoot, command, payload, cwd = root) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-nested-worktree-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-nested-worktree-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -65,8 +65,8 @@ function createTempProject() {
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# temp project\n');
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proofOrStop@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   return dir;
@@ -113,7 +113,7 @@ function setupInitCheckGates(projectRoot, storyId) {
 // Satisfy the INIT_CHECK init-check gate the same controlled way the existing
 // smoke does (two required reviewer agents + scope/execution boundaries).
 function recordInitCheck(projectRoot, storyId) {
-  run(projectRoot, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  run(projectRoot, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
   run(projectRoot, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
   setupInitCheckGates(projectRoot, storyId);
 }

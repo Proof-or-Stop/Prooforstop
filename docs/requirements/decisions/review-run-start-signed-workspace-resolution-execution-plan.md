@@ -418,7 +418,7 @@ Authority completion may be claimed only when a verified server-signed
 | Wrapper root has multiple nested repos | Fails closed unless explicit `gitRoot` or worktree binding is provided. |
 | Story has linked worktree, cwd is main repo | Fails with `wrong_worktree` and concrete `cd <worktree>` hint. |
 | Story has linked worktree, cwd is worktree, metadata root differs | Succeeds only if resolver explicitly returns both roots and all signing uses the worktree. |
-| `--root` or `LATTICE_PROJECT_ROOT` points to metadata root while cwd is worktree | Succeeds only if the shared resolver explicitly supports this split; otherwise fails before signing. |
+| `--root` or `PROOF_OR_STOP_PROJECT_ROOT` points to metadata root while cwd is worktree | Succeeds only if the shared resolver explicitly supports this split; otherwise fails before signing. |
 | Review run created, then material changes | `review_pass_set` / `finding_add` / REVIEW gate detect stale material. |
 | Review run has tampered or mismatched `workspaceBinding` | Evidence consumers fail closed before accepting pass/finding evidence. |
 | Placeholder or forged hashes are supplied by user | Rejected; reviewer-run signing captures real git/material facts only. |
@@ -448,7 +448,7 @@ npm --prefix packages/main run test:baseline-local-certification-smoke
 If Codex adapter or host prompts are touched:
 
 ```bash
-node bin/lattice.js verify_codex
+node bin/proof-or-stop.js verify_codex
 ```
 
 ## localNonAuthorityAudit

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-77e6",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc --noEmit -p packages/main",
+    "npx tsx *"
+  ],
+  "allowedTools": [
+    "Agent",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/dev",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "git restore *",
+    "proof-or-stop release_approve_push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "excludedPaths": [
+    ".githooks",
+    ".proof-or-stop/dev-memory",
+    ".worktrees",
+    "node_modules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use the worktree's own built CLI (node packages/main/dist/cli.js) for every Proof-or-Stop command; the global proof-or-stop binary is a stale build in another story's worktree. This story depends on the single-owner extraction story having merged to main first (it consumes that story's shared resolver and audit fixture); do not start DEV until that merge is present. The migration scope is the audit fixture's flagged list recorded in plan.md at PLAN, never a hand-written list. .proof-or-stop/dev-memory is blocked until the final finish decision because committing dev-memory records currently counts as material.",
+  "createdAt": "2026-09-02T13:38:06.457Z",
+  "updatedAt": "2026-09-02T13:38:06.457Z",
+  "_hash": "1a811d4733711895afaa0317b116fd424d66baa1340054eaafb90dd7dbb03b5b"
+}

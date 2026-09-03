@@ -1,0 +1,283 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record the decision not to pursue the B-3434 writer-owned-boundary follow-up",
+      "context": "Replace the unassigned work-order posture with a declined/not-currently-justified disposition. Preserve the measured historical limitations as known boundaries, state why the cross-file refactor is disproportionate for the current plain-JSON production path, and list concrete reopen triggers.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-30T22:58:35.708Z",
+      "endTime": "2026-08-30T23:58:57.275Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document explicitly records the post-B-3434 human decision that the writer-owned-boundary proposal is declined and not currently justified; WHY: the old unassigned work-order posture is the statement the user asked to change.",
+            "type": "docs",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"## Decision after B-3434\\\",\\\"Decision: decline the writer-owned canonical boundary as not currently justified.\\\",\\\"No follow-up story is planned or owned.\\\",\\\"this document is not an active work order.\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-0 PASS\\\");\"",
+              "selector": "B-2220 happy-0 PASS"
+            }
+          },
+          {
+            "desc": "The document keeps B-3434 accepted and preserves the shipped mechanism, measurements, transcripts, and historical finding identifiers as known limitations; WHY: declining new work must not rewrite the completed story or claim the limitations were fixed.",
+            "type": "docs",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"B-3434 remains accepted.\\\",\\\"## What ships\\\",\\\"**The measured numbers**\\\",\\\"smokeExpected=158 measured=158 hypothetical4SpaceStore=168 smokeStillPasses=true\\\",\\\"inherited-toJSON-real-store: calls=3 reported=67 withinBound=true disk=31457342 exceedsBound=true\\\",\\\"## Known limitations\\\",\\\"B-3434:F-033\\\",\\\"B-3434:F-035\\\",\\\"B-3434:F-036\\\",\\\"B-3434:F-037\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-1 PASS\\\");\"",
+              "selector": "B-2220 happy-1 PASS"
+            }
+          },
+          {
+            "desc": "The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision, and a build-binding check proves the executed dist matches the edited source; WHY: the repository contract must agree with the decision document.",
+            "type": "logic",
+            "verification": {
+              "command": "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\"",
+              "selector": "validation-evidence-buffer-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The decision explicitly states that measuring and writing one serialized byte string would not establish input consistency, semantic consistency, or evidence truth; WHY: this is the key limitation that makes the proposed refactor disproportionate.",
+            "type": "docs",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const exact=\\\"it does not establish input consistency, semantic consistency or evidence truth\\\";if(!s.includes(exact))process.exit(1);console.log(\\\"B-2220 edge-0 PASS\\\");\"",
+              "selector": "B-2220 edge-0 PASS"
+            }
+          },
+          {
+            "desc": "The document gives concrete evidence-based reconsideration triggers rather than saying the proposal is abandoned forever; WHY: the choice should remain reversible if the risk profile changes.",
+            "type": "docs",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"production path begins accepting stateful or untrusted record objects\\\",\\\"store serialisation format changes independently\\\",\\\"normal validation evidence repeatedly approaches the configured advisory or bound\\\",\\\"a real measure/write mismatch occurs\\\",\\\"release, compliance or threat-model requirement demands a hard on-disk byte bound\\\",\\\"Reconsideration requires a new human-approved story\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 edge-1 PASS\\\");\"",
+              "selector": "B-2220 edge-1 PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Active stale mandates are absent: no unassigned owner, work-order declaration, or sentence saying a follow-up story should be scoped; WHY: leaving any of these would contradict the new disposition.",
+            "type": "docs",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const modal=\\\"(?:must(?!\\\\\\\\s+not)|should|shall|needs? to)\\\";const bad=[new RegExp(\\\"(?:follow-up owner|owner of the follow-up)[^\\\\\\\\n]*(?:TBD|unassigned|assigned)\\\",\\\"i\\\"),new RegExp(\\\"(?:follow-up story|proposal|boundary|new story)[^\\\\\\\\n]*(?:\\\"+modal+\\\"|work order)\\\",\\\"i\\\"),new RegExp(\\\"(?:\\\"+modal+\\\")[^\\\\\\\\n]*(?:follow-up story|proposal|boundary|new story)\\\",\\\"i\\\"),/this document is the work order/i];if(bad.some(r=>r.test(s)))process.exit(1);console.log(\\\"B-2220 adversarial-0 PASS\\\");\"",
+              "selector": "B-2220 adversarial-0 PASS"
+            }
+          },
+          {
+            "desc": "The independently reviewed final decision record remains byte-for-byte unchanged after acceptance; WHY: an exact digest catches any later paraphrased mandate or deletion without pretending a keyword list can prove arbitrary natural-language semantics. A future document edit must establish a new reviewed decision and digest.",
+            "type": "docs",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\"),c=require(\\\"crypto\\\");const h=c.createHash(\\\"sha256\\\").update(fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\")).digest(\\\"hex\\\");if(h!==\\\"6041dbff24cba1df2c2a838d949df8d87a7eaf04a979525681456f5d994e614e\\\")process.exit(1);console.log(\\\"B-2220 adversarial-1 exact-decision PASS\\\");\"",
+              "selector": "B-2220 adversarial-1 exact-decision PASS"
+            }
+          }
+        ]
+      },
+      "userSees": "The document states: \"Decision after B-3434: decline the writer-owned canonical boundary as not currently justified.\" It also states: \"B-3434 remains accepted\" and \"Reconsider only if\" followed by evidence-based triggers.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\"",
+          "result": "pass",
+          "note": "Fresh build binding and compiled B-2220 smoke pass after refreshing the decision measurements and reviewed digest.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9c851cebc8a8d80b535b2d6df73b6df25537c72828c12a89587bc51c5e97004d",
+            "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the candidate measurement applies the current two-space format (a duplicate of core/store.ts, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded against the candidate serialisation used at check time\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ the oversized candidate record is reduced with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the candidate record with hash fields, and that bound result supplies the record passed to the writer\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ own volatile source values are snapshotted at check time; inherited prototype mutation remains outside this assertion\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18474 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:31:58.252Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The declined/no-active-work-order statements are present in the reviewed decision document.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "B-3434 acceptance and historical evidence remain in the reviewed decision document.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision explicitly limits byte identity and rejects broader consistency/truth claims.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision lists concrete reopen triggers and requires new human approval.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision contains no stale active owner or mandatory follow-up work order.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision matches the exact independently reviewed SHA-256 digest.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "8639ca7cd55b55dbeda320a85253ebd44274a737ea567fc9406e06e9edf02ed4",
+        "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
+        "headHash": "ee5bf55f62af07eb3d8a8036ab7a59ad5ee9a64b",
+        "attestedAt": "2026-08-30T23:01:43.898Z",
+        "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-30T23:13:06.868Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix review findings B-2220:F-001 and B-2220:F-002."
+    },
+    {
+      "timestamp": "2026-08-30T23:14:12.039Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fixed F-001 and replaced all six weak receipts per F-002; fresh strengthened receipts and mutation probes pass."
+    },
+    {
+      "timestamp": "2026-08-30T23:24:05.324Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix critical executable-contract finding F-003 and verification-strength finding F-004."
+    },
+    {
+      "timestamp": "2026-08-30T23:37:05.741Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Decision doc and executable smoke contract are aligned; seven fresh receipts pass, including build binding, full smoke, and exact-digest mutation protection."
+    },
+    {
+      "timestamp": "2026-08-30T23:42:38.459Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix F-005 stale deferred wording and replace narrow smoke blacklist with exact reviewed decision digest."
+    },
+    {
+      "timestamp": "2026-08-30T23:44:04.664Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-005 fixed: no deferred wording remains, smoke exact-hash binds the reviewed decision, build binding and full smoke pass."
+    },
+    {
+      "timestamp": "2026-08-30T23:49:35.082Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix F-006 by narrowing stale plain-object postcondition prose to the check-time guarantee and documented inherited-prototype limitation."
+    },
+    {
+      "timestamp": "2026-08-30T23:50:54.817Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-006 fixed: smoke now claims only check-time plain-data facts and explicitly records inherited Object.prototype.toJSON as a retained limitation; build binding and full smoke pass."
+    },
+    {
+      "timestamp": "2026-08-30T23:57:26.028Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix duplicate F-007/F-008/F-009 by narrowing all remaining section 10c later-serialization claims in one pass."
+    },
+    {
+      "timestamp": "2026-08-30T23:58:57.275Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Duplicate F-007/F-008/F-009 fixed in one section-wide audit; no wider later-serialization claims remain and full build-bound smoke passes."
+    }
+  ]
+}

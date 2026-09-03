@@ -18,7 +18,7 @@ appear in an explicit legacy quarantine or in this contract:
 - `authorityDone`
 - `fullAuthorityDone`
 - `productionDone`
-- `LATTICE_AUTHORITY_*`
+- `PROOF_OR_STOP_AUTHORITY_*`
 - active `authority_*` command surfaces, including hidden aliases that appear
   in normal help, catalog output, validate config, or phase allowlists
 

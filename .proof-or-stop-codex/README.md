@@ -62,5 +62,5 @@ LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_E
 边界：
 
 - 不创建 `.proof-or-stop-codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`，由 Proof-or-Stop init/check 管理；旧安装中的 `lattice-scope-pretool.cjs` 仅作为只读兼容 fallback 读取，大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/proof-or-stop-scope-pretool.cjs`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias
 - 需要观测 Codex 活动时，使用 `.proof-or-stop-codex/proof-or-stop.json` 记录的 wrapper 或带 `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` 的 fallback

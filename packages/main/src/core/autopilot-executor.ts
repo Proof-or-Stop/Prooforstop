@@ -192,7 +192,7 @@ function cliPath(): string {
 
 function commandForStep(root: string, step: AutopilotStep, plan: AutopilotRunResult): AutopilotCommandRequest | null {
   const storyId = plan.story.storyId ?? undefined;
-  const latticeArgs = (args: string[]): AutopilotCommandRequest => ({
+  const proofOrStopArgs = (args: string[]): AutopilotCommandRequest => ({
     executable: process.execPath,
     args: [cliPath(), '--root', root, ...args],
     cwd: root,
@@ -201,19 +201,19 @@ function commandForStep(root: string, step: AutopilotStep, plan: AutopilotRunRes
 
   switch (step.id) {
     case 'session-brief':
-      return latticeArgs(['session_brief']);
+      return proofOrStopArgs(['session_brief']);
     case 'docs':
-      return latticeArgs(['aux_doc_list']);
+      return proofOrStopArgs(['aux_doc_list']);
     case 'story':
-      return storyId ? latticeArgs(['story_get', `--storyId=${storyId}`]) : latticeArgs(['story_list']);
+      return storyId ? proofOrStopArgs(['story_get', `--storyId=${storyId}`]) : proofOrStopArgs(['story_list']);
     case 'validate':
-      return storyId ? latticeArgs(['validate', `--story=${storyId}`]) : latticeArgs(['validate']);
+      return storyId ? proofOrStopArgs(['validate', `--story=${storyId}`]) : proofOrStopArgs(['validate']);
     case 'asset-check':
-      return latticeArgs(['check']);
+      return proofOrStopArgs(['check']);
     case 'codex-adapter':
-      return storyId ? latticeArgs(['codex', 'verify', `--storyId=${storyId}`]) : latticeArgs(['codex', 'verify']);
+      return storyId ? proofOrStopArgs(['codex', 'verify', `--storyId=${storyId}`]) : proofOrStopArgs(['codex', 'verify']);
     case 'advance-target':
-      return storyId ? latticeArgs(['story_advance', `--storyId=${storyId}`, `--phase=${plan.targetPhase}`]) : null;
+      return storyId ? proofOrStopArgs(['story_advance', `--storyId=${storyId}`, `--phase=${plan.targetPhase}`]) : null;
     default:
       return null;
   }
@@ -258,23 +258,23 @@ function projectRootHashFor(root: string): string {
 }
 
 /**
- * B-70e9 CHK-003: the Claude Code CLI repair spawn is a lattice-initiated host run,
- * so it is covered by the SAME usage-ledger seam as host_run / lattice-dispatch —
+ * B-70e9 CHK-003: the Claude Code CLI repair spawn is a proof-or-stop-initiated host run,
+ * so it is covered by the SAME usage-ledger seam as host_run / proof-or-stop-dispatch —
  * preflight estimate (sequence 1) -> spawn -> provider/unavailable final (sequence 2
  * superseding the estimate). Every ledger call is fail-open (never throws to the
  * repair) and the whole thing is a STRICT no-op when the ledger is OFF.
  *
  * F-016: the repair also passes the SAME pre-spawn admission as runHostRun —
  * hard-budget guard (recordBudgetBlock) then atomic concurrency-slot admission
- * (acquireHostRunSlot; released in a finally) — so LATTICE_HARD_BUDGET_TOKENS
- * and LATTICE_HOST_RUN_MAX_CONCURRENT stop an autopilot repair exactly like any
- * other lattice-initiated host run. A refusal records the same blocked ledger
+ * (acquireHostRunSlot; released in a finally) — so PROOF_OR_STOP_HARD_BUDGET_TOKENS
+ * and PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT stop an autopilot repair exactly like any
+ * other proof-or-stop-initiated host run. A refusal records the same blocked ledger
  * row (provider anthropic — a repair is always a claude launch) and returns a
  * 'failed' attempt WITHOUT invoking the runner. Admission only exists in the
  * ledger-ON path; OFF stays byte-identical (no admission, no slot dirs, no rows).
  *
  * Ledger-ON vs OFF contract (load-bearing invariant):
- *   - OFF (LATTICE_USAGE_LEDGER=0): argv and behavior are BYTE-IDENTICAL to before
+ *   - OFF (PROOF_OR_STOP_USAGE_LEDGER=0): argv and behavior are BYTE-IDENTICAL to before
  *     this change — no `--output-format json`, no rows, no dirs. The existing
  *     autopilot smokes rely on this.
  *   - ON: the repair launcher adds `--output-format json` so Claude emits a parseable

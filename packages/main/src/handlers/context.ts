@@ -24,6 +24,7 @@ import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifec
 import { resolveStorySignedWorkspace, type StorySignedWorkspaceResolutionSource } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/owner-session.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import type { ProofOrStopExtensionRuntime } from '../core/extension-runtime.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -37,6 +38,8 @@ export interface HandlerContext {
   autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
   /** Test seam for DONE / done_recover post-merge package build execution. Production uses npm. */
   doneMainBuildRunner?: import('./done-effects.js').DoneMainBuildRunner;
+  /** Core-owned capabilities available to optional published CLI extensions. */
+  extensionRuntime?: ProofOrStopExtensionRuntime;
   /** Test seam for causal preflight snapshots. Production probes the real workspace. */
   causalPreflightFacts?: (input: {
     command: string;

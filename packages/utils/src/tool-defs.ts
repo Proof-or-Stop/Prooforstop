@@ -4,14 +4,9 @@
  * the main package's own mainToolDefs.
  */
 import { z } from 'zod';
-import type { ToolDef } from '../../main/dist/cli-engine.js';
+import type { ToolDef } from '@proof-or-stop/core/extension-api';
 
 export const utilsToolDefs: ToolDef[] = [
-  // Doc list
-  { name: 'aux_doc_list', description: 'List project docs for picking relatedDocs in PLAN', schema: {
-    format: z.enum(['text','json']).optional().describe('Output format; defaults to text'),
-  }},
-
   // Trace / diagnose
   { name: 'aux_diagnose', description: 'Auto-diagnose a failing case root cause via trace diff and git diff', schema: {
     caseName: z.string().describe('Case name'),
@@ -40,19 +35,8 @@ export const utilsToolDefs: ToolDef[] = [
     query: z.string().describe('Query string'),
   }},
 
-  // Truth source of truth
-  { name: 'truth_scan', description: 'Scan sources of truth', schema: { summary: z.boolean().optional().describe('Summary mode') }},
-  { name: 'truth_extract', description: 'Reverse-extract source-of-truth docs from code and Stories', schema: {}},
-  { name: 'truth_nav', description: 'Generate the navigation index', schema: {}},
-  { name: 'truth_analyze', description: 'Analyze source-of-truth contradictions and gaps', schema: {}},
-  { name: 'truth_to_story', description: 'Derive Story suggestions from requirements', schema: {}},
-
-  // Gap / convergence
-  { name: 'gap_analyze', description: 'Report gaps between sources of truth and code', schema: {}},
-  { name: 'convergence_check', description: 'Run a project convergence check', schema: {}},
-
   // Tool usage statistics
-  { name: 'tool_status', description: 'Report tool usage from activity.jsonl across .lattice/ and docs/story/', schema: {
+  { name: 'tool_status', description: 'Report tool usage from activity.jsonl across .proof-or-stop/ and docs/story/', schema: {
     source: z.enum(['cli','claude','codex','all']).optional().describe('Data source; defaults to all'),
     role: z.string().optional().describe('Filter by activity role, such as reviewer / intent / main'),
     days: z.number().optional().describe('Time window in days; defaults to 30'),
@@ -60,3 +44,25 @@ export const utilsToolDefs: ToolDef[] = [
     format: z.enum(['text','json']).optional().describe('Output format; defaults to text'),
   }},
 ];
+
+export const utilsOwnershipClasses = {
+  aux_coverage: 'readOnly',
+  aux_detail: 'readOnly',
+  aux_diagnose: 'mainSharedMutating',
+  aux_locate: 'readOnly',
+  aux_scan: 'readOnly',
+  aux_sync: 'mainSharedMutating',
+  aux_trace: 'readOnly',
+  tool_status: 'readOnly',
+} as const;
+
+export const utilsAllowedPhases = {
+  aux_coverage: 'all',
+  aux_detail: 'all',
+  aux_diagnose: ['DEV'],
+  aux_locate: 'all',
+  aux_scan: 'all',
+  aux_sync: ['DEV'],
+  aux_trace: 'all',
+  tool_status: 'all',
+} as const;

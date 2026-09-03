@@ -5,7 +5,7 @@
  * the CLI idle watchdog without corrupting `validate --json` stdout.
  *
  * Red baseline (before B-2fb7): a configured validate command that is active
- * but silent for ~11.5s is killed by `LATTICE_IDLE_TIMEOUT_MS=1000` when the
+ * but silent for ~11.5s is killed by `PROOF_OR_STOP_IDLE_TIMEOUT_MS=1000` when the
  * CLI watchdog checks at ~10s:
  *
  *   validate stuck: 1 seconds without output; forcing exit
@@ -114,7 +114,7 @@ function commitAll(root: string, message: string): void {
 }
 
 function setupFixture(): { root: string; started: string; finished: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-heartbeat-'));
   const started = join(root, 'command-started.txt');
   const finished = join(root, 'command-finished.txt');
   write(root, '.gitignore', [
@@ -134,10 +134,10 @@ writeFileSync(started, 'started ' + Date.now() + '\\n', 'utf8');
 await new Promise((resolve) => setTimeout(resolve, durationMs));
 writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
 `);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
     validate: {
@@ -183,6 +183,7 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
   const fixture = setupFixture();
   const { root } = fixture;
   const storyId = 'B-heartbeat-advance';
+
   write(root, 'packages/main/src/index.ts', 'export const heartbeatAdvanceSmoke = true;\n');
   commitAll(root, 'seed heartbeat story_advance fixture');
 
@@ -230,30 +231,22 @@ function admitSyntheticWindow(root: string, storyId: string): void {
 
 function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): Promise<CliResult> {
   const start = Date.now();
+  const inheritedEnv = stripCanonicalBrandEnvTwins(
+    { ...process.env },
+    ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+  );
   const child = spawn(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    // B-cdf6: brand-env resolves the CANONICAL PROOF_OR_STOP_* name ahead of the
-    // deprecated LATTICE_* one, and this spreads process.env — so a canonical value
-    // exported by the CALLER silently outranks any LATTICE_*-only pin below, and the
-    // child runs on the caller's budget instead of the test's. That is exactly how
-    // this smoke failed inside `validate` when the invoking shell had
-    // PROOF_OR_STOP_MAX_TIMEOUT_MS set (budget line printed
-    // source=PROOF_OR_STOP_MAX_TIMEOUT_MS; assertion failed `0 !== 1`).
-    //
-    // Fix at the choke point rather than at each call site: strip every canonical
-    // twin of the knobs this smoke controls, so the LATTICE_* pins (whether from the
-    // defaults here or from a per-case `env` override) are authoritative again. Each
-    // call site keeps its existing single-spelling shape and stays correct.
-    env: stripCanonicalBrandEnvTwins(
-      {
-        ...process.env,
-        LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
-        LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
-        LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
-        ...env,
-      },
-      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
-    ),
+    // Remove caller-owned canonical knobs BEFORE installing the fixture's own
+    // canonical pins. Clean-break brand-env has no legacy twin to fall back to;
+    // stripping the composed object would delete the values this test just set.
+    env: {
+      ...inheritedEnv,
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+      PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
+      ...env,
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
@@ -290,7 +283,7 @@ function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILIN
 }
 
 function configureDoneRequired(root: string, durationMs: number, timeoutMs: number): void {
-  const configPath = join(root, 'lattice.config.json');
+  const configPath = join(root, 'proof-or-stop.config.json');
   const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
   config.doneRequiredCommands = [{
     label: 'direct-silent-done-required',
@@ -303,7 +296,7 @@ function configureDoneRequired(root: string, durationMs: number, timeoutMs: numb
 }
 
 function configureRoutineValidate(root: string, durationMs: number): void {
-  const configPath = join(root, 'lattice.config.json');
+  const configPath = join(root, 'proof-or-stop.config.json');
   const config = JSON.parse(readFileSync(configPath, 'utf8')) as {
     validate: { commands: Array<{ args: string[] }> };
   };
@@ -347,9 +340,9 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
       configureDoneRequired(fixture.root, testCase.durationMs, testCase.commandTimeoutMs);
       admitSyntheticWindow(fixture.root, fixture.storyId);
       const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-        LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
-        LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
-        LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(testCase.idleMs),
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(testCase.maxMs),
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
       });
       assert.equal(
         result.status,
@@ -368,9 +361,9 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
         configureDoneRequired(fixture.root, 0, 2_000);
         admitSyntheticWindow(fixture.root, fixture.storyId);
         const retry = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-          LATTICE_IDLE_TIMEOUT_MS: '1000',
-          LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
-          LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
+          PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+          PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
         });
         assert.equal(retry.status, 0, `${testCase.name} timeout must permit a successful immediate rerun`);
         assert.equal(JSON.parse(retry.stdout).result, 'pass', `${testCase.name} timeout must release lock/timers for immediate rerun`);
@@ -383,7 +376,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
   const descendantFixture = setupStoryAdvanceFixture();
   try {
     const pidFile = join(descendantFixture.root, 'descendant.pid');
-    const configPath = join(descendantFixture.root, 'lattice.config.json');
+    const configPath = join(descendantFixture.root, 'proof-or-stop.config.json');
     const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
     config.doneRequiredCommands = [{
       label: 'descendant-tree-timeout',
@@ -395,7 +388,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     commitAll(descendantFixture.root, 'configure descendant timeout');
     admitSyntheticWindow(descendantFixture.root, descendantFixture.storyId);
     const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000', PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(timed.status, 1, 'structured command timeout must exit nonzero');
     assert.equal(JSON.parse(timed.stdout).timeoutLayer, 'command');
@@ -406,7 +399,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     configureDoneRequired(descendantFixture.root, 0, 2_000);
     admitSyntheticWindow(descendantFixture.root, descendantFixture.storyId);
     const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000', PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(retry.status, 0, 'descendant timeout cleanup must permit a successful immediate rerun');
     assert.equal(JSON.parse(retry.stdout).result, 'pass');
@@ -432,9 +425,9 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
         '--validate=true',
         '--json',
       ], NON_MAX_HARNESS_CEILING_MS, {
-        LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
-        LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
-        LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(testCase.idleMs),
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(testCase.maxMs),
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
       });
       assert.equal(result.status, 1, `done_prepare routine ${testCase.name} timeout must exit nonzero:\n${result.stderr}`);
       const parsed = JSON.parse(result.stdout);
@@ -448,9 +441,9 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
 
       configureRoutineValidate(fixture.root, 0);
       const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], NON_MAX_HARNESS_CEILING_MS, {
-        LATTICE_IDLE_TIMEOUT_MS: '1000',
-        LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
-        LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
       });
       assert.equal(retry.status, 0, `${testCase.name} timeout must release locks/timers for an immediate validation rerun`);
       const retryParsed = parseValidateJson(retry.stdout);
@@ -471,7 +464,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
     const fixture = setupStoryAdvanceFixture();
     try {
       const pidFile = join(fixture.root, `${testCase.name}-descendant.pid`);
-      const configPath = join(fixture.root, 'lattice.config.json');
+      const configPath = join(fixture.root, 'proof-or-stop.config.json');
       const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
       config.doneRequiredCommands = [{
         label: `${testCase.name}-descendant-tree-timeout`,
@@ -484,9 +477,9 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       commitAll(fixture.root, `configure ${testCase.name} descendant timeout`);
       admitSyntheticWindow(fixture.root, fixture.storyId);
       const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-        LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
-        LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
-        LATTICE_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: testCase.maxMs,
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
       });
       assert.equal(result.status, 1);
       const parsed = JSON.parse(result.stdout);
@@ -517,9 +510,9 @@ async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
       '--validate=true',
       '--json',
     ], NON_MAX_HARNESS_CEILING_MS, {
-      LATTICE_IDLE_TIMEOUT_MS: '5000',
-      LATTICE_MAX_TIMEOUT_MS: '1005',
-      LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: '1005',
+      PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(result.status, 1, `1005ms max with 251ms watchdog polling must exit nonzero:\n${result.stderr}`);
     const parsed = JSON.parse(result.stdout);
@@ -533,9 +526,9 @@ async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
 
     configureRoutineValidate(fixture.root, 0);
     const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], NON_MAX_HARNESS_CEILING_MS, {
-      LATTICE_IDLE_TIMEOUT_MS: '1000',
-      LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
-      LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+      PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(retry.status, 0, 'named deadline path must preserve cleanup for immediate rerun');
   } finally {
@@ -626,7 +619,7 @@ async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
     assert.equal(evidence?.failureKind, undefined, 'passing story_advance evidence should not carry failureKind');
     const parsed = JSON.parse(evidence?.output ?? '{}') as ValidateJson;
     assert.equal(parsed.allPass, true, 'story_advance evidence output should be passing validate JSON');
-    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
     assert.equal(
       gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]),
       '',
@@ -653,7 +646,7 @@ async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
     );
     assert.equal(result.status, 0,
       `main-branch direct verifier terminal must close independently:\n${result.stderr}\n${result.stdout}`);
-    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
     assert.equal(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), '');
     const committedEvents = gitOutput(root, ['show', `HEAD:${processEventsRel}`]);
     assert.match(committedEvents, /"type":"validation_terminal"/);
@@ -667,7 +660,7 @@ async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
 async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
   const { root, storyId, started } = setupStoryAdvanceFixture();
   try {
-    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
     const processEventsPath = join(root, processEventsRel);
     const run = runCli(
       root,
@@ -713,7 +706,7 @@ async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<vo
   const { root, storyId } = setupStoryAdvanceFixture();
   try {
     git(root, ['checkout', '-b', `story/${storyId}`]);
-    const configPath = join(root, 'lattice.config.json');
+    const configPath = join(root, 'proof-or-stop.config.json');
     const config = JSON.parse(readFileSync(configPath, 'utf8')) as {
       validate: { commands: Array<Record<string, unknown>> };
     };
@@ -742,7 +735,7 @@ async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<vo
       'failed direct-handler validation evidence must retain its existing persistence semantics');
     assert.equal(evidence?.failureKind, 'validation_failure');
 
-    const storyRel = `.lattice/story/actives/${storyId}`;
+    const storyRel = `.proof-or-stop/story/actives/${storyId}`;
     const canonicalPaths = [
       `${storyRel}/index.json`,
       `${storyRel}/process-events.jsonl`,

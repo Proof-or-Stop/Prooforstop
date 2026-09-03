@@ -78,10 +78,10 @@ async function main() {
   check(registrySource.includes('driftMessage'), 'runtime registry entries should declare driftMessage');
   check(registrySource.includes('repairHint'), 'runtime registry should include repair hints where applicable');
   check(registrySource.includes('@proof-or-stop/core'), 'runtime registry should name @proof-or-stop/core as canonical');
-  check(!registrySource.includes('@lattice-agent/core'), 'runtime registry must not advertise retired @lattice-agent/core');
+  check(!registrySource.includes('@proof-or-stop-agent/core'), 'runtime registry must not advertise retired @proof-or-stop-agent/core');
   check(!registrySource.includes('@koala-agent/core'), 'runtime registry must not advertise @koala-agent/core fallback');
   check(checksSource.includes("const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core'"), 'runtime checks should resolve @proof-or-stop/core as canonical');
-  check(!checksSource.includes('@lattice-agent/core'), 'runtime checks must not resolve retired @lattice-agent/core');
+  check(!checksSource.includes('@proof-or-stop-agent/core'), 'runtime checks must not resolve retired @proof-or-stop-agent/core');
   check(!checksSource.includes('@koala-agent/core'), 'runtime checks must not resolve @koala-agent/core fallback');
   check(registrySource.includes('command -v proof-or-stop'), 'cli-entrypoint repair hint should use proof-or-stop');
   check(!registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint must not include koala fallback');
@@ -93,7 +93,7 @@ async function main() {
   check(checksSource.includes('stale_global_runtime_in_worktree'), 'runtime authority checker must expose the stable stale-global reason code');
   check(checksSource.includes('renderLocalEntrypointRecoveryCommand'), 'runtime authority checker must expose one canonical local recovery renderer');
   // B-cdf6:F-020 — the checker now reads BOTH brand spellings via readBrandEnv instead of a
-  // raw `input.env?.LATTICE_CODEX_ENTRYPOINT` property access, so pinning the old literal
+  // raw `input.env?.PROOF_OR_STOP_CODEX_ENTRYPOINT` property access, so pinning the old literal
   // would fail on a correct implementation. The invariant this check exists to protect is
   // NARROWNESS: the exemption must still be bound to the exact 'global-fallback' value, not
   // widened to any truthy entrypoint. Assert that instead of a brand-specific spelling, so a
@@ -140,7 +140,7 @@ async function main() {
   }
 
   if (configModule) {
-    const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-config-negative-'));
+    const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-config-negative-'));
     try {
       writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
         scanRoot: 'legacy-only-src',
@@ -153,30 +153,30 @@ async function main() {
       check(legacyOnlyConfig.scanRoot !== 'legacy-only-src', 'koala.config.json must not be read as an active config fallback');
       check(!legacyOnlyConfig.validate, 'koala.config.json validate commands must not be read as active config');
 
-      writeFileSync(join(legacyOnlyRoot, 'lattice.config.json'), JSON.stringify({
-        scanRoot: 'lattice-src',
+      writeFileSync(join(legacyOnlyRoot, 'proof-or-stop.config.json'), JSON.stringify({
+        scanRoot: 'proof-or-stop-src',
         validate: {
-          command: 'node -e "process.stdout.write(\\"lattice\\")"',
+          command: 'node -e "process.stdout.write(\\"proof-or-stop\\")"',
         },
       }));
       configModule.resetConfigCache?.();
-      const latticeConfig = configModule.loadConfig(legacyOnlyRoot);
-      check(latticeConfig.scanRoot === 'lattice-src', 'lattice.config.json must remain the active config source');
-      check(latticeConfig.validate?.command?.includes('lattice'), 'lattice.config.json validate command must load');
+      const proofOrStopConfig = configModule.loadConfig(legacyOnlyRoot);
+      check(proofOrStopConfig.scanRoot === 'proof-or-stop-src', 'proof-or-stop.config.json must remain the active config source');
+      check(proofOrStopConfig.validate?.command?.includes('proof-or-stop'), 'proof-or-stop.config.json validate command must load');
     } finally {
       rmSync(legacyOnlyRoot, { recursive: true, force: true });
       configModule.resetConfigCache?.();
     }
   }
 
-  const tmp = mkdtempSync(join(tmpdir(), 'lattice-runtime-fact-contract-'));
+  const tmp = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-fact-contract-'));
   try {
     writeFileSync(join(tmp, 'package.json'), JSON.stringify({
       name: 'runtime-contract-smoke',
       version: '1.0.0',
       scripts: { test: 'node -e "process.stdout.write(\\"ok\\")"' },
     }));
-    writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(tmp, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         command: 'node -e "process.stdout.write(\\"configured\\")"',
       },
@@ -208,7 +208,7 @@ async function main() {
       try {
         process.env.PATH = pathBinDir;
         if (process.platform === 'win32') process.env.Path = pathBinDir;
-        const latticeOnlyPathReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
+        const proofOrStopOnlyPathReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
           globalNpmRootResolver: () => null,
         });
         check(latticeOnlyPathReport.cliEntrypoint.status === 'pass', 'cli-entrypoint should pass when PATH exposes proof-or-stop only');
@@ -260,7 +260,7 @@ async function main() {
     if (doctorModule && storeModule) {
       // B-623a: keep this contract check hermetic and fast — doctor's advisory
       // burn scan would otherwise stream the real ~/.codex / ~/.claude stores.
-      process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+      process.env.PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS = '0';
       const doctor = doctorModule.createDoctorHandlers({
         root: tmp,
         scanRoot: tmp,

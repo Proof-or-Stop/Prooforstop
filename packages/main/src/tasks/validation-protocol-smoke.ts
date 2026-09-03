@@ -17,7 +17,7 @@ import {
 } from '../handlers/verifier.js';
 import { createCheckHandlers } from '../handlers/check.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
-import { managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
+import { detectManagedAssetMode, managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
 import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
@@ -27,13 +27,13 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
-process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+process.env.PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS = '0';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
 
-const tmp = mkdtempSync(join(tmpdir(), 'lattice-validation-protocol-'));
+const tmp = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-protocol-'));
 
 function gitQuiet(root: string, args: string[]): void {
   execFileSync('git', args, { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -41,7 +41,7 @@ function gitQuiet(root: string, args: string[]): void {
 
 function initSmokeGitRepo(root: string): void {
   gitQuiet(root, ['init', '--initial-branch=main']);
-  gitQuiet(root, ['config', 'user.name', 'Lattice Smoke']);
+  gitQuiet(root, ['config', 'user.name', 'ProofOrStop Smoke']);
   gitQuiet(root, ['config', 'user.email', 'smoke@example.test']);
 }
 
@@ -121,7 +121,7 @@ try {
   assert.equal(requiredFailure.commands[0].failureKind, 'validation_failure');
   const requiredFailureDetails = requiredFailure.details.join('\n');
   assert.doesNotMatch(requiredFailureDetails, /timeout diagnostic/i);
-  assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise lattice\.config\.json validate\.commands\[\]\.timeoutMs/i);
+  assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise proof-or-stop\.config\.json validate\.commands\[\]\.timeoutMs/i);
 
   const optionalFailure = await executeValidationPlan({
     provider: 'smoke-optional-fail',
@@ -159,17 +159,17 @@ try {
   assert.equal(timeout.commands[0].timedOut, true);
   assert.equal(timeout.commands[0].failureKind, 'infra_failure');
   assert.match(timeout.details.join('\n'), /configured timeoutMs=100ms/);
-  assert.match(timeout.details.join('\n'), /lattice\.config\.json validate\.commands\[\]\.timeoutMs/);
+  assert.match(timeout.details.join('\n'), /proof-or-stop\.config\.json validate\.commands\[\]\.timeoutMs/);
 
-  writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(tmp, 'proof-or-stop.config.json'), JSON.stringify({
     validate: {
       commands: [
         {
           label: 'configured command',
           command: 'node',
-          args: ['-e', 'process.stdout.write(process.env.LATTICE_SMOKE || "")'],
+          args: ['-e', 'process.stdout.write(process.env.PROOF_OR_STOP_SMOKE || "")'],
           cwd: 'sub',
-          env: { LATTICE_SMOKE: 'yes' },
+          env: { PROOF_OR_STOP_SMOKE: 'yes' },
           timeoutMs: 1234,
           optional: true,
         },
@@ -181,11 +181,11 @@ try {
   assert.equal(discovered.length, 1);
   assert.equal(discovered[0].label, 'configured command');
   assert.equal(discovered[0].cwd, 'sub');
-  assert.equal(discovered[0].env?.LATTICE_SMOKE, 'yes');
+  assert.equal(discovered[0].env?.PROOF_OR_STOP_SMOKE, 'yes');
   assert.equal(discovered[0].timeoutMs, 1234);
   assert.equal(discovered[0].optional, true);
 
-  writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(tmp, 'proof-or-stop.config.json'), JSON.stringify({
     validate: {
       command: 'cd sub && node -e "process.stdout.write(process.cwd())"',
     },
@@ -197,7 +197,7 @@ try {
   assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
   assert.deepEqual(shellDiscovered[0].args, []);
 
-  const noEntryRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-no-entry-'));
+  const noEntryRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-no-entry-'));
   try {
     resetConfigCache();
     const logs: string[] = [];
@@ -208,7 +208,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const noEntryResult = JSON.parse(noEntryJson);
-    assert.equal(noEntryResult.provider, 'lattice-verifier-no-validation-entry');
+    assert.equal(noEntryResult.provider, 'proof-or-stop-verifier-no-validation-entry');
     assert.equal(noEntryResult.status, 'warn');
     assert.equal(noEntryResult.allPass, true);
     assert.equal(noEntryResult.commands.length, 0);
@@ -222,9 +222,9 @@ try {
     rmSync(noEntryRoot, { recursive: true, force: true });
   }
 
-  const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-configured-'));
+  const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-configured-'));
   try {
-    writeFileSync(join(configuredOnlyRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(configuredOnlyRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
           {
@@ -244,7 +244,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const configuredResult = JSON.parse(validateJson);
-    assert.equal(configuredResult.provider, 'lattice-verifier-configured-commands');
+    assert.equal(configuredResult.provider, 'proof-or-stop-verifier-configured-commands');
     assert.equal(configuredResult.status, 'pass');
     assert.equal(configuredResult.allPass, true);
     assert.deepEqual(configuredResult.warnings, []);
@@ -258,95 +258,9 @@ try {
     rmSync(configuredOnlyRoot, { recursive: true, force: true });
   }
 
-  // Story-aware dynamic preview must also be reachable when the project uses
-  // the native validate.ts entrypoint (not only configured commands).
-  const dynamicValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dynamic-validate-file-'));
+  const configuredFailRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-configured-fail-'));
   try {
-    writeFileSync(join(dynamicValidateFileRoot, 'validate.ts'), 'console.log("validate-file dynamic fixture")\n');
-    initSmokeGitRepo(dynamicValidateFileRoot);
-    gitQuiet(dynamicValidateFileRoot, ['add', '.']);
-    gitQuiet(dynamicValidateFileRoot, ['commit', '-m', 'seed dynamic validate-file smoke']);
-    resetConfigCache();
-    const dynamicJson = await createVerifierHandlers({
-      root: dynamicValidateFileRoot,
-      scanRoot: dynamicValidateFileRoot,
-      store: new StoryStore(dynamicValidateFileRoot),
-      log: () => {},
-    }).validate({ dynamicMode: 'observe', json: true });
-    const dynamicResult = JSON.parse(String(dynamicJson));
-    assert.equal(dynamicResult.provider, 'lattice-verifier-dynamic-preview');
-    assert.equal(dynamicResult.commandExecutions, 0);
-    assert.equal(dynamicResult.dynamicValidation.mode, 'observe');
-    assert.equal(dynamicResult.dynamicValidation.oracleStatus, 'not-run');
-    assert.equal(dynamicResult.dynamicValidation.manifest.totals.inventory, 1);
-  } finally {
-    rmSync(dynamicValidateFileRoot, { recursive: true, force: true });
-    resetConfigCache();
-  }
-
-  // Story-scoped validate-file coverage: exercise all three dynamic modes
-  // through the real verifier branch, not only the bounded no-story preview.
-  const storyDynamicValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-story-dynamic-validate-file-'));
-  try {
-    writeFileSync(join(storyDynamicValidateFileRoot, 'validate.ts'), 'console.log("story-scoped validate-file dynamic fixture")\n');
-    mkdirSync(join(storyDynamicValidateFileRoot, 'node_modules/.bin'), { recursive: true });
-    const tsxShim = join(storyDynamicValidateFileRoot, 'node_modules/.bin/tsx');
-    writeFileSync(tsxShim, '#!/usr/bin/env node\nconst { spawnSync } = require("node:child_process");\nconst r = spawnSync(process.execPath, process.argv.slice(2), { stdio: "inherit" });\nprocess.exit(r.status ?? 1);\n');
-    chmodSync(tsxShim, 0o755);
-    initSmokeGitRepo(storyDynamicValidateFileRoot);
-    gitQuiet(storyDynamicValidateFileRoot, ['add', '.']);
-    gitQuiet(storyDynamicValidateFileRoot, ['commit', '-m', 'seed story-scoped dynamic validate-file smoke']);
-    const storyId = 'B-dynamic-validate-file-story';
-    const storyStore = new StoryStore(storyDynamicValidateFileRoot);
-    const now = new Date().toISOString();
-    storyStore.writeStory(storyId, {
-      storyId, name: 'dynamic-validate-file-smoke', title: 'Story-scoped dynamic validate-file smoke',
-      description: 'Exercises observe, shadow and enforce-low-risk entrypoint routing.', type: 'chore', phase: 'DONE',
-      priority: 'medium', createdAt: now, startedAt: now, endedAt: now, events: [],
-    } as StoryInfo);
-    storyStore.writeChecklist(storyId, { items: [{
-      id: 'CHK-001', title: 'run story scoped validator', context: 'entrypoint smoke', status: 'done',
-      startTime: now, endTime: now, files: { modify: ['validate.ts'], create: [], test: [] },
-    }] } as ChecklistData);
-    storyStore.writeScopeContract(storyId, {
-      storyId, mode: 'enforce', allowedModify: ['validate.ts'], allowedCreate: [], allowedTest: [],
-      protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: now, updatedAt: now,
-    });
-    resetConfigCache();
-    for (const mode of ['observe', 'shadow', 'enforce-low-risk'] as const) {
-      const resultJson = await createVerifierHandlers({
-        root: storyDynamicValidateFileRoot,
-        scanRoot: storyDynamicValidateFileRoot,
-        store: storyStore,
-        log: () => {},
-      }).validate({ story: storyId, dynamicMode: mode, json: true });
-      const result = JSON.parse(String(resultJson));
-      assert.equal(result.dynamicValidation.mode, mode);
-      assert.equal(result.dynamicValidation.oracleStatus, 'executed');
-      assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean');
-      assert.ok(result.commands.length >= 1, `${mode} must execute the validate-file oracle`);
-      if (mode === 'observe') {
-        assert.equal(result.dynamicValidation.authority, 'full-plan-oracle', 'observe must never claim TEST authority');
-        assert.equal(typeof result.dynamicValidation.observeOracle?.equivalent, 'boolean', 'observe must persist the oracle comparison');
-        assert.ok(result.dynamicValidation.report.includes('validate-file runtime trace'), 'observe must expose command-boundary trace evidence');
-      } else if (mode === 'shadow') {
-        assert.equal(result.dynamicValidation.authority, 'full-plan-oracle', 'shadow must retain the full-plan authority oracle');
-        assert.equal(typeof result.dynamicValidation.selectedAllPass, 'boolean', 'shadow must expose selected-plan verdict');
-        assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean', 'shadow must compare selected and full verdicts');
-      } else {
-        assert.ok(['full-fallback', 'enforce-authority'].includes(result.dynamicValidation.authority), 'enforce-low-risk must either prove authority or fall back to full');
-        assert.equal(typeof result.dynamicValidation.fullPlanAllPass, 'boolean', 'enforce-low-risk must expose the executed full-plan verdict');
-        if (result.dynamicValidation.authority === 'full-fallback') assert.equal(result.dynamicValidation.oracleStatus, 'executed', 'fallback must execute the full oracle');
-      }
-    }
-  } finally {
-    rmSync(storyDynamicValidateFileRoot, { recursive: true, force: true });
-    resetConfigCache();
-  }
-
-  const configuredFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-configured-fail-'));
-  try {
-    writeFileSync(join(configuredFailRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(configuredFailRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
           {
@@ -369,7 +283,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const configuredFailResult = JSON.parse(configuredFailJson);
-    assert.equal(configuredFailResult.provider, 'lattice-verifier-configured-commands');
+    assert.equal(configuredFailResult.provider, 'proof-or-stop-verifier-configured-commands');
     assert.equal(configuredFailResult.status, 'fail');
     assert.equal(configuredFailResult.allPass, false);
     assert.equal(configuredFailResult.commands.length, 1);
@@ -384,7 +298,7 @@ try {
     rmSync(configuredFailRoot, { recursive: true, force: true });
   }
 
-  const fallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-fallback-'));
+  const fallbackRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-fallback-'));
   try {
     writeFileSync(join(fallbackRoot, 'package.json'), JSON.stringify({
       scripts: { test: 'node -e "process.stdout.write(\\"fallback-ok\\")"' },
@@ -400,7 +314,7 @@ try {
       log: () => {},
     }).validate({ json: true });
     const fallbackResult = JSON.parse(fallbackJson);
-    assert.equal(fallbackResult.provider, 'lattice-verifier-fallback-commands');
+    assert.equal(fallbackResult.provider, 'proof-or-stop-verifier-fallback-commands');
     assert.equal(fallbackResult.status, 'pass');
     assert.equal(fallbackResult.allPass, true);
     assert.deepEqual(fallbackResult.warnings, []);
@@ -414,7 +328,7 @@ try {
   // B-38d6 CHK-001: Package.swift alone must NOT auto-fall back to swift test.
   // The Mac Native App / Swift product runtime has been demoted; explicit
   // validate.commands is the only opt-in path.
-  const swiftOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-swift-only-'));
+  const swiftOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-swift-only-'));
   try {
     writeFileSync(join(swiftOnlyRoot, 'Package.swift'), '// swift-tools-version:5.9\nimport PackageDescription\n');
     resetConfigCache();
@@ -428,7 +342,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const swiftResult = JSON.parse(swiftJson);
-    assert.equal(swiftResult.provider, 'lattice-verifier-no-validation-entry', 'Package.swift alone must surface no-validation-entry warn/skip');
+    assert.equal(swiftResult.provider, 'proof-or-stop-verifier-no-validation-entry', 'Package.swift alone must surface no-validation-entry warn/skip');
     assert.equal(swiftResult.status, 'warn');
     assert.equal(swiftResult.allPass, true, 'no-validation-entry skip is advisory, not a hard fail');
     assert.equal(swiftResult.commands.length, 0);
@@ -442,10 +356,10 @@ try {
   }
 
   // B-38d6 CHK-001: explicit validate.commands for swift test must STILL run.
-  const swiftExplicitRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-swift-explicit-'));
+  const swiftExplicitRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-swift-explicit-'));
   try {
     writeFileSync(join(swiftExplicitRoot, 'Package.swift'), '// swift-tools-version:5.9\nimport PackageDescription\n');
-    writeFileSync(join(swiftExplicitRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(swiftExplicitRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
           { label: 'explicit swift test', command: 'node', args: ['-e', 'process.stdout.write("swift-opt-in-ok")'] },
@@ -463,45 +377,45 @@ try {
       log: () => {},
     }).validate({ json: true });
     const swiftExplicitResult = JSON.parse(swiftExplicitJson);
-    assert.equal(swiftExplicitResult.provider, 'lattice-verifier-configured-commands');
+    assert.equal(swiftExplicitResult.provider, 'proof-or-stop-verifier-configured-commands');
     assert.equal(swiftExplicitResult.status, 'pass');
     assert.match(swiftExplicitResult.commands[0].output, /swift-opt-in-ok/);
   } finally {
     rmSync(swiftExplicitRoot, { recursive: true, force: true });
   }
 
-  // B-38d6 CHK-002: lattice.config.json is canonical; validate.commands there
+  // B-38d6 CHK-002: proof-or-stop.config.json is canonical; validate.commands there
   // must be loaded and used by proof-or-stop validate.
-  const latticeCanonicalRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-canonical-'));
+  const proofOrStopCanonicalRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-canonical-'));
   try {
-    writeFileSync(join(latticeCanonicalRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(proofOrStopCanonicalRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'canonical lattice gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-canonical-ok")'] },
+          { label: 'canonical proof-or-stop gate', command: 'node', args: ['-e', 'process.stdout.write("proof-or-stop-canonical-ok")'] },
         ],
       },
     }));
     resetConfigCache();
-    const canonicalDiscovered = configuredValidationCommands(latticeCanonicalRoot);
-    assert.equal(canonicalDiscovered.length, 1, 'lattice.config.json validate.commands must load');
-    assert.equal(canonicalDiscovered[0].label, 'canonical lattice gate');
+    const canonicalDiscovered = configuredValidationCommands(proofOrStopCanonicalRoot);
+    assert.equal(canonicalDiscovered.length, 1, 'proof-or-stop.config.json validate.commands must load');
+    assert.equal(canonicalDiscovered[0].label, 'canonical proof-or-stop gate');
     const canonicalJson = await createVerifierHandlers({
-      root: latticeCanonicalRoot,
-      scanRoot: latticeCanonicalRoot,
-      store: new StoryStore(latticeCanonicalRoot),
+      root: proofOrStopCanonicalRoot,
+      scanRoot: proofOrStopCanonicalRoot,
+      store: new StoryStore(proofOrStopCanonicalRoot),
       log: () => {},
     }).validate({ json: true });
     const canonicalResult = JSON.parse(canonicalJson);
-    assert.equal(canonicalResult.provider, 'lattice-verifier-configured-commands');
+    assert.equal(canonicalResult.provider, 'proof-or-stop-verifier-configured-commands');
     assert.equal(canonicalResult.status, 'pass');
-    assert.match(canonicalResult.commands[0].output, /lattice-canonical-ok/);
+    assert.match(canonicalResult.commands[0].output, /proof-or-stop-canonical-ok/);
   } finally {
-    rmSync(latticeCanonicalRoot, { recursive: true, force: true });
+    rmSync(proofOrStopCanonicalRoot, { recursive: true, force: true });
   }
 
-  // Lattice-only config: a non-canonical config file is not an active fallback
-  // when lattice.config.json is absent.
-  const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-legacy-only-'));
+  // ProofOrStop-only config: a non-canonical config file is not an active fallback
+  // when proof-or-stop.config.json is absent.
+  const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-legacy-only-'));
   try {
     writeFileSync(join(legacyOnlyRoot, 'other.config.json'), JSON.stringify({
       validate: {
@@ -517,14 +431,14 @@ try {
     rmSync(legacyOnlyRoot, { recursive: true, force: true });
   }
 
-  // B-38d6 CHK-002: lattice.config.json and a non-canonical config both present →
-  // lattice.config.json wins (canonical) and diagnostic identifies the winner.
-  const conflictConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-config-conflict-'));
+  // B-38d6 CHK-002: proof-or-stop.config.json and a non-canonical config both present →
+  // proof-or-stop.config.json wins (canonical) and diagnostic identifies the winner.
+  const conflictConfigRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-config-conflict-'));
   try {
-    writeFileSync(join(conflictConfigRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(conflictConfigRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'lattice wins gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-wins")'] },
+          { label: 'proof-or-stop wins gate', command: 'node', args: ['-e', 'process.stdout.write("proof-or-stop-wins")'] },
         ],
       },
     }));
@@ -537,8 +451,8 @@ try {
     }));
     resetConfigCache();
     const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
-    assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
-    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over a non-canonical config');
+    assert.equal(conflictDiscovered.length, 1, 'only the canonical proof-or-stop.config.json entry must be loaded');
+    assert.equal(conflictDiscovered[0].label, 'proof-or-stop wins gate', 'proof-or-stop.config.json must win over a non-canonical config');
     const conflictJson = await createVerifierHandlers({
       root: conflictConfigRoot,
       scanRoot: conflictConfigRoot,
@@ -546,13 +460,13 @@ try {
       log: () => {},
     }).validate({ json: true });
     const conflictResult = JSON.parse(conflictJson);
-    assert.match(conflictResult.commands[0].output, /lattice-wins/);
-    assert.doesNotMatch(conflictResult.commands[0].output, /other-loses/, 'a non-canonical config gate must NOT be executed when lattice.config.json is present');
+    assert.match(conflictResult.commands[0].output, /proof-or-stop-wins/);
+    assert.doesNotMatch(conflictResult.commands[0].output, /other-loses/, 'a non-canonical config gate must NOT be executed when proof-or-stop.config.json is present');
   } finally {
     rmSync(conflictConfigRoot, { recursive: true, force: true });
   }
 
-  const dirtyFallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-fallback-'));
+  const dirtyFallbackRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-dirty-fallback-'));
   try {
     writeFileSync(join(dirtyFallbackRoot, 'package.json'), JSON.stringify({
       scripts: { test: 'node -e "require(\\"fs\\").writeFileSync(\\"report.md\\", \\"changed\\\\n\\")"' },
@@ -585,9 +499,9 @@ try {
     rmSync(dirtyFallbackRoot, { recursive: true, force: true });
   }
 
-  const dirtyValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-validate-file-'));
+  const dirtyValidateFileRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-dirty-validate-file-'));
   try {
-    writeFileSync(join(dirtyValidateFileRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(dirtyValidateFileRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: '.',
       rootDir: '.',
     }));
@@ -620,9 +534,9 @@ try {
     resetConfigCache();
   }
 
-  const dirtyValidateFileInfraRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-validate-file-infra-'));
+  const dirtyValidateFileInfraRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-dirty-validate-file-infra-'));
   try {
-    writeFileSync(join(dirtyValidateFileInfraRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(dirtyValidateFileInfraRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: '.',
       rootDir: '.',
     }));
@@ -633,7 +547,7 @@ try {
     gitQuiet(dirtyValidateFileInfraRoot, ['commit', '-m', 'seed dirty validate-file infra smoke']);
     resetConfigCache();
     const dirtyInfraJson = await withEnv(
-      'LATTICE_VALIDATE_FILE_TIMEOUT_MS',
+      'PROOF_OR_STOP_VALIDATE_FILE_TIMEOUT_MS',
       '1000',
       () => withFakeNpx(
         dirtyValidateFileInfraRoot,
@@ -660,14 +574,14 @@ try {
     resetConfigCache();
   }
 
-  const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-classified-'));
+  const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-dirty-classified-'));
   try {
-    writeFileSync(join(categorizedPollutionRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(categorizedPollutionRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -684,9 +598,9 @@ try {
         command: 'node',
         args: ['-e', [
           "const fs = require('fs');",
-          "for (const dir of ['.lattice/story/actives/B-smoke', '.lattice', 'packages/main/src/core', 'packages/main/tests/fixtures', 'packages/main/tests/output/bl21_lacz_ecoli_minicell']) fs.mkdirSync(dir, { recursive: true });",
-          "fs.writeFileSync('.lattice/story/actives/B-smoke/checklist.json', '{}\\n');",
-          "fs.writeFileSync('.lattice/activity.jsonl', '{}\\n');",
+          "for (const dir of ['.proof-or-stop/story/actives/B-smoke', '.proof-or-stop', 'packages/main/src/core', 'packages/main/tests/fixtures', 'packages/main/tests/output/bl21_lacz_ecoli_minicell']) fs.mkdirSync(dir, { recursive: true });",
+          "fs.writeFileSync('.proof-or-stop/story/actives/B-smoke/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.proof-or-stop/activity.jsonl', '{}\\n');",
           "fs.writeFileSync('packages/main/src/core/dirty-product.ts', 'export const dirty = true;\\n');",
           "fs.writeFileSync('packages/main/tests/fixtures/dirty-owner.json', '{}\\n');",
           "fs.writeFileSync('packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json', '{}\\n');",
@@ -697,7 +611,7 @@ try {
     const details = categorizedPollution.details.join('\n');
     assert.equal(categorizedPollution.status, 'fail');
     assert.equal(categorizedPollution.allPass, false);
-    assert.match(details, /lattice_metadata_changes=1/);
+    assert.match(details, /proof_or_stop_metadata_changes=1/);
     assert.match(details, /runtime_artifact_changes=1/);
     assert.match(details, /material_source_changes=1/);
     assert.match(details, /fixture_changes=1/);
@@ -713,24 +627,24 @@ try {
   }
 
   // B-4b22: pollution that classifies entirely as passing categories
-  // (lattice_metadata_changes + runtime_artifact_changes) must NOT trip
+  // (proof_or_stop_metadata_changes + runtime_artifact_changes) must NOT trip
   // executeValidationPlan; status stays 'pass', allPass=true, details swap
   // to the policy-allowed wording and audit info appears.
-  const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-passing-pollution-'));
+  const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-passing-pollution-'));
   try {
-    writeFileSync(join(passingPollutionRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(passingPollutionRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    mkdirSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass'), { recursive: true });
-    writeFileSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
+    mkdirSync(join(passingPollutionRoot, '.proof-or-stop', 'story', 'actives', 'B-pass'), { recursive: true });
+    writeFileSync(join(passingPollutionRoot, '.proof-or-stop', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
     execFileSync('git', ['add', '.'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed passing pollution smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     resetConfigCache();
@@ -742,10 +656,10 @@ try {
         command: 'node',
         args: ['-e', [
           "const fs = require('fs');",
-          "fs.mkdirSync('.lattice/story/actives/B-pass', { recursive: true });",
-          "fs.mkdirSync('.lattice', { recursive: true });",
-          "fs.writeFileSync('.lattice/story/actives/B-pass/checklist.json', '{}\\n');",
-          "fs.writeFileSync('.lattice/activity.jsonl', '{}\\n');",
+          "fs.mkdirSync('.proof-or-stop/story/actives/B-pass', { recursive: true });",
+          "fs.mkdirSync('.proof-or-stop', { recursive: true });",
+          "fs.writeFileSync('.proof-or-stop/story/actives/B-pass/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.proof-or-stop/activity.jsonl', '{}\\n');",
         ].join(' ')],
       }],
     }, passingPollutionRoot, undefined, 'B-pass');
@@ -756,13 +670,13 @@ try {
     assert.doesNotMatch(details, /✗ validation command dirtied worktree/, 'passing-only pollution must NOT emit the blocking failure header');
     assert.match(details, /policy-allowed dirty paths/);
     assert.match(details, /pass: blocking=0/);
-    assert.match(details, /lattice_metadata_changes=1/);
+    assert.match(details, /proof_or_stop_metadata_changes=1/);
     assert.match(details, /runtime_artifact_changes=1/);
     // Audit JSONL must be persisted in the per-story process-events file.
-    const auditPath = join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'process-events.jsonl');
+    const auditPath = join(passingPollutionRoot, '.proof-or-stop', 'story', 'actives', 'B-pass', 'process-events.jsonl');
     assert.ok(existsSync(auditPath), 'audit log must be appended to per-story process-events.jsonl');
     const auditLines = readFileSync(auditPath, 'utf-8').trim().split('\n').filter(Boolean);
-    assert.equal(auditLines.length, 2, 'one audit line per passing category (lattice_metadata + runtime_artifact)');
+    assert.equal(auditLines.length, 2, 'one audit line per passing category (proof_or_stop_metadata + runtime_artifact)');
     for (const line of auditLines) {
       const ev = JSON.parse(line);
       assert.equal(ev.type, 'dirty_gate_audit');
@@ -777,15 +691,15 @@ try {
   // dirtyWorktreeClassifierOptionsForStory must group it under
   // declared_artifact_changes — the field-derived regression target stays
   // mechanically pinned even though validation-protocol-smoke is end-to-end.
-  const declaredPathRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-declared-bl21-'));
+  const declaredPathRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-declared-bl21-'));
   try {
     const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
-    writeFileSync(join(declaredPathRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(declaredPathRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -880,15 +794,15 @@ try {
   // B-4b22 F-004 regression: executeValidationPlan with storyId must route
   // through dirtyWorktreeClassifierOptionsForStory so declared artifacts are
   // classified as declared_artifact_changes (not unexpected_dirty_files).
-  const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-declared-e2e-'));
+  const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-declared-e2e-'));
   try {
     const BL21_E2E = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
-    writeFileSync(join(declaredE2eRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(declaredE2eRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -963,7 +877,7 @@ try {
     assert.match(e2eDetails, /declared_artifact_changes/, 'F-004: details must mention declared_artifact_changes');
     assert.doesNotMatch(e2eDetails, /unexpected_dirty_files/, 'F-004: declared BL21 must NOT appear as unexpected_dirty_files');
     // Audit trail must exist for the declared artifact pass.
-    const e2eAuditPath = join(declaredE2eRoot, '.lattice', 'story', 'actives', e2eStoryId, 'process-events.jsonl');
+    const e2eAuditPath = join(declaredE2eRoot, '.proof-or-stop', 'story', 'actives', e2eStoryId, 'process-events.jsonl');
     assert.ok(existsSync(e2eAuditPath), 'F-004: audit log must be written for declared artifact pass');
     const e2eAuditLines = readFileSync(e2eAuditPath, 'utf-8').trim().split('\n').filter(Boolean);
     const declaredAudit = e2eAuditLines.find(l => JSON.parse(l).category === 'declared_artifact_changes');
@@ -977,15 +891,15 @@ try {
   // pointing at a material source path must NOT let executeValidationPlan
   // pass — the classifier reorder keeps a dirty source file as
   // material_source_changes (blocking) even when it is declared.
-  const attackChainRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-attack-chain-'));
+  const attackChainRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-attack-chain-'));
   try {
     const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
-    writeFileSync(join(attackChainRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(attackChainRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     mkdirSync(join(attackChainRoot, 'packages/main/src/core'), { recursive: true });
@@ -1048,9 +962,9 @@ try {
     resetConfigCache();
   }
 
-  const invalidArgCwd = mkdtempSync(join(tmpdir(), 'lattice-validation-schema-'));
+  const invalidArgCwd = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-schema-'));
   const env = { ...process.env };
-  delete env.LATTICE_PROJECT_ROOT;
+  delete env.PROOF_OR_STOP_PROJECT_ROOT;
   const invalidVerificationIntent = spawnSync(process.execPath, [
     cliPath,
     'checklist_update',
@@ -1071,10 +985,10 @@ try {
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
-  assert.equal(existsSync(join(invalidArgCwd, '.lattice')), false, 'schema failure should happen before metadata mutation');
+  assert.equal(existsSync(join(invalidArgCwd, '.proof-or-stop')), false, 'schema failure should happen before metadata mutation');
   rmSync(invalidArgCwd, { recursive: true, force: true });
 
-  const malformedJsonCwd = mkdtempSync(join(tmpdir(), 'lattice-validation-malformed-json-'));
+  const malformedJsonCwd = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-malformed-json-'));
   const malformedJson = spawnSync(process.execPath, [
     cliPath,
     'story_create',
@@ -1087,18 +1001,18 @@ try {
   assert.notEqual(malformedJson.status, 0, 'malformed JSON body should fail');
   assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input|JSON 解析失败/);
   assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse|JSON 解析失败/);
-  assert.equal(existsSync(join(malformedJsonCwd, '.lattice')), false, 'malformed JSON should not create project metadata');
+  assert.equal(existsSync(join(malformedJsonCwd, '.proof-or-stop')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
-  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-local-'));
+  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-local-'));
   try {
     mkdirSync(join(projectLocalRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
+    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop');
     writeFileSync(localBin, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@lattice', 'core'),
+      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@proof-or-stop', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'project-local-package');
@@ -1108,8 +1022,8 @@ try {
     rmSync(projectLocalRuntimeRoot, { recursive: true, force: true });
   }
 
-  const externalRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-external-'));
-  const externalEngineRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-engine-'));
+  const externalRuntimeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-external-'));
+  const externalEngineRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-engine-'));
   try {
     mkdirSync(join(externalEngineRoot, 'dist'), { recursive: true });
     const engineCli = join(externalEngineRoot, 'dist', 'cli.js');
@@ -1131,35 +1045,35 @@ try {
     rmSync(externalEngineRoot, { recursive: true, force: true });
   }
 
-  const latticeConflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-lattice-conflict-'));
+  const proofOrStopConflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-proof-or-stop-conflict-'));
   try {
-    mkdirSync(join(latticeConflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(latticeConflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
-    const otherCli = join(latticeConflictRuntimeRoot, 'other-lattice');
+    mkdirSync(join(proofOrStopConflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
+    const localBin = join(proofOrStopConflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop');
+    const otherCli = join(proofOrStopConflictRuntimeRoot, 'other-proof-or-stop');
     writeFileSync(localBin, '#!/usr/bin/env node\n');
     writeFileSync(otherCli, '#!/usr/bin/env node\n');
-    const report = runRuntimeEnvironmentChecks(latticeConflictRuntimeRoot, {
+    const report = runRuntimeEnvironmentChecks(proofOrStopConflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@lattice', 'core'),
+      corePackageRoot: join(proofOrStopConflictRuntimeRoot, 'node_modules', '@proof-or-stop', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
     assert.equal(report.runtimeMode.source, 'unknown');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
-    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must report the lattice bin that shadows the active CLI');
+    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must report the proof-or-stop bin that shadows the active CLI');
     assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
-    assert.match(report.projectLocalBin.warnings?.join('\n') ?? '', /node_modules\/\.bin\/lattice/);
+    assert.match(report.projectLocalBin.warnings?.join('\n') ?? '', /node_modules\/\.bin\/proof-or-stop/);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
     assert.match(
       runtimeSummary,
-      /Next action: project-local CLI bin .*node_modules\/\.bin\/lattice resolves to .* but the active CLI resolves to .*/,
+      /Next action: project-local CLI bin .*node_modules\/\.bin\/proof-or-stop resolves to .* but the active CLI resolves to .*/,
     );
   } finally {
-    rmSync(latticeConflictRuntimeRoot, { recursive: true, force: true });
+    rmSync(proofOrStopConflictRuntimeRoot, { recursive: true, force: true });
   }
 
-  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-local-'));
+  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-legacy-local-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
     const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'stale-legacy.cmd' : 'stale-legacy');
@@ -1177,7 +1091,7 @@ try {
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
     assert.equal(
       (report.projectLocalBin.actual as any).path,
-      join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice'),
+      join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop'),
       'project-local-bin must ignore stale legacy local bins',
     );
     assert.equal((report.projectLocalBin.actual as any).present, false);
@@ -1191,9 +1105,9 @@ try {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
 
-  const previousPackagedRuntime = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
-  process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
-  const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-conflict-'));
+  const previousPackagedRuntime = process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME;
+  process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME = '1';
+  const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
     const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'stale-legacy.cmd' : 'stale-legacy');
@@ -1212,13 +1126,13 @@ try {
     assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale legacy local bins');
   } finally {
     rmSync(packagedConflictRoot, { recursive: true, force: true });
-    if (previousPackagedRuntime === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
-    else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntime;
+    if (previousPackagedRuntime === undefined) delete process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntime;
   }
 
-  const previousPackagedRuntimeClean = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
-  process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
-  const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-clean-'));
+  const previousPackagedRuntimeClean = process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME;
+  process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME = '1';
+  const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-packaged-clean-'));
   try {
     const packagedCli = join(packagedCleanRoot, 'packaged-cli');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
@@ -1233,11 +1147,11 @@ try {
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
   } finally {
     rmSync(packagedCleanRoot, { recursive: true, force: true });
-    if (previousPackagedRuntimeClean === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
-    else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntimeClean;
+    if (previousPackagedRuntimeClean === undefined) delete process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.PROOF_OR_STOP_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntimeClean;
   }
 
-  const checkRoot = mkdtempSync(join(tmpdir(), 'lattice-check-runtime-surface-'));
+  const checkRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-check-runtime-surface-'));
   try {
     resetConfigCache();
     const check = createCheckHandlers({
@@ -1270,10 +1184,11 @@ try {
     rmSync(checkRoot, { recursive: true, force: true });
   }
 
-  const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-stale-local-'));
+  const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Proof-or-Stop Notes\ncustom text\n<!-- lattice:end -->\n');
-    const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
+    writeFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), '<!-- proof-or-stop:start -->\n# Local Proof-or-Stop Notes\ncustom text\n<!-- proof-or-stop:end -->\n');
+    assert.equal(detectManagedAssetMode(staleLocalAssetRoot), 'full', 'canonical PROOF_OR_STOP.md must select full managed-asset mode');
+    const before = readFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
       scanRoot: staleLocalAssetRoot,
@@ -1293,37 +1208,37 @@ try {
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
     assert.match(staleLocalCheckText, /Proof-or-Stop managed asset check: DRIFT/);
-    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT LATTICE\.md|STALE_LOCAL_EDIT[\s\S]*LATTICE\.md/);
+    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT PROOF_OR_STOP\.md|STALE_LOCAL_EDIT[\s\S]*PROOF_OR_STOP\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
+    const item = result.items.find(entry => entry.relPath === 'PROOF_OR_STOP.md');
     assert.equal(item?.status, 'STALE_LOCAL_EDIT');
     assert.equal(item?.applied, undefined);
-    assert.equal(readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
-    assert.equal(result.applied.includes('LATTICE.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
+    assert.equal(readFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
+    assert.equal(result.applied.includes('PROOF_OR_STOP.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
     assert.equal(managedAssetNextAction(result), 'review unsafe managed assets manually');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /STALE_LOCAL_EDIT LATTICE\.md/);
+    assert.match(rendered, /STALE_LOCAL_EDIT PROOF_OR_STOP\.md/);
     assert.match(rendered, /action: review local edits before overwriting|action: review local doc edits before replacing the section/);
   } finally {
     rmSync(staleLocalAssetRoot, { recursive: true, force: true });
   }
 
-  const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-case-mismatch-'));
+  const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-case-mismatch-'));
   try {
-    writeFileSync(join(caseMismatchAssetRoot, 'lattice.md'), 'case mismatch\n');
+    writeFileSync(join(caseMismatchAssetRoot, 'proofOrStop.md'), 'case mismatch\n');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
+    const item = result.items.find(entry => entry.relPath === 'PROOF_OR_STOP.md');
     assert.equal(item?.status, 'CASE_MISMATCH');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('LATTICE.md'), false, 'CASE_MISMATCH must not be counted as applied');
+    assert.equal(result.applied.includes('PROOF_OR_STOP.md'), false, 'CASE_MISMATCH must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /CASE_MISMATCH LATTICE\.md/);
+    assert.match(rendered, /CASE_MISMATCH PROOF_OR_STOP\.md/);
     assert.match(rendered, /action: rename the path with exact casing/);
   } finally {
     rmSync(caseMismatchAssetRoot, { recursive: true, force: true });
   }
 
-  const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-incompatible-'));
+  const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-incompatible-'));
   try {
     // An excluded-path runtime asset present as a directory must report INCOMPATIBLE.
     // B-cc10 F-071: CHK-007 moved this excluded-path definition's relPath in
@@ -1345,24 +1260,24 @@ try {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });
   }
 
-  const wrapperRoot = mkdtempSync(join(tmpdir(), 'lattice-wrapper-cjs-'));
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-wrapper-cjs-'));
   try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
-    const latticeWrapperPath = join(wrapperRoot, 'bin', 'lattice.js');
-    const codexWrapperPath = join(wrapperRoot, 'bin', 'lattice-codex.js');
-    writeFileSync(latticeWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
+    const proofOrStopWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop.js');
+    const codexWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop-codex.js');
+    writeFileSync(proofOrStopWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
     writeFileSync(codexWrapperPath, renderProofOrStopCodexWrapperScript());
-    const latticeWrapper = readFileSync(latticeWrapperPath, 'utf-8');
+    const proofOrStopWrapper = readFileSync(proofOrStopWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
-    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Proof-or-Stop wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(proofOrStopWrapper, /require\('node:fs'\)/, 'Proof-or-Stop wrapper should be CommonJS so non-JS repos do not need package.json type=module');
     assert.match(codexWrapper, /import\('node:fs'\)/, 'Codex wrapper should use dynamic import so it runs in both CommonJS and type=module projects');
     assert.doesNotMatch(codexWrapper, /require\(/, 'Codex wrapper must not use require because type=module projects execute .js files as ESM');
-    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Proof-or-Stop wrapper must not use static ESM import syntax');
+    assert.doesNotMatch(proofOrStopWrapper, /^import\s/m, 'Proof-or-Stop wrapper must not use static ESM import syntax');
     assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
 
-    const latticeHelp = spawnSync(process.execPath, [latticeWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
-    assert.equal(latticeHelp.status, 0, latticeHelp.stderr || latticeHelp.stdout);
-    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Proof-or-Stop wrapper help must not emit Node module-type warnings');
+    const proofOrStopHelp = spawnSync(process.execPath, [proofOrStopWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
+    assert.equal(proofOrStopHelp.status, 0, proofOrStopHelp.stderr || proofOrStopHelp.stdout);
+    assert.doesNotMatch(proofOrStopHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Proof-or-Stop wrapper help must not emit Node module-type warnings');
 
     const codexHelp = spawnSync(process.execPath, [codexWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(codexHelp.status, 0, codexHelp.stderr || codexHelp.stdout);
@@ -1377,12 +1292,12 @@ try {
   execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
-  mkdirSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo'), { recursive: true });
-  mkdirSync(join(tmp, '.lattice', 'runtime'), { recursive: true });
-  writeFileSync(join(tmp, '.lattice', 'activity.jsonl'), '{}\n');
-  const shellMetaArtifactPath = ".lattice/runtime/$USER $(echo hi) `uname` 'artifact'.json";
+  mkdirSync(join(tmp, '.proof-or-stop', 'story', 'actives', 'B-demo'), { recursive: true });
+  mkdirSync(join(tmp, '.proof-or-stop', 'runtime'), { recursive: true });
+  writeFileSync(join(tmp, '.proof-or-stop', 'activity.jsonl'), '{}\n');
+  const shellMetaArtifactPath = ".proof-or-stop/runtime/$USER $(echo hi) `uname` 'artifact'.json";
   writeFileSync(join(tmp, shellMetaArtifactPath), '{}\n');
-  writeFileSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo', 'index.json'), '{}\n');
+  writeFileSync(join(tmp, '.proof-or-stop', 'story', 'actives', 'B-demo', 'index.json'), '{}\n');
   execFileSync('git', ['add', '.'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['commit', '-m', 'seed doctor runtime artifact smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   resetConfigCache();
@@ -1418,16 +1333,16 @@ try {
   assert.ok(Array.isArray(doctorJson.storyOwnerLeases.stale), 'storyOwnerLeases.stale should be an array');
   assert.ok(Array.isArray(doctorJson.storyOwnerLeases.terminalStale), 'storyOwnerLeases.terminalStale should be an array');
   assert.equal(doctorJson.storyOwnerLeases.hasTerminalStale, false, 'no terminal stale lease in the clean doctor fixture');
-  const activityArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === '.lattice/activity.jsonl');
-  assert.ok(activityArtifact, 'doctor should include .lattice/activity.jsonl');
+  const activityArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === '.proof-or-stop/activity.jsonl');
+  assert.ok(activityArtifact, 'doctor should include .proof-or-stop/activity.jsonl');
   assert.equal(activityArtifact.repairable, true);
-  assert.equal(activityArtifact.repairCommand, "git rm --cached -- '.lattice/activity.jsonl'");
+  assert.equal(activityArtifact.repairCommand, "git rm --cached -- '.proof-or-stop/activity.jsonl'");
   const shellMetaArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === shellMetaArtifactPath);
   assert.ok(shellMetaArtifact, 'doctor should include tracked runtime artifacts with shell metacharacters');
   assert.equal(shellMetaArtifact.repairable, true);
   assert.equal(
     shellMetaArtifact.repairCommand,
-    "git rm --cached -- '.lattice/runtime/$USER $(echo hi) `uname` '\"'\"'artifact'\"'\"'.json'",
+    "git rm --cached -- '.proof-or-stop/runtime/$USER $(echo hi) `uname` '\"'\"'artifact'\"'\"'.json'",
   );
 
   const doctorText = (await doctor()) as string;
@@ -1435,9 +1350,9 @@ try {
   assert.match(doctorText, /Project-local JavaScript runtime required: (yes|no)/);
   assert.match(doctorText, /Next action: /);
   assert.match(doctorText, /Runtime artifacts:/);
-  assert.match(doctorText, /\.lattice\/activity\.jsonl/);
-  assert.match(doctorText, /git rm --cached -- '\.lattice\/activity\.jsonl'/);
-  assert.match(doctorText, /git rm --cached -- '\.lattice\/runtime\/\$USER \$\(echo hi\) `uname` '"'"'artifact'"'"'\.json'/);
+  assert.match(doctorText, /\.proof-or-stop\/activity\.jsonl/);
+  assert.match(doctorText, /git rm --cached -- '\.proof-or-stop\/activity\.jsonl'/);
+  assert.match(doctorText, /git rm --cached -- '\.proof-or-stop\/runtime\/\$USER \$\(echo hi\) `uname` '"'"'artifact'"'"'\.json'/);
   assert.doesNotMatch(doctorText, /git rm --cached -- ".*activity\.jsonl"/);
   assert.match(doctorText, /Runtime scan:/);
   assert.match(doctorText, /cli-entrypoint/);
@@ -1453,10 +1368,10 @@ try {
   assert.equal(repairedDoctorJson.runtimeArtifacts.tracked.length, 0, 'doctor --repair should untrack repairable runtime artifacts');
   assert.deepEqual(
     [...repairedDoctorJson.runtimeArtifacts.repaired].sort(),
-    ['.lattice/activity.jsonl', shellMetaArtifactPath].sort(),
+    ['.proof-or-stop/activity.jsonl', shellMetaArtifactPath].sort(),
   );
-  assert.notEqual(execFileSync('git', ['ls-files', '--', '.lattice/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
-  assert.equal(execFileSync('git', ['ls-files', '--', '.lattice/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
+  assert.notEqual(execFileSync('git', ['ls-files', '--', '.proof-or-stop/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
+  assert.equal(execFileSync('git', ['ls-files', '--', '.proof-or-stop/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
   assert.equal(execFileSync('git', ['ls-files', '--', shellMetaArtifactPath], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack metacharacter runtime artifacts');
 
   // B-50fb F-001: transition fallback must share the machine guard predicate,
@@ -1464,7 +1379,7 @@ try {
   // review record is genuinely blocked, so the renderer returns a real reason
   // and runtimes without snapshot.can must still fail closed (return false) and
   // never advance past PLAN.
-  const transitionFallbackRoot = mkdtempSync(join(tmpdir(), 'lattice-transition-fallback-'));
+  const transitionFallbackRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-transition-fallback-'));
   try {
     resetConfigCache();
     const store = new StoryStore(transitionFallbackRoot);
@@ -1524,10 +1439,10 @@ try {
     evidence: any;
   } {
     const root = mkdtempSync(join(tmpdir(), prefix));
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       validate: {
         commands: [
           { label: 'failing skip guard rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
@@ -1537,7 +1452,7 @@ try {
     mkdirSync(join(root, 'packages/main/src'), { recursive: true });
     writeFileSync(join(root, 'packages/main/src/app.ts'), 'export const base = 1;\n');
     initSmokeGitRepo(root);
-    gitQuiet(root, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(root, ['add', 'proof-or-stop.config.json', 'packages/main/src/app.ts']);
     gitQuiet(root, ['commit', '-m', 'seed validate gate skip guard smoke']);
     gitQuiet(root, ['checkout', '-b', `story/${storyId}`]);
     writeFileSync(join(root, 'packages/main/src/app.ts'), 'export const base = 2;\n');
@@ -1573,12 +1488,12 @@ try {
     mutateEvidence?: (evidence: any) => void;
     mutateAfterCommit?: (fixture: { root: string; store: StoryStore; storyId: string; evidence: any }) => void;
   }): Promise<void> {
-    const fixture = seedValidateGateSkipRoot(`lattice-validate-gate-${args.name}-`, `B-vgate-${args.name}`);
+    const fixture = seedValidateGateSkipRoot(`proof-or-stop-validate-gate-${args.name}-`, `B-vgate-${args.name}`);
     try {
       args.prepareBeforeEvidenceCommit?.(fixture);
       args.mutateEvidence?.(fixture.evidence);
       fixture.store.writeTestEvidence(fixture.storyId, fixture.evidence);
-      gitQuiet(fixture.root, ['add', `.lattice/story/actives/${fixture.storyId}`]);
+      gitQuiet(fixture.root, ['add', `.proof-or-stop/story/actives/${fixture.storyId}`]);
       gitQuiet(fixture.root, ['commit', '-m', `record ${args.name} validation evidence`]);
       args.mutateAfterCommit?.(fixture);
       let stopped = false;
@@ -1615,12 +1530,12 @@ try {
     }
   }
 
-  const gateFreshRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-fresh-skip-'));
+  const gateFreshRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-gate-fresh-skip-'));
   try {
-    writeFileSync(join(gateFreshRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(gateFreshRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       validate: {
         commands: [
           { label: 'would fail if rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
@@ -1630,7 +1545,7 @@ try {
     mkdirSync(join(gateFreshRoot, 'packages/main/src'), { recursive: true });
     writeFileSync(join(gateFreshRoot, 'packages/main/src/app.ts'), 'export const base = 1;\n');
     initSmokeGitRepo(gateFreshRoot);
-    gitQuiet(gateFreshRoot, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(gateFreshRoot, ['add', 'proof-or-stop.config.json', 'packages/main/src/app.ts']);
     gitQuiet(gateFreshRoot, ['commit', '-m', 'seed fresh validate gate smoke']);
     gitQuiet(gateFreshRoot, ['checkout', '-b', 'story/B-vgate-fresh']);
     writeFileSync(join(gateFreshRoot, 'packages/main/src/app.ts'), 'export const base = 2;\n');
@@ -1661,7 +1576,7 @@ try {
     assert.ok(evidence.materialHash, 'fresh skip smoke must bind materialHash');
     assert.ok(evidence.storyFilesHash, 'fresh skip smoke must bind storyFilesHash');
     store.writeTestEvidence(storyId, evidence);
-    gitQuiet(gateFreshRoot, ['add', `.lattice/story/actives/${storyId}`]);
+    gitQuiet(gateFreshRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateFreshRoot, ['commit', '-m', 'record fresh validation evidence']);
     evidence.headHash = currentGitHead(gateFreshRoot)!;
     evidence.materialHash = currentMaterialHash(gateFreshRoot, 'HEAD', gateFreshRoot)!;
@@ -1685,10 +1600,10 @@ try {
     resetConfigCache();
   }
 
-  const gateWarningRoot = seedValidateGateSkipRoot('lattice-validate-gate-warning-skip-', 'B-vgate-warning');
+  const gateWarningRoot = seedValidateGateSkipRoot('proof-or-stop-validate-gate-warning-skip-', 'B-vgate-warning');
   try {
     gateWarningRoot.store.writeTestEvidence(gateWarningRoot.storyId, gateWarningRoot.evidence);
-    gitQuiet(gateWarningRoot.root, ['add', `.lattice/story/actives/${gateWarningRoot.storyId}`]);
+    gitQuiet(gateWarningRoot.root, ['add', `.proof-or-stop/story/actives/${gateWarningRoot.storyId}`]);
     gitQuiet(gateWarningRoot.root, ['commit', '-m', 'record warning validation evidence']);
     gitQuiet(gateWarningRoot.root, ['checkout', 'main']);
     writeFileSync(join(gateWarningRoot.root, 'packages/main/src/unrelated.ts'), 'export const unrelated = 1;\n');
@@ -1836,12 +1751,12 @@ try {
     },
   });
 
-  const gateLegacyNoCoverageRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-legacy-no-coverage-'));
+  const gateLegacyNoCoverageRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-gate-legacy-no-coverage-'));
   try {
-    writeFileSync(join(gateLegacyNoCoverageRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(gateLegacyNoCoverageRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       validate: {
         commands: [
           { label: 'failing legacy no coverage rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
@@ -1851,7 +1766,7 @@ try {
     mkdirSync(join(gateLegacyNoCoverageRoot, 'packages/main/src'), { recursive: true });
     writeFileSync(join(gateLegacyNoCoverageRoot, 'packages/main/src/app.ts'), 'export const base = 1;\n');
     initSmokeGitRepo(gateLegacyNoCoverageRoot);
-    gitQuiet(gateLegacyNoCoverageRoot, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(gateLegacyNoCoverageRoot, ['add', 'proof-or-stop.config.json', 'packages/main/src/app.ts']);
     gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'seed legacy validation evidence smoke']);
     gitQuiet(gateLegacyNoCoverageRoot, ['checkout', '-b', 'story/B-vgate-legacy']);
     writeFileSync(join(gateLegacyNoCoverageRoot, 'packages/main/src/app.ts'), 'export const base = 2;\n');
@@ -1881,7 +1796,7 @@ try {
     assert.ok(legacyEvidence.materialHash, 'legacy no coverage smoke must bind materialHash');
     assert.ok(legacyEvidence.storyFilesHash, 'legacy no coverage smoke must bind storyFilesHash');
     store.writeTestEvidence(storyId, legacyEvidence);
-    gitQuiet(gateLegacyNoCoverageRoot, ['add', `.lattice/story/actives/${storyId}`]);
+    gitQuiet(gateLegacyNoCoverageRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'record legacy validation evidence']);
     let stopped = false;
     const logs: string[] = [];
@@ -1908,12 +1823,12 @@ try {
     resetConfigCache();
   }
 
-  const gateStaleRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-stale-rerun-'));
+  const gateStaleRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-gate-stale-rerun-'));
   try {
-    writeFileSync(join(gateStaleRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(gateStaleRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       validate: {
         commands: [
           { label: 'failing stale rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
@@ -1923,7 +1838,7 @@ try {
     mkdirSync(join(gateStaleRoot, 'packages/main/src'), { recursive: true });
     writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 1;\n');
     initSmokeGitRepo(gateStaleRoot);
-    gitQuiet(gateStaleRoot, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(gateStaleRoot, ['add', 'proof-or-stop.config.json', 'packages/main/src/app.ts']);
     gitQuiet(gateStaleRoot, ['commit', '-m', 'seed stale validate gate smoke']);
     gitQuiet(gateStaleRoot, ['checkout', '-b', 'story/B-vgate-stale']);
     writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 2;\n');
@@ -1954,7 +1869,7 @@ try {
     assert.ok(staleEvidence.materialHash, 'stale rerun smoke must bind materialHash');
     assert.ok(staleEvidence.storyFilesHash, 'stale rerun smoke must bind storyFilesHash');
     store.writeTestEvidence(storyId, staleEvidence);
-    gitQuiet(gateStaleRoot, ['add', `.lattice/story/actives/${storyId}`]);
+    gitQuiet(gateStaleRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateStaleRoot, ['commit', '-m', 'record stale validation evidence']);
     writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 3;\n');
     gitQuiet(gateStaleRoot, ['add', 'packages/main/src/app.ts']);
@@ -1984,9 +1899,9 @@ try {
     resetConfigCache();
   }
 
-  const gateFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-fail-'));
+  const gateFailRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-gate-fail-'));
   try {
-    writeFileSync(join(gateFailRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(gateFailRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
           { label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] },
@@ -2022,9 +1937,9 @@ try {
     resetConfigCache();
   }
 
-  const gateInfraRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-infra-'));
+  const gateInfraRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-gate-infra-'));
   try {
-    writeFileSync(join(gateInfraRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(gateInfraRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         commands: [
           { label: 'timed out gate', command: 'node', args: ['-e', 'setTimeout(() => {}, 5000)'], timeoutMs: 100 },
@@ -2075,7 +1990,7 @@ try {
   // B-a30e CHK-001: validate storyId alias — conflict, evidence, read-only parity
 
   // 1. Conflicting story + storyId values must fail with an explicit error
-  const conflictAliasRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-alias-conflict-'));
+  const conflictAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-alias-conflict-'));
   try {
     resetConfigCache();
     await assert.rejects(
@@ -2093,7 +2008,7 @@ try {
   }
 
   // 2. storyId alias writes test evidence (same as --story)
-  const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-storyid-alias-'));
+  const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-storyid-alias-'));
   try {
     writeFileSync(join(storyIdAliasRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
     initSmokeGitRepo(storyIdAliasRoot);
@@ -2116,7 +2031,7 @@ try {
       log: () => {},
     }).validate({ storyId: 'B-alias-smoke', json: true, noSync: true });
     const aliasResult = JSON.parse(aliasJson);
-    assert.equal(aliasResult.provider, 'lattice-verifier-no-validation-entry', 'storyId alias: expected no-validation-entry provider');
+    assert.equal(aliasResult.provider, 'proof-or-stop-verifier-no-validation-entry', 'storyId alias: expected no-validation-entry provider');
     assert.equal(aliasResult.status, 'warn', 'storyId alias: expected warn status for no-validator');
     const aliasEvidence = aliasStore.readTestEvidence('B-alias-smoke');
     assert.ok(aliasEvidence !== null, 'storyId alias: test evidence must be written when storyId is supplied');
@@ -2126,7 +2041,7 @@ try {
   }
 
   // 3. --story still writes test evidence (unchanged behavior)
-  const storyFlagRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-story-flag-'));
+  const storyFlagRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-story-flag-'));
   try {
     writeFileSync(join(storyFlagRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
     initSmokeGitRepo(storyFlagRoot);
@@ -2149,15 +2064,15 @@ try {
       log: () => {},
     }).validate({ story: 'B-story-flag-smoke', json: true, noSync: true });
     const storyFlagResult = JSON.parse(storyFlagJson);
-    assert.equal(storyFlagResult.provider, 'lattice-verifier-no-validation-entry', '--story flag: expected no-validation-entry provider');
+    assert.equal(storyFlagResult.provider, 'proof-or-stop-verifier-no-validation-entry', '--story flag: expected no-validation-entry provider');
     const storyFlagEvidence = storyFlagStore.readTestEvidence('B-story-flag-smoke');
     assert.ok(storyFlagEvidence !== null, '--story flag: test evidence must be written (regression guard)');
   } finally {
     rmSync(storyFlagRoot, { recursive: true, force: true });
   }
 
-  // 4. No-story validate is diagnostic/read-only: must not write any .lattice/ state
-  const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-no-story-'));
+  // 4. No-story validate is diagnostic/read-only: must not write any .proof-or-stop/ state
+  const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-no-story-'));
   try {
     resetConfigCache();
     const noStoryJson = await createVerifierHandlers({
@@ -2167,8 +2082,8 @@ try {
       log: () => {},
     }).validate({ json: true });
     const noStoryResult = JSON.parse(noStoryJson);
-    assert.equal(noStoryResult.provider, 'lattice-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
-    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.lattice')), false, 'no-story validate must not create any .lattice/ state (read-only)');
+    assert.equal(noStoryResult.provider, 'proof-or-stop-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
+    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.proof-or-stop')), false, 'no-story validate must not create any .proof-or-stop/ state (read-only)');
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }

@@ -7,7 +7,7 @@ dist
 dist.staging
 dist.trash-*
 
-# Lattice worktree + runtime
+# ProofOrStop worktree + runtime
 .worktrees/
 **/activity.jsonl
 # B-cc10: the CANONICAL state dir needs the same rules as the deprecated one. Without
@@ -17,7 +17,7 @@ dist.trash-*
 .proof-or-stop/*
 !.proof-or-stop/artifact-releases.jsonl
 !.proof-or-stop/capability-releases.jsonl
-!.proof-or-stop/Lattice.md
+!.proof-or-stop/Proof-or-Stop.md
 !.proof-or-stop/proof-or-stop.json
 !.proof-or-stop/dev-memory/
 !.proof-or-stop/dev-memory/**
@@ -29,28 +29,28 @@ dist.trash-*
 .proof-or-stop/runtime/
 
 # Deprecated state dir (still read; rules retained for pre-migration trees)
-.lattice/activity.legacy-koala.jsonl
-.lattice/*
-!.lattice/artifact-releases.jsonl
-!.lattice/capability-releases.jsonl
-!.lattice/Lattice.md
-!.lattice/lattice.json
-!.lattice/dev-memory/
-!.lattice/dev-memory/**
-!.lattice/story/
-.lattice/story/*
-!.lattice/story/actives/
-!.lattice/story/actives/**
-.lattice/story/actives/**/activity.jsonl
-.lattice/runtime/
-.lattice/traces/
-.lattice/locks/
-.lattice/tmp/
-.Lattice/authority.md
-.Lattice/artifacts/baseline/
-.lattice-tmp-*
-.lattice-serve.json
-lattice-debug.log
+.proof-or-stop/activity.legacy-koala.jsonl
+.proof-or-stop/*
+!.proof-or-stop/artifact-releases.jsonl
+!.proof-or-stop/capability-releases.jsonl
+!.proof-or-stop/Proof-or-Stop.md
+!.proof-or-stop/proof-or-stop.json
+!.proof-or-stop/dev-memory/
+!.proof-or-stop/dev-memory/**
+!.proof-or-stop/story/
+.proof-or-stop/story/*
+!.proof-or-stop/story/actives/
+!.proof-or-stop/story/actives/**
+.proof-or-stop/story/actives/**/activity.jsonl
+.proof-or-stop/runtime/
+.proof-or-stop/traces/
+.proof-or-stop/locks/
+.proof-or-stop/tmp/
+.proof-or-stop/authority.md
+.proof-or-stop/artifacts/baseline/
+.proof-or-stop-tmp-*
+.proof-or-stop-serve.json
+proof-or-stop-debug.log
 $PROJECT_ROOT/
 browser-test.log
 .koala-tmp-*
@@ -75,13 +75,13 @@ env/
 Thumbs.db
 packages/koala-observer-cli/
 
-# lattice runtime artifacts (managed)
+# proof-or-stop runtime artifacts (managed)
 **/owner-lease.json
 **/breaker-state.json
 **/takeover-count.json
 **/gate-failure-counts.json
 .proof-or-stop/runtime/owner-session-tokens/
-.lattice/runtime/owner-session-tokens/
+.proof-or-stop/runtime/owner-session-tokens/
 .proof-or-stop/traces/
 .proof-or-stop/locks/
 # transient mkdir-lock directories (B-d877 R2: now carry a holder.json token, so
@@ -90,29 +90,29 @@ packages/koala-observer-cli/
 # runtime locks, never story metadata).
 **/*.lock/
 .proof-or-stop/usage/
-.lattice/usage/
+.proof-or-stop/usage/
 .proof-or-stop/learning/
-.lattice/learning/
+.proof-or-stop/learning/
 .proof-or-stop/authority.md
 .proof-or-stop/artifacts/baseline/
-.lattice/artifacts/baseline/
+.proof-or-stop/artifacts/baseline/
 .proof-or-stop/benchmarks/memory-playbook/
-.lattice/benchmarks/memory-playbook/
-# /lattice runtime artifacts (managed)
+.proof-or-stop/benchmarks/memory-playbook/
+# /proof-or-stop runtime artifacts (managed)
 
-# Lattice Authority internal key-management file (may hold local private key
-# material; never commit). See docs/requirements/decisions/lattice-authority-live-integration.md
-.lattice/authority.md
+# ProofOrStop Authority internal key-management file (may hold local private key
+# material; never commit). See docs/requirements/decisions/proof-or-stop-authority-live-integration.md
+.proof-or-stop/authority.md
 authority_trust.env
-lattice_senior_*.env
+proof_or_stop_senior_*.env
 *.env
 *.key
 
 # Legacy Orchestrate evidence stays local-only. Do not bulk-copy old story or
 # artifact archives into this repository's main branch.
-.lattice/artifacts/
-.lattice/story/legacy-*/
-.lattice/story/orchestrate-legacy-*/
+.proof-or-stop/artifacts/
+.proof-or-stop/story/legacy-*/
+.proof-or-stop/story/orchestrate-legacy-*/
 
 # c8 coverage output (B-c6cf — test:coverage script)
 packages/main/coverage/
@@ -132,4 +132,3 @@ output/
 experiments/recovery-runner/powered/
 experiments/recovery-runner/ablation-run-records.jsonl.exclusions.jsonl
 experiments/recovery-runner/analysis-out.*
-

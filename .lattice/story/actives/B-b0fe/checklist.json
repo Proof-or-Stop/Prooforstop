@@ -1,0 +1,26 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Use the canonical Proof-or-Stop adapter path in the pre-review live-proof smoke",
+      "context": "The current smoke hardcodes .lattice-codex/agents even though the identity cutover tracks .proof-or-stop-codex. Resolve through the shared brand-path contract and retain explicit legacy compatibility tests where required.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Authorize the registered acceptance-rollout verifier with least privilege",
+      "context": "The production cohort runner assigns acceptance-rollout-verifier, then its nested review_run_start is rejected as an unknown actor. Model the exact internal verifier authority without making arbitrary unknown identities trusted; add negative coverage for lookalikes and preserve mutation command boundaries.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

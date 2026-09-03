@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-d854",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:87b9955556fe6989f4796860490c3c5f370a2376962d6c7538d20b87930800d5",
+  "acceptanceBindings": [
+    {
+      "id": "AB-root-agents-current-english",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The root AGENTS.md is entirely in English and its current-behavior instructions match the repository-local Proof-or-Stop implementation and authoritative lifecycle sources, with reproducible evidence for every reported correction.",
+      "note": "The three checklist items jointly cover authoritative consistency, complete translation, reproducible final proof, and separate reporting of local versus global CLI runtime drift."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Bind the original user acceptance claim to every must-priority audit and translation intent.",
+  "createdAt": "2026-09-01T23:05:14.058Z",
+  "updatedAt": "2026-09-01T23:10:09.507Z"
+}

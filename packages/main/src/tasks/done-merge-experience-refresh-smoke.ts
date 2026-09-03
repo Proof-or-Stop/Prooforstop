@@ -20,7 +20,7 @@
  *     "experience cache refreshed (N signals)" line whose cache.updatedAt is a
  *     recent wall-clock time (NOT the epoch sentinel).
  *
- *   METADATA-ONLY (F-004) — the story branch touches ONLY .lattice/ story metadata
+ *   METADATA-ONLY (F-004) — the story branch touches ONLY .proof-or-stop/ story metadata
  *     (no packages/main/ runtime input), so the changed-paths build predicate does
  *     NOT fire (the report shows the build SKIPPED). The refresh is NOT gated on
  *     that predicate ("EVERY merge"), so the advisory refresh line STILL appears and
@@ -33,7 +33,7 @@
  *     exception escapes applyDoneMergeEffects) and the report carries the advisory
  *     "experience cache refresh skipped: <reason>" line — never blocking the merge.
  *
- * Isolated: temp git root + temp HOME + temp lattice locks; restores process.cwd +
+ * Isolated: temp git root + temp HOME + temp proof-or-stop locks; restores process.cwd +
  * env; no repo pollution. Exits non-zero on any failed assertion. Prints a final
  * "✓ ... smoke passed (N checks)" line.
  */
@@ -113,11 +113,11 @@ function resolvedFinding(storyId: string): Finding {
  * path (the cwd applyDoneMergeEffects runs from) + the root + the story branch.
  */
 function buildDoneReadyStoryWithLinkedWorktree(storyId: string): { root: string; worktreePath: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-exp-refresh-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-exp-refresh-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
@@ -206,7 +206,7 @@ async function assertHappyRefreshesCacheOnMain(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// METADATA-ONLY MERGE (F-004): the story branch carries ONLY .lattice/ story
+// METADATA-ONLY MERGE (F-004): the story branch carries ONLY .proof-or-stop/ story
 // metadata — no packages/main/ runtime input — so the changed-paths build
 // predicate does NOT fire (the merge report shows the build SKIPPED). The refresh
 // is NOT gated on that predicate ("EVERY merge"), so the advisory
@@ -232,7 +232,7 @@ async function assertMetadataOnlyMergeStillRefreshes(): Promise<void> {
 
     const report = result.doneMergeReport;
 
-    // The story branch touched ONLY .lattice/ metadata vs main, so the build
+    // The story branch touched ONLY .proof-or-stop/ metadata vs main, so the build
     // predicate did NOT fire — the merge report must show the build SKIPPED. This
     // is what makes the scenario a genuine metadata-only ("not material code") merge.
     check(
@@ -282,7 +282,7 @@ async function assertForcedDeriveFailureNeverBlocksMerge(): Promise<void> {
     // refresh tries to persist. (The learning dir is gitignored, so the file is not
     // committed/merged — it just blocks the write at refresh time.)
     //
-    // B-cc10 F-076: this was hardcoded to `.lattice/learning`. When LEARNING_DIR moved
+    // B-cc10 F-076: this was hardcoded to `.proof-or-stop/learning`. When LEARNING_DIR moved
     // to the canonical state dir the poison stopped intercepting anything, so the
     // refresh SUCCEEDED and the forced-failure branch was never exercised — the
     // sabotage missed and the control assertion could only fail. Deriving the path from

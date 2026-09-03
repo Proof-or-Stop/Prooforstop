@@ -24,7 +24,7 @@
  * that set blocks the merge.
  *
  * Function-level: calls `assertMainWorktreeReadyForMerge` directly against an
- * isolated temporary git repo. Does NOT shell out to the global lattice binary.
+ * isolated temporary git repo. Does NOT shell out to the global proof-or-stop binary.
  */
 
 import { strict as assert } from 'node:assert';
@@ -59,9 +59,9 @@ const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proo
  * checks run against it.
  */
 function buildScopedMergeRepo(storyId: string): { root: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-scope-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-merge-scope-'));
 
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
   write(root, 'shared/unrelated.txt', 'unrelated baseline content\n');
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
@@ -225,7 +225,7 @@ function assertCleanMainPasses(): void {
  * A non-git directory cannot read git HEAD, so the precondition must fail fast.
  */
 function assertMainWorktreeUnavailableStillThrows(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-merge-scope-nogit-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-merge-scope-nogit-'));
   try {
     // No `git init` — this directory has no git metadata.
     write(root, 'placeholder.txt', 'not a git repo\n');

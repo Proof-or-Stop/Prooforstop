@@ -8,7 +8,7 @@ import {
   type MkdirLockOptions,
 } from './mkdir-lock.js';
 import { resolveSharedLockRoot } from './validation-execution-lock.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 /**
@@ -31,7 +31,7 @@ import { readBrandEnv } from './brand-env.js';
  * phase-persist atomic. The AUTHORITATIVE guarantee against a double-mint is the
  * ATOMIC PERSIST CLAIM in transition-orchestrator.ts (R3 FIX A): right before it
  * writes the new phase, the orchestrator acquires an atomic `mkdir` claim
- * (`.lattice/locks/transition-cas/<id>.claim`), RE-READS the on-disk phase under
+ * (`.proof-or-stop/locks/transition-cas/<id>.claim`), RE-READS the on-disk phase under
  * that claim, and aborts unless it still equals the expected `oldPhase`. `mkdir`
  * is atomic on POSIX, so exactly one concurrent writer wins the claim; the loser
  * throws immediately. Because that claim — not this advisory lock — gates the
@@ -60,14 +60,14 @@ import { readBrandEnv } from './brand-env.js';
  *
  * LOCK LOCATION — the lock MUST live OUTSIDE the story's committed/scanned
  * metadata dir. An earlier revision rooted it at `<storyDir>/transition.lock/`,
- * i.e. inside `.lattice/story/actives/<id>/`; the scope gate running in the SAME
+ * i.e. inside `.proof-or-stop/story/actives/<id>/`; the scope gate running in the SAME
  * transition then saw the just-created `transition.lock/holder.json` as an
  * out-of-scope change and hard-failed every non-DONE transition (self-inflicted
  * deadlock). Mirroring `validation-execution-lock.ts` / `main-write-lock.ts`,
- * the lock now roots under `.lattice/locks/transition/<sanitized-id>.lock`,
- * which is already gitignored (`.gitignore` `.lattice/locks/`) and registered as
+ * the lock now roots under `.proof-or-stop/locks/transition/<sanitized-id>.lock`,
+ * which is already gitignored (`.gitignore` `.proof-or-stop/locks/`) and registered as
  * managed runtime state (runtime-artifact-registry `runtime-locks`, prefix
- * `.lattice/locks/`). It is a runtime artifact, never story-owned metadata.
+ * `.proof-or-stop/locks/`). It is a runtime artifact, never story-owned metadata.
  *
  * This REUSES the shared atomic mkdir-lock primitive (core/mkdir-lock.ts) — the
  * exact mechanism `withValidationExecutionLock` / `story_create` use — instead
@@ -199,7 +199,7 @@ export interface StoryTransitionLockOptions {
 
 /**
  * Resolve the per-story transition lock directory path under the DURABLE SHARED
- * root's gitignored `.lattice/locks/transition/`. NOT under the story metadata
+ * root's gitignored `.proof-or-stop/locks/transition/`. NOT under the story metadata
  * dir.
  *
  * B-d877 R2 FIX B: anchor at `resolveSharedLockRoot(root)` (git-common-dir based),
@@ -243,7 +243,7 @@ export function acquireStoryTransitionLock(
 ): AcquiredMkdirLock {
   const lockDir = storyTransitionLockPath(root, storyId);
   // B-d877 R3: TEST-ONLY bypass of this ADVISORY contention-reducer. When
-  // `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1`, acquire returns a no-op
+  // `PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1`, acquire returns a no-op
   // handle without touching the on-disk lock or the in-process guard. This is SAFE
   // BY CONSTRUCTION: correctness against a double-mint is guaranteed by FIX A's
   // ATOMIC PERSIST CLAIM in transition-orchestrator.ts (see the CORRECTNESS

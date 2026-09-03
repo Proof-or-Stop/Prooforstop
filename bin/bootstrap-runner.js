@@ -46,9 +46,9 @@ function printBootstrapFailure(error) {
   console.error('');
   console.error('Fallbacks:');
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
-  console.error('    Use this for current-worktree gate/status/validate checks while developing Lattice.');
+  console.error('    Use this for current-worktree gate/status/validate checks while developing ProofOrStop.');
   console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
-  console.error('    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
+  console.error('    PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
   console.error('    The global-fallback exemption is only for session_brief heartbeat; it is never worktree gate/status evidence.');
 
   if (error) {
@@ -130,7 +130,12 @@ async function importDistModules() {
 
 export async function runLocalBootstrap() {
   try {
-    const [{ runCli }, { register, utilsToolDefs }] = await importDistModules();
+    const [{ runCli }, {
+      register,
+      utilsAllowedPhases,
+      utilsOwnershipClasses,
+      utilsToolDefs,
+    }] = await importDistModules();
     let labRegister = null;
     let labToolDefs = [];
     if (existsSync(LAB_DIST)) {
@@ -160,6 +165,28 @@ export async function runLocalBootstrap() {
       extraRegister: (registry, ctx) => {
         register(registry, ctx);
         if (typeof labRegister === 'function') labRegister(registry, ctx);
+      },
+      extraOwnershipClasses: {
+        ...utilsOwnershipClasses,
+        ...(typeof labRegister === 'function' ? {
+          lab_help: 'readOnly',
+          lab_create: 'mainSharedMutating',
+          lab_run: 'mainSharedMutating',
+          lab_eval: 'readOnly',
+          lab_compare: 'readOnly',
+          lab_promote: 'readOnly',
+        } : {}),
+      },
+      extraAllowedPhases: {
+        ...utilsAllowedPhases,
+        ...(typeof labRegister === 'function' ? {
+          lab_help: 'all',
+          lab_create: ['DEV'],
+          lab_run: ['DEV'],
+          lab_eval: ['DEV'],
+          lab_compare: 'all',
+          lab_promote: 'all',
+        } : {}),
       },
     });
   } catch (error) {

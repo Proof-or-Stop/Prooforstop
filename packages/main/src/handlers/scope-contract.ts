@@ -19,6 +19,7 @@ import {
   checkScopeContract,
   renderScopeCheckResult,
   readChangedFiles,
+  readRetiredRepoRootDiffPaths,
 } from '../core/scope-contract.js';
 import {
   canonicalizeScopePath,
@@ -88,7 +89,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
   };
   const pathMode = config.scopeProtection?.pathCanonicalization ?? 'enforce';
 
-  function canonicalPaths(paths: unknown, fieldName: string): {
+  function canonicalPaths(paths: unknown, fieldName: string, exactRepoRootPaths?: readonly string[]): {
     values: string[] | undefined;
     originals: Record<string, string>;
     diagnostics: string[];
@@ -103,6 +104,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         scanRoot: config.scanRoot,
         sourceRoot: config.rootDir ?? config.scanRoot,
         input,
+        exactRepoRootPaths,
       });
       originals[result.canonicalPath] = result.originalInput;
       diagnostics.push(
@@ -371,7 +373,12 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
     }): string {
       return withReviewInventoryMutationLock(store, args.storyId, () => {
       if (!args.storyId) throw new Error('storyId is required');
-      const canonicalAckPaths = canonicalPaths(args.paths, 'paths');
+      const gitCwd = resolveScopeGitCwd(args.storyId);
+      const canonicalAckPaths = canonicalPaths(
+        args.paths,
+        'paths',
+        readRetiredRepoRootDiffPaths(gitCwd),
+      );
       const paths = canonicalAckPaths.values ?? [];
       if (paths.length === 0) throw new Error('paths must be a non-empty array');
       const reason = (args.reason ?? '').trim();

@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a CLAUDE.md claim verifier script and register it as a test command, landing it red against the current document",
+      "context": "New scripts/verify-claude-md-claims.mjs plus an npm test command. Checks: every repo-relative path CLAUDE.md references exists including under the storyDir tree that audit-scan.ts deliberately skips; every command the framework's own gate messages instruct an agent to run is documented; the documented story channel names match the StoryChannel union in core/workflow-policy.ts; the documented baseline reviewer set matches handlers/reviewer-list.ts. Must fail on the unmodified document so the red state is recorded before any prose is corrected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Correct the host-neutral agent prompt asset section to match runtime-owned reality",
+      "context": "CLAUDE.md claims proof-or-stop init writes zero agent files into the project and that host shims carry no role body. Reality in this repository: .claude/agents holds 17 git-tracked managed files totalling 2067 lines, of which 5 are genuine 9-line bootstrap shims (the concept, quality, docs, behavior and test-coverage reviewers) and 12 carry substantial embedded bodies ranging from 23 to 289 lines. proof-or-stop doctor reports agentAssetMode runtime-owned together with a warning that these 17 files shadow the global source. The 5 thin reviewer shims bootstrap via review_run_start, not via agent_prompt as the document states.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Correct the story channel documentation from two channels to the three the classifier implements",
+      "context": "core/workflow-policy.ts and handlers/story-create.ts classify express (at most 2 items, no riskSignals), fast (at most 5 items and single solution), and normal. CLAUDE.md documents only two channels and presents direct story_create as the default, while normal-channel story_create now emits a deprecation warning steering to story_draft plus fromDraft.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Correct the story artifact directory rules to the configured storyDir and the drafts directory",
+      "context": "Rule 8 forbids reading and writing under docs/story, but the configured storyDir is .proof-or-stop/story/actives and docs/story/actives no longer exists, while story_draft still writes docs/story/drafts. The rule must name both live locations so it stays enforceable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Repair the stale source citations and the broken experiment link",
+      "context": "Two stale citations plus one broken link. The story-review.ts line citation points at the risk-signal advisory rather than the scope-check blocker, which is emitted near line 580. The four INIT_CHECK blocker messages are defined in packages/main/src/core/machine.ts inside getGuardFailureReason at lines 1216, 1234, 1238 and 1250, not in guard-utils.ts whose INIT_CHECK branch was migrated out and whose comment at lines 91 to 94 records that migration; handlers/init-preflight.ts:143 separately defines a preflight tamper detail that also carries the init_check_tampered code, and cli/lifecycle-dispatch.ts only mentions one code in a comment. The referenced experiment markdown file is absent from the entire repository.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Document the gate-required commands and the full host hook inventory and mark the pre-push hook opt-in",
+      "context": "review_run_start, scope_check_save and dev_memory_preflight_ack appear zero times in CLAUDE.md yet gate failure messages and reviewer shims instruct agents to run them. The Claude host installs five hooks but the document describes two. The pre-push defence is described as always active although core.hooksPath is unset until an operator enables it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

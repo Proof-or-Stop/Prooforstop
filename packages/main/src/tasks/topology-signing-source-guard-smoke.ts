@@ -101,7 +101,7 @@ assert.equal(sourceBindings, boundCallSites, 'every production call site must pa
 //    which is the trap that silently downgrades resolution to explicit-env.
 const inputs = { hostname: 'h', root: '/tmp/probe-root', ppid: 1 };
 const migrated = Object.fromEntries(
-  Object.entries({ LATTICE_SESSION_ID: 'sess-critic', ...adapterSessionEnv('sess-critic', TOPOLOGY_CRITIC_ROLE) })
+  Object.entries({ PROOF_OR_STOP_SESSION_ID: 'sess-critic', ...adapterSessionEnv('sess-critic', TOPOLOGY_CRITIC_ROLE) })
     .filter(([, value]) => value !== undefined),
 ) as Record<string, string>;
 const identity = resolveSessionIdentity(migrated, inputs);
@@ -114,7 +114,7 @@ assert.equal(
 
 // Control for 4: leaving the session id var set is exactly the downgrade the helper prevents.
 const trapped = resolveSessionIdentity(
-  { LATTICE_SESSION_ID: 'sess-critic', LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code', LATTICE_OWNER_SESSION_ADAPTER_TASK: 'sess-critic', LATTICE_OWNER_SESSION_ADAPTER_AGENT: TOPOLOGY_CRITIC_ROLE },
+  { PROOF_OR_STOP_SESSION_ID: 'sess-critic', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'sess-critic', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: TOPOLOGY_CRITIC_ROLE },
   inputs,
 );
 assert.equal(trapped.sessionSource, 'explicit-env', 'control: a lingering session id var downgrades to explicit-env');

@@ -23,7 +23,7 @@ import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { evaluateDecompositionGate } from '../core/parallel-decomposition-gate.js';
 import { resolveAuditConfig } from '../core/audit-config.js';
-import { safeReadScopeContract } from '../core/lattice-parallel-wave.js';
+import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
 import { existsSync } from 'fs';
@@ -72,7 +72,7 @@ function projectStoryReviewBrief(result: {
       message: truncateOneLine(issue.message, issue.severity === 'blocker' ? 300 : 160),
     })),
     ...(info ? { info: info.map((entry) => ({ ...entry, message: truncateOneLine(entry.message, 160) })) } : {}),
-    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or LATTICE_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
+    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
     _reviewPrompt: typeof _reviewPrompt === 'string'
       ? `Brief view: full PLAN review prompt (${_reviewPrompt.length} chars) omitted. Run story_review with --full for the complete prompt.`
       : _reviewPrompt,

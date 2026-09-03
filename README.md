@@ -110,13 +110,13 @@ The tag [`paper-arxiv-v1`](https://github.com/Proof-or-Stop/Prooforstop/tree/pap
 | Paper | Repository |
 |---|---|
 | §3 Evidence-gating principle — admissibility predicate & gates | `packages/main/src/core/proof-admissibility-*.ts`, `packages/main/src/core/evidence/admissibility/` |
-| §3 Offline receipt-bundle contract (18 tamper classes) | `.lattice/story/actives/B-4c65/` |
-| §3 Gate-strength self-red-team contract | `.lattice/story/actives/B-7b6e/` |
+| §3 Offline receipt-bundle contract (18 tamper classes) | `.proof-or-stop/story/actives/B-4c65/` |
+| §3 Gate-strength self-red-team contract | `.proof-or-stop/story/actives/B-7b6e/` |
 | §3 Evidence-instrument characterization (replay campaign M0–M4) | `experiments/pos-instrument-replay/` |
 | §5 Unattended loop — powered control-policy ablation cells | `experiments/multi-model-ablation/` |
 | §6 Recovery under injected failure | `experiments/recovery-runner/` |
 | §7 Host-neutral transfer — git-native handoff & Tier-C receipts | `experiments/handoff-demo/`, `experiments/tier-c-proof/` |
-| §8 Self-application corpus (565 stories / 1,007 findings) | `.lattice/story/actives/` |
+| §8 Self-application corpus (565 stories / 1,007 findings) | `.proof-or-stop/story/actives/` |
 | §9 Experience reuse | `experiments/experience-ablation/` |
 
 ### Citation

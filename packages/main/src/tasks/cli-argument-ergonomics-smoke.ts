@@ -63,10 +63,10 @@ assert.deepEqual(emptyVerificationIntent.verificationIntent, {
   adversarial: [],
 });
 
-const isolatedCwd = mkdtempSync(join(tmpdir(), 'lattice-cli-arg-smoke-'));
+const isolatedCwd = mkdtempSync(join(tmpdir(), 'proof-or-stop-cli-arg-smoke-'));
 try {
   const env = { ...process.env };
-  delete env.LATTICE_PROJECT_ROOT;
+  delete env.PROOF_OR_STOP_PROJECT_ROOT;
   const invalidVerificationIntent = spawnSync(process.execPath, [
     cliPath,
     'checklist_update',

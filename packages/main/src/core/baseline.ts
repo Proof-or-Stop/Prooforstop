@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export const BASELINE_IDS = [
   'NL-CLI-1',
@@ -452,10 +452,10 @@ function buildCliScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo
     '',
   ].join('\n'));
   const help = runNodeScript(script, ['--help']);
-  const greet = runNodeScript(script, ['greet', 'lattice']);
+  const greet = runNodeScript(script, ['greet', 'proof-or-stop']);
   const assertions = {
     cliHelpPassed: help.exitCode === 0 && help.stdout.includes('usage: baseline-cli'),
-    cliRunPassed: greet.exitCode === 0 && greet.stdout.trim() === 'hello lattice',
+    cliRunPassed: greet.exitCode === 0 && greet.stdout.trim() === 'hello proofOrStop',
   };
   return {
     schemaVersion: 'lattice.baseline.scenario-evidence.v1',
@@ -474,7 +474,7 @@ function buildApiScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo
     `const routes = {`,
     `  health: { status: 200, body: { ok: true } },`,
     `  invalidCreate: { status: 400, body: { error: 'name is required' } },`,
-    `  validCreate: { status: 201, body: { id: 'item-1', name: 'lattice' } },`,
+    `  validCreate: { status: 201, body: { id: 'item-1', name: 'proof-or-stop' } },`,
     `};`,
     `console.log(JSON.stringify(routes));`,
     '',
@@ -489,7 +489,7 @@ function buildApiScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo
   const assertions = {
     apiHealthPassed: api.exitCode === 0 && parsed.health?.status === 200 && parsed.health.body?.ok === true,
     apiValidationPassed: parsed.invalidCreate?.status === 400 && parsed.invalidCreate.body?.error === 'name is required',
-    apiCreatePassed: parsed.validCreate?.status === 201 && parsed.validCreate.body?.name === 'lattice',
+    apiCreatePassed: parsed.validCreate?.status === 201 && parsed.validCreate.body?.name === 'proof-or-stop',
   };
   return {
     schemaVersion: 'lattice.baseline.scenario-evidence.v1',

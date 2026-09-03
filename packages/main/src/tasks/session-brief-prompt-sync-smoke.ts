@@ -20,7 +20,7 @@ function findRepoRoot(start: string): string {
     // `.proof-or-stop-codex/agents`. A root probe must recognise both spellings for exactly
     // as long as read-both support exists, or it walks out of the tree it is meant to find.
     if (
-      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'lattice.config.json')))
+      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'proof-or-stop.config.json')))
       && existsSync(join(dir, 'packages', 'main', 'src'))
     ) {
       return dir;
@@ -58,7 +58,7 @@ const targetDocs = [
   ...agentFiles('.claude/agents'),
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   ...agentFiles('.proof-or-stop-codex/agents'),
-  ...agentFiles('.lattice-codex/agents'),
+  ...agentFiles('.proof-or-stop-codex/agents'),
 ];
 
 const staleFirstSessionPhrases = [
@@ -126,7 +126,7 @@ function runHook(root: string, input: string): { status: number | null; output: 
   const result = spawnSync(process.execPath, [hookPath], {
     input,
     encoding: 'utf8',
-    env: { ...process.env, LATTICE_SESSION_BRIEF_FRESH_MINUTES: '60' },
+    env: { ...process.env, PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES: '60' },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return {
@@ -140,10 +140,10 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-stale-');
+  const root = tmpRoot('proof-or-stop-session-brief-stale-');
   try {
-    mkdirSync(join(root, '.lattice'), { recursive: true });
-    writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
+    mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
+    writeFileSync(join(root, '.proof-or-stop', 'activity.jsonl'), JSON.stringify({
       tool: 'session_brief',
       endTime: new Date(Date.now() - 61 * 60 * 1000).toISOString(),
     }) + '\n');
@@ -156,10 +156,10 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-fresh-');
+  const root = tmpRoot('proof-or-stop-session-brief-fresh-');
   try {
-    mkdirSync(join(root, '.lattice'), { recursive: true });
-    writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
+    mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
+    writeFileSync(join(root, '.proof-or-stop', 'activity.jsonl'), JSON.stringify({
       tool: 'session_brief',
       endTime: new Date().toISOString(),
     }) + '\n');
@@ -172,7 +172,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-legacy-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-legacy-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
@@ -190,7 +190,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
@@ -208,7 +208,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-story-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-story-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
@@ -226,7 +226,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-malformed-');
+  const root = tmpRoot('proof-or-stop-session-brief-malformed-');
   try {
     const result = runHook(root, '{bad json');
     assert.equal(result.status, 0);
@@ -237,7 +237,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-missing-');
+  const root = tmpRoot('proof-or-stop-session-brief-missing-');
   try {
     const result = runHook(root, JSON.stringify({ cwd: root }));
     assert.equal(result.status, 0);

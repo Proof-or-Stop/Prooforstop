@@ -80,7 +80,7 @@ export function renderSessionIdentityDiagnostic(identity: SessionIdentity): stri
   const lines = [`session identity: ${identity.sessionId} [${identity.sessionSource}${provider}]`];
   if (identity.sessionSource === 'derived-ppid') {
     lines.push(
-      'session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.',
+      'session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.',
     );
   }
   return lines;

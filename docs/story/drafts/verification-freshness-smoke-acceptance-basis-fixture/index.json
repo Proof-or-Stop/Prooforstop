@@ -1,0 +1,9 @@
+{
+  "name": "verification-freshness-smoke-acceptance-basis-fixture",
+  "title": "verification-freshness smoke fails on main: its merge-regression fixture story has no verifier-owned acceptance basis",
+  "description": "The registered smoke packages/main/src/tasks/verification-freshness-smoke.ts fails on main at assertSimulatedMainMergeRegression. That assertion advances a temporary fixture story from DEV to REVIEW, and runPreReviewCheckGate (packages/main/src/handlers/transition-orchestrator.ts, unconditional for DEV to REVIEW) reaches currentPreReviewInputForContext (packages/main/src/handlers/proofstory.ts) which throws because the fixture story has no verifier-owned PLAN acceptance basis. The gate was wired in commit fb2170f016 on 2026-07-23; the fixture was never given a basis, so the smoke has been red since then. It is discovered by run-all-smokes, so npm run test:all is red on main. It is NOT a member of test:serial-reference, so npm test and the done-required suite are unaffected and no story is blocked by it. Reproduced from the main checkout at /Users/jek/Documents/GitHub/Prooforstop with main's own build: node packages/main/dist/tasks/verification-freshness-smoke.js exits 1 with that error. The nearby precedent writeAcceptanceBasisDiscoveryFixture in packages/main/src/tasks/flow-stability-smoke.ts is a command-discovery fixture, not a real basis, so it is not directly reusable. Fix by giving the fixture story a verifier-owned acceptance basis (or by making the fixture take the same path production stories take), then confirm the smoke exits 0 and stays a real regression guard rather than being weakened.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [],
+  "createdAt": "2026-09-03T09:40:27.052Z"
+}

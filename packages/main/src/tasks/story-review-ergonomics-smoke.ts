@@ -17,11 +17,11 @@ function write(root: string, path: string, content: string): void {
 }
 
 function initStore(options: { saveScopeCheck?: boolean } = {}): { root: string; store: StoryStore; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-story-review-ergonomics-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-review-ergonomics-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));

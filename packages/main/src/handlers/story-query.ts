@@ -8,6 +8,7 @@ import { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveStoryWorkspace } from '../core/story-workspace.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { isVolatileRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import {
@@ -18,7 +19,7 @@ import {
   resolveWorktreePath,
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
-import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_REPAIR_IGNORE } from '../core/proof-or-stop-paths.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { withMainWriteLock } from '../core/main-write-lock.js';
 import {
@@ -115,7 +116,7 @@ interface IntentFixtureLocation {
 }
 
 const INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS = new Set([
-  'lattice-review-story-init',
+  'proof-or-stop-review-story-init',
   'product-reviewer',
 ]);
 
@@ -277,7 +278,7 @@ function gitUnmergedPaths(cwd: string): string[] {
 export function gitPorcelainPaths(cwd: string): string[] {
   // Not gitOutput(): its full-output trim() strips the first porcelain row's
   // leading status space (" M path" -> "M path"), shifting the fixed-width
-  // path offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
+  // path offset and corrupting the first reported path (".proof-or-stop/x" -> "proofOrStop/x").
   const raw = execSync('git status --porcelain -uall', { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
   return raw.split('\n')
     .map(line => line.trimEnd())
@@ -407,40 +408,23 @@ export function detectStoryResidue(
 export function createStoryQueryHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
 
-  function readStoryProjection(id: string, linkedWorktrees: Map<string, string>): {
+  // B-41c8 CHK-003: workspace resolution is owned by core/story-workspace.ts.
+  // story_list keeps the phase-terminal guard it always had: a DONE / DISCARDED
+  // story is projected from the invocation root, never from a residual worktree.
+  function readStoryProjection(id: string): {
     story: StoryInfo;
     sourceStore: StoryStore;
     mainPhase: StoryPhase | null;
   } {
-    const mainStory = store.readStory(id);
-    const linkedPath = linkedWorktrees.get(id);
-    if (
-      linkedPath &&
-      mainStory.phase !== 'DONE' &&
-      mainStory.phase !== 'DISCARDED'
-    ) {
-      try {
-        const sourceStore = new StoryStore(linkedPath);
-        const story = sourceStore.readStory(id);
-        return {
-          story,
-          sourceStore,
-          mainPhase: story.phase !== mainStory.phase ? mainStory.phase : null,
-        };
-      } catch {
-        // PROBE: if the linked worktree cannot be read, fall back to main metadata.
-      }
-    }
-    return { story: mainStory, sourceStore: store, mainPhase: null };
-  }
-
-  function listLinkedStoryWorktrees(): Map<string, string> {
-    const out = new Map<string, string>();
-    for (const entry of listGitWorktrees(root)) {
-      const m = entry.branch?.match(/^story\/(.+)$/);
-      if (m) out.set(m[1], entry.path);
-    }
-    return out;
+    const workspace = resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: true });
+    return {
+      story: workspace.story,
+      sourceStore: workspace.store,
+      mainPhase:
+        workspace.source === 'linked-worktree' && workspace.story.phase !== workspace.rootStory.phase
+          ? workspace.rootStory.phase
+          : null,
+    };
   }
 
   return {
@@ -567,9 +551,8 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const zombieIds = new Set(zombies.map(z => z.storyId));
       const residueIds = new Set(residues.map(r => r.storyId));
 
-      const linkedWorktrees = listLinkedStoryWorktrees();
       const results = ids.map(id => {
-        const { story, sourceStore, mainPhase } = readStoryProjection(id, linkedWorktrees);
+        const { story, sourceStore, mainPhase } = readStoryProjection(id);
         const cl = (() => {
           try { return sourceStore.readChecklist(id); } catch { return { items: [] }; }
         })();
@@ -695,7 +678,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         // array (365KB on the real repo) is the payload; brief keeps every meta
         // field (_dashboard/_hint/_phases/_bugSummary) and lists only non-terminal
         // stories as one-liners, with per-phase counts covering ALL stories.
-        // --full / --json / LATTICE_BRIEF_OUTPUT=0 restore the current full shape.
+        // --full / --json / PROOF_OR_STOP_BRIEF_OUTPUT=0 restore the current full shape.
         const full = wantsFullOutput(args);
         const testMissingFull = withoutTests.length > 0
           ? `Stories missing tests: ${withoutTests.map(r => r.storyId).join(', ')}`
@@ -716,7 +699,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         return {
           _dashboard: dashboard,
           _brief: true,
-          _hint: `Brief view: ${nonTerminal.length} non-terminal stories listed; ${omittedTerminal} terminal (DONE/DISCARDED/IDEA) omitted (see _phases for the full per-phase distribution). Use --full (or LATTICE_BRIEF_OUTPUT=0) for every story with full fields.`,
+          _hint: `Brief view: ${nonTerminal.length} non-terminal stories listed; ${omittedTerminal} terminal (DONE/DISCARDED/IDEA) omitted (see _phases for the full per-phase distribution). Use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for every story with full fields.`,
           _phases: phases,
           _bugSummary: bugSummary,
           _testMissing: withoutTests.length > 0
@@ -907,12 +890,12 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      *   Story artifacts and activity logs are Proof-or-Stop machine state, not human
      *   documentation. This command migrates legacy docs/story/actives data
      *   into the configured storyDir and legacy docs/story/activity.jsonl into
-     *   .lattice/activity.jsonl, backing up removed legacy files under .lattice.
+     *   .proof-or-stop/activity.jsonl, backing up removed legacy files under .proof-or-stop.
      * @changes
      *   - [CHK-002] Preview legacy-to-runtime story storage migration
      *   - [CHK-002] Copy legacy story directories to config.storyDir
-     *   - [CHK-002] Move legacy docs/story/actives to .lattice/legacy-backup on confirm
-     *   - [B-281f/CHK-001] Merge legacy docs/story/activity.jsonl into .lattice/activity.jsonl
+     *   - [CHK-002] Move legacy docs/story/actives to .proof-or-stop/legacy-backup on confirm
+     *   - [B-281f/CHK-001] Merge legacy docs/story/activity.jsonl into .proof-or-stop/activity.jsonl
      *   - [B-281f/CHK-002] Remove docs/story only when it becomes empty after migration
      * @test story-storage-migration
      */
@@ -956,10 +939,10 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
 
       if (args?.dryRun !== false || !args?.confirm) {
         if (storyDirMigrationEnabled && toCopy.length > 0) lines.push(`  will copy: ${toCopy.slice(0, 12).join(', ')}${toCopy.length > 12 ? ` (+${toCopy.length - 12} more)` : ''}`);
-        if (storyDirMigrationEnabled && hasLegacyActives) lines.push('  will backup legacy dir to .lattice/legacy-backup/docs-story-actives-<timestamp>');
+        if (storyDirMigrationEnabled && hasLegacyActives) lines.push('  will backup legacy dir to .proof-or-stop/legacy-backup/docs-story-actives-<timestamp>');
         if (hasLegacyActivity) {
           lines.push(`  will migrate activity: ${legacyActivityRel} -> ${targetActivityRel}${hasTargetActivity ? ' (append)' : ''}`);
-          lines.push('  will backup legacy activity to .lattice/legacy-backup/docs-story-activity-<timestamp>.jsonl');
+          lines.push('  will backup legacy activity to .proof-or-stop/legacy-backup/docs-story-activity-<timestamp>.jsonl');
         }
         lines.push('  will remove docs/story only if it is empty after migration');
         lines.push('→ Confirm migration: proof-or-stop story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
@@ -1012,7 +995,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @priority high
      * @description
      *   Manual `git merge main` inside a story worktree can overwrite the
-     *   story phase if users resolve `.lattice/story/actives/<storyId>/index.json`
+     *   story phase if users resolve `.proof-or-stop/story/actives/<storyId>/index.json`
      *   with main's version. story_sync_main wraps that operation: current
      *   story metadata conflicts are resolved with `--ours`, while real code
      *   conflicts remain visible and block completion.

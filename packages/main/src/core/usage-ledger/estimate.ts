@@ -3,7 +3,7 @@
  *
  * Implements "Usage Source Semantics", "Estimate accuracy and fallback order",
  * and the prompt-size-estimate "Required record constraints" from
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * This is the PURE estimate path. It computes a preflight `prompt-size-estimate`
  * token count BEFORE any provider dispatch and assembles a validated ledger
@@ -16,7 +16,7 @@
  * Boundary invariant (load-bearing): the whole `core/usage-ledger` module keeps
  * its zero-cross-module-import property. This file may import ONLY sibling
  * usage-ledger files (./record, ./ids) and node builtins. It must NOT import any
- * provider adapter, dispatch-runner, lattice-dispatch, or any other Proof-or-Stop
+ * provider adapter, dispatch-runner, proof-or-stop-dispatch, or any other Proof-or-Stop
  * subsystem. The smoke statically asserts this.
  *
  * Fallback order (spec "Estimate accuracy and fallback order"):

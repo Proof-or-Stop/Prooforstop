@@ -8,7 +8,7 @@
     "directory": "packages/main"
   },
   "version": "0.3.274",
-  "description": "Proof-or-Stop \u2014 AI-driven Story workflow CLI",
+  "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -16,6 +16,7 @@
   },
   "exports": {
     ".": "./dist/index.js",
+    "./extension-api": "./dist/extension-api.js",
     "./test": "./dist/tasks/test-flow-e2e.js"
   },
   "scripts": {
@@ -115,7 +116,8 @@
     "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js",
     "test:core-package-rename": "node scripts/verify-core-package-rename.mjs",
     "test:state-dir-migration": "node scripts/verify-state-dir-migration.mjs",
-    "test:lattice-residue": "node ../../scripts/verify-lattice-residue.mjs",
+    "test:identity-state-migrate-atomicity": "node tests/identity-state-migrate-atomicity.test.mjs",
+    "test:proof-or-stop-residue": "node ../../scripts/verify-proof-or-stop-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
@@ -148,13 +150,13 @@
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",
+    "typescript": "^5.7.0",
     "ws": "^8.21.1",
     "xstate": "^5.30.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@types/ws": "^8.18.1",
-    "typescript": "^5.7.0"
+    "@types/ws": "^8.18.1"
   }
 }

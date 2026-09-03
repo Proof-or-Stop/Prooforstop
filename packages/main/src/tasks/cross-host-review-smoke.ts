@@ -26,7 +26,7 @@
  *   CHK-001:adversarial:3 (F-004) missing policy → fail-closed (no spawn, no verdict recorded).
  *   CHK-001:adversarial:4 (F-004) unauthorized policy (no codex review grant) → fail-closed; Bug10: a MALFORMED policy (maxRuntimeMinutes:"bogus") → authorizeReviewPolicy refuses (no spawn, no verdict, no unbounded ceiling).
  *   CHK-001:adversarial:5 (F-004) closed-allowlist env redaction by construction (base var forwarded; credential/arbitrary names dropped EVEN IF in the policy envAllowlist; envDenylist can drop a base var) + timeout ceiling threaded to the runner.
- *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean captured-HEAD snapshot; pre-hash clean HEAD drift, post-spawn source drift, post-spawn clean HEAD drift, and post-write clean HEAD drift fail closed before any stale verdict is retained; .lattice-only dirty → proceeds.
+ *   CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree (no spawn, no verdict); Codex reviews a clean captured-HEAD snapshot; pre-hash clean HEAD drift, post-spawn source drift, post-spawn clean HEAD drift, and post-write clean HEAD drift fail closed before any stale verdict is retained; .proof-or-stop-only dirty → proceeds.
  *   CHK-001:adversarial:7 (NEW INTENT) malformed host-A findings file (missing field / EXTRA key / wrong type / not-an-array) → fail-closed (no spawn, no verdict); well-formed control passes. Requires a NEW verificationIntent registration.
  *   CHK-002:happy:0       host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement.
  *   CHK-002:happy:1       identical findings both pass → jointDecision pass, no disagreement.
@@ -131,7 +131,7 @@ function checklist(): ChecklistData {
 }
 
 function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-xhr-smoke-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-xhr-smoke-'));
   writeConfig(root);
   write(root, 'README.md', 'cross host review smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const seed = true;\n');
@@ -259,7 +259,7 @@ async function run(): Promise<void> {
   // reviewed tree. Keep it OUTSIDE the git worktree so it does not itself dirty
   // the worktree (the new dirty-worktree integrity preflight correctly treats an
   // untracked file inside the worktree as material drift).
-  const hostAFindingsDir = mkdtempSync(join(tmpdir(), 'lattice-xhr-hostA-'));
+  const hostAFindingsDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-xhr-hostA-'));
   const hostAFindingsFile = join(hostAFindingsDir, 'host-a-findings.json');
   try {
     process.chdir(root);
@@ -1140,9 +1140,9 @@ async function run(): Promise<void> {
     // and record NO verdict. If source/HEAD drift appears after the binding starts,
     // Codex must still be reviewing a clean captured-HEAD snapshot, and the handler
     // must re-check both live worktree cleanliness and HEAD identity before
-    // recording. Control: a worktree dirty ONLY under .lattice/ metadata (which
+    // recording. Control: a worktree dirty ONLY under .proof-or-stop/ metadata (which
     // Codex never reads and which churns constantly during a story) proceeds normally.
-    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds', async () => {
+    await check('CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .proof-or-stop-only dirty → proceeds', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       // (1) Make a TRACKED SOURCE file dirty (uncommitted) — this is exactly the
       // tree divergence the HEAD materialHash cannot honestly bind.
@@ -1319,11 +1319,11 @@ async function run(): Promise<void> {
       assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === finalRecordRunId).length, 0, 'post-write drift cleanup leaves no stale or partial verdict pair');
       assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'fixture source path is clean after restoring the final-record HEAD drift case');
 
-      // (6) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
-      // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
+      // (6) Control: dirty ONLY under .proof-or-stop/ metadata → the handler proceeds
+      // (Codex reviews source, not story bookkeeping; .proof-or-stop churns during a story).
       write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/some-churn.json`, JSON.stringify({ churn: Date.now() }) + '\n');
       write(root, `${PROOF_OR_STOP_STATE_DIR}/activity.jsonl`, 'ignored-metadata-churn\n');
-      const cleanRunId = `${STORY_ID}-xhr-lattice-only`;
+      const cleanRunId = `${STORY_ID}-xhr-proof-or-stop-only`;
       const cleanResult = await handlers.cross_host_review({
         storyId: STORY_ID,
         policy: reviewOnlyPolicy(),
@@ -1331,11 +1331,11 @@ async function run(): Promise<void> {
         runId: cleanRunId,
         json: true,
       }) as CrossHostReviewResult;
-      assert.equal(seamInvoked, true, 'codex seam IS invoked when only .lattice/ metadata is dirty');
+      assert.equal(seamInvoked, true, 'codex seam IS invoked when only .proof-or-stop/ metadata is dirty');
       assert.equal(cleanResult.hostB.decision, 'pass', 'state-dir-only dirty worktree proceeds normally (host-B verdict recorded)');
       assert.equal(cleanResult.materialDigest, materialHash, 'material-clean control still binds the HEAD materialDigest');
       const recordedClean = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === cleanRunId && v.provider === 'codex');
-      assert.equal(recordedClean.length, 1, 'the .lattice-only control records the codex verdict');
+      assert.equal(recordedClean.length, 1, 'the .proof-or-stop-only control records the codex verdict');
       // Clean up the (untracked) metadata churn so it does not leak into later checks.
       rmSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/some-churn.json`), { force: true });
       rmSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/activity.jsonl`), { force: true });

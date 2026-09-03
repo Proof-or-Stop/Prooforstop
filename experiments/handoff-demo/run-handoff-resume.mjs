@@ -19,11 +19,11 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO = join(here, '..', '..');                 // Orchestrate repo root
-const LATTICE = join(REPO, 'bin', 'lattice.js');
+const PROOF_OR_STOP = join(REPO, 'bin', 'proof-or-stop.js');
 const node = process.execPath;
 function git(cwd, ...args) { return execFileSync('git', args, { cwd, encoding: 'utf8' }).trim(); }
-function lattice(cwd, ...args) {
-  return execFileSync(node, [LATTICE, '--root', cwd, ...args], { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+function proofOrStop(cwd, ...args) {
+  return execFileSync(node, [PROOF_OR_STOP, '--root', cwd, ...args], { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
 }
 function dirSize(p) { // bytes of all files under p (excluding .git)
   let total = 0;
@@ -46,16 +46,16 @@ function assert(cond, msg) {
 }
 
 try {
-  // ── Machine A: a lattice project with an in-flight story, committed to a branch ──────
+  // ── Machine A: a proof-or-stop project with an in-flight story, committed to a branch ──────
   const A = join(root, 'machineA');
   mkdirSync(A, { recursive: true });
   git(A, 'init', '-q', '-b', 'main');
   git(A, 'config', 'user.email', 'a@demo'); git(A, 'config', 'user.name', 'machineA');
-  // minimal lattice project config
-  writeFileSync(join(A, 'lattice.config.json'), JSON.stringify({ scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives' }, null, 2));
+  // minimal proof-or-stop project config
+  writeFileSync(join(A, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: 'src', storyDir: '.proof-or-stop/story/actives' }, null, 2));
   // seed an in-flight story payload (real-shaped story metadata + a code file under work)
   const SID = 'B-hn2demo';
-  const storyDir = join(A, '.lattice', 'story', 'actives', SID);
+  const storyDir = join(A, '.proof-or-stop', 'story', 'actives', SID);
   mkdirSync(storyDir, { recursive: true });
   writeFileSync(join(storyDir, 'index.json'), JSON.stringify({
     id: SID, title: 'HN-2 git-native handoff demo story', phase: 'DEV', type: 'feature',
@@ -78,7 +78,7 @@ try {
 
   // ── Create the handoff pack on machine A (baseSha/headSha + canonical story) ─────────
   const packPath = join(A, 'handoff-pack.json');
-  lattice(A, 'handoff_create', `--storyId=${SID}`, '--fromHost=claude-code', '--toHost=codex',
+  proofOrStop(A, 'handoff_create', `--storyId=${SID}`, '--fromHost=claude-code', '--toHost=codex',
     `--baseSha=${headA}`, '--objective=resume the parse step', `--output=${packPath}`, '--json');
   assert(existsSync(packPath), 'handoff pack JSON created on machine A');
   const packBytes = statSize(packPath);
@@ -104,7 +104,7 @@ try {
   // ── Core HN-2 assertion: B reconstructed the IDENTICAL worktree from git alone ────────
   assert(headB === headA, 'machine B HEAD == machine A HEAD (reconstructed from git, not copied)');
   assert(treeB === treeA, 'machine B tree content-hash == machine A tree (byte-identical worktree)');
-  assert(existsSync(join(B, '.lattice', 'story', 'actives', SID, 'index.json')),
+  assert(existsSync(join(B, '.proof-or-stop', 'story', 'actives', SID, 'index.json')),
     'story metadata reconstructed on machine B from git');
   assert(readFileSync(join(B, 'src', 'work.js'), 'utf8').includes('partial: machine A'),
     'partial code work reconstructed on machine B');
@@ -112,7 +112,7 @@ try {
   // ── Resume on machine B from the pack (recovery point + evidence/lineage preserved) ──
   const packB = join(B, 'handoff-pack.json');
   cpSync(packPath, packB);                            // the small out-of-band JSON
-  const resumeOut = lattice(B, 'handoff_resume', `--file=${packB}`, '--json');
+  const resumeOut = proofOrStop(B, 'handoff_resume', `--file=${packB}`, '--json');
   const resume = JSON.parse(resumeOut.slice(resumeOut.indexOf('{'), resumeOut.lastIndexOf('}') + 1));
   assert(!existsSync(join(B, 'node_modules_sim', 'bulk.bin')),
     'gitignored bulk (2MB) did NOT transfer — only git-tracked deltas + pack moved');

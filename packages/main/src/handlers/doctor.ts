@@ -42,7 +42,7 @@ import {
   scanAuxiliaryWorktreeResidues,
   type AuxiliaryCleanupResult,
 } from '../core/auxiliary-worktree-cleanup.js';
-import { PROOF_OR_STOP_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_REPAIR_IGNORE } from '../core/proof-or-stop-paths.js';
 import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
@@ -153,10 +153,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       const storyDirGitRoot = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
       // B-623a: advisory host burn scan — push-based long-thread burn detection.
       // Reuses the read-only usage-sweep scanners over a bounded recent-activity
-      // window (LATTICE_BURN_ALERT_RECENT_HOURS; 0 disables, the hermeticity
+      // window (PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS; 0 disables, the hermeticity
       // switch for fixture-driven smokes). Advisory-only: never gates, produces
       // no gate evidence, and never changes doctor's exit code. Dir overrides
-      // (LATTICE_BURN_ALERT_CODEX_DIR/CLAUDE_DIR) exist for hermetic tests.
+      // (PROOF_OR_STOP_BURN_ALERT_CODEX_DIR/CLAUDE_DIR) exist for hermetic tests.
       const burnThresholds = resolveBurnAlertThresholds(process.env);
       const burnDisabled = burnThresholds.recentHours <= 0;
       let hostBurnScan: BurnAlertEvaluation = {
@@ -575,7 +575,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(renderCodexAdapterChecks(codex).split('\n').map((line, index) => index === 0 ? `  ${line}` : `  ${line}`).join('\n'));
       if (brief) {
         lines.push('');
-        lines.push('→ Brief view. Full diagnostics: proof-or-stop doctor --full (or LATTICE_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.');
+        lines.push('→ Brief view. Full diagnostics: proof-or-stop doctor --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.');
       }
 
       return lines.join('\n');
@@ -668,7 +668,7 @@ function renderValidationScan(scan: ValidationSetupScan): string {
   } else {
     lines.push('  warnings: none');
   }
-  lines.push('  note: fallback command discovery is advisory; configure validate.command(s) in lattice.config.json for an explicit project gate.');
+  lines.push('  note: fallback command discovery is advisory; configure validate.command(s) in proof-or-stop.config.json for an explicit project gate.');
   lines.push('  note: Swift / Package.swift is NOT in the automatic fallback set (Mac Native App demoted); opt in explicitly via validate.commands if needed.');
   return lines.join('\n');
 }
@@ -1100,27 +1100,27 @@ function scanStoryMetadataProtection(root: string, store: HandlerContext['store'
 }
 
 /**
- * B-854c CHK-003: neutralize a pre-existing broad `.lattice/` (or `.lattice`)
+ * B-854c CHK-003: neutralize a pre-existing broad `.proof-or-stop/` (or `.proof-or-stop`)
  * DIRECTORY-form ignore line that would shadow the managed allowlist.
  *
  * Git rule: "it is not possible to re-include a file if a parent directory of
- * that file is excluded." A bare `.lattice/` directory ignore therefore makes
- * the `!.lattice/story/actives/**` negation INERT — the managed allowlist
- * (which uses the re-includable `.lattice/*` file glob) cannot take effect while
+ * that file is excluded." A bare `.proof-or-stop/` directory ignore therefore makes
+ * the `!.proof-or-stop/story/actives/**` negation INERT — the managed allowlist
+ * (which uses the re-includable `.proof-or-stop/*` file glob) cannot take effect while
  * the directory-form line is present. We comment out ONLY that exact conflicting
  * line (appending an explanatory marker), preserving every other user line
  * byte-for-byte (preMortem #2: no wholesale rewrite / reorder). Idempotent: an
  * already-neutralized line is left untouched.
  */
-const MANAGED_SUPERSEDE_MARKER = '# superseded by lattice managed allowlist (proof-or-stop doctor --repair)';
+const MANAGED_SUPERSEDE_MARKER = '# superseded by proof-or-stop managed allowlist (proof-or-stop doctor --repair)';
 
-function neutralizeConflictingLatticeDirIgnore(content: string): { content: string; changed: boolean } {
+function neutralizeConflictingProofOrStopDirIgnore(content: string): { content: string; changed: boolean } {
   const lines = content.split('\n');
   let changed = false;
   const out = lines.map((line) => {
     const trimmed = line.trim();
     // Only the bare directory-form ignore conflicts; the re-includable file glob
-    // `.lattice/*` and any negation `!...` lines are kept as-is.
+    // `.proof-or-stop/*` and any negation `!...` lines are kept as-is.
     // B-cc10 CHK-002: recognize EVERY accepted state-dir spelling. A hardcoded
     // spelling here would silently stop neutralizing the conflicting ignore under
     // the other name, and --repair would report success while the managed
@@ -1138,8 +1138,8 @@ function neutralizeConflictingLatticeDirIgnore(content: string): { content: stri
  * --repair: install the managed ignore-volatile/track-metadata allowlist.
  *
  * Two surgical steps, both auditable and idempotent:
- *   1. Neutralize a conflicting bare `.lattice/` directory-form ignore line so
- *      the managed allowlist's `!.lattice/story/actives/**` re-inclusion can
+ *   1. Neutralize a conflicting bare `.proof-or-stop/` directory-form ignore line so
+ *      the managed allowlist's `!.proof-or-stop/story/actives/**` re-inclusion can
  *      actually take effect (git's parent-directory rule).
  *   2. Reuse managed-assets `mergeRuntimeGitignore` (append-only inside
  *      BLOCK_START/END markers, dedupes) to add the allowlist.
@@ -1162,7 +1162,7 @@ function repairStoryMetadataAllowlist(root: string, gitCwd: string = root): { wr
   }
   const neutralized = existing === null
     ? { content: '', changed: false }
-    : neutralizeConflictingLatticeDirIgnore(existing);
+    : neutralizeConflictingProofOrStopDirIgnore(existing);
   const merged = mergeRuntimeGitignore(existing === null ? null : neutralized.content);
   if (!neutralized.changed && merged === (existing ?? '')) {
     return { wrote: false, repoRoot: canonicalRepoRoot };

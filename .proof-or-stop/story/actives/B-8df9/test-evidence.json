@@ -1,0 +1,2261 @@
+{
+  "command": "proof-or-stop validate --story=B-8df9 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=8d7d9c18c13d990251f20c8928ac66cf8b925af260ec9b2b9060b96f00478c73\",\"commandExecutions=0\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — The artifact reproduces the PLAN probe: injected agentResults advances the gate with zero init_check_set calls\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — The artifact also covers the issues field (erasing a recorded critical still advances), so a partial fix cannot turn it green\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — It carries a SIGNATURE control (in-domain title edit must be rejected). If that control fails the run reports BROKEN and draws no conclusion, so a dead signature check cannot masquerade as this defect\",\"  ✓ CHK-002:happy:0 [happy/must/cli] waived via waiver verdict=waived — After the domain change, a hand-edited agentResults produces init_check_tampered instead of advancing\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — All six on-disk agentResults shapes hash deterministically, including the five files with no agentResults where the value is synthesized\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test — The four smoke tests asserting single-caller dual-agentId accumulation still PASS unchanged. If they fail, the change is wrong, not the tests\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — A _hash mismatch on read refuses to carry previous.agentResults forward\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test — Reading a historical file with a legacy hash still RENDERS (story_get / audit paths work); refusing to trust is not refusing to read\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — A file whose _hash was recomputed by an attacker over tampered content is still refused, because the domain now covers the tampered fields\",\"  ✓ CHK-005:happy:0 [happy/must/docs] covered via docs_check — Counts are re-derived at implementation time rather than copied from the background, and the position names what breaks\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via integration_test — The single INIT-phase story is identified by id before landing, and its recorded actors are confirmed still registry-valid\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/docs] covered via docs_check — The position explicitly rejects any design that assumes the corpus can be re-signed through the handler, since ~195 files carry registry-invalid actors\",\"  ✓ CHK-006:happy:0 [happy/must/docs] covered via docs_check — The exemption's stated reason is either restated so it is true after the domain change, or replaced with a reason that holds independently of the signature\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via logic_test — The restated reason is checked against what the code actually does, not against what the old comment claimed\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/docs] covered via docs_check — If no honest justification survives, the exemption itself is flagged rather than left standing on rewritten prose\"],\"warnings\":[],\"timestamp\":\"2026-08-19T18:47:06.753Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The artifact reproduces the PLAN probe: injected agentResults advances the gate with zero init_check_set calls\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"aff8de4fc35fc7cae303b8ec73b36b83746b3a5f0bcdf3cdba10bb651f5b6b49\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:20:31.675Z\",\"timeoutMs\":270000},\"headHash\":\"0957a42a43173e98902630d24c36078ab0280823\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:20:31.797Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The artifact also covers the issues field (erasing a recorded critical still advances), so a partial fix cannot turn it green\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"f84411003b8169050d69c50bb4d6a7e742015848abf836f2282d580a1057a8f6\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:19:52.174Z\",\"timeoutMs\":270000},\"headHash\":\"0ad1fd2681607cf3f41031fe99ac082fabc086a2\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:19:52.297Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"It carries a SIGNATURE control (in-domain title edit must be rejected). If that control fails the run reports BROKEN and draws no conclusion, so a dead signature check cannot masquerade as this defect\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ab0fffe56689b7b8a66bed65c84313ccd90032acc781cd433ebe89a399c78d3b\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:19:11.960Z\",\"timeoutMs\":270000},\"headHash\":\"dd9acdd8922e2e556f8e2e555d6db1f6c21cc0c2\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:19:12.100Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"After the domain change, a hand-edited agentResults produces init_check_tampered instead of advancing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"waived\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"permanent\",\"note\":\"Waiver for the PIN, not for the property. The property is still mechanically proven: red-b8df9-init-check-verdict-signature.mjs is registered NON-OPTIONAL in lattice.config.json, runs on every validate, and reports 0 RED across 24 rows - rows B1/B2/B3 are exactly this intent. What broke is the pinned selector string. CHK-003 legitimately extended that artifact final conclusion line, so the pinned text \\\"GREEN: both verdict fields are inside the signature domain.\\\" (ending in a period) no longer matches verbatim; live output now reads \\\"...signature domain, and the carry-forward...\\\". Verified by execution: grep -F of the pinned string against live output fails. The command+selector pin is immutable on first selector-bearing write, so this cannot be re-pinned and the evidence cannot be re-earned as recorded. LESSON, recorded because the rule I gave was insufficient: I instructed implementers to use MARKER NAMES rather than literal counts as selectors, and this selector obeyed that rule and still broke. The stronger rule is that a selector must be pinned to something no LATER work will legitimately reword - a stable row identifier such as B1 or a machine token, never a prose conclusion sentence, however marker-like it reads. Filed by the test-coverage lane as B-8df9:F-006.\",\"headHash\":\"0d7d1ba5dac7105ba5681e0fd54a8d6ce14334dc\",\"materialHash\":\"2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265\",\"storyFilesHash\":\"d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667\",\"timestamp\":\"2026-08-03T05:27:38.203Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"All six on-disk agentResults shapes hash deterministically, including the five files with no agentResults where the value is synthesized\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"c30cbe4cbeb54eb4036ba43c829754099bad6b54360222c08172eb596447ada2\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:22:20.211Z\",\"timeoutMs\":270000},\"headHash\":\"872ee2ac5fa8f4a7f73ab36d9327b2457ca30c80\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:22:20.338Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The four smoke tests asserting single-caller dual-agentId accumulation still PASS unchanged. If they fail, the change is wrong, not the tests\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/init-check-required-agents-smoke.js\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"a45b133d12f33c5010a47d46b4f0d592c1f0153f93efd80852c5d43c1989fc25\",\"outputTail\":\"agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\\ntyped dispatch role/cardinality/mutation smoke PASS\\n✓ review pass and discard smoke passed\\n✓ flow stability smoke passed\\n✓ init check required agents smoke passed\\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\\n  ✓ CHK-001:happy:1 cross_host_review is registered\\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\\n\\n✓ cross_host_review smoke passed (24 checks)\\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\\nagent-liveness-suite-smoke PASS\\n✓ init check required agents smoke passed\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:21:40.371Z\",\"timeoutMs\":270000},\"headHash\":\"e27b2b8954000afe77d760ee130cbe1f8394af34\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:21:40.545Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"A _hash mismatch on read refuses to carry previous.agentResults forward\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"90f6616855f92c35c1c9cf65a2b4124c4996eb7f01f6baf13bf8d5282a8e1646\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:24:18.452Z\",\"timeoutMs\":270000},\"headHash\":\"b3eb694e1072926a2578fc86d2b9a79e47f53baa\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:18.629Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Reading a historical file with a legacy hash still RENDERS (story_get / audit paths work); refusing to trust is not refusing to read\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3bde2737fe480bd3e81d85552156a53b3f35fd0bb214d890c479cdce4593c58e\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:23:38.988Z\",\"timeoutMs\":270000},\"headHash\":\"45620cffe7650b30a91e01b54ae444536d8bae04\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:23:39.141Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A file whose _hash was recomputed by an attacker over tampered content is still refused, because the domain now covers the tampered fields\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node bin/lattice.js validate --focus=b8df9-init-check-signature\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"8e59ea5f214eb3c18bb7f229409cf9b21b44bb7c3297876f835fff6db472410e\",\"outputTail\":\"ward (E0) and an unverifiable record still RENDERS (G1).\\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\\n          observed: distinct=true digestLength=64\\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\\n      S7  [PASS      ] the documented shapes do not collide onto one digest\\n          observed: distinctDigests=6 of shapes=6; collisions=none\\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\\n          observed: absentDigestDiffersFromExplicitEncoding=true\\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\\n          observed: digestMoved=true\\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\\n          observed: digestMoved=true\\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\\n          observed: digestMoved=true\\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\\n          observed: digestMoved=true\\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\\n          observed: componentsDeclared=7 allRendered=true\\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\\n      0 FAILED / 0 BROKEN / 17 rows\\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:22:59.624Z\",\"timeoutMs\":270000},\"headHash\":\"5871dcafde94524fc594f5bb97ee73df7f07adf4\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:22:59.750Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Counts are re-derived at implementation time rather than copied from the background, and the position names what breaks\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"docs_check\",\"command\":\"node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs\",\"result\":\"pass\",\"note\":\"Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \\\"NOT exempt because of the signature\\\" in packages/main/src/core/command-policy.ts hits 3; grep \\\"CHK-006\\\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.\",\"mechanical\":false,\"headHash\":\"e549187e8db9db0167a0c3839b0effad15e2baf4\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:53.109Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"The single INIT-phase story is identified by id before landing, and its recorded actors are confirmed still registry-valid\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"integration_test\",\"command\":\"node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"b3455c3dc67065b394d0b852fc465e2896affff49764625d9e64cbfe384d3231\",\"outputTail\":\"CORPUS_ROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9\\nCORPUS_FILES_ON_DISK_MARKER=300\\nCORPUS_FILES_TRACKED_MARKER=300\\nCORPUS_FILES_UNTRACKED_LOCAL_ONLY_MARKER=0\\nTRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\\nTRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\\nON_DISK_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\\nON_DISK_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\\nGATED_INIT_STORY_COUNT_MARKER=1\\nTRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2\\nON_DISK_WITH_UNREGISTERED_ACTOR_MARKER=2\\nGATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false SIGNATURE_VERIFIED_UNDER_PRE_CHK002_DOMAIN=true\\nUNREGISTERED_ACTOR_MARKER name=codex-init-reviewer files=1\\nUNREGISTERED_ACTOR_MARKER name=codex-host files=1\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:24:20.090Z\",\"timeoutMs\":270000},\"headHash\":\"55279d0f2301f1374a544cbfe94ba132fa181cf1\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:20.210Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"The position explicitly rejects any design that assumes the corpus can be re-signed through the handler, since ~195 files carry registry-invalid actors\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs\",\"result\":\"pass\",\"note\":\"Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \\\"NOT exempt because of the signature\\\" in packages/main/src/core/command-policy.ts hits 3; grep \\\"CHK-006\\\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.\",\"mechanical\":false,\"headHash\":\"8c9c60554e7e44d33064f030401f9b0425fd812e\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:53.915Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"The exemption's stated reason is either restated so it is true after the domain change, or replaced with a reason that holds independently of the signature\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"docs_check\",\"command\":\"grep -n \\\"NOT exempt because of the signature\\\" packages/main/src/core/command-policy.ts\",\"result\":\"pass\",\"note\":\"Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \\\"NOT exempt because of the signature\\\" in packages/main/src/core/command-policy.ts hits 3; grep \\\"CHK-006\\\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.\",\"mechanical\":false,\"headHash\":\"d6edbf4e0d110abf55bfdbaa2eb4a660ad1d5a41\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:54.720Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"The restated reason is checked against what the code actually does, not against what the old comment claimed\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"command\":\"node .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs\",\"result\":\"pass\",\"note\":\"Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"6301033791e78f1726a2b725591cfb44e7dff0fc6de9f936bdf7edc54780f0dd\",\"outputTail\":\"⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\\n=== B-8df9 CHK-006: the restated init_check_set exemption, measured against the code ===\\n  PASS  INIT_CHECK_SET_OWNERSHIP_CLASS_MARKER=reviewerWrite\\n        the exemption being justified exists at all\\n  PASS  STORY_ADVANCE_OWNERSHIP_CLASS_MARKER=storyScopedMutating\\n        the gate consumer named in the reason really is owner-gated\\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_INIT_CHECK_SET_MARKER=false\\n        exempt: the gate returns before any lease is read or written\\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_STORY_SCOPED_CONTROL_MARKER=true\\n        CONTROL: an owner-gated command on the same story DOES take the lease, so the line above is an exemption and not a dead gate\\n  PASS  OWNERSHIP_CLASS_OF_CONTROL_COMMAND_MARKER=storyScopedMutating\\n        the control is owner-gated by classification, not by accident\\n  PASS  INIT_CHECK_SET_CHANGED_PHASE_MARKER=INIT->INIT\\n        deposits evidence only: the phase is unchanged by the write itself\\n  PASS  INIT_CHECK_SET_NEW_FILES_OUTSIDE_STORY_DIR_MARKER=none\\n        the write is confined to this story directory (runtime locks excluded)\\n  PASS  SIGNATURE_REJECTS_EDIT_WITHOUT_RESIGN_MARKER=true\\n        tamper-EVIDENCE holds: an edit that does not re-sign is refused\\n  PASS  SIGNATURE_ACCEPTS_AN_OUT_OF_TOOL_RESIGN_MARKER=true\\n        and its LIMIT, which the reason must state rather than hide: re-signing with the exported INIT_CHECK_SALT / signInitCheck IS accepted, so the signature binds CONTENT and never the WRITER, and cannot justify who may write\\n  PASS  INIT_CHECK_SALT_IS_EXPORTED_SOURCE_MARKER=true\\n        the salt is a public constant, not a secret key\\n  0 FAILED / 10 claims\\n  EXEMPTION_REASON_MATCHES_CODE_MARKER=true — deposit-only justification holds, and the stated signature limit is real\\n  claims digest=d9f417ed1260\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-19T17:24:23.258Z\",\"timeoutMs\":270000},\"headHash\":\"d3e754004c8325ce8b18d72c62a23e1bcac99f7a\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:23.376Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"If no honest justification survives, the exemption itself is flagged rather than left standing on rewritten prose\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"grep -n \\\"CHK-006\\\" packages/main/src/core/command-policy.ts\",\"result\":\"pass\",\"note\":\"Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \\\"NOT exempt because of the signature\\\" in packages/main/src/core/command-policy.ts hits 3; grep \\\"CHK-006\\\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.\",\"mechanical\":false,\"headHash\":\"b654ecaf5bb9e9dde9f9eb94946192d671b870fa\",\"materialHash\":\"e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a\",\"storyFilesHash\":\"0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410\",\"timestamp\":\"2026-08-19T17:24:55.514Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"8d7d9c18c13d990251f20c8928ac66cf8b925af260ec9b2b9060b96f00478c73\"}}",
+  "result": "PASS",
+  "timestamp": "2026-08-19T18:47:06.978Z",
+  "headHash": "4fad157a8cff3d07cb09e949885c2f173948ae81",
+  "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+  "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The artifact reproduces the PLAN probe: injected agentResults advances the gate with zero init_check_set calls",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "aff8de4fc35fc7cae303b8ec73b36b83746b3a5f0bcdf3cdba10bb651f5b6b49",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:20:31.675Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0957a42a43173e98902630d24c36078ab0280823",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:20:31.797Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The artifact also covers the issues field (erasing a recorded critical still advances), so a partial fix cannot turn it green",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f84411003b8169050d69c50bb4d6a7e742015848abf836f2282d580a1057a8f6",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:19:52.174Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ad1fd2681607cf3f41031fe99ac082fabc086a2",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:19:52.297Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "It carries a SIGNATURE control (in-domain title edit must be rejected). If that control fails the run reports BROKEN and draws no conclusion, so a dead signature check cannot masquerade as this defect",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ab0fffe56689b7b8a66bed65c84313ccd90032acc781cd433ebe89a399c78d3b",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:19:11.960Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "dd9acdd8922e2e556f8e2e555d6db1f6c21cc0c2",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:19:12.100Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "After the domain change, a hand-edited agentResults produces init_check_tampered instead of advancing",
+        "type": "cli",
+        "priority": "must",
+        "status": "waived",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "Waiver for the PIN, not for the property. The property is still mechanically proven: red-b8df9-init-check-verdict-signature.mjs is registered NON-OPTIONAL in lattice.config.json, runs on every validate, and reports 0 RED across 24 rows - rows B1/B2/B3 are exactly this intent. What broke is the pinned selector string. CHK-003 legitimately extended that artifact final conclusion line, so the pinned text \"GREEN: both verdict fields are inside the signature domain.\" (ending in a period) no longer matches verbatim; live output now reads \"...signature domain, and the carry-forward...\". Verified by execution: grep -F of the pinned string against live output fails. The command+selector pin is immutable on first selector-bearing write, so this cannot be re-pinned and the evidence cannot be re-earned as recorded. LESSON, recorded because the rule I gave was insufficient: I instructed implementers to use MARKER NAMES rather than literal counts as selectors, and this selector obeyed that rule and still broke. The stronger rule is that a selector must be pinned to something no LATER work will legitimately reword - a stable row identifier such as B1 or a machine token, never a prose conclusion sentence, however marker-like it reads. Filed by the test-coverage lane as B-8df9:F-006.",
+          "headHash": "0d7d1ba5dac7105ba5681e0fd54a8d6ce14334dc",
+          "materialHash": "2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265",
+          "storyFilesHash": "d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667",
+          "timestamp": "2026-08-03T05:27:38.203Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "All six on-disk agentResults shapes hash deterministically, including the five files with no agentResults where the value is synthesized",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c30cbe4cbeb54eb4036ba43c829754099bad6b54360222c08172eb596447ada2",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:22:20.211Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "872ee2ac5fa8f4a7f73ab36d9327b2457ca30c80",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:22:20.338Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The four smoke tests asserting single-caller dual-agentId accumulation still PASS unchanged. If they fail, the change is wrong, not the tests",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a45b133d12f33c5010a47d46b4f0d592c1f0153f93efd80852c5d43c1989fc25",
+            "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n✓ init check required agents smoke passed\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ init check required agents smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:21:40.371Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e27b2b8954000afe77d760ee130cbe1f8394af34",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:21:40.545Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "A _hash mismatch on read refuses to carry previous.agentResults forward",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "90f6616855f92c35c1c9cf65a2b4124c4996eb7f01f6baf13bf8d5282a8e1646",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:24:18.452Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b3eb694e1072926a2578fc86d2b9a79e47f53baa",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:18.629Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Reading a historical file with a legacy hash still RENDERS (story_get / audit paths work); refusing to trust is not refusing to read",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3bde2737fe480bd3e81d85552156a53b3f35fd0bb214d890c479cdce4593c58e",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:23:38.988Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "45620cffe7650b30a91e01b54ae444536d8bae04",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:23:39.141Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A file whose _hash was recomputed by an attacker over tampered content is still refused, because the domain now covers the tampered fields",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8e59ea5f214eb3c18bb7f229409cf9b21b44bb7c3297876f835fff6db472410e",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:22:59.624Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "5871dcafde94524fc594f5bb97ee73df7f07adf4",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:22:59.750Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Counts are re-derived at implementation time rather than copied from the background, and the position names what breaks",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "e549187e8db9db0167a0c3839b0effad15e2baf4",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:53.109Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "The single INIT-phase story is identified by id before landing, and its recorded actors are confirmed still registry-valid",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b3455c3dc67065b394d0b852fc465e2896affff49764625d9e64cbfe384d3231",
+            "outputTail": "CORPUS_ROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9\nCORPUS_FILES_ON_DISK_MARKER=300\nCORPUS_FILES_TRACKED_MARKER=300\nCORPUS_FILES_UNTRACKED_LOCAL_ONLY_MARKER=0\nTRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nTRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nON_DISK_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nON_DISK_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nGATED_INIT_STORY_COUNT_MARKER=1\nTRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2\nON_DISK_WITH_UNREGISTERED_ACTOR_MARKER=2\nGATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false SIGNATURE_VERIFIED_UNDER_PRE_CHK002_DOMAIN=true\nUNREGISTERED_ACTOR_MARKER name=codex-init-reviewer files=1\nUNREGISTERED_ACTOR_MARKER name=codex-host files=1\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:24:20.090Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55279d0f2301f1374a544cbfe94ba132fa181cf1",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:20.210Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "The position explicitly rejects any design that assumes the corpus can be re-signed through the handler, since ~195 files carry registry-invalid actors",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "8c9c60554e7e44d33064f030401f9b0425fd812e",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:53.915Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "The exemption's stated reason is either restated so it is true after the domain change, or replaced with a reason that holds independently of the signature",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "docs_check",
+          "command": "grep -n \"NOT exempt because of the signature\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "d6edbf4e0d110abf55bfdbaa2eb4a660ad1d5a41",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:54.720Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "The restated reason is checked against what the code actually does, not against what the old comment claimed",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6301033791e78f1726a2b725591cfb44e7dff0fc6de9f936bdf7edc54780f0dd",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n=== B-8df9 CHK-006: the restated init_check_set exemption, measured against the code ===\n  PASS  INIT_CHECK_SET_OWNERSHIP_CLASS_MARKER=reviewerWrite\n        the exemption being justified exists at all\n  PASS  STORY_ADVANCE_OWNERSHIP_CLASS_MARKER=storyScopedMutating\n        the gate consumer named in the reason really is owner-gated\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_INIT_CHECK_SET_MARKER=false\n        exempt: the gate returns before any lease is read or written\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_STORY_SCOPED_CONTROL_MARKER=true\n        CONTROL: an owner-gated command on the same story DOES take the lease, so the line above is an exemption and not a dead gate\n  PASS  OWNERSHIP_CLASS_OF_CONTROL_COMMAND_MARKER=storyScopedMutating\n        the control is owner-gated by classification, not by accident\n  PASS  INIT_CHECK_SET_CHANGED_PHASE_MARKER=INIT->INIT\n        deposits evidence only: the phase is unchanged by the write itself\n  PASS  INIT_CHECK_SET_NEW_FILES_OUTSIDE_STORY_DIR_MARKER=none\n        the write is confined to this story directory (runtime locks excluded)\n  PASS  SIGNATURE_REJECTS_EDIT_WITHOUT_RESIGN_MARKER=true\n        tamper-EVIDENCE holds: an edit that does not re-sign is refused\n  PASS  SIGNATURE_ACCEPTS_AN_OUT_OF_TOOL_RESIGN_MARKER=true\n        and its LIMIT, which the reason must state rather than hide: re-signing with the exported INIT_CHECK_SALT / signInitCheck IS accepted, so the signature binds CONTENT and never the WRITER, and cannot justify who may write\n  PASS  INIT_CHECK_SALT_IS_EXPORTED_SOURCE_MARKER=true\n        the salt is a public constant, not a secret key\n  0 FAILED / 10 claims\n  EXEMPTION_REASON_MATCHES_CODE_MARKER=true — deposit-only justification holds, and the stated signature limit is real\n  claims digest=d9f417ed1260\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:24:23.258Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d3e754004c8325ce8b18d72c62a23e1bcac99f7a",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:23.376Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "If no honest justification survives, the exemption itself is flagged rather than left standing on rewritten prose",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "docs_check",
+          "command": "grep -n \"CHK-006\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "b654ecaf5bb9e9dde9f9eb94946192d671b870fa",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:55.514Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 119,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "12caf88e56114807a483bd77a8e45a3bd80e342cce9e267b62be55a39333d7c4",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-lock-liveness.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-content-binding.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-reader-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[91]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[92]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[93]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[94]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[95]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[96]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[97]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[98]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[99]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[100]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[101]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[102]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[103]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[104]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[105]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "dc39d6b71f78ae28806314d83512b0fe75d87c034689029655c05b295739db4f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[106]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-plan-scheduling.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[107]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[108]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[109]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-45a5 standing regression guard (was CHK-001's RED artifact): three clauses, all mandatory. (1) Both REVIEW-path gates must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision. (2) Both must keep biting on everything that is NOT withdrawn, including an item that merely shares an authored verificationIntent id alias with a withdrawn one. (3) Both must keep REFUSING every UNBACKED withdrawal: a status flipped by hand with no decisionRef, a dangling decisionRef, a decisionRef naming a real decision that does not list the item, or a decision overwritten to decision=rejected / userConfirmed=false. Clause 3 is the safety-critical one: without it the withdrawal mechanism is forgeable by hand-editing a JSON status field. Exits 1 if any clause regresses, 2 if a control/premise breaks. CHK-003 removed the pre-fix optional flag, so this is now mandatory",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[111]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[112]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[113]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[114]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[115]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[116]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 600000,
+        "optional": false,
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "effectiveEnvironmentDigest": "cbc8fcf35536443752cf9eee3772c096875f1ded0203730a295290f039465fc2",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "aa642af5f5b0fdc087ec707a1354f97a789f9df6e5200bb65e960ab8b9d17296",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "8d7d9c18c13d990251f20c8928ac66cf8b925af260ec9b2b9060b96f00478c73"
+  }
+}

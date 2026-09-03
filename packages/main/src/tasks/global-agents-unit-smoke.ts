@@ -36,9 +36,9 @@ const GLOBAL_DIR = '/home/tester/.claude/agents';
 // Realistic template fixtures: one with a multi-line YAML tools list, one with
 // inline `tools:` + a `model:` line (both frontmatter shapes Claude uses).
 const TEMPLATES: Record<string, string> = {
-  'lattice-implementer.md': [
+  'proof-or-stop-implementer.md': [
     '---',
-    'name: lattice-implementer',
+    'name: proof-or-stop-implementer',
     'description: Dedicated implementation role',
     'tools:',
     '  - Read',
@@ -48,9 +48,9 @@ const TEMPLATES: Record<string, string> = {
     'FULL ROLE BODY that must never leak into the shim.',
     'More body lines here.',
   ].join('\n'),
-  'lattice-review-concept.md': [
+  'proof-or-stop-review-concept.md': [
     '---',
-    'name: lattice-review-concept',
+    'name: proof-or-stop-review-concept',
     'description: REVIEW concept reviewer',
     'model: sonnet',
     'tools: Grep, Glob, Bash',
@@ -143,11 +143,11 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
 
 // --- extractTemplateFrontmatter: keeps tools verbatim, parses name ---
 {
-  const multi = extractTemplateFrontmatter(TEMPLATES['lattice-implementer.md'], 'x');
-  assert.equal(multi.name, 'lattice-implementer');
+  const multi = extractTemplateFrontmatter(TEMPLATES['proof-or-stop-implementer.md'], 'x');
+  assert.equal(multi.name, 'proof-or-stop-implementer');
   assert.match(multi.frontmatter, /tools:\n {2}- Read\n {2}- Edit\n {2}- Bash/, 'multi-line tools list kept verbatim');
-  const inline = extractTemplateFrontmatter(TEMPLATES['lattice-review-concept.md'], 'y');
-  assert.equal(inline.name, 'lattice-review-concept');
+  const inline = extractTemplateFrontmatter(TEMPLATES['proof-or-stop-review-concept.md'], 'y');
+  assert.equal(inline.name, 'proof-or-stop-review-concept');
   assert.match(inline.frontmatter, /tools: Grep, Glob, Bash/, 'inline tools kept verbatim');
   assert.match(inline.frontmatter, /model: sonnet/, 'model line preserved when present');
   // missing frontmatter / name → throws
