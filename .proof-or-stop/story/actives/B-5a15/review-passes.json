@@ -14572,6 +14572,69 @@
         "scanEscalationReason": null
       },
       "_hash": "19119cf4cb0f8ff026b4fe1a568aeef6131c1086fe8a2830eb1813fd55727b07"
+    },
+    {
+      "id": "B-5a15:RP-315",
+      "agent": "proof-or-stop-review-concept",
+      "note": "WAVE 2 saturation pass at unchanged material (materialHash 947310a6... byte-identical to wave-1 binding RR-908/RP-312; only headHash moved via .proof-or-stop/ metadata, confirmed by review_run_list). Confirmed CRIT-01: git diff --name-status -M main...HEAD is the same 43-file material set as wave 1; only two source commits exist since RR-905 (3245a61b6d F-371 serve-proof fix, 51ca9d3afb AST repin), both already reviewed in wave 1 (F-377 filed against 3245a61b6d). Re-verified wave-1 symbol conclusions: (1) preReviewCaseRequiresSemanticBinding in pre-review-live-proof.ts is a same-file 2-to-3-arg signature widening, not a removal -- both call sites (pre-review-check.ts:210, pre-review-live-proof.ts:245/270) pass the updated 3-arg form, zero stranded refs repo-wide. (2) normalizeEvidence in checklist.ts is a diff-hunk artifact of a 3-to-4-arg signature widening (adds priorEvidence), still defined at line 628 and called at line 2186 with the new arg -- not a deletion, distinct from the still-intact normalizeEvidenceKind/normalizeEvidenceRef/normalizeEvidenceEnvironmentReceipt siblings. Extended the sweep beyond wave-1 scope: found a genuine multi-symbol removal in acceptance-discovery-adapters.ts (MAX_SAME_FILE_CALL_REACHABILITY_DEPTH, isCallableDeclaration, sameFileCallableBody, sameFileCallableCallNames, sameFileCallableCalls all gone; sameFileCallableReachable/hasSameFileIncomingCall survive with a new checker:ts.TypeChecker parameter) -- verified zero stranded references repo-wide via grep, and verified via git log + review_run_list timestamps that this refactor (commits d0b120431a..97ad6a57be, 2026-08-21) predates RR-905/RR-908 (2026-09-03) by weeks, i.e. it was already inside the material diff at my wave-1 binding and is not new residue. No finding is warranted: this is a coherent internal refactor (string-based depth-bounded walk replaced by TypeChecker-based resolution) with no dangling call sites, and it is not new since wave 1. Net result: no new finding family surfaced in this lane at unchanged material. Wave 1 was saturating, not merely sampling.",
+      "createdAt": "2026-09-03T04:22:22.931Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-912",
+      "envelopeId": "62efe90c2c6f20add5f518bb56cfcd2decf7160fb26b5f73b94c01d231a35e0c",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "lattice.config.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52ed92579b2e1477a0db9c8c298ca975b3d227d8c02882a1a8aca983c34f87d3"
     }
   ]
 }
