@@ -6,12 +6,18 @@
 # written in prose is re-broken by the next session. This hook removes the
 # trailers mechanically at commit time, whoever or whatever wrote the message.
 #
+# Scope: ATTRIBUTION METADATA only (Co-Authored-By / *-Session: / the generated-by
+# footer). It deliberately does NOT ban the host names as subject matter: this
+# repository builds adapters for both hosts, so commit subjects legitimately name
+# them. Blanket-banning the words would block ordinary adapter work.
+#
 # Behaviour:
-#   1. Attribution trailers are STRIPPED silently (they carry no information).
-#   2. Any other mention of the host names is WARNED about, not blocked.
-#      Blocking would abort the auto-commits that the CLI makes in the middle of
-#      story transitions and could leave story state half-written; a warning
-#      keeps the operator informed without that risk.
+#   1. Attribution trailer lines are STRIPPED. Every other byte is preserved.
+#   2. If stripping would leave no message at all, the commit is REJECTED with an
+#      actionable error rather than handed to git as an empty message.
+#   3. A surviving host-name mention is only WARNED about. Blocking would abort
+#      the automatic commits the CLI makes during story phase transitions and
+#      could leave story state half-written.
 #
 # Enable with: git config core.hooksPath .githooks
 
@@ -19,31 +25,46 @@ MSG_FILE="$1"
 [ -f "$MSG_FILE" ] || exit 0
 
 TMP="$MSG_FILE.attribution-strip.$$"
-trap 'rm -f "$TMP"' EXIT
+trap 'rm -f "$TMP" "$TMP.body"' EXIT
 
-# 1. Drop attribution trailer lines.
-grep -viE '^[[:space:]]*Co-Authored-By:.*(Claude|Codex|Anthropic|noreply@anthropic\.com)|^[[:space:]]*Claude-Session:|^[[:space:]]*Codex-Session:|Generated with \[?Claude Code|🤖 Generated with' \
-  "$MSG_FILE" > "$TMP" || true
+# Attribution trailer patterns. Every alternative is anchored to the start of a
+# line so that prose which merely quotes one of these phrases keeps its line.
+TRAILER_RE='^[[:space:]]*Co-Authored-By:[[:space:]]*.*(Claude|Codex|Anthropic|noreply@anthropic\.com)'
+TRAILER_RE="$TRAILER_RE"'|^[[:space:]]*(Claude|Codex)-Session:'
+TRAILER_RE="$TRAILER_RE"'|^[[:space:]]*(🤖[[:space:]]*)?Generated with \[?Claude Code'
 
-# Collapse the blank lines the removal leaves behind.
-if command -v git >/dev/null 2>&1; then
-  git stripspace < "$TMP" > "$TMP.clean" && mv "$TMP.clean" "$TMP"
-fi
+grep -viE "$TRAILER_RE" "$MSG_FILE" > "$TMP" || true
 
-if ! cmp -s "$MSG_FILE" "$TMP"; then
+# Nothing matched: leave the author's bytes exactly as written.
+if cmp -s "$MSG_FILE" "$TMP"; then
+  STRIPPED=0
+else
+  STRIPPED=1
+  # Collapse only the blank lines the removal left behind.
+  if command -v git >/dev/null 2>&1; then
+    git stripspace < "$TMP" > "$TMP.body" && mv "$TMP.body" "$TMP"
+  fi
+
+  # Refuse rather than hand git an empty message.
+  if [ ! -s "$TMP" ] || ! grep -q '[^[:space:]]' "$TMP"; then
+    echo "commit-msg: REJECTED - the message contained nothing but an AI attribution trailer." >&2
+    echo "commit-msg: write a commit message that says what the change does." >&2
+    exit 1
+  fi
+
   cat "$TMP" > "$MSG_FILE"
   echo "commit-msg: removed AI attribution trailer(s) from the commit message." >&2
 fi
 
-# 2. Warn about remaining host-name mentions (subject or body), excluding the
-#    unavoidable path spellings for the host asset directories and files.
-LEFTOVER=$(sed -E 's#\.claude/[A-Za-z0-9_./*-]*##g; s#CLAUDE\.md##g; s#\.proof-or-stop-codex/[A-Za-z0-9_./*-]*##g; s#proof-or-stop-codex##g; s#verify_codex##g' "$MSG_FILE" \
+# Warn about remaining host-name mentions, after masking the path and command
+# spellings that adapter work cannot avoid.
+LEFTOVER=$(sed -E 's#\.claude/[A-Za-z0-9_./*-]*##g; s#CLAUDE\.md##g; s#\.codex/[A-Za-z0-9_./*-]*##g; s#\.proof-or-stop-codex/[A-Za-z0-9_./*-]*##g; s#proof-or-stop-codex##g; s#verify_codex##g; s#codex_review[A-Za-z0-9_]*##g; s#codex-adapter##g' "$MSG_FILE" \
   | grep -inE 'claude|codex' || true)
 
 if [ -n "$LEFTOVER" ]; then
-  echo "commit-msg: WARNING - the message still names an AI host:" >&2
+  echo "commit-msg: WARNING - the message still names an AI host outside a path:" >&2
   echo "$LEFTOVER" | sed 's/^/  /' >&2
-  echo "commit-msg: repository rule is to describe host files without the host name." >&2
+  echo "commit-msg: prefer describing the subsystem without the host name." >&2
 fi
 
 exit 0
