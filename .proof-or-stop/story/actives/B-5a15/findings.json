@@ -20650,7 +20650,7 @@
       "desc": "packages/main/tests/verifier-causal-preflight.test.mjs (wrapped by packages/main/src/tasks/verifier-causal-preflight-smoke.ts) is the SOLE test coverage for createValidationCausalPreflightGate (packages/main/src/handlers/verifier.ts:687), a live production gate wired into proof-or-stop validate at two real call sites (verifier.ts:1933 and verifier.ts:2324) as the CHK-004 beforeLaunch preflight-refusal contract. Neither the test.mjs nor its smoke wrapper appears in root package.json test:serial-reference, packages/main/package.json, or proof-or-stop.config.json -- grep confirms zero registration anywhere. This differs from the already-known certification-window-smoke.ts orphan (F-396): CHK-004s own verificationEvidence in checklist.json binds every intent (happy/edge/adversarial) to node --test packages/main/tests/causal-evidence.test.mjs instead, and that file never imports or calls createValidationCausalPreflightGate (grep-confirmed, sole hit is verifier-causal-preflight.test.mjs). So the storys DEV evidence trail substitutes an unrelated test for the one that actually exercises this specific gate, leaving a live two-call-site production integration point with zero mechanical proof it currently passes its own dedicated tests in CI or in this storys acceptance record.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T10:24:55.281Z",
@@ -20701,7 +20701,9 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in fdb0837a8b. The finding was correct on every element I checked independently: createValidationCausalPreflightGate has 0 hits in causal-evidence.test.mjs (the command all 53 receipts pin), 3 call sites in production verifier.ts, and the only covering test had 0 registrations in any runner. So a live production integration point had zero mechanical proof while the receipts implied coverage. Precise characterisation, because it matters: the gate WORKS -- running the orphaned test directly exits 0 -- so this was never a functional defect but an acceptance-integrity one, registered evidence that does not exercise what it claims. Fixed despite blocking:[] because the triage rules list 'makes already-registered evidence false' as must-fix regardless of nominal severity. Fix is one script entry following the existing test:closeout-trust convention, chained into test:serial-reference; verified npm run test:verifier-causal-preflight exits 0 with 'verifier-causal-preflight-smoke: PASS' and package.json stays valid JSON. Credit where due: the lane also corrected its own initial over-count of orphaned tasks after discovering the registry root is /package.json's test:serial-reference chain rather than packages/main/package.json, which is what let me fix the one task covering otherwise-untested production code and defer the other two as F-396/F-397.",
+      "resolvedAt": "2026-09-03T10:29:07.980Z"
     },
     {
       "id": "B-5a15:F-401",
