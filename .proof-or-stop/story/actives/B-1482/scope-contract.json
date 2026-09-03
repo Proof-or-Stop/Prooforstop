@@ -56,10 +56,32 @@
       "phase": "DEV",
       "headHash": "39e6a23544a3a7d43b5f116723eeab50dd234ff1",
       "materialHash": "75d0f4ff4b2c672bbe1861f855185ee9c4de724df42dab2f801950efbb594352"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round-1 review findings that block or contradict this story: F-003 the triage-authority guard false positive in prompt-envelope.ts blocks review_run_start for every lane on this story, so it is acceptance-blocking and must be fixed here; F-005 the evidence-pin-guard message and the generated hook copy in init-assets.ts still say the pin is immutable once set with no mention of the new command, which is now false; and the process-fact registry rows for verification_pin_narrow complete the typed-registry pair the lifecycle decision requires.",
+      "timestamp": "2026-09-03T22:51:28.034Z",
+      "paths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "edac859e4d0bbac2c3e6d042edfcb65693edcef0",
+      "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11"
     }
   ],
   "createdAt": "2026-09-03T20:59:27.439Z",
-  "updatedAt": "2026-09-03T22:43:53.311Z",
+  "updatedAt": "2026-09-03T22:51:28.034Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -75,6 +97,10 @@
     "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/tasks/narrowing-repin-smoke.ts": "packages/main/src/tasks/narrowing-repin-smoke.ts",
-    "docs/requirements/decisions/narrowing-only-evidence-repin.md": "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+    "docs/requirements/decisions/narrowing-only-evidence-repin.md": "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/evidence-pin-guard.ts": "packages/main/src/core/evidence-pin-guard.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts"
   }
 }
