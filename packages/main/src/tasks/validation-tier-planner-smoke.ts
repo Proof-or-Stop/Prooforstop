@@ -3815,58 +3815,120 @@ function evaluateBranchRedGreen(cwd: string | null) {
   return evaluateRedGreenCommitOrder(readRedGreenCommits(cwd, ['main..HEAD']), { priorRedIds: priorRedIds(cwd) });
 }
 
-testCase('a GREEN whose RED landed on main before the branch point is satisfied through priorRedIds', () => {
-  // The helper stays pure: the caller hands it the ids that have a RED subject in the
-  // branch point's history, and a GREEN for such an id counts as satisfied.
+testCase('prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail', () => {
+  // The helper stays pure: the caller hands it the STORY-QUALIFIED ids that have a RED
+  // subject in the branch point's history. Ids restart at CHK-001 / F-001 in every
+  // story, so a bare id in the prior set would let an unrelated merged story's RED
+  // satisfy this branch's GREEN (B-dc2e F-008): only an equal qualified id counts.
   const evaluate = evaluateRedGreenCommitOrder;
-  const mainSide = [{ subject: 'RED(CHK-001): a fixture fails, committed on main', body: '' }];
-  const prior = new Set(mainSide.map((commit) => parseRedGreenSubject(commit.subject)).filter((parsed) => parsed?.phase === 'RED').map((parsed) => parsed!.id));
-  const inRange = [{ subject: 'GREEN(CHK-001): the fix on the story branch', body: '' }];
+  const qualifiedPrior = new Set(['B-dc2e:CHK-001']);
+  const inRange = [{ subject: 'GREEN(B-dc2e:CHK-001): the fix on the story branch', body: '' }];
   assert.equal(evaluate(inRange).ok, false, 'the range alone genuinely lacks the RED, so without the prior set it still fails');
-  const satisfied = evaluate(inRange, { priorRedIds: prior });
-  assert.equal(satisfied.ok, true, `a GREEN whose id has a RED before the branch point must pass: ${describeRedGreenViolations(satisfied)}`);
+  // (b) qualified GREEN with the SAME story's qualified RED before the range: accepted.
+  const satisfied = evaluate(inRange, { priorRedIds: qualifiedPrior });
+  assert.equal(satisfied.ok, true, `a GREEN whose qualified id has a RED before the branch point must pass: ${describeRedGreenViolations(satisfied)}`);
   assert.deepEqual(satisfied.violatingIds, []);
-  assert.deepEqual(satisfied.priorRedAccepted, [{ index: 0, id: 'CHK-001' }], 'the result names the GREEN satisfied by a RED before the range');
+  assert.deepEqual(satisfied.priorRedAccepted, [{ index: 0, id: 'B-dc2e:CHK-001' }], 'the result names the GREEN satisfied by a RED before the range');
   assert.match(describeRedGreenViolations(satisfied), /1 satisfied by a RED before the range/);
+  // (a) an UNQUALIFIED GREEN(CHK-001) is never satisfied by an unrelated bare RED(CHK-001) in the prior set.
+  const bareCollision = evaluate([{ subject: 'GREEN(CHK-001): fabricated, never observed a failing CHK-001 fixture', body: '' }], { priorRedIds: new Set(['CHK-001']) });
+  assert.equal(bareCollision.ok, false, 'a bare GREEN(CHK-001) must not be satisfied by any bare RED(CHK-001) before the range: ids restart per story');
+  assert.deepEqual(bareCollision.violatingIds, ['CHK-001']);
+  assert.deepEqual(bareCollision.priorRedAccepted, []);
+  // (c) a qualified GREEN is not satisfied by ANOTHER story's qualified RED with the same item number.
+  const otherStory = evaluate(inRange, { priorRedIds: new Set(['B-0ther:CHK-001', 'B-1234:CHK-001']) });
+  assert.equal(otherStory.ok, false, 'GREEN(B-dc2e:CHK-001) must not be satisfied by RED(B-1234:CHK-001) from another story');
+  assert.deepEqual(otherStory.violatingIds, ['B-dc2e:CHK-001']);
+  // A bare GREEN is not rescued by a qualified RED of the same number either.
+  const bareGreen = evaluate([{ subject: 'GREEN(CHK-001): bare', body: '' }], { priorRedIds: qualifiedPrior });
+  assert.equal(bareGreen.ok, false, 'a bare GREEN(CHK-001) cannot borrow RED(B-dc2e:CHK-001) from the prior set');
   // An id with no RED anywhere is still a violation, prior set or not.
-  const other = evaluate([{ subject: 'GREEN(CHK-002): no RED anywhere', body: '' }], { priorRedIds: prior });
+  const other = evaluate([{ subject: 'GREEN(B-dc2e:CHK-002): no RED anywhere', body: '' }], { priorRedIds: qualifiedPrior });
   assert.equal(other.ok, false, 'a GREEN whose id is not in the prior set and has no RED in range must still fail');
-  assert.deepEqual(other.violatingIds, ['CHK-002']);
+  assert.deepEqual(other.violatingIds, ['B-dc2e:CHK-002']);
   // The No-RED marker rule is unchanged: a bare marker fails even when a prior set is supplied.
-  const bareMarker = evaluate([{ subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED:\n' }], { priorRedIds: prior });
+  const bareMarker = evaluate([{ subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED:\n' }], { priorRedIds: qualifiedPrior });
   assert.equal(bareMarker.ok, false, 'No-RED without a reason must still fail');
   assert.deepEqual(bareMarker.violatingIds, ['F-011']);
 });
 
-testCase('a temp repository with RED(CHK-001) on main before the branch point accepts the branch GREEN(CHK-001)', () => {
-  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-prior-'));
+/** A temp repository on `main` with one base commit; returns its root (cleaned up with the other temporary roots). */
+function redGreenFixtureRepo(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
   temporaryRoots.push(root);
-  writeFixtureFile(root, 'README.md', '# red-green prior fixture\n');
+  writeFixtureFile(root, 'README.md', '# red-green fixture\n');
   fixtureGit(root, ['init', '-q']);
   fixtureGit(root, ['checkout', '-q', '-B', 'main']);
   fixtureGit(root, ['add', '-A']);
   fixtureGit(root, ['commit', '-q', '-m', 'base']);
-  writeFixtureFile(root, 'fixture.test.txt', 'expect: fails\n');
+  return root;
+}
+
+function redGreenFixtureCommit(root: string, relPath: string, subject: string): void {
+  writeFixtureFile(root, relPath, `${subject}\n`);
   fixtureGit(root, ['add', '-A']);
-  fixtureGit(root, ['commit', '-q', '-m', 'RED(CHK-001): the fixture fails, committed on main']);
-  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-fixture']);
-  writeFixtureFile(root, 'fix.txt', 'fixed\n');
-  fixtureGit(root, ['add', '-A']);
-  fixtureGit(root, ['commit', '-q', '-m', 'GREEN(CHK-001): the fix on the story branch']);
+  fixtureGit(root, ['commit', '-q', '-m', subject]);
+}
+
+testCase('a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing', () => {
+  const root = redGreenFixtureRepo('proof-or-stop-red-green-prior-');
+  // main carries the story's OWN qualified RED and an unrelated merged story's bare RED(CHK-001).
+  redGreenFixtureCommit(root, 'fixture.test.txt', 'RED(B-dc2e:CHK-001): the fixture fails, committed on main');
+  redGreenFixtureCommit(root, 'unrelated.test.txt', 'RED(CHK-001): an unrelated merged story fixture fails');
+  redGreenFixtureCommit(root, 'unrelated-other.test.txt', 'RED(B-1234:CHK-002): another story fixture fails');
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-dc2e']);
+  redGreenFixtureCommit(root, 'fix.txt', 'GREEN(B-dc2e:CHK-001): the fix on the story branch');
 
   const rangeOnly = readRedGreenCommits(root, ['main..HEAD']);
-  assert.deepEqual(rangeOnly.map((commit) => commit.subject), ['GREEN(CHK-001): the fix on the story branch'], 'main..HEAD excludes the RED that sits on main');
-  assert.deepEqual([...priorRedIds(root)], ['CHK-001'], 'the branch point history carries the RED id');
+  assert.deepEqual(rangeOnly.map((commit) => commit.subject), ['GREEN(B-dc2e:CHK-001): the fix on the story branch'], 'main..HEAD excludes the RED that sits on main');
+  assert.deepEqual([...priorRedIds(root)].sort(), ['B-1234:CHK-002', 'B-dc2e:CHK-001'], 'the prior set carries only STORY-QUALIFIED RED ids; the bare RED(CHK-001) is not collected');
   const accepted = evaluateBranchRedGreen(root);
-  assert.equal(accepted.ok, true, `the branch GREEN must be satisfied by the RED before the branch point: ${describeRedGreenViolations(accepted)}`);
+  assert.equal(accepted.ok, true, `the branch GREEN must be satisfied by the same story's RED before the branch point: ${describeRedGreenViolations(accepted)}`);
+  assert.deepEqual(accepted.priorRedAccepted, [{ index: 0, id: 'B-dc2e:CHK-001' }]);
 
-  // Control: a branch GREEN with no RED anywhere in history still fails, naming only itself.
-  writeFixtureFile(root, 'other.txt', 'other\n');
-  fixtureGit(root, ['add', '-A']);
-  fixtureGit(root, ['commit', '-q', '-m', 'GREEN(CHK-002): no RED anywhere']);
+  // (a) a bare GREEN(CHK-001) on the branch is NOT satisfied by main's bare RED(CHK-001).
+  redGreenFixtureCommit(root, 'bare.txt', 'GREEN(CHK-001): fabricated, never observed a failing CHK-001 fixture');
+  const bare = evaluateBranchRedGreen(root);
+  assert.equal(bare.ok, false, 'a bare GREEN(CHK-001) must fail even though an unrelated bare RED(CHK-001) is reachable from the merge-base');
+  assert.deepEqual(bare.violatingIds, ['CHK-001']);
+  // (c) a qualified GREEN is not satisfied by another story's RED of the same number.
+  redGreenFixtureCommit(root, 'other-story.txt', 'GREEN(B-dc2e:CHK-002): borrows RED(B-1234:CHK-002)');
+  const otherStory = evaluateBranchRedGreen(root);
+  assert.equal(otherStory.ok, false, 'GREEN(B-dc2e:CHK-002) must not be satisfied by RED(B-1234:CHK-002)');
+  assert.deepEqual(otherStory.violatingIds, ['CHK-001', 'B-dc2e:CHK-002']);
+  // Control: a branch GREEN with no RED anywhere in history still fails, naming itself.
+  redGreenFixtureCommit(root, 'other.txt', 'GREEN(B-dc2e:CHK-003): no RED anywhere');
   const control = evaluateBranchRedGreen(root);
   assert.equal(control.ok, false, 'a GREEN with no RED anywhere must still fail');
-  assert.deepEqual(control.violatingIds, ['CHK-002']);
+  assert.deepEqual(control.violatingIds, ['CHK-001', 'B-dc2e:CHK-002', 'B-dc2e:CHK-003']);
+});
+
+testCase('merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified', () => {
+  // (d) `git merge main` is required before DONE, and it MOVES merge-base(main, HEAD).
+  // A RED that lands on main after the branch point is invisible before the merge and
+  // must not rescue a GREEN; after the merge it counts only for the same story.
+  const root = redGreenFixtureRepo('proof-or-stop-red-green-merge-base-');
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-dc2e']);
+  redGreenFixtureCommit(root, 'fix-1.txt', 'GREEN(B-dc2e:CHK-001): the fix, RED still only on main');
+  redGreenFixtureCommit(root, 'fix-2.txt', 'GREEN(B-dc2e:F-001): the fix, another story RED on main');
+  redGreenFixtureCommit(root, 'fix-3.txt', 'GREEN(CHK-002): bare fix, bare RED on main');
+  fixtureGit(root, ['checkout', '-q', 'main']);
+  redGreenFixtureCommit(root, 'main-red-1.txt', 'RED(B-dc2e:CHK-001): the fixture fails, landed on main after the branch point');
+  redGreenFixtureCommit(root, 'main-red-2.txt', 'RED(B-1234:F-001): another story fixture fails');
+  redGreenFixtureCommit(root, 'main-red-3.txt', 'RED(CHK-002): a bare fixture fails');
+  fixtureGit(root, ['checkout', '-q', 'story/B-dc2e']);
+
+  assert.deepEqual([...priorRedIds(root)], [], 'before the merge none of main\'s new REDs is reachable from the merge-base');
+  const before = evaluateBranchRedGreen(root);
+  assert.equal(before.ok, false, 'before git merge main every branch GREEN lacks its RED');
+  assert.deepEqual(before.violatingIds, ['B-dc2e:CHK-001', 'B-dc2e:F-001', 'CHK-002']);
+
+  fixtureGit(root, ['merge', '-q', '--no-edit', '--no-ff', 'main']);
+  assert.deepEqual([...priorRedIds(root)].sort(), ['B-1234:F-001', 'B-dc2e:CHK-001'], 'after the merge only the qualified REDs are collected; the bare RED(CHK-002) is not');
+  const after = evaluateBranchRedGreen(root);
+  assert.equal(after.ok, false, 'after the merge only the same-story qualified GREEN is satisfied');
+  assert.deepEqual(after.priorRedAccepted, [{ index: 0, id: 'B-dc2e:CHK-001' }], 'GREEN(B-dc2e:CHK-001) is satisfied by the same story\'s RED that the merge made reachable');
+  assert.deepEqual(after.violatingIds, ['B-dc2e:F-001', 'CHK-002'], 'another story\'s RED(B-1234:F-001) and the bare RED(CHK-002) rescue nothing');
 });
 
 testCase('main..HEAD passes the RED-before-GREEN helper', () => {
