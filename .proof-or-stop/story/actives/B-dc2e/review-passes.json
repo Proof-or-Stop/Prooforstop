@@ -1,0 +1,42 @@
+{
+  "passes": [
+    {
+      "id": "B-dc2e:RP-001",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue review, B-dc2e (4 checks made to bite). Verified all four CHK diffs against claims, ran validation-protocol-smoke/observability-snapshot-smoke/full-suite-runner-smoke/validation-tier-planner-smoke/cross-host-review-smoke plus tsc --noEmit -- all exit 0. No stale orphan/unregistered claims, no stale proofOrStop.observability_snapshot.v1 literal, RED-guard CHK-only comment is accurate (describes the older item-39 guard, not the new item-44 guard), no stdoutDigest-only stale claims. git log --grep=claude --grep=codex main..HEAD is empty. Analysis (non-blocking): test:all-as-4th-inventory is documented in the smoke's own header/tags and matches docs/requirements/decisions/test-runner-consolidation-plan.md's canonical-vs-noncanonical-discovery distinction -- no contradiction. No concept deletion/replacement residue found this round.",
+      "createdAt": "2026-09-03T05:21:05.140Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-005",
+      "envelopeId": "5d99f1ac0316819f0a49addb9efd943fe8f2f273719d732df8ee7e12152d91ce",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "package.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/audit-silent-catches-baseline.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5743bcc57dfe57021bfce002a9bdd3a5e8ea9c424f697e7b6f8e60cb9c417e03"
+    }
+  ]
+}
