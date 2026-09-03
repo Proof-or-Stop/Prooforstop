@@ -267,10 +267,41 @@ function assertProductionCallSitesThreadEvidenceHashSnapshot(): void {
     /buildDoneChecklist\(storyId, store, root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
     'buildDoneRows should forward evidenceHashSnapshot to buildDoneChecklist',
   );
+  // session_brief captures the snapshot exactly once, from the RESOLVED git cwd
+  // (resolveGitCwd), and threads that same cwd plus the captured snapshot into
+  // buildDoneChecklist. Pinning the resolved identifier (not a bare ctx.root and
+  // not exact formatting) keeps a wrapper-root regression visible.
+  const sessionCaptureCount = (session.match(/tryCaptureEvidenceHashSnapshot\(/g) ?? []).length;
+  assert.equal(
+    sessionCaptureCount,
+    1,
+    'session_brief should capture the evidence hash snapshot exactly once',
+  );
+  const sessionCapture = /const (\w+) = resolveGitCwd\(\{[\s\S]*?\}\);\s*const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{\s*gitCwd:\s*(\w+)\s*,\s*metadataRoot:\s*ctx\.root\s*,\s*ref:\s*'HEAD'\s*,?\s*\}\);/.exec(session);
+  if (!sessionCapture) {
+    assert.fail('session_brief DONE pre-check should capture the snapshot from a resolved git cwd (resolveGitCwd), never from a bare ctx.root');
+  }
+  const resolvedGitCwdIdentifier = sessionCapture[1];
+  const captureGitCwdIdentifier = sessionCapture[2];
+  assert.equal(
+    captureGitCwdIdentifier,
+    resolvedGitCwdIdentifier,
+    `session_brief should capture with the resolved git cwd (${resolvedGitCwdIdentifier})`,
+  );
+  const sessionDoneChecklist = /buildDoneChecklist\(\s*storyId,\s*ctx\.store,\s*ctx\.root,\s*\{([\s\S]*?)\}\)/.exec(session);
+  if (!sessionDoneChecklist) {
+    assert.fail('session_brief DONE pre-check should call buildDoneChecklist with a command-local options object');
+  }
+  const sessionDoneChecklistArgs = sessionDoneChecklist[1];
   assert.match(
-    session,
-    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd: ctx\.root, metadataRoot: ctx\.root, ref: 'HEAD' \}\);[\s\S]*buildDoneChecklist\(storyId, ctx\.store, ctx\.root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
-    'session_brief DONE pre-check should pass a command-local evidenceHashSnapshot',
+    sessionDoneChecklistArgs,
+    new RegExp(`gitCwd:\\s*${resolvedGitCwdIdentifier}\\b`),
+    `session_brief should thread the same resolved git cwd (${resolvedGitCwdIdentifier}) into buildDoneChecklist`,
+  );
+  assert.match(
+    sessionDoneChecklistArgs,
+    /\bevidenceHashSnapshot\b/,
+    'session_brief should thread the captured evidenceHashSnapshot into buildDoneChecklist',
   );
   console.log('lifecycle DONE/session/lifecycle call sites thread evidenceHashSnapshot');
 }
