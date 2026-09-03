@@ -195,14 +195,62 @@ const ROOT = '/repo';
 
 let failures = 0;
 
+// ---------------------------------------------------------------------------
+// B-dc2e F-003: the DEFAULT output of this smoke is bounded and self-checked.
+// The verification executor keeps only the first 12000 chars of a pinned
+// command's stdout before matching a selector, and plan.md promises every smoke
+// stays under DEFAULT_STDOUT_BOUND_CHARS with real headroom. By default a section
+// prints ONE summary line for its passed cases; VALIDATION_TIER_PLANNER_VERBOSE=1
+// prints every `ok` line. A FAIL always prints by name. The CHK-006 section keeps
+// its per-case lines: two of them and its [PASS] line are pinned selectors.
+// Every write to this process's stdout is counted (console.log goes through
+// process.stdout.write; no child inherits stdout), so the last case measures the
+// real output and projects the default rendering when VERBOSE is set.
+// ---------------------------------------------------------------------------
+const DEFAULT_STDOUT_BOUND_CHARS = 11_000;
+const VERBOSE = process.env.VALIDATION_TIER_PLANNER_VERBOSE === '1';
+let capturedStdoutChars = 0;
+/** Chars written only because VERBOSE is set; subtracted to project the default rendering. */
+let verboseOnlyChars = 0;
+{
+  const originalWrite = process.stdout.write;
+  process.stdout.write = function (this: NodeJS.WriteStream, chunk: any, ...rest: any[]): boolean {
+    capturedStdoutChars += typeof chunk === 'string' ? chunk.length : Buffer.from(chunk).toString('utf-8').length;
+    return (originalWrite as any).call(this, chunk, ...rest);
+  } as typeof process.stdout.write;
+}
+
 /** Case names that actually RAN and PASSED, so the CHK-006 coverage registry cannot cite a case that does not exist. */
 const passedCases = new Set<string>();
+/** The name of the most recently run case, so the bound case can prove it is the last one. */
+let lastCaseName = '';
+
+/** The section being run; a `perCase` section prints every ok line by default, the others one summary line. */
+let section: { name: string; perCase: boolean; passed: number } | null = null;
+let sectionCount = 0;
+
+function flushSection(): void {
+  if (section && !section.perCase) console.log(`  ok  ${section.passed} case${section.passed === 1 ? '' : 's'} passed`);
+  section = null;
+}
+
+/** Start a section. Checklist items are DERIVED from these calls' `CHK-nnn` prefixes (see declaredChecklistItems). */
+function beginSection(name: string, options: { perCase?: boolean } = {}): void {
+  flushSection();
+  section = { name, perCase: options.perCase === true, passed: 0 };
+  console.log(`${sectionCount === 0 ? '' : '\n'}${MARKER}: running ${name}`);
+  sectionCount += 1;
+}
 
 function testCase(name: string, run: () => void): void {
+  lastCaseName = name;
   try {
     run();
     passedCases.add(name);
-    console.log(`  ok  ${name}`);
+    if (section) section.passed += 1;
+    const line = `  ok  ${name}`;
+    if (!section || section.perCase) console.log(line);
+    else if (VERBOSE) { verboseOnlyChars += line.length + 1; console.log(line); }
   } catch (error) {
     failures += 1;
     console.log(`  FAIL ${name}: ${error instanceof Error ? error.message : String(error)}`);
@@ -249,7 +297,7 @@ function projectRootWithConfig(commandEntry: Record<string, unknown>): string {
   return projectRootWithCommands([commandEntry]);
 }
 
-console.log(`${MARKER}: running CHK-001 stable command identity cases`);
+beginSection('CHK-001 stable command identity cases');
 
 // ---------------------------------------------------------------------------
 // (1) A declared id survives verbatim; an undeclared one becomes a `prov-` id.
@@ -789,7 +837,7 @@ testCase('the optional id leaves the routine identity digest byte-identical, whi
 // pin must not silently bind a command that would execute differently.
 // ===========================================================================
 
-console.log(`${MARKER}: running CHK-002 legacy pin resolver cases`);
+beginSection('CHK-002 legacy pin resolver cases');
 
 const PIN_ENVIRONMENT = { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv;
 
@@ -1136,7 +1184,7 @@ function seedOf(input: StoryRelevanceInput, kind: string, value: string) {
   return input.seeds.find((seed) => seed.kind === kind && seed.value === value);
 }
 
-console.log(`${MARKER}: running CHK-003 Story input collector cases`);
+beginSection('CHK-003 Story input collector cases');
 
 // ---------------------------------------------------------------------------
 // (17) POSITIVE — every input kind in the spec's table is collected, and every
@@ -1905,7 +1953,7 @@ testCase('the collector re-validates a schema-bypassing caller input', () => {
 // and an empty selection is never a pass.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running CHK-004 tier planner and widening matrix cases`);
+beginSection('CHK-004 tier planner and widening matrix cases');
 
 const SOURCE_KINDS: RoutineValidationSourceKind[] = ['configured', 'fallback', 'validate-file', 'no-validator'];
 
@@ -2462,7 +2510,7 @@ testCase('the planner core rejects a schema-bypassing tier and a malformed input
 // product review rejected.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running CHK-005 validation_plan CLI cases`);
+beginSection('CHK-005 validation_plan CLI cases');
 
 const PLAN_CLI_STORY_ID = 'B-a745';
 
@@ -3366,7 +3414,7 @@ testCase('F-010: on a configured wrapper-root layout validation_plan reads the s
 // not have.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running B-a745 F-022 incomplete hash snapshot cases`);
+beginSection('B-a745 F-022 incomplete hash snapshot cases');
 
 type EvidenceDigestName = 'headHash' | 'materialHash' | 'storyFilesHash';
 const EVIDENCE_DIGEST_NAMES: EvidenceDigestName[] = ['headHash', 'materialHash', 'storyFilesHash'];
@@ -3583,7 +3631,7 @@ function gitOutputIn(cwd: string, args: string[]): string | null {
 //       run and passed in this process.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running CHK-006 cross-cutting acceptance guards`);
+beginSection('CHK-006 cross-cutting acceptance guards', { perCase: true });
 
 function gitOutput(args: string[]): string | null {
   try {
@@ -3598,7 +3646,7 @@ function declaredChecklistItems(repoRoot: string): string[] {
   const source = readFileSync(join(repoRoot, 'packages/main/src/tasks/validation-tier-planner-smoke.ts'), 'utf-8');
   const found = new Set<string>();
   for (const line of source.split('\n')) {
-    const match = /^console\.log\(`[^`]*running (CHK-\d{3})/.exec(line);
+    const match = /^beginSection\('(CHK-\d{3})/.exec(line);
     if (match) found.add(match[1]!);
   }
   return [...found].sort();
@@ -4153,6 +4201,39 @@ testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that a
   }
   assert.deepEqual(missing, [], missing.join('\n'));
 });
+
+// ---------------------------------------------------------------------------
+// (45) DEFAULT OUTPUT BOUND (B-dc2e F-003) — plan.md promises every smoke's
+//      default output stays under 11000 chars, and the verification executor
+//      keeps only the first 12000 chars of stdout before matching a pinned
+//      selector. This case measures the real default rendering of THIS run and
+//      fails on growth. It must stay the last case: its projection covers
+//      exactly the lines printed after it.
+// ---------------------------------------------------------------------------
+const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars';
+
+testCase(DEFAULT_STDOUT_BOUND_CASE_NAME, () => {
+  const summaryLine = (projected: number): string => `default stdout projection: ${projected} chars (bound ${DEFAULT_STDOUT_BOUND_CHARS})`;
+  // Everything the default rendering has written so far, plus exactly the lines still to
+  // come when every case passes: the summary line below, this case's ok line, the PASS line.
+  const tail = `  ok  ${DEFAULT_STDOUT_BOUND_CASE_NAME}\n\n${MARKER}: PASS\n`;
+  const base = capturedStdoutChars - verboseOnlyChars + tail.length;
+  // The summary line is part of the output; its length depends only on the digit count of the projection.
+  let projected = base + summaryLine(base).length + 1;
+  projected = base + summaryLine(projected).length + 1;
+  assert.ok(
+    projected < DEFAULT_STDOUT_BOUND_CHARS,
+    `default stdout is ${projected} chars, not under ${DEFAULT_STDOUT_BOUND_CHARS}: keep collapsed sections collapsed and CHK-006 case names short, `
+    + 'or print new detail only under VALIDATION_TIER_PLANNER_VERBOSE=1',
+  );
+  console.log(summaryLine(projected));
+});
+
+if (lastCaseName !== DEFAULT_STDOUT_BOUND_CASE_NAME) {
+  failures += 1;
+  console.log(`  FAIL the default stdout bound case must stay the last case (add new cases before it); the last case was "${lastCaseName}"`);
+}
+flushSection();
 
 for (const root of temporaryRoots) {
   rmSync(root, { recursive: true, force: true });
