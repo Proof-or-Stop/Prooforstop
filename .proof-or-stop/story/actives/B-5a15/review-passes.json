@@ -14994,6 +14994,54 @@
         "scanEscalationReason": null
       },
       "_hash": "dbf515f6432b42624c256a78c8f393bf7f3273d82e887cb170e58b6902964455"
+    },
+    {
+      "id": "B-5a15:RP-326",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Wave 1 quality re-audit at HEAD 433c0e4 for RI-072 (rollback/re-earn epoch; no source change is pending). No new quality issues. Verified no new any/unchecked-cast additions across the touched core+handler files; all new catch blocks have documented fallback values or explicit fail-closed reasons (none swallow silently); no shells touched; no new Zod min/max/enum/regex constraints, so no new Handler Encoding Convention obligation. Confirmed byte-for-byte that F-383's single-renameSync restore and F-379's child.on(error)/tail() are intact. Re-verified F-382 (probeGitTopLevel/probeVerifierWorktree, probeGitIndex/probeVerifierIndex, probeWritableEvidenceTarget/probeVerifierTarget, probeActiveCli/probeVerifierCli, probeWriterLease/probeVerifierLease): still ~90 lines of near-byte-identical duplicated causal-preflight probe logic between checklist.ts and verifier.ts, no shared helper or parity test. F-382's stored reviewRound (2026-09-03T04:56:02.041Z) exactly matches the story's current currentReviewRound for this run, so the binding is current, not stale; declined to re-file (would duplicate an already-current finding). Wave-4 quality boundary: acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check remain implemented in handlers/proofstory.ts (gate/verifier-owned); this story's only edits there export a pre-existing helper for smoke-test reuse and add closeoutArtifactPaths to an autoCommitStoryMetadata call, neither touching quorum/3x2/3x1/enforce-only semantics; new PROCESS_FACT_LEVELS entries describe only this story's new causal-evidence gates and leave the review-escalation/review-assurance-floor DONE gate entries untouched (consistent with the non-goal of not implementing ReviewConvergence/U-01). pre-review-live-proof.ts change (scoping preReviewCaseRequiresSemanticBinding to registered refs; populating bindingProofs from real executed records) is a genuine fix, not a relaxation: F-339's exact-match guarantee for registered canonical refs is unchanged, and the new non-null assertions are safe because assemblePreReviewCaseRecords throws before returning if any expected assertion.id is missing. New .lattice literal in runtime-artifact-registry.ts:139 is a read-both regexp alternation matching both .lattice and .proof-or-stop, not a decision site preferring the deprecated name, consistent with brand-decision gate policy.",
+      "createdAt": "2026-09-03T05:45:16.275Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-928",
+      "envelopeId": "3c2f3a6842fb35c9b274ecd7a5840bc0387dc451463dac0c9f4a237f91ae5769",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-5a15/background.md",
+          "docs/story/actives/B-5a15/checklist.json",
+          "docs/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "1549e7cd7878af2bdf21316721088f95464e8952b914da3b45f376ab7765dce5"
     }
   ]
 }
