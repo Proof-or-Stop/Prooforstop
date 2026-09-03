@@ -31,6 +31,11 @@ import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage, SELECTOR_NARROWING_REFUSAL_CODES } from '../core/verification.js';
 import { computeEvidencePinVerdict } from '../core/evidence-pin-guard.js';
 import { renderCodexEvidencePretoolHookScript } from '../init-assets.js';
+import {
+  getProcessFactRegistryEntry,
+  PROCESS_FACT_KIND_BY_COMMAND,
+  PROCESS_FACT_REQUIRED_SEMANTICS,
+} from '../core/process-fact-registry.js';
 import { resetConfigCache } from '../core/config.js';
 import type {
   ChecklistData,
@@ -1007,6 +1012,39 @@ const CHK003_CASES: SmokeCase[] = [
       assert.ok(hook.includes('verification_pin_guard_check'), 'the generated hook asks the CLI for the verdict');
       assert.ok(hook.includes('verdict.reasons'), 'the generated hook prints the shared verdict reasons verbatim');
       assert.equal(/immutable once set/.test(hook), false, 'the generated hook carries no stale copy of the message');
+    },
+  },
+  {
+    id: 'CHK-003/C6',
+    desc: 'the command carries explicit process-fact kind and semantics rows, not the generic fallback',
+    run: async () => {
+      // The sibling that writes and re-stamps the receipts this command re-judges.
+      const sibling = 'verification_run';
+      const kinds = PROCESS_FACT_KIND_BY_COMMAND as Record<string, string>;
+      const semantics = PROCESS_FACT_REQUIRED_SEMANTICS as unknown as Record<string, readonly string[]>;
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(kinds, NARROW_COMMAND),
+        'PROCESS_FACT_KIND_BY_COMMAND carries an explicit row for the command',
+      );
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(semantics, NARROW_COMMAND),
+        'PROCESS_FACT_REQUIRED_SEMANTICS carries an explicit row for the command',
+      );
+      assert.equal(kinds[NARROW_COMMAND], kinds[sibling], `the kind matches ${sibling}`);
+      assert.deepEqual(semantics[NARROW_COMMAND], semantics[sibling], `the semantics match ${sibling}`);
+
+      // Discriminating: an absent row would resolve to the L4 fallback, which is exactly
+      // the understatement the rows exist to remove. Assert the RESOLVED entry, so a row
+      // that is present but not consumed still fails.
+      const entry = getProcessFactRegistryEntry(NARROW_COMMAND);
+      assert.ok(entry, 'the command resolves to a process-fact registry entry');
+      assert.equal(entry.level, 'L4', 'the command is still declared L4');
+      assert.notEqual(entry.kind, 'gate-evidence', 'the resolved kind is not the generic L4 fallback');
+      assert.equal(entry.kind, 'execution-status', 'the resolved kind is the sibling execution-status');
+      const resolved: readonly string[] = entry.semantics;
+      for (const semantic of ['execution-evidence', 'verification-evidence', 'gate-evidence']) {
+        assert.ok(resolved.includes(semantic), `the resolved semantics include ${semantic}`);
+      }
     },
   },
 ];
