@@ -147,6 +147,23 @@
       "resolvedAt": "2026-09-03T06:28:58.106Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-007",
+      "desc": "Recorded on behalf of the test-coverage lane, which found it but could not register it because the tree was dirty with the in-flight F-006 fix at the time. Two residual limits in verify-missing-assets-fail.mjs after the F-005 strengthening, both real, neither blocking. (1) DELIBERATE STUB: the recovery branch's four checks (parses as HTML, contains openStoryDossier, at least 100000 bytes, d3.min.js present) can all be satisfied simultaneously by a hand-crafted stub that is padded past the size floor, contains the literal marker string, and is paired with a d3.min.js copied from a stale earlier build. The reviewer demonstrated this on a scratchpad script and it produces zero failures. The F-005 strengthening raised the bar substantially (four content assertions replacing an existsSync-plus-substring match) but did not close it to zero; closing it fully would require deriving the expected content from the build output rather than asserting fixed markers. (2) PRESENT-BUT-STALE IS UNTESTED BY CONSTRUCTION: ensureGraphClientBuilt only rebuilds when app.html or d3.min.js is MISSING (`if (existsSync(appHtml) && existsSync(d3Bundle)) return;` at handlers/graph.ts:81) and never checks staleness against current source, while this verifier only exercises the path where app.html was renamed away. So a present-but-stale client is outside what this script can observe, by design of both sides rather than by oversight. DEFERRED per CLAUDE.md defect triage rather than fixed: low severity, not a regression of this story's acceptance scope, and not gate-distorting, because production code independently re-checks both files before returning and the shipped CLI cannot reach the stub scenario without someone deliberately fabricating assets. Follow-up for a dedicated story: assert the rebuilt page against a digest derived from the build inputs instead of fixed markers, and decide separately whether ensureGraphClientBuilt should detect staleness rather than only absence.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-03T06:29:26.469Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "_hash": "d2a58164d7dae1a4e7d548c69f340ef2419eed1e22e54c7b92e05162254f3a2b",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|recorded-behalf-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
