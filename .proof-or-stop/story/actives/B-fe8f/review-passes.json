@@ -727,6 +727,59 @@
       },
       "readDiagnostics": [],
       "_hash": "3bc02488d57f916fd3a1fb4afd10d0a1e5b476e0179e384934a6cf75ebfd9a92"
+    },
+    {
+      "id": "B-fe8f:RP-024",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the committed Story 3 ledger and runtime implementation plus the F-025 correction. The RED harness executed historical failure, current GREEN success, corrupted-relation refusal, and both negative controls; immutable pin guard allowed the exact selector and denied replacement. Full Story smoke exercised signed receipts, exact CAS, fencing, crash and replay, runtime carrier tamper and freshness, registry non-authority, dependency gates, package build and clean install, and completed without a quality blocker. Process-fact and full-suite build-binding contracts also passed. No promised but undelivered behavior was found.",
+      "createdAt": "2026-09-03T12:10:20.255Z",
+      "reviewRound": "2026-09-03T12:01:57.552Z",
+      "reviewRunId": "B-fe8f:RR-049",
+      "envelopeId": "708c9c294fe623d3a1abcc680024d3822e5d2fd2128c777159936953d35fc2b7",
+      "writerSessionId": "sess-ef265f2e857578291e99e567f53e578e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/utils/package-lock.json",
+          "proof-or-stop.config.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4eed4cc44e6e023f66cac21f96d170028539ad3ad0a38e006b0c16ac591156f0"
     }
   ]
 }
