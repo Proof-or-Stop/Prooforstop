@@ -595,14 +595,15 @@
       "resolvedAt": "2026-09-03T16:08:11.824Z",
       "resolvedReason": "Fixed by proof-or-stop-implementer commit bd8e37423cb30d3fae09fb2d8c743558db6c516e and independently verified in quality review run B-fe8f:RR-056. The projection restores a legacy record identity only from a current trusted signed binding with exact finding hash, receipt, and chain agreement; the complete Story 3 smoke exited 0 and printed finding.lifecycle_legacy_kill_window: PASS durableTransition=1 mirrorWrite=omitted projected=resolved unsignedMirror=open.",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "ledgerCommitReceiptId": "lrc_mtlpyl9h_bfu_b3dc5948245b4cf08ba414f1c2962eec"
     },
     {
       "id": "B-fe8f:F-029",
       "desc": "packages/main/src/core/store.ts:580-647 and the current B-fe8f ledger — direct Story 3 acceptance blocker after the 0.3.273 main sync and F-027/F-028 resolution: both proof-or-stop finding_list and node bin/proof-or-stop.js finding_list now project B-fe8f:F-001 through B-fe8f:F-016 as open high/verified. Merge commit 6ecd0d817d introduced their findings.json rows as resolved, but readFindings replaces each mirror row with the original open ledger Finding and then rejects its historical lifecycle transition because the outer carrier has exactRequestDigest while the signed findingLedgerReceipt omits that field. Resolving F-027/F-028 consequently persisted the reopened projection. session_brief reports zero reviewer blockers only because prior-round policy downgrades these rows; it does not restore their durable terminal history. This violates Section 9.3 exactly-once/crash-recovery and stable current-ledger semantics, and shows the synthetic legacy kill-window regression does not cover the real pre-upgrade signed-transition corpus. Add an append-only trusted migration/re-attestation or current signed successor path and a real B-fe8f regression proving prior terminal states survive upgrade/main-sync without admitting unsigned lifecycle authority.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T16:11:14.382Z",
@@ -610,7 +611,12 @@
       "reviewRunId": "B-fe8f:RR-057",
       "_hash": "2121ab8b7cedeb6567dacdfe362eef83cbb134a5f12a7ca2a0209f4da9115dd6",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtlttdh0_1ls1_20f6345209a54587b9c7e7654141972a",
+      "resolvedAt": "2026-09-03T17:56:06.917Z",
+      "resolvedReason": "Fixed by proof-or-stop-implementer commit cdd27da952210d8c13d56cb639927673112deaf5 and independently verified in concept review run B-fe8f:RR-060. The owner mutation first appends current-trust exact-signed legacy lifecycle receipt bindings without rewriting historical bytes, then persists the terminal transition. The complete Story 3 smoke exited 0: pre-migration legacy projection remained open, valid re-attestation restored terminal state with immutableBytes=true and replayRows=0, wrong receipt/hash/story/key/chain/partial/duplicate bindings were rejected, post-upgrade omission remained open, and the real B-fe8f corpus migrated from open projection to terminal.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
