@@ -1,0 +1,24 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/narrowing-only-evidence-repin.md, packages/main/src/core/verification.ts",
+      "findingIds": [
+        "B-1482:F-004",
+        "B-1482:F-005",
+        "B-1482:F-006",
+        "B-1482:F-007"
+      ],
+      "files": [
+        "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts",
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-03T22:51:52.687Z"
+    }
+  ]
+}
