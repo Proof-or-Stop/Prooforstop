@@ -145,6 +145,21 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-001",
       "resolvedBy": "CL-001@3b1536f"
+    },
+    {
+      "id": "B-dc2e:F-007",
+      "desc": "quality: packages/main/src/tasks/validation-tier-planner-smoke.ts:3801-3811 (priorRedIds, added by GREEN(F-006) ec9a4b5ddc) silently returns an EMPTY set on this actual repo because its unranged `git log --format=%s <merge-base>` call (line 3804, via gitOutput/gitOutputIn at lines 3606-3611 and 3636-3641, neither passes a maxBuffer override) exceeds Node execFileSync default maxBuffer (1MB) once main history grows past it -- reproduced directly: `execFileSync('git',[\"log\",\"--format=%s\",mergeBase])` on this checkout throws ENOBUFS (subjects total 1,391,818 bytes across 27,141+ commits), and gitOutput/gitOutputIn's bare try{}catch{return null} swallows it, so priorRedIds(null) silently returns an empty Set instead of the branch-point RED ids. F-006's whole point was to stop a false green_without_red rejection when a legitimate RED sits on main before the branch point; on THIS repo (which the fix was written against and merges into) that exact mitigation is a silent no-op today, and will stay a silent no-op for every future story once this branch merges, because main only grows. No test in this diff exercises a real/large repo through priorRedIds -- both F-006 fixture cases use freshly-created temp repos with 2-4 commits, so the maxBuffer failure mode is completely uncovered and the smoke passes green while masking that the delivered mitigation does not work in the repo it ships in. Severity: medium -- fails closed (reverts to the pre-fix stricter/false-block behaviour, not a security or data-integrity issue) but silently defeats a feature this same story built, with no diagnostic surfaced (bare catch), and squarely matches the quality role's own Type Safety check item (empty catch swallowing errors). Fix direction: pass an explicit maxBuffer to the git log call in priorRedIds (or better, bound the query with --since/-n rather than reading full unranged history), and add a test that exercises priorRedIds against a repo whose merge-base history exceeds the default buffer.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T06:02:55.396Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-007",
+      "_hash": "ec9f9107d314a8fbee6bd6f492617e8d2d03fc6054e70426051d52e24e16f09c",
+      "signatureTag": "edge|unknown|quality-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
