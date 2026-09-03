@@ -207,6 +207,24 @@
       ],
       "signatureTag": "edge|ts|narrowing-repin-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-012",
+      "desc": "narrowing-repin-smoke.ts:192-200 CHK-002:adversarial:0 desc has two clauses: (1) a caller-supplied transcript is refused rather than considered, AND (2) the B-a745 CHK-005:happy:0 shape (a selector printed on every branch, re-pinned to a status discriminator) is replayed end to end from recorded receipts. The pinned selector is B8 (:636-660), which tests ONLY clause (1) (narrowing_caller_output_not_admissible on a pass-only corpus); it never touches the B-a745 replay. That replay is asserted only in B1 (:417-464), the case pinned to a different intent (CHK-002:happy:0). A weakening of B1 assertions that still leaves B1 passing would leave CHK-002:adversarial:0 evidence reading verified/pass despite its own named claim (the B-a745 shape replayed end to end) never being exercised by anything this pin actually checks. Same pin-vs-sentence mismatch class as B-1482:F-007 and F-011, left open here.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T23:21:51.809Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-003",
+      "_hash": "a6b71c2061c2c8bd3e10d371b8e58f6a89f03c3190858ada7e30cdd205b20e52",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|narrowing-repin-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
