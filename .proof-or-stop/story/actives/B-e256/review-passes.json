@@ -348,6 +348,33 @@
         "scanEscalationReason": null
       },
       "_hash": "7aa5bc9cbe89f3f4b4446edd7a3903b84e501523457c992bc4a8de86b0705a09"
+    },
+    {
+      "id": "B-e256:RP-014",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed 70afbbc6c7 (runtime-environment-checks.ts + global-core-realpath.test.mjs cases 19-24). Both flagged judgement calls verified sound: expectedVersion fallback only fires when the canonical package.json is unreadable and is self-consistent for external (expected resolves to context.corePackageRoot own realpath), bounded by externalSeverity=warn; version mismatch is reachable only on a drifted path by construction (pathMatches=true implies globalRealpath===expected, same file read twice). Independently mutated two fixes back (unreadable->absent collapse; version-mismatch block removed), confirmed cases 19 and 22 fail, restored byte-identically, git status clean of source dirt. Presence four-valued handling exhaustive across all consumers. globalCoreRealpathProbe seam unused by any production caller. No new any, no dead code, no CJK/TODO. tsc/red/runtime-fact-contract/doctor pinned-row all verified green.",
+      "createdAt": "2026-09-03T11:44:43.958Z",
+      "reviewRound": "2026-09-03T11:34:34.882Z",
+      "reviewRunId": "B-e256:RR-020",
+      "envelopeId": "68220bdad57182aca981f8b7c9ee0ec277946a1b2fd9342461b480d1080f9555",
+      "writerSessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee6c9303031d2654ab805b19ecaf48b3c50c956e24b8e1803aab401dba9f7fef"
     }
   ]
 }
