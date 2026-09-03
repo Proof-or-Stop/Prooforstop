@@ -2219,6 +2219,56 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "label": "B-a745 CHK-006: the Story 1 fixture suite (stable validation command identity, canonical legacy pin resolver, Story input contract, tier planner widening matrix, read-only validation_plan CLI). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-tier-planner-smoke.js"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "package.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "B-41c8 CHK-004: the single-owner extraction suite (NUL-delimited rename-aware diff reader, canonical legacy command parse, story-workspace resolver, resolveGitCwd call-site audit). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/single-owner-extraction-smoke.js"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "package.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
       }
     ]
   },

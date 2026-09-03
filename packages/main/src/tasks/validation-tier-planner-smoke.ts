@@ -412,7 +412,18 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
-  assert.equal(real.commandSetDigest, '791165cf73a6d25cc434fa6aaa857cbbfdede669b18cbde3095b15c7f8fd4e43', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // origin/main merge: moved to f23779fb... because validate.commands really did change,
+  // as the maintenance note above requires me to state. Our main carried 124 entries and
+  // origin 122, diverging BOTH ways: ours had cli-surface-smoke,
+  // command-ownership-contract, verify-orphan-surface and `npm --prefix packages/graph
+  // run check`; origin had validation-tier-planner-smoke and single-owner-extraction-smoke.
+  // The first merge kept only our four and DROPPED origin's two, which is a real
+  // regression by those entries' own labels -- validate.commands is the planner's command
+  // universe, so a suite missing from it makes every evidence pin naming it resolve to
+  // pinned_command_missing, and one of the dropped suites is this very file. Restored
+  // both, giving the 126-entry union, and repinned to what that union produces through
+  // the same configuredValidationCommands -> buildValidationCommandInventory path.
+  assert.equal(real.commandSetDigest, 'f23779fb66c7ac953feb7387f1db36eb618e14961841e5721ec0a4972809e76c', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });
