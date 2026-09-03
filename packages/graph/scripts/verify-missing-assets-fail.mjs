@@ -41,6 +41,9 @@ const pkgRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '.
 const repo = path.resolve(pkgRoot, '..', '..');
 const asset = path.join(pkgRoot, 'assets', 'app.html');
 const stash = path.join(pkgRoot, 'assets', '.app.html.verify-stash');
+// Separate parking spot for the on-demand-rebuilt copy, so `stash` always holds the
+// genuine original (B-5a15:F-377).
+const rebuiltStash = path.join(pkgRoot, 'assets', '.app.html.verify-rebuilt');
 const PORT = Number(process.env.GRAPH_VERIFY_PORT ?? 8819);
 
 if (!fs.existsSync(asset)) {
@@ -72,7 +75,11 @@ try {
       failures.push('asset reappeared but the run never announced the on-demand build');
     }
     // Stash it again so the live run must genuinely rebuild before it can serve.
-    fs.renameSync(asset, stash);
+    // B-5a15:F-377 -- this must NOT reuse `stash`: renameSync silently overwrites its
+    // destination, so a second rename onto `stash` would discard the true pre-verifier
+    // app.html and leave the finally block restoring a rebuilt copy instead. Park the
+    // regenerated file under its own path and delete it once the probe is done.
+    fs.renameSync(asset, rebuiltStash);
     const served = await serveAndFetch();
     if (!served.ok) {
       failures.push(`rebuilt-on-demand did not serve the client: ${served.reason}`);
@@ -98,9 +105,11 @@ try {
   // therefore tolerate either state: prefer the stashed original, and drop the stash if
   // a fresh build already put a real client back in place. Never leave the tree without
   // its built client, and never leave a stray stash behind.
+  if (fs.existsSync(rebuiltStash)) fs.rmSync(rebuiltStash);
   if (fs.existsSync(stash)) {
-    if (fs.existsSync(asset)) fs.rmSync(stash);
-    else fs.renameSync(stash, asset);
+    // The genuine original always wins over anything the probe regenerated.
+    if (fs.existsSync(asset)) fs.rmSync(asset);
+    fs.renameSync(stash, asset);
   }
 }
 
@@ -122,13 +131,26 @@ async function serveAndFetch() {
   let log = '';
   child.stdout.on('data', (d) => { log += String(d); });
   child.stderr.on('data', (d) => { log += String(d); });
+  // B-5a15:F-379 -- without this listener a spawn-level failure (ENOENT, EACCES) is
+  // emitted as an unhandled 'error' event and takes down the whole verifier, so a real
+  // environment problem would surface as a crash instead of this script's own
+  // MISSING_ASSET_HANDLING_BROKEN report. Capture it and let the caller decide.
+  let spawnError = null;
+  child.on('error', (e) => { spawnError = e; });
   try {
     const deadline = Date.now() + 90_000;
     let body = null;
     let status = 0;
+    // B-5a15:F-379 -- every failure reason below quotes the child's own output, which was
+    // previously captured into `log` and then discarded, making "exited early" undebuggable.
+    const tail = () => {
+      const t = log.trim().split('\n').slice(-6).join(' | ');
+      return t ? ` -- child output: ${t}` : ' -- child produced no output';
+    };
     while (Date.now() < deadline) {
+      if (spawnError) return { ok: false, reason: `could not spawn the server: ${spawnError.message}` };
       if (child.exitCode !== null) {
-        return { ok: false, reason: `server exited early with code ${child.exitCode}` };
+        return { ok: false, reason: `server exited early with code ${child.exitCode}${tail()}` };
       }
       try {
         const res = await fetch(`http://127.0.0.1:${PORT}/`);
@@ -139,8 +161,8 @@ async function serveAndFetch() {
         await new Promise((r) => setTimeout(r, 500));
       }
     }
-    if (body === null) return { ok: false, reason: 'server never answered on the port' };
-    if (status !== 200) return { ok: false, reason: `GET / returned ${status}` };
+    if (body === null) return { ok: false, reason: `server never answered on the port${tail()}` };
+    if (status !== 200) return { ok: false, reason: `GET / returned ${status}${tail()}` };
     // A blank/placeholder page is exactly what this verifier exists to catch.
     if (body.length < 1000 || !/<(script|div|body)/i.test(body)) {
       return { ok: false, reason: `GET / returned ${body.length} bytes with no client markup` };
