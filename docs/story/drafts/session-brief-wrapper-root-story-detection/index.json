@@ -1,0 +1,14 @@
+{
+  "name": "session-brief-wrapper-root-story-detection",
+  "title": "session_brief cannot detect the active story on wrapper-root layouts because story detection probes the non-git metadata root",
+  "description": "handlers/session.ts detectActiveStoryFromGit runs git rev-parse --abbrev-ref HEAD with cwd = ctx.root (the metadata root). On a supported wrapper-root layout (non-git metadataRoot + configured gitRoot subdir) that exits 128, so session_brief takes the no-active-story branch, reports the story as a zombie, and never reaches the TEST-phase DONE pre-check (nor the worktree / stale-evidence probes). Found on 2026-09-03 while B-83aa fixed a Codex finding that the pre-check captured hashes from ctx.root: the cwd fix (commit f971ba02b5, resolveGitCwd) is correct but unobservable from the brief until detection also resolves the signed workspace. Fix detection to fall back to the configured gitRoot / resolved signed workspace when ctx.root is not git-backed, audit readGitStatus and the other ctx.root probes in the same branch, and add a wrapper-root session_brief regression case asserting the normal DONE pre-check section.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "session_brief",
+    "wrapper-root",
+    "story-detection",
+    "resolveGitCwd"
+  ],
+  "createdAt": "2026-09-03T03:45:56.748Z"
+}

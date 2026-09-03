@@ -1,0 +1,14 @@
+{
+  "name": "repro-first-background-trips-correctness-fix-freeze",
+  "title": "Repro-first generated background contains Authority and fails the correctness_fix scope freeze",
+  "description": "story_create_from_repro writes a fixed four-section background whose Solution Tradeoffs sentence says the flow avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof. scope_freeze_check in mode correctness_fix scans story.background against DEFAULT_CORRECTNESS_FIX_EXCLUDED_KEYWORDS (repair UX, Authority, Layer4, customerKeyRef), so every repro-first bug story fails the freeze with future_capability_keyword Authority in story.background. Observed on B-83aa on 2026-09-02; workaround was scope_boundary_set mode=custom. Either the generated background should avoid the reserved keywords, or the freeze scan should not treat framework-generated prose as a future-capability signal.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "scope-freeze",
+    "repro-first",
+    "correctness_fix",
+    "story_create_from_repro"
+  ],
+  "createdAt": "2026-09-02T15:04:39.729Z"
+}
