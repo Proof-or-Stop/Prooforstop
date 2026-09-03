@@ -1581,7 +1581,60 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(persistedLedger, null, 2)}\n`);
     }
     console.log('runtime.carrier_signed_exact_request_digest: PASS verify=refused legacyQuery=accepted');
-    console.log('runtime.carrier_trust_chain: PASS callerResign=reject tamperedCarrier=reject missingSignedExactRequestDigest=reject zeroAuthority=true');
+    const outerIdentityResults: Array<{
+      variant: 'operation' | 'requestDigest';
+      carrierAccepted: boolean;
+      verifyReturnedVerified: boolean;
+    }> = [];
+    for (const variant of ['operation', 'requestDigest'] as const) {
+      const mutatedLedger = structuredClone(persistedLedger);
+      const mutatedCarrier = mutatedLedger.receipts.find((candidate) => (
+        candidate.recordIds.includes(runtimeRecordId)
+      ))!;
+      if (variant === 'operation') mutatedCarrier.operation = 'append_finding';
+      else mutatedCarrier.requestDigest = '0'.repeat(64);
+      try {
+        writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(mutatedLedger, null, 2)}\n`);
+        const mutatedVerify = runRuntimeCli(
+          repositoryRoot,
+          root,
+          'finding_runtime_evidence_verify',
+          verifyArgs,
+          signingEnv,
+        );
+        outerIdentityResults.push({
+          variant,
+          carrierAccepted: verifyRuntimeReceiptCarrier(
+            mutatedLedger,
+            storyId,
+            mutatedLedger.records.find((candidate) => candidate.recordId === runtimeRecordId)!,
+            queryTrust,
+          ),
+          verifyReturnedVerified: mutatedVerify.status === 0 && mutatedVerify.json?.verified === true,
+        });
+      } finally {
+        writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(persistedLedger, null, 2)}\n`);
+      }
+    }
+    if (outerIdentityResults.some((result) => result.carrierAccepted || result.verifyReturnedVerified)) {
+      console.log(`runtime.carrier_outer_identity: RED ${outerIdentityResults.map((result) => (
+        `${result.variant}=carrier:${result.carrierAccepted},verified:${result.verifyReturnedVerified}`
+      )).join(' ')}`);
+    }
+    assert.deepEqual(
+      outerIdentityResults.map((result) => ({
+        variant: result.variant,
+        carrierAccepted: result.carrierAccepted,
+        verifyReturnedVerified: result.verifyReturnedVerified,
+      })),
+      [
+        { variant: 'operation', carrierAccepted: false, verifyReturnedVerified: false },
+        { variant: 'requestDigest', carrierAccepted: false, verifyReturnedVerified: false },
+      ],
+      'runtime verification must reject outer operation or requestDigest disagreement with the signed persisted request',
+    );
+    console.log('runtime.carrier_outer_identity: PASS operation=refused requestDigest=refused');
+    console.log('runtime.carrier_trust_chain: PASS callerResign=reject tamperedCarrier=reject missingSignedExactRequestDigest=reject outerIdentityMismatch=reject zeroAuthority=true');
     let refusedQueries = 0;
     const expectRefusal = (candidate: typeof persistedLedger): void => {
       assert.throws(() => queryFindingLedger(candidate, storyId, querySigner));

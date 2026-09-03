@@ -1355,11 +1355,28 @@ export function verifyRuntimeReceiptCarrier(
     if (recordIndex < 0) return false;
     const carrier = ledger.receipts.find((candidate) => candidate.recordIds.includes(record.recordId)) as PersistedCommitReceipt | undefined;
     const receipt = carrier?.findingLedgerReceipt;
-    if (!carrier || !receipt
-      || receipt.storyId !== storyId
+    if (!carrier || !receipt) return false;
+    const carrierRecords = carrier.recordIds.map((recordId) => (
+      ledger.records.find((candidate) => candidate.recordId === recordId)
+    ));
+    if (carrierRecords.some((candidate) => !candidate)) return false;
+    const expectedCarrierRequestDigest = canonicalHash({
+      operation: carrier.operation,
+      idempotencyKey: carrier.idempotencyKey,
+      records: carrierRecords.map((candidate) => ({
+        recordType: candidate!.recordType,
+        payload: candidate!.payload,
+        ...(candidate!.uniqueBindingKey ? { uniqueBindingKey: candidate!.uniqueBindingKey } : {}),
+      })),
+      ledgerSchemaEpoch: ledger.ledgerSchemaEpoch,
+      writerCapability: ledger.minimumWriterCapability,
+    });
+    if (receipt.storyId !== storyId
       || receipt.operation !== FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT.appendOperation
+      || receipt.operation !== carrier.operation
       || receipt.receiptId !== carrier.receiptId
       || receipt.idempotencyKey !== carrier.idempotencyKey
+      || carrier.requestDigest !== expectedCarrierRequestDigest
       || canonicalHash(receipt.recordIds) !== canonicalHash(carrier.recordIds)
       || receipt.priorLedgerDigest !== carrier.priorLedgerDigest
       || receipt.committedLedgerDigest !== carrier.committedLedgerDigest
