@@ -173,6 +173,27 @@
         "scanEscalationReason": null
       },
       "_hash": "da28104a623a000ae789d8f8b6e648235c6d5ddddfce2650683263c17388cd78"
+    },
+    {
+      "id": "B-dc2e:RP-007",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round-3 re-verification of F-007/F-008 fixes (RED ae74bec96e/GREEN 9de39f92a3 for F-008; RED 4e92a3e86e/GREEN 8fec18017b for F-007) against the built dist. (1) Independently re-ran an 8-case battery directly against dist/core/red-green-commit-guard.js (not the smoke fixtures): unqualified GREEN(CHK-001) rejected despite unrelated bare RED(CHK-001) prior; qualified GREEN(B-dc2e:CHK-001) accepted by matching qualified prior RED; qualified GREEN not rescued by another storys qualified RED of same number; merge-commit and revert-wrapped subjects correctly ignored; No-RED reason length correctly computed after trim (29 chars fails, 30 passes, whitespace padding does not game the count); No-RED marker is case-sensitive and must start the line; isStoryQualifiedRedGreenId rejects uppercase-hex/short/lowercase-prefix malformed qualifiers. All 8 passed. (2) Built a from-scratch temp git repo (not reusing the smokes own fixture helpers) reproducing the merge-base movement scenario: RED(B-dc2e:F-001) landing on main after the branch point leaves GREEN(B-dc2e:F-001) unsatisfied (empty prior set) before git merge main, and satisfied only after the merge moves the merge-base to include it -- matches CLAUDE.mds documented DONE-requires-merge-main flow. Judgment: this flip is NOT a new hole introduced by the F-008 fix. The RED-before-GREEN guard is a commit-message-pattern check with no tie to actual test execution, so an author could already fabricate a fake RED(B-dc2e:...) commit directly on their own story branch with equal ease and identical trust level; routing it through main+merge does not lower the bar further, and only the SAME qualified story id is ever accepted (verified with a second RED(B-1234:F-001) on main confirming cross-story ids are still rejected post-merge). (3) F-007 inverse test: cloned the branch --single-branch (no local main ref) into a throwaway dir, built dist there, and ran the real compiled validation-tier-planner-smoke.js end-to-end. It exited 1 / reported FAIL (not a silent PASS with an empty prior set): the real-repo self-check case explicitly asserted a real merge-base is required and failed loud with that message; the two synthetic-repo priorRedIds-raises cases (no main branch, not-a-repo) still passed as designed. Separately confirmed via a raw execFileSync probe that git merge-base also fails (exit 1, empty stderr) for an orphan/no-common-ancestor main+story pair, and that priorRedIds gitOutputStrict has no catch-to-empty path (only catch-and-rethrow), so this shape is covered by construction too. (4) Ran the full validation-tier-planner-smoke.js on the real branch: PASS, prints [PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason, all CHK-006 cross-cutting cases ok including the story-qualified prior-RED and merge-base-movement cases. finding_list shows F-001..F-008 all resolved/dismissed with evidenceState=verified, none reopened. No blocker found for this round.",
+      "createdAt": "2026-09-03T06:28:26.253Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-013",
+      "envelopeId": "9207b445f4aebfe10088d5cb44abc0667c21b01f7365300d163f449e4ad4ac5e",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c78ec6f1b1d55705e8581dec21902127e06346cee33c4560ed247594114a893a"
     }
   ]
 }
