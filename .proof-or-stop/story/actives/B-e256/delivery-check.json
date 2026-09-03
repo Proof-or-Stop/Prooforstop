@@ -1,31 +1,31 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-03T02:58:25.178Z",
-  "headHash": "58faaf04db069d8c232d40ba26710cfa279f99ab",
-  "materialHash": "e3ae0ca4f96af9efe05416ae92929681aa114741282cc93977df44b19fe387ea",
-  "storyFilesHash": "6a8f639e945c1fb0f2aec6e6fda6e7d174b6780bb8f7d5898f97d893188f0272",
-  "reviewRound": "2026-09-03T01:07:19.699Z",
+  "checkedAt": "2026-09-03T04:08:26.495Z",
+  "headHash": "06dce035a66cacad021eb3fd765521d055ee7013",
+  "materialHash": "8e79cd5989cb412120772a1809a328658f540c6ef86b25f27e7ec1f3bee7b01e",
+  "storyFilesHash": "b0db1a2a70a126ebf120a3bed94f26b81f3e95360252b9dc7245eea048923f1e",
+  "reviewRound": "2026-09-03T03:36:47.654Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Independently ran `node packages/main/tests/red/red-global-cli-exec-bit.mjs` in the story worktree: exits with 'GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable' after passing hermetic (a) a 0644 dist/cli.js becomes 0755 with byte-identical content and is reported restored, hermetic (b) an absent bin target returns [] without throwing, hermetic (c) no-bin-field/unparseable/missing package.json each return [] without throwing, plus a live check that packages/main/dist/cli.js is mode 0755. Diff-verified scripts/promote-dist.mjs exports restoreBinExecutableBits(dist), which ORs 0o111 into every package.json bin target's mode after promoteDist swaps staging into dist, and is called from promoteDist itself. Real machine execution, not prompt claim."
+      "transcript": "Verified commit 3b2f136af6 (post-earlier-signed-check re-run, resolves an independent Codex cross-host finding). scripts/promote-dist.mjs restoreBinExecutableBits(tree, dist=tree) is now invoked on the STAGING tree BEFORE the old dist is evicted (moved out of the post-rmSync(trash) block into the top of promoteDist). Only ENOENT is swallowed per bin target; every other stat/chmod failure (EACCES, EROFS, etc.) is rethrown with a message naming the failing bin target, aborting promotion before the previous working dist is evicted. Independently ran: node packages/main/tests/red/red-global-cli-exec-bit.mjs -> exit 0, all cases GREEN including new hermetic (d) non-ENOENT propagation, (e) staging-tree restoration before promotion, (f) failed staging restoration aborts promotion with the old dist intact. Also ran node packages/main/tests/red/red-1734-content-binding.mjs -> PASS (mode-bit changes do not invalidate the content-bound build binding fast path, so the fix does not regress rebuild skipping)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "packages/main/tests/red/red-global-cli-exec-bit.mjs is committed at 6ef5e9120f ('B-e256 CHK-002: commit and register red-global-cli-exec-bit red test') and registered as a validate.commands entry in proof-or-stop.config.json (node packages/main/tests/red/red-global-cli-exec-bit.mjs, timeoutMs 180000). Ran it directly (see CHK-001 transcript) and it is GREEN post-fix. checklist verificationEvidence for CHK-001 independently confirms this same command with exitCode 0 and a matching outputDigest/outputTail."
+      "transcript": "packages/main/tests/red/red-global-cli-exec-bit.mjs is committed at packages/main/tests/red/ and registered in proof-or-stop.config.json (verified via git diff on proof-or-stop.config.json: node/args entry with timeoutMs 180000 and git-common-dir shared resource, matching sibling red-test entries). Independently ran the committed script from this worktree: exit 0, GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable (includes cases a-f). Adversarial RED-on-unfixed-main claim is a pre-fix implementer transcript (not something I can re-run against a mutated main from this worktree without checking out a separate unfixed tree); recorded as such in checklist verificationEvidence with an explicit nonMechanicalReason, not fabricated as mechanical here."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Ran `node packages/main/dist/cli.js doctor 2>&1 | grep -i global-core-realpath` in the story worktree; output: '  ✓ global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.271 mode=0755 executable=yes', confirming the doctor row now surfaces realpath, version, bin mode and executable state. Ran `node packages/main/tests/global-core-realpath.test.mjs`; output 'ok global-core-realpath', which covers 8 cases including the 4 new B-e256 cases: (4) canonical realpath but bin target not executable -> warning with exact `chmod +x <abs path>` remediation and no drift text, (5) canonical package but global realpath inside a `.worktrees/` checkout -> warning naming the worktree condition plus exact `cd -- <canonical> && npm link` repoint, (6) no global install at all -> status stays 'pass' (informational) naming how to link one, never a warning, (7 and 8, filed as finding F-002 and fixed) a declared bin target that is ENOENT or is a directory -> distinct `npm --prefix <realpath> run build` rebuild remediation, never chmod. Diff-verified packages/main/src/core/runtime-environment-checks.ts implements inspectGlobalCoreExecutable/isWorktreeCheckoutPath/globalCoreRelinkCommand and wires them into checkGlobalCoreRealpath exactly matching these cases; doctor never mutates the host's global install (report-only)."
+      "transcript": "Independently ran node packages/main/tests/global-core-realpath.test.mjs -> exit 0, output ok global-core-realpath (covers the pre-existing worktree-resolves-to-canonical-root case, the non-executable bin target warn-with-chmod case, and the .worktrees/ realpath warn-with-repoint case). Independently ran node packages/main/dist/cli.js doctor 2>&1 | grep -i global-core-realpath -> global-core-realpath hard /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.271 mode=0755 executable=yes, confirming runtime-environment-checks.ts renders realpath+version+mode+executable in the live doctor row on this machine."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "This story changes no CLAUDE.md or docs/ file (confirmed by `git diff main...HEAD --name-only`: the only .md touched is the story's own plan.md, which is process metadata, not a documentation promise), so docsPromises is honestly empty rather than fabricated. All 3 checklist items (bin-exec-bit restore, red test commit+registration, doctor realpath/mode/remediation) have real-machine test evidence I independently re-ran in this worktree: red-global-cli-exec-bit.mjs GREEN, global-core-realpath.test.mjs 'ok' across happy/edge/adversarial cases (executable, non-executable chmod remediation, worktree-checkout drift, no-install informational, ENOENT and directory bin targets), and a live `doctor` run showing the new mode/executable/version facts. All 3 review findings (F-001..F-003) are resolved with strong evidence, including F-003 which explains and accepts the cherry-picked fixture commit b13839b411 (F-023 cwd-neutral digest assertion + retired-authority build ceiling bump 808->809), which I independently reran (validation-tier-planner-smoke.js and retired-authority-vocabulary-guard-smoke.js) and both PASS. No TODO/FIXME/HACK found in the diff."
+    "summary": "Re-run after commit 3b2f136af6 fixed the independent Codex cross-host finding (swallowed non-ENOENT chmod failure on a promoted-not-staging tree). git diff main...HEAD touches only story metadata plus code/test/config files, zero project-doc promises (CLAUDE.md/README/docs untouched), so docsPromises is honestly empty. All three checklist items have real, independently-reproduced machine test evidence run in this worktree (red-global-cli-exec-bit.mjs cases a-f GREEN including the new non-ENOENT-propagation and staging-restoration-order cases, global-core-realpath.test.mjs OK, red-1734-content-binding.mjs PASS, and a live doctor row). No unresolved TODO/FIXME/HACK found in the touched non-test source."
   },
-  "_hash": "cf61f921c1b218d684eb0dfefbec3c048ffa4451ccdf9a60c9a093131e8936b1"
+  "_hash": "0eb2f378d1930e01bc9d423d7fd12524ede0d6f7ff204079ae0204ea3d2632f9"
 }
