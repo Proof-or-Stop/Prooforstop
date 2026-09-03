@@ -78,10 +78,26 @@
       "phase": "DEV",
       "headHash": "edac859e4d0bbac2c3e6d042edfcb65693edcef0",
       "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-003: the triage-authority guard fix in prompt-envelope.ts needed its fixtures in that guard existing test home, which is this smoke. It carries the RED fixtures (the blocking sentence and the full CHK-003 context in the safe corpus) and three true-positive fixtures proving neither the priority nor the story term was disarmed.",
+      "timestamp": "2026-09-03T23:13:01.397Z",
+      "paths": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "0b3267647e1e36a37aae8d0ba30a534020d1042b",
+      "materialHash": "e5f4fec796159725a07c036f106bce2632e35e0756cb3c7c1b06e8302621c9ed"
     }
   ],
   "createdAt": "2026-09-03T20:59:27.439Z",
-  "updatedAt": "2026-09-03T22:51:28.034Z",
+  "updatedAt": "2026-09-03T23:13:01.397Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -101,6 +117,7 @@
     "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
     "packages/main/src/core/evidence-pin-guard.ts": "packages/main/src/core/evidence-pin-guard.ts",
     "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
-    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts"
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
   }
 }
