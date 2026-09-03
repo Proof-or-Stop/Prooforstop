@@ -103,7 +103,16 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
-  'lattice-review-story-init': 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
+  // origin/main merge: repinned in ONE pass together with the templateHash in
+  // scripts/verify-proof-or-stop-prompt-baseline.mjs, since both pins address the same
+  // story-init body. Our pre-merge body instructed the reviewer to read
+  // docs/story/actives/<storyId>/background.md, index.json and checklist.json DIRECTLY,
+  // which CLAUDE.md forbids and which that script's story-init CLI-only policy rejects.
+  // origin had already replaced those steps with proof-or-stop background_get /
+  // story_get / checklist_get, so origin's body was adopted for all three story-init
+  // locations, keeping OUR managed-marker spelling because other digests depend on it.
+  // This digest is what that combination reconstructs.
+  'lattice-review-story-init': 'a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c',
   'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   'lattice-implementer': '00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829',
   'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
@@ -407,6 +416,15 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
       throw new Error(`modular story-init prompt is missing ${STORY_INIT_LEGACY_TAIL_MARKER}`);
     }
     restored = restored.replace(tailMarker, STORY_INIT_LEGACY_TAIL.trimEnd());
+    // origin/main merge: our pre-merge main defined rewriteStoryInitLegacyTailForCliOnly
+    // and STORY_INIT_CLI_ONLY_REPLACEMENTS but never CALLED the rewriter (tsc reported it
+    // as unused), so the injected legacy tail still carried direct
+    // docs/story/actives/<storyId>/... reads and an init-self-check.json write into the
+    // ASSEMBLED prompt -- which CLAUDE.md forbids and the story-init CLI-only policy in
+    // verify-proof-or-stop-prompt-baseline.mjs rejects. origin calls it here, right after
+    // the tail is injected; adopting that call site is what makes the assembled body
+    // CLI-only rather than only the template files.
+    restored = rewriteStoryInitLegacyTailForCliOnly(restored);
   }
   // Template assets are now canonical, but these digests deliberately pin the
   // historical prompt bytes. Project the reconstructed canonical body back to
