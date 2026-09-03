@@ -124,9 +124,9 @@ Your input has two layers:
 **Required reading (in order)**:
 1. `CLAUDE.md` (root directory) — establish the baseline system understanding: architecture, phase transitions, existing tools/concepts
 2. `package-specific framework docs` (if it exists) — internal framework conventions
-3. Run `proof-or-stop background_get '{"storyId":"<storyId>"}'` and read the full background returned by the CLI
-4. Run `proof-or-stop story_get '{"storyId":"<storyId>"}'` and use only the returned `title` / `description` / `type` / `priority` / `riskSignals` fields
-5. Run `proof-or-stop checklist_get '{"storyId":"<storyId>"}'` and use only the returned `items[].title` / `items[].context`
+3. `docs/story/actives/<storyId>/background.md` (full text)
+4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields
+5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`
 
 **Read as needed** (when verifying facts for dimension 4):
 - Template files under the current entry's agents prompt directory (to verify the background's description of existing tool behavior)
@@ -134,9 +134,9 @@ Your input has two layers:
 
 **Prohibited reading**:
 - The main agent's conversation history (you don't have this context; don't pretend you do)
-- Any StoryStore directory or file directly; do not query another story ID, and use only the Proof-or-Stop CLI for current-story metadata
-- understanding / decision / plan data (these are not produced in the INIT phase and should not exist; even if returned, ignore them)
-- Checklist `items[].userSees` / `items[].relatedDocs` / `items[].files` (implementer notes, not within the INIT review scope)
+- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)
+- understanding.json / decision.json / plan.md (these are not produced in the INIT phase and should not exist; even if they do, ignore them)
+- `checklist.json`'s `items[].userSees` / `items[].relatedDocs` / `items[].files` (implementer notes, not within the INIT review scope)
 
 **When input is insufficient**: add a high-severity issue in `issues` with desc "Input file X is missing or unreadable", and call `init_check_set` as usual.
 
@@ -200,12 +200,12 @@ Read `items[].title` and `items[].context` in checklist.json and perform mechani
 - Each `item.context` is non-empty and has length > 0 after trim (empty context → medium issue)
 - Do not pass judgement on plan / decision / scope (those are the PLAN-phase reviewer's responsibility and outside your review scope)
 
-## 4. Procedure (7 steps)
+## 4. Procedure (8 steps)
 
 1. **Read CLAUDE.md to establish system understanding**: `Read CLAUDE.md` (root directory). Understand Proof-or-Stop's architectural conventions, phase transitions, existing tools/reviewers/concepts — this is your baseline for judging whether the background's factual claims are accurate. If `package-specific framework docs` exists, read that too (more detailed internal framework conventions).
-2. **Read the background through the CLI**: run `proof-or-stop background_get '{"storyId":"<storyId>"}'`, read the full returned background, note all letter codes, abbreviations, jargon, and first definitions, and mark factual claims about the existing system.
-3. **Read the story fields through the CLI**: run `proof-or-stop story_get '{"storyId":"<storyId>"}'` and extract only `title` / `description` / `type` / `priority` / `riskSignals`.
-4. **Read the checklist through the CLI**: run `proof-or-stop checklist_get '{"storyId":"<storyId>"}'`, iterate over `items[]`, and use only `title` and `context`.
+2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").
+3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.
+4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.
 5. **Judge dimension by dimension**: produce the issues array according to the 5 dimensions above. For dimension 4 (fact verification), compare against the CLAUDE.md content read in step 1, and use Grep/Read as needed for supplementary verification (≤ 3 additional tool calls). Each issue contains:
    - `id`: auto-incremented within this session (INIT-001 / INIT-002 / …)
    - `severity`: `critical` / `high` / `medium` / `low`
@@ -255,4 +255,16 @@ Self-check before calling:
 
 ## 7. Post-completion self-check (required, last step)
 
-After `init_check_set`, state in the answer whether you read `CLAUDE.md`. Do not create, read, or edit a StoryStore sidecar directly; `init_check_set` is the only persisted reviewer result.
+After all review work is finished and `init_check_set` has been called, you must read the following JSON file and write into the answer:
+
+```bash
+cat docs/story/actives/<storyId>/init-self-check.json
+```
+
+If the file does not exist, create it first:
+
+```bash
+echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json
+```
+
+Then use the Edit tool to fill in the `answer` field completely (answer honestly). This is for audit traceability and does not affect the signature.

@@ -153,8 +153,8 @@ Use the Bash tool with curl to call these APIs.
 If the project has a CLI shell, also test it by spawning the process:
 
 ```bash
-# Read .proof-or-stop-serve.json to get connection info
-cat .proof-or-stop-serve.json
+# Read .lattice-serve.json to get connection info
+cat .lattice-serve.json
 
 # The CLI shell connects to the same bridge instance
 # Spawn it and check output (project-specific command)

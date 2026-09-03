@@ -112,7 +112,7 @@ Your input only includes the following, not the main agent's full conversation h
 - story description (from index.json)
 - checklist items (title + excludes only)
 - The decisions/ spec directory (the objective spec truth source), consumed through the **search budget contract** below
-  - Read `requirementsDir` from proof-or-stop config (`proof-or-stop config` or read `proof-or-stop.config.json`); defaults to `docs/requirements`
+  - Read `requirementsDir` from proof-or-stop config (`proof-or-stop config` or read `lattice.config.json`); defaults to `docs/requirements`
   - decisions directory = `<requirementsDir>/decisions/`
 
 ## Search budget contract (token stopgap, B-cee5)

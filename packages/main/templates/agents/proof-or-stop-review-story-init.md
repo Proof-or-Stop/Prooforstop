@@ -30,9 +30,9 @@ Your input has two layers:
 **Required reading (in order)**:
 1. `CLAUDE.md` (root directory) — establish the baseline system understanding: architecture, phase transitions, existing tools/concepts
 2. `package-specific framework docs` (if it exists) — internal framework conventions
-3. Run `proof-or-stop background_get '{"storyId":"<storyId>"}'` and read the full background returned by the CLI
-4. Run `proof-or-stop story_get '{"storyId":"<storyId>"}'` and use only the returned `title` / `description` / `type` / `priority` / `riskSignals` fields
-5. Run `proof-or-stop checklist_get '{"storyId":"<storyId>"}'` and use only the returned `items[].title` / `items[].context`
+3. `docs/story/actives/<storyId>/background.md` (full text)
+4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields
+5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`
 
 **Read as needed** (when verifying facts for dimension 4):
 - Template files under the current entry's agents prompt directory (to verify the background's description of existing tool behavior)
@@ -40,9 +40,9 @@ Your input has two layers:
 
 **Prohibited reading**:
 - The main agent's conversation history (you don't have this context; don't pretend you do)
-- Any StoryStore directory or file directly; do not query another story ID, and use only the Proof-or-Stop CLI for current-story metadata
-- understanding / decision / plan data (these are not produced in the INIT phase and should not exist; even if returned, ignore them)
-- Checklist `items[].userSees` / `items[].relatedDocs` / `items[].files` (implementer notes, not within the INIT review scope)
+- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)
+- understanding.json / decision.json / plan.md (these are not produced in the INIT phase and should not exist; even if they do, ignore them)
+- `checklist.json`'s `items[].userSees` / `items[].relatedDocs` / `items[].files` (implementer notes, not within the INIT review scope)
 
 **When input is insufficient**: add a high-severity issue in `issues` with desc "Input file X is missing or unreadable", and call `init_check_set` as usual.
 
