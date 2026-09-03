@@ -1,0 +1,14 @@
+{
+  "name": "evidence-state-gate-smoke-prompthash-red-on-main",
+  "title": "evidence-state-gate-smoke fails on main because its legacy ReviewRun promptHash no longer matches the frozen legacy role body",
+  "description": "packages/main/src/tasks/evidence-state-gate-smoke.ts (not registered in proof-or-stop.config.json validate.commands) fails on the unmodified main dist (7de56c4623) with legacy ReviewRun promptHash does not match the frozen legacy role body [review_evidence_invalid]. Found on 2026-09-02 while B-83aa CHK-004 surveyed fixtures that seed review runs; the cause is unrelated to B-83aa (the fixture roots are git-committed and the failure is the prompt-envelope check, not freshness). Either the fixture must re-derive its legacy promptHash from the current frozen role body or the frozen body drifted without the fixture being updated; decide which and make the smoke green, then consider registering it in validate.commands so it cannot silently rot again.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "evidence-state-gate",
+    "promptHash",
+    "review-run",
+    "smoke-red-on-main"
+  ],
+  "createdAt": "2026-09-02T18:00:43.537Z"
+}
