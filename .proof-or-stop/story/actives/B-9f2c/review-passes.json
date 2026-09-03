@@ -922,6 +922,31 @@
         "scanEscalationReason": null
       },
       "_hash": "c48de4916e0c5b0a40c4c8136146dfa0c4d64bcc8c768fbc6432f8fde4ba75bb"
+    },
+    {
+      "id": "B-9f2c:RP-031",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Docs-lane verdict for the F-006 follow-up commit 22eb158523, tree frozen at 6a4a254699 (inventory epoch RI-003 OPEN). verify-missing-assets-fail.mjs is a packages/graph internal npm-run-check verifier not referenced by name in any living doc (README.md, CLAUDE.md, packages/graph/README.md, docs/requirements/decisions/) -- fallback-2 applies, no drift possible from this commit alone. Verified the new comment block (lines 53-63) against code and against git show 22eb158523^:...: RACE claim confirmed (ensureGraphClientBuilt runs npm run build synchronously via spawnSync before listen, per packages/main/src/handlers/graph.ts:75-132, so the outer execFileSync 60s timeout genuinely can land mid-build); LEAK claim confirmed (parent version gated process.kill behind if(rebuilt), listeners under !rebuilt were computed but never killed); reordering is a genuine restructure not a bolt-on (34 insertions/17 deletions, kill+settle now unconditional before rebuilt sampled). Ran the script live three times on distinct ports (8919/8920/8921): all exited 0 MISSING_ASSETS_HANDLED_OK with lsof empty after each, matching the commit message's claimed verification exactly. The measurement-artifact framing in the commit message is specific, falsifiable, and credits the reviewer rather than excusing the author. Re-confirmed standing claims unchanged: graph-command-migration.md Test-surface placement THREE-authority section intact; packages/graph/README.md Story dossier section (/story/B-xxxx URL, --story flag, panel list) intact; CLAUDE.md --story flag row and dossier paragraph intact; How the CLI reaches this package section (resolveGraphPackage at graph.ts:183, no runnable binary) intact. No doc anywhere describes the old refuse-on-missing-client behavior as current. Working tree clean of tracked-file drift beyond expected story-metadata churn; no commits landed past 6a4a254699 during this pass. No blocking issue found; no finding registered.",
+      "createdAt": "2026-09-03T06:41:12.578Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-053",
+      "envelopeId": "e1c34ff3a7a0f86d31da0811efdcae27f0568d60e9fbcf69b8415a7913ba6932",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "10d43d660774a300fe414c4d8b96d568306def3c6e60c4c4b3f9877aed26ff94"
     }
   ]
 }
