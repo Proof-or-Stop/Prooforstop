@@ -15487,6 +15487,46 @@
         "scanEscalationReason": null
       },
       "_hash": "fe72257ea0536537a2a0c849ac83d89e5a0cff06ba1d285dcafba5a00fca1c4b"
+    },
+    {
+      "id": "B-5a15:RP-339",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Adversarially re-verified both self-reported fixes for F-392 and F-393 against rebuilt dist. F-392 (dev-memory-experience-log stateDirExact): confirmed the prior prefix form over-matched nested/trailing-segment paths (matchesRuntimeArtifact prefix rule allows base or base/anything); rebuilt dist probe confirms exact form now excludes only the literal file, correctly includes nested path and sibling other.jsonl as material; confirmed no legitimate variant filename exists (resolveProjectMemoryPath/resolveGlobalMemoryPath hardcode the literal experience.jsonl, global path is outside materialHash domain entirely) so not over-narrowed. F-393 (CERTIFICATION_DOMAIN_PATH_RULES export + mutual-exclusivity guard): re-ran the 24-probe ambiguity check plus positive control independently against the compiled rules table (8 rules) -- zero ambiguous, positive control fires 2/2, matching author claim exactly. Export is a narrow single-consumer data export (only the smoke test imports it; the classifier fn stays private) -- acceptable, low coupling. However confirmed the authors self-filed F-394 is accurate: certification-window-smoke.ts and its 3 siblings have zero references anywhere in the repo (no package.json script, no full-suite-runner.ts entry, no command-catalog.ts entry, no dynamic tasks/ loader), and running it standalone dies at a pre-existing unrelated fixture failure (pre_cert_causal_freshness_required in the B-cw-selective scenario) before ever reaching the F-393 guard block -- so the guard never executes today. Filed my own low finding F-396 to keep this independently traceable alongside the authors F-394; not blocking this round (low, correctly deferred, not a regression of this storys claimed acceptance scope, does not affect DONE gate mechanics). Checked F-391 (my own prior deferred finding): reviewRound matches current story.currentReviewRound exactly, status open, evidenceState verified -- still current, no re-file needed, left as-is. Also confirmed via review_incremental_context that the only files impacted since my prior RP-334 pass are exactly the three files touched by F-392/F-393 (runtime-artifact-registry.ts, certification-window.ts, certification-window-smoke.ts); no other quality-relevant surface changed. No any/unchecked casts introduced in this diff; I/O isolation and handler encoding convention unaffected by this change (pure data/matcher logic, no new handler fields).",
+      "createdAt": "2026-09-03T10:03:05.358Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-945",
+      "envelopeId": "a8707731678a7727b66a1f02efb0614acad20c74fb95855d7e9f17040004f414",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "768b96f626e9786b6901ec617cdfd0f28319e1f86937eacce566e558fc135633"
     }
   ]
 }
