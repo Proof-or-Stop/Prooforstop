@@ -185,6 +185,7 @@ import { getCommandPolicy } from '../core/command-policy.js';
 import {
   describeRedGreenViolations,
   evaluateRedGreenCommitOrder,
+  isStoryQualifiedRedGreenId,
   parseRedGreenSubject,
 } from '../core/red-green-commit-guard.js';
 import { resetConfigCache } from '../core/config.js';
@@ -3695,6 +3696,9 @@ testCase('a RED fixture commit precedes the implementing commit for every item t
 //      with no RED is accepted only when its body carries the documented marker
 //      line `No-RED: <reason>` with a reason of at least 30 characters, so a
 //      comment-only or registration-only fix states WHY no fixture could fail.
+//      A RED that sits on main before the branch point (excluded from the range)
+//      satisfies a branch GREEN only when BOTH are story-qualified with the
+//      same id, `RED(B-xxxx:F-nnn)` / `GREEN(B-xxxx:F-nnn)` (F-006 + F-008).
 // ---------------------------------------------------------------------------
 
 /** Oldest-first {subject, body} pairs for a git log argument list; git I/O stays here, never in the helper. */
@@ -3797,6 +3801,15 @@ testCase('a temp repository with RED(F-007) squashed into its GREEN fails naming
  * from the merge-base of main and HEAD. `main..HEAD` excludes those commits, so
  * a GREEN on the branch whose RED already sits on main must not be a false
  * green_without_red. Git I/O stays here; the helper receives a plain set.
+ *
+ * STORY-QUALIFIED ONLY (B-dc2e F-008): only `RED(B-xxxx:CHK-nnn):` and
+ * `RED(B-xxxx:F-nnn):` subjects are collected, stored as the qualified id. Ids
+ * restart at CHK-001 / F-001 in every story, so a bare RED(CHK-001) reachable
+ * from the merge-base belongs to whichever merged story wrote it, and
+ * `git merge main` (required before DONE) moves the merge-base and would flip a
+ * bare GREEN's verdict. A bare GREEN with no RED in range therefore still fails
+ * unless it carries the reasoned No-RED marker; the helper enforces the same
+ * qualified-only rule on its side, so a bare id could not slip through here.
  */
 function priorRedIds(cwd: string | null): ReadonlySet<string> {
   const base = (cwd ? gitOutputIn(cwd, ['merge-base', 'main', 'HEAD']) : gitOutput(['merge-base', 'main', 'HEAD']))?.trim();
@@ -3805,7 +3818,7 @@ function priorRedIds(cwd: string | null): ReadonlySet<string> {
   const ids = new Set<string>();
   for (const subject of subjects.split('\n')) {
     const parsed = parseRedGreenSubject(subject.trim());
-    if (parsed?.phase === 'RED') ids.add(parsed.id);
+    if (parsed?.phase === 'RED' && isStoryQualifiedRedGreenId(parsed.id)) ids.add(parsed.id);
   }
   return ids;
 }

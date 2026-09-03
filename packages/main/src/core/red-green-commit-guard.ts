@@ -26,6 +26,17 @@
  * (reachable from the merge-base), and a GREEN for such an id is satisfied; the
  * result lists those in `priorRedAccepted`. The helper still does no git I/O.
  *
+ * Prior-RED acceptance is STORY-QUALIFIED ONLY (B-dc2e F-008). Checklist and
+ * finding ids restart at CHK-001 / F-001 in every story, so a bare `CHK-001`
+ * reachable from the merge-base belongs to whichever merged story wrote it, and
+ * `git merge main` (required before DONE) moves the merge-base and would flip
+ * the verdict. A GREEN is therefore satisfied from `priorRedIds` only when its
+ * OWN id is written qualified, `GREEN(B-xxxx:CHK-nnn):` / `GREEN(B-xxxx:F-nnn):`,
+ * and that exact qualified id is in the set; the caller is expected to collect
+ * only qualified `RED(B-xxxx:...)` subjects, and the helper ignores any bare id
+ * in the set regardless. A bare GREEN with no RED in the list fails as before
+ * unless it carries the reasoned no-RED marker below.
+ *
  * The one exception is the documented no-RED marker. A GREEN with no earlier
  * RED is accepted only when its BODY carries a line of the form
  *
@@ -43,6 +54,7 @@ export const NO_RED_MARKER = 'No-RED:';
 export const NO_RED_MIN_REASON_LENGTH = 30;
 
 const RED_GREEN_SUBJECT = /^(RED|GREEN)\(((?:B-[0-9a-f]{4}:)?(?:CHK|F)-\d{3})\):/;
+const STORY_QUALIFIED_ID = /^B-[0-9a-f]{4}:(?:CHK|F)-\d{3}$/;
 const NO_RED_LINE = /^No-RED:(.*)$/m;
 
 export type RedGreenPhase = 'RED' | 'GREEN';
@@ -87,9 +99,11 @@ export interface RedGreenNoRedAcceptance {
 
 export interface RedGreenGuardOptions {
   /**
-   * Ids that have a RED subject BEFORE the evaluated list, e.g. on main ahead
-   * of the branch point (excluded from `main..HEAD`). A GREEN for such an id is
-   * satisfied. The caller reads git; the helper only consumes the set.
+   * STORY-QUALIFIED ids (`B-xxxx:CHK-nnn` / `B-xxxx:F-nnn`) that have a RED
+   * subject BEFORE the evaluated list, e.g. on main ahead of the branch point
+   * (excluded from `main..HEAD`). A GREEN written with the same qualified id is
+   * satisfied; bare ids in the set never satisfy anything (ids restart per
+   * story). The caller reads git; the helper only consumes the set.
    */
   readonly priorRedIds?: ReadonlySet<string>;
 }
@@ -112,6 +126,11 @@ export interface RedGreenGuardResult {
   readonly noRedAccepted: readonly RedGreenNoRedAcceptance[];
   /** GREEN commits satisfied by a RED before the list (`priorRedIds`). */
   readonly priorRedAccepted: readonly RedGreenPriorRedAcceptance[];
+}
+
+/** True for a story-qualified id such as `B-dc2e:CHK-001` or `B-a745:F-016`; false for a bare `CHK-001` / `F-016`. */
+export function isStoryQualifiedRedGreenId(id: string): boolean {
+  return STORY_QUALIFIED_ID.test(id);
 }
 
 /** Parse a commit subject; null when it is not a RED/GREEN subject of a recognised form. */
@@ -165,7 +184,8 @@ export function evaluateRedGreenCommitOrder(
 
     greenCount += 1;
     if (seenRed.has(parsed.id)) return;
-    if (priorRedIds.has(parsed.id)) {
+    // Only an equal STORY-QUALIFIED id may be satisfied by a RED before the list (F-008).
+    if (isStoryQualifiedRedGreenId(parsed.id) && priorRedIds.has(parsed.id)) {
       priorRedAccepted.push({ index, id: parsed.id });
       return;
     }
