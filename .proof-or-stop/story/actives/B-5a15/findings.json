@@ -20230,7 +20230,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:103-121 runs git diff --unified=1000000 main...HEAD via execSync to detect deleted symbols. On this story diff, that command exceeds the ~239MB pipe ceiling and dies with spawnSync /bin/sh ENOBUFS (raising maxBuffer past 200MB does not help -- it is a pipe/buffer ceiling, not the maxBuffer option). checkConcept maps any diff-read failure (including this one) to status=warn, recommendation=skip, so proof-or-stop validate --concept silently no-ops on large diffs instead of failing closed -- a real deleted/renamed symbol with stranded references on a large diff would pass through this gate undetected. Confirmed still present and unfixed at current HEAD (commit 95052bdd92); out of this stories scope per prior review rounds (RR-908/RR-909), re-filing to keep it tracked as previously agreed rather than letting it silently drop off finding_list across review rounds.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T05:07:26.307Z",
@@ -20238,7 +20238,10 @@
       "reviewRunId": "B-5a15:RR-917",
       "_hash": "53d611603aba92f677d50b0c135c280bed3357640118254386c1563dc847ea6a",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-385, the current-round re-file of the same deferred validate-concept.ts:103-121 ENOBUFS warn-and-skip defect, bound to reviewRunId RR-921 and reproduced live at HEAD 4e6e55f00b. The concept lane re-files this out-of-scope deferral each round so it keeps a binding on the current review round rather than drifting stale and dropping off finding_list; the reviewer role has no finding_resolve authority, so it flagged the supersession for the main agent. Chain of instances: F-366 -> F-368 -> F-370 -> F-376 -> F-384 -> F-385, one live at a time. The defect remains open and correctly deferred as F-385: out of this story's diff, medium, non-blocking.",
+      "resolvedAt": "2026-09-03T05:20:57.796Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-385",
