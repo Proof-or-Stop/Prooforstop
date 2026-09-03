@@ -20034,7 +20034,7 @@
       "desc": "Duplicated causal-preflight probe logic between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts. Re-filed at same severity from F-367/F-373 per agreed deferral (unchanged since RR-905/RR-906; not touched by the F-371 fix commit 3245a61b6d).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T03:54:28.512Z",
@@ -20064,7 +20064,10 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|duplicated-causal-preflight",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-382, the current-round re-file of the same duplicated causal-preflight probe logic defect bound to reviewRunId RR-918. The quality lane re-filed it because F-378's binding had gone stale (RR-909), the same orphaning pattern that produced the earlier F-373 to F-378 supersession. The defect remains open and correctly deferred as F-382: medium, non-blocking, no live correctness bug, and the cross-module extraction would widen this story's diff and re-stale its acceptance chain.",
+      "resolvedAt": "2026-09-03T05:13:24.957Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-379",
