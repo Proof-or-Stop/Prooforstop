@@ -14533,6 +14533,45 @@
       },
       "readDiagnostics": [],
       "_hash": "b9f4b5a58512e2429e159a35362d42125b8e86f54d6dd4cca83c9c7edac38b86"
+    },
+    {
+      "id": "B-5a15:RP-314",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Wave 2 (RI-071) at material unchanged since wave 1 (RR-909). Re-examined both scripts flagged by 51ca9d3afb/3245a61b6d in full; retired-authority-vocabulary-guard-smoke.ts change is a 2-site AST-digest re-pin only, no logic/resource change. verify-missing-assets-fail.mjs confirms F-379 still stands unchanged (serveAndFetch log var unread, no child.on(error)). Swept diff across causal-evidence.ts, certification-window.ts, checklist.ts, verifier.ts, store.ts, acceptance-discovery-adapters.ts, pre-review-live-proof.ts for dead imports/exports, any-casts, empty catch blocks, and new Zod min/max/enum/regex needing runtime+gate re-validation: zero hits. No shells/bridge.ts I/O-isolation surface touched. F-378 and F-379 remain open from wave 1, unchanged, not re-filed. No new finding family this wave.",
+      "createdAt": "2026-09-03T04:21:26.660Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-913",
+      "envelopeId": "76e9c588f67f9713d19c8657d3a81e2895028d1fe1b2eebb80b0cddc130bff5c",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "19119cf4cb0f8ff026b4fe1a568aeef6131c1086fe8a2830eb1813fd55727b07"
     }
   ]
 }
