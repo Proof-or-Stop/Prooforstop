@@ -19972,6 +19972,45 @@
       ],
       "signatureTag": "missing|ts|supersedes-5a15-misattributed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-377",
+      "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:52 stashes the genuine pre-verifier assets/app.html to `stash`. In branch (a) (rebuilt-on-demand), line 75 does a SECOND `fs.renameSync(asset, stash)` after the on-demand rebuild -- Node renameSync silently overwrites an existing destination (verified: `fs.renameSync(new, existing)` replaces existing content with new, no error), so this second rename clobbers the true original captured at line 52 with the freshly on-demand-rebuilt copy. There is no code path in branch (a) that ever restores the genuine original file; it always ends by discarding it (either via the line-75 overwrite, or later via the line-102 rmSync(stash) if the live-serve probe also rebuilds). The finally block comment (lines 96-100) claims to \"prefer the stashed original\", but that clause is dead in branch (a) because the true original no longer exists in `stash` by the time finally runs -- it was already overwritten by a rebuild. Net effect: running this verifier permanently replaces the working tree's built app.html (a gitignored build artifact, so low material impact) with a fresh on-demand rebuild, silently, even on a passing run. Severity kept low because app.html is a reproducible gitignored build artifact and the script never leaves the tree without SOME functional client (so the invariant the fix was written to prove -- never serve a client-less page -- still holds); filing because the finally block's own documented contract (never lose the stashed original when avoidable) is violated by branch (a)'s own logic, and a future edit that makes the two builds diverge (e.g. embedding a build timestamp or differing flags) would silently discard state with no warning.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T03:54:16.744Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-908",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c4b362344a3e001e1977ebb84ab3c4cc10a17c7bca4f2a7be3adf133b59c12bf",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
