@@ -947,6 +947,35 @@
         "scanEscalationReason": "Focused Round 18 review examined the Section 9.3 bounded truth source, the F-027/F-028/F-029 resolution diffs and regression hunks, all 71 intent/evidence bindings, and current real-corpus CLI projection."
       },
       "_hash": "720f07ef827c9138f634a0d93bf3085566f923145457ba5a6fe7b17d10a54eab"
+    },
+    {
+      "id": "B-fe8f:RP-029",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Fresh post-F-029 concept review: repository-local authoritative projection has zero open findings and the current ledger contains one exact-signed append-only legacy lifecycle binding set covering F-001..F-016. Full Story 3 smoke exited 0, proving pre-upgrade fail-closed behavior, immutable-byte/current-trust re-attestation, replayRows=0, full adversarial refusal matrix, real B-fe8f corpus terminal restoration, ledger/runtime integrity, non-authority boundaries, dependency gates, canonical @proof-or-stop packages, and unchanged RED/GREEN relation. The globally installed 0.3.273 binary still projects the 16 pre-upgrade rows open because it predates this unmerged fix; repository-local behavior is authoritative before DONE/reinstall and both binaries report the required synchronized version.",
+      "createdAt": "2026-09-03T18:01:17.094Z",
+      "reviewRound": "2026-09-03T17:50:54.762Z",
+      "reviewRunId": "B-fe8f:RR-061",
+      "envelopeId": "d6738a88c8b167559ccf23570beeb826b34fb772c825a756c10f9ca542989393",
+      "writerSessionId": "sess-537f842eb49dc7c01316c5dcf5d160e4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f33e2026cdbb587c490e6d1977c9a04d520e8c95e890c49f712e459503bb0598"
     }
   ]
 }
