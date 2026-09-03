@@ -13,6 +13,9 @@
 // only), and an INSTALLED package whose package.json is unreadable, has no
 // `bin`, or lacks the proof-or-stop bin entry is drift with a named reason,
 // never a pass rendered as executable=unverified.
+// B-e256 cross-host review B-e256-xhr-r7 (MAJOR): when the realpath DRIFTS, the
+// old target's mode / missing facts are reported but the canonical `npm link`
+// stays the sole actionable remediation (no chmod/rebuild of the obsolete path).
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -401,6 +404,94 @@ for (const [variant, reasonCode, reasonText] of [
     assert.match(warnings, /resolves to/);
     assert.ok(warnings.includes('cannot be verified [package-json-unreadable]'), `got: ${warnings}`);
     assert.equal(warnings.split(relink).length - 1, 1, 'the relink command appears exactly once');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 14-15. B-e256 cross-host review B-e256-xhr-r7 MAJOR: a DRIFTED realpath
+//    (global points at a `.worktrees/` checkout) whose old bin target is ALSO
+//    non-executable (14) or missing (15) — the motivating stale-worktree-plus-
+//    rebuilt-0644 scenario — reports both facts but the canonical `npm link`
+//    is the SOLE actionable remediation. No chmod/rebuild against the obsolete
+//    checkout is appended, so the remediation never reads
+//    `relink && chmod/rebuild <old path>`.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-drift-nonexec-'));
+  try {
+    const worktreeDir = join(base, 'repo', '.worktrees', 'B-test');
+    const { repo, worktree } = makeRepoWithWorktree(base, { worktreeDir });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(worktree, 'packages', 'main'));
+    const oldBin = realpathSync(join(worktree, 'packages', 'main', 'dist', 'cli.js'));
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, { executableAccessProbe: () => false });
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'drift + non-executable old target must never pass');
+    assert.equal(actual.worktreeCheckout, true);
+    assert.equal(actual.executable, false, 'the old target fact is still reported');
+    assert.equal(actual.binMode, '0755');
+    assert.equal(actual.binTarget, oldBin);
+    assert.equal(actual.remediation, relink, 'relink is the SOLE remediation; nothing is appended for the obsolete path');
+    assert.doesNotMatch(actual.remediation, /&&\s*(chmod|npm --prefix)/, 'no chmod/rebuild chained after the relink');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.match(warnings, /resolves to/, 'the drift is named');
+    assert.ok(warnings.includes(`global bin target ${oldBin} is not executable by the current user (mode 0755; reported for the obsolete target only; the repoint above is the fix)`), `the old mode is reported as an obsolete-target fact, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /chmod \+x/, 'no chmod command is offered for the obsolete target');
+    assert.equal(warnings.split(relink).length - 1, 1, 'the relink command appears exactly once');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-drift-absent-bin-'));
+  try {
+    const worktreeDir = join(base, 'repo', '.worktrees', 'B-test');
+    const { repo, worktree } = makeRepoWithWorktree(base, { worktreeDir, binTarget: 'absent' });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(worktree, 'packages', 'main'));
+    const oldRealpath = realpathSync(join(worktree, 'packages', 'main'));
+    const oldBin = join(oldRealpath, 'dist', 'cli.js');
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'drift + missing old target must never pass');
+    assert.equal(actual.worktreeCheckout, true);
+    assert.equal(actual.executable, false);
+    assert.equal(actual.binMode, null);
+    assert.equal(actual.binTarget, oldBin);
+    assert.equal(actual.remediation, relink, 'relink is the SOLE remediation; no rebuild of the obsolete checkout');
+    assert.doesNotMatch(actual.remediation, /&&\s*(chmod|npm --prefix)/, 'no chmod/rebuild chained after the relink');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.match(warnings, /resolves to/, 'the drift is named');
+    assert.ok(warnings.includes(`global bin target ${oldBin} does not exist (reported for the obsolete target only; the repoint above is the fix)`), `the missing target is reported as an obsolete-target fact, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /npm --prefix/, 'no rebuild command is offered for the obsolete target');
+    assert.doesNotMatch(warnings, /chmod \+x/);
+    assert.equal(warnings.split(relink).length - 1, 1, 'the relink command appears exactly once');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 16. B-e256-xhr-r7 regression guard: the CANONICAL-path cases keep their
+//    single chmod / rebuild remediation (no relink is chained in front).
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-canonical-single-remediation-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(join(base, 'chmod'), { binMode: 0o644 });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const globalRoot = makeGlobalRootLinkedTo(join(base, 'chmod'), canonical);
+    const chmodReport = runChecks(join(base, 'chmod'), join(worktree, 'packages', 'main'), globalRoot);
+    assert.equal(chmodReport.globalCoreRealpath.actual.remediation, `chmod +x ${join(canonical, 'dist', 'cli.js')}`, 'canonical non-executable target keeps the single chmod remediation');
+    assert.doesNotMatch(chmodReport.globalCoreRealpath.actual.remediation, /&&/, 'exactly one command');
+
+    const absent = makeRepoWithWorktree(join(base, 'rebuild'), { binTarget: 'absent' });
+    const canonicalAbsent = realpathSync(join(absent.repo, 'packages', 'main'));
+    const globalRootAbsent = makeGlobalRootLinkedTo(join(base, 'rebuild'), canonicalAbsent);
+    const rebuildReport = runChecks(join(base, 'rebuild'), join(absent.worktree, 'packages', 'main'), globalRootAbsent);
+    assert.equal(rebuildReport.globalCoreRealpath.actual.remediation, `npm --prefix ${canonicalAbsent} run build`, 'canonical missing target keeps the single rebuild remediation');
+    assert.doesNotMatch(rebuildReport.globalCoreRealpath.actual.remediation, /&&/, 'exactly one command');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

@@ -655,17 +655,29 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
       remediations.push(rebuild, relink);
+    } else {
+      warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
     }
   } else if (executableFacts.executable === false && executableFacts.binTarget) {
     // (2) The bin symlink resolves here but the target cannot be executed.
+    // B-e256-xhr-r7: a DRIFTED realpath reports the old target's facts but
+    // never appends chmod/rebuild for that obsolete checkout; the relink
+    // pushed in (1) stays the sole actionable remediation, so the combined
+    // command never keeps mutating a path the repoint already abandons.
     if (!executableFacts.binTargetExists) {
-      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
-      warnings.push(`global bin target ${executableFacts.binTarget} does not exist; rebuild: ${rebuild}`);
-      remediations.push(rebuild);
-    } else {
+      if (pathMatches) {
+        const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+        warnings.push(`global bin target ${executableFacts.binTarget} does not exist; rebuild: ${rebuild}`);
+        remediations.push(rebuild);
+      } else {
+        warnings.push(`global bin target ${executableFacts.binTarget} does not exist (reported for the obsolete target only; the repoint above is the fix)`);
+      }
+    } else if (pathMatches) {
       const chmod = `chmod +x ${shellQuote(executableFacts.binTarget)}`;
       warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}); fix: ${chmod}`);
       remediations.push(chmod);
+    } else {
+      warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}; reported for the obsolete target only; the repoint above is the fix)`);
     }
   }
   const status = warnings.length === 0 ? 'pass' : statusForDrift(severity);
