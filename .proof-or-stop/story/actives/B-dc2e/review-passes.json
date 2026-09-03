@@ -63,6 +63,36 @@
         "scanEscalationReason": null
       },
       "_hash": "e68b7569d10d2afe9f9072033c8d608d571781cc64fa2e5dc5ed756cce45d742"
+    },
+    {
+      "id": "B-dc2e:RP-003",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round-2 concept re-sweep of the F-001/F-002/F-006/F-003 fix wave (7 commits e54330ff73..3b1536f17d). No concept residue found: (1) F-001 capText/boundPersistedFindings signature change (string -> {text,truncated}) has no stale call sites (grep confirms all consumers updated); PERSISTED_FINDING_TRUNCATION_MARKER/truncatedFields fully wired, no doc still describes silent truncation for this path. (2) F-002 evaluateRealInventory prints the pinned real-inventory line via printMembershipLine only after both the edge-discrimination assertion and composed-chain assertion pass (verified by reading full-suite-runner-smoke.ts:70-96 and the two call sites at 203/217); ran node dist/tasks/full-suite-runner-smoke.js live -> both new [PASS] real inventory / real inventory edge mutation lines print, 168 assertions PASS. (3) F-006 red-green-commit-guard.ts priorRedIds is correctly threaded end to end: validation-tier-planner-smoke.ts derives it from git merge-base(main,HEAD) history via priorRedIds()/evaluateBranchRedGreen(), no stale main..HEAD-only doc claim found (plan.md wording still accurate, not exclusive). Ran node dist/tasks/validation-tier-planner-smoke.js live: guard line prints [PASS] RED-before-GREEN guard ... and the new priorRedIds fixture/temp-repo cases pass. (4) F-003 beginSection/flushSection fully replaced every bare console.log(`running CHK-...`) call (grep confirms zero remaining raw occurrences) and declaredChecklistItems regex updated to match beginSection(); ran the smoke twice (default and VALIDATION_TIER_PLANNER_VERBOSE=1), default stdout collapses to per-section ok-N-cases-passed lines (1975 chars measured, matches commit-body projection) while CHK-006 keeps its per-case lines and pinned selectors are byte-identical; both runs end PASS. Verified each GREEN commit body against its diff (F-001/F-002/F-006/F-003) -- all claims match the actual code change. git log --format=%h -i --grep=claude --grep=codex main..HEAD | wc -l = 0. Every commit subject on main..HEAD is either RED(id): / GREEN(id): or the proof-or-stop: metadata-commit prefix; none are bare/nonconforming. This is a re-sweep only; F-003/F-004 (quality/test-coverage doc-accuracy findings) and other checklist items are outside this concept lane and already tracked separately.",
+      "createdAt": "2026-09-03T05:58:33.441Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-006",
+      "envelopeId": "7aa784c29f70a3caa85d663f44d724a61690752908694e1dba128f3142f3d8b9",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef556e6e67ea0531ca079f78ca34f97725e29d17b82b3da5d1cb6cffab017852"
     }
   ]
 }
