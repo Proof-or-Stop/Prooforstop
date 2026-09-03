@@ -221,7 +221,7 @@
       "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:94-97 (fixed by 0c9253c5be) -- the new settle polls fs.existsSync(asset) only, which becomes true as soon as build-web.mjs writeFileSync (build-web.mjs:44) open()s the file (O_CREAT/O_TRUNC), not once the write is complete. This is a distinct failure mode from F-007 (deliberate padded-stub forgery / present-but-stale-not-rebuilt): here a NON-adversarial torn write from the SAME orphaned-build race the commit documents -- SIGTERM reaches only the direct execFileSync child, so the nested npm run build can still be mid-writeFileSync when polled by the unrelated verifier process -- can in principle be sampled while assets/app.html exists but is truncated. The downstream content assertions (lines 115 doctype, 119 openStoryDossier, 122 100KB floor) meaningfully narrow the window: the doctype is the first bytes written and openStoryDossier is emitted last (dossier.js is concatenated after app.js/playback.js at build-web.mjs:39-40, confirmed by tail -c 200 on the built asset), so a write torn strictly before completion is likely, though not certainly (write(2) is permitted a short write at any byte boundary; Node's internal writeFileSync loop can issue more than one write syscall for a ~487KB buffer), to fail the openStoryDossier or size check. But existsSync alone proves nothing about write-completeness, and the poll never re-checks stability across two samples (e.g. two existsSync+statSync(size) reads separated by one interval, requiring the size to stop changing) before accepting the file as rebuilt. The residual is real but narrower than F-007's two named gaps, since it requires timing an orphaned-build's write() boundary rather than deliberate stub construction.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T06:56:01.105Z",
@@ -254,7 +254,11 @@
         "packages/graph/scripts/build-web.mjs"
       ],
       "signatureTag": "adversarial|mjs|packages-graph-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed correct and deliberately deferred rather than fixed, per CLAUDE.md defect triage. The mechanism is real: fs.existsSync proves only that the directory entry exists, since writeFileSync opens with O_CREAT|O_TRUNC before writing bytes, so a poll sample can in principle land mid-write and the four content assertions, while they narrow the window substantially, do not close it because write(2) permits short writes at any boundary. The reviewer verified the narrowing empirically rather than asserting it: the doctype is in the first bytes written and openStoryDossier is near the last, confirmed by tail -c 200 against the built 498KB asset, so a torn read must be almost complete to pass at all. DEFERRED on the triage criteria, not on convenience. Severity is low. It is not a regression of this story's acceptance scope: this verifier is an internal npm run check guard, not a shipped code path, and production ensureGraphClientBuilt independently re-checks both required files before returning. It distorts no gate, because the failure it could theoretically produce is a FALSE PASS of a check whose real backstop is the handler itself. And it is non-adversarial by nature: it needs an orphaned build to be killed mid-write at a byte boundary that still satisfies doctype, marker, size and d3 presence simultaneously. Fixing it properly means writing to a temporary path and renaming atomically inside build-web.mjs, or having the verifier assert a digest derived from the build inputs -- both are changes to code this story does not own, and F-007 already names the digest approach as the follow-up. Doing it here would be exactly the unbounded scope creep CLAUDE.md warns against, in a story that has already absorbed three rounds of fix-on-fix in this same file. Recorded with the reviewer's full reproduction so this is a handoff, not a dropped defect.",
+      "resolvedAt": "2026-09-03T06:57:27.573Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
