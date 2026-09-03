@@ -3,18 +3,19 @@
   "expected": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
   "actual": {
     "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
-    "exitCode": 0,
-    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-9a49\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:ecd38113be6b8bc3dc040d8220b812176729ac852dde7bc7ff7668229bdfaf28\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE5WSb2vbMBDGv4rwawuSkXXgd14TqFnbBNtlDBOKIp0TUUUy+uPN334nx07zoivsjXXozqfn+d01TZLT3baiX5M06YyTXvaAoTVKmeCz1vDgQFDQrbEcaLw/MP6GJXNqKqXcaI8xZuAP8OCBTBXkJ+uBrMhUSNzZvAH5Lf2JTG1TMvdNCdOCnKTzxg60s+DA9sxLo8nU3+EDu7yqroe3AdKmSTprROBgKfRMBeZBJOlyuU+bBP904YyZHqxs5Zj4st+nidQetM/uH37QxWKVnVjXDZlFT0cLoKljZ7jYYtwnsVNOn15qusK3z8GPsjBkwZ+MlX7IhLTAPY3iERV0ig23+ferSyGposv4AYLqTTtCiYg4C44pgkUgOx+tlq/5S/2wLYv612vxnK+fiqoqvj9uPs/NbGa1FB2qEcAi2hGSHbVxXnJqDpH0iGZCFmGjYhvQ40e0mECcjlnJVPZu8WCCFgxnh3OkynCmKFdygleX+XN1Xxa7mi5ROHLVjtuLQ+ixucuuU5yHNqew2RHlqCt17gMimuuJ1D2+Nm5KF7kJcIhRGy1RA1GyBT5wBeSm77Zcb8rN+jb6bJnu/rFL3/5/lfZ/AcoWTrt4AwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:af04ba776986f32c27820b322c35fcf2a90b8d46c52f0e5f836acabfbc902fe5\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n"
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:179\n        throw new Error('--proof-scenarios requires --cohort=<path> or PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +\n              ^\n\nError: --proof-scenarios requires --cohort=<path> or PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE; scenario execution refuses to spawn the expensive registered cohort runner\n    at loadFrozenAcceptanceRolloutCohortForScenarios (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:179:15)\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:937:28\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.8.1\nnode:internal/errors:999\n  const err = new Error(message);\n              ^\n\nError: Command failed: /opt/homebrew/Cellar/node/26.8.1/bin/node /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\nfile:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:179\n        throw new Error('--proof-scenarios requires --cohort=<path> or PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +\n              ^\n\nError: --proof-scenarios requires --cohort=<path> or PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE; scenario execution refuses to spawn the expensive registered cohort runner\n    at loadFrozenAcceptanceRolloutCohortForScenarios (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:179:15)\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-9a49/packages/main/dist/task\n...[truncated 4743 chars]"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-09-03T13:20:22.568Z",
+  "capturedAtIso": "2026-09-03T17:49:03.157Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "2c9f344b17a96baa0997de886ec26deddebb3159",
-  "materialHash": "fce988aa897be6296aa23743d261213c04186dbbaa218c7c242bf7e3d21b2c95"
+  "headHash": "aa806e14a5c188fb60e7c0ee241dc135e8c45e6e",
+  "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37"
 }
