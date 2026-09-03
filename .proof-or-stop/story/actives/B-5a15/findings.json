@@ -20260,6 +20260,25 @@
       ],
       "signatureTag": "missing|ts|validate-concept-warns",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-386",
+      "desc": "F-383 fix commit 4e6e55f00b (packages/graph/scripts/verify-missing-assets-fail.mjs) is a real story-owned material change that moved storyFilesHash from 1868b7966c25c7dfc9d21e8ca7c31b52d7d42686b4c235123dc78de2a5700bd4 (matching the acceptance-basis receipt binding) to 16d060c47bd820a4dc76be14c37f1e716dda89b2ffa5fb7ffe316ab024b44e80. As a direct consequence, acceptance_topology_check now fails with AT_COVERAGE_BASIS_STALE (evidence storyFilesHash mismatch, status=fail, structuralPass=false) and pre_review_check_read now fails with codes=[PR_ARTIFACT_TAMPERED] (status=fail, ok=false). The F-247 test in packages/main/tests/causal-evidence.test.mjs aborts at its very first assertion (line 2479, topology.status===pass||topologyRefreshBootstrap) because AT_COVERAGE_BASIS_STALE alone is not in either whitelisted topologyRefreshBootstrap code set. Because that assert throws before line 2488 (pre_review_check_read call) and before the marker emission block at lines 2514-2523, NEITHER CHK-004:happy:2 NOR CHK-004:happy:3 emitted on this run -- confirmed by running node --test packages/main/tests/causal-evidence.test.mjs --test-name-pattern=F-247 at HEAD f513b0024e, which shows 2 failing tests (F-247 itself, and the downstream F-249/... acceptance-reads test which also asserts on the same AT_COVERAGE_BASIS_STALE code). Root cause: acceptance-basis.json was generated (acceptance_basis_generate) against head 645d9d652c, before the F-383 fix landed, and was never regenerated after. This is exactly the storyFilesHash-drift case (not a benign metadata/provenance shuffle) per CLAUDE.md DONE-convergence guidance -- the acceptance/pre-review chain must be regenerated against current HEAD before this story can safely proceed to TEST.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T05:21:09.347Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-923",
+      "_hash": "f7bee8d07e79f7e9d21ee629b130fee5babab23b61068763741dcacfbc433496",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
+      ],
+      "signatureTag": "adversarial|mjs|commit-4e6e55f00b-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
