@@ -1,0 +1,29 @@
+{
+  "storyId": "B-aa5f",
+  "name": "verification-execution-fanout-input-freshness-20260903",
+  "title": "Verification Execution Receipt Fan-out and Input-Scoped Freshness",
+  "description": "Separate verifier execution identity from per-intent selector assertions so a stale evidence set executes each affected command once, while preserving independent assertion results and fail-closed freshness. Add input-scoped reuse only when a verifier dependency closure is mechanically complete; otherwise retain strict materialHash/storyFilesHash invalidation.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-09-03T16:14:16.996Z",
+  "startedAt": "2026-09-03T16:14:16.996Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-03T16:14:18.093Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-deaee3ad16e4211255db95e9e1e23e8a",
+      "agent": "main"
+    }
+  ]
+}
