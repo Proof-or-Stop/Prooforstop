@@ -20403,6 +20403,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-391",
+      "desc": "RE-FILE of B-5a15:F-389/F-382/F-378 (still correctly deferred, not a new defect): ~90 lines of near-identical causal-preflight probe logic duplicated between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts, with no test forcing the two copies to stay in sync. Confirmed byte-for-byte unchanged since prior review: git log for the window since F-389 was filed and git diff --stat 6bf7ce77a3^ both show zero commits touching either file; commit 6bf7ce77a3 (the only new source commit this round) touched only runtime-artifact-registry.ts and certification-window.ts, entirely disjoint from this duplicate. Re-filed under the current review run (RR-940) purely to keep it bound to a live round rather than the now-stale RR-937 binding, per the F-373->F-378->F-382->F-389 orphaning precedent already recorded on this story. Deferral stands: medium, non-blocking, no live correctness bug, cross-module extraction would widen this story diff and re-stale its acceptance chain yet again. Reviewer (quality) agrees with this deferral across five rounds now.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T09:10:52.005Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-940",
+      "_hash": "18fed785a659081e187abb515fd048eeae1ab7dc93ca2fed81c2f5944759f4c2",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|file-5a15-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
