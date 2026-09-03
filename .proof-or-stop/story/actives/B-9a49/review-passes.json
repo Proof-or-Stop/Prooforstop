@@ -1276,6 +1276,29 @@
         "scanEscalationReason": null
       },
       "_hash": "30ca4f768f2a21221d38943dd3347d586cd6b07b086ee823975e9ad3da8b4ead"
+    },
+    {
+      "id": "B-9a49:RP-032",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: all 6 checklist items retain verificationIntent fully covered by valid verificationEvidence (mechanical receipts, exitCode 0, selector matched). verification_evidence_refresh_stale --dryRun reports no stale evidence for B-9a49. CHK-004:edge:version-and-local-artifacts corrected shell-free version witness has a genuine mechanical receipt (exitCode=0, selectorMatched=true, outputTail=version sync: PASS 0.3.273) with materialHash/storyFilesHash matching all other current evidence; only headHash differs due to intervening metadata-only commits, which is expected headHash-only drift not material drift. No coverage blocker found.",
+      "createdAt": "2026-09-03T17:31:59.162Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-135",
+      "envelopeId": "d4cca1e2e3b91b315d6749ab236d14362085b1cd4e5b88afe8b28d472a6eac29",
+      "writerSessionId": "sess-e531da5c4e05e5d803e4e758574d7698",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "background.md",
+          "plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15aa481e107c624065210651158e784b66a38cd8068cf3d159c43e32c5694c6b"
     }
   ]
 }
