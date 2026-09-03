@@ -15321,6 +15321,56 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "d315fb3ff77da9c122fcabb8ae6fd83b277474c11e0b63cdfa6b8f1d5ffe5cfe"
+    },
+    {
+      "id": "B-5a15:RP-335",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "F-388 remediation independently verified at HEAD e33909d. Coverage 53/53 covered, 51 must, missingRequired=0. pre_review_check strict PASS, topology strict PASS, test:causal-evidence 21/21 pass, both CHK-004 markers via strict branch. Refresh-then-re-earn audited across 18 refresh commits: always demotes to mechanical:false, never launders. No findings.",
+      "createdAt": "2026-09-03T06:55:55.100Z",
+      "reviewRound": "2026-09-03T06:45:20.273Z",
+      "reviewRunId": "B-5a15:RR-936",
+      "envelopeId": "278561dea462fbba7f361dabcd5fd3e66f9da3e6a86a9d3b5df0e92f69390b99",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "cd6095d705eb7c93b0ed682ba487425812a86f47c26fd7f70cd958c5910db5ca"
     }
   ]
 }
