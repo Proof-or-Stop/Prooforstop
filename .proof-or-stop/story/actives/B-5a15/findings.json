@@ -20598,7 +20598,7 @@
       "desc": "F-395 resolvedReason claims all 53 verificationEvidence rows were re-earned against current HEAD after the d16cdeeec8 drift, but git history shows the opposite ordering: the last verification_evidence_batch_add commit (c066fd81c1, 2026-09-03T17:02:55+08:00, stamped storyFilesHash=8e57bba899496b0c) is an ANCESTOR of d16cdeeec8 (2026-09-03T17:45:58+08:00, the source commit F-395 itself names as the drift cause), confirmed via git merge-base --is-ancestor c066fd81c1 d16cdeeec8. No batch_add/refresh_stale commit exists after d16cdeeec8. Live read-only verification_evidence_refresh_stale --storyId=B-5a15 --dryRun right now reports all 53 rows stale, and the milestone brief independently confirms M1-M5 all Blocked with stale storyFilesHash 8e57bba89949 (current d535628105e8). So checklist_get cached verificationEvidence.passing=10/9/10/14/10 (53/53) does not reflect current-HEAD coverage; buildVerificationCoverage reports covered=0 required=51. The resolution recorded on F-395 describes a remediation that, by its own cited cause, could not have happened; no re-earn has occurred since d16cdeeec8 landed. This blocks any REVIEW-round claim that verification coverage is currently satisfied.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T10:23:48.123Z",
@@ -20643,7 +20643,9 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "missing|mjs|resolvedreason-claims-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed correct and acted on; superseded in the record by B-5a15:F-401, which is my own written correction of the false resolution note this finding exposed. I verified every element before accepting it: git merge-base --is-ancestor c066fd81c1 d16cdeeec8 returns TRUE so the last batch_add PRECEDES the source commit F-395 named as the drift cause; git log d16cdeeec8..HEAD contains zero batch_add or refresh_stale commits; and buildVerificationCoverage reports covered=0 required=51 missingRequired=51. My F-395 resolution therefore described a remediation that could not have happened. This lane caught a false evidence record I authored, which is the most serious error I made in this story -- worse than the staleness it purported to fix, because the framework's whole value rests on its records being true. The re-earn remains genuinely outstanding and is tracked as such rather than claimed done.",
+      "resolvedAt": "2026-09-03T10:29:09.182Z"
     },
     {
       "id": "B-5a15:F-400",
