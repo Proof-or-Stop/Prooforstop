@@ -20194,7 +20194,7 @@
       "desc": "RE-FILE of B-5a15:F-378 (still correctly deferred, not a new defect): ~90 lines of near-identical causal-preflight probe logic duplicated between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts, with no test forcing the two copies to stay in sync. Confirmed unchanged by commit c5324ce44a (that commit only touched packages/graph/scripts/verify-missing-assets-fail.mjs). Re-filed under the current review run (RR-918) purely to keep it bound to a live run rather than the stale RR-909 binding, per the F-373->F-378 orphaning precedent already recorded on this story. Deferral stands: medium, non-blocking, no live correctness bug, cross-module extraction would widen this story diff and re-stale its acceptance chain. Reviewer (quality) agreed with this deferral across three rounds now.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T05:02:26.253Z",
@@ -20206,7 +20206,10 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|file-5a15-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-389, the quality lane's current-round re-file of the same duplicated causal-preflight probe logic between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts. F-382 was bound to review round 2026-09-03T04:56:02.041Z (RR-918) while the current round is 2026-09-03T06:45:20.273Z (RR-937), so its binding had genuinely gone stale — unlike the prior two rounds where the lane checked and correctly declined to re-file because the binding was still current. The lane verified the underlying code is unchanged since F-382 was filed before re-filing. Chain of instances: F-367 -> F-373 -> F-378 -> F-382 -> F-389, one live at a time. The defect remains open and correctly deferred as F-389: medium, non-blocking, no live correctness bug, and the cross-module extraction would widen this story's diff and re-stale its acceptance chain.",
+      "resolvedAt": "2026-09-03T06:54:10.572Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-383",
