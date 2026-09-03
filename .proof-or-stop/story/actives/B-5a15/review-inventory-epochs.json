@@ -13851,6 +13851,37 @@
       "findingDispositions": [],
       "createdAt": "2026-09-03T04:35:05.396Z",
       "_hash": "a153edb94b6598f936d755e26ea2cc0d2d5236bc50aac2e61774ec50c8a3eab1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-072:CRIT-01",
+      "epochId": "B-5a15:RI-072",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "226ff9d7b84e6574b4f870137d0e9beddbe5ba88",
+        "materialHash": "bf79130e72225c94df16730030b7b0c1cdda8a077dc2c4249c22ac074914fa87",
+        "storyFilesHash": "16d060c47bd820a4dc76be14c37f1e716dda89b2ffa5fb7ffe316ab024b44e80"
+      },
+      "aggregateFindingSetDigest": "48f4423c72e7944f528893befa751730ed645c595e97a640021ba67a9dd5dcac",
+      "requiredLaneCoverageDigest": "7a1767bafd4b982b0c1b2bb088dbcd80014dda20157d2ac91b988f58bcfc2fab",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-931",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-328"
+      ],
+      "readEvidenceDigest": "f11e2a7cbab162dfe478e69827045291666a375b1734d163ac732443739d15d8",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-388",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-388",
+          "reason": "Independently confirmed: F-388 is bound to RR-929 (test-coverage, sequence 929 > epoch initialRunSequenceBoundary 926, in-epoch), evidenceState=verified, and its storyFilesHash citation (16d060c47b) matches the epoch cutoff and all three wave-1 run bindings. It is a distinct, coherent characterization of expected transitional risk (stale must-evidence after F-386 basis regeneration moved storyFilesHash). Not a duplicate of F-382 (quality, RR-918, pre-epoch, distinct scope: checklist.ts/verifier.ts duplication) or F-385 (concept, RR-921, pre-epoch, distinct: validate --concept warn-and-skip on ENOBUFS). No other raw finding exists in this wave to cross-check against."
+        }
+      ],
+      "createdAt": "2026-09-03T06:00:37.854Z",
+      "_hash": "cf5203d0b7b968c0b9abe271d7bcff111ac0bb899d3f68460d0bbc7ca87f1e31"
     }
   ]
 }
