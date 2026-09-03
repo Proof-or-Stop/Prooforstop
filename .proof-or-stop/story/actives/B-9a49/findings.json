@@ -1538,7 +1538,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:324-335,474-514,623-767 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:681-777 — HIGH: commit 82c33fc63a closes the exact F-068 strings but the production REVIEW Task Context guard remains both under- and over-inclusive. A build-first direct dist matrix across all five active REVIEW roles and story/checklist/verificationIntent surfaces accepted all eight equivalent unsafe claims: `Story scope is purely a function of severity.`, `Severity is all that determines Story ownership.`, unknown applicability making a Finding eligible for handoff or parking it outside the current Story, a dismissed Finding or finding_dismiss proving another Story owns it, and defer_with_proof assigning another-Story ownership or relieving current-Story responsibility. The same matrix rejects canonical safe timing statements requiring structured evidence plus a named owner before routing, or keeping unresolved applicability blocking until evidence resolves it and an owner accepts the route. Existing smoke remains green because it enumerates the previous wording. This violates CHK-001 adversarial:2/5: model the controlled scope/ownership/routing outcomes and a bounded positive fail-closed evidence-owner grammar rather than extending exact qualifier, destination, or outcome phrases.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-02T23:40:47.034Z",
@@ -1550,7 +1550,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "task-context-authority-guard-semantic-coverage-and-safe-timing",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in bf04310938 by replacing the scattered severity, unknown-applicability, dismissal, and deferral checks with one bounded controlled-relation classifier. The exact F-069 unsafe and safe timing cases are committed in prompt-full-context-envelope-smoke.ts and execute across five REVIEW roles and three Task Context surfaces. On current material, build, production full-context smoke, focused and full prompt registry, prompt measurement, prompt baseline, process-fact, and runtime-fact checks exited successfully; 60/60 pinned evidence items were refreshed; pre_review_check reports pass/current/biting/related/admissible; acceptance_rollout_report_read reports pass/current/full-3x2.",
+      "resolvedAt": "2026-09-03T12:42:52.931Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-070",
