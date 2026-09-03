@@ -1,0 +1,80 @@
+{
+  "storyId": "B-9a49",
+  "checkedAt": "2026-09-03T15:53:29.781Z",
+  "headHash": "dbdc0de719dae474c3c09986891aacd3b2efdeb7",
+  "materialHash": "fce988aa897be6296aa23743d261213c04186dbbaa218c7c242bf7e3d21b2c95",
+  "storyFilesHash": "251e6e2e84871a6484f5533f638a262f568a7c66eb20703f3be689169d8036dd",
+  "reviewRound": "2026-09-03T13:24:28.264Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md#主-agent-行为准则 (defect triage section, lines 67-80)",
+      "promise": "Replace the old unbounded proactive-repair instruction with 'REVIEW Finding handling', 'Bounded current-Story repair', 'Evidence-backed routing, otherwise fail closed', and 'Compatibility boundary and dismissal' guidance.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- AGENTS.md shows the old proactive/global-green paragraphs removed and the four new bounded-scope paragraphs inserted verbatim; matches CHK-002 plan text and the review-finding-triage-prompt-change-proposal.md decision."
+    },
+    {
+      "docPath": "CLAUDE.md#主-agent-行为准则",
+      "promise": "Mirror the AGENTS.md defect-triage rewrite byte-for-byte in CLAUDE.md, replacing the old '多揽责任少推卸' / '跨 story 全局意识' guidance.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- CLAUDE.md shows the identical four paragraphs (REVIEW Finding handling / Bounded current-Story repair / Evidence-backed routing / Compatibility boundary) inserted, byte-identical to the AGENTS.md diff; current CLAUDE.md content (loaded in this session) matches exactly."
+    },
+    {
+      "docPath": "packages/main/src/core/prompt-registry.ts#REVIEW_FINDING_TRIAGE_CONTRACT",
+      "promise": "Deliver one canonical REVIEW Finding triage contract, appended once during prompt assembly to exactly the five active modular REVIEW roles (behavior, concept, docs, quality, test-coverage), in both legacy-full-context and full-envelope modes, with a marker guard against double-appending.",
+      "verifiedBy": "diff/grep + smoke test read + live-smoke transcript",
+      "evidence": "resolvePromptTemplateBody() appends REVIEW_FINDING_TRIAGE_CONTRACT to isModularReviewerRoleId() entries only and throws if REVIEW_FINDING_TRIAGE_CONTRACT_MARKER is already present; prompt-registry-smoke.ts (812 added lines) asserts delivery to exactly MODULAR_REVIEWER_ROLE_IDS in both modes and asserts non-REVIEW roles do not receive it; live-smoke-transcript.json (materialHash fce988aa..., matching current story materialHash) records exitCode 0 for 'Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.'"
+    },
+    {
+      "docPath": "packages/main/src/core/prompt-role-contract-registry.ts#REVIEW_FINDING_TRIAGE_CHECK_ID",
+      "promise": "Register the declarative defect-triage-and-routing-check requiredCheckId for exactly the five active REVIEW role policies (behavior, concept, docs, quality, test-coverage); do not add it to any non-REVIEW role.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows reviewFindingTriageRequiredCheckIds spread into requiredCheckIds only on the five ROLE_POLICIES entries named above; no other role entry (story-init, scope-plan, implementer, delivery, evaluator, etc.) references reviewFindingTriageRequiredCheckIds."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+      "promise": "Document the bounded Agent-side projection of the Dynamic Finding System execution plan: exact affected surfaces (5 REVIEW roles + AGENTS.md/CLAUDE.md + implementer handoff + prompt-envelope guard), explicit non-authorized changes (Finding schemas, handlers, lifecycle predicates, process-fact registries, severity/applicability computation, historical data), and executable verification obligations.",
+      "verifiedBy": "read + cross-check against code",
+      "evidence": "Read full document (390 lines); its role list ('proof-or-stop-review-behavior/concept/docs/quality/test-coverage') matches MODULAR_REVIEWER_ROLE_IDS exactly, and prompt-registry-smoke.ts:651 regex-extracts this exact section and diffs it against the live role list so the doc and code cannot silently drift; scope-exclusion list matches the fact that no handlers/, no Finding schema files, and no lifecycle-predicate files appear in git diff main...HEAD --name-only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md#CHK-005/CHK-006 (acceptance-basis + adapter-root repairs)",
+      "promise": "CHK-005 reconciles process-fact topology edges with verifier-owned acceptance-basis paths; CHK-006 repairs canonical/legacy Codex adapter-root path handling. Both are bounded infrastructure repairs with their own dedicated tests, not Dynamic Finding authority changes.",
+      "verifiedBy": "diff/grep + dedicated smoke tests + live tool read (with caveat)",
+      "evidence": "CHK-005 (11/11 verificationEvidence passing) and CHK-006 (3/3 passing) both mechanically pass via proofstory-acceptance-basis-smoke.ts / proofstory-pre-review-check-smoke.ts. CAVEAT: independently re-running proof-or-stop acceptance_topology_check and pre_review_check_read right now (2026-09-03T15:5x) shows non-blocking FAIL (codes PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED; mode=observe, blocking=false) because multiple metadata commits (checklist_update/verification_evidence/validate/test-transition) landed after the last acceptance_basis_generate/pre_review_check capture, re-staling the signed artifact binding — the deep proof fields (executableEvidence=current, mutations=biting, transcript=related, authority=admissible) remain affirmative, and proof-or-stop acceptance_rollout_check / acceptance_rollout_report_read both show PASS with a current full-3x2 receipt. This is the same class of staleness Finding F-067 already fixed once (resolvedAt 2026-09-02T23:08); it has since regressed again from routine post-fix metadata commits and should be reissued (proof-or-stop pre_review_check) before DONE, but is not a functional break in the delivered CHK-005/CHK-006 code and is not gate-blocking in current observe mode."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "13/13 verificationEvidence passing (happy 3 / edge 4 / adversarial 6). prompt-registry-smoke.ts adds delivery/parity/protocol/semantic/isolation/malicious-context assertions across MODULAR_REVIEWER_ROLE_IDS x both envelope modes, including a mask-based combinatorial loop (2^5) over which roles already contain the marker to prove the double-append guard. Live-smoke transcript (exitCode 0, materialHash matches current HEAD material) independently proves generated prompts for all five REVIEW lanes visibly contain the contract in both envelope modes while non-REVIEW prompts do not."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "10/10 verificationEvidence passing (happy 2 / edge 3 / adversarial 5), covering Story Owner + implementer bounded-repair guidance parity between AGENTS.md and CLAUDE.md."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "7/7 verificationEvidence passing (happy 2 / edge 2 / adversarial 3); prompt-role-contract-registry.ts diff confirms exact 5-role registration with no non-REVIEW leakage, matching declared-metadata-is-non-evidentiary framing."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "16/16 verificationEvidence passing (happy 4 / edge 5 / adversarial 7). prompt-envelope.ts adds a large adversarial Task-Context-authority guard (rejected-authority relation detection, negation scoping, retired-verdict alias detection) with prompt-full-context-envelope-smoke.ts (1123 added lines) exercising contradictory/malicious Task Context cannot override the canonical contract; build, process-fact, runtime-fact, prompt-baseline, and story-bound Codex adapter verification all run against final committed source (verify_codex: 7/8 pass, the 1 non-pass item is an environment advisory about global-CLI-vs-worktree path resolution, not a code defect)."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "11/11 verificationEvidence passing via proofstory-acceptance-basis-smoke.ts (64 changed lines). See docsPromises caveat: live acceptance_topology_check/pre_review_check_read currently show non-blocking staleness (observe mode) from post-fix metadata-commit churn; deep proof fields remain current/biting/related/admissible and acceptance_rollout_check/report_read remain PASS with a current full-3x2 receipt."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "3/3 verificationEvidence passing (happy 1 / edge 1 / adversarial 1) via proofstory-pre-review-check-smoke.ts (197 changed lines), covering canonical and legacy Codex adapter-root path resolution."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 checklist items are done with 60/60 verificationEvidence passing and a fresh 121-command proof-or-stop validate PASS (materialHash matches current HEAD). CLAUDE.md/AGENTS.md and prompt-registry.ts/prompt-role-contract-registry.ts deliver the exact canonical REVIEW Finding-triage contract to the five active REVIEW lanes as promised, mechanically enforced by prompt-registry-smoke.ts and independently proven by an exit-0 live-smoke transcript. All 72 review findings (F-001..F-072) are resolved with strong evidence and zero remain open. One honest caveat: the self-referential acceptance_topology_check/pre_review_check_read tools currently report non-blocking staleness (observe mode) that should be refreshed before DONE; this does not affect the delivered code or its dedicated tests. Delivery is otherwise complete; unrelated DONE gates (review-assurance-floor 0/3 local rounds, branch behind main, missing done-required-evidence/summary.json) are outside this delivery-check's remit and remain the Story Owner's responsibility."
+  },
+  "_hash": "bc4a9c8bcdb0b446fc07b7fb929a2f20833b2c289855e07c5d65910c8c335629"
+}
