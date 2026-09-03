@@ -182,7 +182,7 @@ const PACKAGE_ALIAS_MANIFEST_RECORDS: PackageAliasManifestRecord[] = SHIPPED_PAC
 }));
 const PACKAGE_ALIAS_EDGE_INVENTORY = buildPackageAliasEdgeInventory(PACKAGE_ALIAS_MANIFEST_RECORDS);
 const PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM = 'package-imports-self-exports-edge-inventory-sha256-v1';
-const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75';
+const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = '3b484827d8704b3952b2fe20528d24a1e0b569bce8f5a8aaa36f69f321e3f7eb';
 
 function packageAliasEdgeInventoryHash(records: readonly PackageAliasManifestRecord[], edges: readonly PackageAliasEdge[]): string {
   const manifestSurfaces = records.map(record => ({
@@ -397,7 +397,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // appear in this file's main...HEAD diff at all, so it did not move the pin.
   // The AST algorithm strips comments, so this note is the ONLY durable record of the
   // human re-approval.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -464,9 +464,17 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // `await import(`file://${initPath}`)` (line 814, same runCli anchor and cli-init
   // initPath producer) and `await import('./dashboard.js')` (line 826). Both coupled
   // copies of this digest were updated together.
-  ['packages/main/src/cli-engine.ts', '96b246fba1b363f9388ee4c641aa4840497886c98d57636cdd3750e9a09da75b'],
-  ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
-  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
+  // origin/main merge: repinned because the toolchain moved, NOT the code. origin's
+  // lockfile brings typescript 5.9.3, and canonicalAstFingerprint prints through
+  // ts.createPrinter, so every AST-keyed digest in this file shifts. Re-approval basis
+  // checked BEFORE repinning: cli-engine.ts's dynamic-code surface is byte-identical to
+  // pre-merge main -- a diff of every import()/require()/eval()/new Function() line
+  // reports NO difference, the approved call site is still the same runCli anchor with
+  // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
+  // initPath producer is unchanged. Loader behaviour being approved is unchanged.
+  ['packages/main/src/cli-engine.ts', '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271'],
+  ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
@@ -491,7 +499,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // same post-refactor source plus exactly three brand-text lines (two console.error
   // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
   // eval/Function/require/import() was added, so this exemption's basis is unchanged.
-  ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
+  ['bin/bootstrap-runner.js', 'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26'],
   // B-3e16 CHK-003: the graph handler invokes five members on the module object returned by
   // its approved runtime import — lib.findRoot, lib.createApp (x2), lib.startServer,
   // lib.openBrowser. Because that module object comes from a non-literal import(), the
@@ -1678,8 +1686,15 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
   // runLocalBootstrap, plus the BRAND_ENV_DIST fallback) are byte-identical to that copy, including their path producers —
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
-  ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
-  ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
+  ['bin/bootstrap-runner.js', 'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26'],
+  // origin/main merge: repinned for the TOOLCHAIN, not the code. origin's lockfile
+  // brings typescript 5.9.3 and canonicalAstFingerprint prints via ts.createPrinter,
+  // so every AST-keyed digest here shifts. Basis checked BEFORE repinning:
+  // bin/proof-or-stop-codex.js is byte-identical to pre-merge main (cmp reports no
+  // difference) and a diff of every dynamic-loader line reports none either, so the
+  // approved `main` anchor with the `pathToFileURL(candidate).href` argument is
+  // unchanged. Only the printer moved.
+  ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
   // B-3e16 CHK-003: gates the graph handler's runtime load of packages/graph's dist entry
   // (see the knownBenignNonLiteralLoaderCalls entry for why it cannot be static, and for
   // the `--root` reachability this approval accepts). Whole-file structural fingerprint, so
