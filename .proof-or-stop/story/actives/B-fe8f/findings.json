@@ -569,14 +569,15 @@
       "resolvedAt": "2026-09-03T16:08:02.730Z",
       "resolvedReason": "Fixed by proof-or-stop-implementer commit bd8e37423cb30d3fae09fb2d8c743558db6c516e and independently verified in quality review run B-fe8f:RR-056. The current query recomputes the persisted carrier request digest from the committed record bundle; the complete Story 3 smoke exited 0 and printed query.carrier_request_digest_binding: PASS outerMutation=refused legacyQuery=preserved, while the signed exact-request compatibility check remained accepted only in its legacy query path.",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "ledgerCommitReceiptId": "lrc_mtlpydwt_1t2z_b063df3be35d41b9bc96cea8c2a70a5b"
     },
     {
       "id": "B-fe8f:F-028",
       "desc": "Legacy Finding terminal transitions are not crash-recoverable. packages/main/src/handlers/finding.ts:169-202 durably appends a legacy_identity_binding and assigns finding.recordId only in the in-memory compatibility mirror; lines 263-287 then durably append the signed lifecycle transition before the caller rewrites findings.json. If the process dies in that window, packages/main/src/core/store.ts:564-586 projects recordIds only from recordType=finding, not legacy_identity_binding, while lines 603-607 require candidate.recordId === transition.findingRecordId. An isolated current-build StoryStore repro deliberately omitted the post-transition mirror write and returned {durableTransitionRows:1,mirrorRecordId:null,projectedStatus:\"open\"}. Thus an acknowledged resolved/dismissed legacy Finding reappears open after crash, violating the Section 9.3 crash/retry and exactly-once lifecycle contract; add recovery projection for the signed legacy binding and a kill-window regression.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T13:44:42.080Z",
@@ -589,7 +590,12 @@
         "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
       ],
       "signatureTag": "edge|ts|legacy-finding-terminal",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtlpyl9g_bfu_189c6d51e570485ca5406dff4d75f14a",
+      "resolvedAt": "2026-09-03T16:08:11.824Z",
+      "resolvedReason": "Fixed by proof-or-stop-implementer commit bd8e37423cb30d3fae09fb2d8c743558db6c516e and independently verified in quality review run B-fe8f:RR-056. The projection restores a legacy record identity only from a current trusted signed binding with exact finding hash, receipt, and chain agreement; the complete Story 3 smoke exited 0 and printed finding.lifecycle_legacy_kill_window: PASS durableTransition=1 mirrorWrite=omitted projected=resolved unsignedMirror=open.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
