@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import * as checklistHandlerModule from '../handlers/checklist.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
-import { buildVerificationCoverage } from '../core/verification.js';
+import { buildVerificationCoverage, SELECTOR_NARROWING_REFUSAL_CODES } from '../core/verification.js';
 import { resetConfigCache } from '../core/config.js';
 import type {
   ChecklistData,
@@ -675,6 +675,92 @@ const CHK002_CASES: SmokeCase[] = [
       } finally { cleanup(env); }
     },
   },
+  {
+    id: 'CHK-002/B10',
+    desc: 'a re-pin to the selector already pinned is refused as unchanged',
+    run: async () => {
+      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
+      try {
+        // A provable corpus: only the requested selector is the problem, so a refusal
+        // here cannot be a missing-proof refusal wearing the wrong code.
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
+          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+            selector: OLD_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_selector_unchanged/,
+          'B10 unchanged selector',
+        );
+        assert.equal(readNarrowings(env, 1).length, 0, 'no narrowing was retained');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-002/B11',
+    desc: 'a pinned command with no recorded receipt has nothing to prove a narrowing against',
+    run: async () => {
+      const env = makeEnv([{ ref: 'INT-PIN', type: 'cli' }]);
+      try {
+        // Pinned, but not one receipt recorded for that command yet.
+        const cl = env.store.readChecklist(env.storyId);
+        for (const intent of cl.items[0].verificationIntent?.happy ?? []) {
+          intent.verification = { command: PASS_CMD, selector: OLD_SELECTOR };
+        }
+        cl.items[0].verificationEvidence = [];
+        env.store.writeChecklist(env.storyId, cl);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_no_recorded_receipts/,
+          'B11 empty recorded corpus',
+        );
+        assert.equal(readPin(env, 0)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-002/B12',
+    desc: 'receipts that do not predate the request cannot prove the narrowing',
+    run: async () => {
+      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
+      try {
+        // Otherwise provable, but both sides claim to have run AFTER this request.
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR, executedAt: '2099-01-01T00:00:00.000Z' },
+          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR, executedAt: '2099-01-01T00:00:00.000Z' },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_receipt_not_predating_request/,
+          'B12 receipts postdating the request',
+        );
+        // The other half of the same branch: an unusable execution time is UNKNOWN, and
+        // unknown never counts as "recorded before the request".
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
+          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR, executedAt: 'not-a-time' },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_receipt_not_predating_request/,
+          'B12 unusable execution time',
+        );
+        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after both refusals');
+      } finally { cleanup(env); }
+    },
+  },
 ];
 
 // ── CHK-003: reachable as a proof-or-stop command, documented, and registered ──
@@ -696,6 +782,28 @@ const CLAUDE_MD = join(REPO_ROOT, 'CLAUDE.md');
 
 /** The command name the narrowing must be reachable under. */
 const NARROW_COMMAND = 'verification_pin_narrow';
+
+/**
+ * Refusal codes raised by `narrowVerificationPin` itself, BEFORE the recorded-receipt
+ * proof is attempted. They live in the handler rather than in the pure evaluator, so
+ * they cannot be derived from `SELECTOR_NARROWING_REFUSAL_CODES` and are listed here;
+ * together the two lists are every code a caller of the command can be handed.
+ */
+const HANDLER_NARROWING_REFUSAL_CODES = [
+  'narrowing_caller_output_not_admissible',
+  'narrowing_unknown_input_field',
+  'narrowing_selector_empty',
+  'narrowing_reason_too_short',
+  'intent_ref_unresolved',
+  'narrowing_intent_not_executable',
+  'narrowing_intent_not_pinned',
+  'narrowing_receipt_set_unchanged',
+] as const;
+
+const ALL_NARROWING_REFUSAL_CODES: readonly string[] = [
+  ...HANDLER_NARROWING_REFUSAL_CODES,
+  ...SELECTOR_NARROWING_REFUSAL_CODES,
+];
 
 /** The phrase no documentation may use about the engineered-failing-run case. */
 const OVERCLAIM = 'mechanically excluded';
@@ -847,19 +955,12 @@ const CHK003_CASES: SmokeCase[] = [
       // The decision doc must also carry the invariant, the bound and every refusal code,
       // so it is the record the PLAN scope review found missing rather than a summary.
       assert.ok(decision.includes('narrowing'), 'the decision doc states the narrowing-only exception');
-      for (const code of [
-        'narrowing_selector_loosens',
-        'narrowing_selector_not_discriminating',
-        'narrowing_no_recorded_failing_render',
-        'narrowing_no_recorded_passing_receipt',
-        'narrowing_selector_absent_from_passing_receipt',
-        'narrowing_receipt_set_unchanged',
-        'narrowing_receipt_selector_unknown',
-        'narrowing_caller_output_not_admissible',
-        'narrowing_receipt_material_mismatch',
-        'narrowing_reason_too_short',
-      ]) {
+      // Both documents present their tables as COMPLETE, so completeness is asserted
+      // against the codes the implementation can actually emit, not against a
+      // hand-copied subset that drifts the moment a branch is added.
+      for (const code of ALL_NARROWING_REFUSAL_CODES) {
         assert.ok(decision.includes(code), `the decision doc lists the refusal code ${code}`);
+        assert.ok(claudeMd.includes(code), `CLAUDE.md lists the refusal code ${code}`);
       }
       assert.ok(claudeMd.includes(NARROW_COMMAND), 'CLAUDE.md documents the command form');
       assert.ok(

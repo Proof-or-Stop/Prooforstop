@@ -537,17 +537,28 @@ export function computeRecordedReceiptSetDigest(receipts: readonly RecordedPinne
   return createHash('sha256').update(canonical).digest('hex');
 }
 
-export type SelectorNarrowingRefusalCode =
-  | 'narrowing_selector_unchanged'
-  | 'narrowing_no_recorded_receipts'
-  | 'narrowing_selector_loosens'
-  | 'narrowing_no_recorded_failing_render'
-  | 'narrowing_receipt_selector_unknown'
-  | 'narrowing_selector_not_discriminating'
-  | 'narrowing_no_recorded_passing_receipt'
-  | 'narrowing_selector_absent_from_passing_receipt'
-  | 'narrowing_receipt_material_mismatch'
-  | 'narrowing_receipt_not_predating_request';
+/**
+ * Every refusal code `evaluateSelectorNarrowing` can hand back to a caller, as a RUNTIME
+ * list rather than a type alone. B-1482 F-004: the decision record and CLAUDE.md both
+ * present their refusal tables as complete, and a type union cannot be enumerated at
+ * runtime, so three reachable codes were documented nowhere and exercised by nothing.
+ * The documentation case iterates THIS list, so a code added here without a documented
+ * row fails the suite instead of silently widening the gap again.
+ */
+export const SELECTOR_NARROWING_REFUSAL_CODES = [
+  'narrowing_selector_unchanged',
+  'narrowing_no_recorded_receipts',
+  'narrowing_selector_loosens',
+  'narrowing_no_recorded_failing_render',
+  'narrowing_receipt_selector_unknown',
+  'narrowing_selector_not_discriminating',
+  'narrowing_no_recorded_passing_receipt',
+  'narrowing_selector_absent_from_passing_receipt',
+  'narrowing_receipt_material_mismatch',
+  'narrowing_receipt_not_predating_request',
+] as const;
+
+export type SelectorNarrowingRefusalCode = typeof SELECTOR_NARROWING_REFUSAL_CODES[number];
 
 export interface SelectorNarrowingProof {
   command: string;
