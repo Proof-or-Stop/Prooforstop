@@ -886,6 +886,42 @@
       },
       "readDiagnostics": [],
       "_hash": "221ed310200c011da6838ca108e0edf6efbe6095176c0b040dac95dc7e2ad7bb"
+    },
+    {
+      "id": "B-9f2c:RP-030",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review at frozen head 6a4a254699 (RI-003 OPEN epoch). No concept deletion/rename with residual references: --diff-filter=D and --diff-filter=R both empty on main...HEAD. Dossier port (CHK-001) is purely additive; every new CSS class is consistently referenced across app.css/app.body.html/app.js with no dangling selector, and the README lane-merge claim is backed by real code at dossier.js:47. --story flag/route (CHK-002/003) are additive, no-flag path byte-identical, confirmed by graph-story-flag-smoke passing live (exit 0). F-005/F-006 verified directly in verify-missing-assets-fail.mjs: leaked pids sampled BEFORE kill, kill unconditional, existsSync sampled AFTER kill, leak still reported in both branches -- F-006 does not reintroduce F-005's original weakness (content-shape assertions retained). Old sentinel MISSING_ASSETS_FAIL_LOUDLY_OK only in a different DONE-locked story's frozen evidence, not live code/docs. test:graph-story-flag-smoke spelled identically across lattice.config.json, package.json, full-suite-runner.ts, and the task filename -- ran live, exit 0. retired-authority-vocabulary-guard-smoke.js also ran live, exit 0 (legitimate re-pin of graph.ts handler edit). No blocking findings this round.",
+      "createdAt": "2026-09-03T06:36:49.830Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-051",
+      "envelopeId": "3c2a5648f7f18807552459a280c7f42e7c8b00a4cb10a4d305bc36db7fca61e6",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c48de4916e0c5b0a40c4c8136146dfa0c4d64bcc8c768fbc6432f8fde4ba75bb"
     }
   ]
 }
