@@ -59,6 +59,7 @@ src/
       graph2d.js        d3 graph view
       app.js            drawer, tabs, search, phase-flow diagram
       playback.js       timeline playback viewer + MP4/GIF export
+      dossier.js        full-window per-story dossier page
 ```
 
 ### Two change signatures
@@ -87,6 +88,52 @@ layer), and the surfaces that cannot read CSS directly — the 2D canvas painter
 the d3/SVG graph, and Mermaid, which bakes its theme in at `initialize()` — read
 those same properties and are repainted on a switch.
 
+## Story dossier
+
+The **open dossier** button in the drawer header opens a full-window page for the
+selected story. Opening runs a fast sweep from T+0 so the reader watches the story
+assemble, then lands on the full current state; pressing Play replays the recorded
+history at a chosen pace, every panel advancing together on one shared time cursor.
+The sweep is skipped under a reduced-motion preference.
+
+The page then keeps itself current: it re-polls `/api/story` while open (4s in flight,
+15s finished). New findings land with a burst ring on the map, a highlighted line in the
+wire log, a counter bump and a toast; a phase change or a story reaching DONE is
+announced the same way.
+
+The dossier has its own URL: opening it pushes `/story/B-xxxx` (served by the same server
+as `/`, which stays the graph), so a dossier can be opened directly by path, shared, and
+driven with the browser's back/forward buttons; closing it returns to `/` with the graph
+and drawer intact. From the command line, `proof-or-stop graph --story=B-xxxx` opens that
+page directly — see the root `CLAUDE.md` for the flag table.
+
+- **The map** — one dot per finding, packed into labelled hulls by a selectable dimension
+  (reviewer lane, root-cause cluster, category, severity, file). Dot size is severity,
+  faded dots are settled, hollow dots are dismissed. The layout is deterministic (greedy
+  circle packing + phyllotaxis), so it needs no d3 and never jitters.
+- **The loop** — the seven-phase lifecycle with visit counts, held time and dotted red
+  arcs for backward bounces.
+- **The web** — the story's ego-graph: what it builds on and who builds on it, declared
+  dependencies solid and prose references faded, each neighbour a click away.
+- **Checklist / Outcome** — a segmented progress track beside a big count, and the
+  acceptance verdict as a stamp-like seal next to metric tiles for evidence, DONE-gate
+  receipts, review passes and validation.
+- **Findings feed** — every finding in one chronological list, newest first, each row
+  expanding in place to the full text, resolution and files.
+- **Origin & Decision / Signals & Ledger** — the decision drawn as a fork (chosen option
+  highlighted, the rest ghosted), pre-mortem markers and keyword chips, with metric tiles
+  for bugs, milestones, takeovers, red evidence and gate failures.
+- **The swarm** — one cell per recorded dispatch, coloured by agent type.
+- **Pulse** — findings opened vs settled over story time, phase bands behind.
+- **Wire log** — the process-event stream, one line per event.
+
+Everything is derived client-side from the raw `/api/story` detail (`findings.json`,
+`process-events.jsonl`, `index.json`, `clusters.json`, `checklist.json`) — seeded from the
+drawer's already-fetched copy, then refreshed by the dossier's own polling. Colours are
+read as CSS custom properties at paint time, so the dossier follows the light/dark toggle
+with no repaint hook. Lane names merge the `lattice-review-` and `proof-or-stop-review-`
+prefixes, so a story that straddles the rename reads as one set of lanes.
+
 ## Timeline playback
 
 The **Playback** button on a story's Timeline tab — beside the phase-flow diagram, and
@@ -113,6 +160,7 @@ or Edge; the viewer itself works anywhere Mermaid does.
 
 | Endpoint | Returns |
 |---|---|
+| `GET /story/B-xxxx` | the same shell; the client opens that story's dossier over the graph |
 | `GET /api/graph` | nodes + directed edges + signatures |
 | `GET /api/story?id=B-xxxx` | every file for one story, verbatim |
 | `GET /api/search?q=…` | FTS hits, stories ranked above their own artifacts |

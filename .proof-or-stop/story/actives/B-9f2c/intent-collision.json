@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-9f2c",
+  "id": "IC-20260902082951",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Migrate all four upstream commits after baseline 10b5921 (4c3bde0, 7ecad9a, a0b14da, 1536588) into packages/graph, and expose the dossier page via a --story=<id> flag on the existing graph command with pre-listen validation of unknown ids. Both the flag-vs-command choice and the refuse-before-listen behavior were explicitly confirmed by the user before implementation.",
+  "acceptedInterpretationHash": "sha256:a8c0eaeadd7e2d77a354f82a3123989e40b4c51e54dc629e864a1b630e337b84",
+  "notes": "Three competing readings assessed: (1) Scope of migration is exactly the four post-baseline commits -- the user said 'these features' referring to the story detail page added yesterday, 'all' means all of that work not more or less; no collision. (2) The word 'command' in Chinese is ambiguous between a standalone subcommand and a CLI invocation; however the user also said 'follow this repo conventions' which favours flags over new commands. More importantly, scope-boundary.json records explicit user confirmation (confirmedBy: qipan) that the --story flag was the chosen shape after being presented with both options. (3) scope-boundary.json confirmationNote explicitly records that both design questions were put to the user as choices and confirmed before the boundary was recorded. The hash provides integrity. All three readings converge on the same interpretation; no collision.",
+  "createdAt": "2026-09-02T08:29:51.783Z",
+  "updatedAt": "2026-09-02T08:29:51.783Z"
+}
