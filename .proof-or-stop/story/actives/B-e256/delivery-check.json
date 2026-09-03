@@ -1,31 +1,50 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-03T11:08:50.907Z",
-  "headHash": "8ae201a95df441f81bfb91057d5f108d1a0cc989",
-  "materialHash": "f150f182e8fba7496e63bab46051a2970148f96241b8d5e8b9fac5f96cf0d965",
-  "storyFilesHash": "e3087b537b36d05363e4872747aaae6687eb7b4e10b0fd76977f73822f556a25",
-  "reviewRound": "2026-09-03T10:14:45.943Z",
+  "checkedAt": "2026-09-03T13:41:23.335Z",
+  "headHash": "107fa8110b5437ef4bea9ad5abb91d6612693bca",
+  "materialHash": "3636a2b2d71087a8791e4be3728bad68b70023a9871b5da9c8296c8838c6736a",
+  "storyFilesHash": "e43156b14f14117b9ae93a9fc41832a6d32560e894516eacf8da3790f904d5b1",
+  "reviewRound": "2026-09-03T11:34:34.882Z",
   "agentId": "proof-or-stop-review-delivery",
-  "docsPromises": [],
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001.userSees",
+      "promise": "After npm --prefix packages/main run build re-emits dist, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version prints the version instead of permission denied",
+      "verifiedBy": "diff/grep + live run",
+      "evidence": "scripts/promote-dist.mjs now exports restoreBinExecutableBits(tree, dist) and promoteDist calls it on the staging tree before evicting old dist (git diff main...HEAD -- scripts/promote-dist.mjs). Live: ls -la packages/main/dist/cli.js on this machine shows -rwxr-xr-x (mode 0755) and `node packages/main/dist/cli.js doctor` runs successfully. node packages/main/tests/red/red-global-cli-exec-bit.mjs GREEN on both the live build pipeline case and 6 hermetic cases (0644->0755 restore, absent bin no-op, no-bin/unparseable/missing package.json no-op, non-ENOENT chmod failure propagates, staging failure aborts promotion before evicting old dist)."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002.userSees",
+      "promise": "GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable",
+      "verifiedBy": "diff/grep + live run",
+      "evidence": "packages/main/tests/red/red-global-cli-exec-bit.mjs is committed (new file in diff) and registered in proof-or-stop.config.json validate.commands (node, args: packages/main/tests/red/red-global-cli-exec-bit.mjs, timeoutMs 180000, git-common-dir shared resource). Ran it live from this worktree: exits 0 and prints the exact line 'GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable'."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003.userSees",
+      "promise": "proof-or-stop doctor prints a global-cli row with realpath, version and mode, and a one-line remediation when any of them drift",
+      "verifiedBy": "diff/grep + live run + hermetic test suite",
+      "evidence": "packages/main/src/core/runtime-environment-checks.ts checkGlobalCoreRealpath now emits actual.{realpath,version,binMode,executable,remediation} and compactFactDetail renders '<realpath> version=<v> mode=<m> executable=<yes/no>' in the doctor row (verified live: `node packages/main/dist/cli.js doctor | grep global-core-realpath` prints exactly '/Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.272 mode=0755 executable=yes' on this machine, the canonical pass case). All three fields' DRIFT branches were exercised only hermetically (this machine's global install is canonical/matched/executable, so no live drift case exists to observe): packages/main/tests/global-core-realpath.test.mjs (24 cases, run live, exit 0, 'ok global-core-realpath') covers non-executable bin (chmod remediation), .worktrees/ realpath drift (npm link remediation), dangling/broken global link, presence-probe EACCES/unreadable, realpath-resolution EIO failure, missing/whitespace-only version and version-mismatch (rebuild+relink remediation), and explicitly asserts each drift branch's `actual.remediation` is a single command or single '<a> && <b>' compound with no chained unrelated fix (cases 14-16, 18: assert.doesNotMatch(remediation, /&&\\s*(chmod|npm --prefix)/) after a relink, and 'exactly one command' assertions)."
+    }
+  ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs -> all GREEN including hermetic (d)/(e)/(f): a non-ENOENT chmod/stat failure on an existing bin target propagates instead of being swallowed, promoteDist restores the bit on the STAGING tree before evicting old dist, and a failed staging restoration aborts promotion before old dist is evicted (no trash, previous working dist kept). Live check: packages/main/dist/cli.js mode 0755. scripts/promote-dist.mjs diff shows restoreBinExecutableBits() called on staging before renameSync evicts the old dist, and it re-throws any non-ENOENT error."
+      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs run live in this worktree: exit 0. Live case: 'live: packages/main/dist/cli.js mode 0755' / 'GREEN live: packages/main/dist/cli.js is executable'. Build-pipeline case exercises scripts/build-main-with-binding.mjs + scripts/promote-dist.mjs end to end via a real tsc-emitted 0644 shebang file. 4 additional hermetic cases cover restoreBinExecutableBits directly: 0644->0755 restore with byte-identical content, absent-target no-op, no-bin/unparseable/missing-package.json no-op, and a non-ENOENT chmod failure (EACCES on a 0000 dist dir) propagating instead of being swallowed, plus a staging-failure-aborts-promotion case."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "red-global-cli-exec-bit.mjs is committed under packages/main/tests/red/ and registered in proof-or-stop.config.json validate.commands (node packages/main/tests/red/red-global-cli-exec-bit.mjs, timeoutMs 180000); running it directly is GREEN end-to-end (see CHK-001 transcript), i.e. the red test that was RED pre-fix is GREEN post-fix."
+      "transcript": "Same red-global-cli-exec-bit.mjs run above; the test itself IS the registered red test for this item. Confirmed registered in proof-or-stop.config.json (node, packages/main/tests/red/red-global-cli-exec-bit.mjs, timeoutMs 180000). Not independently re-run against unfixed main in this review (would require checking out main and rebuilding); the plan.md documents this as a manual transcript step performed during DEV, and the committed test's own hermetic cases (which fail before the CHK-001 fix existed) provide equivalent coverage of the regression this test guards against."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "node packages/main/tests/global-core-realpath.test.mjs -> ok global-core-realpath, 18 in-process cases including case 17 (dangling global npm-link entry: presence=dangling, installed=true, realpath=null, remediation=npm link repoint, never a pass with installed=false) and case 9/18 (X_OK denied with execute bits SET -> chmod is named only as NOT a fix, rebuild+relink offered instead; X_OK denied with bits CLEAR -> chmod +x remains the remediation). node packages/main/dist/cli.js doctor | grep global-core-realpath on this machine (a real, non-dangling, executable global install) renders: \"global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.272 mode=0755 executable=yes\". Verified both new diagnostics are wired into the real command path, not just the test seam: doctor.ts and check.ts both call runRuntimeEnvironmentChecks(root) with NO options object, so executableAccessProbe defaults to defaultExecutableAccessProbe (real accessSync X_OK), and resolveCorePackageCandidate/probeCorePackagePresence use real lstatSync/readlinkSync/existsSync with no seam at all -- only the owner/ACL denial scenario needs the injectable executableAccessProbe in tests because an unprivileged test process cannot fabricate a real EACCES-with-bits-set condition; the dangling-link path has zero test-only wiring."
+      "transcript": "node packages/main/tests/global-core-realpath.test.mjs run live: exit 0, 'ok global-core-realpath' (24 cases covering canonical pass with realpath+version+mode facts; unrelated-path drift; non-git fallback; non-executable bin chmod remediation; .worktrees/ realpath drift npm-link remediation; absent/directory bin target rebuild remediation; access(2) X_OK probe seam incl. bits-set-but-denied ownership/ACL case; unreadable/missing/no-bin/bin-entry-missing package.json as installed-but-unverifiable drift; dangling/broken global link never renders as absent; presence-probe EACCES never renders as 'not installed'; realpath-resolution EIO failure never renders as 'not installed'; genuinely absent (ENOENT/ENOTDIR) install stays the informational pass; missing/whitespace-only version and version-mismatch as drift with rebuild+relink; matching version produces no warning). Also ran `node packages/main/dist/cli.js doctor | grep global-core-realpath` live on this machine: printed the pass-case row '/Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.272 mode=0755 executable=yes' with no warnings, confirming the row renders in production doctor output end to end. The DRIFT branches of all three fields (realpath/version/mode) were only exercised hermetically in the test file, not live, because this machine's global install is canonical and healthy."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "No documentation files (CLAUDE.md, package docs, docs/) changed in this diff, so there are zero docsPromises to verify; this is a code-only fix confirmed by scanning the diff file list. Both cross-host MAJOR findings (dangling global npm-link read as absent-and-passing; chmod offered as a no-op fix when X_OK is denied despite execute bits being set) are fixed with hermetic tests covering happy, edge (worktree-checkout dangling link, absent bin target, non-file bin target, unreadable package.json) and adversarial (X_OK denied with bits set vs bits clear, ensuring the mode-aware branch does not regress the plain chmod-fixable case) paths, and both new code paths are reachable through the real doctor/check command entrypoints with no test-only seam standing between production and the diagnostic logic."
+    "summary": "All 3 checklist userSees promises are delivered in code and covered by tests that were run live in this review (red-global-cli-exec-bit.mjs exit 0, global-core-realpath.test.mjs exit 0 with 24 cases, validation-tier-planner-smoke.js PASS after a related digest-pin fix). Only the PASS/happy-path branch of all three doctor fields (realpath, version, mode/executable) was exercised live on this machine, since its global proof-or-stop install is canonical, version-matched and executable; every drift branch for all three fields (non-executable bin, .worktrees/ realpath drift, dangling link, unreadable/EACCES probe, EIO realpath failure, missing/mismatched version) was verified only hermetically via the committed test's temp-git-repo fixtures and injectable probe seams, not against a real broken global install. No unresolved TODO/FIXME/HACK found in the diff."
   },
-  "_hash": "4ec3a96de55cb1785df657c261533e5275ab23392d5d55e8ac5cffdae7ddda8e"
+  "_hash": "088ba4a5249b931021c8e9e4bd03b79619b843a16f7c9468e61549d13792fb8d"
 }
