@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-dc2e",
+  "records": [
+    {
+      "id": "RED-20260903043736",
+      "trigger": "Four checks pass without protecting anything: orphan validation-protocol smoke, membership smoke blind to real inventory, RED guard blind to finding-fix commits, cross-host review dropping host B findings (B-a745 F-002, F-012 and implementer reports).",
+      "acceptanceTargetRef": "sha256:17e8b101803e9f7040c03e51c819ca45b136b7d66d95abf8a5dce88d710cd35f",
+      "baselineHeadHash": "68ad5c61297b9e5848c4bfe914e567208499ef8b",
+      "baselineMaterialHash": "da17b7cc5da46dab76cdb32e13cf642f12f8a9a62fb8eba4831afb335bce1602",
+      "observedFailure": "On the baseline: node packages/main/dist/tasks/validation-protocol-smoke.js fails at the CASE_MISMATCH assertion with undefined and no inventory references it; full-suite-runner-smoke evaluates only synthetic fixtures so removing a real RESOURCE_POLICY row does not fail it; the RED guard regex in validation-tier-planner-smoke matches only CHK ids so a squashed RED(F-nnn) passes; cross-host-review persists only stdoutDigest and findingCount so host B finding text is lost.",
+      "failingCommand": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:17e8b101803e9f7040c03e51c819ca45b136b7d66d95abf8a5dce88d710cd35f",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/validation-protocol-smoke.js"
+      },
+      "note": "Per-item RED commits carry the finer-grained red evidence for the other three smokes.",
+      "createdAt": "2026-09-03T04:37:36.077Z"
+    }
+  ],
+  "createdAt": "2026-09-03T04:37:36.077Z",
+  "updatedAt": "2026-09-03T04:37:36.077Z"
+}
