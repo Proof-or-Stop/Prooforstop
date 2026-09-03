@@ -1,0 +1,60 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-09-02T13:43:19.871Z",
+      "issueCount": 5,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Make the rename-aware diff reader parse NUL-delimited output and fail loudly on unparseable rows + Delegate the DONE-required command parser to the canonical legacy parser and prove all call sites agree are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-41c8\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/validation-command-identity.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/story-signed-workspace-resolution.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature W0.4 pre-existing defect: absolute cwd inside commandSpec digests (done-required-validation.ts:132,147,155,323) breaks cross-worktree/host receipt verification, documented as its own small independently-testable story orphan-suspect: see decisions/repro-first-gate-enforce-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "53796f29de85965d9b9085b50e06bc86f853ffbe7660482148b9ccb083f85675"
+    },
+    {
+      "timestamp": "2026-09-02T13:44:07.490Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Make the rename-aware diff reader parse NUL-delimited output and fail loudly on unparseable rows + Delegate the DONE-required command parser to the canonical legacy parser and prove all call sites agree are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-41c8\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature W0.4 pre-existing defect: absolute cwd inside commandSpec digests (done-required-validation.ts:132,147,155,323) breaks cross-worktree/host receipt verification, documented as its own small independently-testable story orphan-suspect: see decisions/repro-first-gate-enforce-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "36b73a471df527a547667e23d6b1d203dff7e9e350e664d9334a57192b7518ed"
+    }
+  ]
+}

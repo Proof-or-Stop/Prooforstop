@@ -1,0 +1,287 @@
+{
+  "findings": [
+    {
+      "id": "B-41c8:F-001",
+      "desc": "concept-cleanup: CHK-003 deleted session.ts listActiveWorktrees(), but packages/main/src/tasks/gitroot-cwd-contract-smoke.ts:166-168 still names it in the allowlist comment (\"listActiveWorktrees / branch probe: an inline-arg bare-root git probe used to enumerate worktrees / infer the active story before a storyId is in scope\") as the rationale for exempting the whole handlers/session.ts file. The function no longer exists in session.ts; the exemption is still valid only because of the unrelated branch-probe execSync calls that remain (lines 104/161/165), so the comment now misattributes its own justification to a deleted symbol and will mislead a future reader into searching for listActiveWorktrees in session.ts.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T14:57:32.395Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-002",
+      "_hash": "f6780fa3ba73e0c073c4ec7d1bbf4bfb660db7cf65e27637f0bc49ac6927003b",
+      "files": [
+        "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-deleted",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-02T15:54:08.236Z"
+    },
+    {
+      "id": "B-41c8:F-002",
+      "desc": "quality-cleanup: packages/main/src/handlers/validation-plan.ts:678 `const { store, root } = ctx;` — `store` is destructured but never read anywhere in createValidationPlanHandlers after the CHK-003 refactor moved workspace resolution into `resolveStoryWorkspace(ctx, ...)`. Confirmed by diffing `tsc --noUnusedLocals -p packages/main` between main and this branch: this TS6133 hit is new on this branch (3 other unused-declaration hits in the same run are pre-existing on main, this one is not). Dead variable left behind by the extraction; delete it from the destructure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T15:01:29.856Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-003",
+      "_hash": "5a57bae8519f770fb571b69624bfa985bd899c935256a7dbc46becfde9623b0e",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@a20d0e0"
+    },
+    {
+      "id": "B-41c8:F-003",
+      "desc": "quality-cleanup: packages/main/src/core/story-workspace.ts:96 `StoryWorkspace.storyDir` is computed (via `store.storyDirPath(storyId)`) but never read by any of the four migrated call sites (session.ts, story-query.ts, validation-plan.ts, local-assurance-story-projection.ts) and never asserted in single-owner-extraction-smoke.ts (grep for `workspace.storyDir` across handlers + smoke returns zero hits, vs. every other field on the interface having at least one production consumer or a direct smoke assertion). It is dead weight on an already-large 11-field return shape that this same review was asked to check for size/readability; either wire a consumer or drop the field.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T15:01:39.710Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-003",
+      "_hash": "152e8b78ad158034e2bde1c37ecde40b9f9f9158094b4f58b58fed280d18de83",
+      "files": [
+        "packages/main/src/core/story-workspace.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-02T15:54:09.727Z"
+    },
+    {
+      "id": "B-41c8:F-004",
+      "desc": "CHK-003 userSees claims: run validation_plan against a DONE story and it reports the story as not resolvable from a linked worktree rather than reading a removed worktree. Verified empirically (real run: node packages/main/dist/tasks/single-owner-extraction-smoke.js, all 35 cases PASS) that this is true ONLY for the merged-and-actually-removed case. For the more consequential edge -- a DONE story whose worktree still physically exists (not yet cleaned up) -- validation-plan.ts:706 deliberately passes terminalPhaseGuard:false (comment at validation-plan.ts:702-705), and the shipped smoke test itself titles and asserts the opposite of the userSees claim: single-owner-extraction-smoke.ts:1128-1140 \"validation_plan: DONE-story reads are unchanged ... a residual worktree is still read, matching the pre-CHK-003 unguarded behaviour\" / assert.ok(planUnitIds(withResidue).includes(WS_WORKTREE_COMMAND_ID), \"validation_plan keeps reading a residual DONE worktree\"). This is a deliberate, tested, documented decision (decision.json preMortem #3: the helper exposes the guard as an explicit option with the default matching each migrated callers current behaviour) -- not a regression -- but it reopens exactly the drift risk B-a745:F-014 raised (validation-plan resolveStoryWorkspace lacks the phase-terminal guard story-query.ts/session.ts apply, so behavior CAN diverge for a DONE story whose worktree still resolves). The userSees wording, read plainly, implies the guard now protects validation_plan generally against DONE-story linked-worktree reads; an operator relying on that claim to trust validation_plan output for a just-merged, not-yet-cleaned-up story would be wrong. Recommend narrowing the userSees wording to name the residual-worktree case explicitly, or actually closing F-014 by guarding validation_plan too.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T15:03:28.958Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-005",
+      "_hash": "fe7c73731d278ff12217df2df78dfffa91cd921840778a2a7f294f1ad47b2bc4",
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts",
+        "packages/main/src/core/story-workspace.ts",
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "happy|ts|validation-plan-terminal-phase-guard-usersees",
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@a20d0e0"
+    },
+    {
+      "id": "B-41c8:F-005",
+      "desc": "CHK-004 audit classifies proof-or-stop-handoff.ts (its only resolveGitCwd call site, handlers/proof-or-stop-handoff.ts:579 inside buildPrefetchBundle) as workspace-rooted (no story/checklist/config read at all), per single-owner-extraction-smoke.ts:1558 and the rule comment at 1253-1255. Traced the actual data flow: buildPrefetchBundle computes packGitCwd via resolveGitCwd at line 579 and uses it ONLY for buildSupersessionReport (line 585). But the SAME function, lines 556-561, builds activeStorySummary/doneStorySummary/etc by calling storyHandlers.story_get({storyId: pack.storyId, detail:true}) and summaryHandlers.summary_get(...) -- handler instances constructed from the SAME ctx as proof-or-stop-handoff.ts's own handler (createStoryQueryHandlers(ctx) at line 550), not from the resolved workspace. story_get itself (handlers/story-query.ts:456-466) calls store.readChecklist / store.readReview / store.readStory directly (ctx.root, not gitCwd; it does NOT call the CHK-003 readStoryProjection/resolveStoryWorkspace helper that story_list uses). So proof-or-stop-handoff.ts genuinely reads story/checklist data anchored to ctx.root, composited alongside a separately-resolved packGitCwd used only for one field of the same report -- exactly the split-brain risk (different parts of one output keyed to different roots) this audit exists to catalog, and the smoke's own documented safety bias (single-owner-extraction-smoke.ts:1232-1234: a false FLAG is the safe direction, a false PASS would hide a caller) is violated here: the file-level literal-call-expression scan cannot see reads that happen inside a DIFFERENT file reached through a composed handler call, so it produces exactly the false PASS the design says to avoid. The workspace-rooted (no read at all) label creates false confidence that proof-or-stop-handoff.ts needs no attention from the follow-up migration draft (migrate-resolvegitcwd-callers-to-workspace) this audit scopes, when its activeStorySummary/doneStorySummary can diverge from its own supersession/packGitCwd view for a wrapper-root layout or any invocation where ctx.root differs from the story's resolved workspace. Recommend either (a) documenting this as a known scope limit of the mechanical scanner (file-level, no call-graph tracing into composed handler modules) alongside the printed report, or (b) extending the scan to follow at least one hop into locally-constructed handler-module calls (storyHandlers.story_get etc.) so aggregator handlers like proof-or-stop-handoff.ts are not silently excluded from the follow-up migration scope.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T15:04:04.237Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-005",
+      "_hash": "590435532175450219d6ac57a36c49ffeb25e485ca85aa4fc5d0fcb122bf6690",
+      "files": [
+        "packages/main/src/handlers/proof-or-stop-handoff.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|resolvegitcwd-audit-composed-handler-reads",
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@a20d0e0"
+    },
+    {
+      "id": "B-41c8:F-006",
+      "desc": "validation-tier-planner-smoke case F-023 pins the real-inventory commandSetDigest (validation-tier-planner-smoke.ts:403, eba363ed...). CHK-004 commit b11dd0fb02 added test:single-owner-extraction to proof-or-stop.config.json validate.commands, so the real digest is now 791165cf... and the suite prints validation-tier-planner-smoke: FAIL (1 case failed) on this branch while main passes. Re-pin the digest to the value the current inventory produces and state in the commit body why it moved. Separately observed, not fixed here: the suite exits 0 despite printing FAIL, so a validate gate would not catch this; recorded for the test-and-guard credibility story.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-02T15:34:06.891Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "_hash": "c4d18e7603caf9d0dc77415da07b1975cd8eb2c130a3633352119d1b8a8a45b4",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "missing|ts|validation-tier-planner",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-006@e7e44db"
+    },
+    {
+      "id": "B-41c8:F-007",
+      "desc": "The verification executor (core/validation-executor.ts trimOutput, MAX_OUTPUT_CHARS=12000, applied at line 1313 before the selector check) keeps only the first 12000 chars of a pinned command output. After F-005 the audit block printed by single-owner-extraction-smoke grew to 9034 chars (total output 14759), so the CHK-004 selector lines now start at offset 12681 and verification_evidence_add refuses them with [receipt_selector_absent] even though the smoke passes 37/37. Fix inside this story: print a compact audit block by default (one line per real caller: file, classification, which of story|checklist|config|via-handler remains; plus the comment-only list and the flagged count) and print the per-read line detail only when SINGLE_OWNER_AUDIT_VERBOSE=1 is set; keep total default output under 10000 chars and add a case asserting that bound. The executor truncate-before-match behaviour itself is recorded separately as draft evidence-executor-selector-truncation.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-02T15:43:05.594Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "_hash": "bd093ff2898bb1d9130ee3de046f3f7d7965f8d84374fc6f144bf1b23d6e8c76",
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|verification-executor-core",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-007@e50125b"
+    },
+    {
+      "id": "B-41c8:F-008",
+      "desc": "concept-cleanup: packages/main/src/tasks/single-owner-extraction-smoke.ts:1936 F-005s vacuous-label regression guard checks the assembled audit line for the string workspace-rooted (no story/checklist/config read at all) but the label was renamed in the same F-005 fix wave (a20d0e0e40) at line 1697 to workspace-rooted (no story/checklist/config read and no delegation on ctx at all). classificationOf can never emit the pre-rename string, so this assert.ok(...includes(...)) is now vacuously true regardless of whether the vacuous label reappears for proof-or-stop-handoff.ts / done-required-validation.ts, silently defeating the exact regression the case name promises to guard.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T15:57:52.676Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-008",
+      "_hash": "29db973ee790e4baa03841f8c6867c176f508884a64dc55ceecf8d103927869e",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@220075c"
+    },
+    {
+      "id": "B-41c8:F-009",
+      "desc": "quality-maintainability: packages/main/src/tasks/single-owner-extraction-smoke.ts F-007 bound case (~L1994-2007) leaves only 86 chars of headroom under DEFAULT_STDOUT_BOUND_CHARS=10000 with the current default audit block (measured: default stdout projection 9914/10000 chars, audit block 3916 chars). The bound is a live-computed canary (verified correct via mutation test: injecting one stray detail line into the compact renderer correctly fails the case with a clear message), so this is not a silent-failure risk -- but the margin is thin enough that a routine future change (e.g. a new handlers/*.ts file gaining a real resolveGitCwd call, adding one more `<file>  <classification>` line to the audit block) will likely trip this canary on an unrelated story, surfacing as a confusing FAIL in single-owner-extraction-smoke rather than an obviously-related change. Recommend either widening DEFAULT_STDOUT_BOUND_CHARS toward the real 12000-char executor limit (still leaves slack) or adding a one-line comment at the bound constant pointing future editors to the fix options (raise the bound / shrink the compact line) so the failure is self-explanatory without re-deriving F-007 context.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T16:01:54.533Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-007",
+      "_hash": "e9e161cd5f128e7d7d59b58ba645a5c28514a7a12b8544c00f0db57c7133ee72",
+      "signatureTag": "missing|unknown|quality-maintainability-packages",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-02T16:31:08.225Z"
+    },
+    {
+      "id": "B-41c8:F-010",
+      "desc": "packages/main/src/tasks/single-owner-extraction-smoke.ts:1822 CHK-004:happy:0 pinned selector/case name says the audit block is \"listed with its call lines and a classification\", but F-007 (e50125b151) changed the default (SINGLE_OWNER_AUDIT_VERBOSE unset) rendering to print only `<file>  <classification>` per caller -- call lines now appear only under SINGLE_OWNER_AUDIT_VERBOSE=1, never in the pinned commands actual default stdout. The case still substantively verifies call lines via report.callers[].callLines and a separately in-memory-rendered verboseLines array, so this is not a vacuous check, but the selector text itself is now a stale/inaccurate description of what the pinned command npm run test:single-owner-extraction actually prints by default. CHK-004 userSees text is unaffected (it never promised call lines). Low severity: substance is covered, only the case-name/selector documentation has drifted from F-007s behavior change.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-02T16:02:28.102Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-009",
+      "_hash": "45de4f322a5d6e70350d6df2d46a315dba3b21f95fc33ddaa2d17028c23dc8a4",
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-02T16:31:09.630Z"
+    },
+    {
+      "id": "B-41c8:F-011",
+      "desc": "single-owner-extraction-smoke.ts:1532-1534 localFunctionNames() (regex: function keyword, name, optional whitespace, then an opening paren) does not allow a generic type-parameter clause between the name and the paren, so checklist.ts:135 `function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T` -- declared and called only inside checklist.ts itself -- is NOT recognized as local. It is instead treated as a non-local callee receiving bare ctx and flagged via-handler(withChecklistLock). Its body (core/store.ts:101 runtimeLockDirPath -> storyRuntimeLockPath) only computes a lock-directory path string; it contains zero readStory/readChecklist/loadConfig calls, so it provably never reads story/checklist/config data. This contradicts the audit's own documented rule (smoke.ts:1712/1531: 'local callees ... are not delegations', 'scanned in place not flagged'). Separately, contextNames() at smoke.ts:1526 (regex matching NAME colon HandlerContext with a trailing word-boundary) also matches the annotation HandlerContext['store'] (checklist.ts:149, story-create.ts:399/440) because the word-boundary only requires a word/non-word character transition, which exists immediately after the word 'HandlerContext' regardless of what follows (a bracket in this case) -- so 'store' is added to the file's ctx-name set even though its declared type is only HandlerContext's store property, not the bare context. Repro run: node -e with the two regexes above against the literal withChecklistLock and assertChecklistMutationCwd signatures confirms both: localFunctionNames returns an empty set for the withChecklistLock declaration, and contextNames returns {ctx, store} for the assertChecklistMutationCwd declaration. Net effect: `npm run test:single-owner-extraction` default output prints checklist.ts as 'reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, withChecklistLock)' -- the withChecklistLock half of that is a false delegation flag, not a conservative-but-honest one, because the callee is fully in-file, fully inspectable, and provably reads nothing. CHK-004's stated purpose is to scope the follow-up draft migrate-resolvegitcwd-callers-to-workspace; a spurious withChecklistLock entry could misdirect that migration into inspecting a callee that needs no change, and it means the printed via-handler(...) label is not always an honest 'reads' claim -- for this entry specifically it is simply wrong, not merely unverified. Fix suggestion: extend the localFunctionNames function-declaration regex to tolerate an optional generic clause (angle-bracket group) between the function name and the opening paren, and tighten the contextNames regex so the HandlerContext token is rejected when immediately followed by '[' or '<' (subscript/generic-instantiation forms), so a ctx.store-typed parameter is not folded into the ctx-name set.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-02T16:03:54.589Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-010",
+      "_hash": "c51fde5181c432d03fa22177afc0545de897d6d3749951871044680040bec5fa",
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "edge|ts|single-owner-extraction",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@220075c"
+    },
+    {
+      "id": "B-41c8:F-012",
+      "desc": "concept-cleanup: packages/main/src/tasks/validation-tier-planner-smoke.ts:404 comment cites '(commit b11dd0fb02)' as the CHK-004 audit commit, but branch history for B-41c8 was rewritten after this comment was written, so b11dd0fb02 is no longer an ancestor of HEAD (git merge-base --is-ancestor b11dd0fb02 HEAD exits 1); the equivalent commit on the current branch line is f214cd6f83 (identical message). The cited hash is a dangling object subject to eventual gc, and the comment is a permanent maintained source doc, so a future reader running git show b11dd0fb02 gets a false confirmation now and a bad-object error later.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T16:36:20.471Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-011",
+      "_hash": "ce66cb8ce02f599fb6fe513fe552e4b0860097a83bc140d8869992d5313532db",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-012@ce41a44"
+    },
+    {
+      "id": "B-41c8:F-013",
+      "desc": "quality-mutation: packages/main/src/tasks/single-owner-extraction-smoke.ts:1536 contextNames() regex `HandlerContext(?:\\[\\s*(?:'store'|\"store\")\\s*\\])?(?![\\w$<\\[])` has a `\"store\"` (double-quote) alternative that is exercised by zero tests: GENERIC_LOCAL_PROBE_LINES (L1808-1818) only writes `HandlerContext['store']` with single quotes, and a full grep of packages/main/src/handlers for `HandlerContext[\"store\"]` returns zero hits (23 real call sites all use single quotes). Confirmed by mutation on a temp copy of the built dist smoke: narrowing the alternation to `(?:'store')` only (dropping the double-quote branch, keeping the already-tested single-quote handling) still produces 40/40 PASS with no case failing, including the F-011 adversarial case. This is dead/unverified complexity added in the F-011 GREEN commit (220075ce20) without a RED case proving it necessary, in a story whose own stated discipline is RED-first (background.md: \"RED first\"). Recommend either adding a RED probe line using double-quoted `HandlerContext[\"store\"]` to GENERIC_LOCAL_PROBE_LINES, or dropping the `\"store\"` alternative from the regex since the real codebase never emits it.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-02T16:41:27.490Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-012",
+      "_hash": "ab8d51f353977a4c306a209b308286690d676c9af4f212dee33d0d6a4d2c1f48",
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-mutation-packages",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-013@2d12aa7"
+    },
+    {
+      "id": "B-41c8:F-014",
+      "desc": "concept-cleanup (advisory, non-blocking): packages/main/src/handlers/story-query.ts:650 (\"restores the commit 288d359377 behavior\") and packages/main/src/tasks/gitroot-cwd-contract-smoke.ts:74,120,233,352 (\"the d93b69b8f silencing\") each cite a raw git commit hash in a comment; both hashes resolve to real commit objects (git cat-file -t succeeds) but neither is an ancestor of HEAD (git merge-base --is-ancestor exits 1), matching the exact fragility class B-41c8 F-012 fixed in validation-tier-planner-smoke.ts (a branch rewrite orphans the hash and a later git show of it reports a bad object). Filed low, not high/critical, because both lines PRE-DATE this story (git diff main...HEAD -- <file> shows neither line is in this story diff) and are unrelated to the three concepts B-41c8 deletes/replaces (rename-aware diff reader, legacy shell parser, story-workspace resolver) -- pre-existing repo-wide hygiene debt, not residue this story introduced. Distinguishing from F-012: the eba363ed.../791165cf... tokens near the F-012 fix in validation-tier-planner-smoke.ts:403-405 are SHA256 commandSetDigest prefixes (full form appears at lines 28-29 as 64-char hex asserts), not git commit hashes, and are correctly excluded from this finding.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-02T16:59:40.115Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "reviewRunId": "B-41c8:RR-016",
+      "_hash": "d40c08941bf43e6d79acd52f486a67a22f04ac8c62558d3e1b5fa6f68a9c818e",
+      "signatureTag": "missing|unknown|concept-cleanup-advisory",
+      "signatureTagSource": "auto",
+      "dismissReason": "Both citations (story-query.ts:650 and gitroot-cwd-contract-smoke.ts:74,120,233,352) predate this story and were orphaned by the repository-wide history rewrite, not by this branch; they are outside the scope contract. Recorded for a later owner as repository draft docs/story/drafts/orphaned-commit-hash-citations (committed on main at 7de56c4623), which also asks for a residue check so new hash citations are rejected.",
+      "dismissedAt": "2026-09-02T17:01:35.891Z"
+    },
+    {
+      "id": "B-41c8:F-015",
+      "desc": "REVIEW->TEST validate failed: packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js throws \"dynamic binding graph builds must remain bounded at 808, got 809 (synthetic=419, repo=390)\". DYNAMIC_BINDING_BUILD_CEILING = 808 (retired-authority-vocabulary-guard-smoke.ts:695) pins a repository-wide count that grows by one for every source file under packages/main/src; this story added core/story-workspace.ts (CHK-003), so the real count is 809 while main (808 files) still passes. Acceptance-blocking. Fix: raise the ceiling to the value the current tree produces and add a maintenance comment stating that the ceiling moves by one per added source file and which story moved it; do not cite a commit hash. Standalone rc=1 reproduced in the worktree; codex-heartbeat-timeout-smoke, the other failure in the same run, passes standalone and is recorded as load-flaky for the test-and-guard credibility story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-02T17:40:12.987Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "_hash": "21cb4994691b833841f5c9ca5e978afef8c6cf3003df0ccdfb4fa078ade8f06f",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/core/story-workspace.ts"
+      ],
+      "signatureTag": "missing|ts|review-test-validate",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-41c8:F-015@418e5d8"
+    }
+  ]
+}

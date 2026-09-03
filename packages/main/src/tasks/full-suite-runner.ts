@@ -173,6 +173,14 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // member. The suite only reads the repository and its own runner-owned temp roots --
   // it spawns no CLI and holds no exclusive path, port or lock -- so repoRead is correct.
   repoRead('test:validation-tier-planner'),
+  // B-41c8 CHK-004: the single-owner extraction suite (NUL-delimited rename reader,
+  // canonical legacy command parse, story-workspace resolver, resolveGitCwd call-site
+  // audit). Same three-authority rule as above: this row is mandatory or the whole
+  // suite fails closed as unknownPolicy. The suite reads the repository (handlers
+  // source, root package.json, proof-or-stop.config.json, this file) and writes only
+  // runner-owned temp roots -- the aliased-import audit fixture lives in a temp dir,
+  // never in the live handlers directory -- so repoRead is correct.
+  repoRead('test:single-owner-extraction'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);

@@ -1,0 +1,40 @@
+{
+  "task": "Give three shared facts in packages/main exactly one owner: the rename-aware git diff reader, the legacy shell-versus-argv command parse, and story workspace resolution (git tree plus store plus config), and add a mechanical audit that enumerates workspace-resolution call sites so the follow-up migration story is scoped by measurement.",
+  "outcome": "A rename of a path git would C-quote (non-ASCII, quote, backslash, space) keeps both sides in every consumer of the rename-aware reader, and an unparseable diff row raises instead of vanishing; every call site parses a legacy command string through parseLegacyValidationCommandString so pin identity and DONE-required execution can never disagree on shell-versus-argv; the four workspace resolver implementations become one helper that carries the phase-terminal guard; and a committed fixture prints, from a call-expression scan, every handler that calls resolveGitCwd and whether it still reads story metadata or config from ctx.root.",
+  "facts": [
+    "core/evidence-freshness.ts changedFilesBetweenRenameAware and changedFileStatusesBetweenRenameAware (and changedStoryFilesBetween) split `git diff --name-status -M` lines on tabs and skip any row with fewer than two columns; git C-quotes paths with non-ASCII, quotes, backslashes or tabs unless core.quotePath is false, so a quoted rename row can be skipped silently while the function returns success.",
+    "The same functions call execFileSync with no try/catch, so an unresolvable ref throws to the caller; B-a745's collector classifies that throw as changed_files_unavailable, which is the correct behaviour, and a catch-and-return-empty at any caller is the failure to forbid.",
+    "core/done-required-validation.ts still holds a private SHELL_META_RE (line 40), splitShellWords (line 113) and commandFromString (line 276); B-a745 extracted the canonical parse into parseLegacyValidationCommandString in core/validation-command-identity.ts and made handlers/verifier.ts delegate to it, so done-required-validation.ts is the last duplicate.",
+    "Four implementations resolve a story's store/git tree/config for wherever its work lives: handlers/story-query.ts readStoryProjection, handlers/session.ts listActiveWorktrees and readStoryFromLinkedWorktree, core/local-assurance-story-projection.ts collectLinkedStoryWorktrees, and handlers/validation-plan.ts resolveStoryWorkspace (added by B-a745 F-010). story-query.ts and session.ts gate linked-worktree reads on phase !== 'DONE' && phase !== 'DISCARDED'; validation-plan.ts does not.",
+    "resolveGitCwd in core/story-signed-workspace-resolution.ts is the shared gitCwd chokepoint and is the only one of the four that honours story.worktree.path plus a configured gitRoot, which is why it alone handles a wrapper-root layout.",
+    "A file-level grep for resolveGitCwd( over packages/main/src/handlers on main matches thirty-one files, and at least one (validate-channel.ts line 417) is a comment-only mention; validate-channel.ts receives gitCwd threaded from handlers/review-preflight.ts as deps.gitCwd. A file-level grep therefore over-counts and a hand-written list under-counts; only a call-expression scan is reliable.",
+    "B-a745 finding F-010 proved that fixing gitCwd alone is insufficient: run from the main checkout its planner still read main's stale checklist and validate.commands until the store and config were also resolved from the workspace (18 versus 19, then 51 versus 19 unclassified inputs before the full fix).",
+    "validation-command-identity.ts (parseLegacyValidationCommandString) and story-signed-workspace-resolution.ts (resolveGitCwd) are consumed unchanged by this story; they are dependencies, not touchpoints."
+  ],
+  "constraints": [
+    "Every behaviour change lands RED first: a failing fixture precedes its implementation commit, and the RED-before-GREEN guard in the suite must cover the commits.",
+    "The reader fix must not change the contract that an unresolvable ref throws; it must document it and audit callers for catch-and-return-empty.",
+    "The parser fix must not change DONE-required behaviour silently; any divergence between the DONE-required path and the routine path becomes an explicit, named, tested difference.",
+    "The shared resolver must derive the state directory through core/brand-paths.ts, never a literal, and must carry the phase-terminal guard.",
+    "The audit fixture must match call expressions, not substrings, and must be registered in the canonical inventories (root test:serial-reference plus RESOURCE_POLICY plus validate.commands if any evidence pins it).",
+    "The flagged-caller migration wave is out of scope; this story delivers the audit whose output scopes draft migrate-resolvegitcwd-callers-to-workspace.",
+    "All commits and story metadata must be English; the english-artifacts preflight fails on CJK.",
+    "Use the worktree's own built CLI (node packages/main/dist/cli.js) for every Proof-or-Stop command; the global binary is a stale build in another story's worktree.",
+    "Do not commit anything under .proof-or-stop/dev-memory until the final finish decision, because those records currently count as material and invalidate every gate binding."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/story-workspace.ts",
+    "packages/main/src/core/local-assurance-story-projection.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/validation-plan.ts",
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "package.json",
+    "proof-or-stop.config.json"
+  ],
+  "timestamp": "2026-09-02T13:44:06.628Z"
+}

@@ -23,6 +23,7 @@ import {
 } from './proof-admissibility-gates.js';
 import { buildRoutineValidationIdentity } from './validation-evidence-reuse.js';
 import { digestCanonicalJson } from './digest.js';
+import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import {
   CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
   evaluateEvidenceEnvironmentGateProjection,
@@ -37,7 +38,6 @@ export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
 export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v2' as const;
 export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1 = 'lattice.command-spec.v1' as const;
 
-const SHELL_META_RE = /[;&|<>$()`]/;
 const OUTPUT_TAIL_CHARS = 4000;
 const PACKAGES_MAIN_BUILD_PROOF = 'packages-main-build' as const;
 
@@ -108,43 +108,6 @@ interface DoneRequiredValidationRuntimeOptions {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
-}
-
-function splitShellWords(command: string): string[] {
-  const out: string[] = [];
-  let cur = '';
-  let quote: '"' | "'" | null = null;
-  let escaped = false;
-  for (const ch of command) {
-    if (escaped) {
-      cur += ch;
-      escaped = false;
-      continue;
-    }
-    if (ch === '\\') {
-      escaped = true;
-      continue;
-    }
-    if (quote) {
-      if (ch === quote) quote = null;
-      else cur += ch;
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote = ch;
-      continue;
-    }
-    if (/\s/.test(ch)) {
-      if (cur) {
-        out.push(cur);
-        cur = '';
-      }
-      continue;
-    }
-    cur += ch;
-  }
-  if (cur) out.push(cur);
-  return out;
 }
 
 function stableStringify(value: unknown): string {
@@ -273,15 +236,20 @@ export function buildLegacyAbsoluteCwdCommandSpecEnvelope(
   };
 }
 
-function commandFromString(label: string, value: string): DoneRequiredCommand | null {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (SHELL_META_RE.test(trimmed)) {
-    return { label, command: trimmed, args: [], shell: true };
-  }
-  const parts = splitShellWords(trimmed);
-  if (parts.length === 0) return null;
-  return { label, command: parts[0], args: parts.slice(1) };
+/**
+ * B-41c8 CHK-002: the free-form `doneRequiredCommands[]` string entry is parsed
+ * by the ONE canonical legacy parser (core/validation-command-identity.ts), so
+ * DONE-required execution and legacy pin identity can never disagree on
+ * shell-versus-argv. Only the DoneRequiredCommand shape is built here; the
+ * argv branch deliberately omits the `shell` key, exactly as before, so every
+ * command-spec digest over an existing policy stays byte-identical.
+ */
+function parseDoneRequiredCommandString(label: string, value: string): DoneRequiredCommand | null {
+  const parsed = parseLegacyValidationCommandString(value);
+  if (!parsed) return null;
+  return parsed.shell
+    ? { label, command: parsed.command, args: [], shell: true }
+    : { label, command: parsed.command, args: parsed.args };
 }
 
 function normalizePackagesMainBuildProof(
@@ -297,7 +265,7 @@ function normalizePackagesMainBuildProof(
 
 function normalizeCommandEntry(entry: unknown, index: number, errors: string[]): DoneRequiredCommand | null {
   if (typeof entry === 'string') {
-    const command = commandFromString(`doneRequiredCommands[${index}]`, entry);
+    const command = parseDoneRequiredCommandString(`doneRequiredCommands[${index}]`, entry);
     if (!command) errors.push(`doneRequiredCommands[${index}] must not be empty`);
     return command;
   }
