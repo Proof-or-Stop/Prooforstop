@@ -226,6 +226,38 @@
         "scanEscalationReason": null
       },
       "_hash": "84b2cb22c7081bef700540eda88b53f7f7171c951b2150ab2a2f9e9d356b2c13"
+    },
+    {
+      "id": "B-dc2e:RP-009",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 re-verification after main-merge head move invalidated RP-005 envelope. review_incremental_context confirms isFirstPass=false, changedFiles since RP-005 = [.githooks/commit-msg, .proof-or-stop/dev-memory/experience.jsonl] only; neither is a story SOURCE file per scope-contract allowedCreate/Modify/Test. git diff --name-only main...HEAD confirms .githooks/commit-msg is NOT part of this story diff. Inspected .githooks/commit-msg (commit d80e1255): it only strips trailer lines matching Co-Authored-By/Claude-Session/Codex-Session/Generated-with markers via grep+stripspace and always exit 0 (never blocks a commit); it never touches the subject line, so it cannot affect the RED/GREEN(CHK-nnn|F-nnn) subject regex red-green-commit-guard reads. Re-ran: npm --prefix packages/main run build (clean), npx tsc --noEmit -p packages/main (exit 0, no output), validation-protocol-smoke.js final line \"validation protocol smoke passed\" (362 files classified, 0 unclassified), full-suite-runner-smoke.js final line \"full-suite-runner-smoke: PASS (168 assertions)\", validation-tier-planner-smoke.js default stdout projection: 2519 chars (bound 11000), guard line \"[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\", final \"validation-tier-planner-smoke: PASS\", cross-host-review-smoke.js final line \"cross_host_review smoke passed (28 checks)\". git status --short clean throughout. No code-quality findings this round; prior round-3 findings/passes stand since no story SOURCE files changed.",
+      "createdAt": "2026-09-03T11:30:34.079Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-016",
+      "envelopeId": "7b148afa62aff4e923e41ac0afc7682d5e58d9bc6d346f677fa2b91dba3e3ca8",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/commit-msg",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5ded9a82699bdda7f42439f011f2f2a9227b26f6b2dc54f054305e80161dac96"
     }
   ]
 }
