@@ -1633,6 +1633,28 @@
         "scanEscalationReason": null
       },
       "_hash": "c1ba7d120bce9aafcd5547a637ad510d315d7b48a3cf2f3f324bf261d1f9d79f"
+    },
+    {
+      "id": "B-9a49:RP-046",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-attestation after RP-045 stale host-render rejection. Fresh run RR-152, unchanged material. Step1 symbol extraction from git diff main...HEAD; Step2 grepped README/CLAUDE.md/docs for doc-referenced symbols. Compared 3 paragraphs (AGENTS.md, CLAUDE.md, overlap-matrix hash line) plus new decision doc; verified matching code delivery via REVIEW_FINDING_TRIAGE_CHECK_ID in prompt-role-contract-registry.ts and matching contract marker in prompt-registry.ts. No doc-code drift found. No blockers.",
+      "createdAt": "2026-09-03T18:19:42.114Z",
+      "reviewRound": "2026-09-03T18:11:46.629Z",
+      "reviewRunId": "B-9a49:RR-152",
+      "envelopeId": "16b8058093724558dde30ff006b45ab31197015667379d4a4631462c850ca293",
+      "writerSessionId": "sess-c05cf4bc68ddc3c6b7079437c1f05f8b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5912db1dfdab49b97bfcec4805765dc121c1e0f8e26b294f0b94293b455bf52c"
     }
   ]
 }
