@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Fix the orphan validation-protocol smoke and register it in all three canonical inventories or delete it deliberately",
       "context": "tasks/validation-protocol-smoke.ts:1229 CASE_MISMATCH assertion fails with undefined; decide whether runManagedAssetCheck fails to detect a case-only filename mismatch on a case-insensitive filesystem or the assertion is wrong; then npm script + test:serial-reference + RESOURCE_POLICY, all three, or a recorded deletion. Also sweep tasks/ for other files no npm script references. RED: run `node packages/main/dist/tasks/validation-protocol-smoke.js` and observe the CASE_MISMATCH assertion fail with actual undefined, then confirm `npm run test:serial-reference` never executes it; GREEN is the assertion passing AND the suite name present in all three inventories, with the full-suite runner refusing a chain member that has no policy row.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-03T04:48:45.912Z",
       "endTime": null,
       "relatedDocs": [
         "docs/dev/test-coverage.md"
