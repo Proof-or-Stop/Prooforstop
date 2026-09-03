@@ -1220,6 +1220,58 @@
         "scanEscalationReason": null
       },
       "_hash": "f6926b4df677bcc8cb63121a11c5ab6fbf6a2efea670e1040aa0e8478c5b8bf3"
+    },
+    {
+      "id": "B-9f2c:RP-041",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness review for epoch B-9f2c:RI-005 (wave 1), recorded with mechanical read log. All four required lanes hold current-round PASS after RI-005 began. Zero material diff between RI-004 and RI-005 cutoffs outside .proof-or-stop/. Union of RI-005-round readManifests covers verify-missing-assets-fail.mjs in all four lanes, closing the F-010 gap. Five untouched-this-round files were each fully read multiple times in immediately preceding rounds while unchanged, valid incremental coverage. scope-contract.json acknowledges every out-of-scope material file. finding_list: 10/10 resolved, zero open. No coverage gap found.",
+      "createdAt": "2026-09-03T07:36:29.752Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-066",
+      "envelopeId": "a644db05aba3957bd6feef6cab09cd55400bf971a8b31803441d8dd14b8eadea",
+      "writerSessionId": "sess-f4542e36531f6e5551a25b315e01fabb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "1ebf6b1d6a1f49c6a2bef45e63cc8e0e01f3ba78d17dc60e862c4bbda7a19218"
+      },
+      "readDiagnostics": [],
+      "_hash": "1c08c69b769dc38648ccf33e4cabe9af23aea50a5aef4c18a14fae3c1c583791"
     }
   ]
 }
