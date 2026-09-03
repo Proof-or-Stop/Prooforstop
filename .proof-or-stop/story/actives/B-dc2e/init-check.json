@@ -1,52 +1,26 @@
 {
   "storyId": "B-dc2e",
-  "checkedAt": "2026-09-02T13:25:32.634Z",
+  "checkedAt": "2026-09-02T23:17:33.831Z",
   "reviewRound": "",
-  "agentId": "proof-or-stop-review-story-init",
-  "issues": [
-    {
-      "id": "INIT-001",
-      "severity": "medium",
-      "desc": "background.md ## Key Insights says \"Each of the four has a concrete mutation ... deleting a policy row, squashing a RED commit, a FAIL verdict with unreadable findings, a receipt whose own outputTail contradicted its result.\" The first three mutations map to CHK-002/CHK-003/CHK-004, but the fourth (outputTail contradiction) is the B-a745:F-002 evidence-pin/selector defect that the same background explicitly says (Trigger Event paragraph) is handled by the separate sibling draft narrowing-only-evidence-repin, not by this story. CHK-001 (the orphan validation-protocol-smoke item) has no mutation named in Key Insights at all. This looks like a leftover artifact from narrowing the draft from five items to four (the mutation list was not swapped to describe CHK-001s own CASE_MISMATCH failure), and could mislead a reader into thinking this story also fixes the outputTail/evidence-pin defect."
-    },
-    {
-      "id": "INIT-002",
-      "severity": "low",
-      "desc": "checklist CHK-001 context has no explicit RED: <mutation> sentence, unlike CHK-002 (RED: remove a real RESOURCE_POLICY row...), CHK-003 (RED: squash a RED into a GREEN...), and CHK-004 (RED: a FAIL leaf with two findings...). background.md Conversational Texture promises each item ships with the mutation that previously slipped through now failing the check, but CHK-001 only describes the current defect/remediation options without stating what mutation must make the fixed, registered check fail."
-    },
-    {
-      "id": "INIT-003",
-      "severity": "low",
-      "desc": "background.md ## Trigger Event references implementer reports during CHK-001 and CHK-006 of B-a745 without a one-sentence gloss of what those two items covered, unlike the adjacent B-a745:F-002 / B-a745:F-012 references which each carry a parenthetical explanation. Similarly, Conversational Texture references the single-owner extraction story (draft single-owner-extraction-readers-parsers) only as a sequencing predecessor with no one-sentence description of what it covers."
-    }
-  ],
+  "agentId": "product-reviewer",
+  "issues": [],
   "agentResults": [
     {
-      "agentId": "product-reviewer",
-      "checkedAt": "2026-09-02T13:19:53.731Z",
-      "issues": []
-    },
-    {
       "agentId": "proof-or-stop-review-story-init",
-      "checkedAt": "2026-09-02T13:25:32.634Z",
+      "checkedAt": "2026-09-02T23:16:27.291Z",
       "issues": [
         {
           "id": "INIT-001",
-          "severity": "medium",
-          "desc": "background.md ## Key Insights says \"Each of the four has a concrete mutation ... deleting a policy row, squashing a RED commit, a FAIL verdict with unreadable findings, a receipt whose own outputTail contradicted its result.\" The first three mutations map to CHK-002/CHK-003/CHK-004, but the fourth (outputTail contradiction) is the B-a745:F-002 evidence-pin/selector defect that the same background explicitly says (Trigger Event paragraph) is handled by the separate sibling draft narrowing-only-evidence-repin, not by this story. CHK-001 (the orphan validation-protocol-smoke item) has no mutation named in Key Insights at all. This looks like a leftover artifact from narrowing the draft from five items to four (the mutation list was not swapped to describe CHK-001s own CASE_MISMATCH failure), and could mislead a reader into thinking this story also fixes the outputTail/evidence-pin defect."
-        },
-        {
-          "id": "INIT-002",
           "severity": "low",
-          "desc": "checklist CHK-001 context has no explicit RED: <mutation> sentence, unlike CHK-002 (RED: remove a real RESOURCE_POLICY row...), CHK-003 (RED: squash a RED into a GREEN...), and CHK-004 (RED: a FAIL leaf with two findings...). background.md Conversational Texture promises each item ships with the mutation that previously slipped through now failing the check, but CHK-001 only describes the current defect/remediation options without stating what mutation must make the fixed, registered check fail."
-        },
-        {
-          "id": "INIT-003",
-          "severity": "low",
-          "desc": "background.md ## Trigger Event references implementer reports during CHK-001 and CHK-006 of B-a745 without a one-sentence gloss of what those two items covered, unlike the adjacent B-a745:F-002 / B-a745:F-012 references which each carry a parenthetical explanation. Similarly, Conversational Texture references the single-owner extraction story (draft single-owner-extraction-readers-parsers) only as a sequencing predecessor with no one-sentence description of what it covers."
+          "desc": "index.json description first sentence says the fifth item (the immutable evidence pin) is split into its own draft narrowing-only-evidence-repin because it changes an anti-evidence-shopping invariant. anti-evidence-shopping invariant is unexplained jargon on first appearance; a newly-onboarded reader can guess it relates to picking favorable evidence but the term itself is never defined or glossed anywhere in background.md or index.json."
         }
       ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-09-02T23:17:33.831Z",
+      "issues": []
     }
   ],
-  "_hash": "6adbb3b77aa856768c35eba254f9156fecd1b06398fe53c20836079afc69d5e0"
+  "_hash": "e2c310294c46d770eac6bc708d32c2b6142d5f7e0e74a7c5ddb510d3598fce4f"
 }

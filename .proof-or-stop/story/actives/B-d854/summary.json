@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d854",
+  "changes": "Root AGENTS.md is fully English, its current Proof-or-Stop guidance is reconciled against authoritative code and decisions, the old fix-everything rule is replaced by bounded severity-and-acceptance triage, and a reproducible audit plus verifier records the RED-to-GREEN proof including Claude CLI and Agy CLI participation.",
+  "usage": "Open AGENTS.md for the current English operator guidance, inspect docs/audits/AGENTS-current-version-audit.md for the evidence ledger, and rerun node tests/AGENTS.verify.mjs --final.",
+  "expectedOutcome": "The user sees a fully English root AGENTS.md whose active commands and lifecycle claims match the repository-local Proof-or-Stop implementation, with inspectable evidence for every corrected inconsistency.",
+  "actualTranscript": "The live-smoke command exited 0 and reported 26/26 audit rows GREEN, 46/46 command cases PASS, zero Han, zero U+FFFD, zero non-ASCII residue, valid Claude/Agy provenance, and AGENTS_VERIFY FINAL GREEN.",
+  "outcomeDiff": "No user-visible difference: the expected English, current, evidence-backed guidance matches the captured actual result.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "External Claude and Agy transcripts are machine-local evidence; the audit records hashes and provenance but does not claim those files are portable. F-044 tracks an unrelated suspected medium identity-cutover baseline issue for a follow-up Story.",
+  "pitfalls": "The first formal validation exposed one same-line legacy-label defect that propagated into five contract-test failures; it was fixed narrowly in DEV and all five plus the 120-command suite passed on rerun. The suite exceeds the phase command 15-minute watchdog, so standalone validate used the sanctioned raised budget before TEST reused the signed PASS.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 281052
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 82975
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 4096300
+    },
+    "DEV": {
+      "count": 15,
+      "durationMs": 27973278
+    },
+    "REVIEW": {
+      "count": 14,
+      "durationMs": 23693250
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 531251
+    }
+  },
+  "totalDurationMs": 56659072,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-02T14:37:28.982Z",
+  "updatedAt": "2026-09-02T14:37:28.982Z"
+}

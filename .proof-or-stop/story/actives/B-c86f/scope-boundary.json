@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c86f",
+  "mode": "custom",
+  "allowed": [
+    "CLAUDE.md DONE convergence guidance and docs/requirements/decisions/done-prepare-automation-execution-plan.md: dev-memory records are non-material lifecycle metadata",
+    "packages/main/src/core/runtime-artifact-registry.ts: widen the dev-memory entry from dev-memory/finish-decisions/ to the whole dev-memory root, derived via stateDirPrefix (brand-path), records stay tracked",
+    "packages/main/tests/red/red-dev-memory-material.mjs committed and registered in proof-or-stop.config.json",
+    "Reconcile with B-f6fb lesson survival if it lands first"
+  ],
+  "excluded": [
+    "Any evidence-freshness classifier work beyond the registry entry (owned by B-83aa)",
+    "Changing dev_memory_capture / dev_memory_finish_decision semantics or the DONE gate requirement itself",
+    "Moving dev-memory under the story directory or gitignoring it"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User on 2026-09-02: develop B-c86f through the normal process until DONE, after B-83aa. Mode custom because the framework-generated repro-first background contains the word Authority, which the correctness_fix default keyword list rejects; the explicit excluded list carries the anti-expansion intent.",
+  "createdAt": "2026-09-02T15:04:56.098Z",
+  "updatedAt": "2026-09-02T15:04:56.098Z",
+  "_hash": "0bb15a1501f7e11beee9e08429051bbfc7a9d1d2d50504f598afa3f2bd01c081"
+}

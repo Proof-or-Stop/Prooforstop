@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Scan comments for commit-hash citations that are not ancestors of main and replace them with story/item references",
+      "context": "Scanner: hex tokens of 7-10 chars in // and /* */ comments under packages/, verified with git cat-file -t and git merge-base --is-ancestor. Known: story-query.ts:650 (288d359377), gitroot-cwd-contract-smoke.ts:74,120,233,352 (d93b69b8f). Add a residue check (scripts/verify-proof-or-stop-residue.mjs style) that fails on any new hash citation in a comment.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
