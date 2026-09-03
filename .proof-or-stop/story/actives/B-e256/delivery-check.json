@@ -1,23 +1,31 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-03T06:30:21.607Z",
-  "headHash": "5a766f5dbc174b77e9754b932ef9c57f25685433",
+  "checkedAt": "2026-09-03T06:31:03.736Z",
+  "headHash": "045d51d141bf77d6e03b40d510a64ff2488469f6",
   "materialHash": "33361aff6462f3173e56132203d5fc419f6a556a05662beda5184826366c2881",
   "storyFilesHash": "c3e0fe8d13289f147b4719c09cd70af6543195ea662b9334e4c4b89fea68a361",
   "reviewRound": "2026-09-03T06:04:30.304Z",
-  "agentId": "",
+  "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "test"
+      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exits 0 (re-run at current HEAD, TEST phase). Hermetic cases (a)-(f) cover: 0644 bin target -> 0755 with byte-identical content and reported as restored; absent bin target returns [] without throwing; package.json missing/malformed/no-bin all return [] without throwing; a non-ENOENT stat/chmod failure (EACCES on a 0000 dir) propagates instead of being swallowed; promoteDist restores the bit on the STAGING tree before evicting old dist; a failed staging restoration aborts promotion before old dist is evicted (no trash, previous working dist kept). Live check also confirms packages/main/dist/cli.js is mode 0755 and the build pipeline restores the bit."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "red-global-cli-exec-bit.mjs is committed at packages/main/tests/red/red-global-cli-exec-bit.mjs and registered as a validate.commands entry in proof-or-stop.config.json (confirmed via git diff main...HEAD showing the new commands[] entry with args [packages/main/tests/red/red-global-cli-exec-bit.mjs], timeoutMs 180000, git-common-dir resource). Recorded evidence includes a node -e probe reading proof-or-stop.config.json and asserting the entry exists, plus the same test run GREEN."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/tests/global-core-realpath.test.mjs exits 0 with 'ok global-core-realpath' covering 13 cases: canonical worktree-built core (pass with realpath/version/binTarget/binMode/executable/worktreeCheckout/remediation facts), non-git fallback match/drift, non-executable bin target (chmod +x remediation, never a silent pass), realpath inside a .worktrees/ checkout (npm link repoint remediation, drift line + .worktrees/ named), no global install (informational pass naming npm link), absent bin target and directory-shaped bin target (npm --prefix ... run build remediation, distinct from chmod), the access(2) X_OK probe seam proving the executable verdict is the CURRENT-process X_OK check rather than raw mode bits (probe-denied 0755 -> executable=no; probe-allowed 0644 -> executable=yes; default probe on real 0700/0600 files), and four installed-but-unverifiable package.json shapes (malformed, missing, no bin field, bin entry missing for this package name) each reported as drift with the exact reason and package.json path, never a pass rendered as executable=unverified. Independently re-ran node packages/main/dist/cli.js doctor and grepped global-core-realpath at current HEAD and observed: global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.272 mode=0755 executable=yes, matching the compactFactDetail format added in the diff (realpath version=<v> mode=<mode> executable=<yes/no>)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "test summary here"
+    "summary": "Zero product documentation promises: the diff touches only story metadata plan.md plus source/tests/config (no CLAUDE.md or docs/ changes), confirmed by grepping the diff and re-scanning for doc changes. All 3 checklist items (CHK-001..CHK-003) are done with real-machine test evidence covering happy, edge and adversarial cases, and I independently re-ran all 4 requested verification commands at the current HEAD (post REVIEW-to-TEST transition, no source drift since the implementer commit) with exit 0 each. No TODO/FIXME/HACK found in the diff."
   },
-  "_hash": "cd58dd651eebb4adf40d74faaff7e347f1b1b645199c4df6e695c24ac46ae4b6"
+  "_hash": "1b2694456e5edf165bf625dd40189d6291f053d019920a4871ee0955613fdfe0"
 }
