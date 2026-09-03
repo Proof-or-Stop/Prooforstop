@@ -46,6 +46,18 @@ const fg = path.join(root, 'node_modules', 'd3', 'dist', 'd3.min.js');
 if (fs.existsSync(fg)) {
   fs.copyFileSync(fg, path.join(assets, 'd3.min.js'));
   console.log('assets: d3.min.js');
+} else {
+  // d3 is a hard `dependency`, not an optionalDependency: the 2D force-directed
+  // graph cannot render without it. Skipping silently produced a page that still
+  // loaded and still showed correct story/edge counts, but fell back to the
+  // built-in WebGL draw path -- a visibly different rendering that no count-based
+  // check catches. Fail loudly instead.
+  console.error(
+    `assets: d3 is missing at ${fg}\n` +
+    '  d3 is a required dependency; without it the graph view cannot render.\n' +
+    '  → install it: npm --prefix packages/graph install',
+  );
+  process.exit(1);
 }
 
 const mm = path.join(root, 'node_modules', 'mermaid', 'dist', 'mermaid.min.js');

@@ -46,10 +46,87 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import type { HandlerContext } from './context.js';
+
+/**
+ * Bring the graph subpackage's build output up to date, installing its
+ * dependencies first when they are absent.
+ *
+ * `packages/graph` is deliberately NOT an npm workspace (the repo declares
+ * none), and both `node_modules/` and `assets/` are gitignored build output, so
+ * a fresh clone or a freshly-merged worktree has neither. Requiring the user to
+ * know that `proof-or-stop graph` depends on a subpackage-scoped `npm install`
+ * is a product defect, not a documentation gap -- this mirrors what
+ * `scripts/ensure-dist.mjs` already does for `packages/main` at pretest time.
+ *
+ * Checking `app.html` alone is not sufficient. A build run WITHOUT dependencies
+ * present still writes app.html and still serves correct story/edge counts, but
+ * omits d3 -- and the client then silently falls back to a different rendering
+ * path. d3 is a hard `dependency` of the subpackage, so its bundle is treated as
+ * a required build output here.
+ */
+function ensureGraphClientBuilt(
+  location: GraphPackageLocation,
+  log: (message: string) => void,
+): void {
+  const appHtml = join(location.assetDir, 'app.html');
+  const d3Bundle = join(location.assetDir, 'd3.min.js');
+  if (existsSync(appHtml) && existsSync(d3Bundle)) return;
+
+  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const runNpm = (args: readonly string[], what: string): void => {
+    const result = spawnSync(npm, [...args], {
+      cwd: location.packageRoot,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    if (result.error?.message.includes('ENOENT')) {
+      throw new Error(
+        [
+          `graph: the browser client is not built, and npm is unavailable to build it.`,
+          `  asset dir: ${location.assetDir}`,
+          `  → install Node/npm, then: npm --prefix ${location.packageRoot} run build`,
+        ].join('\n'),
+      );
+    }
+    if (result.status !== 0) {
+      const detail = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
+      throw new Error(
+        [
+          `graph: ${what} failed while preparing the browser client.`,
+          `  package: ${location.packageRoot}`,
+          detail ? `  ${detail.split('\n').slice(-6).join('\n  ')}` : '',
+          `  → retry manually: npm --prefix ${location.packageRoot} run build`,
+        ].filter(Boolean).join('\n'),
+      );
+    }
+  };
+
+  if (!existsSync(join(location.packageRoot, 'node_modules'))) {
+    log('graph: installing browser client dependencies (first run)...');
+    runNpm(['install', '--no-audit', '--no-fund'], 'npm install');
+  }
+  log('graph: building browser client...');
+  runNpm(['run', 'build'], 'npm run build');
+
+  // Re-check rather than trust the exit code: build-web.mjs treats several
+  // vendor bundles as optional and only warns, so a zero exit does not by
+  // itself prove the required output landed.
+  const stillMissing = [appHtml, d3Bundle].filter((file) => !existsSync(file));
+  if (stillMissing.length > 0) {
+    throw new Error(
+      [
+        `graph: the browser client build completed but required output is missing.`,
+        ...stillMissing.map((file) => `  missing: ${file}`),
+        `  → build it manually: npm --prefix ${location.packageRoot} run build`,
+      ].join('\n'),
+    );
+  }
+}
 
 /** Default HTTP port, mirroring `DEFAULTS.port` in packages/graph/src/core/machine.ts. */
 export const GRAPH_DEFAULT_PORT = 8731;
@@ -335,20 +412,16 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
         }
       }
 
-      // Fail before listening if the browser client was never built. Serving a
-      // blank page instead is the pre-mortem risk recorded in decision.json:
-      // the server would answer 200 on /api/* while / returned an error body,
-      // which reads as a broken product rather than a missing build step.
-      if (!existsSync(join(location.assetDir, 'app.html'))) {
-        throw new Error(
-          [
-            `graph: the browser client is not built.`,
-            `  missing: ${join(location.assetDir, 'app.html')}`,
-            `  asset dir: ${location.assetDir}`,
-            `  → build it: npm --prefix packages/graph run build`,
-          ].join('\n'),
-        );
-      }
+      // Build the browser client on demand rather than telling the user to run a
+      // subpackage command they have no reason to know about. `packages/graph` is
+      // not an npm workspace and its node_modules/ and assets/ are both gitignored
+      // build output, so a fresh clone has neither.
+      //
+      // BOTH are checked, not just app.html. A build run without dependencies
+      // present still emits app.html and still serves correct story/edge counts,
+      // but omits d3 -- and the page then silently falls back to a different
+      // rendering. Checking only app.html let that degraded state look healthy.
+      ensureGraphClientBuilt(location, log);
 
       const port = args.port ?? GRAPH_DEFAULT_PORT;
       const app = lib.createApp({ root: probe.root, onLog: (m) => log(m) });
