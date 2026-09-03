@@ -20416,7 +20416,7 @@
       "desc": "RE-FILE of B-5a15:F-389/F-382/F-378 (still correctly deferred, not a new defect): ~90 lines of near-identical causal-preflight probe logic duplicated between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts, with no test forcing the two copies to stay in sync. Confirmed byte-for-byte unchanged since prior review: git log for the window since F-389 was filed and git diff --stat 6bf7ce77a3^ both show zero commits touching either file; commit 6bf7ce77a3 (the only new source commit this round) touched only runtime-artifact-registry.ts and certification-window.ts, entirely disjoint from this duplicate. Re-filed under the current review run (RR-940) purely to keep it bound to a live round rather than the now-stale RR-937 binding, per the F-373->F-378->F-382->F-389 orphaning precedent already recorded on this story. Deferral stands: medium, non-blocking, no live correctness bug, cross-module extraction would widen this story diff and re-stale its acceptance chain yet again. Reviewer (quality) agrees with this deferral across five rounds now.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T09:10:52.005Z",
@@ -20428,7 +20428,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|file-5a15-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED with evidence, not fixed. Defect: the causal-preflight probe logic is duplicated between packages/main/src/tasks/verifier-causal-preflight-smoke.ts and its sibling verifier, so the two copies can drift and a fix applied to one silently leaves the other stale. Blast radius: maintainability only; both copies are currently in agreement, so no gate is presently mis-deciding. Why deferred per CLAUDE.md defect-triage rule 3: severity medium, non-blocking (lifecycle_check review.findings reports PASS / no open blocking findings at Round 65), not claimed by any of B-5a15's 5 checklist items, no security / data-integrity / destructive-compat impact, and it cannot distort a gate into a false pass (duplication makes a future divergence possible, it does not fabricate a verdict today). Note this finding was originally filed while my working tree was dirty mid-review, which is my process error; the underlying duplication is real and independently checkable by diffing the two probe implementations. Follow-up must: extract the shared probe into one module both call sites import, and add a guard asserting there is exactly one implementation so a re-duplication fails CI rather than drifting.",
+      "resolvedAt": "2026-09-03T11:02:30.887Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a15:F-392",
