@@ -56,7 +56,7 @@ import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import type { ReviewLoopIteration } from '../core/types.js';
 import { renderScopeAntiExpansionSummary } from '../core/machine.js';
-import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { evaluateStoryDirConfigInsideGitRoot, resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { resolveStoryWorkspace, type StoryWorkspace } from '../core/story-workspace.js';
 import { evaluateStoryEvidenceBindingGate } from '../core/repro-evidence-binding-gate.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack, type RuntimeConsumer } from '../core/playbook-runtime-memory.js';
@@ -1410,16 +1410,27 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // classified first; a partial binding — or a thrown probe — is disclosed as
       // exactly one `## DONE pre-check unavailable: <reason>` line and surfaces
       // in the next-step hint instead of recommending DONE.
+      //
+      // B-83aa CHK-003 follow-up (wrapper-root layouts): the snapshot and the
+      // checklist git probes run from the RESOLVED git cwd (B-6666 pattern, the
+      // same resolver done-oracle / machine callers thread), never from the
+      // bare ctx.root. On a wrapper-root layout ctx.root is the non-git
+      // metadataRoot while the configured gitRoot / story worktree is the
+      // authoritative repository; probing ctx.root there yields a partial
+      // snapshot for a perfectly readable repo and wrongly suppresses DONE.
+      // ctx.root stays the metadataRoot / store root for every non-git read.
+      // Plain repos are byte-identical: resolveGitCwd falls back to ctx.root.
       let donePrecheckUnavailable: string | null = null;
       if (story.phase === 'TEST') {
         try {
-          const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: ctx.root, metadataRoot: ctx.root, ref: 'HEAD' });
+          const doneGitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+          const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: doneGitCwd, metadataRoot: ctx.root, ref: 'HEAD' });
           const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot, ['headHash', 'materialHash']);
           if (!binding.complete) {
             donePrecheckUnavailable = binding.detail;
           } else {
             const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
-              gitCwd: ctx.root,
+              gitCwd: doneGitCwd,
               evidenceHashSnapshot,
             });
             donePrecheck = summarizeDonePrecheck(rows);
