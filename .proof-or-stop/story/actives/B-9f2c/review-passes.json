@@ -1012,6 +1012,30 @@
         "scanEscalationReason": null
       },
       "_hash": "620ee62ee13686a81ec7087a6c0dfe1a7d2a752ade91daf3daa73555c2bdb6b1"
+    },
+    {
+      "id": "B-9f2c:RP-034",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed at frozen tree c06f9f841a (RI-004). All 22 must-priority verificationIntent entries across CHK-001..CHK-005 hold valid, non-stale, mechanical verificationEvidence: result=pass, receipt.exitCode=0, mechanical=true, none demoted. Confirmed via checklist.json diff at commit c06f9f841a (verification_evidence_refresh_stale): every entry re-earned a fresh receipt after the F-008 fix (0c9253c5be) landed, with executedAt timestamps moving from 06:32Z to 06:48-49Z and materialHash matching current story.materialHash 3f9541ff..., meaning this is genuine re-execution, not a rubber stamp. Negative control (scratchpad harness, no tracked files touched) replayed the FINAL verify-missing-assets-fail.mjs settle-plus-content-assertion logic against three simulated timelines: (A) corrupt stub written promptly -- caught (openStoryDossier, size, d3 checks fail); (B) a real orphaned build completing a full valid page mid-poll, the F-008 target -- correctly accepted; (C) a truncated or partial file appearing via non-atomic write during the poll window, the specific risk asked about -- still caught, because the content assertions (doctype, openStoryDossier presence, 100KB floor, d3.min.js presence) are an independent second gate that runs on every path regardless of when existsSync first flips true; polling only decides when to sample, never what counts as valid. This confirms the unconditional polling settle does not weaken the stacked F-005/F-006 controls for the all-or-nothing write case my harness modeled. Found in the course of this check: finding_list shows 9 findings, not 8. F-009 (quality lane, RR-056, open, low severity, evidenceState verified) was filed after the F-008 fix commit and is still open. It identifies a finer-grained residual than my harness covers: fs.writeFileSync is not guaranteed atomic for a roughly 487KB buffer since Node's internal write loop can issue multiple write syscalls, so existsSync can in principle flip true on a torn or short write mid-writeFileSync, before openStoryDossier lands (confirmed present at byte offset 196980 of 497334 in the current built asset, about 40 percent in, not near the tail as the finding text implied). This is a real, narrower-than-F-007 residual, correctly attributed to and owned by the quality lane and is not re-filed here per instruction; it does not invalidate the 22 verificationEvidence receipts, which were captured against real command exit codes and selector matches on the current committed script, not against this theoretical torn-write scenario. F-003 (adversarial, resolved, accepted_risk) and F-007 (adversarial, resolved, accepted_risk) re-affirmed: both carry strong, independently-reproduced evidence recorded on the finding. F-003's probe blind spot was verified via a scratch-copy negative control matching the reviewer's own method; F-007's two residual limits, padded-stub forgery and present-but-stale-not-rebuilt, are architecturally distinct from what CHK-005 and CHK-002 verificationIntent claim to cover, and both are correctly deferred as low severity, non-blocking, non-gate-distorting per CLAUDE.md defect triage. No new coverage gap found in verificationIntent to verificationEvidence binding.",
+      "createdAt": "2026-09-03T06:58:04.666Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-057",
+      "envelopeId": "bf52ec0eff64fed92b5909cad79bce5b5994b09a9ea2fad24592f3e727f9eb59",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ff8a3fed58065c774543fb19f92c8341e9d004d50a0fb8a3f997eada120f197"
     }
   ]
 }
