@@ -1143,6 +1143,31 @@
         "scanEscalationReason": null
       },
       "_hash": "c3ac594cb8580d84330e7db26a1ff074b7f4ff52c6065a8fdad342c3c7113f8b"
+    },
+    {
+      "id": "B-9a49:RP-027",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Incremental story-level re-check for the controlled PLAN-only correction to CHK-004:edge:version-and-local-artifacts; verified isolated and semantics-preserving, no new findings, no scope reopened.",
+      "createdAt": "2026-09-03T16:58:22.593Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-128",
+      "envelopeId": "21dc86fdd0f88b5c741de03454b5f9aced0c1b117b6155ea6f0b4a04c562abb6",
+      "writerSessionId": "sess-5913f0ea954c58269be172667b178592",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/findings.json",
+          ".proof-or-stop/story/actives/B-9a49/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-9a49/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          ".proof-or-stop/story/actives/B-9a49/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5800fcd94b2aa82cb01e4a76c13049c39fb70f9bcd63bf9b483ea192540f188b"
     }
   ]
 }
