@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9a49:CW-001",
+      "storyId": "B-9a49",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T16:00:48.323Z",
+      "updatedAt": "2026-09-03T16:00:48.323Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "6856f98fe9d3309634991a878a818fecf917c0c490d00342e9e6feade754285d"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9a49:CW-002",
+      "storyId": "B-9a49",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T16:01:06.224Z",
+      "updatedAt": "2026-09-03T16:01:06.224Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-9a49:RIE-001",
+        "receiptId": "B-9a49:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "aa0108a341d77f665837f6b814a421d560e2011f957cb28b3a958d63747b1089"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9a49:CW-003",
+      "storyId": "B-9a49",
+      "state": "INVALIDATED",
+      "createdAt": "2026-09-03T16:02:09.717Z",
+      "updatedAt": "2026-09-03T18:10:22.121Z",
+      "frozen": {
+        "headHash": "98a80240092e4cc1ee5ab366d31b83a8f7e0a366",
+        "materialHash": "e447171d7697a5f643d097fe31dbc6eb1e079d9ff5a27e1d18ac6de0e7316f04",
+        "storyFilesHash": "251e6e2e84871a6484f5533f638a262f568a7c66eb20703f3be689169d8036dd",
+        "expectedMainSha": "13cce75b421ded7d0366b3028b19356083e19cf0",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9a49:RIE-002",
+        "receiptId": "B-9a49:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9a49:PRECERT-001",
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-03T18:10:22.121Z",
+        "oldHeadHash": "98a80240092e4cc1ee5ab366d31b83a8f7e0a366",
+        "currentHeadHash": "8d4b49151e020d692451161edecabd413cac77af",
+        "oldMaterialHash": "e447171d7697a5f643d097fe31dbc6eb1e079d9ff5a27e1d18ac6de0e7316f04",
+        "currentMaterialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+        "oldStoryFilesHash": "251e6e2e84871a6484f5533f638a262f568a7c66eb20703f3be689169d8036dd",
+        "currentStoryFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "5d090a1e6d7f612133d61bfb97516314134f4dbf94e3efddb77de14224176085"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9a49:CW-004",
+      "storyId": "B-9a49",
+      "state": "RUNNING",
+      "createdAt": "2026-09-03T18:27:09.898Z",
+      "updatedAt": "2026-09-03T18:27:15.669Z",
+      "frozen": {
+        "headHash": "73de99fb0be8ecbb17442da334307c334ed960f2",
+        "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+        "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+        "expectedMainSha": "3732009a6201b28314efbf37c0da1012b9058d11",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9a49:RIE-003",
+        "receiptId": "B-9a49:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9a49:PRECERT-002",
+      "_hash": "0a68d7fa90c8be0f0dec091cc6a8cb4f54867b3067442e1259ad2ccdb0bfba95"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9a49:PRECERT-001",
+      "windowId": "B-9a49:CW-003",
+      "storyId": "B-9a49",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "98a80240092e4cc1ee5ab366d31b83a8f7e0a366",
+        "materialHash": "e447171d7697a5f643d097fe31dbc6eb1e079d9ff5a27e1d18ac6de0e7316f04",
+        "storyFilesHash": "251e6e2e84871a6484f5533f638a262f568a7c66eb20703f3be689169d8036dd",
+        "expectedMainSha": "13cce75b421ded7d0366b3028b19356083e19cf0",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9a49:RIE-002",
+      "inventoryReceiptId": "B-9a49:RIE-002:RCP-001",
+      "createdAt": "2026-09-03T16:02:09.717Z",
+      "_hash": "035e29e386d2ab4ab464b220a75927b76832cf6f8d3662e5d23dc7ab963c4e85"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9a49:PRECERT-002",
+      "windowId": "B-9a49:CW-004",
+      "storyId": "B-9a49",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "73de99fb0be8ecbb17442da334307c334ed960f2",
+        "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+        "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+        "expectedMainSha": "3732009a6201b28314efbf37c0da1012b9058d11",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9a49:RIE-003",
+      "inventoryReceiptId": "B-9a49:RIE-003:RCP-001",
+      "createdAt": "2026-09-03T18:27:09.898Z",
+      "_hash": "97bd064ecd9b6e05196670b1fe4e83f79929ee46ed9a074b8f131ab934e17df7"
+    }
+  ]
+}

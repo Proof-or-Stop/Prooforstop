@@ -1,0 +1,2294 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Deliver one canonical Finding triage contract to every active REVIEW lane",
+      "context": "Own all REVIEW-lane behavior and prohibitions in one canonical Agent contract: current review_run_start/reviewRunId/finding_add/review_pass_set protocol; independent evidenceState, severity, applicability candidate, disposition, and gate-impact axes; fail-closed unknown applicability; evidence-backed routing with owner; no reviewer repair, finding_dismiss, story_create, gap_log, severity rewriting, or unilateral scope expansion; distinct disproven, duplicate, and not_reproduced_under_current_witness outcomes; and future official signed defer_with_proof guidance limited to eligible verified applicable low/medium Findings while mandatory current-repair cases remain blocking. This proposal and Story are subordinate Agent-side projections of the Dynamic Finding execution plan; they do not amend that authority. Retired verdict vocabulary is historical evidence only and is never an active Task Context alias. Do not change runtime Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, or the Dynamic Finding authority document in this Story. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never general product-defect routing or backlog. Deliver the resulting contract identically to all five canonical proof-or-stop REVIEW lanes through both envelope paths and nowhere else.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T02:57:03.906Z",
+      "endTime": "2026-09-02T03:02:30.112Z",
+      "userSees": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Assemble each of proof-or-stop-review-behavior, proof-or-stop-review-concept, proof-or-stop-review-docs, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage in full-envelope mode and prove that every result contains exactly one byte-identical canonical Finding triage contract with the current review_run_start -> reviewRunId -> finding_add or review_pass_set protocol.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Assemble the same five REVIEW roles through legacy-full-context and prove that the identical canonical triage contract is appended exactly once in every result while the role-specific legacy body remains selected.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Inspect the canonical contract and prove that evidenceState, severity, applicability candidate, and gate impact are independent axes; routing requires evidence plus an owner; the machine remains authoritative for blocking; disproven, duplicate, and not_reproduced_under_current_witness remain separate outcomes; and the future official signed defer_with_proof is a disposition only after applicable for eligible verified low or medium Findings, never a non-applicability verdict or an escape from mandatory current-Story repair, including critical or high, introduced or worsened, direct acceptance or verification-intent, protected-surface, misleading lifecycle-evidence, and invalid or exhausted deferral-lineage cases.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise mixed per-role rollout selections across the five REVIEW roles and prove every selected prompt receives one complete contract regardless of envelope path, with neither omission nor double injection.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Prove the fail-closed rule is expressed in terms of the current round policy: when applicability is unknown, missing, stale, or untrusted, a Finding that would otherwise block remains blocking, including medium severity in a policy round where medium blocks.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Prove a non-applicability verdict is allowed only with structured applicability evidence and a traceable owner or route, and that high or critical Findings cannot be left unowned; separately, prove the future official signed defer_with_proof disposition applies only after applicable to an otherwise eligible verified low or medium Finding and remains unavailable in every mandatory current-repair case.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Prove the contract preserves the original Finding observation, evidence state, severity, and history: a non-blocking applicability candidate does not resolve or dismiss the Finding and any later severity correction requires append-only revision or supersession rather than silent mutation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Enumerate every active non-REVIEW, compatibility, and retired role and prove none receives the canonical REVIEW triage contract or the defect-triage routing behavior by substring coincidence or broad common-policy injection.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Delete or alter any required protocol command or ordering rule and prove the prompt contract test fails, including review_run_start first, current signed reviewRunId binding, finding_add for a Finding, and review_pass_set only for a valid no-blocker outcome.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Inject wording that permits a reviewer to repair implementation, call finding_dismiss, call story_create, call gap_log, or expand the Story merely to make all checks green, and prove semantic validation rejects every permission. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never a general product-defect routing or backlog shortcut.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Replace the distinct outcomes with a generic deferred or closed result and prove validation fails unless disproven remains an evidence-truth result, duplicate identifies a canonical live owner, and not_reproduced_under_current_witness cites current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "desc": "Attempt to route an otherwise-blocking unknown-applicability Finding without evidence or owner, or claim that prompt prose itself changes the lifecycle gate, and prove the contract remains fail-closed and non-evidentiary.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Focused tool-executed GREEN smoke re-earned after the main-merge AGENTS guidance correction.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.888Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:happy:1 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.888Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:happy:2 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.888Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:edge:0 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:edge:1 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:edge:2 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:edge:3 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:adversarial:0 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:adversarial:1 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:adversarial:2 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:adversarial:3 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:adversarial:4 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-001:adversarial:5 is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e6ae4a5776881e66822ca28db93c511309223d3d7ee01564c185eb50f668d6f8",
+        "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+        "headHash": "ca07f5015f3d739f31737c5fd16f2ad88e6f2046",
+        "attestedAt": "2026-08-31T14:51:57.015Z",
+        "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align Story Owner, implementer, and reviewer authority guidance",
+      "context": "Own only Story Owner disposition and implementer escalation guidance. The Owner returns applicable blockers to DEV, routes evidence-backed non-applicable work without unowned high/critical findings, fails closed when an otherwise-blocking finding has unknown applicability, and treats compatibility dismissal as temporary round/profile handling rather than applicability proof. The implementer preserves reproduction and impact evidence, reports out-of-item findings, and does not widen scope unilaterally.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T03:02:30.985Z",
+      "endTime": "2026-09-02T03:02:31.785Z",
+      "userSees": "Story Owner and implementer instructions distinguish current-Story repair from evidence-backed routing and prevent boundaryless scope expansion.",
+      "files": {
+        "modify": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Inspect the published Story Owner and implementer guidance and verify it gives one complete normal path: current-Story regressions, acceptance blockers, and gate-truth blockers return to DEV; evidence-backed non-applicable issues are routed to a named owner without unilateral scope expansion; an implementer preserves reproduction and impact evidence and reports the issue to the Story Owner.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:happy:1",
+            "desc": "Exercise or statically prove the role-specific prompt assembly and verify Story Owner disposition guidance and implementer escalation guidance reach their intended roles while neither role is told that prose itself changes Finding status, applicability, or a lifecycle gate.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Verify an evidence-backed medium or low defect that is not a direct regression, acceptance contradiction, core user-result failure, or gate-truth failure is recorded with reproduction, impact, scope basis, and a proposed owner or route, while the current Story remains bounded.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:edge:1",
+            "desc": "Verify a high or critical issue proposed as pre-existing or out of scope cannot be treated as complete routing when no valid owner or follow-up route is named; the guidance must leave the disposition incomplete and must not silently lower severity.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:edge:2",
+            "desc": "Verify compatibility dismissal is described only as temporary accounting allowed when the current mechanical round or profile no longer requires current-Story repair, and explicitly not as applicability proof, repair, resolution, or authority to bypass a live blocker.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Present an otherwise-blocking Finding with unknown applicability, including a round-one blocking medium case, and verify the Story Owner guidance fails closed, refuses prose deferral, and returns to the mechanical gate or DEV path rather than interpreting uncertainty as out of scope.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:adversarial:1",
+            "desc": "Present a critical or high defect introduced or worsened by the current Story but label it pre-existing, unrelated, or absent from the diff; verify the guidance rejects the label as sufficient evidence and requires current-Story repair when reproduction, acceptance, or gate-truth evidence makes it applicable.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:adversarial:2",
+            "desc": "Give the implementer a reproducible defect outside the assigned checklist item and pressure it to fix the defect for a globally green repository; verify it preserves reproduction and impact evidence, reports to the Story Owner, and does not edit unrelated implementation or expand the item scope unilaterally.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:adversarial:3",
+            "desc": "Attempt to justify deferral using only free text, file disjointness, an old DONE result, stale prior assessment, or severity reduction; verify the Owner guidance rejects these as gate evidence, preserves the original Finding and severity history, and requires current structured evidence plus a traceable owner or route.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-002:adversarial:4",
+            "desc": "Verify the guidance never claims that prompt compliance mechanically enforces dismissal restrictions, applicability, ownership, freshness, or gate behavior; current compatibility limitations must remain explicit and authoritative Dynamic Finding enforcement must remain future system work.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:happy:0 against the committed Owner and implementer guidance.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:happy:1 against the committed Owner and implementer guidance.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:edge:0 against the committed Owner and implementer guidance.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:edge:1 against the committed Owner and implementer guidance.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.889Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:edge:2 against the committed Owner and implementer guidance.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:adversarial:0 rejects authority drift and unbounded scope expansion.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:adversarial:1 rejects authority drift and unbounded scope expansion.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:adversarial:2 rejects authority drift and unbounded scope expansion.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:adversarial:3 rejects authority drift and unbounded scope expansion.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed canonical prompt-contract measurement proves CHK-002:adversarial:4 rejects authority drift and unbounded scope expansion.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ae9549f71452ea1ee58cf33754bfbc2a88144d77962d58cb36e27b32e3322d50",
+        "storyFilesHash": "7f85a045f3fc09eafd467fe932caef08876b55deb67fc249bed1cb230115c4d9",
+        "headHash": "df03a3c325dde980cf77dbef7c2c5187e9d90284",
+        "attestedAt": "2026-08-31T14:58:33.960Z",
+        "materialHash": "10d35d272f2dfbbf1a528adb5bcf28f01368c9792e5b9a62778e5e8f54736ca0"
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register declarative REVIEW triage checks and preserve the Agent-System boundary",
+      "context": "Register defect-triage-and-routing-check only for active REVIEW role contracts. Preserve the Agent/System boundary explicitly: this metadata is declarative, is not proof that a check ran, is not gate evidence, and does not redefine Dynamic Finding schemas, blocking predicates, freshness, supersession, severity, or applicability.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T03:02:32.638Z",
+      "endTime": "2026-09-02T03:02:33.468Z",
+      "userSees": "Contract verification shows REVIEW roles declare triage behavior while prompt prose and metadata remain non-evidentiary and do not alter lifecycle gates.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:review-only-registration",
+            "desc": "Enumerate active role contracts and assert that defect-triage-and-routing-check is present in requiredCheckIds for exactly proof-or-stop-review-behavior, proof-or-stop-review-concept, proof-or-stop-review-docs, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage; every non-REVIEW, retired, INIT, PLAN, DEV, TEST, DONE, and evaluator role contract omits it.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-003:happy:declarative-rendering",
+            "desc": "Render each active REVIEW role contract and assert that the check identifier is carried consistently as a declarative requirement without claiming execution or emitting a review pass, Finding, applicability assessment, or gate artifact.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:metadata-cannot-satisfy-gate",
+            "desc": "Keep the triage requiredCheckId present but omit or stale signed review_run_start/reviewRunId and review_pass_set or finding_add evidence; the existing REVIEW gate must still refuse or report the same missing or stale structured evidence, proving requiredCheckIds and prompt prose are neither execution proof nor gate evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-003:edge:dynamic-runtime-unchanged",
+            "desc": "Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:no-authority-dataflow",
+            "desc": "Search lifecycle and gate consumers and attempt to feed requiredCheckIds, rendered prompt text, or the defect-triage-and-routing-check string as authority; fail unless these values remain confined to prompt or role-contract assembly and contract verification, with no path able to mint or substitute signed L4 evidence.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-003:adversarial:runtime-matrix-invariant",
+            "desc": "Exercise verified open blocking findings, suspected and disproven findings, round decay, and missing, unknown, or stale applicability information; outcomes must match the authoritative runtime and must not change when the declarative metadata is added, removed, or forged.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-003:adversarial:no-dynamic-schema-expansion",
+            "desc": "Assert the change introduces no related boolean, applicability field on Finding, automatic resolve, dismiss, hide, or delete behavior, severity rewrite, owner or route gate shortcut, freshness rebind, or new Dynamic Finding command or schema; any such runtime mutation fails CHK-003 even when prompt contract tests pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:review-only-registration",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:happy:review-only-registration is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:declarative-rendering",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:happy:declarative-rendering is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:metadata-cannot-satisfy-gate",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:edge:metadata-cannot-satisfy-gate is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:05.281Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:dynamic-runtime-unchanged",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:edge:dynamic-runtime-unchanged is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-authority-dataflow",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:adversarial:no-authority-dataflow is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:runtime-matrix-invariant",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:adversarial:runtime-matrix-invariant is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-dynamic-schema-expansion",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-003:adversarial:no-dynamic-schema-expansion is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "fdcb2ed1213e4f04ff5d71192d878527357e58ec09e8a5cd6ad6b3bdaaf06a83",
+        "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+        "headHash": "34a787e3fb5d8315f3f1c26e27efd78f0cbbaa9d",
+        "attestedAt": "2026-08-31T19:23:24.044Z",
+        "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f"
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove prompt delivery, isolation, digest integrity, and adapter compatibility",
+      "context": "Use RED then GREEN. Add adversarial tests covering all five canonical Proof-or-Stop REVIEW roles, both full-envelope and legacy-full-context assembly, non-REVIEW isolation, compatibility-dismissal wording, reviewer prohibition on gap_log as product-defect routing, distinct disproven/duplicate/not_reproduced_under_current_witness routing, English-only prose, stale in-flight reviewer redispatch guidance, and the subordinate Agent-side projection of Dynamic Finding authority. Retired verdict vocabulary may appear only as historical evidence or a negative mutation that the active Task Context guard must reject; it is never retained as an active alias, and this Story does not amend the Dynamic Finding authority document. Bind a must verification intent to prompt-full-context-envelope-smoke and inject retired or contradictory authority wording through Story, checklist, or verificationIntent Task Context; prove the complete assembled reviewer envelope rejects it independently of refreshed digest pins. Update approved digest pins, then run focused prompt tests, full-context tests, process/runtime contract checks, prompt baselines, type/build validation, and verify_codex. No runtime Finding schema, handler, predicate, process-fact, or lifecycle-gate implementation is in scope.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T03:02:34.353Z",
+      "endTime": "2026-09-02T03:33:05.536Z",
+      "userSees": "A failing pre-implementation contract test becomes green after the change, and digest/adapter verification confirms the published English Agent prompts are fresh and compatible.",
+      "files": {
+        "modify": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          ".claude/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+          "packages/main/templates/agents/proof-or-stop-review-channel.md",
+          ".claude/agents/proof-or-stop-review-channel.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:red-green-same-contract",
+            "desc": "Run the focused prompt-delivery contract test before implementation and capture a genuine RED caused by the missing REVIEW triage contract, then run the same assertions after implementation and capture GREEN; the RED and GREEN records must identify the command, relevant failing or passing assertion, source revision, and ordering so a harness syntax error, missing build artifact, or post-hoc weakened assertion cannot count.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:happy:delivery-matrix",
+            "desc": "From freshly built source, assemble all five active REVIEW lanes in both full-envelope and legacy-full-context modes and prove each selected body contains exactly one canonical triage contract, while an exhaustive registry-driven set of active non-REVIEW, compatibility, and retired roles contains none; include at least one mixed rollout configuration to prove per-role selection does not alter delivery.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+              "selector": "✓ prompt registry smoke passed: 17 agents rendered for claude and codex"
+            }
+          },
+          {
+            "id": "CHK-004:happy:digest-baselines",
+            "desc": "Regenerate prompt and role measurements from canonical assembled outputs, review the baseline diff, and make the prompt baseline verifier pass with every moved template, selected-body, semantic, render, and host-render digest attributable to an intentional changed surface; frozen reviewer legacy-body pins must remain unchanged when their legacy source bytes did not change.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proof-or-stop-prompt-baseline",
+              "selector": "PASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority"
+            }
+          },
+          {
+            "id": "CHK-004:happy:release-verification",
+            "desc": "Run the focused prompt registry, full-context envelope, and prompt contract measurement smokes, both process-fact and runtime-fact contract verifiers, the prompt baseline verifier, the package type or build validation, and the story-bound local adapter command node bin/proof-or-stop.js verify_codex --storyId=B-9a49; all commands must pass against the same final committed source.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:runtime-fact-contract",
+              "selector": "Runtime fact contract verified"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:english-only-slices",
+            "desc": "Extract the newly added canonical REVIEW contract, Story Owner guidance, implementer escalation guidance, compatibility note, and redispatch guidance and prove those new public or Agent-facing slices are English-only, allowing code identifiers and command syntax but rejecting accidental Chinese prose or encoded HTML artifacts; do not falsely require pre-existing unrelated repository documentation to be English.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:edge:compatibility-and-outcomes",
+            "desc": "Verify the published wording describes finding_dismiss only as a temporary current round or profile compatibility path and never as applicability proof, repair, resolution, or a mechanically enforced prohibition; independently assert that disproven, duplicate, and not_reproduced_under_current_witness retain three distinct meanings, evidence requirements, and routing effects, with not_reproduced_under_current_witness requiring current target-bound negative command and runtime receipts, fresh source and runtime bindings, a signed command-policy and witness digest, and a live receipted owner or route; separately prove that future official signed defer_with_proof is a disposition only after applicable for an eligible verified applicable low or medium Finding, never a non-applicable verdict.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:edge:inflight-envelope-redispatch",
+            "desc": "Create or inspect a reviewer Prompt Envelope bound to the pre-change selected body, then change the REVIEW contract digest and prove the old envelope or run is not silently rebound or reused; operator guidance must require a fresh review_run_start and redispatch of the newly selected prompt before new finding_add or review_pass_set evidence is accepted.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:edge:pin-diff-allowlist",
+            "desc": "Compare regenerated approved digests with the checked-in baseline and prove unrelated roles and unchanged legacy reviewer bodies retain their prior digests; every unexpected digest movement, role-count movement, duplicate row, missing role, or host-mode omission must fail instead of being accepted by a blanket repin.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proof-or-stop-prompt-baseline",
+              "selector": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies"
+            }
+          },
+          {
+            "id": "CHK-004:edge:version-and-local-artifacts",
+            "desc": "Verify the required CLI patch version is synchronized across root and package manifests, lockfiles, and the branded version constant, the package build regenerates local dist from the changed source, and the local built CLI reports the expected new version before verify_codex is accepted.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));const v=read('package.json').version;const vals=[v,read('package-lock.json').packages[''].version,read('packages/main/package.json').version,read('packages/main/package-lock.json').packages[''].version];const marker='PROOF_OR_STOP_CLI_VERSION = '+String.fromCharCode(39)+v+String.fromCharCode(39);const src=fs.readFileSync('packages/main/src/core/proof-or-stop-brand.ts','utf8');const dist=fs.readFileSync('packages/main/dist/core/proof-or-stop-brand.js','utf8');const cli=cp.execFileSync(process.execPath,['bin/proof-or-stop.js','--version'],{encoding:'utf8'}).trim();if(!vals.every(x=>x===v)||!src.includes(marker)||!dist.includes(marker)||!cli.includes(v))throw new Error('version mismatch '+JSON.stringify({vals,cli}));console.log('version sync: PASS '+v)\"",
+              "selector": "version sync: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:false-red",
+            "desc": "Force a failing test through a stale dist tree, bad import, malformed fixture, environment failure, or unrelated baseline mismatch and prove it is rejected as RED evidence; the accepted RED must fail specifically because the pre-implementation assembled REVIEW prompt lacks the newly required contract behavior.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:adversarial:test-weakening",
+            "desc": "Remove, skip, invert, or weaken an assertion between RED and GREEN, or update expected text to whatever the implementation emits, and prove review rejects the result; GREEN must come from production prompt and contract changes plus deliberate reviewed pins, not from disabling the original failing requirement.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
+          },
+          {
+            "id": "CHK-004:adversarial:delivery-leak-or-duplication",
+            "desc": "Inject the contract through a broad common policy, append it in both a template and resolver, or key delivery by a name substring; prove tests fail on leakage into any non-REVIEW role, two copies in a REVIEW prompt, omission from one of the five lanes, or divergence between the two supported envelope modes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:adversarial:semantic-collapse",
+            "desc": "Change compatibility wording so dismissal appears to prove out-of-scope status, collapse disproven, duplicate, and not_reproduced_under_current_witness into a generic deferred or closed outcome, omit current target-bound negative command or runtime receipts, fresh source or runtime bindings, a signed command-policy or witness digest, or a live receipted owner or route, treat future official signed defer_with_proof for an eligible verified applicable low or medium Finding as a non-applicable verdict, or inject retired or contradictory triage authority vocabulary anywhere in the full assembled Task Context or envelope; prove the focused semantic and full-envelope contract tests fail even when all digest pins are refreshed.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:adversarial:stale-envelope-replay",
+            "desc": "Replay an old in-flight reviewer prompt, envelope, reviewRunId, pass, or Finding write after the selected REVIEW body or host-render digest changes and prove it cannot gain current evidence authority; deleting the redispatch warning, accepting the old binding, or claiming that prose refreshes it must fail.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-004:adversarial:authority-boundary-and-local-cli",
+            "desc": "Attempt to make requiredCheckIds, prompt text, a passing baseline verifier, or verify_codex output substitute for signed lifecycle evidence, or run verification only through a stale global binary; process-fact and runtime-fact checks plus the local build must prove prompt metadata remains non-evidentiary and final adapter verification exercised the committed local implementation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:process-fact-contract",
+              "selector": "Process Fact Contract"
+            }
+          },
+          {
+            "id": "CHK-004:adversarial:task-context-authority-injection",
+            "desc": "Inject the retired pre-current-witness verdict name and other contradictory triage-authority wording separately through Story, checklist, and verificationIntent Task Context in the full-context envelope smoke; capture a genuine pre-fix RED because the complete assembled REVIEW envelope accepts each injected authority rule, then run the same mutation assertions after the fix and capture GREEN only when every complete assembled reviewer envelope rejects those Task Context injections independently of deliberately refreshed prompt, selected-body, semantic, render, or host-render digest pins.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:red-green-same-contract",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:happy:red-green-same-contract is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:delivery-matrix",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:happy:delivery-matrix is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "499acd175d457b8a17290733d2de47050ce34526e028f34e0f435b8ef324fb64",
+            "outputTail": "✓ prompt registry smoke passed: 17 agents rendered for claude and codex\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:05.911Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:digest-baselines",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline verifier binds all exact role bodies and rejects unapproved snapshot, matrix, role-count, and mutation drift.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d78dc9b4928c5261e38a6e67696ff028a5b929e42632899c1a654242630ff44",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nPASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 4 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics allow no active StoryStore writes\nPASS proof-or-stop prompt baseline: story-init source, Claude mirror, Codex mirror, and assembled prompt are CLI-only\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:16.446Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:release-verification",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "command": "npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Final runtime contract verification passed; companion build, registry, envelope, measurement, process-fact, baseline, version, and story-bound verify_codex checks passed on the same material.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad05fe0a4a9f336eea5c16c484b38d850cf3ae639bf79bc10edea4e501333ea2",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:runtime-fact-contract\n> node ../../scripts/verify-runtime-fact-contract.mjs\n\nRuntime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:19.510Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.890Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:english-only-slices",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:edge:english-only-slices is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:compatibility-and-outcomes",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:edge:compatibility-and-outcomes is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:inflight-envelope-redispatch",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Envelope smoke proves changed selected-body bindings cannot be silently reused and requires fresh review_run_start plus redispatch.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "622005862afcd5f307dad883fef10b2c31e658533a61f2cb8e20c88784d2616e",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:21.091Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:pin-diff-allowlist",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Exact approval manifest and mutation probes reject blanket repins, missing roles, duplicates, and unrelated digest movement.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d78dc9b4928c5261e38a6e67696ff028a5b929e42632899c1a654242630ff44",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nPASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 4 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics allow no active StoryStore writes\nPASS proof-or-stop prompt baseline: story-init source, Claude mirror, Codex mirror, and assembled prompt are CLI-only\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:34.463Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:version-and-local-artifacts",
+          "kind": "integration_test",
+          "command": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));const v=read('package.json').version;const vals=[v,read('package-lock.json').packages[''].version,read('packages/main/package.json').version,read('packages/main/package-lock.json').packages[''].version];const marker='PROOF_OR_STOP_CLI_VERSION = '+String.fromCharCode(39)+v+String.fromCharCode(39);const src=fs.readFileSync('packages/main/src/core/proof-or-stop-brand.ts','utf8');const dist=fs.readFileSync('packages/main/dist/core/proof-or-stop-brand.js','utf8');const cli=cp.execFileSync(process.execPath,['bin/proof-or-stop.js','--version'],{encoding:'utf8'}).trim();if(!vals.every(x=>x===v)||!src.includes(marker)||!dist.includes(marker)||!cli.includes(v))throw new Error('version mismatch '+JSON.stringify({vals,cli}));console.log('version sync: PASS '+v)\"",
+          "result": "pass",
+          "note": "Re-execute the shell-free compatible synchronized-version witness against current local artifacts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c18dcd1729fdae04c297c3bee8fe7921ba716999937b2f0b34ee0e5f9274d167",
+            "outputTail": "version sync: PASS 0.3.273\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:55:29.813Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "471ce3ac67fe4204d082fda91cbce85b8f266099",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "timestamp": "2026-09-03T16:55:30.029Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:false-red",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:adversarial:false-red is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:test-weakening",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Measurement smoke retains the original delivery, semantic, role-boundary, digest, and adversarial assertions on final source.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:04.781Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:delivery-leak-or-duplication",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:adversarial:delivery-leak-or-duplication is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:semantic-collapse",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Re-earned tool-executed receipt after correcting the main-merge AGENTS guidance regression; CHK-004:adversarial:semantic-collapse is covered by the same pinned verifier.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:02.789Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:stale-envelope-replay",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Envelope binding assertions reject replay after selected-body or host-render drift and require a fresh run.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "622005862afcd5f307dad883fef10b2c31e658533a61f2cb8e20c88784d2616e",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:21.091Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:authority-boundary-and-local-cli",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process-fact verification proves prompt metadata remains non-evidentiary; separate story-bound verify_codex L4 evidence passed against the local worktree implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7c976a93f624270c3a74ed5d463ec7413b743fa6ae078f933e09a4986fbbf6fe",
+            "outputTail": "udit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n...[truncated 43136 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:39.764Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:task-context-authority-injection",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Full-context RED/GREEN smoke injects retired or contradictory triage authority through Story, checklist, and verificationIntent Task Context and proves every REVIEW envelope rejects it even when all envelope digest pins are freshly assembled.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "622005862afcd5f307dad883fef10b2c31e658533a61f2cb8e20c88784d2616e",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:21:21.091Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "fae2a61d82be47eb19004d7c16f664d11c8ac95ec2630030aa72601ec2e1d9ba",
+        "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+        "headHash": "495bc13488102096cfe23aec03b3c2a228ec834a",
+        "attestedAt": "2026-08-31T20:09:19.074Z",
+        "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5"
+      }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Reconcile truthful existing process-fact topology edges with verifier-owned acceptance basis paths",
+      "context": "F-020 proved that schema-valid existing process-fact producer/consumer refs could not reconcile with registry-derived basis paths. Normalize only through the authoritative process-fact registry in the coverage-basis reconciler, keep structural validation fail-closed, and provide a complete reference-only topology plus signed basis/rollout proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "userSees": "Running `proof-or-stop acceptance_topology_check --storyId=B-9a49 --json` shows `\"status\":\"pass\"`, `\"structuralPass\":true`, `\"basisStatus\":\"complete\"`, and `\"diagnostics\":[]`; rollout readers later show a current signed full-3x2 PASS receipt.",
+      "excludes": [
+        "Do not fabricate plannedPathDeclarations for already-existing process-fact paths merely to make acceptance coverage green.",
+        "Do not weaken acceptance-topology structural validation or accept caller-authored consumer aliases."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-coverage-basis.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-02T03:02:36.041Z",
+      "endTime": "2026-09-02T03:02:36.823Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:registry-reconciliation",
+            "desc": "Using a schema-valid reference-only topology whose existing producer is process-fact:acceptance_basis_generate and whose existing consumer is process-fact:acceptance_topology_check, prove reconciliation resolves only through the authoritative process-fact registry to the producer entry's exact consumerGate path, derives a complete verifier-owned basis, and retains that exact lifecycle consumer path in the signed acceptance-basis artifact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:happy:story-topology-pass",
+            "desc": "After the Owner installs the complete CHK-005 topology and regenerates the verifier-owned basis, read the canonical B-9a49 topology report and require status=pass, structuralPass=true, basisStatus=complete, and an empty diagnostics array; observe mode may make a failure non-blocking but must not count as acceptance.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:happy:live-pre-review-proof",
+            "desc": "After the Owner captures the exact registered live pre-review command and runs the sole pre_review_check writer at final committed source, require the read-only verifier to report ok=true, status=pass, authority=admissible, executableEvidence=current, mutations=biting, transcript=related, and no diagnostic codes; prompt text or topology PASS alone cannot substitute.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:happy:signed-rollout-full-3x2",
+            "desc": "After the Owner runs the sole acceptance_rollout_report producer once at final committed source, require both independent read surfaces to return ok=true, status=pass, receipt=current, quorum=full-3x2, and no diagnostics from the same persisted signed report; a lifecycle observe-mode non-block or a degraded or missing receipt cannot count.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:gate-consumer-exactness",
+            "desc": "Prove registry resolution accepts the consumer process fact only when the producer's authoritative consumerGate names that exact fact on a bounded token boundary, and that the process-fact registry, PROCESS_FACT_LEVELS projection, artifact entry, source references, and lifecycle consumer retain the same exact gate semantics; prefixes, suffixes, substrings, missing facts, or registry/level drift must not reconcile.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:process-fact-contract",
+              "selector": "node scripts/verify-process-fact-contract.mjs"
+            }
+          },
+          {
+            "id": "CHK-005:edge:source-dist-build",
+            "desc": "Build packages/main from the committed TypeScript source immediately before executing the dist-based focused smoke, so stale generated JavaScript, a build failure, or a source-only fix cannot satisfy CHK-005; the resulting dist test must exercise the registry-backed reconciliation and its negative controls.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build",
+              "selector": "node ../../scripts/build-main-with-binding.mjs"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:unknown-or-unrelated-facts",
+            "desc": "Replace either endpoint with an unregistered process fact, or pair acceptance_basis_generate with a registered but unrelated consumer such as review_run_start, and prove reconciliation emits AT_TOPOLOGY_OUTSIDE_BASIS instead of inventing a path or accepting registry membership as sufficient relationship evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:caller-consumer-alias",
+            "desc": "Replace the registry-backed process-fact consumer with a caller-authored existing consumer:acceptance_topology_check alias and prove it remains provenance-qualified and fails AT_TOPOLOGY_OUTSIDE_BASIS; only the registry may translate a process-fact pair into a canonical consumer path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:commandref-masking",
+            "desc": "Add a commandRef that correctly names acceptance_basis_generate while the actual producer-to-consumer edge is unrelated, unknown, or absent, and prove the matching commandRef cannot mask the bad edge, clear AT_TOPOLOGY_OUTSIDE_BASIS, or convert an incomplete mapping into complete basis coverage.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:fabricated-planned-path",
+            "desc": "Attempt to make the existing registry edge green by adding a plannedPathDeclaration, a fabricated planned endpoint, or a well-formed basis-path for nonexistent source; prove frozen declaration and actual-path reconciliation still emits the applicable AT_PLANNED_PATH_OUTSIDE_BASIS, AT_UNMAPPED_SCOPE_REF, PR_PLANNED_PATH_UNRESOLVED, or AT_TOPOLOGY_OUTSIDE_BASIS diagnostic and never treats fabricated planning prose as discovered fact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "id": "CHK-005:adversarial:structural-validation-weakening",
+            "desc": "Mutate or remove registry lookup, exact gateConsumer matching, existing-reference provenance qualification, reverse basis-to-topology coverage, or schema/version rejection and prove at least one focused negative control fails; refreshing expected output, deleting assertions, accepting every process-fact pair, or treating non-blocking observe mode as PASS must be rejected by the smoke plus process-fact contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proofstory-acceptance-basis-smoke",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:registry-reconciliation",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:happy:registry-reconciliation at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:23:07.397Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:story-topology-pass",
+          "kind": "manual_transcript",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:happy:story-topology-pass at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:24:16.031Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:gate-consumer-exactness",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:edge:gate-consumer-exactness at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7c976a93f624270c3a74ed5d463ec7413b743fa6ae078f933e09a4986fbbf6fe",
+            "outputTail": "udit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n...[truncated 43136 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:24:19.419Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:source-dist-build",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:edge:source-dist-build at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "104ca1038fceaf96c1576f8ab580f6197c78e5afdc3140f9eae4f893452fa34f",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:24:20.336Z",
+            "timeoutMs": 290000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:unknown-or-unrelated-facts",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:unknown-or-unrelated-facts at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:23:07.397Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:caller-consumer-alias",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:caller-consumer-alias at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:23:07.397Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:commandref-masking",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:commandref-masking at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:23:07.397Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:fabricated-planned-path",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:fabricated-planned-path at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:23:07.397Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:structural-validation-weakening",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier proves CHK-005:adversarial:structural-validation-weakening at the current committed implementation.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:23:07.397Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:live-pre-review-proof",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "The pinned acceptance-basis smoke proves the live pre-review producer and reader reject missing, stale, non-biting, unrelated, or caller-authored proof before the final Story-bound artifact is issued.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:24:16.031Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.891Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:signed-rollout-full-3x2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "The pinned acceptance-basis smoke verifies the signed rollout receipt contract; the persisted Story report is independently read as current full-3x2 before REVIEW.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95f0b407a73b6637d0d047fefb80af4d2b604576eae5405835c8b8e0089fe5d3",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.273 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:24:16.031Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d2a315375b0a315ce59d7a219bf7c656de397729e5b2d384a482278ff70ef1a2",
+        "storyFilesHash": "bddedfc12828de479b91463864cc30975d1ef8a6b4d92ce85820d67608c78477",
+        "headHash": "890cd43a827143f70eb9cb57c019e0a8b682f626",
+        "attestedAt": "2026-09-01T00:39:54.054Z",
+        "materialHash": "3f6143c249c33b14a34338d477f417d67e4bec72b4b410f4266913548e414ac7"
+      }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier",
+      "context": "The signed live transcript failed because proofstory-pre-review-check-smoke hard-coded the deprecated .lattice-codex/agents path while this repository tracks canonical .proof-or-stop-codex/agents assets. Use the shared canonical-first ADAPTER_DIR_NAMES migration contract, retain deprecated read fallback, and fail closed when neither exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "userSees": "The live proof emits `PROOFSTORY_PRE_REVIEW_PROOF=` instead of `ENOENT ... .lattice-codex/agents/lattice-implementer.md`.",
+      "excludes": [
+        "Do not create a .lattice-codex symlink or materialized compatibility copy.",
+        "Do not change Dynamic Finding runtime or lifecycle gate predicates."
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-006:happy:canonical-adapter-root",
+            "desc": "Build and run the full pre-review smoke in the current repository, where only the canonical .proof-or-stop-codex/agents asset root is tracked, and require the smoke to complete instead of reading the deprecated .lattice-codex path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-006:edge:legacy-read-fallback",
+            "desc": "Prove the resolver probes accepted adapter directory names in canonical-first order and still reads a deprecated .lattice-codex/agents tree when the canonical tree is absent, preserving migration compatibility without writing the deprecated path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-006:adversarial:missing-assets-fail-closed",
+            "desc": "Prove that when neither canonical nor deprecated Codex agent assets exist, the pre-review smoke fails with a bounded missing-assets diagnosis rather than silently skipping prompt-guidance verification or inventing a path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-02T03:02:37.696Z",
+      "endTime": "2026-09-02T03:02:38.469Z",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f4f7cc5f5a3cc20498d057a4609ae805ce7b53088b3441d38aa20c65f2491f7a",
+        "storyFilesHash": "bddedfc12828de479b91463864cc30975d1ef8a6b4d92ce85820d67608c78477",
+        "headHash": "14d2b2579e979e902e98e148ab8b8445b88480f6",
+        "attestedAt": "2026-09-01T00:39:52.964Z",
+        "materialHash": "3f6143c249c33b14a34338d477f417d67e4bec72b4b410f4266913548e414ac7"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:canonical-adapter-root",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "The full pre-review smoke resolves the tracked canonical .proof-or-stop-codex/agents root and completes with the expected PASS selector.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1a6c58d099c5629ad2533f9a36f02cc231a590cc83ee700fd608048e073a32e3",
+            "outputTail": "ProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:25:52.876Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:legacy-read-fallback",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "The full pre-review smoke exercises canonical-first resolution and the bounded deprecated .lattice-codex/agents read fallback without legacy writes.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1a6c58d099c5629ad2533f9a36f02cc231a590cc83ee700fd608048e073a32e3",
+            "outputTail": "ProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:25:52.876Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:missing-assets-fail-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "The full pre-review smoke removes both accepted asset roots in its fixture and verifies a bounded missing-assets failure instead of silent skip.",
+          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+          "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1a6c58d099c5629ad2533f9a36f02cc231a590cc83ee700fd608048e073a32e3",
+            "outputTail": "ProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:25:52.876Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T16:25:52.892Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-31T23:58:30.521Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add the explicit delivery item required by PLAN review for verified high blocker F-020 and the approved minimal scope extension.",
+      "addedTitle": "Reconcile truthful existing process-fact topology edges with verifier-owned acceptance basis paths",
+      "addedContext": "F-020 proved that schema-valid existing process-fact producer/consumer refs could not reconcile with registry-derived basis paths. Normalize only through the authoritative process-fact registry in the coverage-basis reconciler, keep structural validation fail-closed, and provide a complete reference-only topology plus signed basis/rollout proof."
+    },
+    {
+      "timestamp": "2026-09-01T00:30:15.910Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "A fail-closed live transcript exposed this current-Story acceptance blocker after CHK-005 topology became structurally valid.",
+      "addedTitle": "Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier",
+      "addedContext": "The signed live transcript failed because proofstory-pre-review-check-smoke hard-coded the deprecated .lattice-codex/agents path while this repository tracks canonical .proof-or-stop-codex/agents assets. Use the shared canonical-first ADAPTER_DIR_NAMES migration contract, retain deprecated read fallback, and fail closed when neither exists."
+    },
+    {
+      "timestamp": "2026-09-01T00:42:22.757Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen after the registered rollout producer exposed a second acceptance-blocking defect in the same pre-review verifier: reviewer subprocesses inherited the producer actor."
+    },
+    {
+      "timestamp": "2026-09-02T02:57:03.906Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final evidence refresh and acceptance closure against the already committed implementation."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:30.112Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Final focused registry evidence is mechanical and current; the canonical contract implementation was already committed and independently scope-reviewed."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:30.985Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final closure of the already committed Owner and implementer guidance after mechanical evidence replacement."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:31.785Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All ten Owner and implementer guidance intents now have passing tool-executed receipts; implementation is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:32.638Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final closure of declarative role metadata and Agent/System boundary verification."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:33.468Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All seven declarative metadata and authority-boundary intents now have passing tool-executed receipts; implementation is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:34.353Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final closure of prompt delivery, envelope, digest, version, and adapter verification."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:35.143Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All sixteen delivery, isolation, digest, version, and adversarial intents now have passing tool-executed receipts; implementation is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:36.041Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final closure of the separately reviewed acceptance-basis infrastructure repair."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:36.823Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All eleven acceptance-basis intents have passing tool-executed receipts; the bounded repair is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:37.696Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin final closure of the separately reviewed canonical adapter-root verifier repair."
+    },
+    {
+      "timestamp": "2026-09-02T03:02:38.469Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All three adapter-root intents have passing tool-executed receipts; the bounded repair is committed."
+    },
+    {
+      "timestamp": "2026-09-02T03:10:46.440Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for the verified Round 19 acceptance blocker: the REVIEW Task Context guard rejects the safe negative CHK-002 verification sentence, so reviewers cannot mint signed run IDs."
+    },
+    {
+      "timestamp": "2026-09-02T03:17:03.148Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "The exact live safe-negative sentence now passes, unsafe dismissal and authority-laundering mutations remain biting, and all 60 intents were mechanically refreshed against commit 6540abb."
+    },
+    {
+      "timestamp": "2026-09-02T03:23:36.495Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for the Round 20 acceptance blocker: the guard rejects a safe before/after invariant that explicitly requires Dynamic Finding runtime semantics to remain unchanged."
+    },
+    {
+      "timestamp": "2026-09-02T03:33:05.536Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "The complete CLI-derived 6-item/60-intent REVIEW Task Context now passes the production guard, unsafe amendment and laundering mutations remain rejected, and all 60 receipts were refreshed against 55b8c9d."
+    }
+  ]
+}

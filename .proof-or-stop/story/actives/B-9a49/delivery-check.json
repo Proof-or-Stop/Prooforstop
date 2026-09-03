@@ -1,0 +1,80 @@
+{
+  "storyId": "B-9a49",
+  "checkedAt": "2026-09-03T18:26:14.612Z",
+  "headHash": "6f638da68f2eb34423fcd6a099d70727d9ea3a97",
+  "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
+  "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
+  "reviewRound": "2026-09-03T18:11:46.629Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md#主-agent-行为准则 (defect triage section)",
+      "promise": "Replace the old unbounded proactive-repair instruction with REVIEW Finding handling, Bounded current-Story repair, Evidence-backed routing (otherwise fail closed), and Compatibility boundary and dismissal guidance.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- AGENTS.md shows the old critical/high + medium/low deferral paragraphs replaced verbatim with the four new bounded-scope paragraphs (REVIEW Finding handling / Bounded current-Story repair / Evidence-backed routing / Compatibility boundary and dismissal)."
+    },
+    {
+      "docPath": "CLAUDE.md#主-agent-行为准则",
+      "promise": "Mirror the AGENTS.md defect-triage rewrite byte-for-byte in CLAUDE.md, replacing the old 多揽责任少推卸 / 跨 story 全局意识 guidance.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- CLAUDE.md inserts the identical four paragraphs; direct text comparison against the AGENTS.md diff confirms byte-identical content."
+    },
+    {
+      "docPath": "packages/main/src/core/prompt-registry.ts#REVIEW_FINDING_TRIAGE_CONTRACT",
+      "promise": "Deliver one canonical REVIEW Finding triage contract, appended once during prompt assembly to exactly the five active modular REVIEW roles (behavior, concept, docs, quality, test-coverage), in both legacy-full-context and full-envelope modes, with a marker guard against double-appending.",
+      "verifiedBy": "diff/grep + smoke read + live-smoke transcript",
+      "evidence": "resolvePromptTemplateBody() appends REVIEW_FINDING_TRIAGE_CONTRACT only when isModularReviewerRoleId(entry.agentId) is true and throws if REVIEW_FINDING_TRIAGE_CONTRACT_MARKER already present in the body. prompt-registry-smoke.ts asserts delivery to exactly MODULAR_REVIEWER_ROLE_IDS in both modes; live-smoke-transcript.json (materialHash db61f664..., matching current HEAD story materialHash) records exitCode 0 confirming all five REVIEW lane prompts visibly contain the contract in both envelope modes while non-REVIEW prompts do not."
+    },
+    {
+      "docPath": "packages/main/src/core/prompt-role-contract-registry.ts#REVIEW_FINDING_TRIAGE_CHECK_ID",
+      "promise": "Register the declarative defect-triage-and-routing-check requiredCheckId for exactly the five active REVIEW role policies; do not add it to any non-REVIEW role.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows reviewFindingTriageRequiredCheckIds spread into requiredCheckIds only on the five modular REVIEW role policy entries; no non-REVIEW role entry references it."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+      "promise": "Document the bounded Agent-side projection of the Dynamic Finding System execution plan: affected surfaces, non-authorized changes, and verification obligations.",
+      "verifiedBy": "read + cross-check against code",
+      "evidence": "Document present at that path (390 lines); its declared role list matches MODULAR_REVIEWER_ROLE_IDS exactly; git diff main...HEAD --name-only shows no handlers/, Finding-schema, or lifecycle-predicate files touched, consistent with the documented scope boundary."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md#CHK-005/CHK-006",
+      "promise": "CHK-005 reconciles process-fact topology edges with verifier-owned acceptance-basis paths; CHK-006 repairs canonical/legacy Codex adapter-root path handling as bounded infrastructure repairs with dedicated tests, not Dynamic Finding authority changes.",
+      "verifiedBy": "diff/grep + dedicated smoke tests + live tool read",
+      "evidence": "CHK-005 (11/11 evidence) and CHK-006 (3/3 evidence) pass via proofstory-acceptance-basis-smoke.ts / proofstory-pre-review-check-smoke.ts. Independently re-run right now: pre_review_check_read=PASS (plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible); acceptance_rollout_check=PASS (receipt=current, quorum=full-3x2); acceptance_rollout_report_read=PASS (receipt=current, quorum=full-3x2). acceptance_topology_check independently shows status=fail (AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING) but is explicitly mode=observe, blocking=false, authority=diagnostic_only (read-only, non-evidentiary), caused by unrelated main-merge commits landing in the worktree after the PLAN basis was captured (git log confirms the intervening commits touch other stories work merged from main, not B-9a49-owned files); this is the unrelated whole-tree drift class the framework documents as non-blocking for delivery."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "13/13 verificationEvidence passing (happy 3 / edge 4 / adversarial 6). prompt-registry-smoke.ts covers delivery/parity/protocol/semantic/isolation/malicious-context assertions across all five REVIEW roles x both envelope modes, including a mask-based double-append guard test. Fresh live-smoke transcript (exitCode 0, materialHash matching current HEAD story material) independently confirms generated prompts."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "10/10 verificationEvidence passing (happy 2 / edge 3 / adversarial 5) covering Story Owner + implementer bounded-repair guidance parity between AGENTS.md and CLAUDE.md, independently re-confirmed by direct diff read in this review."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "7/7 verificationEvidence passing (happy 2 / edge 2 / adversarial 3); prompt-role-contract-registry.ts diff confirms exact 5-role registration with no non-REVIEW leakage."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "16/16 verificationEvidence passing (happy 4 / edge 5 / adversarial 7). prompt-envelope.ts Task-Context-authority guard exercised by prompt-full-context-envelope-smoke.ts; build/process-fact/runtime-fact/prompt-baseline checks and live Codex adapter verification all run against final committed source."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "11/11 verificationEvidence passing via proofstory-acceptance-basis-smoke.ts. Independently re-run acceptance_topology_check/pre_review_check_read/acceptance_rollout_check/acceptance_rollout_report_read in this review round; only acceptance_topology_check shows non-blocking observe-mode staleness from unrelated post-fix main-merge commits, all others PASS with current full-3x2 receipts."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "3/3 verificationEvidence passing (happy 1 / edge 1 / adversarial 1) via proofstory-pre-review-check-smoke.ts, covering canonical and legacy Codex adapter-root path resolution."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 checklist items are done with 60/60 verificationEvidence passing, a fresh validate PASS reused against current materialHash, and a fresh live-smoke transcript (exitCode 0, materialHash-matched) proving the canonical REVIEW Finding-triage contract reaches exactly the five active REVIEW lanes in both envelope modes. CLAUDE.md and AGENTS.md carry byte-identical bounded-scope guidance, and prompt-role-contract-registry.ts registers the check for exactly those five roles. All findings on this story are resolved with strong evidence. Independently re-running the Wave 4 acceptance tools this round: pre_review_check_read, acceptance_rollout_check, and acceptance_rollout_report_read all PASS with a current full-3x2 receipt; acceptance_topology_check alone reports non-blocking observe-mode staleness caused by unrelated main-merge commits landing after the PLAN basis capture, not by any B-9a49-owned material change. This delivery check does not assess or waive other DONE gates (e.g. review-assurance-floor rounds, branch-behind-main, done-required-evidence) which remain the Story Owner separate responsibility."
+  },
+  "_hash": "3e7fb458c07419b0fad0a577bd1e0c6accee9c6f8cba24dc937e4dd7310e01bd"
+}

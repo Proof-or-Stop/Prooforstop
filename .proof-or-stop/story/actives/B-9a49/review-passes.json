@@ -1,0 +1,1660 @@
+{
+  "passes": [
+    {
+      "id": "B-9a49:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Fresh full-scope concept review found no blocker. F-011 is precisely fixed: current compatibility only preserves and reports evidence, while signed revision/supersession and applicability/gate recalculation are explicitly future-only. F-013 is precisely fixed: the signed pre-review artifact now has 45 distinct evidenceRefs including all five former omissions; checklist inventory independently shows 45/45 unique must refs with mechanical=true, pass results, receipts, and current material/storyFiles bindings. The artifact remains observe-mode inconclusive for separate topology/live-proof diagnostics, which is not the resolved 40-of-45 coverage defect. AGENTS/CLAUDE parity, five-lane registration, focused semantic mutations, protected runtime isolation, and removed unbounded-scope residue checks passed.",
+      "createdAt": "2026-08-31T22:22:36.647Z",
+      "reviewRound": "2026-08-31T22:17:16.706Z",
+      "reviewRunId": "B-9a49:RR-010",
+      "envelopeId": "116e24e997fdf179686a2e37115ec430af3ca3b2b5bc8a1e669601e8270a6bab",
+      "writerSessionId": "sess-bd731efc8f0bf52dbe035f2d0adfa8b8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9a49/background.md",
+          ".lattice/story/actives/B-9a49/checklist.json",
+          ".lattice/story/actives/B-9a49/plan.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "51af2b3758c00a43f0c631bec62956249d623ebfa80a24bb8c1d9ef14ad10bac"
+      },
+      "readDiagnostics": [],
+      "_hash": "53e97aad9efbf7251db09f92f14663cf1c9e4b5d1206f2f343afb470b59023e4"
+    },
+    {
+      "id": "B-9a49:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "At HEAD 48e4f7dfd813434e4554933a4b5b41c13bf18132, the story-level concept audit found no concept-lane blocker: the canonical prompt preserves the future-authority/current-compatibility Dynamic Finding boundary, five-lane role metadata remains declarative and non-evidentiary, and protected runtime semantics are unchanged. This pass does not adjudicate, resolve, dismiss, or minimize open F-018 or test-coverage F-019.",
+      "createdAt": "2026-08-31T22:53:37.683Z",
+      "reviewRound": "2026-08-31T22:45:56.798Z",
+      "reviewRunId": "B-9a49:RR-018",
+      "envelopeId": "4045f5a772aa6dfdc2577532d1f8a7c50d136a0acd211468cb90be73b97f2d4f",
+      "writerSessionId": "sess-53ccabb0fdbab186de0d40160526d1f4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb462a3916d5519e0d0ac62a953e1a3f65532e45388d0e874d0e34b7b933084c"
+    },
+    {
+      "id": "B-9a49:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept or authority blocker found. The canonical triage contract is delivered exactly once to the five active REVIEW lanes in both envelope modes and excluded from every non-REVIEW role; severity, applicability, evidence truth, and gate impact remain separate; compatibility dismissal stays explicitly non-evidentiary; protected Dynamic Finding runtime files are unchanged. The canonical-first Codex asset resolver retains an explicit deprecated read fallback and fails closed when both roots are absent. Current verifier readers report topology structural PASS as diagnostic-only, live pre-review admissible/current/biting/related, and signed rollout current/full-3x2 with no diagnostics. Focused prompt registry, full-context envelope, contract measurement, acceptance-basis smoke, English-only diff, and git diff checks passed.",
+      "createdAt": "2026-09-01T08:47:04.929Z",
+      "reviewRound": "2026-09-01T08:39:04.827Z",
+      "reviewRunId": "B-9a49:RR-024",
+      "envelopeId": "49dd13bd586c8a293be95b4be4081be22b1e5dbf806835efa22a478dd54abea3",
+      "writerSessionId": "sess-1424ba7a7cc247aa2152034995e0e648",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-review-channel.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3acab78ecd3f722b290dd54bbb198b517776edfa7d1b07f016cc081d31b2c944"
+      },
+      "readDiagnostics": [],
+      "_hash": "40a0a8fbf8e2cbb99f0630b0c8847a0b1fe6cbeb9d07c138675ac3d1797072b2"
+    },
+    {
+      "id": "B-9a49:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 59 must intents and evidence receipts, RED-to-GREEN integrity, semantic mutation resistance, canonical and legacy adapter controls, current admissible live proof, and current full-3x2 rollout; zero gaps and zero waivers.",
+      "createdAt": "2026-09-01T08:47:14.896Z",
+      "reviewRound": "2026-09-01T08:39:04.827Z",
+      "reviewRunId": "B-9a49:RR-023",
+      "envelopeId": "ad1c3f9aca50f5a31606ccc88b4ec413152ef3e1168a576c0b6c73a1ee91ff68",
+      "writerSessionId": "sess-53735abbbe4bee579a98e213a695161e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9a49/background.md",
+          ".lattice/story/actives/B-9a49/checklist.json",
+          ".lattice/story/actives/B-9a49/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-review-channel.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a5bdc669e90ff1209775ff91f5c7572a8b805b9c45a2ea94d609167bafc068c5"
+    },
+    {
+      "id": "B-9a49:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed every non-story file in main...HEAD for quality, safety, maintainability, prompt/role delivery, host mirrors, generated baselines, source/dist build parity, acceptance topology compatibility, and protected Dynamic Finding runtime isolation. No blocking quality finding remains. Independent build and focused smokes passed.",
+      "createdAt": "2026-09-01T08:47:51.505Z",
+      "reviewRound": "2026-09-01T08:39:04.827Z",
+      "reviewRunId": "B-9a49:RR-021",
+      "envelopeId": "dcbf485c4b91b202e477ddcc32b146b5888766d4a8c193d74aca5fcf802dccdc",
+      "writerSessionId": "sess-e8b406d4e507829a581b194d426e3640",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-review-channel.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1c36647271d66063d66f1d9edddbfe21fb3904eb65dcb461ea31a134ff8f5ee2"
+    },
+    {
+      "id": "B-9a49:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Story-level docs review extracted 87 changed declaration symbols and compared 10 relevant changed-symbol/proposal authority paragraphs. Dynamic Finding semantics, Agent/System authority, compatibility labeling, English prose, AGENTS/CLAUDE parity, prompt isolation, topology wording, and command delivery are consistent; no blocker found. Focused prompt, envelope, role-contract, process-fact, and baseline checks all passed.",
+      "createdAt": "2026-09-01T08:51:55.283Z",
+      "reviewRound": "2026-09-01T08:39:04.827Z",
+      "reviewRunId": "B-9a49:RR-025",
+      "envelopeId": "16e661fa73e2e406d10c61616ffe33a3e4e6e61191394a3cc0988c85e51bd65d",
+      "writerSessionId": "sess-b9faf16ae2a65625c17be45087b58da7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-channel.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-review-channel.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2147c5b179ee86cea5c59ad0fe9a34dc2c9151a415fbc38312847d15861ceb92"
+    },
+    {
+      "id": "B-9a49:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 test coverage review passed: 59/59 current mechanical verification evidence records are bound to the current storyFilesHash; exact dynamic-binding budget behavior accepts 808, rejects 809, rejects measured-minus-one, and rejects ceilings above 850; the focused retired-authority vocabulary guard passed with 804 measured builds; the blocker fix is byte-identical to current main; protected Dynamic Finding runtime files are unchanged; and current topology, pre-review mutation, and full-3x2 rollout evidence all pass with no diagnostics. No blocking finding remains.",
+      "createdAt": "2026-09-01T09:48:54.295Z",
+      "reviewRound": "2026-09-01T09:43:56.937Z",
+      "reviewRunId": "B-9a49:RR-027",
+      "envelopeId": "605f3080f00ccd8e79da5001fcf50348f61bf25b7fedfa1253a0af79373ebf44",
+      "writerSessionId": "sess-53735abbbe4bee579a98e213a695161e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9a49/background.md",
+          ".lattice/story/actives/B-9a49/checklist.json",
+          ".lattice/story/actives/B-9a49/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-contract.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-finding-triage.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-finding-triage-measurement.ts",
+          "packages/main/src/tasks/review-finding-triage-red-green.ts",
+          "packages/main/src/tasks/review-finding-triage-smoke.ts",
+          "packages/main/tests/codex-native-agents.test.ts",
+          "packages/main/tests/codex-package-integration.test.ts",
+          "packages/main/tests/codex-package-prompts.test.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b403a0a2545e764b0db1227c5ab84b26860b0a8f01822d82695a742256b8faa9"
+    },
+    {
+      "id": "B-9a49:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round 8 docs review extracted 103 changed declaration symbols and compared 23 relevant proposal, authoritative Dynamic Finding, canonical prompt, Story Owner, compatibility, witness, deferral, and Agent/System boundary paragraphs. F-022 is fixed and owner-resolved: current vocabulary, target-bound witness proof, signed future defer-with-proof eligibility/exclusions, present-CLI non-implementation, dismissal non-proof, English quality, proposal digest, and AGENTS/CLAUDE parity are consistent. Six focused contract/baseline checks passed; no docs blocker remains.",
+      "createdAt": "2026-09-01T10:56:14.992Z",
+      "reviewRound": "2026-09-01T10:52:52.902Z",
+      "reviewRunId": "B-9a49:RR-033",
+      "envelopeId": "e648bf8f56530a778d9bd4ff7915846de50ad5590298a87fe03411063a72c3c2",
+      "writerSessionId": "sess-b9faf16ae2a65625c17be45087b58da7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d2b30722d5eccc2e3a9d4ba75d9bb51397c46f8cc0cd00835eaf53ac117cf7e"
+    },
+    {
+      "id": "B-9a49:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "119 exported diff symbols were extracted and 39 bounded documentation/source paragraphs or sections were compared. No blocker: the English proposal is internally coherent; the Dynamic Finding plan retains the retired spelling only as its labeled future legacy input alias; current Agent guidance and the assembled five-lane contract use not_reproduced_under_current_witness; defer_with_proof is consistently future, signed, post-applicable, and unavailable in the current CLI; compatibility accounting is explicitly non-evidentiary; Owner guidance is byte-identical across AGENTS.md and CLAUDE.md; role metadata remains declarative; protected Dynamic Finding runtime/gate files have zero diff. Independent dist smokes for registry, full Task Context envelope, and role-contract measurement passed.",
+      "createdAt": "2026-09-01T11:56:53.054Z",
+      "reviewRound": "2026-09-01T11:51:01.649Z",
+      "reviewRunId": "B-9a49:RR-038",
+      "envelopeId": "86e94ff922297b4ea17b4152dc69a6aeb074a5e29a9c6f3737c6b963ebe2597d",
+      "writerSessionId": "sess-0ab4731d72cf2d8cace61a57bd0e0931",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e39a96a4ad639b46d1b028fbdac746e7b6546a097f5325ce7f58e5acdb01e654"
+      },
+      "readDiagnostics": [],
+      "_hash": "b48e36f186ff293533dce39bd224df2aae34eac8cbffd88b5726471caecae40c"
+    },
+    {
+      "id": "B-9a49:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Current-material re-attestation confirms zero open findings; F025-F035 resolutions match RR-047 independent evidence, and all committed changes since RR-047 are CLI-authored Story review metadata with no source or documentation drift.",
+      "createdAt": "2026-09-01T15:16:19.593Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-051",
+      "envelopeId": "0d6b9f537ed36eb308c2e72549a69ed091d456566d9b5d1f48e1fb1e965ef899",
+      "writerSessionId": "sess-c9887de9333a19f7e886ef94869a32c1",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-channel.md",
+          ".proof-or-stop-codex/agents/lattice-review-channel.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bb870ef6a8a78c88021971ed9742d853444192bddd1ae7c742bbdbca4195c842"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb46f8c669e9c34e3a0aacf9d7231b70495fcaede8afaf80ba4fc4002a203466"
+    },
+    {
+      "id": "B-9a49:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test-coverage review passed after current-material re-attestation: no open findings; source/tests unchanged since RR-046 except CLI-authored resolution metadata; exactly 60 must intents retain 60 mechanical passing receipted evidence records bound to RR-050 materialHash/storyFilesHash; prior discriminating RED snapshots, current full and conditional five-role assembly matrix, F-035 unsafe/safe polarity cases, non-REVIEW isolation, pre-review current PASS, rollout current full-3x2 PASS, and protected-runtime zero-diff remain valid.",
+      "createdAt": "2026-09-01T15:16:21.364Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-050",
+      "envelopeId": "27c98246f8da4eb5b018efb8d2c1598ce40858db162768459ff4c842102f1420",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "18af320ecd5064782c63c55dfc443a0ae7c693bc690d4d30079a741592d16364"
+    },
+    {
+      "id": "B-9a49:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Current-material re-attestation: F-025 through F-035 are strongly resolved; no open findings remain; source and documentation are unchanged since RR-045; prior full quality matrix, exact RED/GREEN pairs, real 60-intent five-role assembly, English, baseline, and protected-runtime checks remain applicable.",
+      "createdAt": "2026-09-01T15:16:48.228Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-049",
+      "envelopeId": "8ec6c3fb93501f41309cab5da54212ca34649533f0f32187c1ebabaa6070f418",
+      "writerSessionId": "sess-3b21d68005d66729dc0b1a07faf245d9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bb870ef6a8a78c88021971ed9742d853444192bddd1ae7c742bbdbca4195c842"
+      },
+      "readDiagnostics": [],
+      "_hash": "ebf5d6a0af738821cfa2ccdc68f461e5b61db32bc91f33f3b92c07051b3ebe5f"
+    },
+    {
+      "id": "B-9a49:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Re-attested RR-048 after Finding resolution: no source or documentation files changed; only signed REVIEW metadata changed. No open Finding remains, and the proposal stays consistent with the authoritative Dynamic Finding plan.",
+      "createdAt": "2026-09-01T15:18:21.444Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-052",
+      "envelopeId": "6af58f5ae83f647036f842533cab146577b7d3b67311fb3db4aac30ab652bd67",
+      "writerSessionId": "sess-354c40193ff02d2a9b2dbcdcf5c35e2f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "32720948943aafdd51b847c51234eb0dc90d518f3dd7856a7bb4222860585da2"
+      },
+      "readDiagnostics": [],
+      "_hash": "16af0b04714dfb6840226688dc6ea7e499a9632c53240fd1374e04c688131f87"
+    },
+    {
+      "id": "B-9a49:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 16 independent docs review found no blocker: the English proposal and assembled contract match Dynamic Finding authority, use the exact lineage-release allowlist, exclude not_reproduced_under_current_witness from lineage and mandatory-repair release, preserve the F-040 dual-floor closure rule, keep current compatibility limitations explicit, retain byte-identical Owner guidance, and bound the authority-document Story diff to documentation-only target-state clarification. Registry, full-context, measurement, baseline, English, table-shape, mirror, protected-runtime, retired-role, and diff checks passed.",
+      "createdAt": "2026-09-02T00:27:32.045Z",
+      "reviewRound": "2026-09-02T00:23:58.905Z",
+      "reviewRunId": "B-9a49:RR-062",
+      "envelopeId": "074a67212c3a357bddbaa7163102a4eb6854786227c9ae68d7d6827527cb07be",
+      "writerSessionId": "sess-354c40193ff02d2a9b2dbcdcf5c35e2f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e39a96a4ad639b46d1b028fbdac746e7b6546a097f5325ce7f58e5acdb01e654"
+      },
+      "readDiagnostics": [],
+      "_hash": "f3d55b54cd5f4c66e77fbb24b35ed05ce44e2557b945916c9be8c2ac7dfde28b"
+    },
+    {
+      "id": "B-9a49:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 16 test-coverage review passed on current material: 18/18 authority interaction mutations include digest-refreshed F-040 dual-floor and F-041 current-witness inverses across complete reviewer bodies; focused registry/full-context/measurement, 17-role approval/generated baseline, process/runtime contracts pass; all six checklist items map 60 must intents to exactly 59 fresh mechanical receipts plus one explicit permanent single-Story waiver; no open findings, no protected Dynamic Finding runtime diff, and the F-041 test change adds a forbidden pattern and mutation without weakening the existing inventories.",
+      "createdAt": "2026-09-02T00:27:49.678Z",
+      "reviewRound": "2026-09-02T00:23:58.905Z",
+      "reviewRunId": "B-9a49:RR-063",
+      "envelopeId": "4a9e2e1a77a23fffd1b1f892eb1983e8e1ed665e54860cc0b2130243f7f75318",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a4dc755d3215de514464603b91256230e218878d4dbf41afd996fd2caca3cb16"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ecc9fac0c25e77fbb6d4995c962a9b5813ad08333c36b46951c2b7f137d0e5e"
+    },
+    {
+      "id": "B-9a49:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "PASS: independently audited the current Story diff and authoritative Dynamic Finding projection. The lineage-release allowlist is exactly pre_existing_unaffected, out_of_scope, duplicate, or disproven with current counter-evidence; not_reproduced_under_current_witness releases neither claimed lineage nor mandatory repair. F-040 dual-floor and closure_proven-only clearing remain intact. Agent prose stays non-evidentiary, the 11-line authority amendment is specification-only, protected runtime is unchanged, and focused prompt/envelope/baseline/process/runtime checks pass.",
+      "createdAt": "2026-09-02T00:28:06.055Z",
+      "reviewRound": "2026-09-02T00:23:58.905Z",
+      "reviewRunId": "B-9a49:RR-064",
+      "envelopeId": "b8594488ca858fcf70820eead425938172a6f867d00df5db30af339f95951934",
+      "writerSessionId": "sess-c9887de9333a19f7e886ef94869a32c1",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e39a96a4ad639b46d1b028fbdac746e7b6546a097f5325ce7f58e5acdb01e654"
+      },
+      "readDiagnostics": [],
+      "_hash": "a2b270deb53f98d94f6185918472108a4e573ea45ae217cd790dab05dd773a6e"
+    },
+    {
+      "id": "B-9a49:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker at HEAD 32bb6bd. Verified F-041 exact lineage-release allowlist and current-witness exclusion, F-040 closure_proven-only downstream mandatory repair, 18 semantic authority mutations, prompt-envelope safety, 11-line docs-only authority amendment, protected Dynamic Finding runtime zero-diff, Harmonynet fix authorship, source/dist parity, and no test weakening. Build plus registry, envelope, measurement, baseline, process/runtime fact, acceptance-basis, and pre-review smokes all passed.",
+      "createdAt": "2026-09-02T00:34:47.855Z",
+      "reviewRound": "2026-09-02T00:23:58.905Z",
+      "reviewRunId": "B-9a49:RR-065",
+      "envelopeId": "5d5a12e80bff387087708097a290c5c450777e1e2a8e07d355060c1eccfb5cfa",
+      "writerSessionId": "sess-c9887de9333a19f7e886ef94869a32c1",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bb870ef6a8a78c88021971ed9742d853444192bddd1ae7c742bbdbca4195c842"
+      },
+      "readDiagnostics": [],
+      "_hash": "53e8206508fcf18f3f3c936e4103905244ff0200a557c07f9e96347399eccbd5"
+    },
+    {
+      "id": "B-9a49:RP-018",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review found no remaining blocker: F053-F057 grammar fixes reject pre/post/bridge/punctuation and disguised authority continuations, preserve legitimate CHK-002/CHK-003 plus benign evidence reporting, all focused prompt and acceptance checks pass, and protected Dynamic Finding authority/runtime paths are unchanged.",
+      "createdAt": "2026-09-02T08:15:17.739Z",
+      "reviewRound": "2026-09-02T08:10:02.997Z",
+      "reviewRunId": "B-9a49:RR-085",
+      "envelopeId": "36c7d1ee84ce28b752e70a45691a4528c7ca0f2ec7aba92b590976cbd392d086",
+      "writerSessionId": "sess-3787b9b492d1cd121854fb125edaa9bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "14adac04803ba0449a61b0a89bf14a405621ebf265391de4dba295f27115e666"
+      },
+      "readDiagnostics": [],
+      "_hash": "7951ae980d977c6380c6f371764fe98cffd1abb9ce66984d928804eb67668bab"
+    },
+    {
+      "id": "B-9a49:RP-019",
+      "agent": "proof-or-stop-review-quality",
+      "note": "PASS: independently reviewed commit 1b8fdfe672 and the complete production source/test files. Built dist admits the exact live CHK-002/CHK-003 invariants and bounded ASCII/Unicode evidence-reporting continuations, while rejecting pure-lead, frozen-bridge, pre/post-invariant, parenthetical, relative, concessive, conditional, multi-sentence, applicability, severity, gate, and ownership reopening mutations. Build, full-context, 17-role registry, measurement, baseline, process/runtime contracts, current pre-review, full-3x2 rollout, 60/60 mechanical evidence with zero waivers, and protected Dynamic Finding diff all pass.",
+      "createdAt": "2026-09-02T08:16:00.527Z",
+      "reviewRound": "2026-09-02T08:10:02.997Z",
+      "reviewRunId": "B-9a49:RR-084",
+      "envelopeId": "2c418dd46eca5fd891639a9c696638b8f5c9c0f20e1f8b4a6e0e579fe80c0ab8",
+      "writerSessionId": "sess-119825db54d39d357aa616393646e93a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "32d96b0250e69a17dbe73f40ef9cb21eb6866032a501e79e5d4cb2358eacf335"
+    },
+    {
+      "id": "B-9a49:RP-020",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation review found no blocker: the English Agent-side proposal remains subordinate to the unchanged Dynamic Finding plan, separates severity/applicability/disposition/gate impact, preserves append-only truth and owner routing, describes dismissal only as current compatibility accounting, and keeps Owner, implementer, and all reviewer surfaces synchronized.",
+      "createdAt": "2026-09-02T08:18:17.557Z",
+      "reviewRound": "2026-09-02T08:10:02.997Z",
+      "reviewRunId": "B-9a49:RR-087",
+      "envelopeId": "c9faaa48328d0e0404eda28f4b1d99876deba90379fbd8e7aa06ac3f08a2ce48",
+      "writerSessionId": "sess-3787b9b492d1cd121854fb125edaa9bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "14adac04803ba0449a61b0a89bf14a405621ebf265391de4dba295f27115e666"
+      },
+      "readDiagnostics": [],
+      "_hash": "d27df11b1feeb16ce90558c9b41f071c309eae6f5b2cc620f732315b4ada8d45"
+    },
+    {
+      "id": "B-9a49:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 31 test-coverage review passed: verified all 60 must intents have unique current mechanical PASS receipts with zero waiver/non-mechanical rows; build-first source/dist smokes pass, full-context passes twice, 17-role Claude/Codex registry isolation, measurement, baseline, process/runtime contracts, acceptance-basis and full pre-review smokes pass; independent inverse mutations for same-category relation counting, cross-segment disposition assignment, cross-segment severity authority, and nothing-but-severity each turn the current GREEN smoke RED; topology/pre-review/rollout readers are current PASS with admissible/biting/related evidence and full-3x2 quorum; protected Dynamic Finding runtime paths are unchanged.",
+      "createdAt": "2026-09-02T23:14:45.406Z",
+      "reviewRound": "2026-09-02T23:07:48.292Z",
+      "reviewRunId": "B-9a49:RR-108",
+      "envelopeId": "3d78d9e92d3f69b371d1b227b09c1544428ae34b0fc3f1797d07d50d99ec37fa",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3391f8c8e3868749bdf668820975d81260aa0157d98f70c069d2070608df8ac2"
+    },
+    {
+      "id": "B-9a49:RP-022",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review passed on committed material through 59db18177a: exact signed F-071/F-072 RED reproductions are represented by committed unsafe period, semicolon, and consequently-polarity fixtures; current build and full-context smoke pass those fixtures plus the bounded safe one-input controls across all five REVIEW roles and story, checklist, and verificationIntent surfaces. CLI reports 60 unique current mechanical passing receipts with no waiver, pre-review pass/current/biting/related/admissible, rollout pass/current/full-3x2, no open findings, and no protected Dynamic Finding path diff.",
+      "createdAt": "2026-09-03T13:26:44.613Z",
+      "reviewRound": "2026-09-03T13:24:28.264Z",
+      "reviewRunId": "B-9a49:RR-121",
+      "envelopeId": "ad5346c5b49abe701b375e4ae0071eae55759859f9179e8fdc1fc0863b4ee940",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5e7250e81b418bc6de6ef4e792615ae437041a5c222e88053d7fb5b6623334f1"
+      },
+      "readDiagnostics": [],
+      "_hash": "992850af7632f883b964eda18652f2a2f3edc61455250f11a7cbf6d0ae17a379"
+    },
+    {
+      "id": "B-9a49:RP-023",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality PASS on committed material through 59db18177a: exact F-072 one-segment cases and prior F-071 cases reject, bounded safe controls accept, focused and full-context prompt smokes pass, source/dist contain the correction, the commit changes only the intended prompt guard and smoke, and protected Dynamic Finding authority/runtime/schema/handler/gate paths remain unchanged.",
+      "createdAt": "2026-09-03T13:28:07.727Z",
+      "reviewRound": "2026-09-03T13:24:28.264Z",
+      "reviewRunId": "B-9a49:RR-120",
+      "envelopeId": "974e4ff8724f791038527d01b1c71d55a16526e17784e9e8b1f6e12dce031d2b",
+      "writerSessionId": "sess-1d101d053fd93314b2fe143e9f1d81cb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "26e4b0b48ff45a86f4a3bdbe71435f2b3c3998dfe85c32446df585a75e358596"
+    },
+    {
+      "id": "B-9a49:RP-024",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 35 bounded concept re-attestation found no blocker. Verified the exact F-071 period/semicolon contradictions and F-072 consequently-clause contradictions reject on all five canonical REVIEW roles across story, checklist, and verificationIntent surfaces, while declared safe controls accept (285/285 checks). The proposal remains an English Agent-side projection: severity, applicability, disposition, gate impact, and append-only Finding history remain separate; unknown applicability fails closed; dismissal is not applicability proof; owner/route evidence remains required. Protected Dynamic Finding authority/runtime handler/gate/process-fact paths have no Story diff. Full-context, focused registry, process-fact, runtime-fact, pre-review, and rollout checks pass. No arbitrary NLP completeness was required.",
+      "createdAt": "2026-09-03T13:29:06.952Z",
+      "reviewRound": "2026-09-03T13:24:28.264Z",
+      "reviewRunId": "B-9a49:RR-119",
+      "envelopeId": "1757c3064875c0881be4022b053ab5a994e023421abc146483a8f7e4e7dd6168",
+      "writerSessionId": "sess-3787b9b492d1cd121854fb125edaa9bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "74ecba4865060a05f43331a15e77ba591ff03d5f90eb1e547e6b1d923e26f41d"
+    },
+    {
+      "id": "B-9a49:RP-025",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Docs review found no blocking inconsistency. The raw main...HEAD declaration scan yielded 287 symbol names; after filtering generic-token collisions, I compared all 71 paragraph blocks in the proposal plus the bounded owner, implementer, registry, role-contract, authority-plan, and F-071/F-072 relation-family sections. The proposal is English-only, preserves Dynamic Finding as future authority, keeps prompt metadata non-evidentiary, describes current dismissal only as compatibility accounting, and aligns the final guard with the declared controlled relation families without claiming arbitrary natural-language completeness.",
+      "createdAt": "2026-09-03T13:32:18.093Z",
+      "reviewRound": "2026-09-03T13:24:28.264Z",
+      "reviewRunId": "B-9a49:RR-122",
+      "envelopeId": "911f11131e3d696f38522dcd88cc6dd9df609a7967b0c25fe32fd293e94e2c8d",
+      "writerSessionId": "sess-789da7ec72d3464b01e6a049da38a014",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e534fb9b56e5d0f4ae0f46d9a6f4975e34c8e1b1159c3505ab25bd7b867c456"
+      },
+      "readDiagnostics": [],
+      "_hash": "49a10d0d5d8f236452d4e6dea653c0450165f2ed5085ede6ac00fa77ad2fa802"
+    },
+    {
+      "id": "B-9a49:RP-026",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Focused re-review of the PLAN-only CHK-004:edge:version-and-local-artifacts correction (commit 471ce3ac67). Symbols in diff: 0 new exported code symbols (checklist.json pinned-command text edit only, replacing a literal single-quote character in the node -e version-sync witness with String.fromCharCode(39) to avoid shell/embedding quoting hazards). Paragraphs compared: 2 (CLAUDE.md REVIEW-Finding-handling section, AGENTS.md defect-classification section) plus the CHK-004 verificationIntent/verificationEvidence pair in checklist.json, both already fully reviewed and resolved (F-070/F-071/F-072 all status=resolved, evidenceState=verified). Re-executed the corrected pinned command directly in the worktree: exit 0, stdout version sync: PASS 0.3.273, matching the persisted verificationEvidence receipt. Semantics unchanged: same manifests/lockfiles/brand-constant/dist/cli checks and selector, only quoting mechanism changed. No doc-code drift found; no reopening of unrelated already-reviewed scope. No blockers.",
+      "createdAt": "2026-09-03T16:58:19.578Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-127",
+      "envelopeId": "e4a760f59717f26481366b84f4dab16ffc3a71e5f6e0f5719641a057d127be07",
+      "writerSessionId": "sess-6dae04623a782d8030d4d9165563f4b0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c3ac594cb8580d84330e7db26a1ff074b7f4ff52c6065a8fdad342c3c7113f8b"
+    },
+    {
+      "id": "B-9a49:RP-027",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Incremental story-level re-check for the controlled PLAN-only correction to CHK-004:edge:version-and-local-artifacts; verified isolated and semantics-preserving, no new findings, no scope reopened.",
+      "createdAt": "2026-09-03T16:58:22.593Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-128",
+      "envelopeId": "21dc86fdd0f88b5c741de03454b5f9aced0c1b117b6155ea6f0b4a04c562abb6",
+      "writerSessionId": "sess-5913f0ea954c58269be172667b178592",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/findings.json",
+          ".proof-or-stop/story/actives/B-9a49/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-9a49/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          ".proof-or-stop/story/actives/B-9a49/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5800fcd94b2aa82cb01e4a76c13049c39fb70f9bcd63bf9b483ea192540f188b"
+    },
+    {
+      "id": "B-9a49:RP-028",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "All 6 items verificationEvidence pass (63/63). Focus: CHK-004:edge:version-and-local-artifacts PLAN-only checklist.json correction (commit 471ce3ac67) replaced embedded single-quote marker construction with String.fromCharCode(39) to avoid breaking the shell-free parseAllowlistedCommand tokenizer; assertions (vals.every, src.includes(marker), dist.includes(marker), cli.includes(v)) unchanged. Re-executed pinned command locally: version sync: PASS 0.3.273, exit 0, matches stored receipt (outputDigest c18dcd17..., selectorMatched true, materialHash/storyFilesHash match story). No blocker.",
+      "createdAt": "2026-09-03T16:59:08.065Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-129",
+      "envelopeId": "e1f3cd98300ab7f9e2bdd83bd77493343d4c166c05160aa230ca11aa0a7345ab",
+      "writerSessionId": "sess-0456b8bcd2c261efef271ebe39d7489c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5ede9fab139ccfecb09830ff815a52f23ab9490d8c7e20bc50f6fd5dedcd64e"
+    },
+    {
+      "id": "B-9a49:RP-029",
+      "agent": "proof-or-stop-review-concept",
+      "note": "CHK-004 version-witness reproduced independently: node integration check compares package.json/package-lock.json/packages/main manifests, branded constant, dist, and CLI --version output without hardcoding a version literal; PASS 0.3.273 on clean HEAD cd73c3e0. All 72 findings resolved with strong verified evidence; no open blockers.",
+      "createdAt": "2026-09-03T16:59:49.397Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-126",
+      "envelopeId": "3a986d4e6e7098b85ac1640c5d9ed8c5788cabbd9c9ad43491daed8038b345c0",
+      "writerSessionId": "sess-d4a1963a0a1adcafc10b8ab23d481d51",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          ".proof-or-stop/story/actives/B-9a49/scope-check.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80f7ea4eceb106f216bd5f8924c3b156baa440648f7bd74e7840805ffee30ce2"
+    },
+    {
+      "id": "B-9a49:RP-030",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Binding refresh after lifecycle metadata drift; re-inspected git diff main...HEAD and CHK-004 prompt-registry/version-witness changes. No concept deletion/replacement in this round: role-body prose in CLAUDE.md/AGENTS.md was rewritten (defect-triage section) but grepped for residue of removed Chinese phrases (多揽责任少推卸/跨 story 全局意识) - zero hits in active source, only an intentional historical mention inside delivery-check.json evidence. acceptance-coverage-basis.ts topology-path changes are additive (new helper functions), no symbol deletion. No blocker this round.",
+      "createdAt": "2026-09-03T17:14:06.191Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-133",
+      "envelopeId": "f210f99dd7b0b239971bb1bab9058956e378b413d7ea7b46aa6ace0d428ad94b",
+      "writerSessionId": "sess-a62dc1e677d82626357b204d11070dd5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/delivery-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "75c1bb5976981b1bdbc33e55f337c30a59c0e512f73810a72b156c3a7f4e62f6"
+    },
+    {
+      "id": "B-9a49:RP-031",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Stale binding refresh only, no code/requirements/prompt/docs changes made. Re-inspected git diff main...HEAD (prompt-registry.ts/prompt-envelope.ts/prompt-role-contract-registry.ts, verify-proof-or-stop-prompt-baseline.mjs digest pins, five REVIEW role templates, delivery/acceptance/scope-check story artifacts). CHK-004 shell-free version-witness command re-executed locally on clean HEAD 16bf7de: exit 0, output version sync: PASS 0.3.273, matching stored receipt outputDigest c18dcd17. Confirmed String.fromCharCode(39) marker construction avoids breaking shell-free parseAllowlistedCommand tokenizer while assertions are unchanged - no semantic weakening. finding_list shows all findings resolved/dismissed, zero open blockers. No dead code, unsafe any-casts, or I/O isolation violations found. No blocker this round.",
+      "createdAt": "2026-09-03T17:15:24.541Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-134",
+      "envelopeId": "068d3959b428a1200cbe13789e16a136f066758438c41402edfcd9ee6907e2d3",
+      "writerSessionId": "sess-f3fb916602021177fe521af78eef164d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "30ca4f768f2a21221d38943dd3347d586cd6b07b086ee823975e9ad3da8b4ead"
+    },
+    {
+      "id": "B-9a49:RP-032",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: all 6 checklist items retain verificationIntent fully covered by valid verificationEvidence (mechanical receipts, exitCode 0, selector matched). verification_evidence_refresh_stale --dryRun reports no stale evidence for B-9a49. CHK-004:edge:version-and-local-artifacts corrected shell-free version witness has a genuine mechanical receipt (exitCode=0, selectorMatched=true, outputTail=version sync: PASS 0.3.273) with materialHash/storyFilesHash matching all other current evidence; only headHash differs due to intervening metadata-only commits, which is expected headHash-only drift not material drift. No coverage blocker found.",
+      "createdAt": "2026-09-03T17:31:59.162Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-135",
+      "envelopeId": "d4cca1e2e3b91b315d6749ab236d14362085b1cd4e5b88afe8b28d472a6eac29",
+      "writerSessionId": "sess-e531da5c4e05e5d803e4e758574d7698",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "background.md",
+          "plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15aa481e107c624065210651158e784b66a38cd8068cf3d159c43e32c5694c6b"
+    },
+    {
+      "id": "B-9a49:RP-033",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Refresh of stale REVIEW binding. review_incremental_context confirms isFirstPass=false, scopeChanged=false, freshnessClassification=CURRENT_MATERIAL, changedFiles empty, eligibilityReasonCodes=ELIGIBLE_NO_MATERIAL_CHANGE+ELIGIBLE_TRUSTED_PRIOR_BINDINGS relative to prior pass B-9a49:RP-026 (RR-127). Spot-checked English Agent-facing docs against git diff main...HEAD: CLAUDE.md/AGENTS.md REVIEW-Finding-handling bullets are byte-identical (mirrored) and match implementer templates; docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md is internally consistent; CHK-004 has no version-witness terminology anywhere in repo (grep clean), no correction was needed there. No doc-code drift found. No implementation/requirements/prompts/docs/verificationIntent were modified during this review.",
+      "createdAt": "2026-09-03T17:33:22.217Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-136",
+      "envelopeId": "0508c7827fad9205882c6af34d0803571a4f09a1592b8ffbf281dfc51ebc9668",
+      "writerSessionId": "sess-496585b2a32c5fe27064e3444127adcf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d957429929a8c447b66ae092b1b0d2058f9ec44b180c3b925aa641d59e141f68"
+    },
+    {
+      "id": "B-9a49:RP-034",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review: diff shows one const relocated (roleById), no deleted exports/functions in main...HEAD per validate --concept (no deleted exports). No dangling residual references found.",
+      "createdAt": "2026-09-03T17:35:37.456Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-137",
+      "envelopeId": "bac6e819a747e3ab49d3a5655093c5e5519b7efde304ece1a7b7cf2738aa604b",
+      "writerSessionId": "sess-4f69fdb5f41ab88fe87f4f372584d005",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f179f3f586e606609cc9f10e8ab0cf8db66cef0c611401c089059f332c8f1a2d"
+    },
+    {
+      "id": "B-9a49:RP-035",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Refreshed REVIEW binding for RR-139. Re-executed CHK-004:edge:version-and-local-artifacts shell-free version witness locally on HEAD f84d888: exit 0, output version sync: PASS 0.3.273, matches stored receipt outputDigest c18dcd17. Inspected git diff main...HEAD (64 files, +58315/-400): prompt-registry/prompt-envelope/prompt-role-contract-registry core changes, 17-role baseline digest pins, CLAUDE.md/AGENTS.md wording, story artifacts under .proof-or-stop; no product/prompt/requirement/doc edits made in this review. Working tree only has story process-event/envelope/review-run bookkeeping deltas from this review run itself. No blocker this round.",
+      "createdAt": "2026-09-03T17:37:54.575Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-139",
+      "envelopeId": "ece3a2149715af6766a3a342ababaf3843d6ff189ac7d73cf0ad6c7eb884b4bd",
+      "writerSessionId": "sess-3e85292a4c241bfeac6e2c8100296dc4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8375418211f190bef65fda61632619cb94d6d1da4e83fe259d8188f6b6251a83"
+    },
+    {
+      "id": "B-9a49:RP-036",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "All 6 checklist items have complete verificationIntent-to-evidence coverage (13/10/7/16/11/3, all passing, zero failing, zero waivers). CHK-004 shell-free version witness receipt confirmed pass with matching materialHash/storyFilesHash; headHash-only drift is unrelated whole-tree movement.",
+      "createdAt": "2026-09-03T17:39:54.919Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-140",
+      "envelopeId": "50594179bcc7f436cbf00131488138bd611e8180b064a3c333d531d948cbccf0",
+      "writerSessionId": "sess-2cd7d1eda860a886af8025de0f06cd69",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a7ab974e273e00d9ae4b9f40a4a386c72fd33f7f5658e02ae2ab7dc699d3a7dc"
+    },
+    {
+      "id": "B-9a49:RP-037",
+      "agent": "proof-or-stop-review-docs",
+      "note": "AGENTS.md/CLAUDE.md carry identical English REVIEW Finding-triage guidance; implementer template out-of-item finding addition is consistent English; proposal doc correctly scopes itself and excludes CHK-005/CHK-006. CHK-004 metadata correction (9296bda8) is a pure scope-freeze-check.json checkedAt/freshnessHash refresh, no prose/code delta. No blocker.",
+      "createdAt": "2026-09-03T17:41:35.135Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-141",
+      "envelopeId": "dc58cddc89617ea2d14783e79ef32b77528ed773e64350f93ba503cb8494ef60",
+      "writerSessionId": "sess-99d63650ed23150195aa460cc3f23891",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/scope-freeze-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f1eb701cc3dfc2d47e4e798d17d439de16e3f1f632d7fc5d553b6f004374e2ec"
+    },
+    {
+      "id": "B-9a49:RP-038",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Incremental REVIEW after pre-review-check / acceptance-rollout-report refresh. Reviewed acceptance-coverage-basis.ts topology canonicalization (new fn, not deletion/replacement), prompt-registry.ts/prompt-role-contract-registry.ts REVIEW-finding-triage-contract addition, and AGENTS.md/CLAUDE.md defect-triage prose replacement. Grepped repo for residue of replaced defect-triage wording - zero hits. isModularRoleId not deleted, isModularReviewerRoleId added alongside it, both correctly used. No concept deletion/replacement with residue this round; no blocker.",
+      "createdAt": "2026-09-03T17:58:26.108Z",
+      "reviewRound": "2026-09-03T17:57:05.537Z",
+      "reviewRunId": "B-9a49:RR-143",
+      "envelopeId": "dc2a6c7ad92a8fd2bb719fa02d6e37363d5f49066f9bec969b86bd94f4fec986",
+      "writerSessionId": "sess-82c00d9a7ef114eae6ab5263c7031236",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4ffa3c7de9d0eb984539b4a2406e362ae417408bd65e2ba688079ad909e460e5"
+    },
+    {
+      "id": "B-9a49:RP-039",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Incremental re-review: review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=(none) since prior PASS B-9a49:RP-035 (head f84d888). No new material diff to audit for dead code/type-safety/I-O isolation; carrying forward prior quality PASS under CURRENT_MATERIAL freshness (ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS).",
+      "createdAt": "2026-09-03T17:59:12.492Z",
+      "reviewRound": "2026-09-03T17:57:05.537Z",
+      "reviewRunId": "B-9a49:RR-144",
+      "envelopeId": "2a1a9e11247339ffd779426ed4fe41d5269410f6fcfb87e08ea1f4601976ea02",
+      "writerSessionId": "sess-567a36e39ed9273fb899aa98ec83b895",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0596c291c0b54619234e35e1abfe6c4fa489c81ef97fa64b7df3561ad8722c5a"
+    },
+    {
+      "id": "B-9a49:RP-040",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified 60/60 verificationIntent items across CHK-001..CHK-006 have matching verificationEvidence (0 failing, 0 waivers); confirmed CHK-004 adversarial:task-context-authority-injection witness receipt is a real tool-executed logic_test (prompt-full-context-envelope-smoke.js, exitCode 0, mechanical:true, bound headHash/materialHash/storyFilesHash) matching selector; no coverage gap found.",
+      "createdAt": "2026-09-03T18:00:18.460Z",
+      "reviewRound": "2026-09-03T17:57:05.537Z",
+      "reviewRunId": "B-9a49:RR-145",
+      "envelopeId": "e386aaf135b34dda3138ea5c1181a8e1e4ee2c76e792fb57deea512890e8fb55",
+      "writerSessionId": "sess-062db7bfa9c92ec685544b8c82dad07c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3f2682332a58b6dbd99272bf31829983316702bcdb6293d18a3576e388811bf"
+    },
+    {
+      "id": "B-9a49:RP-041",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Incremental re-review: review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=(none) since prior PASS B-9a49:RP-037 (priorReviewRunId RR-141). No new doc-code drift since that pass; English proposal/Agent guidance remain consistent.",
+      "createdAt": "2026-09-03T18:01:03.221Z",
+      "reviewRound": "2026-09-03T17:57:05.537Z",
+      "reviewRunId": "B-9a49:RR-146",
+      "envelopeId": "cc6388eaa9241f522344b1c03ea3d14628f4d2f9e88413e625d0ce595a5fb624",
+      "writerSessionId": "sess-674e573887f59d629420c036ba0a27b9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5d54e67f4b0d7356e0840f091f1013edb7a91bbe13dac7dfe65eaede275e949e"
+    },
+    {
+      "id": "B-9a49:RP-042",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed full diff main...HEAD for wholesale concept deletion/replacement. Purely additive story (new REVIEW finding-triage-contract, prompt-envelope authority guards, process-fact topology reconciliation, new smoke tests). No concept word deleted or replaced across repo; one removed export is inside a test fixture string, not real deletion. No residual references found. No blocker.",
+      "createdAt": "2026-09-03T18:13:19.943Z",
+      "reviewRound": "2026-09-03T18:11:46.629Z",
+      "reviewRunId": "B-9a49:RR-147",
+      "envelopeId": "25e8209a160f039a30b758aba5abbe9656c6fc10e4629d8797777e0b31640a63",
+      "writerSessionId": "sess-241b920a8e7c5ea4507c4fc6876a906e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "245a31f3d55a4f5438001d063d633e314d5707b20cc1c96c288ed6e2ffd50d0c"
+    },
+    {
+      "id": "B-9a49:RP-043",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed git diff main...HEAD, no quality blockers found (see readManifest for full scope).",
+      "createdAt": "2026-09-03T18:14:32.354Z",
+      "reviewRound": "2026-09-03T18:11:46.629Z",
+      "reviewRunId": "B-9a49:RR-148",
+      "envelopeId": "6fc155a61f349f6f1842ff86280d4e0c5a3c4ce0df7d42163e094c11e271ff85",
+      "writerSessionId": "sess-7446f58f308269fd01c2ed1daac0eba9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          ".proof-or-stop/story/actives/B-9a49/test-evidence.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "46d4fa1d0d3f46d5e28497b18a237b994fc6e27999daca735146c0df1b18b0d6"
+    },
+    {
+      "id": "B-9a49:RP-044",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: audited all 6 checklist items; every must-priority verificationIntent has passing verificationEvidence, no fails, no gaps. No blocker.",
+      "createdAt": "2026-09-03T18:15:35.194Z",
+      "reviewRound": "2026-09-03T18:11:46.629Z",
+      "reviewRunId": "B-9a49:RR-149",
+      "envelopeId": "5b481d3148b184a4da8a7ac85ac16f6762ca6fec937ea3aab72ed69fd0a0c339",
+      "writerSessionId": "sess-453256a65c6e1fb934e3c90c323ffbc3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c7ccf477b8505c0988421412002cd4f5632e1c5be634505cc5e625a093ca2b2f"
+    },
+    {
+      "id": "B-9a49:RP-045",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Step1 diff extracted changed symbols across prompt-envelope.ts, prompt-registry.ts, prompt-role-contract-registry.ts, acceptance-coverage-basis.ts. Step2/3 compared CLAUDE.md/AGENTS.md triage paragraphs, docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md, and templates/agents/proof-or-stop-implementer.md. Confirmed byte-identical CLAUDE.md/AGENTS.md triage text, exact 5-role requiredCheckIds+contract match in prompt-role-contract-registry.ts/prompt-registry.ts, finding_dismiss handler matches compatibility-boundary prose, no retired vocabulary reintroduced. No doc-code drift found.",
+      "createdAt": "2026-09-03T18:17:26.343Z",
+      "reviewRound": "2026-09-03T18:11:46.629Z",
+      "reviewRunId": "B-9a49:RR-151",
+      "envelopeId": "04d2227478f98dafb739c279125031dee575cde08e1282ed1548a49ea45fb5c3",
+      "writerSessionId": "sess-46d33c5d3ffb59411145788dd27d1046",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c1ba7d120bce9aafcd5547a637ad510d315d7b48a3cf2f3f324bf261d1f9d79f"
+    },
+    {
+      "id": "B-9a49:RP-046",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-attestation after RP-045 stale host-render rejection. Fresh run RR-152, unchanged material. Step1 symbol extraction from git diff main...HEAD; Step2 grepped README/CLAUDE.md/docs for doc-referenced symbols. Compared 3 paragraphs (AGENTS.md, CLAUDE.md, overlap-matrix hash line) plus new decision doc; verified matching code delivery via REVIEW_FINDING_TRIAGE_CHECK_ID in prompt-role-contract-registry.ts and matching contract marker in prompt-registry.ts. No doc-code drift found. No blockers.",
+      "createdAt": "2026-09-03T18:19:42.114Z",
+      "reviewRound": "2026-09-03T18:11:46.629Z",
+      "reviewRunId": "B-9a49:RR-152",
+      "envelopeId": "16b8058093724558dde30ff006b45ab31197015667379d4a4631462c850ca293",
+      "writerSessionId": "sess-c05cf4bc68ddc3c6b7079437c1f05f8b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5912db1dfdab49b97bfcec4805765dc121c1e0f8e26b294f0b94293b455bf52c"
+    }
+  ]
+}
