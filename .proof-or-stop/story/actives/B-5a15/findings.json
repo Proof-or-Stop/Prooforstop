@@ -20372,7 +20372,7 @@
       "desc": "RE-FILE of B-5a15:F-382/F-378 (still correctly deferred, not a new defect): ~90 lines of near-identical causal-preflight probe logic duplicated between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts, with no test forcing the two copies to stay in sync. Confirmed byte-for-byte unchanged since prior review (git diff --name-status -M 90ca2370..HEAD shows zero source files changed anywhere in the repo, only .proof-or-stop/story/actives/B-5a15/** paths from the F-388 acceptance-chain rebuild). Re-filed under the current review run (RR-937) purely to keep it bound to a live round rather than the now-stale RR-918 binding, per the F-373->F-378->F-382 orphaning precedent already recorded on this story. Deferral stands: medium, non-blocking, no live correctness bug, cross-module extraction would widen this story diff and re-stale its acceptance chain yet again. Reviewer (quality) agrees with this deferral across four rounds now.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T06:51:35.657Z",
@@ -20384,7 +20384,10 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|file-5a15-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-391, the current-round re-file of the same duplicated causal-preflight probe logic between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts. The quality lane verified F-389's binding was genuinely stale (bound to round 2026-09-03T06:45:20.273Z / RR-937 while the current round is 2026-09-03T09:03:49.640Z / RR-940) and confirmed neither handler changed in the interim before re-filing. Chain: F-367 -> F-373 -> F-378 -> F-382 -> F-389 -> F-391, one live at a time. The defect remains open and correctly deferred as F-391.",
+      "resolvedAt": "2026-09-03T09:44:58.854Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-390",
