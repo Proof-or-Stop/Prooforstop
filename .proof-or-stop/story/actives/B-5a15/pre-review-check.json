@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-09-03T14:47:57.271Z",
+  "cutoffAt": "2026-09-03T14:52:14.284Z",
   "planBasisDigest": "sha256:bcc39ac05b37d09dd1891124888ef03dd97c449c5ad403f1ac0a3d5c4359b126",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1182,30 +1182,177 @@
     "storyId": "B-5a15",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:11863a9097f2d983d14004f4ab672df196bdcd945a1be398abfea0aa7e29a7d4"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "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",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:66f82377aa52e8c9a03220755ef37de353d7aea5df2ec82dc3d8a60a42d1ec43",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "ACC-001",
+        "positiveAssertionIds": [
+          "A-CHK-001-happy-0",
+          "A-CHK-001-happy-1",
+          "A-CHK-001-happy-2",
+          "A-CHK-001-edge-0",
+          "A-CHK-001-edge-1",
+          "A-CHK-001-edge-2",
+          "A-CHK-002-happy-0",
+          "A-CHK-002-happy-1",
+          "A-CHK-002-edge-0",
+          "A-CHK-002-edge-1",
+          "A-CHK-002-edge-2",
+          "A-CHK-003-happy-0",
+          "A-CHK-003-happy-1",
+          "A-CHK-003-happy-2",
+          "A-CHK-003-edge-0",
+          "A-CHK-003-edge-1",
+          "A-CHK-003-edge-2",
+          "A-CHK-004-happy-0",
+          "A-CHK-004-happy-1",
+          "A-CHK-004-edge-0",
+          "A-CHK-004-edge-1",
+          "A-CHK-004-edge-2",
+          "A-CHK-004-edge-3",
+          "A-CHK-004-edge-4",
+          "A-CHK-004-edge-5",
+          "A-CHK-004-edge-6",
+          "A-CHK-004-edge-7",
+          "A-CHK-005-happy-0",
+          "A-CHK-005-happy-1",
+          "A-CHK-005-happy-2",
+          "A-CHK-005-edge-0",
+          "A-CHK-005-edge-1",
+          "A-CHK-005-edge-2",
+          "A-CHK-005-edge-3"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "M-CHK-001-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-1",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-0",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-2",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-0",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-2",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-0",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-0",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-2",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "T-ACC-001",
+            "producerRefs": [
+              "P-001"
+            ],
+            "consumerRefs": [
+              "C-001"
+            ],
+            "producerSequence": 123,
+            "consumerSequence": 124
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:279c006ac7c73ab76a5f6189ae0db78913220a9afd13f10b6496b84d312a213e",
   "codes": [
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-09-03T14:47:57.271Z",
+  "issuedAt": "2026-09-03T14:52:14.284Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "28VWBg1n8umlMVeUoxEskBcZLYdh3WG1Sif35v1ttdL9CGEgaDGIA/wwDRHSjFLwERxD3FxRvrAb6IxANsXIBQ=="
+  "signature": "wsubviMWzhkjSKsjwKKocm48yfSN36dsyODJFNxuIejhqn/qWztvPsCDDpugVLabEHkqUhRmWOTPXmU4vZ0GAQ=="
 }
