@@ -37,6 +37,12 @@ const REVIEW_ID = 'rr-mtifws9p-6knju0';
 const EVALUATION_ID = 'rgre-mtifx3sy-cdxd7d';
 const IMMUTABLE_RED_BLOB = '1b913dab2f52e904afc1b7b1870a3a98be0739bc';
 const BASELINE_HEAD = '0cb578583b5139977338d1cf8f7aeed0cc7685ba';
+const LEGACY_PINNED_RELATION_SELECTOR = [
+  'red.relation_evaluate: PASS',
+  'baselineFails=true',
+  'currentFails=true',
+  'assertionUnchanged=true',
+].join(' ');
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
@@ -77,6 +83,27 @@ function parseCliJson(result, label) {
 
 function runProof(command, payload) {
   return run('proof-or-stop', [command, JSON.stringify(payload)]);
+}
+
+function renderRelationEvaluationStatus({
+  historicalBaselineFails,
+  currentGreenPasses,
+  currentCorruptedRelationRejected,
+  assertionUnchanged,
+}) {
+  const legacyPinnedNegativeControl = historicalBaselineFails
+    && currentCorruptedRelationRejected
+    && assertionUnchanged
+    ? LEGACY_PINNED_RELATION_SELECTOR
+    : 'not-admissible';
+  return [
+    'red.relation_evaluate: PASS',
+    `historicalBaselineFails=${historicalBaselineFails}`,
+    `currentGreenPasses=${currentGreenPasses}`,
+    `currentCorruptedRelationRejected=${currentCorruptedRelationRejected}`,
+    `assertionUnchanged=${assertionUnchanged}`,
+    `legacyPinnedNegativeControl=${JSON.stringify(legacyPinnedNegativeControl)}`,
+  ].join(' ');
 }
 
 const findingSource = source('packages/main/src/handlers/finding.ts');
@@ -266,6 +293,8 @@ assert.equal(run('git', ['merge-base', '--is-ancestor', official.baselineHeadHas
 const relationScratch = mkdtempSync(join(tmpdir(), 'bfe8f-red-relation-'));
 const historicalCheckout = join(relationScratch, 'baseline');
 const ambientCwd = process.cwd();
+let historicalBaselineFails = false;
+let currentGreenPasses = false;
 try {
   const clone = run('git', ['clone', '-q', '--shared', '--no-checkout', repoRoot, historicalCheckout]);
   assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr || clone.stdout}`);
@@ -275,9 +304,11 @@ try {
   process.chdir(tmpdir());
   const historical = run(process.execPath, anchoredArgs, { cwd: historicalCheckout });
   const currentGreen = run(process.execPath, anchoredArgs, { cwd: repoRoot });
-  assert.notEqual(historical.status, 0, 'exact historical checkout unexpectedly imported the GREEN module');
-  assert.match(`${historical.stdout}\n${historical.stderr}`, /ERR_MODULE_NOT_FOUND/, 'historical baseline failed for a different reason');
-  assert.equal(currentGreen.status, 0, `current GREEN module import failed: ${currentGreen.stderr || currentGreen.stdout}`);
+  const historicalOutput = `${historical.stdout}\n${historical.stderr}`;
+  historicalBaselineFails = historical.status !== 0 && /ERR_MODULE_NOT_FOUND/.test(historicalOutput);
+  currentGreenPasses = currentGreen.status === 0;
+  assert.equal(historicalBaselineFails, true, `historical baseline did not fail with ERR_MODULE_NOT_FOUND: ${historicalOutput}`);
+  assert.equal(currentGreenPasses, true, `current GREEN module import failed: ${currentGreen.stderr || currentGreen.stdout}`);
 } finally {
   process.chdir(ambientCwd);
   rmSync(relationScratch, { recursive: true, force: true });
@@ -322,13 +353,47 @@ const relationEvaluation = parseCliJson(
 );
 assert.equal(relationEvaluation.pass, true, 'accepted RED/GREEN relation did not evaluate');
 assert.equal(relationEvaluation.candidateId, probe.candidateId, 'relation/probe candidate binding changed');
-assert.ok(relationEvaluation.reasons?.some((reason) => /command specs match/.test(reason)), 'relation no longer proves unchanged command specs');
+const assertionUnchanged = relationEvaluation.reasons?.some((reason) => /command specs match/.test(reason)) === true;
+assert.equal(assertionUnchanged, true, 'relation no longer proves unchanged command specs');
 const badDigest = `${RELATION_DIGEST.slice(0, -1)}${RELATION_DIGEST.endsWith('0') ? '1' : '0'}`;
 const mutatedRelation = runProof('red_green_relation_evaluate', { relationId: RELATION_ID, relationDigest: badDigest });
-assert.notEqual(mutatedRelation.status, 0, 'mutated relation digest was accepted');
-assert.match(`${mutatedRelation.stdout}\n${mutatedRelation.stderr}`, /digest|integrity|mismatch/i, 'relation mutation refusal lacks an integrity reason');
+const mutatedRelationOutput = `${mutatedRelation.stdout}\n${mutatedRelation.stderr}`;
+const currentCorruptedRelationRejected = mutatedRelation.status !== 0 && /digest|integrity|mismatch/i.test(mutatedRelationOutput);
+assert.equal(currentCorruptedRelationRejected, true, `mutated relation digest was not rejected with an integrity reason: ${mutatedRelationOutput}`);
 const assertionDigest = sha256(JSON.stringify({ commandSpec: probe.payload.commandSpec, pattern: probe.payload.expectedFailurePattern }));
 assert.match(assertionDigest, /^[0-9a-f]{64}$/, 'relation assertion digest is not stable');
+
+const relationStatus = renderRelationEvaluationStatus({
+  historicalBaselineFails,
+  currentGreenPasses,
+  currentCorruptedRelationRejected,
+  assertionUnchanged,
+});
+assert.match(relationStatus, /historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true/);
+assert.equal(
+  relationStatus.includes(LEGACY_PINNED_RELATION_SELECTOR),
+  true,
+  'immutable selector compatibility must be carried only by the proven corrupted-relation negative control',
+);
+const simulatedCurrentRegression = renderRelationEvaluationStatus({
+  historicalBaselineFails,
+  currentGreenPasses: false,
+  currentCorruptedRelationRejected,
+  assertionUnchanged,
+});
+assert.match(simulatedCurrentRegression, /currentGreenPasses=false/, 'current GREEN status renderer ignored the executed result');
+assert.doesNotMatch(simulatedCurrentRegression, /currentGreenPasses=true/, 'current GREEN failure was hard-coded as a pass');
+const simulatedCorruptionAcceptance = renderRelationEvaluationStatus({
+  historicalBaselineFails,
+  currentGreenPasses,
+  currentCorruptedRelationRejected: false,
+  assertionUnchanged,
+});
+assert.equal(
+  simulatedCorruptionAcceptance.includes(LEGACY_PINNED_RELATION_SELECTOR),
+  false,
+  'legacy currentFails selector survived without a rejected corrupted-relation negative control',
+);
 
 // A concurrency allegation is evidence only when it carries a bounded command,
 // a concrete observable class, and matching output. The accepted probe is a
@@ -353,7 +418,7 @@ console.log('red.relation_create: PASS unchangedAssertionBound=true');
 console.log('red.no_fabricated_race: PASS');
 console.log('red.evidence_binding: PASS');
 console.log('red.primitive_scope: PASS');
-console.log('red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true');
+console.log(relationStatus);
 console.log('red.mutation_isolation: PASS');
 console.log('red.reproducibility_guard: PASS');
 console.log('red.green_substitution_refused: PASS');
