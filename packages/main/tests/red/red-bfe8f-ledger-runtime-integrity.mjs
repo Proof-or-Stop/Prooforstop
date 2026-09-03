@@ -92,6 +92,7 @@ function renderRelationEvaluationStatus({
   assertionUnchanged,
 }) {
   const legacyPinnedNegativeControl = historicalBaselineFails
+    && currentGreenPasses
     && currentCorruptedRelationRejected
     && assertionUnchanged
     ? LEGACY_PINNED_RELATION_SELECTOR
@@ -383,6 +384,11 @@ const simulatedCurrentRegression = renderRelationEvaluationStatus({
 });
 assert.match(simulatedCurrentRegression, /currentGreenPasses=false/, 'current GREEN status renderer ignored the executed result');
 assert.doesNotMatch(simulatedCurrentRegression, /currentGreenPasses=true/, 'current GREEN failure was hard-coded as a pass');
+assert.equal(
+  simulatedCurrentRegression.includes(LEGACY_PINNED_RELATION_SELECTOR),
+  false,
+  'legacy currentFails selector survived while the current GREEN execution failed',
+);
 const simulatedCorruptionAcceptance = renderRelationEvaluationStatus({
   historicalBaselineFails,
   currentGreenPasses,
