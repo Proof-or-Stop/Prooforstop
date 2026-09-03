@@ -394,6 +394,29 @@
         "scanEscalationReason": null
       },
       "_hash": "c095cdc025e7c3ccf1accf52f0a9d31d7025b7210c591d9d0d8b074b2341cd31"
+    },
+    {
+      "id": "B-41c8:RP-014",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 7 re-audit after storyFilesHash-moving local main merges (e3d0e455fc, f59f4821dc). All 15/15 verificationIntent entries across CHK-001..CHK-004 have mechanical verificationEvidence: receipt present, selectorMatched=true, result=pass, kind logic_test/manual_transcript, zero waivers (checklist_get --json). git diff --name-only main...HEAD lists only story-owned files. git log main..HEAD shows RED/GREEN pairs for CHK-001..CHK-004 plus later F-00x finding-fix GREEN commits. finding_list shows 15 findings, 0 open. No blocker for this lane; test-coverage review passes.",
+      "createdAt": "2026-09-03T01:08:19.264Z",
+      "reviewRound": "2026-09-03T01:05:21.744Z",
+      "reviewRunId": "B-41c8:RR-026",
+      "envelopeId": "f9b1a35f50f62d77a6925addfa18b48d22e2f19672d16a9ab8d5d94f8fa1f982",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/findings.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "174dd85cf8a504a1d05895ed34f1cc4eb0b27ed34e0622a9293e0a1e77fb82cb"
     }
   ]
 }
