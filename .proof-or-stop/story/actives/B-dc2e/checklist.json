@@ -6,7 +6,46 @@
       "context": "tasks/validation-protocol-smoke.ts:1229 CASE_MISMATCH assertion fails with undefined; decide whether runManagedAssetCheck fails to detect a case-only filename mismatch on a case-insensitive filesystem or the assertion is wrong; then npm script + test:serial-reference + RESOURCE_POLICY, all three, or a recorded deletion. Also sweep tasks/ for other files no npm script references. RED: run `node packages/main/dist/tasks/validation-protocol-smoke.js` and observe the CASE_MISMATCH assertion fail with actual undefined, then confirm `npm run test:serial-reference` never executes it; GREEN is the assertion passing AND the suite name present in all three inventories, with the full-suite runner refusing a chain member that has no policy row.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "`node packages/main/dist/tasks/validation-protocol-smoke.js` ends with its PASS line and `grep -n validation-protocol package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` shows the suite in test:serial-reference, RESOURCE_POLICY and validate.commands; the sweep prints a line per file under packages/main/src/tasks not referenced by any inventory, each marked registered, deleted, or kept-unregistered with a reason.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validation-protocol-smoke passes when run directly and is registered in the npm script chain, RESOURCE_POLICY and validate.commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A sweep case lists every file under packages/main/src/tasks with no inventory reference and asserts each is classified (registered, deleted with a record, or kept with a reason), including observability-snapshot-smoke.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The RED commit shows the CASE_MISMATCH assertion failing with undefined on this checkout and shows test:serial-reference never executing the smoke.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

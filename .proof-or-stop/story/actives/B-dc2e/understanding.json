@@ -1,0 +1,37 @@
+{
+  "task": "Make four checks that currently pass without protecting anything actually fail on the mutation they exist to catch: an orphan smoke no runner executes, a membership smoke blind to real inventory data, a RED-before-GREEN guard blind to finding-fix commits, and a cross-host review that discards the independent host's findings.",
+  "outcome": "validation-protocol-smoke runs green from the canonical inventories or is deliberately deleted with a record; the full-suite membership smoke fails when a real RESOURCE_POLICY row is removed on a scratch copy; the RED guard fails when a RED(F-nnn) commit is squashed into its GREEN unless an explicit no-RED marker with a reason is present; and a FAIL verdict from cross_host_review leaves host B's findings (title, severity, file, description) in a committed artifact instead of only a stdout digest.",
+  "facts": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts asserts item?.status === 'CASE_MISMATCH' at line 1229 and the assertion fails with undefined when run directly; no npm script, no test:serial-reference or test:serial-reference-prefix member, no RESOURCE_POLICY row and no proof-or-stop.config.json validate.commands entry references it, so nobody runs it.",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts is likewise unreferenced by the three inventories and fails on main (its rendered-text regex expects proofOrStop.observability_snapshot.v1 while the renderer prints lattice.observability_snapshot.v1); it is a second orphan the CHK-001 sweep must classify.",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts line 563 builds fixtureScripts['test:serial-reference'] from synthetic entries (test:a, test:b) and never feeds the real package.json chain against the real RESOURCE_POLICY (packages/main/src/tasks/full-suite-runner.ts line 116); members of test:serial-reference-prefix legitimately read as stalePolicy against the main chain.",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts lines 3611-3613 implement the RED-before-GREEN guard with the commit-subject regex ^(RED|GREEN)\\(CHK-\\d{3}\\): and declaredChecklistItems; finding-fix commits (F-nnn) are invisible to it, and B-41c8 used subjects of the form 'RED: B-41c8 CHK-001 ...' and 'RED: B-41c8 CL-002 F-011 ...' which the current regex also does not match.",
+    "packages/main/src/handlers/cross-host-review.ts persists host verdicts through writeCrossHostVerdictPair (line 603) with decision, digests and note; host B's parsed findings exist in memory (diffFindings, findingCount at lines 272 and 279) and are dropped after disagreement detection; packages/main/src/tasks/cross-host-review-smoke.ts exists as the suite to extend.",
+    "During B-41c8 two more smokes failed only under full-suite load and passed standalone (codex-heartbeat-timeout-smoke with a 30 s budget; validate-progress-heartbeat-smoke at a 12.7 load average); this is a related credibility class but is recorded for a later story, not claimed here.",
+    "The four items touch four different files with no overlapping write set, so they can be implemented by four fresh workers in parallel."
+  ],
+  "constraints": [
+    "Every item ships RED first: the mutation that previously slipped through must be committed as a failing case before the fix commit turns it green.",
+    "Registering a failing orphan smoke would redden the whole suite; CHK-001 must fix or delete before registering.",
+    "The membership smoke keeps its synthetic cases; the real-data case is additive and must account for the test:serial-reference-prefix chain.",
+    "The RED guard must not turn legitimate no-RED fixes (comment-only, registration-only) into false failures; the marker must carry a reason.",
+    "cross_host_review must never persist raw provider stdout; only parsed, bounded finding fields.",
+    "Commit messages and story metadata are English only and contain no AI-host names or attribution trailers.",
+    "Use the worktree's own CLI (node packages/main/dist/cli.js) for every command and rebuild before evidence; the global binary is stale.",
+    "Do not write .proof-or-stop/dev-memory until the finish decision; the smoke default outputs stay under the executor's 12000-char selector cap."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/core/red-green-commit-guard.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/tasks/cross-host-review-smoke.ts",
+    "package.json",
+    "proof-or-stop.config.json"
+  ],
+  "timestamp": "2026-09-03T04:36:56.509Z"
+}
