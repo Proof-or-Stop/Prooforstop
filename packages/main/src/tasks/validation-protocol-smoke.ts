@@ -3,7 +3,7 @@
 import { strict as assert } from 'node:assert';
 import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +23,7 @@ import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
+import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
@@ -80,6 +81,150 @@ function assertRuntimeModeShape(value: any): void {
   assert.ok(value.message.length > 0);
   assert.deepEqual(Object.keys(value).sort(), ['authority', 'message', 'mode', 'requiresProjectJavaScriptRuntime', 'source'].sort());
 }
+
+// ---------------------------------------------------------------------------
+// B-dc2e CHK-001: inventory registration and tasks/ orphan sweep.
+//
+// Until B-dc2e this smoke was an orphan: no npm script named it, the
+// test:serial-reference chain never ran it, full-suite-runner RESOURCE_POLICY
+// had no row for it and proof-or-stop.config.json validate.commands did not list
+// it. Its CASE_MISMATCH assertion (further down) had been failing on every direct
+// run and nobody could see it. The cases below turn orphaning itself into a
+// failure, so the next silent drop-out of an inventory is visible here.
+//
+// Four inventories are consulted. The three canonical ones are the npm scripts
+// (root and packages/main package.json, plus main package exports/bin), the
+// full-suite-runner RESOURCE_POLICY (read through FULL_SUITE_ENTRIES, never
+// copied) and validate.commands. The fourth is run-all-smokes discovery: every
+// dist/tasks/*-smoke.js not marked skip in smoke-manifest.json is executed by
+// `npm run test:all`, so a smoke reachable only that way is still executed and
+// is reported as registered:test:all rather than listed as an orphan. Files
+// referenced by no inventory are printed one per line and must be classified:
+// reached by path from another source file, kept with an explicit reason, or
+// recorded as deleted (the file must then be absent).
+// ---------------------------------------------------------------------------
+const repoRoot = resolve(packageRoot, '..', '..', '..'); // packageRoot is packages/main/dist
+const SELF_SCRIPT = 'test:validation-protocol';
+const SELF_DIST = 'tasks/validation-protocol-smoke.js';
+
+/** Files with no inventory reference and no source-path reference, kept on purpose. Stale entries fail the sweep. */
+const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {};
+/** Files this story deleted on purpose; each must be absent. */
+const SWEEP_RECORDED_DELETIONS: Readonly<Record<string, string>> = {};
+/** The orphans that triggered this item and the classification they must now carry. */
+const SWEEP_STORY_LEDGER: Readonly<Record<string, string>> = {
+  'validation-protocol-smoke': 'registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all',
+  'observability-snapshot-smoke': 'registered:npm-script+test:all',
+};
+
+function listSourceFiles(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) listSourceFiles(full, out);
+    else if (entry.endsWith('.ts')) out.push(full);
+  }
+  return out;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function runInventoryAndSweep(): void {
+  const rootPkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
+  const mainPkg = JSON.parse(readFileSync(join(repoRoot, 'packages', 'main', 'package.json'), 'utf8'));
+  const scripts: Record<string, string> = rootPkg.scripts ?? {};
+  const scriptText = JSON.stringify({ root: rootPkg.scripts, main: mainPkg.scripts, exports: mainPkg.exports, bin: mainPkg.bin });
+  const chainNames = [
+    ...parseSerialReference(scripts['test:serial-reference'] ?? ''),
+    ...parseSerialReference(scripts['test:serial-reference-prefix'] ?? ''),
+  ];
+  const chainText = chainNames.map((name) => scripts[name] ?? '').join('\n');
+  const policyNames = FULL_SUITE_ENTRIES.map((entry) => entry.name);
+  const policyText = policyNames.map((name) => scripts[name] ?? '').join('\n');
+  const config = JSON.parse(readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
+  const validateText = JSON.stringify(config.validate?.commands ?? []);
+  const manifest = JSON.parse(readFileSync(join(repoRoot, 'packages', 'main', 'smoke-manifest.json'), 'utf8'));
+  const skippedSmokes = new Set<string>((manifest.smokes ?? []).filter((m: any) => m?.skip).map((m: any) => `${m.name}-smoke`));
+
+  // Case 1: this smoke is reachable from every canonical inventory, and the
+  // chain resolves through the real policy without an unknown or stale row.
+  assert.ok(typeof scripts[SELF_SCRIPT] === 'string' && scripts[SELF_SCRIPT].includes(SELF_DIST), `root package.json must define ${SELF_SCRIPT} -> ${SELF_DIST}`);
+  assert.ok(chainNames.includes(SELF_SCRIPT), `${SELF_SCRIPT} must be a test:serial-reference member`);
+  assert.ok(policyNames.includes(SELF_SCRIPT), `${SELF_SCRIPT} must have a full-suite-runner RESOURCE_POLICY row`);
+  assert.ok(validateText.includes(SELF_DIST), `proof-or-stop.config.json validate.commands must list ${SELF_DIST}`);
+  const unknownPolicy = chainNames.filter((name) => !policyNames.includes(name));
+  const stalePolicy = policyNames.filter((name) => !chainNames.includes(name));
+  assert.deepEqual(unknownPolicy, [], `chain members with no RESOURCE_POLICY row: ${unknownPolicy.join(', ')}`);
+  assert.deepEqual(stalePolicy, [], `RESOURCE_POLICY rows absent from both chains: ${stalePolicy.join(', ')}`);
+  console.log('[PASS] validation-protocol-smoke registered in npm scripts, test:serial-reference, RESOURCE_POLICY and validate.commands');
+
+  // Case 2: the runner refuses a chain member that has no policy row, naming it.
+  const policyWithoutSelf = Object.fromEntries(FULL_SUITE_ENTRIES.filter((entry) => entry.name !== SELF_SCRIPT).map((entry) => [entry.name, entry]));
+  assert.throws(
+    () => entriesFromSerialReference(scripts['test:serial-reference'] ?? '', scripts, policyWithoutSelf),
+    (error: unknown) => error instanceof Error && /unknownPolicy=\[[^\]]*test:validation-protocol/.test(error.message),
+    'entriesFromSerialReference must fail closed and name the member without a policy row',
+  );
+  console.log('[PASS] full-suite runner refuses a test:serial-reference member without a RESOURCE_POLICY row: test:validation-protocol');
+
+  // Case 3: sweep every packages/main/src/tasks/*.ts file.
+  const tasksDir = join(repoRoot, 'packages', 'main', 'src', 'tasks');
+  const bases = readdirSync(tasksDir).filter((f) => f.endsWith('.ts')).map((f) => f.slice(0, -3)).sort();
+  const sources = listSourceFiles(join(repoRoot, 'packages', 'main', 'src')).map((file) => ({ file, text: readFileSync(file, 'utf8') }));
+  const counts: Record<string, number> = {};
+  const lines: string[] = [];
+  const classification = new Map<string, string>();
+  const usedKept = new Set<string>();
+  let unclassified = 0;
+  for (const base of bases) {
+    const dist = `tasks/${base}.js`;
+    const tags: string[] = [];
+    if (scriptText.includes(dist)) tags.push('npm-script');
+    if (chainText.includes(dist)) tags.push('serial-reference');
+    if (policyText.includes(dist)) tags.push('RESOURCE_POLICY');
+    if (validateText.includes(dist)) tags.push('validate.commands');
+    if (base.endsWith('-smoke') && !skippedSmokes.has(base)) tags.push('test:all');
+    let label: string;
+    if (tags.length) {
+      label = `registered:${tags.join('+')}`;
+      for (const tag of tags) counts[tag] = (counts[tag] ?? 0) + 1;
+    } else {
+      const self = join(tasksDir, `${base}.ts`);
+      const refPattern = new RegExp(`(^|[/'"\`])${escapeRegExp(base)}\\.js\\b`, 'm');
+      const referrers = sources.filter((s) => s.file !== self && refPattern.test(s.text)).map((s) => s.file.slice(repoRoot.length + 1));
+      if (referrers.length) {
+        label = `kept-unregistered: reached by path from ${referrers[0]}${referrers.length > 1 ? ` (+${referrers.length - 1} more)` : ''}`;
+      } else if (base in SWEEP_KEPT_UNREGISTERED) {
+        usedKept.add(base);
+        label = `kept-unregistered: ${SWEEP_KEPT_UNREGISTERED[base]}`;
+      } else {
+        unclassified += 1;
+        label = 'UNCLASSIFIED: no inventory reference, no source-path reference, no SWEEP_KEPT_UNREGISTERED reason';
+      }
+      lines.push(`  ${base}  ${label}`);
+    }
+    classification.set(base, label);
+  }
+  for (const [base, reason] of Object.entries(SWEEP_RECORDED_DELETIONS)) {
+    assert.ok(!existsSync(join(tasksDir, `${base}.ts`)), `recorded deletion still present: ${base}.ts`);
+    lines.push(`  ${base}  deleted: ${reason}`);
+  }
+  const staleKept = Object.keys(SWEEP_KEPT_UNREGISTERED).filter((base) => !usedKept.has(base));
+  console.log(`tasks sweep: ${bases.length} files under packages/main/src/tasks; registered by inventory: ${Object.entries(counts).map(([k, v]) => `${k}=${v}`).join(' ')}`);
+  console.log('tasks sweep: files referenced by no inventory (npm scripts, serial-reference, RESOURCE_POLICY, validate.commands, test:all discovery):');
+  for (const line of lines) console.log(line);
+  for (const [base, expected] of Object.entries(SWEEP_STORY_LEDGER)) {
+    const actual = classification.get(base);
+    console.log(`  ledger ${base}  ${actual ?? 'MISSING'}`);
+    assert.equal(actual, expected, `story ledger classification for ${base}`);
+  }
+  assert.deepEqual(staleKept, [], `stale SWEEP_KEPT_UNREGISTERED entries (now referenced elsewhere or absent): ${staleKept.join(', ')}`);
+  assert.equal(unclassified, 0, `${unclassified} packages/main/src/tasks file(s) are unclassified; see the sweep lines above`);
+  console.log(`[PASS] tasks sweep: ${bases.length} packages/main/src/tasks files classified, 0 unclassified`);
+}
+
+runInventoryAndSweep();
 
 try {
   const subdir = join(tmp, 'sub');
