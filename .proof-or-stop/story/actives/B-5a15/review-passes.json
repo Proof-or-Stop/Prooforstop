@@ -15949,6 +15949,56 @@
         "scanEscalationReason": null
       },
       "_hash": "b0c9c49b99284bc410f6f9e0c922bf18376f6d699d4f102b75d1bb9e4091c240"
+    },
+    {
+      "id": "B-5a15:RP-352",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality-lane re-verification after RP-347 voiding (F-401/F-404). No source/test file changed since prior source-level pass (last edits Sep-1/2); only process-fact-registry metadata commits since. Independently re-ran node --test causal-evidence.test.mjs: 21/21 pass, matching receipts. All 53 verificationEvidence rows mechanical:true with populated receipt{exitCode,outputDigest,outputTail} -- genuine batch_add execution, not a refresh_stale rebind. Independently confirmed acceptance_topology_check status=pass/structuralPass=true/blocking=false. tsc clean; no dead code/unused exports (63/63 referenced); no new as any/empty catch in diff; no doc-promise-undelivered (createCausalExecutionKey/createCausalEvidenceBatch/evaluateCausalDependencies/importCausalEvidenceReceipt/aux_doc_list all confirmed present). Wave 4: acceptance_rollout_check currently fails AR_REPORT_STALE, but this is pre-existing tracked drift (open findings F-037/F-038/F-050/F-051) from the rollout artifact not being regenerated across this heavily-churned multi-lane worktree, not a defect masked by this rounds work; stored report data (matchedPairCount=6, mislabeled3x1Count=0) confirms genuine 3x2 was captured. Zero open findings attributed to proof-or-stop-review-quality. No quality-lane code defect found.",
+      "createdAt": "2026-09-03T13:26:34.672Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-967",
+      "envelopeId": "ea33877d0a377463ef922c166ee75662efe0d2031685cadfa141ff7414ca7151",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "ebeab6484116c0ee8abd525a66ad56fbd0ecade46aa277809bbd837eb944b0d1"
     }
   ]
 }
