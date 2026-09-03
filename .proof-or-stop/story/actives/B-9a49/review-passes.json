@@ -1120,6 +1120,29 @@
       },
       "readDiagnostics": [],
       "_hash": "49a10d0d5d8f236452d4e6dea653c0450165f2ed5085ede6ac00fa77ad2fa802"
+    },
+    {
+      "id": "B-9a49:RP-026",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Focused re-review of the PLAN-only CHK-004:edge:version-and-local-artifacts correction (commit 471ce3ac67). Symbols in diff: 0 new exported code symbols (checklist.json pinned-command text edit only, replacing a literal single-quote character in the node -e version-sync witness with String.fromCharCode(39) to avoid shell/embedding quoting hazards). Paragraphs compared: 2 (CLAUDE.md REVIEW-Finding-handling section, AGENTS.md defect-classification section) plus the CHK-004 verificationIntent/verificationEvidence pair in checklist.json, both already fully reviewed and resolved (F-070/F-071/F-072 all status=resolved, evidenceState=verified). Re-executed the corrected pinned command directly in the worktree: exit 0, stdout version sync: PASS 0.3.273, matching the persisted verificationEvidence receipt. Semantics unchanged: same manifests/lockfiles/brand-constant/dist/cli checks and selector, only quoting mechanism changed. No doc-code drift found; no reopening of unrelated already-reviewed scope. No blockers.",
+      "createdAt": "2026-09-03T16:58:19.578Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-127",
+      "envelopeId": "e4a760f59717f26481366b84f4dab16ffc3a71e5f6e0f5719641a057d127be07",
+      "writerSessionId": "sess-6dae04623a782d8030d4d9165563f4b0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c3ac594cb8580d84330e7db26a1ff074b7f4ff52c6065a8fdad342c3c7113f8b"
     }
   ]
 }
