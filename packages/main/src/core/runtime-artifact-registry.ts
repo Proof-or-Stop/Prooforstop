@@ -210,6 +210,28 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // tried auto-committing the write instead (that approach moved HEAD and
     // broke delivery-check materialHash freshness; excluding from materialHash
     // computation avoids the problem at its root instead).
+    // B-5a15: dev_memory_capture writes <state-dir>/dev-memory/experience.jsonl,
+    // a sibling of finish-decisions/ that the entry below does NOT match. Without
+    // an entry it counted as story MATERIAL, and that broke certification:
+    // deriveCertificationDomainInputHashes (handlers/certification-window.ts)
+    // returns undefined for any story-owned path matching no CERTIFICATION_DOMAIN_PATH_RULES
+    // entry, which drove causalInputHashes absent -> identityComplete false ->
+    // certification_window_begin BLOCKED [pre_cert_causal_freshness_required]. The
+    // DONE gate itself requires dev_memory_finish_decision, so capturing a lesson is
+    // a mandatory closeout step that must not be able to block certification.
+    // Same rationale and same shape as the finish-decision entry below: git-tracked
+    // and shared across agents/hosts (hence NO ignorePatterns), but
+    // materialHash:'exclude' so writing a lesson can never perturb currentMaterialHash
+    // and invalidate an already-signed evidence freshness binding.
+    id: 'dev-memory-experience-log',
+    description: 'Append-only dev_memory_capture experience log under <state-dir>/dev-memory/experience.jsonl, tracked but non-authoritative.',
+    matchers: stateDirPrefix('dev-memory/experience.jsonl'),
+    ignorePatterns: [],
+    materialHash: 'exclude',
+    volatile: false,
+    repairableTrackedArtifact: false,
+  },
+  {
     id: 'dev-memory-finish-decision',
     description: 'Per-story dev_memory_finish_decision record under <state-dir>/dev-memory/finish-decisions/, tracked but non-authoritative.',
     matchers: stateDirPrefix('dev-memory/finish-decisions/'),
