@@ -973,4 +973,112 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   }
 }
 
+// 30. B-e256 F-004: the DEFAULT (real, non-stubbed) compiled-version probe's
+//    own readFileSync catch branch — an unbuilt/missing
+//    dist/core/proof-or-stop-brand.js — is unverifiable drift, never a pass.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-default-probe-missing-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a missing compiled brand file must never pass');
+    assert.equal(actual.compiledVersion, null);
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('compiled runtime version could not be verified'), `got: ${warnings}`);
+    assert.ok(warnings.includes('could not be read'), `must name the read failure, got: ${warnings}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 31. B-e256 F-004: the DEFAULT probe against a readable but malformed brand
+//    file (no PROOF_OR_STOP_CLI_VERSION declaration at all) is unverifiable
+//    drift, never a pass.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-default-probe-no-declaration-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    writeFileSync(join(repo, 'packages', 'main', 'dist', 'core', 'proof-or-stop-brand.js'), 'export const SOMETHING_ELSE = \'1.2.3\';\n');
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a brand file with no declaration must never pass');
+    assert.equal(actual.compiledVersion, null);
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('compiled runtime version could not be verified'), `got: ${warnings}`);
+    assert.ok(warnings.includes('no exported PROOF_OR_STOP_CLI_VERSION constant'), `must name the parse failure, got: ${warnings}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 32. B-e256 F-004: the DEFAULT probe against a brand file with TWO real
+//    (uncommented) declarations must refuse as ambiguous rather than silently
+//    picking either one — never a pass, never a silently-wrong version.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-default-probe-two-declarations-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    writeFileSync(
+      join(repo, 'packages', 'main', 'dist', 'core', 'proof-or-stop-brand.js'),
+      'export const PROOF_OR_STOP_CLI_VERSION = \'1.0.0\';\nexport const PROOF_OR_STOP_CLI_VERSION = \'2.0.0\';\n',
+    );
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a brand file with two declarations must never pass');
+    assert.equal(actual.compiledVersion, null);
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('compiled runtime version could not be verified'), `got: ${warnings}`);
+    assert.ok(/2 exported PROOF_OR_STOP_CLI_VERSION declarations/.test(warnings), `must name the ambiguity, got: ${warnings}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 33. B-e256 F-004: mirrors version-bump.ts's raw-vs-stripped ambiguity guard
+//    (the sibling BRAND_EXPORT_RE this probe reuses via findBrandExport) — a
+//    brand file whose ONLY extra occurrence of an export-shaped line sits
+//    inside a comment must be REFUSED as ambiguous, exactly like
+//    version-bump.ts refuses to bump such a file, never silently resolved to
+//    the one real declaration.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-default-probe-comment-occurrence-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    writeFileSync(
+      join(repo, 'packages', 'main', 'dist', 'core', 'proof-or-stop-brand.js'),
+      '/*\nexport const PROOF_OR_STOP_CLI_VERSION = \'9.9.9\';\n*/\nexport const PROOF_OR_STOP_CLI_VERSION = \'3.1.4\';\n',
+    );
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'an export-shaped line hiding in a comment must be refused, never silently resolved to the real declaration');
+    assert.equal(actual.compiledVersion, null, 'never silently reports the real 3.1.4 declaration while an ambiguous comment occurrence is present');
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('compiled runtime version could not be verified'), `got: ${warnings}`);
+    assert.ok(warnings.includes('export-shaped line in a comment as well as the real export'), `must name the raw-vs-stripped ambiguity, got: ${warnings}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
 console.log('ok global-core-realpath');

@@ -13,6 +13,7 @@ import {
 } from './runtime-fact-registry.js';
 import { readBrandEnv } from './brand-env.js';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
+import { findBrandExport } from './version-bump.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -1564,15 +1565,25 @@ function probeGlobalNpmRoot(projectRoot: string, timeoutMs = 2_000): GlobalNpmRo
 // proof-or-stop-brand.ts, never from package.json (a rebuild that silently
 // fails or is skipped leaves the manifest bumped while dist/ still serves the
 // old code, and comparing package.json to package.json can never observe
-// that). Same regex shape as core/version-bump.ts's BRAND_EXPORT_RE, applied
-// to the compiled JS instead of the TS source: tsc only strips `as const`, so
-// the declaration shape survives compilation unchanged. A file read/spawn is
+// that). Reuses version-bump.ts's `findBrandExport` (the SAME declaration
+// shape and ambiguity guard as its BRAND_EXPORT_RE, applied here to the
+// compiled JS instead of the TS source: tsc only strips `as const`, so the
+// declaration shape survives compilation unchanged) rather than a second,
+// unguarded regex match: a comment-stripped view is required so a comment
+// containing an export-shaped line can never be picked over the real
+// declaration, and a raw-vs-stripped count mismatch (that exact case) must be
+// refused as ambiguous rather than silently resolved. A file read/spawn is
 // deliberately NOT used here (the alternative this finding names is running
 // the global executable's own `--version`); inspecting this artifact gets the
 // same authoritative fact without the cost and hang risk of spawning the
 // global CLI from inside a doctor check.
-const COMPILED_CORE_VERSION_RE = /^[ \t]*export\s+const\s+PROOF_OR_STOP_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/m;
-
+//
+// B-e256 F-004: an artifact that cannot be read (missing/unbuilt dist) and one
+// that CAN be read but is unparsable or ambiguous (no declaration, more than
+// one declaration, or an export-shaped line hiding in a comment) are BOTH
+// reported as unverifiable drift via `failureReason`, never as a pass and
+// never as a silently wrong version — findBrandExport throws rather than
+// picking a match in every one of those unparsable/ambiguous cases.
 function defaultCompiledCoreVersionProbe(globalRealpath: string): CompiledCoreVersionProbeResult {
   const brandFile = join(globalRealpath, 'dist', 'core', 'proof-or-stop-brand.js');
   let content: string;
@@ -1581,9 +1592,12 @@ function defaultCompiledCoreVersionProbe(globalRealpath: string): CompiledCoreVe
   } catch (error) {
     return { version: null, failureReason: `compiled runtime file ${brandFile} could not be read [${errnoCode(error)}]` };
   }
-  const match = COMPILED_CORE_VERSION_RE.exec(content);
-  if (!match) return { version: null, failureReason: `compiled runtime file ${brandFile} does not declare a parseable PROOF_OR_STOP_CLI_VERSION` };
-  return { version: match[1], failureReason: null };
+  try {
+    return { version: findBrandExport(content, brandFile).version, failureReason: null };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return { version: null, failureReason: `compiled runtime file ${brandFile} does not declare an unambiguous PROOF_OR_STOP_CLI_VERSION: ${reason}` };
+  }
 }
 
 function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {

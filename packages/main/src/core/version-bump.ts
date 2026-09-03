@@ -207,8 +207,12 @@ function bumpPackageLockVersionContent(content: string, from: string, to: string
  * code (so a commented-out export — line or block — never matches), requires exactly one
  * match in that code, and refuses if the raw file has a different match count (i.e. an
  * export-shaped line also lives in a comment). Never a false success on a non-export.
+ *
+ * Exported so other consumers of the SAME declaration shape (e.g.
+ * core/runtime-environment-checks.ts's compiled-artifact probe) can reuse this exact
+ * ambiguity guard instead of re-implementing a weaker, unguarded regex match.
  */
-function findBrandExport(content: string, label: string): { version: string; raw: RegExpMatchArray } {
+export function findBrandExport(content: string, label: string): { version: string; raw: RegExpMatchArray } {
   const codeMatches = [...stripComments(content).matchAll(BRAND_EXPORT_RE)];
   if (codeMatches.length === 0) throw new Error(`version-bump: ${label} has no exported PROOF_OR_STOP_CLI_VERSION constant`);
   if (codeMatches.length > 1) throw new Error(`version-bump: ${label} has ${codeMatches.length} exported PROOF_OR_STOP_CLI_VERSION declarations (ambiguous; refusing to bump)`);
