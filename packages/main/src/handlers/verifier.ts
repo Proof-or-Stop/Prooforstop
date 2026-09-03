@@ -77,7 +77,12 @@ import {
   captureDonePrepareGeneratedMetadataTransaction,
   rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
-import { normalizeRelPath } from '../core/lattice-paths.js';
+import {
+  VALIDATION_COMMAND_SHELL_META_RE,
+  assertDeclaredValidationCommandId,
+  parseLegacyValidationCommandString,
+} from '../core/validation-command-identity.js';
+import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { getSessionId } from '../core/owner-session.js';
 import { acquireOrRefreshOwnerLease, isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
@@ -96,7 +101,11 @@ import { appendReceiptRevocation, createValidationClosureCertificate, resolveDyn
 import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
-const SHELL_META_RE = /[;&|<>$()`]/;
+// B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
+// core/validation-command-identity.ts so the legacy pin resolver compares evidence
+// strings under EXACTLY this parse. Extraction only - the behaviour below is
+// unchanged, including the non-shell branch omitting `shell` entirely.
+const SHELL_META_RE = VALIDATION_COMMAND_SHELL_META_RE;
 
 export interface ValidationSetupScan {
   validateFiles: Array<{ name: string; present: boolean }>;
@@ -186,52 +195,12 @@ function hasDirectoryEntry(projectRoot: string, dir: string, suffixes: string[])
   }
 }
 
-function splitShellWords(command: string): string[] {
-  const out: string[] = [];
-  let cur = '';
-  let quote: '"' | "'" | null = null;
-  let escaped = false;
-  for (const ch of command) {
-    if (escaped) {
-      cur += ch;
-      escaped = false;
-      continue;
-    }
-    if (ch === '\\') {
-      escaped = true;
-      continue;
-    }
-    if (quote) {
-      if (ch === quote) quote = null;
-      else cur += ch;
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote = ch;
-      continue;
-    }
-    if (/\s/.test(ch)) {
-      if (cur) {
-        out.push(cur);
-        cur = '';
-      }
-      continue;
-    }
-    cur += ch;
-  }
-  if (cur) out.push(cur);
-  return out;
-}
-
 function commandFromString(label: string, value: string): ValidationCommand | null {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (SHELL_META_RE.test(trimmed)) {
-    return { label, command: trimmed, args: [], shell: true };
-  }
-  const parts = splitShellWords(trimmed);
-  if (parts.length === 0) return null;
-  return { label, command: parts[0], args: parts.slice(1) };
+  const parsed = parseLegacyValidationCommandString(value);
+  if (!parsed) return null;
+  return parsed.shell
+    ? { label, command: parsed.command, args: [], shell: true }
+    : { label, command: parsed.command, args: parsed.args };
 }
 
 /**
@@ -302,7 +271,7 @@ function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: s
 
 function markFocusedResult(result: any, focus: string): any {
   if (!focus) return result;
-  const provider = String(result.provider ?? 'lattice-verifier');
+  const provider = String(result.provider ?? 'proof-or-stop-verifier');
   const focusedProvider = provider.endsWith('-focused') ? provider : `${provider}-focused`;
   const summary = String(result.summary ?? 'Validation completed');
   const details = Array.isArray(result.details) ? result.details : [];
@@ -380,6 +349,14 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
           ...(focus ? { focus } : {}),
           ...(entry.resources !== undefined
             ? { resources: parseConfiguredResourceClaims(entry.resources, `configured validate.commands[${i}]`) }
+            : {}),
+          // B-a745 CHK-001: an optional declared planner id. Malformed or
+          // reserved-namespace values THROW here, at declaration time, for the
+          // same reason parseConfiguredResourceClaims does: a silently dropped
+          // declaration is a lie the operator cannot see, and a forged `prov-`
+          // id would also corrupt the provisional-migration count.
+          ...(entry.id !== undefined
+            ? { id: assertDeclaredValidationCommandId(entry.id, `configured validate.commands[${i}]`) }
             : {}),
         });
       }
@@ -866,7 +843,14 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
   };
 }
 
-function sourceInputSnapshot(projectRoot: string, sourceKind: RoutineValidationSourceKind): unknown {
+/**
+ * Raw contents of the config files that define the routine validation source.
+ *
+ * B-a745 CHK-001 exported it so the identity fixture can prove the second half of
+ * the regression guard: declaring a command `id` in project config DOES change
+ * `source.inputDigest`, because this snapshot binds the raw file contents.
+ */
+export function sourceInputSnapshot(projectRoot: string, sourceKind: RoutineValidationSourceKind): unknown {
   const names = sourceKind === 'configured'
     // B-cc10 CHK-004: snapshot BOTH config spellings. The absent one records a
     // `null` entry, which is exactly the signal this identity snapshot wants —
@@ -981,7 +965,7 @@ function reusedStoryValidationResult(args: {
   warn?: boolean;
 }): any {
   const result = externalResult({
-    provider: 'lattice-verifier-reused',
+    provider: 'proof-or-stop-verifier-reused',
     status: args.warn ? 'warn' : 'pass',
     summary: `Validation PASS reused (${args.reuse.lineage}); commandExecutions=0`,
     details: [
@@ -1011,7 +995,7 @@ function reusedStoryValidationResult(args: {
   const priorCommandExecution = priorEvidence?.commandExecution;
   if (!priorCommandExecution) {
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because canonical command evidence disappeared before persistence',
@@ -1039,7 +1023,7 @@ function reusedStoryValidationResult(args: {
   }).trim();
   if (preexistingManagedDirty) {
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because canonical metadata was already dirty',
@@ -1087,7 +1071,7 @@ function reusedStoryValidationResult(args: {
     // one condition surface differently from the identical condition in
     // persistStoryValidationEvidence, which returns a result the caller can render and classify.
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because its evidence file exceeds the persisted size bound',
@@ -1111,7 +1095,7 @@ function reusedStoryValidationResult(args: {
   });
   if (!commitResult.ok) {
     return externalResult({
-      provider: 'lattice-verifier-reuse-persistence',
+      provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse could not persist its canonical PASS receipt',
@@ -1196,7 +1180,7 @@ function persistStoryValidationEvidence(
   const failureKind = validationFailureKindFromResult(result, allPass);
   const persistenceFailure = (reason: string) => ({
     ...externalResult({
-      provider: 'lattice-verifier-executed-persistence',
+      provider: 'proof-or-stop-verifier-executed-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation result could not persist its canonical evidence transaction',
@@ -1389,7 +1373,7 @@ function externalResult(args: {
     commands: args.commands ?? [],
   }, allPass);
   return {
-    provider: args.provider ?? 'lattice-verifier',
+    provider: args.provider ?? 'proof-or-stop-verifier',
     status: args.status,
     allPass,
     ...(failureKind ? { failureKind } : {}),
@@ -1589,7 +1573,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const allOk = results.every((r) => r.ok);
         if (args.json) {
           return JSON.stringify({
-            provider: 'lattice-verifier-gates',
+            provider: 'proof-or-stop-verifier-gates',
             status: allOk ? 'pass' : 'fail',
             allPass: allOk,
             gates: results.map((r) => ({ name: r.name, ok: r.ok, result: r.result })),
@@ -1633,16 +1617,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const buildNoValidatorResult = () => {
             if (!args.story) {
               return externalResult({
-                provider: 'lattice-verifier-no-validation-entry',
+                provider: 'proof-or-stop-verifier-no-validation-entry',
                 status: 'warn',
                 summary: 'No project validator configured; skipped project-specific validation',
                 details: [
                   `当前目录: ${projectRoot}`,
-                  '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
+                  '未找到 validate.ts/js/mts，也未在 proof-or-stop.config.json 配置 validate.command(s)',
                   '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
                   'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
                 ],
-                warnings: ['这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。'],
+                warnings: ['这是 skip/warn，不是代码失败。需要强门禁时请在 proof-or-stop.config.json 配置 validate.command 或 validate.commands。'],
                 headSha: currentHead(handlerGitCwd),
               });
             }
@@ -1661,17 +1645,17 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               snapshot: built.snapshot, identity: built.identity, reuse, warn: true,
             });
             const base = externalResult({
-              provider: 'lattice-verifier-no-validation-entry',
+              provider: 'proof-or-stop-verifier-no-validation-entry',
               status: 'warn',
               summary: 'No project validator configured; skipped project-specific validation',
               details: [
                 `当前目录: ${projectRoot}`,
-                '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
+                '未找到 validate.ts/js/mts，也未在 proof-or-stop.config.json 配置 validate.command(s)',
                 '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
                 'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
               ],
               warnings: [
-                '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。',
+                '这是 skip/warn，不是代码失败。需要强门禁时请在 proof-or-stop.config.json 配置 validate.command 或 validate.commands。',
               ],
               headSha: currentHead(handlerGitCwd),
             });
@@ -1933,7 +1917,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ? createValidationCausalPreflightGate(ctx, args.story, commands, projectRoot)
             : undefined;
           const base = await executeValidationPlan({
-            provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
+            provider: usingConfigured ? 'proof-or-stop-verifier-configured-commands' : 'proof-or-stop-verifier-fallback-commands',
             commands,
             warnings: [],
             ...(focus ? { focus } : {}),
@@ -2448,7 +2432,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           } catch { /* not git — graceful: headSha stays undefined */ }
 
           const wrapped = markFocusedResult(attachDynamic({
-            provider: 'lattice-verifier',
+            provider: 'proof-or-stop-verifier',
             status: code === 0 ? 'pass' : 'fail',
             allPass: code === 0,
             summary: code === 0 ? 'All checks passed' : 'Validation failed',

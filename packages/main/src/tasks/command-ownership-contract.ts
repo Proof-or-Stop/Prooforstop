@@ -37,7 +37,7 @@
  *        finding mutation downgrades to `mainSharedMutating`; a diagnostic
  *        `validate` without `--story` downgrades to `readOnly` while
  *        `validate --story` is `storyScopedMutating`; `delivery_check_set` is
- *        `reviewerWrite` only for the `lattice-review-delivery` actor.
+ *        `reviewerWrite` only for the `proof-or-stop-review-delivery` actor.
  *
  *     5. GATE BEHAVIOR — `enforceStoryOwnerLeaseGate` itself: a non-owner
  *        session running an owner-gated storyScopedMutating command on a story
@@ -96,7 +96,7 @@ function record(source: string, detail: string): void {
  */
 const STANDALONE_COMMANDS = new Set<string>(['dashboard']);
 
-const root = join(tmpdir(), `lattice-command-ownership-contract-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `proof-or-stop-command-ownership-contract-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {
@@ -206,17 +206,12 @@ try {
     );
 
     // Rule 3: delivery_check_set — reviewerWrite only for the delivery reviewer.
-    const savedAgent = process.env.LATTICE_AGENT;
-    delete process.env.LATTICE_AGENT;
+    const savedAgent = process.env.PROOF_OR_STOP_AGENT;
+    delete process.env.PROOF_OR_STOP_AGENT;
     assert.equal(
       isDeliveryReviewerActor({ agentId: 'proof-or-stop-review-delivery' }),
       true,
-      'canonical delivery reviewer actor is recognised',
-    );
-    assert.equal(
-      isDeliveryReviewerActor({ agentId: 'lattice-review-delivery' }),
-      true,
-      'legacy delivery reviewer actor remains readable for compatibility',
+      'agentId=proof-or-stop-review-delivery is recognised as the delivery reviewer actor',
     );
     assert.equal(
       isDeliveryReviewerActor({ agentId: 'main' }),
@@ -238,21 +233,21 @@ try {
       'storyScopedMutating',
       'delivery_check_set by a non-delivery actor is owner-gated storyScopedMutating — a main agent cannot borrow it to bypass the owner lease',
     );
-    // LATTICE_AGENT env fallback is honored when no explicit agentId is given.
-    process.env.LATTICE_AGENT = 'lattice-review-delivery';
+    // PROOF_OR_STOP_AGENT env fallback is honored when no explicit agentId is given.
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-delivery';
     assert.equal(
       isDeliveryReviewerActor({}),
       true,
-      'LATTICE_AGENT=lattice-review-delivery is honored as the delivery reviewer actor fallback',
+      'PROOF_OR_STOP_AGENT=proof-or-stop-review-delivery is honored as the delivery reviewer actor fallback',
     );
-    process.env.LATTICE_AGENT = 'main';
+    process.env.PROOF_OR_STOP_AGENT = 'main';
     assert.equal(
       resolveEffectiveOwnershipClass('delivery_check_set', {}, 'B-c55d'),
       'storyScopedMutating',
-      'delivery_check_set with LATTICE_AGENT=main is owner-gated storyScopedMutating',
+      'delivery_check_set with PROOF_OR_STOP_AGENT=main is owner-gated storyScopedMutating',
     );
-    if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = savedAgent;
+    if (savedAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = savedAgent;
   }
 
   // ── 4b. GUARD SESSION WRITE CLASSIFICATION (B-6bfd F-001 regression) ──────
@@ -335,19 +330,19 @@ try {
 
   // ── 5. GATE BEHAVIOR — enforceStoryOwnerLeaseGate fail-closed rejection ──
   {
-    const savedSession = process.env.LATTICE_SESSION_ID;
+    const savedSession = process.env.PROOF_OR_STOP_SESSION_ID;
     try {
       // Set up a story dir owned by session "sess-owner" (a FOREIGN session).
       const storyId = 'B-gate1';
       const storyDir = store.storyDirPath(storyId);
       mkdirSync(storyDir, { recursive: true });
-      process.env.LATTICE_SESSION_ID = 'sess-owner';
+      process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
       resetSessionIdForTest();
       acquireOwnerLease(storyDir, { command: 'checklist_update', cwd: '/tmp/owner-worktree' });
       const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
 
       // Now act AS a different session "sess-intruder".
-      process.env.LATTICE_SESSION_ID = 'sess-intruder';
+      process.env.PROOF_OR_STOP_SESSION_ID = 'sess-intruder';
       resetSessionIdForTest();
 
       // 5a. An owner-gated storyScopedMutating command is REJECTED fail-closed.
@@ -448,26 +443,26 @@ try {
         'an unclassified command is rejected fail-closed by the gate, never default-allowed',
       );
     } finally {
-      if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
-      else process.env.LATTICE_SESSION_ID = savedSession;
+      if (savedSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+      else process.env.PROOF_OR_STOP_SESSION_ID = savedSession;
       resetSessionIdForTest();
     }
   }
 
   // ── 6. REVIEWER READ-ONLY COMMAND GATE (B-4f15 CHK-002) ─────────────────
   // enforceReviewerReadOnlyCommandGate is the pre-lease read-only fence for
-  // reviewer agents running under LATTICE_REVIEWER_READONLY=1.  This section
+  // reviewer agents running under PROOF_OR_STOP_REVIEWER_READONLY=1.  This section
   // asserts all documented behaviours so a future refactor breaks loudly.
   {
     const savedRO = process.env[REVIEWER_READONLY_ENV];
     try {
       // 6a. Env detection.
       delete process.env[REVIEWER_READONLY_ENV];
-      assert.equal(isReviewerReadOnlyModeEnabled(), false, 'LATTICE_REVIEWER_READONLY unset → disabled');
+      assert.equal(isReviewerReadOnlyModeEnabled(), false, 'PROOF_OR_STOP_REVIEWER_READONLY unset → disabled');
       process.env[REVIEWER_READONLY_ENV] = '1';
-      assert.equal(isReviewerReadOnlyModeEnabled(), true, 'LATTICE_REVIEWER_READONLY=1 → enabled');
+      assert.equal(isReviewerReadOnlyModeEnabled(), true, 'PROOF_OR_STOP_REVIEWER_READONLY=1 → enabled');
       process.env[REVIEWER_READONLY_ENV] = '0';
-      assert.equal(isReviewerReadOnlyModeEnabled(), false, 'LATTICE_REVIEWER_READONLY=0 → disabled (only "1" enables)');
+      assert.equal(isReviewerReadOnlyModeEnabled(), false, 'PROOF_OR_STOP_REVIEWER_READONLY=0 → disabled (only "1" enables)');
 
       // 6b. With env enabled, readOnly commands are allowed.
       process.env[REVIEWER_READONLY_ENV] = '1';
@@ -527,7 +522,7 @@ try {
       for (const rwCmd of ['review_pass_set', 'finding_add']) {
         assert.doesNotThrow(
           () => enforceReviewerReadOnlyCommandGate(rwCmd, {}, null),
-          `${rwCmd} (reviewerWrite) is NOT rejected by the gate when LATTICE_REVIEWER_READONLY is unset`,
+          `${rwCmd} (reviewerWrite) is NOT rejected by the gate when PROOF_OR_STOP_REVIEWER_READONLY is unset`,
         );
       }
     } finally {
@@ -621,7 +616,7 @@ try {
 
   console.log('✓ scope_check_save allowedPhases: PLAN');
   console.log('✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW');
-  console.log('✓ LATTICE_REVIEWER_READONLY=1 enables read-only reviewer mode');
+  console.log('✓ PROOF_OR_STOP_REVIEWER_READONLY=1 enables read-only reviewer mode');
   console.log('✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified');
   console.log('✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked');
   console.log('✓ ownerLeaseHelpBlock: owner-gated commands have takeover/forceTakeover guidance; readOnly/reviewerWrite/mainSharedMutating return null');

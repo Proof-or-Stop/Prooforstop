@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Capture the four-tuple with each field computed by its single normative definition",
+      "context": "Section 2.1. headHash = git rev-parse HEAD in the workspace. materialHash = currentMaterialHash(gitCwd, ref='HEAD', metadataRoot=gitCwd) from packages/main/src/core/evidence-freshness.ts, CALLED not re-derived; the spec notes earlier revisions drifted its parameter names. indexState = the object id printed by `git write-tree` recorded VERBATIM - the spec explicitly retracts the claim that a SHA-256 over `git ls-files --stage -z` is equivalent. gitStatus = SHA-256 over filtered re-serialized `git status --porcelain=v1 -z` WITHOUT --ignored.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement the gitStatus filter at byte level with rename-aware entry consumption",
+      "context": "Section 2.1's parse rule exists because removing lines is undefined for NUL-delimited rename records. Split raw output at NUL boundaries; an entry whose two-letter XY code contains R or C consumes TWO NUL-terminated path fields (new path, then original), every other entry consumes ONE; paths are raw bytes with no encoding assumption. An entry is EXCLUDED only if EVERY path field it carries matches a glob in policy.invarianceExcludePaths - an entry with any non-matching path field is kept, so either side of a rename touching a non-excluded path counts. Kept entries are re-serialized in original order with single-NUL termination, then hashed. Glob semantics follow the W1 material-policy resolver contract. indexState is NOT filtered by any exclusion set.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Assert invariance as exact equality of all four fields and reject on violation",
+      "context": "Section 2.2: a run is workspace-untouched iff pre.headHash == post.headHash AND pre.materialHash == post.materialHash AND pre.indexState == post.indexState AND pre.gitStatus == post.gitStatus, by exact string equality. Only then may the run produce a record. R2-1: a record whose POST tuple is not byte-identical to its PRE tuple is REJECTED. R2-2: a record omitting either snapshot is REJECTED. The pair is stored as runReceipt.pre / runReceipt.post per section 1.10.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Run the canonical protocol in a disposable detached worktree discarded unconditionally",
+      "context": "Section 2.3: derive the command by resolving adapterId in policy.runnerAdapterRegistry and matching testCaseRef; create with `git worktree add --detach <tmpdir> <RUN-HEAD>` under a fresh temporary directory; run the profile's preparation commands; snapshot PRE; execute; snapshot POST; assert; then discard the workspace with `git worktree remove --force <tmpdir>`, falling back to the filesystem-level recursive delete the spec names, UNCONDITIONALLY on success and on every failure path. A run that leaves its workspace behind is a defect even when its assertions passed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Enforce the three PRE checks, including prep invariance and operation-specific binding equality",
+      "context": "Section 2.3.3. (i) Prep invariance (R2-4): pre.headHash == clean.headHash AND pre.indexState == the clean index state - a preparation step that dirties head or index fails HERE rather than being absorbed into the PRE/POST comparison. (ii) Binding equality (R2-3), operation-specific: a red-assert run's PRE tuple must satisfy the claimed baseline binding. (iii) The committed-tree binding lookup of section 1.1.3 (R1-6) resolves against <RUN-HEAD>. Each has its own rejection tag; do not collapse them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "State the net-state scope limit in the code and never claim more than it proves",
+      "context": "Section 2.2's scope paragraph is normative: this is NET-STATE invariance. It proves the run's net effect on measured state is nil; it does NOT prove the command performed no write at any instant, because a command could modify a tracked file and byte-restore it before POST. The spec says implementation stories MUST NOT describe the four-tuple as proof of zero mid-run writes. The residual risk is bounded by the workspace being disposable and the command being adapter-derived (R1-5), not by the tuple. Any docstring, commit message or summary that overstates this is a defect - B-9ff1 recorded that failure mode repeatedly.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Ship committed regressions that fail against the pre-fix tree and register them in validate.commands",
+      "context": "A harness that passes by hand but is absent from the standing suite is not coverage - B-9ff1's own RED harness went twelve review rounds unregistered before the repository's registration guard caught it. Each regression must be listed in lattice.config.json validate.commands and must be shown to FAIL without the implementation: at minimum a run that mutates the workspace and is rejected by R2-1, a run missing a snapshot rejected by R2-2, a prep step that dirties the index rejected by R2-4, and a rename touching one excluded and one non-excluded path that stays IN the gitStatus digest.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

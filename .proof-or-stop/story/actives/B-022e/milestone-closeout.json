@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-022e",
+  "phase": "TEST",
+  "generatedAt": "2026-09-01T21:02:06.599Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "26486fbcbedb0f85874880361edaedc785c65648b5a6664fb143cf40949d4c18",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:24f70532633a9602640c5891d5ca0f8edeb111d0426353781e362423c9df030d"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "83e4f69d29aead3dcfced423d871e9d2e1990145",
+    "materialHash": "544685a87c4b1cd7bbcf5eff8d57fb26153cc01a1d3f4f0ca4b99f6fc2fda542",
+    "storyFilesHash": "7eb9a55816f61625ed18bf01385d086ef645751fffccf8ce818324a9fcc05513"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "All active package, CLI, env, path, config, runtime, prompt, and documentation identities are Proof-or-Stop only.",
+      "acceptance": "Cutover verifier and clean-install transcript pass canonical positives and lattice/@lattice negatives.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Cutover verifier proves exhaustive policy and zero active residue.",
+        "CHK-002:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Original committed RED target now passes at descendant GREEN.",
+        "CHK-003:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Package and lock identities contain no active legacy package edges.",
+        "CHK-003:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js file=packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js note=Legacy commands, wrappers, and aliases remain unresolvable.",
+        "CHK-004:happy:0 [pass/integration_test] node bin/proof-or-stop.js --version note=CLI version verifier now binds the canonical root/Core 0.3.270 release after main convergence",
+        "CHK-004:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js file=packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js note=Retired lattice bin and wrapper paths fail closed.",
+        "CHK-006:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Current prompts and generated assets render all canonical roles.",
+        "CHK-007:happy:0 [pass/integration_test] node scripts/verify-global-lab-entrypoint.mjs file=scripts/verify-global-lab-entrypoint.mjs note=Global canonical Lab entrypoint and active product boundary pass.",
+        "CHK-007:edge:0 [pass/integration_test] node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js file=packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js note=Clean canonical-only installation resolves Proof-or-Stop identities and rejects retired package identities."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Every active lattice-named Agent role is renamed to proof-or-stop, including proof-or-stop-review-story-init, and old role IDs do not resolve or generate.",
+      "acceptance": "Role registry, templates, frontmatter, config routing, generated assets, and negative lookup checks pass.",
+      "evidence": [
+        "CHK-005:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Fresh runtime identity scan proves canonical environment, state, config, adapter, and Agent identities.",
+        "CHK-005:happy:1 [pass/integration_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Canonical role registry binds the complete exact role and prompt set.",
+        "CHK-005:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js file=packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js note=Retired role, env, path, config, and runtime identities cannot alias.",
+        "CHK-006:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Current prompts and generated assets render all canonical roles.",
+        "CHK-006:adversarial:0 [pass/integration_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Legacy role generation and prompt mutations are rejected."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Exact historical story, fixture, changelog, signature-salt, schema, and provenance bytes remain unchanged and verifiable.",
+      "acceptance": "Named baseline paths retain identical SHA-256 digests and their signature verification results still pass.",
+      "evidence": [
+        "CHK-001:edge:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Exact frozen paths and byte baselines pass without broad exemptions.",
+        "CHK-002:edge:1 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Frozen salts, source rows, and byte baselines remain unchanged.",
+        "CHK-002:adversarial:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Canonical identities stay accepted while retired mutations fail closed.",
+        "CHK-005:edge:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Historical bytes and provenance remain unchanged after active migration.",
+        "CHK-005:adversarial:1 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test note=Re-run the immutable adversarial self-test pin after restoring its exact acceptance selector.",
+        "CHK-006:edge:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Current migration guidance and exact historical mappings remain correctly classified.",
+        "CHK-007:adversarial:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Mutation suite proves the active-residue and exact frozen-evidence boundary fails closed."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The same committed acceptance target moves from reproducible RED to descendant GREEN and B-022e completes REVIEW, TEST, and DONE at version 0.3.268.",
+      "acceptance": "red_evidence relation passes, all verification refs have evidence, required review/validation/DONE artifacts are fresh, and DONE merges locally.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Original committed RED target now passes at descendant GREEN.",
+        "CHK-002:happy:1 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Same acceptance target passes without test replacement.",
+        "CHK-002:edge:0 [pass/integration_test] node scripts/verify-proof-or-stop-identity-cutover.mjs file=scripts/verify-proof-or-stop-identity-cutover.mjs note=Self-host migration preserves story and exact schema evidence.",
+        "CHK-007:happy:0 [pass/integration_test] node scripts/verify-global-lab-entrypoint.mjs file=scripts/verify-global-lab-entrypoint.mjs note=Global canonical Lab entrypoint and active product boundary pass.",
+        "CHK-008:happy:0 [pass/integration_test] node packages/main/dist/tasks/version-bump-smoke.js note=Version verifier confirms root/Core 0.3.270; Utils remains independently 0.3.268 with Core ^0.3.268; Lab remains 0.3.65 with Core ^0.3.65.",
+        "CHK-008:edge:0 [pass/integration_test] node scripts/verify-process-fact-contract.mjs file=scripts/verify-process-fact-contract.mjs note=Review, validation, delivery, and adapter facts are bound to lifecycle gates.",
+        "CHK-008:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/version-bump-smoke.js file=packages/main/dist/tasks/version-bump-smoke.js note=Partial and mismatched version authority states are rejected."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

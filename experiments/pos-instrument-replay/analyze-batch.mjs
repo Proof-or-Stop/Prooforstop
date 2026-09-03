@@ -2,7 +2,7 @@
 // proof-or-stop replay evidence.
 //
 // This program reads ONLY committed files and never re-runs the instrument.
-// It NEVER shells out (no execFileSync/spawn), never calls the lattice CLI,
+// It NEVER shells out (no execFileSync/spawn), never calls the Proof-or-Stop CLI,
 // and uses NO Date.now()/new Date()/Math.random() anywhere in the report's
 // digested preimage — so the report + its digest are byte-reproducible
 // cross-host (given identical evidence bytes).

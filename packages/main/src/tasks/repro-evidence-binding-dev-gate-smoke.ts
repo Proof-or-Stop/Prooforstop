@@ -55,13 +55,13 @@ function write(root: string, rel: string, content: string): void {
 }
 
 function makeRoot(mode: ReproFirstPreflightMode = 'enforce'): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-repro-binding-gate-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-repro-binding-gate-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     reproFirstPreflight: { mode },

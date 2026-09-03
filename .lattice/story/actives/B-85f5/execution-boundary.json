@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-85f5",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+    "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+    "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js *",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/brand-rename-mapping.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src/core/brand-env.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git clean -fd *",
+    "git push --force *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [
+    "network publish",
+    "remote push"
+  ],
+  "excludedPaths": [
+    ".lattice/story/actives/B-38b7",
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+    "packages/main/src/core/agent-dispatch-registry.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Preserve env-authority fail-closed semantics. Prefer correcting child canonical overlays and exercising the real writer; do not patch the resolver or hand-author rollout artifacts.",
+  "createdAt": "2026-08-19T15:23:16.949Z",
+  "updatedAt": "2026-08-19T15:23:16.949Z",
+  "_hash": "67fcd5a70d9d27b4aaa431a4fbbaeec83bf5d7d67f1dbe0e8d360b50c7c8578c"
+}

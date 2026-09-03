@@ -23,23 +23,21 @@ import type { ReviewPass, ReviewRun } from '../core/types.js';
 
 const fullRollout = {
   version: 'proofbound.prompt-envelope-rollout.v1',
-  roles: { 'lattice-review-quality': 'full-envelope' },
+  roles: { 'proof-or-stop-review-quality': 'full-envelope' },
 } as const;
-const legacyLane = 'lattice-review-quality';
-const canonicalLane = promptRoleContract(legacyLane).roleId;
-const qualityPrompt = resolvePromptRoleBody(legacyLane, fullRollout).body;
-const dispatchPrompt = 'As lattice-review-quality, review story B-run in full.';
-const hostIdentity = reviewerHostRenderIdentity(process.cwd(), legacyLane, 'codex', 'full-envelope');
+const qualityPrompt = resolvePromptRoleBody('proof-or-stop-review-quality', fullRollout).body;
+const dispatchPrompt = 'As proof-or-stop-review-quality, review story B-run in full.';
+const hostIdentity = reviewerHostRenderIdentity(process.cwd(), 'proof-or-stop-review-quality', 'codex', 'full-envelope');
 const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
 const dispatchBindingDigest = reviewerDispatchBindingDigest({
   storyId: 'B-run',
-  lane: canonicalLane,
+  lane: 'proof-or-stop-review-quality',
   reviewRound: 'round-1',
   dispatchPromptDigest,
   hostRenderIdentityDigest: hostIdentity.identityDigest,
 });
 const envelope = assembleFullPromptEnvelope({
-  roleContract: promptRoleContract(legacyLane),
+  roleContract: promptRoleContract('proof-or-stop-review-quality'),
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
   rolePrompt: qualityPrompt,
   taskContext: {
@@ -68,7 +66,7 @@ const envelope = assembleFullPromptEnvelope({
   dispatchKind: 'review-run',
   reviewRunId: 'B-run:RR-001',
   reviewRound: 'round-1',
-  lane: legacyLane,
+  lane: 'proof-or-stop-review-quality',
   dispatchPrompt,
   hostRenderIdentityDigest: hostIdentity.identityDigest,
   createdAt: '2026-07-18T00:00:00.000Z',
@@ -77,8 +75,8 @@ const envelope = assembleFullPromptEnvelope({
 const run: ReviewRun = {
   reviewRunId: 'B-run:RR-001',
   storyId: 'B-run',
-  agent: canonicalLane,
-  lane: canonicalLane,
+  agent: 'proof-or-stop-review-quality',
+  lane: 'proof-or-stop-review-quality',
   reviewRound: 'round-1',
   startedAt: '2026-07-18T00:00:00.000Z',
   headHash: 'a'.repeat(40),
@@ -109,7 +107,7 @@ const store = {
   readProcessEvents: () => [{
     type: 'dispatch',
     targetKind: 'story-review',
-    agentType: canonicalLane,
+    agentType: 'proof-or-stop-review-quality',
     reviewRound: 'round-1',
     dispatchPrompt,
     dispatchPromptDigest,
@@ -150,7 +148,7 @@ wrongPromptRun._hash = signReviewRun(
 );
 assert.equal(verifyReviewRun(wrongPromptRun), false, 'signed promptHash cannot bless substituted assembled bytes');
 assert.equal(
-  verifyReviewRunPromptEnvelope(store as never, { ...run, lane: 'lattice-review-behavior' }).ok,
+  verifyReviewRunPromptEnvelope(store as never, { ...run, lane: 'proof-or-stop-review-behavior' }).ok,
   false,
   'cross-lane envelope replay is rejected by the shared gate verifier',
 );
@@ -190,9 +188,9 @@ assert.equal(verifyReviewPass(run.storyId, { ...pass, envelopeId: 'f'.repeat(64)
 const legacy: ReviewRun = { ...run };
 delete legacy.envelopeId;
 delete legacy.assembledPrompt;
-legacy.promptHash = hashReviewPrompt(resolvePromptRoleBody('lattice-review-quality', {
+legacy.promptHash = hashReviewPrompt(resolvePromptRoleBody('proof-or-stop-review-quality', {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-  roles: { 'lattice-review-quality': 'legacy-full-context' },
+  roles: { 'proof-or-stop-review-quality': 'legacy-full-context' },
 }).body);
 legacy._hash = signReviewRun(
   legacy.storyId,

@@ -89,7 +89,7 @@ const KNOWN_FINDING_CATEGORIES = new Set<string>([
 
 function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
-  // shared `.lattice/locks/finding/<id>-review-passes.lock` — the exact lock whose
+  // shared `.proof-or-stop/locks/finding/<id>-review-passes.lock` — the exact lock whose
   // committed-then-deleted holder.json failed quorum-submit-smoke's clean-tree gate.
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'finding', 'review-passes');
   return withMkdirLock(lockDir, fn, { label: 'review-passes metadata', heartbeatMs: 1_000 });
@@ -556,7 +556,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
 
       // Record caller identity (env var PROOF_OR_STOP_AGENT, or the deprecated
-      // LATTICE_AGENT, is set by the subagent; brand-env reads both)
+      // PROOF_OR_STOP_AGENT, is set by the subagent; brand-env reads both)
       const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
       const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;
@@ -723,7 +723,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        // B-cdf6: teach the canonical env var name and canonical reviewer role family.
+        // B-cdf6: teach the canonical env var name. `proof-or-stop-review-*` in this same
+        // string is a FROZEN role ID (subagent_type value) and must NOT be renamed.
         ? `\n⚠ finding_add is missing agent/${BRAND_ENV_PREFIX}AGENT and has been recorded as main; reviewer must pass agent="proof-or-stop-review-*", otherwise it will not count as reviewer evidence.`
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
@@ -871,7 +872,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // B-a7c5 CHK-002: fully advisory, non-blocking dev-memory capture nudge —
       // mirrors commitHint's precedent exactly. Wrapped end-to-end in try/catch
       // returning '' on ANY failure: a memory-subsystem error (corrupt
-      // experience.jsonl, missing .lattice/dev-memory dir, ...) must never fail
+      // experience.jsonl, missing .proof-or-stop/dev-memory dir, ...) must never fail
       // finding_resolve itself.
       let memoryHint = '';
       try {

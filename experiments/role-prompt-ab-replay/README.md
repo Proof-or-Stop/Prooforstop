@@ -46,7 +46,7 @@ pinned inputs. For example:
 ```bash
 node experiments/role-prompt-ab-replay/story6-live.mjs --execute \
   --campaign-id=story6-YYYYMMDD-v1 \
-  --cell=clean-pass-01.lattice-review-story-init.codex-cli.legacy.r1 \
+  --cell=clean-pass-01.proof-or-stop-review-story-init.codex-cli.legacy.r1 \
   --codex-model=<exact-model-id> --claude-model=<exact-model-id>
 ```
 
@@ -95,7 +95,7 @@ output. Its committed `.gitignore` excludes generated rows and lock files, so
 the documented run/analyze flow leaves `git status --short` clean. Operators may
 delete generated rows after inspection.
 
-`docs/requirements/decisions/lattice-experiment-protocol.md` describes an
+`docs/requirements/decisions/proof-or-stop-identity-cutover.md` describes an
 unrelated five-arm lifecycle ablation. It is design inspiration for
 pre-registration discipline only; it is not this experiment's governing
 protocol or acceptance source. `protocol.json`, `corpus.json`, and the canonical
@@ -179,7 +179,7 @@ evidence root. It seeds real-shaped sentinel pass, finding, ReviewRun,
 verification, validation, lifecycle, and process-event artifacts; copies the
 experiment modules and entrypoints into that sandbox; runs ordinary replay,
 ledger replay, and analysis there; then compares every sentinel artifact byte
-and the entire sandbox `.lattice` tree before and after, recursively including
+and the entire sandbox `.proof-or-stop` tree before and after, recursively including
 all Story siblings, usage/activity/lifecycle/process-event locations, directory
 membership, file bytes, and symlink targets. Mutation-bite checks then add a
 sibling Story review pass and a separate usage artifact and require the same

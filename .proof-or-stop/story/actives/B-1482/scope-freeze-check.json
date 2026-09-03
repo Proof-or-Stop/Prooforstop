@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1482",
+  "checkedAt": "2026-09-02T13:36:14.191Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "734b931e0a1c94036e65f4a8b410c20df70889188113f60e46d727c353828bd3",
+  "executionBoundaryHash": "b8648cb3a6fc38c00179d49157fa9c5467a684e474e63f8fa15a2359bb8c74fb",
+  "freshnessHash": "f7a4d39686d175635e701e6d08f298e8ca968d397191eafd2a412896fb75b2d6",
+  "effectiveExcludedKeywords": [
+    "Any replacement or deletion of an existing receipt; supersession must keep the prior receipt visible",
+    "Relaxing pin immutability for commands (only the selector may be narrowed; the pinned command stays immutable)",
+    "Retroactively rewriting receipts on stories other than the one being edited",
+    "The test-and-guard-credibility items and the single-owner extraction items, owned by their own stories"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any replacement or deletion of an existing receipt; supersession must keep the prior receipt visible",
+      "source": "scopeBoundary.excluded",
+      "text": "Any replacement or deletion of an existing receipt; supersession must keep the prior receipt visible",
+      "excluded": true
+    },
+    {
+      "keyword": "Relaxing pin immutability for commands (only the selector may be narrowed; the pinned command stays immutable)",
+      "source": "scopeBoundary.excluded",
+      "text": "Relaxing pin immutability for commands (only the selector may be narrowed; the pinned command stays immutable)",
+      "excluded": true
+    },
+    {
+      "keyword": "Retroactively rewriting receipts on stories other than the one being edited",
+      "source": "scopeBoundary.excluded",
+      "text": "Retroactively rewriting receipts on stories other than the one being edited",
+      "excluded": true
+    },
+    {
+      "keyword": "The test-and-guard-credibility items and the single-owner extraction items, owned by their own stories",
+      "source": "scopeBoundary.excluded",
+      "text": "The test-and-guard-credibility items and the single-owner extraction items, owned by their own stories",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8541f6257d3e2bf3c80e02406021a6bf83a02a46163d7aeca30e897b739ee285"
+}

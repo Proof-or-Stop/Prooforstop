@@ -1,0 +1,112 @@
+{
+  "storyId": "B-41c8",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/local-assurance-story-projection.ts",
+    "packages/main/src/handlers/validation-plan.ts",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+    "packages/main/src/core/story-workspace.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-41c8:F-001: the file allowlist comment at lines 166-168 justifies the session.ts exemption by naming listActiveWorktrees, which CHK-003 deleted. Comment-only edit to name the surviving execSync branch probes and resolveStoryWorkspace; the exemption itself is unchanged.",
+      "timestamp": "2026-09-02T15:15:44.451Z",
+      "paths": [
+        "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c8348f8373665fc9f14fd84b4df84a15e6e3a69",
+      "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CHK-004 registered test:single-owner-extraction in proof-or-stop.config.json validate.commands, which changes the real-inventory commandSetDigest that the F-023 case in validation-tier-planner-smoke.ts pins (line 403). The pin must be updated to the new digest; no other change to that file.",
+      "timestamp": "2026-09-02T15:34:01.441Z",
+      "paths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a20d0e0e404772626754415ccbf37d62920e7654",
+      "materialHash": "3e2ecd125f79d3e7c689bba9654e82e4735ce1ca9d62cfb8e86f5e82e8974294"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW->TEST validate failed: retired-authority-vocabulary-guard-smoke pins the repository-wide dynamic binding graph build count (808) and this story added one source file, core/story-workspace.ts, so the real count is 809. The pinned bound must be updated with the reason; no other change to that file.",
+      "timestamp": "2026-09-02T17:39:51.633Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "982eaaf2b96550f51217a22300dce288e2176551",
+      "materialHash": "eaf90a01b2e529408598609975dff80059790607a1431e93fefff72719bc0eea"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Three dev-memory lessons captured for B-41c8 (executor selector truncation, attribution-trailer history rewrite, invocation-root story reads) at TEST closeout, after the finish decision, which is the only time the execution boundary intended dev-memory to be written; no other dev-memory change.",
+      "timestamp": "2026-09-02T23:45:31.113Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ad65c03d0784abaa32058f597a7f1bd23af058f1",
+      "materialHash": "4030db6e1de9ed94de989ffe773c93ea8dc307a3189c306cff1353227c386cab"
+    }
+  ],
+  "createdAt": "2026-09-02T13:36:08.585Z",
+  "updatedAt": "2026-09-02T23:45:31.113Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts": "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/local-assurance-story-projection.ts": "packages/main/src/core/local-assurance-story-projection.ts",
+    "packages/main/src/handlers/validation-plan.ts": "packages/main/src/handlers/validation-plan.ts",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/src/tasks/single-owner-extraction-smoke.ts": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+    "packages/main/src/core/story-workspace.ts": "packages/main/src/core/story-workspace.ts",
+    "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts": "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl"
+  }
+}

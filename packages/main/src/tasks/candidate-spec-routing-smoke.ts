@@ -135,21 +135,21 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     }] });
     store.writeCandidateSpecSet(story.storyId, artifact);
     const dispatch = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
-    const planPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-scope-plan' }).prompt;
+    const planPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-scope-plan' }).prompt;
     assert.match(planPrompt, new RegExp(artifact.artifactDigest));
     assert.match(planPrompt, new RegExp(artifact.corpusDigest));
     assert.match(planPrompt, /candidateSpecSetDigest/);
     assert.equal(planPrompt.includes('Rotating credentials safely'), false, 'PLAN dispatch must not embed corpus bodies');
     store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
-    const reviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
+    const reviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-quality' }).prompt;
     assert.match(reviewPrompt, new RegExp(artifact.artifactDigest));
     assert.match(reviewPrompt, /review_run_start/);
     assert.match(reviewPrompt, /candidateSpecSetDigest/);
     assert.deepEqual(currentReviewerFullyReadPaths({
       valid: [{
-        id: 'RP-valid', kind: 'pass', agent: 'lattice-review-quality',
+        id: 'RP-valid', kind: 'pass', agent: 'proof-or-stop-review-quality',
         pass: {
-          id: 'RP-valid', agent: 'lattice-review-quality', note: 'valid signed/current projection supplied by collector', createdAt: new Date().toISOString(),
+          id: 'RP-valid', agent: 'proof-or-stop-review-quality', note: 'valid signed/current projection supplied by collector', createdAt: new Date().toISOString(),
           readManifest: {
             filesReadFully: ['docs/requirements/decisions/auth-session.md'],
             filesTriagedByName: ['docs/requirements/decisions/noise.md'],
@@ -161,28 +161,22 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     }), ['docs/requirements/decisions/auth-session.md'], 'only fully-read paths from collector-valid evidence are promoted; triage is never authority');
     assert.deepEqual(currentReviewerFullyReadPaths({
       valid: [],
-      invalid: [{ code: 'stale_run_hash', kind: 'pass', evidenceId: 'RP-stale', agent: 'lattice-review-quality', message: 'stale/unbound evidence' }],
+      invalid: [{ code: 'stale_run_hash', kind: 'pass', evidenceId: 'RP-stale', agent: 'proof-or-stop-review-quality', message: 'stale/unbound evidence' }],
     }), [], 'collector-invalid stale/unbound reviewer evidence contributes no protected path');
     mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
     writeFileSync(join(root, 'packages/main/src/core/machine.ts'), 'export const machine = true;\n');
     const collectorRoot = join(tmpdir(), `candidate-routing-collector-${process.pid}-${Date.now()}`);
     mkdirSync(join(collectorRoot, 'packages/main/src'), { recursive: true });
     mkdirSync(join(collectorRoot, 'docs/requirements/decisions'), { recursive: true });
-    writeFileSync(join(collectorRoot, '.gitignore'), '.lattice/\n');
-    writeFileSync(join(collectorRoot, 'lattice.config.json'), JSON.stringify({
-      requirementsDir: 'docs/requirements',
-      promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { 'lattice-review-quality': 'legacy-full-context' },
-      },
-    }));
+    writeFileSync(join(collectorRoot, '.gitignore'), '.proof-or-stop/\n');
+    writeFileSync(join(collectorRoot, 'proof-or-stop.config.json'), JSON.stringify({ requirementsDir: 'docs/requirements' }));
     writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = true;\n');
     writeFileSync(join(collectorRoot, 'docs/requirements/decisions/noise.md'), '# Noise\n');
     const git = (args: string[]): string => execFileSync('git', args, { cwd: collectorRoot, encoding: 'utf8' }).trim();
     git(['init']);
     git(['checkout', '-B', 'main']);
     git(['add', '.']);
-    git(['-c', 'user.name=lattice-test', '-c', 'user.email=lattice-test@proofbound.local', 'commit', '-m', 'collector base']);
+    git(['-c', 'user.name=proof-or-stop-test', '-c', 'user.email=proof-or-stop-test@proofbound.local', 'commit', '-m', 'collector base']);
     const collectorStore = new StoryStore(collectorRoot);
     const collectorRound = '2026-07-12T00:02:00.000Z';
     collectorStore.writeStory(story.storyId, {
@@ -193,7 +187,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     collectorStore.writeChecklist(story.storyId, { items: [] });
     const collectorSnapshot = captureReviewRunSnapshot(collectorRoot);
     const reviewRunId = `${story.storyId}:RR-001`;
-    const reviewAgent = 'lattice-review-quality';
+    const reviewAgent = 'proof-or-stop-review-quality';
     const reviewStartedAt = '2026-07-12T00:03:00.000Z';
     const reviewPromptHash = hashReviewPrompt(resolvePromptRoleBody(reviewAgent, {
       version: 'proofbound.prompt-envelope-rollout.v1',
@@ -244,7 +238,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(collectorBoundInput.protectedSources?.some(source => source.path === 'docs/requirements/decisions/noise.md' && source.kind === 'reviewer-evidence'), false, 'collector triage never becomes protected authority');
     writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = false;\n');
     git(['add', '.']);
-    git(['-c', 'user.name=lattice-test', '-c', 'user.email=lattice-test@proofbound.local', 'commit', '-m', 'make reviewer evidence stale']);
+    git(['-c', 'user.name=proof-or-stop-test', '-c', 'user.email=proof-or-stop-test@proofbound.local', 'commit', '-m', 'make reviewer evidence stale']);
     const collectorStaleInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
     assert.equal(collectorStaleInput.protectedSources?.some(source => source.kind === 'reviewer-evidence'), false, 'stale/unbound collector evidence is rejected by ordinary handler input');
     rmSync(collectorRoot, { recursive: true, force: true });
@@ -474,7 +468,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const protectedSources = Array.from({ length: 10 }, (_, index) => {
       const kind = protectedKinds[index % protectedKinds.length];
       const path = `docs/requirements/decisions/protected-${index}.md`;
-      writeFileSync(join(root, path), `# Protected ${index}\n\nlattice core handlers proofbound\n`);
+      writeFileSync(join(root, path), `# Protected ${index}\n\nproofOrStop core handlers proofbound\n`);
       return { kind, path, sourceRef: `typed.${kind}` };
     });
     const protectedCorpus = buildCorpusIndex(root);
@@ -583,14 +577,14 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, true);
     assert.match(candidateReadBindingErrors({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'enforce' }).join(' '), /escalation is unresolved/);
     for (const mode of ['shadow', 'warn', 'enforce'] as const) {
-      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
+      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
       resetConfigCache();
       store.writeCandidateSpecSet(story.storyId, routesByMode[mode]);
       const modePrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
-        .dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
+        .dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-quality' }).prompt;
       store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'DEV' });
       const itemModePrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
-        .dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }).prompt;
+        .dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }).prompt;
       store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
       if (mode === 'shadow') {
         assert.match(modePrompt, /SHADOW/);
@@ -606,20 +600,20 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       }
     }
     for (const mode of ['shadow', 'warn', 'enforce'] as const) {
-      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
+      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
       resetConfigCache();
       store.writeCandidateSpecSet(story.storyId, mode === 'enforce' ? routesByMode.shadow : routesByMode.enforce);
       for (const itemId of [undefined, 'CHK-001'] as const) {
         store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: itemId ? 'DEV' : 'REVIEW' });
         const mismatchPrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
-          .dispatch({ storyId: story.storyId, ...(itemId ? { itemId } : {}), agentType: itemId ? 'lattice-implementer' : 'lattice-review-quality' }).prompt;
+          .dispatch({ storyId: story.storyId, ...(itemId ? { itemId } : {}), agentType: itemId ? 'proof-or-stop-implementer' : 'proof-or-stop-review-quality' }).prompt;
         assert.match(mismatchPrompt, /MODE_MISMATCH/);
         if (mode === 'enforce') assert.match(mismatchPrompt, /STOP — MODE_MISMATCH/);
         else assert.doesNotMatch(mismatchPrompt, /STOP — MODE_MISMATCH/);
       }
     }
     store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
-    rmSync(join(root, 'lattice.config.json'), { force: true });
+    rmSync(join(root, 'proof-or-stop.config.json'), { force: true });
     resetConfigCache();
 
     for (let index = 0; index < 8; index += 1) {
@@ -698,17 +692,17 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(highRisk.escalationReasons.includes('high_risk_structured_signal'));
     assert.equal(highRisk.fullScan, false);
     store.writeCandidateSpecSet(story.storyId, highRisk);
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode: 'enforce' } }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ candidateSpecRouting: { mode: 'enforce' } }));
     resetConfigCache();
-    const pendingPlanPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-scope-plan' }).prompt;
+    const pendingPlanPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-scope-plan' }).prompt;
     assert.match(pendingPlanPrompt, /STOP — candidate routing escalation is unresolved/);
     assert.match(pendingPlanPrompt, /high_risk_structured_signal/);
     assert.match(pendingPlanPrompt, /fullScanReason/);
     store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
-    const pendingReviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
+    const pendingReviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-quality' }).prompt;
     assert.match(pendingReviewPrompt, /Do not submit review_pass_set or finding evidence/);
     assert.match(pendingReviewPrompt, /high_risk_structured_signal/);
-    rmSync(join(root, 'lattice.config.json'), { force: true });
+    rmSync(join(root, 'proof-or-stop.config.json'), { force: true });
     resetConfigCache();
 
     const unmatchedLegacyProposal: HostKeywordProposal = {

@@ -16,17 +16,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  LOAD_BEARING_LATTICE_PROMPT_SLICE,
-  MODULAR_COMPLEX_ROLE_IDS,
-  MODULAR_REVIEWER_ROLE_IDS,
-  PROMPT_REGISTRY_SOURCE,
-  PROMPT_REGISTRY_VERSION,
-  listPromptTemplateFiles,
-  readPromptRegistry,
-  renderPromptEntryForHost,
-  restoreLegacyPromptTemplate,
-} from '../core/prompt-registry.js';
+import { LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE, MODULAR_COMPLEX_ROLE_IDS, MODULAR_REVIEWER_ROLE_IDS, PROMPT_REGISTRY_SOURCE, PROMPT_REGISTRY_VERSION, listPromptTemplateFiles, readPromptRegistry, renderPromptEntryForHost, restoreLegacyPromptTemplate } from '../core/prompt-registry.js';
 import { assertNoDuplicatePromptEnvelopeRoleKeys } from '../core/config.js';
 import {
   ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
@@ -111,7 +101,7 @@ for (const entry of registry.agents) {
     assert.equal(expectedCodex, renderCodexAgentContent(canonicalSource), `${entry.file} Codex render matches canonical transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
-    assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses the canonical load-bearing prompt slice`);
+    assert.equal(extractLatticeBlock(source), LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE, `${entry.file} uses the canonical load-bearing prompt slice`);
     assert.match(source, /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/);
     assert.doesNotMatch(source, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/);
     for (const phrase of requiredSafetyPhrases) {
@@ -190,14 +180,14 @@ for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
     assert.equal(resolvePromptEnvelopeRolloutMode(roleId, config), expected, `mixed rollout mask ${mask} keeps ${roleId}`);
   }
 }
-assert.equal(resolvePromptEnvelopeRolloutMode('lattice-review-concept', undefined), 'legacy-full-context');
+assert.equal(resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', undefined), 'legacy-full-context');
 for (const roles of [
-  { 'lattice-review-channel': 'full-envelope' },
+  { 'proof-or-stop-review-channel': 'full-envelope' },
   { 'implementation-reviewer': 'full-envelope' },
   { 'unknown-reviewer': 'full-envelope' },
 ]) {
   assert.throws(
-    () => resolvePromptEnvelopeRolloutMode('lattice-review-concept', {
+    () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles,
     }),
@@ -206,27 +196,27 @@ for (const roles of [
 }
 for (const [source, expected] of [
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"lattice-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope\.roles key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope","lattice-review-quality":"legacy-full-context"}}}',
-    /duplicate promptEnvelope\.roles\.lattice-review-quality key/,
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope","proof-or-stop-review-quality":"legacy-full-context"}}}',
+    /duplicate promptEnvelope\.roles\.proof-or-stop-review-quality key/,
   ],
 ] as const) {
   assert.throws(() => assertNoDuplicatePromptEnvelopeRoleKeys(source), expected);
 }
 for (const malformed of [
   { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
-  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'lattice-review-quality': 'unknown-mode' } },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'proof-or-stop-review-quality': 'unknown-mode' } },
   { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: JSON.parse('{"__proto__":"full-envelope"}') },
 ]) {
   assert.throws(
-    () => resolvePromptEnvelopeRolloutMode('lattice-review-quality', malformed),
+    () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-quality', malformed),
     PromptRoleContractRegistryError,
   );
 }

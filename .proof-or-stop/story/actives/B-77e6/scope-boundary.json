@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-77e6",
+  "mode": "maintenance",
+  "allowed": [
+    "Fixing any critical or high defect discovered during this story, and any defect that blocks this story acceptance, REVIEW, TEST or DONE",
+    "Migrate every flagged handler onto the shared story-workspace resolver so its store and config are read from the resolved workspace, not ctx.root",
+    "One cross-checkout regression case per migrated handler, modelled on B-a745's F-010 fixtures, bypassing any cwd gate the way validate --story from the main checkout does",
+    "Register the audit fixture in the canonical inventories as the terminal assertion (zero flagged callers)",
+    "Run the workspace-resolution audit fixture delivered by the single-owner extraction story at PLAN and record its flagged-caller list in plan.md as this story's migration scope"
+  ],
+  "excluded": [
+    "Any behaviour change in a migrated handler beyond where it reads story metadata and config from",
+    "Changing the shared resolver's contract or the audit's classification rules (owned by the single-owner extraction story)",
+    "gap_log migration, evidence re-pin policy, test-and-guard credibility items",
+    "Handlers the audit does not flag"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User message 2026-09-02 accepted grouping deferred defects into stories by root cause; this migration wave was split from the single-owner extraction draft after three hand-written caller lists were each wrong and a file-level grep matched thirty-one handler files, so the scope is measured by the audit at PLAN rather than asserted here.",
+  "createdAt": "2026-09-02T13:38:05.939Z",
+  "updatedAt": "2026-09-02T13:38:05.939Z",
+  "_hash": "10dda6de53f90201216dc8508fcd623815ae0de2542396766835e27c793e50c6"
+}

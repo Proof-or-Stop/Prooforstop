@@ -11,18 +11,18 @@ import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { StoryStore } from '../core/store.js';
 
 const roles = [
-  'lattice-review-story-init',
-  'lattice-review-scope-plan',
-  'lattice-implementer',
-  'lattice-review-delivery',
-  'lattice-evaluator',
+  'proof-or-stop-review-story-init',
+  'proof-or-stop-review-scope-plan',
+  'proof-or-stop-implementer',
+  'proof-or-stop-review-delivery',
+  'proof-or-stop-evaluator',
 ];
-const budgeted = new Set(roles.filter(role => role !== 'lattice-evaluator'));
+const budgeted = new Set(roles.filter(role => role !== 'proof-or-stop-evaluator'));
 const root = mkdtempSync(join(tmpdir(), 'story6-production-dispatch-'));
 try {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+    storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     promptEnvelope: {
       version: 'proofbound.prompt-envelope-rollout.v1',
       roles: Object.fromEntries(roles.map(role => [role, 'legacy-full-context'])),
@@ -31,7 +31,7 @@ try {
   execFileSync('git', ['init', '-q'], { cwd: root });
   execFileSync('git', ['config', 'user.email', 'story6@example.invalid'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Story 6 Smoke'], { cwd: root });
-  execFileSync('git', ['add', 'lattice.config.json'], { cwd: root });
+  execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: root });
   execFileSync('git', ['commit', '-qm', 'initial'], { cwd: root });
 
   const store = new StoryStore(root);
@@ -74,13 +74,13 @@ try {
     }
     // Adversarial receipt checks: role substitution, stale head, and digest
     // mutation must fail the content-addressed integrity check.
-    const wrongRole = role === 'lattice-evaluator' ? 'lattice-implementer' : 'lattice-evaluator';
+    const wrongRole = role === 'proof-or-stop-evaluator' ? 'proof-or-stop-implementer' : 'proof-or-stop-evaluator';
     assert.equal(verifyPromptEnvelopeIntegrity({ ...response.envelope, roleId: wrongRole }), false);
     assert.equal(verifyPromptEnvelopeIntegrity({ ...response.envelope, headHash: 'f'.repeat(40) }), false);
     assert.equal(verifyPromptEnvelopeIntegrity({ ...response.envelope, contextDigest: 'e'.repeat(64) }), false);
   }
   assert.throws(
-    () => handlers.agent_prompt({ role: 'lattice-implementer', storyId: 'B-story6-production', format: 'json', baselineAccepted: true }),
+    () => handlers.agent_prompt({ role: 'proof-or-stop-implementer', storyId: 'B-story6-production', format: 'json', baselineAccepted: true }),
     /unsupported caller-controlled field "baselineAccepted"/,
     'a caller cannot forge A/B acceptance to activate modular rollout',
   );
@@ -107,7 +107,7 @@ try {
   const failingAgentPrompt = createAgentPromptHandlers({ root, scanRoot: root, store: failingStore });
   assert.throws(
     () => failingAgentPrompt.agent_prompt({
-      role: 'lattice-implementer', storyId: 'B-story6-event-failure', format: 'json', auditExperiment: true,
+      role: 'proof-or-stop-implementer', storyId: 'B-story6-event-failure', format: 'json', auditExperiment: true,
       experimentalModeOverride: 'full-envelope',
     }),
     /injected dispatch event failure/,
@@ -116,10 +116,10 @@ try {
 
   const dispatchRoot = mkdtempSync(join(tmpdir(), 'story6-dispatch-event-failure-'));
   try {
-    writeFileSync(join(dispatchRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(dispatchRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
-      promptEnvelope: { version: 'proofbound.prompt-envelope-rollout.v1', roles: { 'lattice-implementer': 'full-envelope' } },
+      storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+      promptEnvelope: { version: 'proofbound.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-implementer': 'full-envelope' } },
     }));
     execFileSync('git', ['init', '-q'], { cwd: dispatchRoot });
     execFileSync('git', ['config', 'user.email', 'story6@example.invalid'], { cwd: dispatchRoot });
@@ -136,7 +136,7 @@ try {
     failingDispatchStore.appendProcessEvent = () => { throw new Error('injected dispatch event failure'); };
     const failingDispatch = createStoryDispatchHandlers({ root: dispatchRoot, scanRoot: dispatchRoot, store: failingDispatchStore });
     assert.throws(
-      () => failingDispatch.dispatch({ storyId: 'B-story6-dispatch-failure', itemId: 'CHK-FAIL', agentType: 'lattice-implementer' }),
+      () => failingDispatch.dispatch({ storyId: 'B-story6-dispatch-failure', itemId: 'CHK-FAIL', agentType: 'proof-or-stop-implementer' }),
       /dispatch event persistence failed; prompt envelope was not accepted: injected dispatch event failure/,
     );
     assert.equal(dispatchStore.readPromptEnvelopes('B-story6-dispatch-failure').envelopes.length, 0, 'story dispatch cleanup prevents a successful half-bound envelope');
@@ -154,14 +154,14 @@ try {
     reentrantStore.appendProcessEvent = (storyId, event) => {
       if (!nested) {
         nested = true;
-        reentrantDispatch.dispatch({ storyId, itemId: 'CHK-REENTRANT', agentType: 'lattice-implementer' });
+        reentrantDispatch.dispatch({ storyId, itemId: 'CHK-REENTRANT', agentType: 'proof-or-stop-implementer' });
         throw new Error('injected outer append failure after inner success');
       }
       return dispatchStore.appendProcessEvent(storyId, event);
     };
     reentrantDispatch = createStoryDispatchHandlers({ root: dispatchRoot, scanRoot: dispatchRoot, store: reentrantStore });
     assert.throws(
-      () => reentrantDispatch.dispatch({ storyId: 'B-story6-reentrant', itemId: 'CHK-REENTRANT', agentType: 'lattice-implementer' }),
+      () => reentrantDispatch.dispatch({ storyId: 'B-story6-reentrant', itemId: 'CHK-REENTRANT', agentType: 'proof-or-stop-implementer' }),
       /dispatch event persistence failed; prompt envelope was not accepted: injected outer append failure after inner success/,
     );
     const reentrantEvents = dispatchStore.readProcessEvents('B-story6-reentrant').filter(event => event.type === 'dispatch');

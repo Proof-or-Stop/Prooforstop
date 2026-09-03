@@ -26,7 +26,7 @@
  * scope (they are CHK-002 / CHK-003).
  *
  * F-008-CLASS DIRTY-WRITE PREVENTION: `owner-lease.json` is a runtime artifact.
- * It lives under the git-tracked `.lattice/story/actives/<id>/` subtree, so an
+ * It lives under the git-tracked `.proof-or-stop/story/actives/<id>/` subtree, so an
  * un-ignored lease file would show up as an uncommitted change and could block
  * the DONE `git merge story/<id>` (the same failure mode as B-f60c F-008). The
  * file is therefore registered in `core/runtime-artifact-registry.ts` (entry
@@ -79,7 +79,7 @@ export type {
 
 /**
  * Filename of the per-story owner lease, written under the story directory
- * (`.lattice/story/actives/<storyId>/owner-lease.json`).
+ * (`.proof-or-stop/story/actives/<storyId>/owner-lease.json`).
  *
  * Kept as an exported constant so the runtime-artifact registry, doctor checks,
  * and tests all reference the SAME literal instead of re-typing the string.
@@ -118,7 +118,7 @@ export interface StoryOwnerLease {
   pid: number;
   /** Working directory of the owning session at acquire time. */
   cwd: string;
-  /** The lattice command that first acquired the lease (audit context). */
+  /** The proof-or-stop command that first acquired the lease (audit context). */
   command: string;
   /** ISO 8601 timestamp of the initial acquire. */
   acquiredAt: string;
@@ -139,7 +139,7 @@ function trimToNull(value: string | undefined): string | null {
  * Resolve the absolute path of a story's `owner-lease.json`.
  *
  * `storyDir` MUST be the absolute story directory
- * (`.lattice/story/actives/<storyId>`). Runtime re-validation rejects an empty
+ * (`.proof-or-stop/story/actives/<storyId>`). Runtime re-validation rejects an empty
  * path rather than silently joining onto `''` — mirrors the "Handler Coding Conventions"
  * rule that load-bearing invariants are re-checked at every consumer instead of
  * trusting an upstream schema.
@@ -245,7 +245,7 @@ function ownerCwdMatchesCurrent(ownerCwd: unknown, currentCwd: unknown): boolean
 
 /** Options shared by `acquireOwnerLease` / `refreshOwnerLease`. */
 export interface OwnerLeaseWriteOptions {
-  /** lattice command label recorded in the lease (audit context). */
+  /** proof-or-stop command label recorded in the lease (audit context). */
   command: string;
   /** Working directory of the owning session. Defaults to `process.cwd()`. */
   cwd?: string;
@@ -484,7 +484,7 @@ export interface TakeoverOptions extends OwnerLeaseWriteOptions {
   kind: TakeoverKind;
   /**
    * Project root used to locate the activity log the takeover event is
-   * appended to (`<projectRoot>/.lattice/activity.jsonl`). When omitted, the
+   * appended to (`<projectRoot>/.proof-or-stop/activity.jsonl`). When omitted, the
    * takeover still transfers the lease but skips the audit record — callers
    * that need the event MUST supply this.
    */
@@ -511,7 +511,7 @@ export interface TakeoverEvent {
   fromHeartbeatAt: string;
   /** Whether the taken-over lease was stale at transfer time. */
   fromWasStale: boolean;
-  /** The lattice command that triggered the takeover. */
+  /** The proof-or-stop command that triggered the takeover. */
   command: string;
 }
 
@@ -562,7 +562,7 @@ export interface TakeoverEvent {
 export interface NonOwnerErrorContext {
   /** The story whose lease is owned by another session. */
   storyId: string;
-  /** The lattice command that was rejected (audit / message context). */
+  /** The proof-or-stop command that was rejected (audit / message context). */
   command: string;
   /** The owner-gated ownership class of `command` (`storyScopedMutating` / `dangerousMutating`). */
   ownershipClass: string;

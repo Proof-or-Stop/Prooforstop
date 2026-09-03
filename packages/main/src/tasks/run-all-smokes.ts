@@ -305,7 +305,7 @@ export async function runAllSmokes(opts: RunOptions): Promise<{ results: SmokeRe
 async function main(): Promise<void> {
   const opts = parseArgs(process.argv.slice(2));
   // Resolve relative paths against process.cwd() so the runner can be invoked
-  // from anywhere (especially under git worktrees where the lattice CLI is).
+  // from anywhere (especially under git worktrees where the proofOrStop CLI is).
   opts.manifestPath = resolve(opts.manifestPath);
   opts.smokesDir = resolve(opts.smokesDir);
   try {

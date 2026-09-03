@@ -10,7 +10,7 @@ import {
   type BaselineFinalReport,
 } from '../core/baseline.js';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-baseline-suite-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-suite-'));
 const localReviewEvidenceRefs = ['host-verdict:codex-local-review', 'host-verdict:claude-local-review'];
 const gateInputDigest = 'input-digest-baseline-smoke';
 const receiptInputDigest = 'input-digest-baseline-smoke';
@@ -55,7 +55,7 @@ const hostVerdictsJson = JSON.stringify({
 });
 
 try {
-  const outputRoot = join(root, '.lattice', 'artifacts', 'baseline');
+  const outputRoot = join(root, '.proof-or-stop', 'artifacts', 'baseline');
   const reports = [
     runBaseline(root, { baselineId: 'NL-CLI-1', runId: 'run-nl-cli', authorityMode: 'non-authority', outputRoot, localReviewEvidenceRefs }),
     runBaseline(root, { baselineId: 'NL-API-1', runId: 'run-nl-api', authorityMode: 'non-authority', outputRoot, localReviewEvidenceRefs }),

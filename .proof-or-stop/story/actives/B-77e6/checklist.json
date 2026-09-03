@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Confirm at INIT_CHECK and again before DEV that B-41c8 has merged to main, and stop otherwise",
+      "context": "Mechanical gate for the stated dependency: from the story worktree after `git merge main`, `test -f packages/main/src/core/story-workspace.ts` and `git log main --oneline | grep -c 'B-41c8'` must both succeed, and the audit fixture must run; record the command output in this item's userSees. If either fails, the story stays parked in INIT_CHECK and does not advance to PLAN or DEV.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "At PLAN, run the workspace-resolution audit fixture and record its flagged-caller list in plan.md as the migration scope",
+      "context": "The audit fixture from single-owner-extraction-readers-parsers enumerates resolveGitCwd callers by grep and classifies each; paste its output into plan.md rather than restating it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Migrate every flagged handler onto the shared workspace resolver with a per-caller cross-checkout regression case",
+      "context": "Model each case on B-a745's F-010 fixtures: invoke from the story worktree and from the main checkout (bypassing any cwd gate the way validate --story does) and assert identical output.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Finish only when the audit fixture reports zero flagged callers and runs in the canonical inventories",
+      "context": "The terminal assertion is the audit itself; register it in test:serial-reference plus RESOURCE_POLICY so a future caller that regresses is caught.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

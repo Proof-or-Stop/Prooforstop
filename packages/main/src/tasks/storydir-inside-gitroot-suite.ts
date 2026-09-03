@@ -19,7 +19,7 @@
  *    + the session_brief advisory line.
  *
  * This suite drives the REAL function / handler entry points via direct dist
- * imports (NOT the global `lattice` binary, which resolves to the main repo).
+ * imports (NOT the global `proof-or-stop` binary, which resolves to the main repo).
  * It covers the full scenario matrix:
  *   1. INSIDE     : storyDir inside gitRoot → ok, no violation, healthy doctor
  *                   pass line, advisories silent.
@@ -61,9 +61,9 @@ import { createSessionHandlers } from '../handlers/session.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
-process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+process.env.PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS = '0';
 
-const STORY_DIR_REL = '.lattice/story/actives';
+const STORY_DIR_REL = '.proof-or-stop/story/actives';
 const STORY_ID = 'B-test';
 const ADVISORY_PREFIX = '⚠ storyDir resolves outside the resolved gitRoot';
 const ADVISORY_REMEDIATION = '→ configure storyDir so story metadata lives inside the gitRoot.';
@@ -86,11 +86,11 @@ function initGitRepo(dir: string): void {
   git('config user.name suite', dir);
 }
 
-/** Write lattice.config.json so StoryStore + resolution share storyDir / gitRoot. */
+/** Write proof-or-stop.config.json so StoryStore + resolution share storyDir / gitRoot. */
 function writeConfig(metadataRoot: string, gitRoot?: string): void {
   const cfg: Record<string, unknown> = { storyDir: STORY_DIR_REL };
   if (gitRoot !== undefined) cfg.gitRoot = gitRoot;
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), JSON.stringify(cfg, null, 2));
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), JSON.stringify(cfg, null, 2));
 }
 
 /** Materialize a story index.json under metadataRoot's configured storyDir. */
@@ -144,7 +144,7 @@ function runSessionBrief(root: string): string {
   return String(handlers.session_brief({}));
 }
 
-const base = mkdtempSync(join(tmpdir(), 'lattice-storydir-gitroot-suite-'));
+const base = mkdtempSync(join(tmpdir(), 'proof-or-stop-storydir-gitroot-suite-'));
 
 console.log('storyDir-inside-gitRoot consolidated suite (B-198c CHK-004)');
 
@@ -364,7 +364,7 @@ try {
       const legacyRoot = join(base, 'legacy-storydir-config');
       mkdirSync(legacyRoot, { recursive: true });
       writeFileSync(
-        join(legacyRoot, 'lattice.config.json'),
+        join(legacyRoot, 'proof-or-stop.config.json'),
         JSON.stringify({ storyDir: 'legacy/story/actives' }, null, 2),
       );
       let threw = false;

@@ -79,7 +79,7 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'warn',
     checker: 'resolveGlobalCoreRealpath',
     outputKey: 'globalCoreRealpath',
-    rationale: 'Global @proof-or-stop/core drift makes bare `lattice` commands run stale handlers.',
+    rationale: 'Global @proof-or-stop/core drift makes bare `proof-or-stop` commands run stale handlers.',
     driftMessage: 'The globally installed @proof-or-stop/core realpath does not match the expected Proof-or-Stop core package.',
     repairHint: 'Relink or reinstall the global @proof-or-stop/core package, then rerun `proof-or-stop doctor --format=json`.',
   },
@@ -125,7 +125,7 @@ export const RUNTIME_FACT_REGISTRY = [
     outputKey: 'validateSource',
     rationale: 'Validation evidence depends on whether Proof-or-Stop uses explicit validate files, configured commands, or advisory fallback discovery.',
     driftMessage: 'No explicit validation source is configured, or Proof-or-Stop is relying on fallback discovery.',
-    repairHint: 'Add validate.ts/js/mts or configure validate.command(s) in lattice.config.json.',
+    repairHint: 'Add validate.ts/js/mts or configure validate.command(s) in proof-or-stop.config.json.',
   },
   {
     id: 'external-reference-policy',

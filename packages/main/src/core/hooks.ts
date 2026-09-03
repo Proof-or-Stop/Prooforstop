@@ -8,10 +8,10 @@
  *   - onError        : 每条 command 抛错时
  *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配
  *
- * 用户在项目配置文件 lattice.config.json 的 hooks 字段配置：
+ * 用户在项目配置文件 proof-or-stop.config.json 的 hooks 字段配置：
  *   "hooks": {
  *     "preCommand": { "*": ["./scripts/notify"] , "story_advance": ["./scripts/sync"] },
- *     "onPhaseChange": { "*": ["echo $LATTICE_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
+ *     "onPhaseChange": { "*": ["echo $PROOF_OR_STOP_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
  *   }
  *
  * 设计原则：
@@ -20,7 +20,7 @@
  *   - 30 秒 timeout：每条 hook 命令独立计时，超时 SIGKILL
  *   - stdout 限制：只在 stderr echo 前 200 字符，避免污染主命令的 JSON 输出
  *   - 顺序执行：精确匹配 + "*" 通配，两组都跑（不是 fallback），按数组顺序串行
- *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 LATTICE_* 变量
+ *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 PROOF_OR_STOP_* 变量
  */
 
 import { spawn } from 'child_process';
@@ -44,7 +44,7 @@ export interface HookConfig {
 
 /**
  * Truncate a string to maxBytes, appending [...truncated] if cut.
- * Used for LATTICE_RESULT_JSON which can blow up env vars.
+ * Used for PROOF_OR_STOP_RESULT_JSON which can blow up env vars.
  */
 export function truncateForEnv(value: string, maxBytes = 8192): string {
   if (typeof value !== 'string') return '';
@@ -55,8 +55,8 @@ export function truncateForEnv(value: string, maxBytes = 8192): string {
 
 /**
  * Compose the env var bag passed to a hook command. Caller fills in stage-specific
- * extras (LATTICE_RESULT_JSON / LATTICE_ERROR / LATTICE_OLD_PHASE / ...). Common fields
- * are populated here so every stage stays consistent — including LATTICE_ARGS_JSON,
+ * extras (PROOF_OR_STOP_RESULT_JSON / PROOF_OR_STOP_ERROR / PROOF_OR_STOP_OLD_PHASE / ...). Common fields
+ * are populated here so every stage stays consistent — including PROOF_OR_STOP_ARGS_JSON,
  * which used to be missing on onPhaseChange.
  */
 export function buildHookEnv(opts: {
@@ -70,7 +70,7 @@ export function buildHookEnv(opts: {
   extra?: Record<string, string>;
 }): Record<string, string> {
   // Both spellings are exported to the hook process: a user's existing hook
-  // script reads `LATTICE_STAGE`, a new one reads `PROOF_OR_STOP_STAGE`, and
+  // script reads `PROOF_OR_STOP_STAGE`, a new one reads `PROOF_OR_STOP_STAGE`, and
   // neither may break. See core/brand-env.ts for the additive-rename contract.
   const env: Record<string, string> = {};
   applyBrandEnv(env, {
@@ -87,7 +87,7 @@ export function buildHookEnv(opts: {
   if (opts.extra) {
     for (const [k, v] of Object.entries(opts.extra)) {
       if (typeof v !== 'string') continue;
-      // A brand-prefixed extra (LATTICE_RESULT_JSON / LATTICE_ERROR / ...) is
+      // A brand-prefixed extra (PROOF_OR_STOP_RESULT_JSON / PROOF_OR_STOP_ERROR / ...) is
       // dual-written for the same reason as the common fields above; anything
       // else is a caller-owned key and passes through verbatim.
       if (isBrandEnvName(k)) setBrandEnv(env, k, v);
@@ -218,7 +218,7 @@ export async function runHooks(
     } catch (e: any) {
       // safety net — spawnHook itself never rejects, but defensive
       reportHealthIssue('hook:exec', e, { stage, key, cmd, source });
-      try { process.stderr.write(`[lattice-hook] internal error (${stage} ${cmd}): ${e?.message || e}\n`); } catch { /* debug */ }
+      try { process.stderr.write(`[proof-or-stop-hook] internal error (${stage} ${cmd}): ${e?.message || e}\n`); } catch { /* debug */ }
       continue;
     }
 
@@ -226,7 +226,7 @@ export async function runHooks(
       reportHealthIssue('hook:timeout', new Error(`hook timed out after ${HOOK_TIMEOUT_MS}ms`), {
         stage, key, cmd, source,
       });
-      try { process.stderr.write(`[lattice-hook] timeout (${HOOK_TIMEOUT_MS / 1000}s): ${stage} ${cmd}\n`); } catch { /* debug */ }
+      try { process.stderr.write(`[proof-or-stop-hook] timeout (${HOOK_TIMEOUT_MS / 1000}s): ${stage} ${cmd}\n`); } catch { /* debug */ }
       continue;
     }
 
@@ -235,9 +235,9 @@ export async function runHooks(
         stage, key, cmd, source, exitCode: result.exitCode,
       });
       try {
-        process.stderr.write(`[lattice-hook] failed (exit ${result.exitCode}): ${stage} ${cmd}\n`);
+        process.stderr.write(`[proof-or-stop-hook] failed (exit ${result.exitCode}): ${stage} ${cmd}\n`);
         if (result.stderr) {
-          process.stderr.write(`[lattice-hook]   stderr: ${result.stderr.slice(0, STDOUT_ECHO_LIMIT)}\n`);
+          process.stderr.write(`[proof-or-stop-hook]   stderr: ${result.stderr.slice(0, STDOUT_ECHO_LIMIT)}\n`);
         }
       } catch { /* debug */ }
       continue;
@@ -247,8 +247,8 @@ export async function runHooks(
     if (result.stdout && result.stdout.trim().length > 0) {
       try {
         const head = result.stdout.slice(0, STDOUT_ECHO_LIMIT);
-        process.stderr.write(`[lattice-hook] ok: ${stage} ${cmd}\n`);
-        process.stderr.write(`[lattice-hook]   stdout: ${head}${result.stdout.length > STDOUT_ECHO_LIMIT ? '...' : ''}\n`);
+        process.stderr.write(`[proof-or-stop-hook] ok: ${stage} ${cmd}\n`);
+        process.stderr.write(`[proof-or-stop-hook]   stdout: ${head}${result.stdout.length > STDOUT_ECHO_LIMIT ? '...' : ''}\n`);
       } catch { /* debug */ }
     }
   }

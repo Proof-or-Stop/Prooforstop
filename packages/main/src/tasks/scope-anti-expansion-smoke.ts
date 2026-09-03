@@ -41,11 +41,11 @@ function write(root: string, rel: string, content: string): void {
 }
 
 function createTempStore(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-scope-anti-expansion-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-anti-expansion-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -69,9 +69,9 @@ function createTempGitStore(): { root: string; store: StoryStore } {
   write(context.root, '.gitignore', [
     '.worktrees/',
     '**/activity.jsonl',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(context.root, 'README.md', 'scope anti-expansion smoke\n');
@@ -349,7 +349,7 @@ withTempContext('scope extension proposal persists proposal body separately from
     storyId: STORY_ID,
     proposal: 'Expand the story to include a documented migration recovery path.',
     reason: 'Reviewer noticed a user-visible recovery gap.',
-    reviewer: 'lattice-review-story-init',
+    reviewer: 'proof-or-stop-review-story-init',
   });
   const saved = store.readScopeExtensionProposals(STORY_ID).proposals[0];
   assert.equal(saved.proposal, 'Expand the story to include a documented migration recovery path.');
@@ -382,7 +382,7 @@ withTempContext('INIT reviewers cannot mutate checklist definitions directly', (
     storyId: STORY_ID,
     itemId: 'CHK-001',
     title: 'Reviewer tries to expand requirements',
-    agent: 'lattice-review-story-init',
+    agent: 'proof-or-stop-review-story-init',
   }), /init_reviewer_checklist_mutation_blocked/);
   assert.throws(() => handlers.checklist_add({
     storyId: STORY_ID,
@@ -402,16 +402,16 @@ withTempContext('INIT reviewers cannot mutate checklist definitions directly', (
 withTempContext('INIT reviewers cannot mutate story-level scope fields directly', (root, store) => {
   seedStory(store);
   const handlers = createStoryQueryHandlers({ root, store, scanRoot: join(root, 'packages/main') });
-  const previousAgent = process.env.LATTICE_AGENT;
-  process.env.LATTICE_AGENT = 'lattice-review-story-init';
+  const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
   try {
     assert.throws(() => handlers.story_update({
       storyId: STORY_ID,
       title: 'Reviewer tries to add future capability',
     }), /init_reviewer_story_scope_mutation_blocked/);
   } finally {
-    if (previousAgent === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = previousAgent;
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,
@@ -421,7 +421,7 @@ withTempContext('INIT reviewers cannot mutate story-level scope fields directly'
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,
     source: 'future-scope-reviewer-note',
-    agent: 'lattice-review-story-init',
+    agent: 'proof-or-stop-review-story-init',
   }), /init_reviewer_story_scope_mutation_blocked/);
 
   handlers.story_update({
@@ -450,7 +450,7 @@ withTempContext('frozen scope cannot be bypassed by reviewer story_update', (roo
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,
     title: 'Reviewer smuggles a future capability after freeze',
-    agent: 'lattice-review-story-init',
+    agent: 'proof-or-stop-review-story-init',
   }), /init_reviewer_story_scope_mutation_blocked/);
   assert.equal(getScopeAntiExpansionGuardFailureReason(STORY_ID, store, root), null, 'blocked reviewer mutation must leave freeze evidence fresh');
 
@@ -521,7 +521,7 @@ withTempStore('pending proposal blocks until explicit decision', (store) => {
   const proposal = buildScopeExtensionProposal({
     proposalId: 'SEP-smoke-001',
     storyId: STORY_ID,
-    proposedBy: 'lattice-review-story-init',
+    proposedBy: 'proof-or-stop-review-story-init',
     reason: 'Reviewer proposes expansion, but it is not decided yet.',
     patch: {},
     proposedAt: NOW,
@@ -541,7 +541,7 @@ withTempContext('accepted proposal invalidates previous freeze evidence', (root,
   const proposal = buildScopeExtensionProposal({
     proposalId: 'SEP-smoke-accepted',
     storyId: STORY_ID,
-    proposedBy: 'lattice-review-story-init',
+    proposedBy: 'proof-or-stop-review-story-init',
     reason: 'Reviewer proposes a user-decided scope extension.',
     patch: {},
     proposedAt: NOW,

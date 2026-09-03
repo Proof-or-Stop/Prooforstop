@@ -1,8 +1,9 @@
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { analyzeGap, checkConvergence } from '../../../main/dist/tasks/gap-analyze.js';
+import type { HandlerContext } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 
 export function createGapHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
+  const { analyzeGap, checkConvergence } = requireCoreRuntime(ctx);
   return {
     gap_analyze(): string {
       return JSON.stringify(analyzeGap(root, store), null, 2);

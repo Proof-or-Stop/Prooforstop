@@ -47,7 +47,7 @@ function git(root: string, args: string[]): string {
 function invoke(root: string, command: string, args: Record<string, unknown>): { status: number; output: string } {
   const result = spawnSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(args)], {
     cwd: root,
-    env: { ...process.env, LATTICE_SESSION_ID: 'topology-gate-smoke', LATTICE_AGENT: 'lattice-implementer' },
+    env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'topology-gate-smoke', PROOF_OR_STOP_AGENT: 'proof-or-stop-implementer' },
     encoding: 'utf8',
   });
   const output = `${result.stdout || ''}${result.stderr || ''}`;
@@ -62,7 +62,7 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
 
 function config(mode: 'observe' | 'warn' | 'enforce'): string {
   return JSON.stringify({
-    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+    storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist',
     testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures',
     // The pre-existing ProofStory DEV gate remains enforce here on purpose:
@@ -133,7 +133,7 @@ function scopeContract(): ScopeContractData {
 
 function scopeCheck(root: string): ScopeCheckData {
   const base = {
-    storyId, checkedAt: now, reviewRound: '', agentId: 'lattice-review-scope-plan', issues: [], features: [],
+    storyId, checkedAt: now, reviewRound: '', agentId: 'proof-or-stop-review-scope-plan', issues: [], features: [],
     summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
   } as unknown as ScopeCheckData;
   const previous = process.cwd();
@@ -219,7 +219,7 @@ function exerciseFailingLifecycleMode(mode: 'observe' | 'warn' | 'enforce'): { r
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'topology-smoke@example.test']);
     git(root, ['config', 'user.name', 'Topology Smoke']);
-    write(root, 'lattice.config.json', config(mode));
+    write(root, 'proof-or-stop.config.json', config(mode));
     write(root, 'tsconfig.json', '{}\n');
     write(root, 'packages/main/src/producer.ts', 'export const produce = () => true;\n');
     write(root, 'packages/main/src/consumer.ts', 'export const consume = () => true;\n');
@@ -365,7 +365,7 @@ try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'topology-smoke@example.test']);
   git(root, ['config', 'user.name', 'Topology Smoke']);
-  write(root, 'lattice.config.json', config('observe'));
+  write(root, 'proof-or-stop.config.json', config('observe'));
   write(root, 'tsconfig.json', '{}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produce = () => true;\n');
   write(root, 'packages/main/src/consumer.ts', 'export const consume = () => true;\n');
@@ -403,8 +403,8 @@ try {
   const forged = run(root, 'acceptance_topology_check', { storyId, status: 'pass', mode: 'observe', authority: 'production' }, true);
   assert.match(forged, /Argument validation failed|Forbidden|invalid/i, 'caller cannot forge status, mode, or authority');
 
-  const contractPath = `.lattice/story/actives/${storyId}/proofstory.json`;
-  const artifactPath = `.lattice/story/actives/${storyId}/acceptance-basis.json`;
+  const contractPath = `.proof-or-stop/story/actives/${storyId}/proofstory.json`;
+  const artifactPath = `.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`;
   const cleanContractBytes = bytes(root, contractPath);
   const cleanArtifactBytes = bytes(root, artifactPath);
 
@@ -516,7 +516,7 @@ try {
   assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, 'closure source restoration returns clean pass');
 
   for (const mode of ['observe', 'warn', 'enforce'] as const) {
-    write(root, 'lattice.config.json', config(mode));
+    write(root, 'proof-or-stop.config.json', config(mode));
     run(root, 'acceptance_basis_generate', { storyId, json: true });
     const report = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }));
     assert.equal(report.mode, mode);
@@ -526,19 +526,19 @@ try {
 
   const changedDiscoveryConfig = JSON.parse(config('enforce'));
   changedDiscoveryConfig.rootDir = 'different-source-root';
-  write(root, 'lattice.config.json', JSON.stringify(changedDiscoveryConfig, null, 2));
+  write(root, 'proof-or-stop.config.json', JSON.stringify(changedDiscoveryConfig, null, 2));
   const discoveryConfigDrift = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }, true));
   assert.equal(discoveryConfigDrift.structuralPass, false, 'scanRoot/rootDir changes remain structural freshness changes');
   assert.ok(discoveryConfigDrift.diagnostics.some((item: any) =>
     item.code === 'AT_COVERAGE_BASIS_STALE'
       || item.code === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH'
       || item.code === 'AT_COVERAGE_BASIS_PARTIAL'));
-  write(root, 'lattice.config.json', config('enforce'));
+  write(root, 'proof-or-stop.config.json', config('enforce'));
   assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, 'discovery-config restoration returns clean pass');
 
   // Real PLAN→DEV production route. A valid story_review plus the current
   // verifier receipt admits DEV in enforce mode without executable evidence.
-  write(root, 'lattice.config.json', config('enforce'));
+  write(root, 'proof-or-stop.config.json', config('enforce'));
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'enable enforce mode']);
   const reviewAt = '2026-07-22T00:00:01.000Z';
@@ -567,14 +567,14 @@ try {
   assert.equal(store.readStory(storyId).phase, 'DEV');
 
   assert.equal(bytes(root, contractPath), cleanContractBytes, 'topology mutations restore exact contract bytes');
-  assert.equal(bytes(root, 'lattice.config.json'), config('enforce'), 'configuration mutations restore exact enforce bytes');
+  assert.equal(bytes(root, 'proof-or-stop.config.json'), config('enforce'), 'configuration mutations restore exact enforce bytes');
   assert.equal(bytes(root, 'packages/main/src/producer.ts'), 'export const produce = () => true;\n');
   assert.equal(bytes(root, 'packages/main/src/consumer.ts'), 'export const consume = () => true;\n');
 
   for (const mutation of ['drop-acceptance-topology-prompt', 'drop-acceptance-topology-handler', 'drop-acceptance-topology-gate', 'invert-acceptance-topology-polarity']) {
     const result = spawnSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], {
       cwd: repositoryRoot,
-      env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
+      env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: mutation },
       encoding: 'utf8',
     });
     assert.notEqual(result.status, 0, `${mutation} must make the real process-fact contract fail`);

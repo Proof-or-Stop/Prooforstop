@@ -46,7 +46,7 @@ Do not implement directly from the highest machine score alone; use this report 
 ```text
 [0.0s] running session_brief...
 [0.2s] session_brief done
-# lattice session brief
+# proof-or-stop session brief
 
 **Story**: B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 **Phase**: DEV

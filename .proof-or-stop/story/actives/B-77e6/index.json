@@ -1,0 +1,40 @@
+{
+  "storyId": "B-77e6",
+  "name": "migrate-resolvegitcwd-callers-to-workspace",
+  "title": "Migrate every handler the workspace-resolution audit flags as reading story metadata or config from the invocation root",
+  "description": "Story B-41c8 (single-owner extraction, created 2026-09-02 from draft single-owner-extraction-readers-parsers) introduces one shared story-workspace resolver (gitCwd via resolveGitCwd, a workspace-rooted StoryStore, workspace-loaded config, phase-terminal guard) and a mechanical audit fixture that enumerates every handler calling resolveGitCwd -- on main at draft time `grep -rl \"resolveGitCwd(\" packages/main/src/handlers` returned these files (a file-level substring grep that also matches comment-only mentions, for example validate-channel.ts, which is why the audit fixture matches call expressions instead): candidate-spec-routing.ts, certification-window.ts, checklist.ts, cross-host-review.ts, delivery-check.ts, delivery-context-pack.ts, done-prepare.ts, done-required-validation.ts, evidence-plan.ts, evidence-refresh.ts, frozen-claim-drift-check.ts, init-check.ts, live-smoke-transcript.ts, milestone-status.ts, phase-gates.ts, prewrite-guard.ts, proof-or-stop-handoff.ts, proofstory.ts, recover-evidence.ts, red-evidence.ts, review-escalation.ts, review-inventory.ts, review-preflight.ts, story-create.ts, story-review.ts, transition-effects.ts, transition-orchestrator.ts, validate-channel.ts, validate-concept.ts, validation-plan.ts, verifier.ts -- and classifies each as workspace-rooted or as still reading the story index, checklist or validate.commands from ctx.root. Story B-a745 (DONE 2026-09-02, finding F-010) proved the defect is real and that fixing gitCwd alone is insufficient: from the main checkout its planner read main's stale checklist and config and produced a different selection digest until metadata and config were also resolved from the workspace. This story is the migration wave: for every handler the audit flags, route its store and config through the shared helper, add one regression case that bypasses any cwd gate the way `validate --story` from the main checkout does and asserts identical results from the worktree and from the main checkout, and finish only when the audit fixture reports zero flagged callers. The set of handlers is determined by the audit at PLAN time, never by a hand-written list, because two prior hand-written lists (eight, then ten names) each missed callers. This story must not enter DEV until B-41c8 has merged to main; CHK-001 makes that a mechanical check, and it is a high-risk story because the migration touches gate-owning handlers.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "resolveGitCwd",
+    "workspace-resolution",
+    "ctx.root",
+    "migration",
+    "handlers"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-09-02T13:38:04.297Z",
+  "startedAt": "2026-09-02T13:38:04.297Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T13:38:04.966Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-91be5e6cb499660ebcf306bf3ed5f262",
+      "agent": "main"
+    }
+  ]
+}

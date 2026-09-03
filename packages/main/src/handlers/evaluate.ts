@@ -5,7 +5,7 @@
  * 按功能完整性和可用性两个维度打分。
  *
  * 前置条件：
- * - 项目 lattice.config.json
+ * - 项目 proof-or-stop.config.json
  *   配了 browser.devCommand（否则跳过）
  * - proof-or-stop serve --dev 已经在运行（或由本命令启动）
  *
@@ -32,7 +32,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
      * - 有 browser.devCommand → spawn proof-or-stop-evaluator（browser）
      * - 有 cli.command → spawn proof-or-stop-evaluator-cli（bridge API + CLI spawn）
      * - 都有 → 都跑
-     * - 都没有 → 尝试读 .lattice-serve.json 判断是否有活跃 serve 进程，有则跑 CLI evaluator
+     * - 都没有 → 尝试读 .proof-or-stop-serve.json 判断是否有活跃 serve 进程，有则跑 CLI evaluator
      *
      * evaluator agent 的输出（JSON）由主 agent 解析后调 proof-or-stop evaluate_save 写入 evidence。
      */
@@ -46,7 +46,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       if (!hasBrowser && !hasCli) {
         return JSON.stringify({
           skipped: true,
-          reason: 'No browser.devCommand or cli.command in lattice.config.json — no evaluator target',
+          reason: 'No browser.devCommand or cli.command in proof-or-stop.config.json — no evaluator target',
         });
       }
 

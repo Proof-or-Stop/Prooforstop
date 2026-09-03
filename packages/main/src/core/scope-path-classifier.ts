@@ -72,6 +72,12 @@ export function canonicalizeScopePath(args: {
   scanRoot: string;
   sourceRoot?: string;
   input: string;
+  /**
+   * Trusted, exact repo-root identities supplied by a caller that has already
+   * established removal/rename provenance. This is intentionally not a glob
+   * or prefix escape hatch: only an exact normalized path can affect the base.
+   */
+  exactRepoRootPaths?: readonly string[];
 }): CanonicalScopePathResult {
   const originalInput = args.input;
   const blocked = (reason: string, attempted = '(unavailable)', base = 'unresolved'): Error => new Error(
@@ -139,6 +145,8 @@ export function canonicalizeScopePath(args: {
     && (realpathSync.native(sourceAncestor) === sourceRootIdentity
       || realpathSync.native(sourceAncestor).startsWith(`${sourceRootIdentity}${sep}`));
   const alreadySourcePrefixed = normalized === configuredSourceRel || normalized.startsWith(`${configuredSourceRel}/`);
+  const exactRepoRoot = pathRule(slash) === 'exact'
+    && (args.exactRepoRootPaths ?? []).some((candidate) => normalizeScopePath(candidate) === normalized);
   const topLevel = normalized.split('/')[0];
   // B-cc10 CHK-002: the state dir comes from the resolver (every accepted
   // spelling), so a path under the canonical state dir is still classified
@@ -150,7 +158,7 @@ export function canonicalizeScopePath(args: {
     'specs', 'fixtures', 'packages', 'src',
   ]).has(topLevel);
   let base: CanonicalScopePathResult['base'];
-  if (alreadySourcePrefixed || explicitRepoTopLevel) {
+  if (exactRepoRoot || alreadySourcePrefixed || explicitRepoTopLevel) {
     base = 'repo-root';
   } else if (repoDirectExists !== sourceDirectExists) {
     base = repoDirectExists ? 'repo-root' : 'source-root';

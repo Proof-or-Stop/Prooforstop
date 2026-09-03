@@ -2,7 +2,7 @@
  * B-08a1 CHK-005 (Slice 2): streaming / failure usage extraction.
  *
  * Implements "Streaming and failure usage capture" from
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * Rules implemented here:
  *   - Final usage is read from the TERMINAL stream event (the last event that

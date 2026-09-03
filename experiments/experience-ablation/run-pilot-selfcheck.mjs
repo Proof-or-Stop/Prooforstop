@@ -16,7 +16,7 @@
 //       stub's M3-vocabulary events, experiment env plumbed through) +
 //       workspace/ (post-run state); score.mjs accepts it and the record is
 //       NOT voided; progress jsonl gained cell_start + cell_done rows. The
-//       spawn env poisons LATTICE_PROJECT_ROOT at the production repo to
+//       spawn env poisons PROOF_OR_STOP_PROJECT_ROOT at the production repo to
 //       prove the runner sanitizes the child env (a leak would make the
 //       isolation probe resolve the production root and abort).
 //   (4) resume: a second invocation skips the terminal cell (byte-identical
@@ -121,7 +121,7 @@ function writeLeakageAudit(expRoot, rows) {
 /**
  * Stub host script: copies the fixture's reference-good payload into the cwd
  * workspace (so the visible acceptance passes and the hidden oracle sees the
- * corrected outcome), appends M3-vocabulary events to <cwd>/.lattice/
+ * corrected outcome), appends M3-vocabulary events to <cwd>/.proof-or-stop/
  * activity.jsonl exactly where the real CLI writes them (verified
  * empirically), plus one per-command `tool` record for the commandCount
  * proxy, and drops a side-effect marker so case (5) can prove it never ran.
@@ -132,18 +132,18 @@ function writeStubHost(dir, { payloadDir, markerFile }) {
 import { appendFileSync, cpSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const cwd = process.cwd();
-const expId = process.env.LATTICE_EXPERIMENT_ID;
-const arm = process.env.LATTICE_EXPERIMENT_ARM;
+const expId = process.env.PROOF_OR_STOP_EXPERIMENT_ID;
+const arm = process.env.PROOF_OR_STOP_EXPERIMENT_ARM;
 if (!expId || !arm) { console.error('stub-host: experiment env missing'); process.exit(3); }
-if (process.env.LATTICE_PROJECT_ROOT) { console.error('stub-host: LATTICE_PROJECT_ROOT leaked into the host env'); process.exit(4); }
+if (process.env.PROOF_OR_STOP_PROJECT_ROOT) { console.error('stub-host: PROOF_OR_STOP_PROJECT_ROOT leaked into the host env'); process.exit(4); }
 cpSync(${JSON.stringify(payloadDir)}, cwd, { recursive: true });
-mkdirSync(join(cwd, '.lattice'), { recursive: true });
+mkdirSync(join(cwd, '.proof-or-stop'), { recursive: true });
 const events = [
   { timestamp: new Date().toISOString(), event: 'experience_pack_surfaced', experimentId: expId, arm, consumer: 'session', storyId: 'global', roundKey: 'default', packDigest: 'stub', topHitIds: ['les-stub-a', 'les-stub-b'] },
   ...(arm === 'control' ? [{ timestamp: new Date().toISOString(), event: 'retrieval_violation', experimentId: expId, command: 'dev_memory_capture' }] : []),
   { startTime: new Date().toISOString(), endTime: new Date().toISOString(), tool: 'session_brief', detail: 'session_brief', status: 'ok' },
 ];
-appendFileSync(join(cwd, '.lattice', 'activity.jsonl'), events.map((e) => JSON.stringify(e)).join('\\n') + '\\n');
+appendFileSync(join(cwd, '.proof-or-stop', 'activity.jsonl'), events.map((e) => JSON.stringify(e)).join('\\n') + '\\n');
 writeFileSync(${JSON.stringify(markerFile)}, cwd + '\\n', { flag: 'a' });
 console.log('stub-host done');
 `);
@@ -219,7 +219,7 @@ try {
   // --- (3) full cycle one cell (--smoke), poisoned parent env ---------------------
   {
     const smoke = runPilot([...baseArgs, '--smoke'], {
-      LATTICE_PROJECT_ROOT: join(HERE, '..', '..'), // must be stripped by the runner
+      PROOF_OR_STOP_PROJECT_ROOT: join(HERE, '..', '..'), // must be stripped by the runner
     });
     check('(3) --smoke executes exactly one cell and exits 0',
       smoke.code === 0 && /1 executed/.test(smoke.stdout) && /1 still pending/.test(smoke.stdout),
@@ -232,7 +232,7 @@ try {
     check('(3) run.json carries every RUN-RECORD.md required field with the cell identity',
       run.experimentId === EXPERIMENT_ID && run.arm === firstArm && run.hostId === 'stub-host'
       && typeof run.storeRoot === 'string' && run.storeRoot.startsWith('/')
-      && run.storeRoot.endsWith('/.lattice/learning')
+      && run.storeRoot.endsWith('/.proof-or-stop/learning')
       && typeof run.startedAt === 'string' && typeof run.endedAt === 'string'
       && run.timeToDoneMs !== undefined && run.commandCount === 1
       && run.doneReached === true && run.validationPass === true,
@@ -333,8 +333,8 @@ try {
       // (6) snapshot materialized byte-identically (visible in the post-run
       // workspace copy) + run.json binds the frozen hash.
       const byteIdentical = snapshotRelPaths.every((rel) =>
-        existsSync(join(runDir, 'workspace', '.lattice', rel))
-        && readFileSync(join(runDir, 'workspace', '.lattice', rel), 'utf8') === readFileSync(join(snapshotDir, rel), 'utf8'));
+        existsSync(join(runDir, 'workspace', '.proof-or-stop', rel))
+        && readFileSync(join(runDir, 'workspace', '.proof-or-stop', rel), 'utf8') === readFileSync(join(snapshotDir, rel), 'utf8'));
       check(`(6) ${arm}: snapshot files are byte-identical inside the captured post-run workspace`, byteIdentical);
       const run = JSON.parse(readFileSync(join(runDir, 'run.json'), 'utf8'));
       check(`(6) ${arm}: run.json carries memorySnapshotHash (frozen) + memoryPackRendered=${arm === 'treatment'}`,
@@ -397,7 +397,7 @@ try {
     writeFileSync(evilStub, [
       `import { appendFileSync } from 'node:fs';`,
       `import { join } from 'node:path';`,
-      `appendFileSync(join(process.cwd(), '.lattice', 'dev-memory', 'experience.jsonl'), 'tampered-by-host\\n');`,
+      `appendFileSync(join(process.cwd(), '.proof-or-stop', 'dev-memory', 'experience.jsonl'), 'tampered-by-host\\n');`,
       `console.log('evil-stub done');`,
     ].join('\n'));
     const evilRoot = tmp('ablation-pilot-evil-root-');

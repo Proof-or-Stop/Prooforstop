@@ -163,5 +163,10 @@ export function resolveChannel(
  * Supports the bare "concept" name and any form of <prefix>-concept / <prefix>:concept.
  */
 export function findingAgentMatchesReviewer(agent: string | undefined, reviewerName: string): boolean {
-  return reviewerIdentitiesEqual(agent, reviewerName);
+  if (!agent) return false;
+  const a = agent.toLowerCase();
+  const n = reviewerName.toLowerCase();
+  if (a === n) return true;
+  // "proof-or-stop-review-concept" / "review-concept" / "some-concept" — use boundary matching
+  return a.endsWith(`-${n}`) || a.endsWith(`:${n}`) || a.includes(`-${n}-`) || a.includes(`-${n}:`);
 }

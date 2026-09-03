@@ -1,0 +1,20 @@
+{
+  "storyId": "B-2220",
+  "expected": "The document states: \"Decision after B-3434: decline the writer-owned canonical boundary as not currently justified.\" It also states: \"B-3434 remains accepted\" and \"Reconsider only if\" followed by evidence-based triggers.",
+  "actual": {
+    "command": "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\"",
+    "exitCode": 0,
+    "stdout": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the candidate measurement applies the current two-space format (a duplicate of core/store.ts, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded against the candidate serialisation used at check time\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ the oversized candidate record is reduced with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the candidate record with hash fields, and that bound result supplies the record passed to the writer\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ own volatile source values are snapshotted at check time; inherited prototype mutation remains outside this assertion\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18474 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-01T00:51:52.086Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "4e8ed833b13a6a352f79de4c95cd9daff5008deb",
+  "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb"
+}

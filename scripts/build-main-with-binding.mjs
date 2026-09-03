@@ -40,7 +40,7 @@ await withBuildLock(projectRoot, async () => {
   // ATOMIC-SWAP build: tsc emits over seconds. Doing it in place (rm dist; tsc)
   // leaves dist absent/partial for that whole window; the build lock excludes only
   // other lock-takers, NOT the ~90 non-lock-holding dist readers (bin/bootstrap-
-  // runner.js on every bin/lattice.js call, in-repo dist imports), which then hit
+  // runner.js on every bin/proofOrStop.js call, in-repo dist imports), which then hit
   // MODULE_NOT_FOUND. Build into a dist SIBLING (same filesystem → rename is atomic)
   // and promote by rename: a reader sees the old-complete or new-complete dist. A
   // fresh staging each build preserves the clean-build proof (every emitted file
@@ -82,7 +82,7 @@ await withBuildLock(projectRoot, async () => {
   // → dist, and RESTORES the old dist from trash if the second rename fails, so a
   // mid-promotion crash never leaves dist absent. The atomic rename shrinks the
   // absent-dist window from the seconds-long tsc emit to a SINGLE rename syscall
-  // (microseconds). bin/lattice.js readers close even that microsecond gap via the
+  // (microseconds). bin/proofOrStop.js readers close even that microsecond gap via the
   // build-lock wait in bin/bootstrap-runner.js (it waits out the whole build). Direct
   // (non-bootstrap) dist consumers retain an astronomically-small residual — fully
   // closing it needs a cross-platform versioned pointer / directory junction, which is

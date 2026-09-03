@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make CertificationWindow closeout mutation classification consistent",
+      "context": "Reproduce with done-prepare-closure-heartbeat-smoke after seeding an admitted CertificationWindow; validate and done_required_validate pass, then done_prepare blocks at cleanTree because certification-window.json is classified as non-closeout metadata.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -51,7 +51,7 @@ artifacts. They are not counted as active migrated story worktrees.
 ## Evidence Policy
 
 Legacy Orchestrate evidence stays local-only unless it is deliberately curated
-into public-safe documentation. Do not publish raw `.lattice/story/**`,
+into public-safe documentation. Do not publish raw `.proof-or-stop/story/**`,
 authority trust files, local transcripts, or runtime logs to GitHub.
 
 New Proof-or-Stop Authority runner diagnostics, including `jobs_stream` notification

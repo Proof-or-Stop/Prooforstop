@@ -68,10 +68,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'b5f5b-trial-automation-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return { root, store: new StoryStore(root) };

@@ -475,7 +475,7 @@ export async function createStoryFromRepro(
     '## Solution Tradeoffs',
     'Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof.',
     '## Conversational Texture',
-    'The maintainer sees a normal Lattice story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.',
+    'The maintainer sees a normal ProofOrStop story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.',
   ].join('\n\n');
 
   // Create story via injected creator (calls story_create handler)

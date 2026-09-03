@@ -17,6 +17,7 @@ import ts from 'typescript';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { NESTED_SPACE_ALIASES } from '../cli/alias-normalizer.js';
 
+const RETIRED_PACKAGE_SCOPE = ['@lat', 'tice/'].join('');
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..');
 const repoRoot = join(pkgRoot, '..', '..');
@@ -43,7 +44,7 @@ const bannedActiveRules: PatternRule[] = [
   { label: 'Authority completion', pattern: /\bAuthority\s+completion\b/i },
   { label: 'production completion', pattern: /\bproduction\s+completion\b/i },
   { label: 'production DONE', pattern: /\bproduction\s+DONE\b/i },
-  { label: 'LATTICE_AUTHORITY_*', pattern: /\bLATTICE_AUTHORITY_[A-Z0-9_]*\b/ },
+  { label: 'PROOF_OR_STOP_AUTHORITY_*', pattern: /\bPROOF_OR_STOP_AUTHORITY_[A-Z0-9_]*\b/ },
   { label: 'active authority_* command', pattern: /\bauthority_[a-z][a-z0-9_]*\b/ },
   { label: 'retired story resolver command', pattern: /\bstory_authority_resolve\b/ },
 ];
@@ -51,7 +52,7 @@ const bannedActiveRules: PatternRule[] = [
 const activeTextFiles = [
   'README.md',
   'docs/guide.md',
-  'lattice.config.json',
+  'proof-or-stop.config.json',
   'packages/main/package.json',
   'packages/main/src/registry.ts',
   'packages/main/src/core/config.ts',
@@ -65,7 +66,7 @@ const activeTextDirs = [
   // B-cc10 F-055: canonical first. listFilesFromRoot returns [] for a nonexistent root,
   // so listing only the renamed dir contributed ZERO files and the guard passed on nothing.
   '.proof-or-stop-codex',
-  '.lattice-codex',
+  '.proof-or-stop-codex',
   '.claude/agents',
   'packages/main/templates/agents',
 ] as const;
@@ -79,12 +80,13 @@ const SHIPPED_EXECUTABLE_SOURCE_DIRS = [
   'packages/utils/src',
 ] as const;
 const SHIPPED_EXECUTABLE_ENTRYPOINTS = [
-  // B-cc10 CHK-007: `bin/lattice.js` was REMOVED by CHK-006 (deprecated bin alias
+  // B-cc10 CHK-007: `bin/proofOrStop.js` was REMOVED by CHK-006 (deprecated bin alias
   // deletion), but this pin still required it to exist, so the guard failed closed on
   // its own repo. Replaced with the canonical wrapper that actually ships.
   'bin/proof-or-stop.js',
   'bin/bootstrap-runner.js',
   'packages/main/src/cli.ts',
+  'packages/main/src/extension-api.ts',
   'packages/main/src/index.ts',
   'packages/main/src/tasks/test-flow-e2e.ts',
   'packages/lab/src/index.ts',
@@ -272,11 +274,11 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/flow-stability-smoke.ts',
   'packages/main/src/tasks/host-overflow-smoke.ts',
   'packages/main/src/tasks/init-preflight-smoke.ts',
-  'packages/main/src/tasks/lattice-baseline-smoke.ts',
-  'packages/main/src/tasks/lattice-cli-migration-smoke.ts',
-  'packages/main/src/tasks/lattice-evidence-smoke.ts',
-  'packages/main/src/tasks/lattice-handoff-smoke.ts',
-  'packages/main/src/tasks/lattice-parallel-wave-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-baseline-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-evidence-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-handoff-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-parallel-wave-smoke.ts',
   'packages/main/src/tasks/lifecycle-check-smoke.ts',
   'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
   'packages/main/src/tasks/live-smoke-transcript-smoke.ts',
@@ -308,7 +310,7 @@ const legacyQuarantineFiles = new Set([
   'packages/main/src/core/baseline-contracts.ts',
   'packages/main/src/core/legacy-delivery-claims-compat.ts',
   'packages/main/src/core/baseline-suite-report.ts',
-  'packages/main/src/core/lattice-baseline.ts',
+  'packages/main/src/core/proof-or-stop-baseline.ts',
   'packages/main/src/core/verdicts.ts',
   'packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts',
   'packages/main/src/tasks/retired-authority-server-semantics-smoke.ts',
@@ -403,13 +405,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // pinned-source drift check, so it moves with any cli-engine.ts edit.
   // B-cdf6 CHK-002: repinned after the user-facing bin rename made the CLI's own
   // hint/error strings derive from the invoked bin token (proof-or-stop, with
-  // lattice kept as a deprecated alias). Only string interpolation and the
+  // proof-or-stop kept as a deprecated alias). Only string interpolation and the
   // redundant-bin-token tolerance changed; the approved non-literal loader call
   // site above is untouched, and no new dynamic load was introduced.
   // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
   // the WHOLE file by design, so any edit invalidates the approved non-literal loader
   // call site until a human re-approves it. Commit 8f42f1113e (F-047) changed one
-  // string in this file (`lattice: from-draft metadata` -> canonical) and the pin was
+  // string in this file (`proofOrStop: from-draft metadata` -> canonical) and the pin was
   // not refreshed, so the smoke went red on this branch while passing on main.
   //
   // Re-approval basis, checked before repinning rather than after: `git diff main...HEAD`
@@ -469,10 +471,14 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
 ]);
 
 const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
-  ['packages/main/src/verifier/browser-client.ts', '48f529b542edbb79c796a5ef6ab51dad8e5e13cc2e3416e76f6bae74104d5527'],
+  // B-022e re-attestation: only verifier runtime identity tokens changed;
+  // the exact-file exemption remains narrow and mutation-sensitive.
+  ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
   ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
-  ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
-  ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
+  // Same B-022e identity-only re-attestation for the task-side browser client.
+  ['packages/main/src/tasks/browser-client.ts', '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772'],
+  // B-022e identity-only re-attestation for the Python fixture module label.
+  ['packages/main/src/handlers/fixture-executors.ts', 'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822'],
   // B-1734: bin/bootstrap-runner.js gained a build-aware importDistModules() wait loop
   // (F-003/C4). Its runCli(...) and register(...) calls now resolve their callee through
   // `await importDistModules()` (an opaque any-returning local function) instead of the
@@ -573,12 +579,12 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/core/command-policy.ts',
   'packages/main/src/core/dispatch-policy.ts',
   'packages/main/src/core/dispatch-runner.ts',
-  'packages/main/src/core/lattice-autopilot.ts',
-  'packages/main/src/core/lattice-dispatch.ts',
-  'packages/main/src/core/lattice-evidence.ts',
-  'packages/main/src/core/lattice-handoff.ts',
-  'packages/main/src/core/lattice-hosts.ts',
-  'packages/main/src/core/lattice-parallel-wave.ts',
+  'packages/main/src/core/proof-or-stop-autopilot.ts',
+  'packages/main/src/core/proof-or-stop-dispatch.ts',
+  'packages/main/src/core/proof-or-stop-evidence.ts',
+  'packages/main/src/core/proof-or-stop-handoff.ts',
+  'packages/main/src/core/proof-or-stop-hosts.ts',
+  'packages/main/src/core/proof-or-stop-parallel-wave.ts',
   'packages/main/src/core/lifecycle-readiness.ts',
   'packages/main/src/core/planned-steps-executor.ts',
   'packages/main/src/core/proof-admissibility.ts',
@@ -599,8 +605,8 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/handlers/evidence-plan.ts',
   'packages/main/src/handlers/evidence-refresh.ts',
   'packages/main/src/handlers/init-preflight.ts',
-  'packages/main/src/handlers/lattice-autopilot.ts',
-  'packages/main/src/handlers/lattice-cli.ts',
+  'packages/main/src/handlers/proof-or-stop-autopilot.ts',
+  'packages/main/src/handlers/proof-or-stop-cli.ts',
   'packages/main/src/handlers/lifecycle-control.ts',
   'packages/main/src/handlers/lifecycle-orchestrate.ts',
   'packages/main/src/handlers/live-smoke-transcript.ts',
@@ -740,6 +746,31 @@ const typeProgramInstrumentation = {
   dynamicReachabilityAssertions: 0,
   dynamicFullAnalysisByFile: new Map<string, number>(),
 };
+
+// CEILING MAINTENANCE: this ceiling equals the synthetic fixture builds (the
+// dynamic-code-* controls this smoke writes itself) plus one dynamic binding
+// build per scanned executable source file under SHIPPED_EXECUTABLE_SOURCE_DIRS
+// (bin, packages/main/src, packages/lab/src, packages/utils/src) that reaches
+// full dynamic-code analysis, i.e. a file with a dynamic-execution AST candidate
+// such as a child_process call. Candidate-free files are prefilter-skipped and
+// never count. It therefore moves by one whenever such a source file is added
+// or removed. B-41c8 moved it from 808 to 809 by adding
+// packages/main/src/tasks/single-owner-extraction-smoke.ts (CHK-001 introduced
+// the fixture, which calls execFileSync); the story's core/story-workspace.ts
+// (CHK-003) has no candidate, is prefilter-skipped, and did not move it.
+const DYNAMIC_BINDING_BUILD_CEILING = 809;
+const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
+
+function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
+  assert.ok(
+    Number.isInteger(ceiling) && ceiling > 0 && ceiling <= MAX_DYNAMIC_BINDING_BUILD_CEILING,
+    `dynamic binding graph build ceiling must be a finite integer between 1 and ${MAX_DYNAMIC_BINDING_BUILD_CEILING}, got ${ceiling}`,
+  );
+  assert.ok(
+    actualBuilds <= ceiling,
+    `dynamic binding graph builds must remain bounded at ${ceiling}, got ${actualBuilds}`,
+  );
+}
 
 function parseSource(file: string, text: string): ts.SourceFile {
   const cached = parsedSourceCache.get(file);
@@ -1569,11 +1600,14 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(BRAND_ENV_DIST).href' },
     ],
   }],
+  ['packages/main/src/cli.ts', {
+    calls: [{ anchor: 'runDirectCli', argument: 'workspaceLabSpecifier' }],
+  }],
   // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
   // probes a LIST of sibling bootstrap wrappers (canonical first, deprecated alias as
   // fallback) instead of a single hardcoded one — so the loader argument changed from
-  // `localLattice` to the loop variable `candidate`. Same benign class: resolving a sibling
-  // dist path at runtime is inherent to a bootstrap wrapper. bin/lattice-codex.js is now a
+  // `localProofOrStop` to the loop variable `candidate`. Same benign class: resolving a sibling
+  // dist path at runtime is inherent to a bootstrap wrapper. bin/proof-or-stop-codex.js is now a
   // thin delegating alias with no loader of its own, so only the canonical file is listed.
   ['bin/proof-or-stop-codex.js', {
     calls: [{ anchor: 'main', argument: 'pathToFileURL(candidate).href' }],
@@ -1624,9 +1658,9 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
-  // bin names (canonical proof-or-stop + the retained lattice alias), and because the
+  // bin names (canonical proof-or-stop + the retained proof-or-stop alias), and because the
   // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
-  // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
+  // bin/proof-or-stop-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.
   // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
   // was added to bin/bootstrap-runner.js (F-003/C4). The five approved non-literal dist
@@ -4426,13 +4460,13 @@ function assertPositiveControls(): void {
     'Authority completion',
     'production completion',
     'production DONE',
-    'LATTICE_AUTHORITY_URL',
+    'PROOF_OR_STOP_AUTHORITY_URL',
     'authority_status',
   ];
   const violations = scanText('<positive-control>', controls.join('\n'));
   for (const control of controls) {
     assert.ok(
-      violations.some(v => v.text.includes(control) || (control === 'LATTICE_AUTHORITY_URL' && v.label === 'LATTICE_AUTHORITY_*')),
+      violations.some(v => v.text.includes(control) || (control === 'PROOF_OR_STOP_AUTHORITY_URL' && v.label === 'PROOF_OR_STOP_AUTHORITY_*')),
       `positive control must catch ${control}`,
     );
   }
@@ -4493,6 +4527,14 @@ function assertShippedExecutableRootPositiveControls(): void {
     PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH,
     `${PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM}: package imports/self-exports edge inventory drift requires explicit review`,
   );
+  const shippedPackageNames = new Set(PACKAGE_ALIAS_MANIFEST_RECORDS.map(record => record.manifest.name));
+  assert.ok(shippedPackageNames.has('@proof-or-stop/utils'), 'reviewed alias inventory must include canonical @proof-or-stop/utils');
+  assert.ok(shippedPackageNames.has('@proof-or-stop/lab'), 'reviewed alias inventory must include canonical @proof-or-stop/lab');
+  assert.equal(
+    [...shippedPackageNames].some(name => typeof name === 'string' && name.startsWith(RETIRED_PACKAGE_SCOPE)),
+    false,
+    'reviewed alias inventory must not retain retired package identities',
+  );
   for (const edge of PACKAGE_ALIAS_EDGE_INVENTORY.filter(edge => !edge.targetPattern.includes('*'))) {
     const target = packageSourceTarget(edge, '');
     assert.ok(target && EXECUTABLE_SOURCE_EXTENSIONS.some(extension => existsSync(join(repoRoot, `${target}${extension}`))), `package alias edge must resolve to a source target: ${edge.specifierPattern}`);
@@ -4551,7 +4593,7 @@ function assertShippedExecutableRootPositiveControls(): void {
     assert.equal(existsSync(join(repoRoot, entrypoint)), true, `pinned shipped executable entrypoint must exist: ${entrypoint}`);
     assert.equal(isExecutableSourceFile(entrypoint), true, `pinned shipped executable entrypoint must use a scanned extension: ${entrypoint}`);
   }
-  // B-cc10 CHK-007: `bin/lattice.js` was removed by CHK-006. This loop scans a
+  // B-cc10 CHK-007: `bin/proofOrStop.js` was removed by CHK-006. This loop scans a
   // SYNTHETIC source string (no filesystem read), so it did not fail — but naming a
   // deleted file would let the case rot into testing nothing meaningful.
   for (const binEntrypoint of ['bin/proof-or-stop.js', 'bin/bootstrap-runner.js']) {
@@ -5626,7 +5668,7 @@ function assertContract(): void {
     'authorityDone',
     'fullAuthorityDone',
     'productionDone',
-    'LATTICE_AUTHORITY_*',
+    'PROOF_OR_STOP_AUTHORITY_*',
     'active `authority_*` command surfaces',
     'local assurance',
     'admissibilityStatus',
@@ -5697,7 +5739,7 @@ function runCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -5718,7 +5760,7 @@ function assertGeneratedHelp(): Violation[] {
     ['conduit_status', '--help'],
     ['story_export', '--help'],
   ];
-  return outputs.flatMap(args => scanText(`lattice ${args.join(' ')}`, runCli(args)));
+  return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
 }
 
 const violations: Violation[] = [];

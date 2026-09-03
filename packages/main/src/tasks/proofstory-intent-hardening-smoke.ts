@@ -51,8 +51,8 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 const sessionEnv = {
   ...process.env,
-  LATTICE_SESSION_ID: 'proofstory-intent-hardening-smoke',
-  LATTICE_AGENT: 'proofstory-intent-hardening-smoke',
+  PROOF_OR_STOP_SESSION_ID: 'proofstory-intent-hardening-smoke',
+  PROOF_OR_STOP_AGENT: 'proofstory-intent-hardening-smoke',
 };
 
 function git(cwd: string, args: string[]): string {
@@ -213,7 +213,7 @@ function makeSummary(storyId: string, overrides: Partial<StorySummaryData> = {})
   return {
     storyId,
     changes: 'Delivered the requested outcome.',
-    usage: 'Run the relevant lattice command.',
+    usage: 'Run the relevant proof-or-stop command.',
     expectedOutcome: 'The original request is satisfied.',
     actualTranscript: 'The requested outcome is present.',
     outcomeDiff: 'No difference.',
@@ -227,15 +227,15 @@ function makeSummary(storyId: string, overrides: Partial<StorySummaryData> = {})
   };
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-proofstory-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-proofstory-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'proofstory@example.test']);
   git(root, ['config', 'user.name', 'ProofStory Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     proofStory: { devGateMode: 'enforce' },
@@ -280,7 +280,7 @@ try {
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
   ackDevMemoryPreflightForProofstory(store, storyId);
-  git(root, ['add', '.lattice']);
+  git(root, ['add', '.proof-or-stop']);
   git(root, ['commit', '-m', 'story metadata']);
 
   const observedWithoutDryRun = jsonRun(root, 'proofstory_gate_check', { storyId });
@@ -1719,7 +1719,7 @@ try {
   assert.equal(typoGate.missingRedEvidence.length, 0, 'documented typo example has no red evidence diagnostic gap');
   assert.equal(typoGate.scopeAmbiguity.length, 0, 'documented typo example has no scope ambiguity diagnostic gap');
 
-  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['intent-hardening-matrix', 'scope-collision', 'red-evidence', 'milestone-intent'], mutations: ['scope-ambiguity', 'collision-omission', 'red-evidence-omission', 'milestone-coverage-omission'] })}`);
+  console.log(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['intent-hardening-matrix', 'scope-collision', 'red-evidence', 'milestone-intent'], mutations: ['scope-ambiguity', 'collision-omission', 'red-evidence-omission', 'milestone-coverage-omission'] })}`);
   console.log('ProofStory intent hardening smoke passed');
 } finally {
   rmSync(root, { recursive: true, force: true });

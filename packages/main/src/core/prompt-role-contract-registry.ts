@@ -85,10 +85,10 @@ function normalizeHostRenderSource(value: unknown): ReviewerHostRenderSource | n
 function globalHostRenderSource(projectRoot: string): ReviewerHostRenderSource | null {
   // B-cc10 CHK-004: probe every accepted state-dir x manifest-filename spelling
   // (canonical first) instead of two pinned literals, so this host-render-source
-  // probe follows the rename. `.Lattice` stays an explicit case variant.
+  // probe follows the rename. `.proof-or-stop` stays an explicit case variant.
   const probes = [
     ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
-    ...MANIFEST_FILENAMES.map(file => join('.Lattice', file)),
+    ...MANIFEST_FILENAMES.map(file => join('.proof-or-stop', file)),
   ].filter((value, index, all) => all.indexOf(value) === index);
   for (const relPath of probes) {
     const manifest = readJsonRecord(join(projectRoot, relPath));

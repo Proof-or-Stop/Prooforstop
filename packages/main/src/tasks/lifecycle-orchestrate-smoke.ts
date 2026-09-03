@@ -90,11 +90,11 @@ function write(root: string, path: string, content: string): void {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n',
@@ -321,9 +321,9 @@ function signedBlockingFinding(storyId: string, id: string, agent: string, creat
 
 /** A real git fixture with `main` plus a story branch ahead, then a story in `phase`. */
 function createReviewFixture(): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lorch-review-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lorch-review-'));
   writeConfig(root);
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
   write(root, 'src/concept.ts', 'export const concept = 1;\n');
   write(root, 'src/quality.ts', 'export const quality = 1;\n');
 
@@ -356,14 +356,14 @@ function createReviewFixture(): { root: string; store: StoryStore; ctx: HandlerC
 }
 
 function createPlanFixture(): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lorch-plan-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lorch-plan-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# lifecycle orchestrate plan smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -423,9 +423,9 @@ function testChecklist(root: string): ChecklistData {
 
 /** A real git fixture (main + story branch ahead) with a story in TEST phase. */
 function createTestFixture(): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lorch-test-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lorch-test-'));
   writeConfig(root);
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
   write(root, 'src/concept.ts', 'export const concept = 1;\n');
   write(root, 'src/quality.ts', 'export const quality = 1;\n');
 
@@ -479,14 +479,14 @@ function minimalChecklist(): ChecklistData {
 }
 
 function createMinimalFixture(): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lorch-min-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lorch-min-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# lifecycle orchestrate minimal smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);

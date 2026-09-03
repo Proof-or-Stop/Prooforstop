@@ -62,11 +62,11 @@ for (const text of providerOnlyCodexTexts) {
 const adapterSurfaceTerms = [
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   '.proof-or-stop-codex',
-  '.lattice-codex',
-  'lattice-codex',
+  '.proof-or-stop-codex',
+  'proof-or-stop-codex',
   'codex adapter',
   'verify_codex',
-  'bin/lattice-codex.js',
+  'bin/proof-or-stop-codex.js',
   '.codex/hooks.json',
   'proof-or-stop codex verify',
   'proof-or-stop codex doctor',

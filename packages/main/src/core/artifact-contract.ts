@@ -4,7 +4,7 @@
  * Pure read-only module. Given a StoryStore + storyId + phase, returns which
  * artifacts are required, which are present, and a human-readable detail.
  *
- * Adapted from Orchestrate artifact-contract.ts to cover lattice's artifact set:
+ * Adapted from Orchestrate artifact-contract.ts to cover proofOrStop's artifact set:
  *   understanding, decision, scope-check, init-check, delivery-check,
  *   plan.md, test-evidence, eval-evidence, summary, checklist-all-done, findings.
  */

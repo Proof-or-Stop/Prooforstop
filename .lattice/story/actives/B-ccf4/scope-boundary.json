@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ccf4",
+  "mode": "maintenance",
+  "allowed": [
+    "Create one canonical Markdown execution-plan document under docs/requirements/decisions",
+    "Define future implementation Stories and acceptance criteria",
+    "Use existing repository source, configuration, validation evidence, and decision documents as read-only inputs"
+  ],
+  "excluded": [
+    "Create follow-up implementation Stories in this turn",
+    "Implement CLI, selector, impact-index, evidence, or lifecycle runtime changes",
+    "Modify current validation command membership or gate behavior"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "The user explicitly requested a Markdown execution plan after discussing the desired dynamic validation-tier mechanism.",
+  "createdAt": "2026-08-31T19:18:54.522Z",
+  "updatedAt": "2026-08-31T19:18:54.522Z",
+  "_hash": "4d0a333a1e5b75a5a82cdbc664eccb723cbc2c5c9e5524a8bc384a20a5469ab8"
+}

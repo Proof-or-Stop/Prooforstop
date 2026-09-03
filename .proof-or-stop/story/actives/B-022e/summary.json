@@ -1,0 +1,56 @@
+{
+  "storyId": "B-022e",
+  "changes": "Completed the Proof-or-Stop identity cutover across packages, CLI entrypoints, runtime paths, configuration, prompts, active reviewer roles, documentation, migration diagnostics, and exact frozen-history guards. The canonical story-init reviewer is proof-or-stop-review-story-init. Full-suite closeout also corrected the canonical global-core fixture, restored legacy-to-canonical migration checks, and routed the retired-path Git diff through its resolved gitCwd.",
+  "usage": "Run node bin/proof-or-stop.js --version for the worktree-local CLI, use proof-or-stop.config.json and .proof-or-stop state paths, and dispatch the proof-or-stop-review-story-init role for INIT review. Use the global proof-or-stop command only as a read-only heartbeat when verify_codex reports that it resolves to another worktree.",
+  "expectedOutcome": "The local CLI reports Proof-or-Stop 0.3.270; active package, path, config, prompt, and agent identities use Proof-or-Stop names; exact historical legacy evidence remains verifiable; routine and DONE-required validation pass.",
+  "actualTranscript": "The live-smoke command node bin/proof-or-stop.js --version exited 0 and printed Proof-or-Stop 0.3.270. Routine validation passed 120 configured commands, verification coverage passed 29 of 29 intents, root npm test passed 59 of 59 groups, and full reviewer assurance passed 3 rounds by 2 hosts.",
+  "outcomeDiff": "No user-visible difference from the expected outcome; all specified cutover and preservation checks passed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The global fallback heartbeat currently resolves to another active worktree and remains advisory-only; current-worktree gate and signature evidence must use node bin/proof-or-stop.js. Exact frozen historical and migration-input legacy strings remain intentionally bounded by byte/context manifests.",
+  "pitfalls": "The root full suite is broader than routine validate and exposed three fail-fast test-contract residues. Concurrent reviewer builds can race on the shared ignored dist directory, so build and full-suite commands must run exclusively. Global CLI evidence can carry an incompatible worktree signature, so reviewer writers must use the current worktree local CLI.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 713193
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 54229
+    },
+    "PLAN": {
+      "count": 4,
+      "durationMs": 2071507
+    },
+    "DEV": {
+      "count": 36,
+      "durationMs": 61195243
+    },
+    "REVIEW": {
+      "count": 33,
+      "durationMs": 79371806
+    },
+    "TEST": {
+      "count": 5,
+      "durationMs": 27615111
+    }
+  },
+  "totalDurationMs": 171021660,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-01T20:59:33.245Z",
+  "updatedAt": "2026-09-01T20:59:33.245Z"
+}

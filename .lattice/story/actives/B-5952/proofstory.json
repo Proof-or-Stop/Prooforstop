@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-5952",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:1606f73dca94cd9996f90edfea53d10641dda73803fe9ea23df5698e3888991d",
+  "acceptanceBindings": [
+    {
+      "id": "AB-BOUND-REPAIR",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:finite-bound-actual",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:guard-mutants",
+        "CHK-001:adversarial:binding-scope-mutants",
+        "CHK-001:adversarial:causal-baseline-map"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke exits 0 under a finite ceiling no greater than 850, the 796 to 804 inventory delta is causally reproduced, and the only Dynamic Finding decision-document change is the verified one-line pairing of historical @lattice/core with canonical @proof-or-stop/core without changing Dynamic Finding or B-3434 semantics.",
+      "note": "Binds the baseline repair, finite/hard bounds, rebuild, determinism, real mutations, exact package-rename pairing mutation, and detached causal map comparison."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Single acceptance contract updated for F-020 so the exact DONE-required package-rename baseline repair is admitted while all other decision-document semantics stay excluded.",
+  "createdAt": "2026-08-31T02:46:36.273Z",
+  "updatedAt": "2026-08-31T14:27:19.716Z"
+}

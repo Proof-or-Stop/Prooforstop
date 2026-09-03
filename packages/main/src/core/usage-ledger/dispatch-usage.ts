@@ -3,10 +3,10 @@
  * output parser for the LLM usage ledger.
  *
  * This is the THIN ONE-WAY SEAM between live dispatch and the usage ledger:
- *   - lattice-dispatch.ts imports ONLY this file (a single thin import surface);
+ *   - proof-or-stop-dispatch.ts imports ONLY this file (a single thin import surface);
  *   - this file imports ONLY sibling usage-ledger modules (./record, ./ids,
  *     ./estimate, ./assemble, ./adapters/anthropic, ./writer) and node builtins.
- *     It NEVER imports lattice-dispatch, dispatch-runner, cli-engine, a handler,
+ *     It NEVER imports proof-or-stop-dispatch, dispatch-runner, cli-engine, a handler,
  *     or any module outside core/usage-ledger/. The smoke statically asserts the
  *     whole module keeps its zero-cross-module-import property.
  *
@@ -1046,7 +1046,7 @@ function parsePositiveIntegerBudget(raw: string | undefined): number | null {
 /**
  * Resolve the configured hard budget from the environment, or null.
  *
- * Reads `LATTICE_HARD_BUDGET_TOKENS` only. Returns:
+ * Reads `PROOF_OR_STOP_HARD_BUDGET_TOKENS` only. Returns:
  *   - { hardBudgetTokens, budgetPolicyId } when a valid positive-integer ceiling
  *     is configured;
  *   - null when unset / empty / non-numeric / float / <=0 / NaN / Infinity /
@@ -1208,7 +1208,7 @@ export function buildBlockedBudgetRecord(
 // B-dd44 CHK-003: fail-closed pre-spawn guard orchestrator (gated, never throws)
 //
 // The dispatch seam keeps a MINIMAL gated guard and delegates the whole
-// resolve + check + build + append to recordBudgetBlock, so lattice-dispatch.ts
+// resolve + check + build + append to recordBudgetBlock, so proof-or-stop-dispatch.ts
 // still imports usage-ledger ONLY through this single module. shouldBlockDispatch
 // is the extracted PURE decision the orchestrator uses (and the smoke asserts).
 // =============================================================================

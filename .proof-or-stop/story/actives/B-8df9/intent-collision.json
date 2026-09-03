@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-8df9",
+  "id": "IC-20260801125218",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Cover the two fields the INIT_CHECK gate decides on (agentResults, issues) with the init-check signature, and verify _hash before trusting it on read. Explicitly NOT covered: whether one caller can satisfy both required reviewers by calling init_check_set twice with different agentIds. That behaviour stays, is by design, and is asserted by four smoke tests.",
+  "acceptedInterpretationHash": "sha256:68820185aa3708a59fa513b034c5110a6e486c03c31f26f9e9f0f3e5042f2c98",
+  "notes": "The competing interpretation was 'prevent forged reviewer approval', and it was REJECTED on executed evidence. An impact probe showed both tampering outcomes are already reachable through legal CLI calls (one caller satisfying both reviewer slots; a later call replacing a recorded critical issue with none), so tampering grants no capability the legal path lacks. What it adds, measured, is zero audit trail (9 durable records for a legal two-reviewer write vs 0 for a hand-injected one) and actor-registry bypass. The story is therefore scoped to audit integrity, not access control, and no user-facing text may imply reviewer coverage became trustworthy. A second competing interpretation, 'the signature check is dead for all fields', was ruled out by a control: editing an in-domain field (title) IS correctly rejected as init_check_tampered.",
+  "createdAt": "2026-08-01T12:52:18.346Z",
+  "updatedAt": "2026-08-01T12:52:18.346Z"
+}

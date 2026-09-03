@@ -24,7 +24,7 @@ async function smokeInitCheckDryRun(): Promise<void> {
         throw new Error('dev_start must not run for dry-run');
       },
     },
-    root: '/tmp/lattice-lifecycle-dispatch-smoke',
+    root: '/tmp/proof-or-stop-lifecycle-dispatch-smoke',
     run: async (fn) => {
       runCalled = true;
       output = String(await fn());

@@ -1,0 +1,577 @@
+{
+  "passes": [
+    {
+      "id": "B-8df9:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality review of all changed src files + docs + RED artifacts + derivation scripts. Filed one medium finding (F-005: init-preflight.ts open-codes the _hash comparison instead of routing through CHK-003 predicate). Verified computeInitCheckVerdictHash raw+consumed reasoning empirically, ran both RED artifacts and both ad-hoc CHK-005/CHK-006 scripts (all green, none overstate), confirmed no dead weight/tsc errors in touched files, confirmed no overstated security language.",
+      "createdAt": "2026-08-03T04:41:50.512Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-002",
+      "envelopeId": "79209ff5f871f3cb2b96372da88db0bdadf4407ccb4219b1889c3148a48bcca1",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          ".lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+          ".lattice/story/actives/B-8df9/intent-collision.json",
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/tasks/init-preflight-smoke.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/acceptance-basis.json",
+          ".lattice/story/actives/B-8df9/decision.json",
+          ".lattice/story/actives/B-8df9/plan.md",
+          ".lattice/story/actives/B-8df9/proofstory.json",
+          ".lattice/story/actives/B-8df9/understanding.json",
+          "lattice.config.json",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e774cbb0338f67a9cdfd8aa8fa81ead8c2a8eba8aa0ce61072d9bbe72836a635"
+    },
+    {
+      "id": "B-8df9:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Verified by execution (isolated mkdtemp fixtures + independent probes against the compiled dist, never the shared story dir): (1) legit dual-agentId flow (single caller satisfying both required reviewers) still advances INIT->INIT_CHECK; (2) a reviewer legitimately revising their own verdict (critical issue -> none) collapses to one record per agentId and the gate then advances; (3) the untrusted-carry-forward drop is precise in the sense CHK-003 promises: the caller own legitimate new record always lands, and only the untrusted previous aggregate (never the current call) is dropped -- confirmed the drop is whole-file (not per-entry) because a single hash covers the whole prior agentResults array, this is intentional/documented (module comments explicitly anticipate a benign background.md edit between two legitimate reviewer calls as the routine case), disclosed on both stdout and stderr, and re-derived independently against a benign (non-adversarial) content-edit scenario as well as the red-evidence tamper rows -- not a defect; (4) historical records still RENDER: story_get on a real corpus story (B-a9e7) returns the full unverified init-check.json verbatim, and independent re-hash of all 267 on-disk init-check.json files under recomputeInitCheckHash confirms 0/267 verify under the new domain, matching both the shipped red-evidence artifact and the story own chk005-corpus-derivation.mjs re-derivation. Edge cases executed: no-agentResults-at-all blocks with [missing_init_check] as expected; an unregistered actor id (koala-review-story-init) is refused by pre-existing agent_dispatch_actor_unknown (unrelated to this story, confirms CHK-005 no-migration-through-handler premise); genuine overlapping concurrent init_check_set calls (spawn, not blocking exec, 3 repeated runs) both land, no corruption, gate advances. Also ran both red-evidence artifacts (red-b8df9-init-check-verdict-signature.mjs: 24/24 rows green incl. D0 floor + G1 read-vs-trust + E/F laundering-closed; red-b8df9-chk002-verdict-shapes.mjs: 17/17 rows pass across all 6 documented agentResults shapes), all 5 named smoke tests (init-check-required-agents-smoke, init-preflight-smoke, init-check-fallback-smoke, init-check-atomicity-smoke, init-check-reconcile-conflict-smoke), and the story own chk006-exemption-claims.mjs (10/10 claims pass, confirming the restated command-policy.ts owner-lease-exemption reason is accurate to actual code behavior). CHK-004 (fallback-block preservation) is deliberately withdrawn (scope-shrinkage-decision.json SD-7319de10, user-approved 2026-08-01); independently confirmed current (unfixed) behavior matches exactly what was described (fallback block dropped after first ordinary call, before the attestationMode label flips) -- expected/accepted, not a live defect. No blocking behavioral findings.",
+      "createdAt": "2026-08-03T04:46:10.102Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-004",
+      "envelopeId": "57207eec32ed137c401c9193921802d51f2dcedd9ee11946b8f678a39a3cdbc7",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/plan-init-reopen.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa727ac8f57bc3eb36a518077185f1440371f7d571ce94885bbcbd3ac0110261"
+    },
+    {
+      "id": "B-8df9:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-attestation at HEAD ac5b058 (isFirstPass=true, full diff reviewed, 68 files). F-002/F-004 confirmed: consolidation-plan.md:839 now defers to INIT_CHECK_SIGNATURE_DOMAIN / describeInitCheckSignatureDomain() same as CLAUDE.md:535 / story-lifecycle.md:73; re-ran survivor grep for the old hand-written formula — only init-preflight.ts:143 (out-of-scope, tracked follow-up) and story-create.ts:630 (unrelated draft-check domain) remain, no new hand-written enumeration introduced. F-003 confirmed sound by independent re-derivation: read init-check-gate.ts:162-194 against core/digest.ts line by line and reproduced all 4 divergences in the actual code (locale-dependent localeCompare sort vs code-unit sort; plain-object rebuild reordering integer-like keys vs manual sorted-entry join immune to that; dropped function/symbol + stringified bigint vs JSON null for function/symbol + throwing bigint). git diff main...HEAD -- core/digest.ts is empty (untouched, outside allowedModify). Reproduced both red artifacts myself: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows (M2 confirms guard renders domain, not old list). npx tsc --noEmit -p packages/main clean. Verdict: keeping the duplicate as a documented deliberate non-cleanup is correct; not reversing further. No blocker.",
+      "createdAt": "2026-08-03T05:32:31.175Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-006",
+      "envelopeId": "cf03ce40b05d93e831fe0f704a960c98d17295f2e109ecac1251f0e748251cb3",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c223c35b1a67a7b7096bdf0e6a578a7aef9b16a2b4bd1e3312db43a42511c20"
+    },
+    {
+      "id": "B-8df9:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-attestation at HEAD ac5b058, scoped to the 3 files changed since RP-001 per review_incremental_context (docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md, packages/main/src/core/command-policy.ts, packages/main/src/core/init-check-gate.ts). Verified by execution, not by reading the prose: (1) the kept private canonicalJson in init-check-gate.ts:162-204 vs core/digest.ts exported canonicalJson - reproduced both claimed divergences independently: with LANG=sv_SE/LC_ALL=sv_SE.UTF-8 (Node resolves Intl default locale to sv-SE), digest.ts default-locale-dependent a.localeCompare(b) sorts [z,a-umlaut,a] to [a,z,a-umlaut] (a-umlaut after z), while en-US/de-DE/no-locale sort to [a,a-umlaut,z] (a-umlaut right after a) - confirms the claimed host-locale-dependent signature risk is real, not hypothetical; separately confirmed digest.ts round-trips through a plain JS object so integer-like keys 10 and 2 get force-reordered to ascending order regardless of the sort, where the private copy builds the string directly from the sorted entries and preserves lexicographic order - matches the comment verbatim. Function-member and bigint claims also verified (function becomes null via JSON.stringify undefined-coalesce; bigint throws in the private copy, is stringified in digest.ts). Both divergences are reachable from a hand-edited file, i.e. exactly the tamper-detection input class this hash exists to catch, so keeping the copy is measured correctness, not laziness - the comment states this. (2) command-policy.ts reviewerWrite reasons re-derived, not reworded in place: read finding.ts finding_add handler (lines approx 549-594) and confirmed it only readFindings then push then writeFindings under the finding lock, never mutates an existing entry, and a pass-only record is diverted to recordReviewPass before the push (isPassOnlyReviewFindingRecord branch) - matches the finding_add reason claim exactly, including that signFinding does not take the agent field (verified the actual signFinding call site omits agent). Read store.writeScopeCheck (store.ts:559-562, writeJson wholesale) and scope-check.ts scope_check_save (constructs a fresh ScopeCheckData object each call) - confirmed scope_check_save reason claim that re-saving replaces the file wholesale and drops prior openQuestions resolutions unless re-passed. Read scope-question-resolve.ts in full - confirmed its own header comment already states this is the main agent (owner), not the reviewer, resolving via anti-self-pardon design, with no re-signing and no caller-identity check, which matches the new reason text. ownershipClass value itself was left as reviewerWrite (not changed) per the stated design constraint that changing it needs its own story. (3) decision-doc row now defers to describeInitCheckSignatureDomain() instead of a hand-written field list, and correctly narrates the new verdictHash binding and the tamper-evidence-not-trustworthiness caveat; consistent with the actual INIT_CHECK_SIGNATURE_DOMAIN array in init-check-gate.ts. One pre-existing, non-blocking observation, not new in this round, left out of CHK-006 scope by explicit disclosure in the F-007 resolvedReason: review_run_start and review_pass_set entries at command-policy.ts:209-210 still phrase their exemption as bound by a reviewer-run/signature gate, the exact pattern the new class comment at lines 46-54 tells future entries not to use - pre-existing lines, untouched by this round diff, explicitly called out as deferred rather than hidden; not filing as a finding since it is disclosed, non-regressive, and out of this round changed-file scope. npx tsc --noEmit -p packages/main clean (no destructive rebuild of the shared dist, per the lane constraint).",
+      "createdAt": "2026-08-03T05:33:29.940Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-007",
+      "envelopeId": "cd98ea52c6b8572dc10149acbf1bb258616ed9c09d7a1bfee573ea3058f12ddc",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/scope-question-resolve.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b46122164dc630b0e3ffc1b7ccf3475ea5cc6871ae46a988fb92c09cb0c74b5"
+    },
+    {
+      "id": "B-8df9:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-attestation at current HEAD. Audited disposition of my own 3 round-1 findings rather than redoing the coverage sweep. (1) F-006 CONFIRMED-then-WAIVED at CHK-002:happy:0: re-ran grep -F of the immutable pinned selector against live artifact output, confirms mismatch exactly as diagnosed (CHK-003 legitimately extended the conclusion line). The waiver is the correct instrument, not a laundering: verification.ts buildVerificationCoverage treats kind=waiver as status=waived unconditionally (bypassing staleness), and waived is in the covered-statuses set for must-priority gating, so this is the designed escape hatch, not an ad hoc bypass. Independently re-ran red-b8df9-init-check-verdict-signature.mjs at HEAD ac5b058: 0 RED/0 BROKEN/24 rows, registered non-optional in lattice.config.json (no optional flag set), waiverWithdrawn=true, and rows B1/B2/B3 mechanically cover exactly CHK-002 happy intent (hand-injected agentResults now refused). Waiver honest. (2) F-007 FIXED: diffed command-policy.ts. finding_add and init_check_set reasons now state deposit-only bound to owner-gated consumers; scope_check_save now states the true wholesale-replace limit, the deposit-only claim does NOT hold and is correctly not claimed; scope_question_resolve reviewerWrite premise is flagged FALSE in the comment rather than reworded, matching handlers/scope-question-resolve.ts anti-self-pardon design. Confirmed review_run_start and review_pass_set at lines 209-210 were left with the old signature-gate framing, exactly as disclosed as an unresolved follow-up, not silently dropped. (3) F-008 DISMISSED: symmetry-only filing against F-001, also dismissed on a verified stronger basis (docs lane confirmed shipped message beats the PLAN-pinned text); CHK-003 adversarial intent is recorded audit_only, the honest disposition for a refuted intent, consistent with story-lifecycle.md around lines 121-124 and RED row H1. Re-verified CHK-005 and CHK-006 evidence still resolves after the F-003, F-004, F-007 fix commits: re-ran chk006-exemption-claims.mjs (10 PASS, 0 FAILED, EXEMPTION_REASON_MATCHES_CODE_MARKER=true) and chk005-corpus-derivation.mjs (GATED_INIT_STORY_ID=B-dcf9, GATED_INIT_STORY_COUNT_MARKER=1, actors registry-valid=true; the small drift in pre-CHK002-domain-verifying counts is expected post-INIT churn per story-lifecycle.md, not a defect), both green, both read-only against private mkdtemp fixtures and compiled dist, no mutation of shared state. Re-ran both red artifacts fresh: red-b8df9-init-check-verdict-signature.mjs 0 RED, 0 BROKEN, 24 rows, exit 0; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED, 0 BROKEN, 17 rows, exit 0. CHK-004 withdrawal verified via .lattice/story/actives/B-8df9/scope-shrinkage-decision.json, decisionId SD-7319de10, userConfirmed true, approvedBy user explicit instruction. No new blocker found; all three round-1 findings are honestly disposed and the underlying coverage they protect is still mechanically green at current HEAD.",
+      "createdAt": "2026-08-03T05:37:13.053Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-008",
+      "envelopeId": "9a349c07503b0b12a07523cc978c854b2e90f9d5ba49d05cfabfc0172ff2797e",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd6d866b5f52b42349d563eb5f9450368a24a4d1158f31c18a48175cec9fd7f8"
+    },
+    {
+      "id": "B-8df9:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 narrow re-attestation for stale F-004 (high, docs/code drift). Fix confirmed at docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:839 and cross-checked wording against CLAUDE.md:535-539 and story-lifecycle.md:73/121-124; survivor grep spot-checked (init-preflight.ts:143 out-of-scope/tracked, story-create.ts:630 unrelated draft-check domain); no wording overstates tamper-evidence into tamper-proof. No new findings this round.",
+      "createdAt": "2026-08-03T05:40:04.183Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-009",
+      "envelopeId": "d74af4826c8563301570207e046ac1b2001a8e9649883072090c5ab9cba8f3ac",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/handlers/story-create.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "69941e4ffe256e4282c02c5adcc68386aa6eb2f1df7961a90acf922abbc3b561"
+    },
+    {
+      "id": "B-8df9:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-attestation after HEAD moved by 3 finding-fix commits (F-003, F-007 x2). Verified by execution, not just reading: (1) legitimate dual-agentId flow still advances INIT->INIT_CHECK and a reviewer revising their own verdict still works (ran init-check-required-agents-smoke.js: product-reviewer records a blocking high issue, story blocks, then re-records a non-blocking medium issue under the same agentId, story advances to INIT_CHECK); (2) historical/unverifiable records still RENDER through story_get while the gate refuses to act on them (RED artifact row G1, CONTROL-OK); (3) the kept-not-deduplicated canonicalJson in init-check-gate.ts:162-204 is comment-only (verified via git diff hunk: function body byte-identical, only a documentation block was added above it) so no verdict hash shifted for real records -- confirmed by running both RED artifacts fresh off HEAD c75aeb3: red-b8df9-init-check-verdict-signature.mjs (0 RED / 24 rows) and red-b8df9-chk002-verdict-shapes.mjs (0 FAILED / 17 rows, including L1 hashing all 267 live corpus files without throwing/varying). command-policy.ts diff confirmed prose-only: grepped ownershipClass across the full diff, all three touched entries (finding_add, scope_check_save, scope_question_resolve) keep ownershipClass: reviewerWrite unchanged, only reason strings changed; ran command-ownership-contract.js fresh build -- 343 CLI commands still carry valid ownershipClass, contract passes. tsc --noEmit -p packages/main clean. No regression found; stale RP-002 pass refreshed on the same conclusion.",
+      "createdAt": "2026-08-03T05:42:38.131Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-010",
+      "envelopeId": "efefaf9009abcbfb1c0a3d85952b803596cb5a4f4d15e219dce31898ea54a7a4",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0552b028e2ad9a68a0a2041335d5d469b9a83f2c7bba83c71b87c3dbe1c61976"
+    },
+    {
+      "id": "B-8df9:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Re-review of F-010/F-011 corrections. F-010: verified both citations (withdrawnItemIntentRefs in core/proofstory.ts:1672-1682/2165-2167; withdrawn bucket in handlers/validate-channel.ts:305,348-349) against source, exact match. Annotation is precisely scoped to both REVIEW-path gates and does not claim more; confirmed core/verification.ts:212 still does a bare item.status==withdrawn skip on the DONE-blocking coverage path (pre-dates B-45a5, tagged B-1909 CHK-002), and the annotation makes no claim covering it - no overclaim. Annotation sits as CHK-004:happy:0, first in the items verificationEvidence array ahead of the two stale waiver rows, and is returned in full by checklist_get/story_get - reaches a reader of CHK-004 before the stale text. buildVerificationCoverage skips withdrawn items entirely so no separate waived-summary view surfaces the stale text unaccompanied. F-011: all four retraction rows (CHK-005:happy:0/adversarial:0, CHK-006:happy:0/adversarial:0) plainly state no selector/pin/receipt was ever persisted and mechanical stayed false - genuine withdrawal, not softened. Re-ran original concept-residue hunts: no competing INIT-check signing path, no live doc restates the old signature domain or the withdrawal-gap-open claim. Rebuilt tree (npm run build exit 0) and re-ran both red artifacts: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows. No new findings.",
+      "createdAt": "2026-08-19T15:57:25.284Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-015",
+      "envelopeId": "d5ff6e619da0f942720c85f6fca40bf7c105f53fbf0bc6fb83c6c88fced0d20f",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e370dcd318b73e18b03c44b35a6c8d04c0b6937fa0f49a6d8e50030909f95e7"
+    },
+    {
+      "id": "B-8df9:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Confirmed F-009/F-011/F-012 correction is sound. Verified since RR-011 headHash only .lattice/ metadata changed (git diff, no source/tests/docs). Both red artifacts still 0 RED/0 FAILED/0 BROKEN. On-disk checklist.json shows all four rows (CHK-005:happy:0/adversarial:0, CHK-006:happy:0/adversarial:0) now carry an unhedged retraction (\"That was FALSE\") with mechanical:false, no selector/verification/receipt persisted, matching F-012 root cause exactly. CHK-004:happy:0 superseding annotation cites withdrawnItemIntentRefs (proofstory.ts:1672, consumed 2166) and withdrawnChecklistItemIdsFrom (validate-channel.ts:305) — both confirmed exact by grep; live-ran channel gate directly (dist import, bypassing contended validate capacity lock) confirms withdrawn (SD-7319de10): CHK-004 printed on its own line and absent from Covered list; ran proofstory_review_completeness_check directly, Gaps: 0. nonMechanicalReason on that row correctly frames it as annotation not coverage claim; item.status remains withdrawn. No new finding warranted.",
+      "createdAt": "2026-08-19T16:05:39.098Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-014",
+      "envelopeId": "e79e911b1737a059b7d73e1937dea549e22ffe08dfb9cc14eddc751957ae5fa7",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/plan.md",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33d304aae262ab7b534dafc85a3373fd9a2db94b22e71a73ef6436bc41a575fa"
+    },
+    {
+      "id": "B-8df9:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified CL-001 fix for my own F-012 (siblings F-009/F-011) on disk, not from prose. (1) grep-checked all four rows (CHK-005:happy:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0): none carries a selector/verification/receipt field and mechanical=false on all four, both now and in every prior git revision of those rows -- the false claim was only ever in the note text, never in a field the gate reads, so no demotion of real coverage occurred. (2) Recounted the checklist: 6 items (5 done + 1 withdrawn), 18 verificationIntent entries; the 10 previously-mechanical rows (CHK-001 happy/edge/adversarial, CHK-002 edge/adversarial, CHK-003 happy/edge/adversarial, CHK-005 edge, CHK-006 edge) are all still mechanical:true with fresh 2026-08-19 post-merge receipts, selectorMatched=true. (3) Read buildVerificationCoverage (core/verification.ts) and withdrawnItemIntentRefs (core/proofstory.ts): both exclude CHK-004 by item.status/decision membership, not by evidence presence, so the new CHK-004:happy:0 docs_check annotation cannot reintroduce it into coverage anywhere. (4) verification_evidence_refresh_stale --dryRun returned zero stale evidence for B-8df9. (5) git log confirms the CHK-002:happy:0 permanent waiver has been untouched since 2026-08-03T05:27:38Z. Coverage: 18/18 must intents covered (17 executed pass + 1 permanent pin-waiver), 0 gaps, 0 vague evidence. Correction holds; no new finding.",
+      "createdAt": "2026-08-19T16:05:55.686Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-016",
+      "envelopeId": "25ee09f7766650223b4ac81e438bcbd32cd50b6c2a806540076fa4549dc04994",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "caabee24f0c299f4cfcd2300cbe213a14592cecc79a3cd48ed8c210e106a5d87"
+    },
+    {
+      "id": "B-8df9:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Narrow re-attestation of the CHK-004:happy:0 restoration only. Diffed the quoted ORIGINAL WAIVER TEXT block against git show eac4a6605c:.lattice/story/actives/B-8df9/checklist.json programmatically: 633 chars, exact byte match. Confirmed CHK-004:edge:0 and CHK-004:adversarial:0 are byte-identical JSON objects to the eac4a6605c originals (untouched). Verified the correction paragraph is not overclaiming: withdrawnItemIntentRefs (proofstory.ts:1672-1684, consumed 2166) and withdrawnChecklistItemIdsFrom in checkDispatchEvidence (validate-channel.ts:305) both genuinely read scopeShrinkageDecision, confirmed by reading source. Verified the disclosed gap claim by reading source: core/verification.ts:212 isWithdrawnChecklistStatus(item.status) is literally status===\"withdrawn\" (checklist-status.ts:30), a bare status-string check, and buildVerificationCoverage is wired into done-prepare.ts:1165 (DONE-blocking stale-evidence classification) and phase-gates.ts:625 -- claim accurate, scope-limit sentence does not imply uniform decision-backing. git diff --name-only from RP-009 bound head (47a17845c) to current HEAD (b874629) shows only .lattice/ metadata files, no source/test/docs drift. Both red artifacts re-ran clean: red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows exit 0; red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows exit 0. No finding warranted.",
+      "createdAt": "2026-08-19T16:11:31.341Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-017",
+      "envelopeId": "d2eec889426656dd0a69a3b3a896a19a965672ff79fa28c9224b9297e9f4262a",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "16f5867745000c7db63e063e428cd951f13f304fd12c0b707a76fab8930ca015"
+    },
+    {
+      "id": "B-8df9:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Narrow re-attestation, RP-008 correction of a silent overwrite. Verified against live artifact, not the reporting text: (1) CHK-004:edge:0 and CHK-004:adversarial:0 waiver rows byte-identical to eac4a6605c (untouched). CHK-004:happy:0 note now contains the ORIGINAL waiver text quoted verbatim -- programmatically diffed against git show eac4a6605c:.lattice/story/actives/B-8df9/checklist.json, 633/633 chars exact match -- followed by a dated correction and explicit scope-limit paragraph; all three original waiver texts now present on live record, RP-008 destroy-while-claiming-preserve defect fixed. (2) Scope-limit claim checked against code: withdrawnItemIntentRefs (core/proofstory.ts:1672) consumed in pre-coverage-loop subtraction at proofstory.ts:2166; checkDispatchEvidence reads withdrawnChecklistItemIdsFrom at handlers/validate-channel.ts:305 -- both REVIEW-path gates, matches two-gates claim exactly. core/verification.ts:212 (isWithdrawnChecklistStatus bare status-string skip) confirmed still present with no decision-record consultation, wired into DONE-blocking handlers/phase-gates.ts and handlers/done-prepare.ts via buildVerificationCoverage; correction does not overclaim uniform decision-backed treatment. (3) Self-consistency: note correctly says correction covers CHK-004 edge/adversarial rows and all three exist live -- no contradiction. (4) No competing INIT-check signing path (signInitCheckDomain/signInitCheck in core/init-check-gate.ts is sole signer); grepped repo for superseded framing (no mechanical completion path / framework gap not a disposition) -- zero hits outside this story artifact. (5) Both red artifacts GREEN on rebuilt tree: red-b8df9-init-check-verdict-signature.mjs exit 0 (0 RED/0 BROKEN/24 rows); red-b8df9-chk002-verdict-shapes.mjs exit 0 (0 FAILED/0 BROKEN/17 rows). proofstory_review_completeness_check --storyId=B-8df9 reports gaps=[]. review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=[] vs prior RP-008/RR-015. No concept-lane residue found. No blocker.",
+      "createdAt": "2026-08-19T16:16:01.324Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-018",
+      "envelopeId": "1e37c23f2ed39260df9dfb0422947b23b86557ef3760b81dc4c2524fffe3f2de",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/red-evidence.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "38e7c880b6ecb79e7a0ad031f52311bf9103edc9188360ad6109336d78935fd0"
+    },
+    {
+      "id": "B-8df9:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Narrow re-attestation after the CHK-004:happy:0 recovery-and-rewrite (git eac4a6605c restoration + correction appended). Re-verified on disk, not from description: (1) Recount confirms 6 checklist items (5 done + 1 withdrawn: CHK-004) and 18 verificationIntent entries (6 items x happy/edge/adversarial x1). The 10 previously-mechanical rows (CHK-001 happy/edge/adversarial, CHK-002 edge/adversarial, CHK-003 happy/edge/adversarial, CHK-005 edge, CHK-006 edge) are unchanged: all still mechanical:true, all carry a post-merge (2026-08-19) receipt with exitCode 0 and selectorMatched:true. Nothing was added to or dropped from this set. (2) Traced both exclusion paths in source: buildVerificationCoverage (core/verification.ts) skips any item where isWithdrawnChecklistStatus(item.status) is true (checklist-status.ts, status===withdrawn) -- CHK-004.status is still withdrawn on disk, untouched by the rewrite. withdrawnItemIntentRefs (core/proofstory.ts, used by evaluateReviewCompleteness) keys strictly on withdrawnChecklistItemIdsFrom(decision) -- decision.withdrawnChecklistItemRefs from scope-shrinkage-decision.json, gated by decisionAuthorizesWithdrawal (decision===confirmed && userConfirmed===true) -- never on item.status. Read scope-shrinkage-decision.json directly: decisionId SD-7319de10, decision:confirmed, userConfirmed:true, withdrawnChecklistItemRefs:[CHK-004], unchanged by the rewrite. Both gates independently exclude CHK-004 refs from the required set; the CHK-004:happy:0 evidence-note rewrite touched only prose (kind/result/mechanical:false/note), not status or the decision file, so nothing is grandfathered as covered. (3) Read checklist.json directly for the four docs_check rows: CHK-005:happy:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0 -- all still mechanical:false and none carries a selector, verification pin, or receipt field. (4) Ran verification_evidence_refresh_stale --dryRun live: result is No stale verification evidence for B-8df9 -- zero rows flagged stale post the CHK-004 rewrite that moved HEAD. (5) CHK-002:happy:0 permanent waiver row (pinned-selector-broke-on-reword waiver, filed by this lane as F-006) is byte-identical and still timestamped 2026-08-03T05:27:38.203Z, untouched this round. No coverage-accounting defect found. Note: a full validate --channel --story=B-8df9 invocation queued behind a workspace-wide validation-capacity lock held by a concurrent B-9ff1 validate run for about 9 minutes and returned no channel-gate stdout before exiting 0; unrelated shared-workspace contention, not a B-8df9 defect, and it does not affect these findings since both exclusion paths were independently confirmed by direct source and on-disk inspection.",
+      "createdAt": "2026-08-19T16:21:13.227Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-019",
+      "envelopeId": "9704250ff3aec54a3904debcb6a76093f5d9d6d7453f76490c6a02da88823909",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c762410458519ae5e16a9c75f0de02eb1b99ad57f202ecd6448a764defa0f4c"
+    },
+    {
+      "id": "B-8df9:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 12 exported symbols from the touched core files (init-check-gate.ts/machine.ts/store.ts/types.ts/init-check.ts/command-policy.ts): INIT_CHECK_SIGNATURE_DOMAIN, InitCheckSignatureComponent, InitCheckSignatureInput, InitCheckVerdictSource, computeInitCheckVerdictHash, describeInitCheckSignatureDomain, initCheckAgentResults, initCheckHashMatches, initCheckSignatureDomainLabels, initCheckSignatureIsValid, recomputeInitCheckHash, signInitCheckDomain. Step2 grep found 4 of the 12 referenced in docs (rest are internal helpers/types, fallback-2, no finding needed), landing in 3 paragraphs compared in Step3: CLAUDE.md sign-domain section, story-lifecycle.md migration-position + fallback bullet, execution-plan.md artifact table row. No inconsistency: all three defer to describeInitCheckSignatureDomain() rather than hand-writing the pre-CHK-002 field list, correctly state the domain now binds agentResults+issues via computeInitCheckVerdictHash, and correctly scope this as tamper-evidence-not-trust. This regressed nothing from the prior F-002/F-004 fixes; no merge-introduced doc restates the old domain. Verified the merge-era CHK-004:happy:0 correction (appended 2026-08-19) as documentation: withdrawnItemIntentRefs at core/proofstory.ts:1672 (consumed at :2166) and checkDispatchEvidence withdrawn-bucket at handlers/validate-channel.ts:305 both exist and behave as described; core/verification.ts:212 (isWithdrawnChecklistStatus(item.status), a bare status-string skip) is on the done_prepare-consumed buildVerificationCoverage path and is honestly disclosed as out of the B-45a5 fix scope, so the correction does not overclaim uniform decision-backing. Live-checked proofstory_review_completeness_check reports Gaps: 0; validate-channel.ts renders withdrawn items via a dedicated `withdrawn (<decisionId>): <ids>` line, checked before mainAgentOwnedItems/evidencedItems so CHK-004 never lands in the Covered line, matching the claim. story_get confirms B-45a5 is DONE with the title the correction attributes to it. Repo-wide grep for the superseded framing outside this story only finds it in B-45a5s own historical background/understanding describing the bug it fixed, not any doc asserting the gap is still open. No leftover merge-conflict markers in CLAUDE.md/story-lifecycle.md/execution-plan.md. No blocker.",
+      "createdAt": "2026-08-19T16:33:13.249Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-021",
+      "envelopeId": "4a7e7eed3187056bc55b1bd62ac484b5967b7207c989f0d5fca7c66373887d8c",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/background.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e36d8bf712363bf7e199fbf53622379cca9d5e96aedab92db635aa596287d13"
+    },
+    {
+      "id": "B-8df9:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Fresh round-2 re-attestation on the merged tree (main pulled in via ab5f930d9e, lattice.config.json conflict resolved by clean append verified by diff, both packages rebuilt via npm --prefix packages/main run build, clean tsc). Verified behaviourally rather than by reading claims: (1) both red artifacts pass fresh at HEAD 8b73aa5 -- red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows, red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows. (2) Constructed 3 independent adversarial tamper cases of my own against the compiled signInitCheck/computeInitCheckVerdictHash (not copied from the shipped suite): injecting a fabricated extra reviewer entry, erasing a recorded critical issue, and renaming an existing reviewer agentId in place -- all three move the recomputed hash away from the legit signature (correctly detected), while an unmodified record recomputes identically (sanity control passed). (3) Read the machine.ts diff directly: both canEnterInitCheckGuard and getGuardFailureReason now route through the single initCheckSignatureIsValid predicate against the SAME already-read snapshot (no re-read window), and the tamper message renders describeInitCheckSignatureDomain() instead of a hand-written field list. (4) CHK-004 withdrawal (SD-7319de10, B-45a5 wiring inherited via merge -- confirmed by git diff main...HEAD NOT touching proofstory.ts/validate-channel.ts, i.e. purely inherited): wrote an independent read-only probe importing the compiled checkDispatchEvidence directly against this story's real checklist/events/scope-shrinkage-decision.json (bypassing a contended workspace-wide validate lock -- observed validate --channel --story=B-8df9 stuck over 180s behind an unrelated B-def6 holder, consistent with prior lanes' documented contention) -- confirmed withdrawnItems=[CHK-004], evidencedItems(Covered)=[CHK-001,CHK-002,CHK-003,CHK-005,CHK-006] with CHK-004 absent, and the rendered detail line reads exactly \"withdrawn (SD-7319de10): CHK-004\" on its own line, separate from Covered. Also ran proofstory_review_completeness_check live: Gaps 0. Both gates pass because of the withdrawal exclusion path (checked first, before the evidencedItems bucket is ever reached), not via the three superseded CHK-004 waiver rows. (5) Ran all five story-relevant smokes fresh: init-check-required-agents-smoke, init-check-fallback-smoke, init-preflight-smoke, init-check-atomicity-smoke, init-check-reconcile-conflict-smoke -- all pass, confirming by-design single-caller dual-agentId accumulation is unchanged. (6) Ran the story-local chk005-corpus-derivation.mjs and chk006-exemption-claims.mjs fresh against the current (post-merge, 299-file) corpus: the one gated INIT story (B-dcf9) has registry-valid actors and can legally re-run the reviewer; the command-policy.ts owner-lease exemption reasoning for init_check_set (10/10 claims) still holds against actual code. No merge conflict markers found in packages/main/src, lattice.config.json, or CLAUDE.md. finding_list shows 0 open findings across all prior rounds; all resolved/dismissed with verified evidenceState. No blocking behavioral defect found on the rebuilt merged tree.",
+      "createdAt": "2026-08-19T16:35:58.791Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-020",
+      "envelopeId": "dc96ad1bb87dcbff53f9e955fabf5c6ca85746d5427d43bb802e1235c0e1551b",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9dfff0b04b8955667c044e5eac36d29fd986c2b59270a7e4a3bffcd70338e72c"
+    },
+    {
+      "id": "B-8df9:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "New-round re-attestation, incremental basis confirmed metadata-only (isFirstPass=false, scopeChanged=false, changedFiles=none). Re-verified: both red artifacts pass, CHK-004 waiver restoration byte-identical 633 chars, five docs_check rows mechanical:false with no selector, validate evidence allPass:true/113 commands bound to a head with zero code diff to current HEAD. No code quality concerns.",
+      "createdAt": "2026-08-19T16:56:37.715Z",
+      "reviewRound": "2026-08-19T16:53:53.247Z",
+      "reviewRunId": "B-8df9:RR-022",
+      "envelopeId": "2a8db831d4fe67117d4f92883b97738a0866ebda5d4567a3f2e9c3ca81eff5b0",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5d750d8a7908635a0e3234e807ac45a7e148a687a8b842cb62d6585b43aa366"
+    },
+    {
+      "id": "B-8df9:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-attestation after the SECOND main merge (dd9acdd892, parents 2db203b85f x 03e046ef39; conflict marker only on lattice.config.json). Read background.md + plan.md in full this round. Independently re-derived every claim rather than trusting the note: (1) lattice.config.json validate.commands counts confirmed base=111/ours=113/theirs=117/merged=119 by diffing all four blobs programmatically; ours contributed exactly the 2 claimed unique entries (red-b8df9-init-check-verdict-signature.mjs, red-b8df9-chk002-verdict-shapes.mjs); all 117 theirs(main) entries present in merged in original relative order with zero mismatches on full deep-equality (not just command+args identity); every non-commands field of the config byte-identical between theirs and merged; red-b45a5-withdrawal-gates.mjs confirmed present. (2) Rebuilt (npm --prefix packages/main run build, clean) then ran both story red guards directly on the twice-merged tree: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows exit 0; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows exit 0. (3) Inspected all six new sibling validate entries (red-evidence-envelope-smoke + five red-w2d-*): grepped for init-check/initCheck/init_check across their full source and checked imports - zero references; they touch red-evidence/command-policy/activity-policy/store/registry, none touch init-check-gate.ts or handlers/init-check.ts. Bonus check: command-policy.ts merge (main added red_evidence_envelope_check ~line 466) diffed cleanly against B-8df9 pre-merge state - exactly one added line, zero disturbance to this story CHK-006 reason-text edits. (4) Re-executed the four re-recorded docs_check rows (CHK-005:happy:0/adversarial:0, CHK-006:happy:0/adversarial:0) verbatim: chk005-corpus-derivation.mjs exits 0 with CORPUS_FILES_ON_DISK_MARKER=300 (matches note); grep of the two pinned strings in command-policy.ts hit 3 and 2 respectively (matches note exactly). All four notes correctly state mechanical:false and claim no selector, consistent with the prior F-009 correction. (5) CHK-004 restoration: programmatically extracted the quoted ORIGINAL WAIVER TEXT block from happy:0 note and confirmed byte-identical (633 chars) to the untouched edge:0/adversarial:0 notes (633 chars each, identical to each other). RP-011 and RP-016 prior passes correctly attested this same fact. Also ran validate --focus=b8df9-init-check-signature --json: allPass true, both guards pass, build clean. finding_list shows zero open findings (all prior F-001..F-012 resolved/dismissed with evidence). Standard quality sweep on the story-owned diff (init-check-gate.ts, machine.ts, store.ts, types.ts, handlers/init-check.ts, init-preflight-smoke.ts, 692 diff lines): no as any, no empty catches, no TODO/FIXME introduced. No blocker found; every specific claim in this rounds dispatch reproduces exactly.",
+      "createdAt": "2026-08-19T17:34:35.886Z",
+      "reviewRound": "2026-08-19T17:25:22.275Z",
+      "reviewRunId": "B-8df9:RR-023",
+      "envelopeId": "57a219374061712c7195424c48a45afeba0e22106bf72e05bcc202eadeb7d042",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          ".lattice/story/actives/B-8df9/plan.md",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/tasks/init-preflight-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9468ca91f8f3adef511114799516f5c8c69461a5cdb931c10f0eeaffe439a055"
+    },
+    {
+      "id": "B-8df9:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Round-2+ re-attestation, focused per dispatch on summary.json (the one genuinely new artifact this round; no code changed). (1) limitations tamper-evidence-not-tamper-proofing claim verified: INIT_CHECK_SALT is `export const` at init-check-gate.ts:58 (grep-confirmed, only other occurrence is the self-quoting F-007/CHK-006 correction string). Both halves executed live this round: red-b8df9-init-check-verdict-signature.mjs control H1 (SCOPE BOUND) CONTROL-OK with refusedBeforeReSigning=true and verifiesAfterReSigning=true. RR-004 (behavior) executed the full 24-row suite incl. H1; RR-009 (docs) attests wording never overstates tamper-evidence into tamper-proof -- matches summary's 'two reviewers verified both halves' claim. (2) CHK-004 narrative verified: scope-shrinkage-decision.json SD-7319de10 is decision=confirmed/userConfirmed=true, withdrawnChecklistItemRefs=[CHK-004]; CHK-004:happy:0 note contains the original 633-char waiver text byte-identical to `git show eac4a6605c` as a verbatim substring (diffed programmatically). Correction bound is code-accurate: proofstory.ts:2165-2167 (B-45a5 CHK-002) subtracts withdrawnItemIntentRefs before the coverage loop, validate-channel.ts:305/348-349 buckets withdrawnIds before owner-exemption -- both REVIEW-path, both decision-backed (withdrawnChecklistItemIdsFrom(decision), never item.status). core/verification.ts:212 is `if (isWithdrawnChecklistStatus(item.status)) continue;` -- confirmed bare status-string skip, and confirmed reachable from a DONE-blocking path: buildVerificationCoverage is called by handlers/done-prepare.ts:1165. Claim precisely scoped, not overstated. (3) Both false-record pitfalls verified without softening: (a) selector-pinned-claim-on-docs-type-row corroborated by three independently filed findings from three lanes (F-009 quality, F-011 concept, F-012 test-coverage), all citing checklist.ts enforceAndStampEvidence routing docs-type intents to the attestation-only branch before any selector read; (b) overwrite-while-claiming-append exactly reproduced: original CHK-004:happy:0 note at eac4a6605c is 633 chars, preserved verbatim inside the current note (substring match confirmed). Neither pitfall is softened in summary.json wording. (4) Standing hunts confirmed by grep: no competing init-check signing function; no live doc restates the pre-B-8df9 domain string (story-lifecycle.md:73 and CLAUDE.md:554 both reference the widened domain / describeInitCheckSignatureDomain(), no literal old-domain string found anywhere in packages/docs); no live doc describes the withdrawal gap as still open. (5) Both red guards re-run live this round: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows -- matches summary.json actualTranscript exactly. Also ran the standard concept-residue sweep on the round diff (init-check-gate.ts/machine.ts/store.ts/types.ts/command-policy.ts domain-declaration refactor): initCheckAgentResults call sites all consistent with widened InitCheckVerdictSource type, recomputeInitCheckHash callers all coherent, no stale hand-written domain-field-list found outside the deliberate self-quoting correction string. No blocker.",
+      "createdAt": "2026-08-19T18:36:08.570Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-024",
+      "envelopeId": "7dbad62ac1ea9bc79882989686653da743f2064a97baec99d46fedc882339d03",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          ".lattice/story/actives/B-8df9/summary.json",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/init-preflight.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dc5d5fde437cb010c46a1c3a013d64f0e8900b13fcec9c19ef222ef269bba85c"
+    },
+    {
+      "id": "B-8df9:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-013 correction verified against the record, not against the description of it. review-passes.json RP-015 (behavior lane, RR-020) confirms it covered exactly three attacks: fabricated reviewer entry, erased critical issue, renamed agentId. delivery-check.json docsPromises rows 1-2 confirm the delivery reviewer's own fixture covered unsigned tampering (fabricated reviewer entry) plus the out-of-tool re-sign acceptance, not the erase/rename attacks. summary.json actualTranscript now states this precisely and attributes by review-run id; the re-sign case is framed as the honest bound, matching delivery-check.json wording. H1 control row in red-b8df9-init-check-verdict-signature.mjs (line 554-556) asserts refusedBeforeReSigning && verifiesAfterReSigning && r.advanced; re-ran the artifact live at current head (npm --prefix packages/main run build then node the script): 0 RED/0 BROKEN/24 rows, H1 observed refusedBeforeReSigning=true verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true. Also re-ran red-b8df9-chk002-verdict-shapes.mjs: 0 FAILED/0 BROKEN/17 rows. pitfalls item (5) reads as a plain admission (third instance, count/attribution inflated, credits the catch to this lane, no self-congratulation). Re-confirmed prior findings: lattice validate --story=B-8df9 --json returns allPass=true, status=pass, reused/fresh evidence, 15/15 intent coverage, no staleness references; checklist.json still 6 items / 18 intents; CHK-005/CHK-006 docs_check rows (4 total) still mechanical:false with no selector key present; CHK-002:happy:0 waiver row unchanged from the F-006 resolution text. No blocker.",
+      "createdAt": "2026-08-19T18:42:10.516Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-026",
+      "envelopeId": "bad1533c5590086ba1815206dcf3782a6c98a45e7724e300c40e0b239e554b59",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/delivery-check.json",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          ".lattice/story/actives/B-8df9/summary.json",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f51e5bda47514fbc1149f223a36f158d0fb7595a89a4399ed22241409ec3ea45"
+    },
+    {
+      "id": "B-8df9:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-attestation confirming RP-017 remains valid; delta since RP-017 (headHash f5d3d79..272a8d4) is metadata-only, confirmed both via review_incremental_context (isFirstPass=false, scopeChanged=false, changedFiles/impactedFiles empty, freshnessClassification=CURRENT_MATERIAL) and independently via git diff --stat f5d3d79..HEAD: all 13 changed paths are under .lattice/story/actives/B-8df9/ (summary.json write+correction, findings.json F-013, review-runs/passes/prompt-envelopes, test-evidence, delivery-check, index.json bookkeeping); zero packages/main/src files touched. Independently judged the corrected summary.json actualTranscript against the underlying record rather than trusting the resolvedReason prose: cross-checked it against review-passes.json RP-015 (behavior lane, RR-020) which states verbatim it constructed 3 independent adversarial cases -- fabricated reviewer entry, erased critical issue, renamed agentId in place -- all three moving the recomputed hash off the stored signature; and against delivery-check.json CHK-002 realMachineTests row, whose own independent-fixture sentence covers exactly hand-injected-reviewer-record (unsigned tampering) plus re-sign-passes behaviour, not erasure or rename. The corrected actualTranscript text matches both source records precisely -- no further inflation found, F-013 fix is accurate and the count (2 out-of-suite probes plus the 2 shipped guards, not conflated) no longer overclaims. Confirmed the cited H1 control row (refusedBeforeReSigning=true, verifiesAfterReSigning=true) is real by grep at red-b8df9-init-check-verdict-signature.mjs:545-556. Rebuilt packages/main fresh (npm --prefix packages/main run build, exit 0) and re-ran both story red guards myself on the rebuilt dist: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows including H1 CONTROL-OK; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows. Diffed lattice.config.json between f5d3d79 and HEAD: zero changes, the two red-b8df9 guard registrations (lines 1545, 1556) and the union merge with main are undisturbed, matching what was deep-diffed at RP-017. finding_list confirms all 13 findings (F-001..F-013) resolved or dismissed, zero open, all evidenceState=verified, attention.suspected/disproven both empty. Original RP-017 quality scope (dead code / type safety / I/O isolation / doc-promise-undelivered cross-check across the full diff) stands unchanged since no source moved. No blocker.",
+      "createdAt": "2026-08-19T18:45:30.586Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-027",
+      "envelopeId": "8bb77cd6bb806076f2be65e5c2e29fe3c3dc34f7651e0df084ad8b529d05cada",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/findings.json",
+          ".lattice/story/actives/B-8df9/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/delivery-check.json",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3e24f5321e1821e2825a3ec691212ebd4a8f32b6e53dfd439218a7251f03987"
+    }
+  ]
+}

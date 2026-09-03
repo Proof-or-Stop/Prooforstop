@@ -32,7 +32,7 @@ export type {
   QueueGovernanceRow,
 } from '../control-status.js';
 import { readBrandEnv } from '../../brand-env.js';
-import { PROOF_OR_STOP_DIR } from '../../lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../../proof-or-stop-paths.js';
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
 const MIGRATION_TITLE_RUN_PATTERN = /^Tier-C provider-execution receipt verification(?: \([^)]+\))? run\b/;

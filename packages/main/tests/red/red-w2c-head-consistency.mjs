@@ -64,7 +64,7 @@ function quarantineOf(storyId, target, ra, reason) {
     id: deriveRecordId('quarantine', operationKey, 2), schemaVersion: RED_EVIDENCE_V2_SCHEMA_VERSION, operation: 'quarantine',
     seq: 2, priorRecordDigest: ra.recordDigest, supersedes: ra.id, storyId, acceptanceTargetRef: target,
     recoversRecordId: ra.id, referencedRecordDigest: ra.recordDigest, linkKind: 'quarantines',
-    reason, approvedBy: 'lattice-implementer@sess-test', operationKey, createdAt: NOW,
+    reason, approvedBy: 'proof-or-stop-implementer@sess-test', operationKey, createdAt: NOW,
   };
   return { ...draft, recordDigest: computeRecordDigest(draft) };
 }
@@ -94,7 +94,7 @@ try {
     writeRecords(store, storyId, [ra, q]);
     assert.ok(recordDigestMatches(q), 'control head is well-formed');
     const before = store.readRedEvidence(storyId).records.length;
-    recover({ storyId, recordId: q.id, reason: 'undo the retire', agent: 'lattice-implementer' });
+    recover({ storyId, recordId: q.id, reason: 'undo the retire', agent: 'proof-or-stop-implementer' });
     assert.equal(store.readRedEvidence(storyId).records.length, before + 1, 'a fresh recover on a WELL-FORMED head appends (non-vacuous control)');
     const head = resolveChainHead(partitionChain(store.readRedEvidence(storyId).records, storyId, 'M1'));
     assert.equal(head.operation, 'recover', 'the control recover became the head');
@@ -128,7 +128,7 @@ try {
     // so it can never collide with the quarantine's key — the dedupe branch (the
     // ONLY pre-fix consistency check) is provably NOT taken.
     assert.throws(
-      () => recover({ storyId, recordId: q.id, reason: 'undo the retire', agent: 'lattice-implementer' }),
+      () => recover({ storyId, recordId: q.id, reason: 'undo the retire', agent: 'proof-or-stop-implementer' }),
       (e) => e instanceof RedEvidenceChainError && e.reasonId === REASON_STORE_CORRUPTION,
       'a fresh recover onto a corrupt head raises a store-corruption CONFLICT (the head is recomputed BEFORE it is used as the prior link)',
     );
@@ -153,7 +153,7 @@ try {
     assert.ok(recordDigestMatches(keyTampered), 'the key-tampered head still recomputes its recordDigest (only the key is corrupt)');
     const before = store.readRedEvidence(storyId).records.length;
     assert.throws(
-      () => recover({ storyId, recordId: keyTampered.id, reason: 'undo the retire', agent: 'lattice-implementer' }),
+      () => recover({ storyId, recordId: keyTampered.id, reason: 'undo the retire', agent: 'proof-or-stop-implementer' }),
       (e) => e instanceof RedEvidenceChainError && e.reasonId === REASON_STORE_CORRUPTION,
       'a head whose operationKey does not recompute is also caught on a FRESH append',
     );

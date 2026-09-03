@@ -27,7 +27,7 @@ import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemin
 const sha256Json = (value: unknown): string =>
   createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
 
-const work = mkdtempSync(join(tmpdir(), 'lattice-provider-gemini-'));
+const work = mkdtempSync(join(tmpdir(), 'proof-or-stop-provider-gemini-'));
 const binDir = join(work, 'bin');
 const emptyBinDir = join(work, 'empty-bin');
 const projectRoot = join(work, 'project');

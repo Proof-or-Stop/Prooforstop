@@ -30,7 +30,7 @@ import {
 } from './pre-review-live-proof.js';
 import { readBrandEnv } from './brand-env.js';
 
-const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
+const KEY_FILE = 'proof-or-stop-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
 const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
 export const PRE_REVIEW_LIVE_PROOF_COMMAND = 'node scripts/run-proofstory-pre-review-live-proof.mjs';

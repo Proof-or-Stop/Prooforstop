@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b0fe",
+  "mode": "custom",
+  "allowed": [
+    "Add an explicit internal acceptance-rollout verifier authority with only the reviewer mutations required by the registered cohort, plus negative coverage for unknown/lookalike actors.",
+    "Rebuild generated dist and run focused actor-registry, pre-review, acceptance-rollout, and canonical live-proof verification.",
+    "Replace the pre-review live-proof smoke's hardcoded retired adapter directory with the shared canonical Proof-or-Stop adapter path contract."
+  ],
+  "excluded": [
+    "Any change to B-5952 retired-authority instrumentation source, ceiling, or evidence.",
+    "Any change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+    "Broadly trusting acceptance-rollout-verifier as a human/main host actor or relaxing unknown-actor fail-closed behavior.",
+    "Unrelated brand-path cleanup, public reviewer role changes, CLI command semantics, or production handler behavior."
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "The user required high/evidence-integrity blockers to be Red/Green fixed immediately while keeping unrelated discoveries out of the current Story. This separate Story is limited to the two canonical proof-producer failures and explicitly protects B-5952 and the Dynamic Finding document.",
+  "createdAt": "2026-08-31T03:43:53.449Z",
+  "updatedAt": "2026-08-31T03:43:53.449Z",
+  "_hash": "7ccd5e3c5bdc12fde89a454bc1b1d51e637fee388500ac86db1416c0ecabf8f0"
+}

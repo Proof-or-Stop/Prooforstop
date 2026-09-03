@@ -95,7 +95,7 @@ import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
-import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { repairGlobalProofOrStopLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 import { assertDonePreparePassConvergence, collectDonePrepareConvergenceFacts, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
 import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchestrator.js';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
@@ -266,12 +266,12 @@ function legacyPromptHash(agent: string): string {
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }));
@@ -331,14 +331,14 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
 }
 
 function assertDirtyWorktreeClassifierGroupsOwnership(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-dirty-classifier-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-dirty-classifier-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -350,27 +350,27 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
     assert.equal(rename?.originalPath, 'packages/main/src/old.ts');
 
     const classification = classifyGitStatusRows([
-      ' M .lattice/story/actives/B-smoke/checklist.json',
+      ' M .proof-or-stop/story/actives/B-smoke/checklist.json',
       ' M Docs/story/actives/B-smoke/test-evidence.json',
-      '?? .lattice/activity.jsonl',
+      '?? .proof-or-stop/activity.jsonl',
       ' M package.json',
-      ' D lattice.config.json',
+      ' D proof-or-stop.config.json',
       'R  packages/main/src/old.ts -> ./packages/main/src/new.ts',
       '?? packages/main/tests/fixtures/dirty-owner.json',
       '?? packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json',
     ], dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)));
 
     assert.equal(classification.total, 8);
-    assert.equal(classification.groups.lattice_metadata_changes.length, 2);
+    assert.equal(classification.groups.proof_or_stop_metadata_changes.length, 2);
     assert.equal(classification.groups.runtime_artifact_changes.length, 1);
     assert.equal(classification.groups.declared_artifact_changes.length, 0, 'undeclared artifact extension point should stay empty by default');
     assert.equal(classification.groups.material_source_changes.length, 3);
     assert.equal(classification.groups.fixture_changes.length, 1);
     assert.equal(classification.groups.unexpected_dirty_files.length, 1);
     assert.equal(classification.groups.unexpected_dirty_files[0].path, 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json');
-    assert.equal(classification.groups.runtime_artifact_changes[0].raw, '?? .lattice/activity.jsonl');
+    assert.equal(classification.groups.runtime_artifact_changes[0].raw, '?? .proof-or-stop/activity.jsonl');
     assert.equal(classification.groups.runtime_artifact_changes[0].statusCode, '??');
-    assert.equal(classification.groups.runtime_artifact_changes[0].rawPath, '.lattice/activity.jsonl');
+    assert.equal(classification.groups.runtime_artifact_changes[0].rawPath, '.proof-or-stop/activity.jsonl');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -419,7 +419,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.equal(DIRTY_GATE_POLICY.material_source_changes.blocking, true);
   assert.equal(DIRTY_GATE_POLICY.fixture_changes.blocking, true);
   assert.equal(DIRTY_GATE_POLICY.unexpected_dirty_files.blocking, true);
-  assert.equal(DIRTY_GATE_POLICY.lattice_metadata_changes.blocking, false);
+  assert.equal(DIRTY_GATE_POLICY.proof_or_stop_metadata_changes.blocking, false);
   assert.equal(DIRTY_GATE_POLICY.runtime_artifact_changes.blocking, false);
   assert.equal(DIRTY_GATE_POLICY.declared_artifact_changes.blocking, false);
 
@@ -446,8 +446,8 @@ function assertDirtyGatePolicyAcrossGates(): void {
 
   // (3) passing 3 categories coexist → allPass=true with 3 audit events.
   const passingFixture = buildClassification([
-    { category: 'lattice_metadata_changes', path: '.lattice/story/actives/B-x/index.json' },
-    { category: 'runtime_artifact_changes', path: '.lattice/activity.jsonl' },
+    { category: 'proof_or_stop_metadata_changes', path: '.proof-or-stop/story/actives/B-x/index.json' },
+    { category: 'runtime_artifact_changes', path: '.proof-or-stop/activity.jsonl' },
     { category: 'declared_artifact_changes', path: 'packages/main/tests/output/declared.json' },
   ]);
   const passingCapture: AuditEvent[] = [];
@@ -461,7 +461,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.equal(passingResult.auditEvents.length, 3, '3 passing categories must emit 3 audit events');
   assert.equal(passingCapture.length, 3, 'writer must be invoked once per passing category');
   assert.match(passingResult.summary, /passed=3/);
-  assert.match(passingResult.summary, /lattice_metadata_changes=1/);
+  assert.match(passingResult.summary, /proof_or_stop_metadata_changes=1/);
   assert.match(passingResult.summary, /runtime_artifact_changes=1/);
   assert.match(passingResult.summary, /declared_artifact_changes=1/);
 
@@ -493,7 +493,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   // with exactly one audit row, category=runtime_artifact_changes"). Distinct
   // from (5) which covers declared_artifact_changes, and from (3) which mixes
   // all three passing categories.
-  const runtimeOnlyPath = '.lattice/activity.jsonl';
+  const runtimeOnlyPath = '.proof-or-stop/activity.jsonl';
   const runtimeOnlyResult = evaluateDirtyGate(
     buildClassification([{ category: 'runtime_artifact_changes', path: runtimeOnlyPath }]),
     { storyId: STORY, gate: 'done-gate', writer: null, now: fixedNow },
@@ -566,9 +566,9 @@ function assertDirtyGatePolicyAcrossGates(): void {
   }
 
   // (8) defaultAuditWriter happy path — actually append to a tmp file.
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-dirty-audit-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-dirty-audit-'));
   try {
-    const storyDirRel = '.lattice/story/actives';
+    const storyDirRel = '.proof-or-stop/story/actives';
     mkdirSync(join(tmpRoot, storyDirRel, STORY), { recursive: true });
     const writer = defaultAuditWriter(tmpRoot, storyDirRel, STORY);
     const result = evaluateDirtyGate(passingFixture, {
@@ -596,9 +596,9 @@ function assertDirtyGatePolicyAcrossGates(): void {
 
   // (9) path truncation — >5 paths in a passing category truncate to 5 with
   // pathCount preserved.
-  const manyPaths = Array.from({ length: 8 }, (_, i) => `.lattice/story/actives/B-x/file-${i}.json`);
+  const manyPaths = Array.from({ length: 8 }, (_, i) => `.proof-or-stop/story/actives/B-x/file-${i}.json`);
   const manyFixture = buildClassification(
-    manyPaths.map((p) => ({ category: 'lattice_metadata_changes', path: p })),
+    manyPaths.map((p) => ({ category: 'proof_or_stop_metadata_changes', path: p })),
   );
   const truncResult = evaluateDirtyGate(manyFixture, {
     storyId: STORY,
@@ -614,7 +614,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
 }
 
 function assertDispatchPromptsPinImplementerCommitAuthor(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-dispatch-author-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-dispatch-author-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const dispatch = createStoryDispatchHandlers({
@@ -630,7 +630,7 @@ function assertDispatchPromptsPinImplementerCommitAuthor(): void {
     assert.match(itemPrompt, /normal-channel author fallback/);
 
     store.writeFindings(storyId, {
-      findings: [makeFinding(storyId, 'lattice-review-quality', reviewRound, '070', 'RR-smoke')],
+      findings: [makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '070', 'RR-smoke')],
     });
     const findingPrompt = dispatch.dispatch({ storyId, findingId: 'F-070' }).prompt;
     assert.match(findingPrompt, expectedAuthor);
@@ -760,7 +760,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS: docs consistency check PASSED.',
       severity: 'low',
-      agent: 'lattice-review-docs',
+      agent: 'proof-or-stop-review-docs',
     }),
     true,
     'low-severity reviewer pass-only finding should normalize to review pass',
@@ -769,7 +769,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS but README command failed.',
       severity: 'low',
-      agent: 'lattice-review-docs',
+      agent: 'proof-or-stop-review-docs',
     }),
     false,
     'ambiguous pass plus failure text must remain a real finding',
@@ -778,7 +778,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: '\u5ba1\u67e5\u901a\u8fc7\uff1a\u5df2\u68c0\u67e5\u8303\u56f4\uff0c\u65e0\u963b\u585e\u95ee\u9898\u3002',
       severity: 'low',
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
     }),
     true,
     'localized pass-only reviewer finding should normalize to review pass',
@@ -787,7 +787,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: '\u5ba1\u67e5\u901a\u8fc7\uff0c\u4f46\u4ecd\u7136\u6709\u95ee\u9898\u9700\u8981\u4fee\u590d\u3002',
       severity: 'low',
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
     }),
     false,
     'localized pass text with an explicit problem must remain a real finding',
@@ -796,7 +796,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS: docs consistency check PASSED.',
       severity: 'medium',
-      agent: 'lattice-review-docs',
+      agent: 'proof-or-stop-review-docs',
     }),
     false,
     'non-low pass-like finding must not normalize to review pass',
@@ -814,7 +814,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS: no blocking issues.',
       severity: 'low',
-      agent: 'lattice-review-lookalike',
+      agent: 'proof-or-stop-review-lookalike',
     }),
     false,
     'an unregistered prefix lookalike must not normalize into reviewer evidence',
@@ -822,19 +822,19 @@ function assertFlowFactPolicyRegistry(): void {
 }
 
 function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<string, unknown> = {}): { root: string; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-command-policy-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-command-policy-'));
   const { store, storyId } = createReviewStore(root);
   const config = {
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     ...configPatch,
   };
-  write(root, 'lattice.config.json', JSON.stringify(config));
+  write(root, 'proof-or-stop.config.json', JSON.stringify(config));
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'lattice@example.test']);
+  git(root, ['config', 'user.email', 'proofOrStop@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
@@ -1137,7 +1137,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   const repoRoot = resolve(packageRoot, '..', '..');
   const current = runManagedAssetCheck(repoRoot, { profile: 'all' });
   const currentById = new Map(current.items.map(item => [item.id, item]));
-  const expandedLocalGuideIds = [`doc:${PROOF_OR_STOP_STATE_DIR}/Lattice.md`, 'doc:LATTICE.md', 'doc:CLAUDE.md']
+  const expandedLocalGuideIds = [`doc:${PROOF_OR_STOP_STATE_DIR}/Proof-or-Stop.md`, 'doc:PROOF_OR_STOP.md', 'doc:CLAUDE.md']
     .filter(id => currentById.has(id));
   assert.ok(
     expandedLocalGuideIds.length > 0,
@@ -1155,9 +1155,9 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
     assetMode: 'full' | 'global-thin',
     docs: Array<{ id: string; relPath: string }>,
   ): void => {
-    const badRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-drift-'));
+    const badRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-drift-'));
     try {
-      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Proof-or-Stop-owned alternate contract.\n<!-- lattice:end -->\n';
+      const badSection = '<!-- proof-or-stop:start -->\n# Locally edited guide\nThis is not a Proof-or-Stop-owned alternate contract.\n<!-- proof-or-stop:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));
@@ -1174,50 +1174,50 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   };
 
   assertTrueLocalDrift('global-thin', [
-    { id: `doc:${PROOF_OR_STOP_STATE_DIR}/Lattice.md`, relPath: `${PROOF_OR_STOP_STATE_DIR}/Lattice.md` },
+    { id: `doc:${PROOF_OR_STOP_STATE_DIR}/Proof-or-Stop.md`, relPath: `${PROOF_OR_STOP_STATE_DIR}/Proof-or-Stop.md` },
     { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
     { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
   ]);
   assertTrueLocalDrift('full', [
-    { id: 'doc:LATTICE.md', relPath: 'LATTICE.md' },
+    { id: 'doc:PROOF_OR_STOP.md', relPath: 'PROOF_OR_STOP.md' },
     { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
     { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
   ]);
 }
 
 function assertReviewGateUsesOptIn(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-docs',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-docs',
+      'proof-or-stop-review-test-coverage',
     ]);
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '001', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '002', runIds.get('lattice-review-quality')!),
-        makeFinding(storyId, 'lattice-review-docs', reviewRound, '003', runIds.get('lattice-review-docs')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '001', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '002', runIds.get('proof-or-stop-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-docs', reviewRound, '003', runIds.get('proof-or-stop-review-docs')!),
       ],
     });
 
     const missing = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.match(missing ?? '', /Expected 3 reviewers \(opt-in: concept,quality,test-coverage\)/);
     assert.match(missing ?? '', /Missing: test-coverage/);
-    assert.match(missing ?? '', /lattice-review-docs/);
+    assert.match(missing ?? '', /proof-or-stop-review-docs/);
     assert.doesNotMatch(missing ?? '', /all 5 reviewers/);
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '004', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '005', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '004', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '005', runIds.get('proof-or-stop-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '006', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '006', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const pass = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -1233,23 +1233,23 @@ function assertReviewGateUsesOptIn(): void {
 }
 
 function assertReviewRunBindingRejectsInvalidEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-run-binding-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-run-binding-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const agents = [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
 
     const retrofittedLegacyFinding = {
-      ...makeLegacyFindingWithoutRun(storyId, 'lattice-review-quality', reviewRound, '045'),
-      reviewRunId: runIds.get('lattice-review-quality')!,
+      ...makeLegacyFindingWithoutRun(storyId, 'proof-or-stop-review-quality', reviewRound, '045'),
+      reviewRunId: runIds.get('proof-or-stop-review-quality')!,
     };
     const retrofittedLegacyPass = {
-      ...makeLegacyReviewPassWithoutRun(storyId, 'lattice-review-quality', reviewRound, '046'),
-      reviewRunId: runIds.get('lattice-review-quality')!,
+      ...makeLegacyReviewPassWithoutRun(storyId, 'proof-or-stop-review-quality', reviewRound, '046'),
+      reviewRunId: runIds.get('proof-or-stop-review-quality')!,
     };
     assert.equal(
       verifyFinding(storyId, retrofittedLegacyFinding),
@@ -1264,14 +1264,14 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
     store.writeFindings(storyId, { findings: [retrofittedLegacyFinding] });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '047', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '047', runIds.get('proof-or-stop-review-concept')!),
         retrofittedLegacyPass,
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '048', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '048', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const retrofitState = collectReviewerEvidenceState(store, storyId, root);
     assert.equal(
-      retrofitState.invalid.some(issue => issue.code === 'invalid_evidence_signature' && issue.agent === 'lattice-review-quality'),
+      retrofitState.invalid.some(issue => issue.code === 'invalid_evidence_signature' && issue.agent === 'proof-or-stop-review-quality'),
       true,
       'review-run evidence collection must reject reviewRunId-retrofitted legacy signatures',
     );
@@ -1281,9 +1281,9 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
 
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '050', runIds.get('lattice-review-concept')!),
-        makeLegacyReviewPassWithoutRun(storyId, 'lattice-review-quality', reviewRound, '051'),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '052', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '050', runIds.get('proof-or-stop-review-concept')!),
+        makeLegacyReviewPassWithoutRun(storyId, 'proof-or-stop-review-quality', reviewRound, '051'),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '052', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const missingRun = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -1300,22 +1300,22 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
 
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '053', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '054', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '055', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '053', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '054', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '055', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const wrongLane = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(wrongLane ?? '', /lane=lattice-review-concept/, 'evidence bound to a different reviewer lane must be rejected');
+    assert.match(wrongLane ?? '', /lane=proof-or-stop-review-concept/, 'evidence bound to a different reviewer lane must be rejected');
 
     const runs = store.readReviewRuns(storyId);
     runs.runs[1]._hash = 'tampered-review-run-signature';
     store.writeReviewRuns(storyId, runs);
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '056', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '057', runIds.get('lattice-review-quality')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '058', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '056', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '057', runIds.get('proof-or-stop-review-quality')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '058', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const tamperedRun = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -1326,18 +1326,18 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
 }
 
 function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-pass-supersede-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-pass-supersede-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const agents = [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
 
     const runsData = store.readReviewRuns(storyId);
-    const previousTestCoverageRun = runsData.runs.find(run => run.lane === 'lattice-review-test-coverage');
+    const previousTestCoverageRun = runsData.runs.find(run => run.lane === 'proof-or-stop-review-test-coverage');
     assert.ok(previousTestCoverageRun, 'test-coverage run fixture should exist');
     const latestTestCoverageRunId = `${storyId}:RR-004`;
     const latestStartedAt = '2026-04-27T11:03:00.000Z';
@@ -1361,14 +1361,14 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '061', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '062', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '061', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '062', runIds.get('proof-or-stop-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '063', runIds.get('lattice-review-test-coverage')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '064', latestTestCoverageRunId),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '063', runIds.get('proof-or-stop-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '064', latestTestCoverageRunId),
       ],
     });
 
@@ -1385,13 +1385,13 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     assert.equal(status.totalBlockers, 0);
 
     const staleFinding = {
-      ...makeFinding(storyId, 'lattice-review-test-coverage', reviewRound, '065', runIds.get('lattice-review-test-coverage')!),
+      ...makeFinding(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '065', runIds.get('proof-or-stop-review-test-coverage')!),
       status: 'open' as const,
     };
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '066', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '067', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '066', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '067', runIds.get('proof-or-stop-review-quality')!),
         staleFinding,
       ],
     });
@@ -1415,8 +1415,8 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     };
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '068', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '069', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '068', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '069', runIds.get('proof-or-stop-review-quality')!),
         resolvedStaleFinding,
       ],
     });
@@ -1443,13 +1443,13 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 // findings could never fire. This pins the fix AND the three things that must
 // keep blocking.
 function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-f019-terminal-forgive-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-f019-terminal-forgive-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const agents = [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
 
@@ -1465,7 +1465,7 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     // Both the resolved finding AND the lane's pass stay bound to the OLD run, so
     // the lane ends up with NO valid evidence — the precondition that used to
     // withhold forgiveness.
-    const laneAgent = 'lattice-review-test-coverage';
+    const laneAgent = 'proof-or-stop-review-test-coverage';
     const runsData = store.readReviewRuns(storyId);
     const previousLaneRun = runsData.runs.find(run => run.lane === laneAgent);
     assert.ok(previousLaneRun, 'test-coverage run fixture should exist');
@@ -1514,8 +1514,8 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     // 1. RESOLVED finding on a fully stale lane (NO valid evidence for that lane).
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '123', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '124', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '123', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '124', runIds.get('proof-or-stop-review-quality')!),
         resolvedFinding,
       ],
     });
@@ -1545,8 +1545,8 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     // the case where staleness could genuinely mislead.
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '125', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '126', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '125', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '126', runIds.get('proof-or-stop-review-quality')!),
         resolvedFinding,
         openFinding,
       ],
@@ -1586,8 +1586,8 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     } as Finding;
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '128', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '129', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '128', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '129', runIds.get('proof-or-stop-review-quality')!),
         injectedFinding,
       ],
     });
@@ -1644,14 +1644,14 @@ function signedReviewRunOverHead(
 }
 
 function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-binding-race-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-run-binding-race-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }));
@@ -1669,7 +1669,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     resetConfigCache();
 
     const storyId = 'B-smoke';
-    const agent = 'lattice-review-concept';
+    const agent = 'proof-or-stop-review-concept';
     const now = '2026-06-24T12:00:00.000Z';
     const reviewRound = '2026-06-24T12:01:00.000Z';
     const story: StoryInfo = {
@@ -1789,14 +1789,14 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
 }
 
 function assertReviewRunStoryFilesHashBindingIsSigned(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-story-files-hash-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-run-story-files-hash-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
@@ -1813,7 +1813,7 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
 
     const storyId = 'B-smoke';
     const reviewRunId = `${storyId}:RR-001`;
-    const agent = 'lattice-review-quality';
+    const agent = 'proof-or-stop-review-quality';
     const reviewRound = '2026-06-19T12:00:00.000Z';
     const startedAt = '2026-06-19T12:01:00.000Z';
     const headHash = currentGitHead(root)!;
@@ -1859,14 +1859,14 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
 }
 
 function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-verification-story-files-hash-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-verification-story-files-hash-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
@@ -1959,14 +1959,14 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
 }
 
 function assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-test-evidence-story-files-hash-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-test-evidence-story-files-hash-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
@@ -2036,14 +2036,14 @@ function assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness(): void {
 }
 
 function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-preflight-story-files-hash-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-preflight-story-files-hash-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }));
@@ -2061,7 +2061,7 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
 
     const storyId = 'B-smoke';
     const reviewRound = '2026-06-19T12:00:00.000Z';
-    const agent = 'lattice-review-quality';
+    const agent = 'proof-or-stop-review-quality';
     const reviewRunId = `${storyId}:RR-001`;
     const startedAt = '2026-06-19T12:01:00.000Z';
     const recordedHead = currentGitHead(root)!;
@@ -2136,14 +2136,14 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
 }
 
 function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-legacy-review-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-legacy-review-evidence-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const story = store.readStory(storyId);
     delete story.currentReviewRound;
     store.writeStory(storyId, story);
     store.writeReviewPasses(storyId, {
-      passes: [makeLegacyReviewPassWithoutRun(storyId, 'lattice-review-quality', reviewRound, '060')],
+      passes: [makeLegacyReviewPassWithoutRun(storyId, 'proof-or-stop-review-quality', reviewRound, '060')],
     });
 
     const evidenceState = collectReviewerEvidenceState(store, storyId, root);
@@ -2155,21 +2155,21 @@ function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
 }
 
 // B-ad2c F-004 regression: collectReviewerEvidenceState must classify
-// reviewer evidence by the lattice-review-* lane prefix, NOT by `agent != main`.
-// Otherwise main-agent / lattice-implementer / other non-reviewer actors that
+// reviewer evidence by the proof-or-stop-review-* lane prefix, NOT by `agent != main`.
+// Otherwise main-agent / proof-or-stop-implementer / other non-reviewer actors that
 // recorded findings during DEV (e.g. plan-conflict notes) are incorrectly
 // treated as reviewer evidence and the missing reviewRunId blocks REVIEW→TEST.
 function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-non-reviewer-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-non-reviewer-evidence-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
 
-    const nonReviewerAgents = ['main', 'main-agent', 'lattice-implementer'];
+    const nonReviewerAgents = ['main', 'main-agent', 'proof-or-stop-implementer'];
     const nonReviewerFindings = nonReviewerAgents.map((agent, idx) => {
       const id = `${storyId}:F-${String(900 + idx).padStart(3, '0')}`;
       const createdAt = `2026-04-27T13:00:${String(idx).padStart(2, '0')}.000Z`;
@@ -2190,9 +2190,9 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
     store.writeFindings(storyId, { findings: nonReviewerFindings });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '901', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '902', runIds.get('lattice-review-quality')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '903', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '901', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '902', runIds.get('proof-or-stop-review-quality')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '903', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
 
@@ -2220,12 +2220,12 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
       'REVIEW→TEST gate must pass when only reviewer passes are bound and non-reviewer findings exist',
     );
 
-    // Negative arm: a real lattice-review-* finding without reviewRunId in the
+    // Negative arm: a real proof-or-stop-review-* finding without reviewRunId in the
     // current round must STILL be rejected — proves the fix narrowed the
     // classifier but did not weaken the reviewRunId requirement for real lanes.
     const reviewerFindingWithoutRun = makeLegacyFindingWithoutRun(
       storyId,
-      'lattice-review-quality',
+      'proof-or-stop-review-quality',
       reviewRound,
       '910',
     );
@@ -2235,10 +2235,10 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
     const stateWithReviewerMiss = collectReviewerEvidenceState(store, storyId, root);
     assert.equal(
       stateWithReviewerMiss.invalid.some(issue =>
-        issue.agent === 'lattice-review-quality' && issue.code === 'missing_review_run_id',
+        issue.agent === 'proof-or-stop-review-quality' && issue.code === 'missing_review_run_id',
       ),
       true,
-      'a real lattice-review-* finding without reviewRunId must still raise missing_review_run_id',
+      'a real proof-or-stop-review-* finding without reviewRunId must still raise missing_review_run_id',
     );
     assert.equal(
       stateWithReviewerMiss.invalid.some(issue => issue.agent === 'main-agent'),
@@ -2257,19 +2257,19 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
 // story has a currentReviewRound) sits alongside complete reviewer-lane
 // evidence. F-004 narrowed collectReviewerEvidenceState; F-005 closes the
 // last hole: the legacy guard-utils.ts mirror path must classify reviewer
-// evidence by lattice-review-* prefix too, not by `agent != main`.
+// evidence by proof-or-stop-review-* prefix too, not by `agent != main`.
 //
-// Negative arm: a real lattice-review-* finding without reviewRunId in the
+// Negative arm: a real proof-or-stop-review-* finding without reviewRunId in the
 // current round must STILL block the live path — proves the narrowing did
 // not weaken the reviewRunId binding requirement for real reviewer lanes.
 function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-dev-finding-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-dev-finding-gate-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
 
     // Mirror live B-ad2c F-001 shape: main-agent authored, status=resolved,
@@ -2292,18 +2292,18 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
     // One bound reviewer finding per opt-in lane — covers the legacy
     // guard-utils.ts gate (which reads findings only, not review passes).
     const reviewerFindings: Finding[] = [
-      makeFinding(storyId, 'lattice-review-concept', reviewRound, '821', runIds.get('lattice-review-concept')!),
-      makeFinding(storyId, 'lattice-review-quality', reviewRound, '822', runIds.get('lattice-review-quality')!),
-      makeFinding(storyId, 'lattice-review-test-coverage', reviewRound, '823', runIds.get('lattice-review-test-coverage')!),
+      makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '821', runIds.get('proof-or-stop-review-concept')!),
+      makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '822', runIds.get('proof-or-stop-review-quality')!),
+      makeFinding(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '823', runIds.get('proof-or-stop-review-test-coverage')!),
     ];
     store.writeFindings(storyId, { findings: [devFinding, ...reviewerFindings] });
     // Add review passes too — covers machine.ts canPassReview's quorum check
     // which reads valid evidence (findings ∪ passes) from collectReviewerEvidenceState.
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '801', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '802', runIds.get('lattice-review-quality')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '803', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '801', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '802', runIds.get('proof-or-stop-review-quality')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '803', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
 
@@ -2326,13 +2326,13 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       'guard-utils.ts mirror must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
     );
 
-    // Negative arm: a real lattice-review-* finding in the current round with
+    // Negative arm: a real proof-or-stop-review-* finding in the current round with
     // no reviewRunId must still block the live path — the narrowing only
     // changed agent classification, not the reviewRunId binding contract for
     // real reviewer lanes.
     const reviewerMiss = makeLegacyFindingWithoutRun(
       storyId,
-      'lattice-review-quality',
+      'proof-or-stop-review-quality',
       reviewRound,
       '811',
     );
@@ -2340,7 +2340,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
     const liveBlocked = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.ok(
       liveBlocked && /Cannot enter TEST/.test(liveBlocked),
-      `machine.ts guard must still block when a real lattice-review-* finding lacks reviewRunId, got: ${liveBlocked}`,
+      `machine.ts guard must still block when a real proof-or-stop-review-* finding lacks reviewRunId, got: ${liveBlocked}`,
     );
     assert.ok(
       liveBlocked && /missing_review_run_id|reviewer evidence/.test(liveBlocked),
@@ -2352,7 +2352,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
 }
 
 async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-echo-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-echo-'));
   const oldCwd = process.cwd();
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
@@ -2403,7 +2403,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       updatedAt: scopeCheckedAt,
     });
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2439,7 +2439,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
 }
 
 function assertReviewerStatusUsesMdFallback(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-doc-review-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-doc-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     store.writeUnderstanding(storyId, {
@@ -2451,7 +2451,7 @@ function assertReviewerStatusUsesMdFallback(): void {
       timestamp: '2026-04-27T12:00:00.000Z',
     } as any);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2461,20 +2461,20 @@ function assertReviewerStatusUsesMdFallback(): void {
     git(root, ['add', 'docs/review-notes.md']);
     git(root, ['commit', '-m', 'docs change']);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'lattice-review-concept', reviewRound, '010', runIds.get('lattice-review-concept')!),
-        makeFinding(storyId, 'lattice-review-quality', reviewRound, '011', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '010', runIds.get('proof-or-stop-review-concept')!),
+        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '011', runIds.get('proof-or-stop-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '012', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '012', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
 
@@ -2503,20 +2503,20 @@ function assertReviewerStatusUsesMdFallback(): void {
 }
 
 function assertSessionBriefStatusHintsMatchGates(): void {
-  const reviewRoot = mkdtempSync(join(tmpdir(), 'lattice-flow-session-review-'));
+  const reviewRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-session-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(reviewRoot);
     git(reviewRoot, ['init']);
-    git(reviewRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(reviewRoot, ['config', 'user.email', 'proofOrStop@example.test']);
     git(reviewRoot, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(reviewRoot, ['checkout', '-B', 'main']);
     git(reviewRoot, ['add', '.']);
     git(reviewRoot, ['commit', '-m', 'base']);
     git(reviewRoot, ['checkout', '-b', `story/${storyId}`]);
     const runIds = seedReviewRuns(reviewRoot, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
     store.writeReview(storyId, {
       reviews: [{
@@ -2528,9 +2528,9 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '020', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '021', runIds.get('lattice-review-quality')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '022', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '020', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '021', runIds.get('proof-or-stop-review-quality')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '022', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const reviewBrief = createSessionHandlers({
@@ -2570,20 +2570,20 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /\[FAIL\] delivery-check/);
     assert.match(testBrief, /\[FAIL\] Story summary/);
     assert.match(testBrief, /DONE pre-check still has/);
-    // B-4b22: lattice_metadata_changes is a passing category, so the git-working-tree
-    // row now reports PASS with "pass: blocking=0 ...; passed=N (lattice_metadata_changes=N)".
-    // The LATTICE_WRITE side-effect hint only appears when the row fails, so it is
+    // B-4b22: proof_or_stop_metadata_changes is a passing category, so the git-working-tree
+    // row now reports PASS with "pass: blocking=0 ...; passed=N (proof_or_stop_metadata_changes=N)".
+    // The PROOF_OR_STOP_WRITE side-effect hint only appears when the row fails, so it is
     // no longer asserted here. session_brief still surfaces "Working tree dirty
     // (N files)" because dirt exists even when policy allows it.
     assert.match(testBrief, /\[PASS\] git working tree/);
     assert.match(testBrief, /pass: blocking=0/);
-    assert.match(testBrief, /lattice_metadata_changes/);
+    assert.match(testBrief, /proof_or_stop_metadata_changes/);
     assert.match(testBrief, /Working tree dirty/);
     assert.match(testBrief, /delivery_check_set/);
     assert.match(testBrief, /agentId=proof-or-stop-review-delivery/);
     assert.match(testBrief, /main agent must not self-sign/);
     assert.match(testBrief, /summary_set/);
-    // B-4b22: lattice_metadata-only pollution passes via dirty-gate-policy, so
+    // B-4b22: proof_or_stop_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
     assert.match(nextStep, /delivery-check, story-summary/);
     assert.match(nextStep, /After all pass, run proof-or-stop story_advance --phase=DONE/);
@@ -2596,20 +2596,20 @@ function assertSessionBriefStatusHintsMatchGates(): void {
 }
 
 function assertReviewNextUsesReviewerGateState(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-next-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-next-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
 
     const handlers = createSessionHandlers({
@@ -2645,17 +2645,17 @@ function assertReviewNextUsesReviewerGateState(): void {
         severity,
         category: 'happy',
         status: 'open',
-        agent: 'lattice-review-concept',
+        agent: 'proof-or-stop-review-concept',
         createdAt,
         reviewRound,
-        reviewRunId: runIds.get('lattice-review-concept')!,
-        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, runIds.get('lattice-review-concept')!),
+        reviewRunId: runIds.get('proof-or-stop-review-concept')!,
+        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, runIds.get('proof-or-stop-review-concept')!),
       }],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '041', runIds.get('lattice-review-quality')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '042', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '041', runIds.get('proof-or-stop-review-quality')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '042', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const blockerNext = handlers.next({ concise: true });
@@ -2667,11 +2667,11 @@ function assertReviewNextUsesReviewerGateState(): void {
 }
 
 function assertDevGuidanceUsesReviewPhase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-dev-guidance-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-dev-guidance-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2694,10 +2694,10 @@ function assertDevGuidanceUsesReviewPhase(): void {
 }
 
 function assertValidateHintsFollowStoryPhase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-validate-hint-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-validate-hint-'));
   try {
     const { store, storyId } = createReviewStore(root);
-    const result = JSON.stringify({ provider: 'lattice-verifier', allPass: true });
+    const result = JSON.stringify({ provider: 'proof-or-stop-verifier', allPass: true });
     const render = (phase: StoryInfo['phase']) => {
       const story = store.readStory(storyId);
       story.phase = phase;
@@ -2730,21 +2730,21 @@ function assertValidateHintsFollowStoryPhase(): void {
 }
 
 function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-real-cli-validate-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-real-cli-validate-'));
   try {
     const { store, storyId } = createReviewStore(root);
     write(root, 'validate-smoke.js', 'console.log(JSON.stringify({ provider: "smoke", status: "pass", allPass: true, summary: "ok", details: [] }));\n');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       validate: { command: 'node validate-smoke.js' },
       workflow: { profile: 'balanced' },
     }));
     resetConfigCache();
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2771,7 +2771,7 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
 }
 
 function assertBugUpdateTestHintUsesDonePrecheck(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-bug-hint-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-bug-hint-'));
   try {
     const { store, storyId } = createReviewStore(root);
     const story = store.readStory(storyId);
@@ -2803,12 +2803,12 @@ function assertBugUpdateTestHintUsesDonePrecheck(): void {
   }
 }
 
-function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-author-'));
+function assertChannelGateRejectsProofOrStopSubjectForRealFiles(): void {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-author-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2835,11 +2835,11 @@ function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
 }
 
 function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-shared-author-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-shared-author-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2872,11 +2872,11 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
 }
 
 function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-author-fallback-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-author-fallback-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2885,7 +2885,7 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
     write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
     git(root, ['add', 'packages/main/src/real-code.ts']);
     git(root, [
-      '-c', 'user.name=lattice-implementer',
+      '-c', 'user.name=proof-or-stop-implementer',
       '-c', 'user.email=implementer@example.test',
       'commit',
       '-m', 'implement real code',
@@ -2901,11 +2901,11 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
 }
 
 function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-subagent-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-subagent-evidence-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2914,7 +2914,7 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
     write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
     git(root, ['add', 'packages/main/src/real-code.ts']);
     git(root, [
-      '-c', 'user.name=lattice-implementer',
+      '-c', 'user.name=proof-or-stop-implementer',
       '-c', 'user.email=implementer@example.test',
       'commit',
       '-m', 'implement real code',
@@ -2937,11 +2937,11 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
 }
 
 function assertChannelGateAcceptsDispatchEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-dispatch-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-dispatch-evidence-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -2950,7 +2950,7 @@ function assertChannelGateAcceptsDispatchEvidence(): void {
     write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
     git(root, ['add', 'packages/main/src/real-code.ts']);
     git(root, [
-      '-c', 'user.name=lattice-implementer',
+      '-c', 'user.name=proof-or-stop-implementer',
       '-c', 'user.email=implementer@example.test',
       'commit',
       '-m', 'implement real code',
@@ -2976,20 +2976,20 @@ function renderedDetails(result: { details: string[] }): string {
 }
 
 function assertDoneChecklistUsesStableOracleRows(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-oracle-row-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-oracle-row-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
 
     const testStory = store.readStory(storyId);
@@ -3005,9 +3005,9 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '030', runIds.get('lattice-review-concept')!),
-        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '031', runIds.get('lattice-review-quality')!),
-        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '032', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-concept', reviewRound, '030', runIds.get('proof-or-stop-review-concept')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-quality', reviewRound, '031', runIds.get('proof-or-stop-review-quality')!),
+        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '032', runIds.get('proof-or-stop-review-test-coverage')!),
       ],
     });
     const evidence: TestEvidenceData = {
@@ -3018,8 +3018,8 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     };
     store.writeTestEvidence(storyId, evidence);
     write(root, 'packages/main/src/core/dirty.ts', 'export const dirty = true;\n');
-    write(root, '.lattice/activity.jsonl', '{"event":"runtime"}\n');
-    write(root, '.lattice/story/actives/B-smoke/dirty-owner.json', '{}\n');
+    write(root, '.proof-or-stop/activity.jsonl', '{"event":"runtime"}\n');
+    write(root, '.proof-or-stop/story/actives/B-smoke/dirty-owner.json', '{}\n');
     write(root, 'packages/main/tests/fixtures/dirty-owner.json', '{}\n');
     write(root, 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json', '{}\n');
 
@@ -3037,18 +3037,18 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     //   "fail: blocking=N (...); passed=M (...)"
     assert.match(byId.get('git-working-tree')?.detail ?? '', /^fail: blocking=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /passed=/);
-    assert.match(byId.get('git-working-tree')?.detail ?? '', /lattice_metadata_changes=/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /proof_or_stop_metadata_changes=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /fixture_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /unexpected_dirty_files=1/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/src\/core\/dirty\.ts/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /material_source_changes/);
-    assert.match(byId.get('git-working-tree')?.hint ?? '', /lattice_metadata_changes/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /proof_or_stop_metadata_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /runtime_artifact_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /fixture_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /unexpected_dirty_files/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
-    assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|LATTICE_WRITE/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|PROOF_OR_STOP_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=proof-or-stop-review-delivery/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /main agent must not self-sign/);
@@ -3062,11 +3062,11 @@ function assertDoneChecklistUsesStableOracleRows(): void {
 }
 
 function assertDoneClosureProjectionSeparatesAuthority(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closure-projection-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-closure-projection-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -3118,19 +3118,19 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
 }
 
 function assertGlobalLinkRepair(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-link-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-link-'));
   try {
     const mainRepo = join(root, 'repo');
     const worktree = join(root, 'repo', '.worktrees', 'B-smoke');
     const worktreePackage = join(worktree, 'packages', 'main');
     const mainPackage = join(mainRepo, 'packages', 'main');
-    const globalPackage = join(root, 'global', 'node_modules', '@lattice', 'core');
+    const globalPackage = join(root, 'global', 'node_modules', '@proofOrStop', 'core');
     mkdirSync(worktreePackage, { recursive: true });
     mkdirSync(mainPackage, { recursive: true });
     mkdirSync(dirname(globalPackage), { recursive: true });
     symlinkSync(worktreePackage, globalPackage, process.platform === 'win32' ? 'junction' : 'dir');
 
-    const repaired = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: globalPackage });
+    const repaired = repairGlobalProofOrStopLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: globalPackage });
     assert.equal(repaired.action, 'relinked');
     assert.equal(lstatSync(globalPackage).isSymbolicLink(), true);
     assert.equal(resolve(dirname(globalPackage), readlinkSync(globalPackage)), resolve(mainPackage));
@@ -3140,13 +3140,13 @@ function assertGlobalLinkRepair(): void {
     mkdirSync(otherPackage, { recursive: true });
     mkdirSync(dirname(otherGlobalPackage), { recursive: true });
     symlinkSync(otherPackage, otherGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
-    const skipped = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: otherGlobalPackage });
+    const skipped = repairGlobalProofOrStopLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: otherGlobalPackage });
     assert.equal(skipped.action, 'skipped');
     assert.equal(resolve(dirname(otherGlobalPackage), readlinkSync(otherGlobalPackage)), resolve(otherPackage));
 
     const normalInstall = join(root, 'normal-global', 'node_modules', '@legacy-agent', 'core');
     mkdirSync(normalInstall, { recursive: true });
-    const normalSkipped = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: normalInstall });
+    const normalSkipped = repairGlobalProofOrStopLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: normalInstall });
     assert.equal(normalSkipped.action, 'skipped');
     assert.equal(existsSync(normalInstall), true);
     assert.equal(lstatSync(normalInstall).isDirectory(), true);
@@ -3156,7 +3156,7 @@ function assertGlobalLinkRepair(): void {
     symlinkSync(worktreePackage, failingGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
 
     assert.throws(
-      () => repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, {
+      () => repairGlobalProofOrStopLinkBeforeWorktreeDelete(worktree, mainRepo, {
         globalPackagePath: failingGlobalPackage,
         unlinkImpl: () => {
           throw new Error('mock unlink failure');
@@ -3215,19 +3215,19 @@ function gitStatusPorcelain(root: string): string {
 }
 
 function setupAutoCommitFixture(): { root: string; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-auto-commit-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-auto-commit-'));
   // Init git repo + initial commit on main so branch checkout works
   execFileSync('git', ['init', '--initial-branch=main'], { cwd: root, stdio: 'ignore' });
-  gitConfig(root, 'user.email', 'smoke@lattice.test');
+  gitConfig(root, 'user.email', 'smoke@proofOrStop.test');
   gitConfig(root, 'user.name', 'smoke');
   gitConfig(root, 'commit.gpgsign', 'false');
-  // lattice.config.json so loadConfig picks our story dir
-  write(root, 'lattice.config.json', JSON.stringify({
+  // proof-or-stop.config.json so loadConfig picks our story dir
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }));
   resetConfigCache();
@@ -3237,7 +3237,7 @@ function setupAutoCommitFixture(): { root: string; storyId: string } {
 }
 
 function writeFakeMetadata(root: string, storyId: string, content = '{"x":1}'): void {
-  write(root, `.lattice/story/actives/${storyId}/findings.json`, content);
+  write(root, `.proof-or-stop/story/actives/${storyId}/findings.json`, content);
 }
 
 function writeMaterialFile(root: string, content = 'export const X = 1;\n'): void {
@@ -3289,7 +3289,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
       );
       assert.equal(classification.groups.material_source_changes.length, 1);
-      assert.equal(classification.groups.lattice_metadata_changes.length, 0, 'metadata category must be empty after auto-commit');
+      assert.equal(classification.groups.proof_or_stop_metadata_changes.length, 0, 'metadata category must be empty after auto-commit');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -3350,9 +3350,9 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   // repos should return '' and should not create mutation:storyMetadataCommit
   // health noise.
   {
-    const root = mkdtempSync(join(tmpdir(), 'lattice-auto-commit-nongit-'));
-    const previousHealthPath = process.env.LATTICE_HEALTH_PATH;
-    process.env.LATTICE_HEALTH_PATH = join(root, 'health.jsonl');
+    const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-auto-commit-nongit-'));
+    const previousHealthPath = process.env.PROOF_OR_STOP_HEALTH_PATH;
+    process.env.PROOF_OR_STOP_HEALTH_PATH = join(root, 'health.jsonl');
     try {
       writeFakeMetadata(root, 'B-test1');
       const out = autoCommitStoryMetadata(root, 'B-test1', 'artifact_declare');
@@ -3363,8 +3363,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         'non-git roots must not produce mutation:storyMetadataCommit health issues',
       );
     } finally {
-      if (previousHealthPath === undefined) delete process.env.LATTICE_HEALTH_PATH;
-      else process.env.LATTICE_HEALTH_PATH = previousHealthPath;
+      if (previousHealthPath === undefined) delete process.env.PROOF_OR_STOP_HEALTH_PATH;
+      else process.env.PROOF_OR_STOP_HEALTH_PATH = previousHealthPath;
       rmSync(root, { recursive: true, force: true });
     }
   }
@@ -3373,15 +3373,15 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   // failures remain health-reportable mutation failures.
   {
     const { root, storyId } = setupAutoCommitFixture();
-    const previousHealthPath = process.env.LATTICE_HEALTH_PATH;
-    process.env.LATTICE_HEALTH_PATH = join(root, 'health.jsonl');
+    const previousHealthPath = process.env.PROOF_OR_STOP_HEALTH_PATH;
+    process.env.PROOF_OR_STOP_HEALTH_PATH = join(root, 'health.jsonl');
     try {
       gitCheckoutNewBranch(root, `story/${storyId}`);
       writeFakeMetadata(root, storyId);
       writeFileSync(join(root, '.git', 'index.lock'), 'locked');
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
       assert.match(out, /proof-or-stop metadata auto-commit failed/, 'real git failures still return the user-visible warning');
-      assert.doesNotMatch(out, /\blattice metadata auto-commit failed/, 'failure warning must not teach the deprecated brand');
+      assert.doesNotMatch(out, /\bproofOrStop metadata auto-commit failed/, 'failure warning must not teach the deprecated brand');
       const issues = readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit');
       assert.equal(issues.length, 1, 'real git checkout failures still produce one metadata health issue');
       assert.equal(issues[0].context.storyId, storyId);
@@ -3389,8 +3389,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       assert.equal(issues[0].context.projectRoot, root);
     } finally {
       rmSync(join(root, '.git', 'index.lock'), { force: true });
-      if (previousHealthPath === undefined) delete process.env.LATTICE_HEALTH_PATH;
-      else process.env.LATTICE_HEALTH_PATH = previousHealthPath;
+      if (previousHealthPath === undefined) delete process.env.PROOF_OR_STOP_HEALTH_PATH;
+      else process.env.PROOF_OR_STOP_HEALTH_PATH = previousHealthPath;
       rmSync(root, { recursive: true, force: true });
     }
   }
@@ -3487,7 +3487,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       );
       assert.equal(after.groups.material_source_changes.length, materialBefore, 'material dirt count unchanged by auto-commit');
       assert.equal(after.groups.unexpected_dirty_files.length, unexpectedBefore, 'unexpected dirt count unchanged by auto-commit');
-      assert.equal(after.groups.lattice_metadata_changes.length, 0, 'metadata category drains to zero after auto-commit');
+      assert.equal(after.groups.proof_or_stop_metadata_changes.length, 0, 'metadata category drains to zero after auto-commit');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -3510,14 +3510,14 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
  */
 function assertDeclaredArtifactsChannel(): void {
   const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-declared-artifacts-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-declared-artifacts-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -3690,14 +3690,14 @@ function assertDeclaredArtifactsChannel(): void {
     // (d) promise:<docPath> ref resolves when delivery-check.docsPromises contains the docPath.
     //     Use a separate store rooted at a fresh temp dir so we don't trample
     //     the previous-scenario fixtures.
-    const promiseRoot = mkdtempSync(join(tmpdir(), 'lattice-declared-artifacts-promise-'));
+    const promiseRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-declared-artifacts-promise-'));
     try {
-      write(promiseRoot, 'lattice.config.json', JSON.stringify({
+      write(promiseRoot, 'proof-or-stop.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
         testsDir: 'packages/main/tests',
         fixturesDir: 'packages/main/tests/fixtures',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
       }));
       resetConfigCache();
@@ -3717,7 +3717,7 @@ function assertDeclaredArtifactsChannel(): void {
         storyId,
         checkedAt: now,
         reviewRound: now,
-        agentId: 'lattice-review-delivery',
+        agentId: 'proof-or-stop-review-delivery',
         docsPromises: [{ docPath: 'CLAUDE.md#section-foo', promise: 'doc promise', verifiedBy: 'grep', evidence: 'observed' }],
         realMachineTests: [],
         closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'ok summary text' },
@@ -3752,14 +3752,14 @@ function assertDeclaredArtifactGateHotfix(): void {
   const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
   const FIXTURE_PATH = 'packages/main/tests/fixtures/sample-fixture.json';
   const GENERATED_OUTPUT = 'packages/main/tests/output/declared-generated.json';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-declared-gate-hotfix-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-declared-gate-hotfix-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -3811,7 +3811,7 @@ function assertDeclaredArtifactGateHotfix(): void {
       /classifies as fixture_changes and cannot be declared/,
       'artifact_declare must reject a fixture path',
     );
-    // === CHK-002: artifact_declare rejects config / lattice-metadata paths ===
+    // === CHK-002: artifact_declare rejects config / proof-or-stop-metadata paths ===
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
@@ -3825,33 +3825,33 @@ function assertDeclaredArtifactGateHotfix(): void {
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.lattice/story/actives/B-hotfix/index.json',
-        reason: 'attacker tries to declare lattice metadata',
+        path: '.proof-or-stop/story/actives/B-hotfix/index.json',
+        reason: 'attacker tries to declare proof-or-stop metadata',
         relatedIntent: 'CHK-001:happy:0',
       }),
-      /classifies as lattice_metadata_changes and cannot be declared/,
-      'artifact_declare must reject a lattice-metadata path',
+      /classifies as proof_or_stop_metadata_changes and cannot be declared/,
+      'artifact_declare must reject a proof-or-stop-metadata path',
     );
     // === CHK-002 (B-8db9 F-002): artifact_declare rejects a runtime artifact path ===
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.lattice/activity.jsonl',
+        path: '.proof-or-stop/activity.jsonl',
         reason: 'attacker tries to declare a runtime activity log',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /is a runtime artifact, already handled by runtime-artifact-registry/,
-      'artifact_declare must reject a runtime artifact path (.lattice/activity.jsonl)',
+      'artifact_declare must reject a runtime artifact path (.proof-or-stop/activity.jsonl)',
     );
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.lattice-serve.json',
+        path: '.proof-or-stop-serve.json',
         reason: 'attacker tries to declare the dev-server handshake file',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /is a runtime artifact, already handled by runtime-artifact-registry/,
-      'artifact_declare must reject a runtime artifact path (.lattice-serve.json)',
+      'artifact_declare must reject a runtime artifact path (.proof-or-stop-serve.json)',
     );
     // === CHK-002 happy: a tests/output/ generated path is declarable ===
     handlers.artifact_declare({
@@ -3926,17 +3926,17 @@ function assertDeclaredArtifactGateHotfix(): void {
  */
 function assertDeclaredArtifactDoneCommittedRow(): void {
   const GENERATED_OUTPUT = 'packages/main/tests/output/declared-generated.json';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-declared-committed-row-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-declared-committed-row-'));
   try {
     git(root, ['init']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     git(root, ['add', '.']);
@@ -4133,21 +4133,21 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   // 2a. runValidateGate: validate FAIL → block TEST. The verifier judges the
   //     configured validate command by exit code, so a non-zero exit is a real
   //     validate failure (allPass=false) → first throw "did not pass".
-  const failRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-validate-fail-'));
+  const failRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-phase-gates-validate-fail-'));
   try {
     // Official validation now requires the configured workspace to resolve one
     // Git identity before it enters the capacity queue. Seed only that identity
     // so this fixture still reaches, and is classified by, configured exit 5.
     git(failRoot, ['init']);
-    git(failRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(failRoot, ['config', 'user.email', 'proofOrStop@example.test']);
     git(failRoot, ['config', 'user.name', 'Proofbound Smoke']);
     git(failRoot, ['checkout', '-B', 'main']);
     git(failRoot, ['commit', '--allow-empty', '-m', 'base']);
     const store = new StoryStore(failRoot);
-    write(failRoot, 'lattice.config.json', JSON.stringify({
+    write(failRoot, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       validate: { commands: [{ label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] }] },
       workflow: { profile: 'balanced' },
@@ -4206,7 +4206,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   //     detectFastChannel routes ≤5-item, no-risk stories to the fast channel,
   //     where all gates skip). A main-agent-authored commit with no implementer
   //     evidence then trips the channel gate → preflight.ok=false → block.
-  const preflightRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-preflight-'));
+  const preflightRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-phase-gates-preflight-'));
   try {
     const { store, storyId } = createReviewStore(preflightRoot);
     // Promote to the normal channel so the CLI gates actually run.
@@ -4214,7 +4214,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     normalStory.riskSignals = [{ category: 'state machine', matched: 'gate' }];
     store.writeStory(storyId, normalStory);
     git(preflightRoot, ['init']);
-    git(preflightRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(preflightRoot, ['config', 'user.email', 'proofOrStop@example.test']);
     git(preflightRoot, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(preflightRoot, ['checkout', '-B', 'main']);
     git(preflightRoot, ['add', '.']);
@@ -4243,7 +4243,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   }
 
   // --- 3. Effect snapshot byte-identical ---
-  const effectRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-effects-'));
+  const effectRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-phase-gates-effects-'));
   try {
     const { store, storyId } = createReviewStore(effectRoot);
 
@@ -4375,20 +4375,20 @@ function assertDoneOracleSameSource(): void {
   );
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-same-source-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-same-source-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     seedReviewRuns(root, store, storyId, reviewRound, [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ]);
 
     const testStory = store.readStory(storyId);
@@ -4489,7 +4489,7 @@ function assertDoneOracleSameSource(): void {
       storyId,
       checkedAt: '2026-05-15T12:30:00.000Z',
       reviewRound,
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises: [],
       realMachineTests,
       closingSelfCheck,
@@ -4517,7 +4517,7 @@ function assertDoneOracleSameSource(): void {
       headHash: deliveryHeadHash,
       materialHash: deliveryMaterialHash,
       reviewRound,
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
@@ -4542,12 +4542,12 @@ function assertDoneOracleSameSource(): void {
  * chains. Uses formatWorktreePollutionDetails (validation-executor) as the
  * representative production caller: if it forgets projectRoot the custom story
  * metadata path would land in unexpected_dirty_files (blocking) instead of
- * lattice_metadata_changes (passing).
+ * proof_or_stop_metadata_changes (passing).
  */
 function assertProductionHelperPassesProjectRootToClassifier(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prod-root-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prod-root-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
@@ -4579,12 +4579,12 @@ function assertProductionHelperPassesProjectRootToClassifier(): void {
     const header = lines[0];
     assert.ok(
       header.startsWith('✓'),
-      `Production helper must classify custom storyDir path as lattice_metadata (passing). ` +
+      `Production helper must classify custom storyDir path as proof_or_stop_metadata (passing). ` +
       `Got: ${header} — if this fails, the production helper is not passing projectRoot to dirtyWorktreeClassifierOptionsFromConfig.`,
     );
     assert.equal(
       worktreePollution.blocking, false,
-      'worktreePollution.blocking must be false when only lattice_metadata paths are dirty',
+      'worktreePollution.blocking must be false when only proof_or_stop_metadata paths are dirty',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -4594,17 +4594,17 @@ function assertProductionHelperPassesProjectRootToClassifier(): void {
 
 /**
  * B-edca quality follow-up: dirty-worktree classification honours configured
- * storyDir via projectRoot so custom storyDir paths land in lattice_metadata_changes,
+ * storyDir via projectRoot so custom storyDir paths land in proof_or_stop_metadata_changes,
  * not unexpected_dirty_files. Verifies three cases:
- *   1. Custom storyDir sub-path → lattice_metadata_changes
+ *   1. Custom storyDir sub-path → proof_or_stop_metadata_changes
  *   2. Same-prefix-but-not-storyDir path → unexpected_dirty_files
- *   3. Default .lattice/story/ paths still work with projectRoot set
+ *   3. Default .proof-or-stop/story/ paths still work with projectRoot set
  * Also verifies that declared/fixture/material precedence rules are not weakened.
  */
 function assertCustomStoryDirDirtyWorktreeClassification(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-custom-storydir-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-custom-storydir-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
@@ -4616,42 +4616,42 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
     const config = loadConfig(root);
     const opts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
 
-    // 1. Custom storyDir sub-path must be lattice_metadata_changes.
+    // 1. Custom storyDir sub-path must be proof_or_stop_metadata_changes.
     const storyMeta = classifyGitStatusRows(
       [' M workflow/stories/B-smoke/test-evidence.json'],
       opts,
     );
     assert.equal(
-      storyMeta.groups.lattice_metadata_changes.length, 1,
-      'workflow/stories/B-smoke/test-evidence.json must be lattice_metadata_changes with custom storyDir',
+      storyMeta.groups.proof_or_stop_metadata_changes.length, 1,
+      'workflow/stories/B-smoke/test-evidence.json must be proof_or_stop_metadata_changes with custom storyDir',
     );
     assert.equal(storyMeta.groups.unexpected_dirty_files.length, 0);
 
-    // 2. Sibling path outside storyDir must not be classified as lattice_metadata.
+    // 2. Sibling path outside storyDir must not be classified as proof_or_stop_metadata.
     const notMeta = classifyGitStatusRows(
       ['?? workflow/notes.md'],
       opts,
     );
     assert.equal(
-      notMeta.groups.lattice_metadata_changes.length, 0,
-      'workflow/notes.md must not be lattice_metadata_changes',
+      notMeta.groups.proof_or_stop_metadata_changes.length, 0,
+      'workflow/notes.md must not be proof_or_stop_metadata_changes',
     );
     assert.equal(
       notMeta.groups.unexpected_dirty_files.length, 1,
       'workflow/notes.md must be unexpected_dirty_files',
     );
 
-    // 3. Default .lattice/story/ paths still work even with projectRoot set.
+    // 3. Default .proof-or-stop/story/ paths still work even with projectRoot set.
     const defaultMeta = classifyGitStatusRows(
-      [' M .lattice/story/actives/B-xxx/checklist.json'],
+      [' M .proof-or-stop/story/actives/B-xxx/checklist.json'],
       opts,
     );
     assert.equal(
-      defaultMeta.groups.lattice_metadata_changes.length, 1,
-      '.lattice/story/ default prefix must still be lattice_metadata_changes',
+      defaultMeta.groups.proof_or_stop_metadata_changes.length, 1,
+      '.proof-or-stop/story/ default prefix must still be proof_or_stop_metadata_changes',
     );
 
-    // 4. Material source path is NOT reclassified as lattice_metadata even if
+    // 4. Material source path is NOT reclassified as proof_or_stop_metadata even if
     //    projectRoot is set (classifier checks metadata first, but src/ is not
     //    storyDir so it stays material).
     const materialOpts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
@@ -4663,7 +4663,7 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
       material.groups.material_source_changes.length, 1,
       'src/core/foo.ts must remain material_source_changes with projectRoot set',
     );
-    assert.equal(material.groups.lattice_metadata_changes.length, 0);
+    assert.equal(material.groups.proof_or_stop_metadata_changes.length, 0);
 
     // 5. Fixture path is not reclassified.
     const fixtureOpts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
@@ -4675,7 +4675,7 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
       fixture.groups.fixture_changes.length, 1,
       'tests/fixtures/ path must remain fixture_changes',
     );
-    assert.equal(fixture.groups.lattice_metadata_changes.length, 0);
+    assert.equal(fixture.groups.proof_or_stop_metadata_changes.length, 0);
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
@@ -4683,10 +4683,10 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
 }
 
 function assertDonePrepareOnePassConvergenceContract(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-convergence-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-prepare-convergence-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
-      scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests',
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
+      scanRoot: '.', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', testsDir: 'tests',
       fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
     }));
     write(root, 'src/app.ts', 'export const stable = true;\n');
@@ -4700,18 +4700,18 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     const storyId = 'B-convergence';
     const ctx = { store, root, scanRoot: root } as any;
     const before = currentGitHead(root)!;
-    write(root, `.lattice/story/actives/${storyId}/test-evidence.json`, '{}\n');
-    write(root, `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`, '{}\n');
-    write(root, `.lattice/story/actives/${storyId}/owner-lease.json`, '{}\n');
+    write(root, `.proof-or-stop/story/actives/${storyId}/test-evidence.json`, '{}\n');
+    write(root, `.proof-or-stop/story/actives/${storyId}/closeout-write-receipts.jsonl`, '{}\n');
+    write(root, `.proof-or-stop/story/actives/${storyId}/owner-lease.json`, '{}\n');
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'canonical validation closeout metadata']);
     const metadataHead = currentGitHead(root)!;
     const accepted = validationCloseoutAdvancePaths(ctx, storyId, root, before, metadataHead);
     assert.equal(accepted.eligible, true, accepted.reasons.join('; '));
     assert.deepEqual(accepted.paths.sort(), [
-      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
-      `.lattice/story/actives/${storyId}/owner-lease.json`,
-      `.lattice/story/actives/${storyId}/test-evidence.json`,
+      `.proof-or-stop/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+      `.proof-or-stop/story/actives/${storyId}/owner-lease.json`,
+      `.proof-or-stop/story/actives/${storyId}/test-evidence.json`,
     ]);
 
     write(root, 'src/app.ts', 'export const stable = false;\n');
@@ -4732,7 +4732,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       binding: { materialHash?: string; storyFilesHash?: string } = {},
     ) => {
       const reviewRunId = `${storyId}:RR-${suffix}`;
-      const agent = 'lattice-review-quality';
+      const agent = 'proof-or-stop-review-quality';
       const run: ReviewRun = {
         reviewRunId,
         storyId,
@@ -4771,7 +4771,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     assert.equal(verifyReviewPass(storyId, metadataReattestation.pass), true);
     store.writeReviewRuns(storyId, { runs: [historicalRound.run, initialReview.run, metadataReattestation.run] });
     store.writeReviewPasses(storyId, { passes: [historicalRound.pass, initialReview.pass, metadataReattestation.pass] });
-    write(root, `.lattice/story/actives/${storyId}/process-events.jsonl`, [
+    write(root, `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`, [
       JSON.stringify({
         type: 'phase_transition', storyId, timestamp: reviewRound, attemptId: reviewRound,
         fromPhase: 'DEV', toPhase: 'REVIEW', materialHash: attemptMaterial,
@@ -5179,7 +5179,7 @@ assertDevGuidanceUsesReviewPhase();
 assertValidateHintsFollowStoryPhase();
 assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
-assertChannelGateRejectsLatticeSubjectForRealFiles();
+assertChannelGateRejectsProofOrStopSubjectForRealFiles();
 assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor();
 assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();
@@ -5208,7 +5208,7 @@ runAgentLivenessSuiteForPinnedEvidence();
   assert.equal(
     matchesRuntimeCommitSubject(`${DEPRECATED_COMMIT_SUBJECT_PREFIX} ${body}`, body),
     true,
-    'read-both must STILL accept the deprecated lattice: subject — pre-rename history depends on it',
+    'read-both must STILL accept the deprecated proofOrStop: subject — pre-rename history depends on it',
   );
   assert.equal(
     matchesRuntimeCommitSubject(`chore: ${body}`, body),
@@ -5221,6 +5221,6 @@ runAgentLivenessSuiteForPinnedEvidence();
     'read-both must not match a canonical-prefixed subject with a different body',
   );
   assert.equal(COMMIT_SUBJECT_PREFIX, 'proof-or-stop:', 'writer prefix is the canonical bin name');
-  assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'lattice:', 'deprecated prefix is retained verbatim for compatibility');
+  assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'proofOrStop:', 'deprecated prefix is retained verbatim for compatibility');
 }
 console.log('✓ flow stability smoke passed');

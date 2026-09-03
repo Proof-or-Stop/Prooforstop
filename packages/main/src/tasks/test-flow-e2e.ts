@@ -11,7 +11,7 @@ import { loadConfig } from '../core/config.js';
 // ── Configuration loading ──
 
 /**
- * Load user override config (from lattice.config.json's flows.defaults), supports grouping by flow name.
+ * Load user override config (from proof-or-stop.config.json's flows.defaults), supports grouping by flow name.
  */
 let _userOverrides: Record<string, unknown> | null = null;
 
@@ -138,12 +138,12 @@ export interface Sandbox {
 }
 
 export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-e2e-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-e2e-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
   writeFileSync(
-    join(dir, 'lattice.config.json'),
+    join(dir, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -372,7 +372,7 @@ function ensureSandboxReady(
           'task_coverage',
           'test_auto',
         ],
-        allowedTools: ['lattice-flow-e2e'],
+        allowedTools: ['proof-or-stop-flow-e2e'],
         allowedPaths: [
           'docs/story/actives',
           'packages/main/src',
@@ -388,7 +388,7 @@ function ensureSandboxReady(
         note: 'E2E sandbox scope and execution boundaries are fixed before INIT_CHECK.',
         actor: 'flow-e2e',
       });
-      handlers.init_check_set({ storyId, issues: [], agentId: 'lattice-review-story-init' });
+      handlers.init_check_set({ storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
       handlers.init_check_set({ storyId, issues: [], agentId: 'product-reviewer' });
     }
   } catch {
@@ -477,7 +477,7 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
 
   // projectRoot is intentionally isolated: flow e2e must not write story
   // artifacts or worktree metadata into the developer's real checkout.
-  const projectRoot = process.env.LATTICE_E2E_PROJECT_ROOT;
+  const projectRoot = process.env.PROOF_OR_STOP_E2E_PROJECT_ROOT;
   const sandbox = await createSandbox(projectRoot);
   const steps: FlowE2EStepResult[] = [];
   const context: Record<string, unknown> = {};

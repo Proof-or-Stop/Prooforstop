@@ -62,7 +62,7 @@ Changed in this revision:
 - V1 must define the source of outcome verdicts before any evaluator consumes
   them.
 - V1 must specify concurrency, retention, and host-neutral schema rules before
-  writing `.lattice/learning/*` files.
+  writing `.proof-or-stop/learning/*` files.
 
 ## 3. Problem
 
@@ -374,7 +374,7 @@ signal.
 V1 learning artifacts live under:
 
 ```text
-.lattice/learning/
+.proof-or-stop/learning/
 ```
 
 They are runtime learning artifacts, not material proof. The runtime artifact
@@ -446,7 +446,7 @@ remain host-neutral so adding a future host does not require a schema migration.
 Add an append-only local learning ledger, for example:
 
 ```text
-.lattice/learning/playbook-outcomes.jsonl
+.proof-or-stop/learning/playbook-outcomes.jsonl
 ```
 
 Suggested schema:
@@ -511,7 +511,7 @@ interface PlaybookOutcomeEvent {
 Add an append-only decision log:
 
 ```text
-.lattice/learning/playbook-promotion-decisions.jsonl
+.proof-or-stop/learning/playbook-promotion-decisions.jsonl
 ```
 
 Each row records:
@@ -533,7 +533,7 @@ Each row records:
 Add a small registry keyed by source experience/finding signature:
 
 ```text
-.lattice/learning/non-deducible-sources.json
+.proof-or-stop/learning/non-deducible-sources.json
 ```
 
 The file path keeps the legacy compatibility name `non_deducible`; operator
@@ -654,7 +654,7 @@ Mark a source as non-promotable when:
 
 `playbook_propose` must consult the non-promotable source registry before
 creating a new proposal. The registry may remain stored at the legacy
-compatibility path `.lattice/learning/non-deducible-sources.json`. When the
+compatibility path `.proof-or-stop/learning/non-deducible-sources.json`. When the
 source signature is marked non-promotable, the command must refuse or warn
 instead of silently generating another candidate, unless the caller supplies an
 explicit override flag and reason.
@@ -682,7 +682,7 @@ Purpose: append a learning outcome event.
 
 Properties:
 
-- writes only to `.lattice/learning/playbook-outcomes.jsonl`;
+- writes only to `.proof-or-stop/learning/playbook-outcomes.jsonl`;
 - validates schema fail-closed;
 - requires `authority:"non_authoritative"` and `gateEvidence:false`;
 - refuses events that claim proof, DONE, or production authority;

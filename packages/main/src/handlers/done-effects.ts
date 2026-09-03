@@ -47,7 +47,7 @@ import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
-import { repairGlobalLatticeLinkBeforeWorktreeDelete } from './worktree.js';
+import { repairGlobalProofOrStopLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
@@ -341,7 +341,7 @@ export function commitCapabilityReleaseLedgerIfNeeded(
  * capability release ledger. Runs the pure classifier (in core/) over the SAME
  * DONE-time changed paths, passing the artifact release id/digest through so an
  * identical content re-merge/recovery dedups, then commits
- * `.lattice/capability-releases.jsonl` the same `git add -f` way. Returns null
+ * `.proof-or-stop/capability-releases.jsonl` the same `git add -f` way. Returns null
  * (no line) when the classifier declines — the DONE merge is unchanged.
  */
 export function runCapabilityReleaseLedgerAfterDoneMerge(
@@ -582,7 +582,7 @@ function resolveDoneLockMainRepoRoot(projectRoot: string, invocationCwd = proces
  * Canonical DONE main write lock directory.
  *
  * B-f60c CHK-001: this now resolves to the unified main write lock path
- * (`.lattice/locks/main-write.lock/`). The former DONE-specific runtime lock
+ * (`.proof-or-stop/locks/main-write.lock/`). The former DONE-specific runtime lock
  * path is retired with no alias.
  */
 export function doneMainMergeLockPath(projectRoot: string, invocationCwd = process.cwd()): string {
@@ -726,7 +726,7 @@ export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: s
   // Untracked files in the main worktree are still not checked here
   // (--untracked-files=no) — they only block the merge if the story branch
   // would overwrite them, which the merge-tree dry-run already catches. Runtime
-  // artifacts (e.g. .lattice/locks/ created by the merge lock) must not block the
+  // artifacts (e.g. .proof-or-stop/locks/ created by the merge lock) must not block the
   // preflight.
   //
   // NOTE: do NOT trim the leading whitespace of the porcelain output. The
@@ -929,7 +929,7 @@ export async function runDonePreMergeGate(
   // 之前。原实现（Step 2.5，line 632 附近）在 story.phase=DONE +
   // story.worktree=undefined 已 writeStory 之后才跑，若 throw（非白名单
   // 未追踪文件）story 会卡 DONE（merge 未发生、worktree 还活着、没有
-  // lattice 自愈路径）。这里预检查：dry-run detection，发现 offender 立刻
+  // proofOrStop 自愈路径）。这里预检查：dry-run detection，发现 offender 立刻
   // throw，保留 phase=TEST 状态让 main agent 按错误提示修复后重跑。
   //
   // whitelist 文件在此**不删除**——只负责早期拦截。真正的 rm 延后到
@@ -1145,7 +1145,7 @@ export async function applyDoneMergeEffects(
       // state or genuine leakage we want to erase.
       if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
         const wasRegisteredWorktree = isRegisteredWorktree(mainRepoRoot, wtPathAbs);
-        const repair = repairGlobalLatticeLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
+        const repair = repairGlobalProofOrStopLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
         if (repair.action === 'relinked') mergeLines.push(repair.message);
         let removeFailure: string | null = null;
         try {
@@ -1234,7 +1234,7 @@ export async function applyDoneMergeEffects(
       }
 
       // B-aa8a: auto patch-bump the 3 version sync points (root package.json +
-      // packages/main/package.json + lattice-brand.ts LATTICE_CLI_VERSION) when the DONE
+      // packages/main/package.json + proof-or-stop-brand.ts PROOF_OR_STOP_CLI_VERSION) when the DONE
       // merge changed material code — gated on the SAME predicate as the dist rebuild so
       // metadata-only merges never churn the version. Commits the bump on main under this
       // merge-lock, BEFORE the rebuild below, so the rebuilt dist reports the new version
@@ -1299,7 +1299,7 @@ export async function applyDoneMergeEffects(
       // deriveFindingSignalsFromStore persists through the learning-store, whose
       // resolveLearningRoot canonicalizes any worktree root to the MAIN checkout
       // (post-B-37b3), so the cache always lands in the single shared
-      // .lattice/learning/. We derive from a MAIN-rooted StoryStore (NOT the
+      // .proof-or-stop/learning/. We derive from a MAIN-rooted StoryStore (NOT the
       // worktree `store`): by this point Step 4 has already removed the story
       // worktree directory, so the worktree store can no longer enumerate/read
       // findings — but every story's metadata (including this just-merged story's

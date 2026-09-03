@@ -105,7 +105,7 @@ const contract: ScopeContractData = {
   protectedFiles: [],
   explicitExcludes: ['.omx'],
   acknowledgements: [{
-    actor: 'lattice-review-scope-plan',
+    actor: 'proof-or-stop-review-scope-plan',
     reason: 'The declared expansion is required and reviewer visible.',
     timestamp: '2026-07-13T00:00:00.000Z',
     paths: ['packages/main/src/core/closeout-trust.ts'],
@@ -134,7 +134,7 @@ assert.deepEqual(
 );
 assert(!(CLOSEOUT_ARTIFACT_POLICIES as readonly { path: string }[]).some((policy) => policy.path === 'milestone-closeout.json'));
 for (const policy of CLOSEOUT_ARTIFACT_POLICIES) {
-  assert(isProofOrStopLifecycleArtifactPath(`.lattice/story/actives/${storyId}/${policy.path}`), `${policy.path} must be in the closed lifecycle classifier`);
+  assert(isProofOrStopLifecycleArtifactPath(`.proof-or-stop/story/actives/${storyId}/${policy.path}`), `${policy.path} must be in the closed lifecycle classifier`);
   for (const writer of policy.canonicalWriters) assert(writer in COMMAND_POLICIES, `${policy.path} writer ${writer} must be a registered CLI command`);
 }
 assert.equal(assertCanonicalCloseoutWrite('scope-contract.json', 'scope_contract_acknowledge').artifactClass, 'scope-defining');
@@ -308,8 +308,8 @@ function git(root: string, args: string[]): string {
 // any additional index mutation remains fail-closed.
 const indexRepo = mkdtempSync(join(tmpdir(), 'closeout-index-transition-'));
 try {
-  writeFileSync(join(indexRepo, 'lattice.config.json'), JSON.stringify({
-    scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  writeFileSync(join(indexRepo, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
   }), 'utf8');
   mkdirSync(join(indexRepo, 'src'), { recursive: true });
   writeFileSync(join(indexRepo, 'src/app.ts'), 'export const stable = true;\n', 'utf8');
@@ -339,10 +339,10 @@ try {
   git(indexRepo, ['commit', '-m', 'persist REVIEW snapshot']);
   const indexBinding = computeReviewScopeBinding({ contract: indexContract, diffPack: emptyDiff, ledger: indexLedger, slicePlan: indexPlan })!;
   const indexRun = {
-    reviewRunId: `${indexStoryId}:RR-001`, storyId: indexStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
+    reviewRunId: `${indexStoryId}:RR-001`, storyId: indexStoryId, agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
     reviewRound: indexRound, startedAt: indexRound, headHash: currentGitHead(indexRepo)!, materialHash: currentMaterialHash(indexRepo, 'HEAD', indexRepo)!,
     storyFilesHash: currentStoryFilesHash(indexRepo, 'HEAD', indexRepo)!,
-    promptHash: legacyPromptHash('lattice-review-quality'),
+    promptHash: legacyPromptHash('proof-or-stop-review-quality'),
     scopeBinding: indexBinding,
   } as ReviewRun;
   indexRun._hash = signReviewRun(
@@ -362,7 +362,7 @@ try {
   git(indexRepo, ['add', '.']);
   git(indexRepo, ['-c', 'user.name=env-only-identity', '-c', 'user.email=env@example.test', 'commit', '-m', 'persist canonical REVIEW to TEST transition without user audit field']);
   assert.equal(evaluatePersistedReviewToTestIndexTransition(
-    indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, transitioned,
+    indexRepo, `.proof-or-stop/story/actives/${indexStoryId}/index.json`, indexRun, transitioned,
   ).ok, true);
   assert.equal(evaluateReviewRunMetadataRetention(
     indexStore, transitioned, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
@@ -383,7 +383,7 @@ try {
       ...mutation,
     };
     assert.equal(evaluatePersistedReviewToTestIndexTransition(
-      indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, changedAudit,
+      indexRepo, `.proof-or-stop/story/actives/${indexStoryId}/index.json`, indexRun, changedAudit,
     ).ok, true, `${Object.keys(mutation)[0]} is same-UID-forgeable audit context and must not affect authorization`);
     assert.equal(evaluateReviewRunMetadataRetention(
       indexStore, changedAudit, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
@@ -392,7 +392,7 @@ try {
   const malformedAudit = structuredClone(transitioned) as any;
   malformedAudit.events.at(-1).agent = 42;
   assert.equal(evaluatePersistedReviewToTestIndexTransition(
-    indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, malformedAudit,
+    indexRepo, `.proof-or-stop/story/actives/${indexStoryId}/index.json`, indexRun, malformedAudit,
   ).ok, false, 'present audit fields still require structurally valid string types');
 
   const tampered = indexStore.readStory(indexStoryId);
@@ -401,7 +401,7 @@ try {
   git(indexRepo, ['add', '.']);
   git(indexRepo, ['-c', 'user.name=env-only-identity', '-c', 'user.email=env@example.test', 'commit', '-m', 'tamper index outside transition delta']);
   assert.equal(evaluatePersistedReviewToTestIndexTransition(
-    indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, tampered,
+    indexRepo, `.proof-or-stop/story/actives/${indexStoryId}/index.json`, indexRun, tampered,
   ).ok, false);
   assert.equal(evaluateReviewRunMetadataRetention(
     indexStore, tampered, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
@@ -414,8 +414,8 @@ console.log('PASS persisted REVIEW-to-TEST retention delta remains bounded');
 
 const repo = mkdtempSync(join(tmpdir(), 'closeout-retention-'));
 try {
-  writeFileSync(join(repo, 'lattice.config.json'), JSON.stringify({
-    scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  writeFileSync(join(repo, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
     validate: { commands: [{ label: 'closeout smoke validate', command: 'node', args: ['-e', 'process.exit(0)'] }] },
     doneRequiredCommands: [{ label: 'closeout smoke done required', command: 'node', args: ['-e', 'process.exit(0)'] }],
   }), 'utf8');
@@ -459,10 +459,10 @@ try {
   assert.ok(baselineCausalInputHashes, 'synthetic certification fixture must derive causal input hashes');
   const runtimeBinding = computeReviewScopeBinding({ contract: runtimeContract, diffPack: emptyDiff, ledger: runtimeLedger, slicePlan: runtimePlan })!;
   const run = {
-    reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
+    reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
     reviewRound: 'round-1', startedAt: new Date().toISOString(), headHash: baselineHead, materialHash: baselineMaterial,
     storyFilesHash: baselineStoryFiles,
-    promptHash: legacyPromptHash('lattice-review-quality'),
+    promptHash: legacyPromptHash('proof-or-stop-review-quality'),
     scopeBinding: runtimeBinding,
   } as ReviewRun;
   run._hash = signReviewRun(
@@ -610,7 +610,7 @@ try {
   store.writeReviewRuns(runtimeStoryId, { runs: [] });
   store.writeReviewPasses(runtimeStoryId, { passes: [{
     id: 'RP-FORGED-NO-ROUND',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     note: 'Unsigned legacy-shaped pass must not gain authority when currentReviewRound is absent.',
     createdAt: new Date().toISOString(),
   }] });
@@ -621,7 +621,7 @@ try {
   const invalidPassCreatedAt = new Date().toISOString();
   store.writeReviewPasses(runtimeStoryId, { passes: [{
     id: 'RP-TAMPERED',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     note: 'Tampered pass.',
     createdAt: invalidPassCreatedAt,
     reviewRound: storyWithRound.currentReviewRound,
@@ -634,12 +634,12 @@ try {
   const missingRunIdCreatedAt = new Date().toISOString();
   store.writeReviewPasses(runtimeStoryId, { passes: [{
     id: 'RP-MISSING-RUN-ID',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     note: 'Signed pass without reviewRunId.',
     createdAt: missingRunIdCreatedAt,
     reviewRound: storyWithRound.currentReviewRound,
     _hash: signReviewPass(
-      runtimeStoryId, 'RP-MISSING-RUN-ID', 'lattice-review-quality', 'Signed pass without reviewRunId.',
+      runtimeStoryId, 'RP-MISSING-RUN-ID', 'proof-or-stop-review-quality', 'Signed pass without reviewRunId.',
       missingRunIdCreatedAt, storyWithRound.currentReviewRound!, '',
     ),
   }] });
@@ -649,13 +649,13 @@ try {
   const unknownRunCreatedAt = new Date().toISOString();
   store.writeReviewPasses(runtimeStoryId, { passes: [{
     id: 'RP-UNKNOWN-RUN',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     note: 'Signed pass bound to an unknown run.',
     createdAt: unknownRunCreatedAt,
     reviewRound: storyWithRound.currentReviewRound,
     reviewRunId: `${runtimeStoryId}:RR-UNKNOWN`,
     _hash: signReviewPass(
-      runtimeStoryId, 'RP-UNKNOWN-RUN', 'lattice-review-quality', 'Signed pass bound to an unknown run.',
+      runtimeStoryId, 'RP-UNKNOWN-RUN', 'proof-or-stop-review-quality', 'Signed pass bound to an unknown run.',
       unknownRunCreatedAt, storyWithRound.currentReviewRound!, `${runtimeStoryId}:RR-UNKNOWN`,
     ),
   }] });
@@ -678,7 +678,7 @@ try {
   const currentMaterial = currentMaterialHash(repo, 'HEAD', repo)!;
   const currentStoryFiles = currentStoryFilesHash(repo, 'HEAD', repo)!;
   const freshRuns = activeReviewers.map((reviewer, index) => {
-    const agent = `lattice-review-${reviewer.name}`;
+    const agent = `proof-or-stop-review-${reviewer.name}`;
     const freshRun = {
       ...run,
       reviewRunId: `${runtimeStoryId}:RR-${String(index + 2).padStart(3, '0')}`,
@@ -882,8 +882,8 @@ const wrapper = mkdtempSync(join(tmpdir(), 'closeout-wrapper-root-'));
 const wrapperRepo = join(wrapper, 'repo');
 try {
   mkdirSync(wrapperRepo, { recursive: true });
-  writeFileSync(join(wrapper, 'lattice.config.json'), JSON.stringify({
-    gitRoot: 'repo', scanRoot: 'repo', rootDir: 'src', storyDir: 'repo/.lattice/story/actives',
+  writeFileSync(join(wrapper, 'proof-or-stop.config.json'), JSON.stringify({
+    gitRoot: 'repo', scanRoot: 'repo', rootDir: 'src', storyDir: 'repo/.proof-or-stop/story/actives',
     testsDir: 'repo/tests', fixturesDir: 'repo/tests/fixtures', requirementsDir: 'repo/docs/requirements', storyPrefix: 'B',
   }), 'utf8');
   git(wrapperRepo, ['init', '-b', 'main']);
@@ -911,14 +911,14 @@ try {
   const makeWrapperRun = (id: string): ReviewRun => ({
     reviewRunId: `${wrapperStoryId}:${id}`,
     storyId: wrapperStoryId,
-    agent: 'lattice-review-quality',
-    lane: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
+    lane: 'proof-or-stop-review-quality',
     reviewRound: 'round-1',
     startedAt: new Date().toISOString(),
     headHash: currentGitHead(wrapperRepo)!,
     materialHash: currentMaterialHash(wrapperRepo, 'HEAD', wrapper)!,
     storyFilesHash: currentStoryFilesHash(wrapperRepo, 'HEAD', wrapper)!,
-    promptHash: legacyPromptHash('lattice-review-quality'),
+    promptHash: legacyPromptHash('proof-or-stop-review-quality'),
     scopeBinding: wrapperBinding,
   });
   const preCloseoutRun = makeWrapperRun('RR-001');

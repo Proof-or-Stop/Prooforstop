@@ -46,16 +46,16 @@ const cliPath = join(packageRoot, 'cli.js');
 
 /** Real pre-change pass record, copied VERBATIM from tmp/bf458-forensics-2026-07-14/story-metadata/review-passes.json (RP-001). */
 const LEGACY_FIXTURE_STORY_ID = 'B-f458';
-const LEGACY_FIXTURE_JSON = "{\"id\":\"B-f458:RP-001\",\"agent\":\"lattice-review-test-coverage\",\"note\":\"Round-3 coverage PASS: npm run test:closeout-trust passes after build. The smoke executes every closeout writer/path through real handlers and asserts manual artifact+receipt co-commit rejection with a wrong Ed25519 key, mismatched private-key rejection, old-round key rejection, signer rotation with signer-scoped sequence reset, missing-key fail-closed guidance, replay/copy/reorder rejection, and wrapper-root autoCommit plus receipt validation. All 15 happy/edge/adversarial intents have passing evidence bound to 065b7dde13 and storyFilesHash 70f0205.\",\"createdAt\":\"2026-07-13T09:58:41.024Z\",\"reviewRound\":\"2026-07-13T09:54:55.250Z\",\"reviewRunId\":\"B-f458:RR-009\",\"readManifest\":{\"filesReadFully\":[\"packages/main/src/core/closeout-trust.ts\",\"packages/main/src/tasks/closeout-trust-smoke.ts\"],\"filesTriagedByName\":[\"package.json\",\"packages/main/src/core/auto-commit-metadata.ts\",\"packages/main/src/core/review-run.ts\",\"packages/main/src/core/runtime-artifact-registry.ts\",\"packages/main/src/handlers/review-run.ts\",\"scripts/verify-process-fact-contract.mjs\",\"scripts/verify-runtime-fact-contract.mjs\"],\"scanEscalationReason\":null},\"_hash\":\"87c2657491764a98ee8e2f14d86b28ba2f9f2572842b72e4164bbc5ce880f31e\"}";
+const LEGACY_FIXTURE_JSON = "{\"id\":\"B-f458:RP-001\",\"agent\":\"proof-or-stop-review-test-coverage\",\"note\":\"Round-3 coverage PASS: npm run test:closeout-trust passes after build. The smoke executes every closeout writer/path through real handlers and asserts manual artifact+receipt co-commit rejection with a wrong Ed25519 key, mismatched private-key rejection, old-round key rejection, signer rotation with signer-scoped sequence reset, missing-key fail-closed guidance, replay/copy/reorder rejection, and wrapper-root autoCommit plus receipt validation. All 15 happy/edge/adversarial intents have passing evidence bound to 065b7dde13 and storyFilesHash 70f0205.\",\"createdAt\":\"2026-07-13T09:58:41.024Z\",\"reviewRound\":\"2026-07-13T09:54:55.250Z\",\"reviewRunId\":\"B-f458:RR-009\",\"readManifest\":{\"filesReadFully\":[\"packages/main/src/core/closeout-trust.ts\",\"packages/main/src/tasks/closeout-trust-smoke.ts\"],\"filesTriagedByName\":[\"package.json\",\"packages/main/src/core/auto-commit-metadata.ts\",\"packages/main/src/core/review-run.ts\",\"packages/main/src/core/runtime-artifact-registry.ts\",\"packages/main/src/handlers/review-run.ts\",\"scripts/verify-process-fact-contract.mjs\",\"scripts/verify-runtime-fact-contract.mjs\"],\"scanEscalationReason\":null},\"_hash\":\"87c2657491764a98ee8e2f14d86b28ba2f9f2572842b72e4164bbc5ce880f31e\"}";
 
 /** Session-identity env vars scrubbed from every spawned CLI so each scenario controls resolution. */
 const SESSION_ENV_KEYS = [
-  'LATTICE_SESSION_ID',
-  'LATTICE_ACTIVITY_SOURCE',
-  'LATTICE_ACTIVITY_SESSION',
-  'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
-  'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
-  'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+  'PROOF_OR_STOP_SESSION_ID',
+  'PROOF_OR_STOP_ACTIVITY_SOURCE',
+  'PROOF_OR_STOP_ACTIVITY_SESSION',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY',
   'CLAUDE_CODE_SESSION_ID',
   'CLAUDE_SESSION_ID',
   'CODEX_SESSION_ID',
@@ -91,10 +91,10 @@ function initRepo(prefix: string, configExtras: Record<string, unknown> = {}): s
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     ...configExtras,
@@ -102,9 +102,9 @@ function initRepo(prefix: string, configExtras: Record<string, unknown> = {}): s
   write(root, '.gitignore', [
     '.worktrees/',
     '**/activity.jsonl',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'smoke\n');
@@ -174,7 +174,7 @@ async function runProofOrStop(
   sessionEnv: Record<string, string> = {},
 ): Promise<CliResult> {
   return new Promise<CliResult>((resolvePromise, reject) => {
-    const env: Record<string, string | undefined> = { ...process.env, LATTICE_PROJECT_ROOT: root };
+    const env: Record<string, string | undefined> = { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root };
     for (const key of SESSION_ENV_KEYS) delete env[key];
     Object.assign(env, sessionEnv);
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
@@ -225,15 +225,15 @@ function passesOf(root: string, storyId: string): ReviewPass[] {
 
 // ── 1 + 7: non-owner session records identity (explicit-env spoof stays visible), no flag ──
 async function assertNonOwnerSessionRecordsIdentityWithoutFlag(): Promise<void> {
-  const root = initRepo('lattice-provenance-nonowner-');
+  const root = initRepo('proof-or-stop-provenance-nonowner-');
   try {
     const storyId = 'B-prov1';
     writeReviewStory(root, storyId);
     writeOwnerLease(root, storyId, 'sess-owner-distinct');
 
-    const result = await recordPass(root, storyId, 'lattice-review-quality', { LATTICE_SESSION_ID: 'sess-reviewer-thread' });
+    const result = await recordPass(root, storyId, 'proof-or-stop-review-quality', { PROOF_OR_STOP_SESSION_ID: 'sess-reviewer-thread' });
     assert.equal(result.code, 0, `non-owner review_pass_set should succeed: ${result.stderr}`);
-    const pass = passesOf(root, storyId).find(p => p.agent === 'lattice-review-quality');
+    const pass = passesOf(root, storyId).find(p => p.agent === 'proof-or-stop-review-quality');
     assert.ok(pass, 'pass should persist');
     assert.equal(pass!.writerSessionId, 'sess-reviewer-thread', 'writerSessionId recorded');
     assert.equal(pass!.sessionSource, 'explicit-env', 'explicit-env spoof/override is recorded as sessionSource=explicit-env');
@@ -255,14 +255,14 @@ async function assertNonOwnerSessionRecordsIdentityWithoutFlag(): Promise<void> 
 
 // ── 1b + 7b: no lease → identity only (scrubbed env degrades to derived-ppid) ──
 async function assertNoLeaseRecordsIdentityOnly(): Promise<void> {
-  const root = initRepo('lattice-provenance-nolease-');
+  const root = initRepo('proof-or-stop-provenance-nolease-');
   try {
     const storyId = 'B-prov2';
     writeReviewStory(root, storyId);
 
-    const result = await recordPass(root, storyId, 'lattice-review-concept', {});
+    const result = await recordPass(root, storyId, 'proof-or-stop-review-concept', {});
     assert.equal(result.code, 0, `no-lease review_pass_set should succeed: ${result.stderr}`);
-    const pass = passesOf(root, storyId).find(p => p.agent === 'lattice-review-concept');
+    const pass = passesOf(root, storyId).find(p => p.agent === 'proof-or-stop-review-concept');
     assert.ok(pass, 'pass should persist');
     assert.match(pass!.writerSessionId ?? '', /^sess-[0-9a-f]{16}$/, 'scrubbed env derives a local session id');
     assert.equal(pass!.sessionSource, 'derived-ppid', 'scrubbed env degrades to sessionSource=derived-ppid');
@@ -276,16 +276,16 @@ async function assertNoLeaseRecordsIdentityOnly(): Promise<void> {
 
 // ── 2: owner-session pass in warn mode (DEFAULT config) persists with flag + stderr warning ──
 async function assertOwnerSessionWarnModeFlagsAndWarns(): Promise<void> {
-  const root = initRepo('lattice-provenance-warn-');
+  const root = initRepo('proof-or-stop-provenance-warn-');
   try {
     const storyId = 'B-prov3';
     const ownerSession = 'sess-owner-selfwrite';
     writeReviewStory(root, storyId);
     writeOwnerLease(root, storyId, ownerSession);
 
-    const result = await recordPass(root, storyId, 'lattice-review-quality', { LATTICE_SESSION_ID: ownerSession });
+    const result = await recordPass(root, storyId, 'proof-or-stop-review-quality', { PROOF_OR_STOP_SESSION_ID: ownerSession });
     assert.equal(result.code, 0, `warn-mode owner-session review_pass_set should still succeed: ${result.stderr}`);
-    const pass = passesOf(root, storyId).find(p => p.agent === 'lattice-review-quality');
+    const pass = passesOf(root, storyId).find(p => p.agent === 'proof-or-stop-review-quality');
     assert.ok(pass, 'flagged pass should persist');
     assert.equal(pass!.writerSessionId, ownerSession, 'writerSessionId recorded');
     assert.equal(pass!.provenanceFlag, SAME_SESSION_WRITE_FLAG, 'same-session write persists provenanceFlag');
@@ -318,14 +318,14 @@ async function assertOwnerSessionWarnModeFlagsAndWarns(): Promise<void> {
 
 // ── 3: enforce mode rejects the owner-session pass naming both ids; distinct session still passes ──
 async function assertEnforceModeRejectsOwnerSession(): Promise<void> {
-  const root = initRepo('lattice-provenance-enforce-', { reviewPassProvenance: { mode: 'enforce' } });
+  const root = initRepo('proof-or-stop-provenance-enforce-', { reviewPassProvenance: { mode: 'enforce' } });
   try {
     const storyId = 'B-prov4';
     const ownerSession = 'sess-owner-enforced';
     writeReviewStory(root, storyId);
     writeOwnerLease(root, storyId, ownerSession);
 
-    const rejected = await recordPass(root, storyId, 'lattice-review-quality', { LATTICE_SESSION_ID: ownerSession });
+    const rejected = await recordPass(root, storyId, 'proof-or-stop-review-quality', { PROOF_OR_STOP_SESSION_ID: ownerSession });
     assert.notEqual(rejected.code, 0, 'enforce mode must reject the owner-session pass');
     assert.ok(
       rejected.stderr.includes(`writer session ${ownerSession}`) && rejected.stderr.includes(`owner lease session ${ownerSession}`),
@@ -333,9 +333,9 @@ async function assertEnforceModeRejectsOwnerSession(): Promise<void> {
     );
     assert.equal(passesOf(root, storyId).length, 0, 'enforce rejection must persist NOTHING');
 
-    const allowed = await recordPass(root, storyId, 'lattice-review-concept', { LATTICE_SESSION_ID: 'sess-other-thread' });
+    const allowed = await recordPass(root, storyId, 'proof-or-stop-review-concept', { PROOF_OR_STOP_SESSION_ID: 'sess-other-thread' });
     assert.equal(allowed.code, 0, `enforce mode must still accept a distinct session: ${allowed.stderr}`);
-    const pass = passesOf(root, storyId).find(p => p.agent === 'lattice-review-concept');
+    const pass = passesOf(root, storyId).find(p => p.agent === 'proof-or-stop-review-concept');
     assert.ok(pass, 'distinct-session pass persists under enforce');
     assert.equal(pass!.provenanceFlag, undefined, 'distinct-session pass is unflagged under enforce');
     console.log('  ✓ enforce mode rejects owner-session pass naming both ids (nothing persisted); distinct session still passes');
@@ -372,15 +372,15 @@ async function assertDefaultModeResolvesToWarn(): Promise<void> {
   assert.equal(evaluated.rejection, undefined, 'invalid mode never accidentally enforces');
 
   // Real CLI: invalid config mode + owner-session write behaves as warn (persists flagged).
-  const root = initRepo('lattice-provenance-invalidcfg-', { reviewPassProvenance: { mode: 'block' } });
+  const root = initRepo('proof-or-stop-provenance-invalidcfg-', { reviewPassProvenance: { mode: 'block' } });
   try {
     const storyId = 'B-prov5';
     const ownerSession = 'sess-owner-invalidcfg';
     writeReviewStory(root, storyId);
     writeOwnerLease(root, storyId, ownerSession);
-    const result = await recordPass(root, storyId, 'lattice-review-quality', { LATTICE_SESSION_ID: ownerSession });
+    const result = await recordPass(root, storyId, 'proof-or-stop-review-quality', { PROOF_OR_STOP_SESSION_ID: ownerSession });
     assert.equal(result.code, 0, `invalid config must fall back to warn (persist): ${result.stderr}`);
-    const pass = passesOf(root, storyId).find(p => p.agent === 'lattice-review-quality');
+    const pass = passesOf(root, storyId).find(p => p.agent === 'proof-or-stop-review-quality');
     assert.equal(pass?.provenanceFlag, SAME_SESSION_WRITE_FLAG, 'invalid config resolves to warn: flagged persist');
     console.log('  ✓ default/invalid config resolves to warn (resolver, evaluator, and real CLI)');
   } finally {
@@ -397,7 +397,7 @@ function assertLegacyFixtureStillVerifies(): void {
   // Synthetic pre-change signing path (no provenance argument) also still verifies.
   const syntheticLegacy: ReviewPass = {
     id: 'B-old:RP-001',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     note: 'Legacy-path pass without writer provenance.',
     createdAt: '2026-07-01T00:00:00.000Z',
     reviewRound: '2026-07-01T00:00:00.000Z',
@@ -418,10 +418,10 @@ function assertLegacyFixtureStillVerifies(): void {
 
 // ── 6: tampering writerSessionId / stripping provenance breaks verification ──
 function assertTamperBreaksSignature(): void {
-  const manifest = reviewerReadManifest('lattice-review-quality');
+  const manifest = reviewerReadManifest('proof-or-stop-review-quality');
   const base: ReviewPass = {
     id: 'B-tamper:RP-001',
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     note: 'Provenance-signed pass for tamper assertions.',
     createdAt: '2026-07-14T11:00:00.000Z',
     reviewRound: '2026-07-14T10:59:00.000Z',

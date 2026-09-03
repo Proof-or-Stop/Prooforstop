@@ -174,7 +174,7 @@ function localAssuranceDegradation(productionDone: boolean): CanonicalStory['deg
   if (productionDone) return [];
   return [{
     id: 'local-assurance-incomplete',
-    host: 'lattice-cli',
+    host: 'proof-or-stop-cli',
     capability: 'local-proof-admissibility',
     severity: 'block',
     visible: true,
@@ -188,7 +188,7 @@ function localAssuranceDegradation(productionDone: boolean): CanonicalStory['deg
 function missingArtifactDegradations(warnings: string[]): CanonicalStory['degradations'][number][] {
   return warnings.map((warning) => ({
     id: `missing-${basename(warning.split(':').pop()?.trim() || 'story-artifact')}`.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase(),
-    host: 'lattice-cli',
+    host: 'proof-or-stop-cli',
     capability: 'story-projection',
     severity: 'info',
     visible: true,
@@ -239,7 +239,7 @@ export function buildCanonicalStory(store: StoryStore, root: string, storyId: st
       ...missingArtifactDegradations(warnings),
     ],
     lineage: {
-      source: 'lattice-story-store',
+      source: 'proof-or-stop-story-store',
       storyDir: store.storyDirRel(),
       worktree: story.worktree ?? null,
       processEvents: events,

@@ -1,6 +1,6 @@
 {
   "name": "@proof-or-stop/utils",
-  "version": "0.3.65",
+  "version": "0.3.268",
   "description": "Proof-or-Stop 辅助工具：元数据扫描、架构提取、诊断、文档列表、真相源等离线分析能力",
   "type": "module",
   "main": "dist/index.js",
@@ -12,8 +12,10 @@
     "build": "node ../../scripts/build-utils-with-binding.mjs"
   },
   "dependencies": {
-    "@proof-or-stop/core": "0.3.65",
-    "zod": "^3.23.0"
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@proof-or-stop/core": "^0.3.268"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

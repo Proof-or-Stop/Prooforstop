@@ -60,7 +60,7 @@ try {
   const moveSha = execFileSync('git', ['log', '--format=%H', '--grep=CHK-003: move state dirs', '-1'],
     { encoding: 'utf8' }).trim();
   if (moveSha) {
-    preMoveCount = execFileSync('git', ['ls-tree', '-r', '--name-only', `${moveSha}^`, '.lattice/story/actives'],
+    preMoveCount = execFileSync('git', ['ls-tree', '-r', '--name-only', `${moveSha}^`, '.proof-or-stop/story/actives'],
       { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
   }
 } catch { preMoveCount = null; }

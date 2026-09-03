@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-1fa6",
+  "records": [
+    {
+      "id": "RED-20260830224241",
+      "trigger": "The requested canonical Dynamic Finding System execution-plan Markdown does not exist at the baseline.",
+      "acceptanceTargetRef": "AB-DYNAMIC-FINDING-PLAN",
+      "baselineHeadHash": "e3f9a3118323f8821efa986b3c36dfe5da12406f",
+      "baselineMaterialHash": "96370979b22a75bd320ee6ca51328ff987ecfc0fe0b6feecec59a7ff70c53c14",
+      "observedFailure": "At the pre-implementation baseline, docs/requirements/decisions/dynamic-finding-system-execution-plan.md is absent, so none of the seven-problem, four-component, three-Story, rollout, or lab-example claims are delivered.",
+      "failingCommand": "test -f docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "expectedGreenCommand": "test -f docs/requirements/decisions/dynamic-finding-system-execution-plan.md && rg -q 'Finding Ledger Integrity' docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "AB-DYNAMIC-FINDING-PLAN",
+        "relation": "regression_to_green",
+        "command": "test -f docs/requirements/decisions/dynamic-finding-system-execution-plan.md && rg -q 'Finding Ledger Integrity' docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      },
+      "note": "Documentation RED: absence of the single requested artifact is the pre-fix failure.",
+      "createdAt": "2026-08-30T22:42:41.924Z"
+    }
+  ],
+  "createdAt": "2026-08-30T22:42:41.924Z",
+  "updatedAt": "2026-08-30T22:42:41.924Z"
+}

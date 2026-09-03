@@ -11,6 +11,13 @@
  * See B-c351 F-006 for the extraction rationale.
  */
 
+import { verifyFinding } from './finding-verify.js';
+import { isReviewerAgent } from './review-run.js';
+import { isFindingBlocking } from './advisory.js';
+import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import type { Finding } from './types.js';
 import { createActor } from 'xstate';
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
@@ -165,8 +172,77 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'TEST') {
-    const verdict = evaluateReviewVerdict({ storyId, store, projectRoot: projectRoot ?? process.cwd() });
-    if (!verdict.ok) return `Cannot enter TEST: ${verdict.message ?? verdict.code ?? 'review verdict blocked'}`;
+    const config = loadConfig(projectRoot);
+    const story = store.readStory(storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+
+    // If policy doesn't require reviewer, skip finding checks
+    if (!policy.review.requireReviewer) {
+      // no review gate — pass through
+    } else {
+      try {
+        const findings = store.readFindings(storyId);
+        if (!findings.findings || findings.findings.length === 0) {
+          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Launch reviewer per opt-in results (see proof-or-stop reviewer_list)`;
+        }
+        if (policy.review.requireReviewerFinding) {
+          const currentRound = story.currentReviewRound;
+          // B-ad2c F-005: classify reviewer evidence by proof-or-stop-review-* lane prefix
+          // (shared isReviewerAgent helper), NOT by `agent != main`. Otherwise
+          // main / main-agent / proof-or-stop-implementer findings recorded during DEV
+          // are misclassified as reviewer evidence and block REVIEW→TEST when
+          // they lack a reviewRunId. Mirrors core/review-run.ts
+          // collectReviewerEvidenceState (used by machine.ts canPassReview /
+          // getGuardFailureReason — the live story_advance gate).
+          const currentRoundReviewerFindings = findings.findings.filter(
+            (f: Finding) => isReviewerAgent(f.agent) && verifyFinding(storyId, f)
+              // backward compat: do not reject when legacy stories lack currentReviewRound
+              && (!currentRound || f.reviewRound === currentRound),
+          );
+
+          const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
+          if (rc <= 1) {
+            // Round 1: require findings from every opt-in reviewer (B-e8c8)
+            let checklist: { items: unknown[] } = { items: [] };
+            try { checklist = store.readChecklist(storyId); } catch {}
+            let decision = null;
+            try { decision = store.readDecision(storyId); } catch {}
+            const understanding = store.readUnderstanding(storyId);
+            // F-021: fall back to scanning git diff when touchpoints is empty, to avoid losing the docs reviewer for stories that only modify .md.
+            const touchpoints = understanding?.touchpoints
+              ?? detectMdTouchpointsFromGit(projectRoot ?? process.cwd());
+            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+            const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
+              (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
+            ));
+            if (missing.length > 0) {
+              const names = optIn.map(r => r.name).join(',');
+              const missingNames = missing.map(r => r.name).join(',');
+              const presentAgents = Array.from(new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent))).join(', ') || 'none';
+              return `Cannot enter TEST: Round 1 expects ${optIn.length} reviewer(s) (opt-in: ${names}); currently ${currentRoundReviewerFindings.length} finding(s) cover ${optIn.length - missing.length} reviewer(s) (missing: ${missingNames}; seen agents: ${presentAgents})\n→ Launch the missing proof-or-stop-review-* agents in parallel`;
+            }
+          } else {
+            if (currentRoundReviewerFindings.length === 0) {
+              return currentRound
+                ? `Cannot enter TEST: Round ${rc} has no reviewer finding in the current review round (${currentRound}); please launch the corresponding proof-or-stop-review-* agent`
+                : `Cannot enter TEST: all findings come from the main agent (reviewers did not run)\n→ Launch proof-or-stop-review-* subagents`;
+            }
+          }
+        }
+        const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
+
+        // B-e8c8 CHK-007: advisory findings do not count as blockers (same source as canPassReview).
+        // B-3fad CHK-001: add evidenceState dimension from the same source — only verified (or legacy missing field) blocks.
+        const blocking = findings.findings.filter(
+          f => isFindingBlocking(f, effectiveBlockingSeverities, roundCount),
+        );
+        if (blocking.length > 0) {
+          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing run finding_resolve, or to confirm not fixing run finding_dismiss (reason must be ≥10 characters)`;
+        }
+      } catch {
+        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see proof-or-stop reviewer_list)`;
+      }
+    }
   }
 
   if (targetPhase === 'DONE') {

@@ -54,10 +54,10 @@ function git(cwd: string, args: string[]): string {
 /** Build a fresh main project (a git repo, no story worktree). */
 function createMainProject(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }));
   write(root, 'README.md', 'gap-log smoke\n');
@@ -73,7 +73,7 @@ function createMainProject(prefix: string): string {
 function runGapLog(root: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
     cwd: root,
-    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+    env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -137,23 +137,23 @@ const VALID = {
 function assertMissingRequiredFieldsRejected(): void {
   // (a) CLI Zod layer — missing category / severity / evidence each fail before the handler
   {
-    const root = createMainProject('lattice-gaplog-zod-cat-');
+    const root = createMainProject('proof-or-stop-gaplog-zod-cat-');
     try {
       const out = runGapLogExpectFail(root, { severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.match(out, /category/, 'CLI Zod must reject missing category');
-      assert.equal(existsSync(join(root, '.lattice/story/actives', META_STORY_ID)), false,
+      assert.equal(existsSync(join(root, '.proof-or-stop/story/actives', META_STORY_ID)), false,
         'Zod-rejected gap_log must not even bootstrap the container');
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
   {
-    const root = createMainProject('lattice-gaplog-zod-sev-');
+    const root = createMainProject('proof-or-stop-gaplog-zod-sev-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.match(out, /severity/, 'CLI Zod must reject missing severity');
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
   {
-    const root = createMainProject('lattice-gaplog-zod-ev-');
+    const root = createMainProject('proof-or-stop-gaplog-zod-ev-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', severity: 'medium', sourceRefs: VALID.sourceRefs });
       assert.match(out, /evidence/, 'CLI Zod must reject missing evidence');
@@ -162,7 +162,7 @@ function assertMissingRequiredFieldsRejected(): void {
   // `source` is not a single Zod-required field (it's "any of 4 optional fields"),
   // so missing-source is enforced ONLY by the handler runtime guard — assert via CLI too.
   {
-    const root = createMainProject('lattice-gaplog-cli-src-');
+    const root = createMainProject('proof-or-stop-gaplog-cli-src-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', severity: 'medium', evidence: VALID.evidence });
       assert.match(out, /source is required/, 'handler runtime must reject missing source');
@@ -172,7 +172,7 @@ function assertMissingRequiredFieldsRejected(): void {
 
   // (b) handler runtime layer — bypass Zod entirely (simulates old JSON / internal fn callers)
   {
-    const root = createMainProject('lattice-gaplog-rt-');
+    const root = createMainProject('proof-or-stop-gaplog-rt-');
     try {
       const noCat = callGapLogRaw(root, { severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.equal(noCat.ok, false);
@@ -207,7 +207,7 @@ function assertMissingRequiredFieldsRejected(): void {
 
 // ── 2: default write -> evidenceState=suspected ──
 function assertDefaultWriteIsSuspected(): void {
-  const root = createMainProject('lattice-gaplog-default-');
+  const root = createMainProject('proof-or-stop-gaplog-default-');
   try {
     const out = runGapLog(root, VALID);
     assert.match(out, /evidenceState=suspected/, 'default gap_log must be suspected');
@@ -306,12 +306,12 @@ function assertDefaultWriteIsSuspected(): void {
       'legacy/path-only B-META stays untrusted until official re-attestation',
     );
     assert.equal(
-      verifyGapLogArtifactBinding(data, '.lattice/story/actives/B-META-other/findings.json', root, root).reason,
+      verifyGapLogArtifactBinding(data, '.proof-or-stop/story/actives/B-META-other/findings.json', root, root).reason,
       'wrong_artifact_path',
       'copied provenance is bound to the canonical framework-audit path',
     );
     assert.equal(
-      classifySharedLifecycleMetadata(root, '.lattice/story/actives/B-META-framework-audit/unknown.json'),
+      classifySharedLifecycleMetadata(root, '.proof-or-stop/story/actives/B-META-framework-audit/unknown.json'),
       null,
       'arbitrary B-META path is never admitted by path alone',
     );
@@ -321,7 +321,7 @@ function assertDefaultWriteIsSuspected(): void {
 
 // ── 3: verified requested but no structured evidence -> never produces a verified finding ──
 function assertVerifiedWithoutEvidenceCannotBeVerified(): void {
-  const root = createMainProject('lattice-gaplog-verified-bare-');
+  const root = createMainProject('proof-or-stop-gaplog-verified-bare-');
   try {
     // gap_log requires `source` (sourceRefs / reproCommand / observedOutput / analysisNote),
     // and that same set IS the "structured evidence" the verified guard checks. So a
@@ -353,7 +353,7 @@ function assertVerifiedWithoutEvidenceCannotBeVerified(): void {
 
 // ── 4: verified WITH structured evidence -> verified allowed ──
 function assertVerifiedWithEvidenceAllowed(): void {
-  const root = createMainProject('lattice-gaplog-verified-ok-');
+  const root = createMainProject('proof-or-stop-gaplog-verified-ok-');
   try {
     const out = runGapLog(root, {
       category: 'edge',
@@ -378,7 +378,7 @@ function assertVerifiedWithEvidenceAllowed(): void {
 // ── 5: empty / whitespace-only evidence -> rejected ──
 function assertBlankEvidenceRejected(): void {
   for (const blank of ['', '   ', '\t\n  ']) {
-    const root = createMainProject('lattice-gaplog-blank-ev-');
+    const root = createMainProject('proof-or-stop-gaplog-blank-ev-');
     try {
       const out = runGapLogExpectFail(root, {
         category: 'missing', severity: 'medium', evidence: blank, sourceRefs: VALID.sourceRefs,
@@ -392,7 +392,7 @@ function assertBlankEvidenceRejected(): void {
 
 // ── 6: B-META container missing -> gap_log auto ensureMetaStory bootstrap ──
 function assertContainerBootstrap(): void {
-  const root = createMainProject('lattice-gaplog-bootstrap-');
+  const root = createMainProject('proof-or-stop-gaplog-bootstrap-');
   try {
     assert.equal(new StoryStore(root).storyExists(META_STORY_ID), false,
       'fixture must start without the B-META container');
@@ -417,7 +417,7 @@ function assertContainerBootstrap(): void {
 function assertNoWorktreeRequired(): void {
   // createMainProject() is a plain main repo with NO story worktree, NO active story.
   // If gap_log required a worktree (assertCwdInWorktree) it would throw here.
-  const root = createMainProject('lattice-gaplog-no-worktree-');
+  const root = createMainProject('proof-or-stop-gaplog-no-worktree-');
   try {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), /story\//,
       'fixture must have no story worktree');
@@ -498,7 +498,7 @@ function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
 // finding so concurrent agents archiving the same framework gap do not pollute
 // B-META with duplicates.
 function assertIdenticalGapDeduped(): void {
-  const root = createMainProject('lattice-gaplog-dedup-');
+  const root = createMainProject('proof-or-stop-gaplog-dedup-');
   try {
     const out1 = runGapLog(root, VALID);
     assert.match(out1, /Gap logged: B-META-framework-audit:F-/, 'first gap_log writes a finding');
@@ -522,7 +522,7 @@ function assertIdenticalGapDeduped(): void {
 // asserts every distinguishing channel (desc / category / severity / sourceRefs
 // / reproCommand / observedOutput / analysisNote) keeps gaps separate.
 function assertDifferentGapsNotFalselyMerged(): void {
-  const root = createMainProject('lattice-gaplog-no-false-merge-');
+  const root = createMainProject('proof-or-stop-gaplog-no-false-merge-');
   try {
     // base gap
     runGapLog(root, VALID);
@@ -553,7 +553,7 @@ function assertDifferentGapsNotFalselyMerged(): void {
 
 // ── 8c: a later gap_log cannot launder an unbound historical mutation ──
 function assertResolvedGapCanBeReLogged(): void {
-  const root = createMainProject('lattice-gaplog-relog-');
+  const root = createMainProject('proof-or-stop-gaplog-relog-');
   try {
     runGapLog(root, VALID);
     // resolve the first finding directly in the store (simulates the gap being closed)
@@ -578,7 +578,7 @@ function assertResolvedGapCanBeReLogged(): void {
 // Two layers: (a) CLI Zod enum only allows suspected/verified; (b) handler runtime
 // rejects disproven (and any out-of-enum value) even when Zod is bypassed.
 function assertDisprovenRejected(): void {
-  const root = createMainProject('lattice-gaplog-disproven-');
+  const root = createMainProject('proof-or-stop-gaplog-disproven-');
   try {
     // (a) CLI Zod layer rejects disproven before reaching the handler
     const cliOut = runGapLogExpectFail(root, { ...VALID, evidenceState: 'disproven' });
@@ -602,7 +602,7 @@ function assertDisprovenRejected(): void {
 
 // ── 10: rapid succession (5 calls) -> all 5 findings written, no findings.json race ──
 function assertRapidSuccessionAllWritten(): void {
-  const root = createMainProject('lattice-gaplog-rapid-');
+  const root = createMainProject('proof-or-stop-gaplog-rapid-');
   try {
     for (let i = 0; i < 5; i++) {
       runGapLog(root, { ...VALID, evidence: `rapid framework gap #${i} observed in quick succession` });
@@ -617,7 +617,7 @@ function assertRapidSuccessionAllWritten(): void {
 
 // ── 12: F-003 — sourceRefs + files both passed -> finding.files keeps both (no silent loss) ──
 function assertSourceRefsAndFilesMerged(): void {
-  const root = createMainProject('lattice-gaplog-merge-files-');
+  const root = createMainProject('proof-or-stop-gaplog-merge-files-');
   try {
     const out = runGapLog(root, {
       category: 'missing',
@@ -651,7 +651,7 @@ function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ cod
   return new Promise((resolveP) => {
     const child = spawn(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let out = '';
@@ -671,7 +671,7 @@ function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ cod
 // the in-lock idempotency dedup. The invariant: the same gap logged
 // concurrently produces EXACTLY ONE canonical B-META finding, all racers exit 0.
 async function assertConcurrentSameGapDeduped(): Promise<void> {
-  const root = createMainProject('lattice-gaplog-concurrent-same-');
+  const root = createMainProject('proof-or-stop-gaplog-concurrent-same-');
   try {
     const racers = 6;
     const pending: Array<Promise<{ code: number; output: string }>> = [];
@@ -696,7 +696,7 @@ async function assertConcurrentSameGapDeduped(): Promise<void> {
 
     // concurrent DIFFERENT gaps -> each gets its own finding (lock serializes,
     // dedup does not falsely merge distinct gaps).
-    const root2 = createMainProject('lattice-gaplog-concurrent-diff-');
+    const root2 = createMainProject('proof-or-stop-gaplog-concurrent-diff-');
     try {
       const diffPending: Array<Promise<{ code: number; output: string }>> = [];
       for (let i = 0; i < 4; i++) {
@@ -719,7 +719,7 @@ async function assertConcurrentSameGapDeduped(): Promise<void> {
 }
 
 function assertProvenanceAndConsumerMatrix(): void {
-  const root = createMainProject('lattice-gaplog-provenance-matrix-');
+  const root = createMainProject('proof-or-stop-gaplog-provenance-matrix-');
   try {
     runGapLog(root, VALID);
     runGapLog(root, {
@@ -754,8 +754,8 @@ function assertProvenanceAndConsumerMatrix(): void {
     const mutationCases: Array<[string, (receipt: any) => void]> = [
       ['writer identity', (receipt) => { receipt.writerCommand = 'finding_add'; }],
       ['story identity', (receipt) => { receipt.storyId = 'B-META-other'; }],
-      ['ledger identity', (receipt) => { receipt.ledgerPath = '.lattice/other.jsonl'; }],
-      ['artifact path identity', (receipt) => { receipt.artifactPath = '.lattice/other.json'; }],
+      ['ledger identity', (receipt) => { receipt.ledgerPath = '.proof-or-stop/other.jsonl'; }],
+      ['artifact path identity', (receipt) => { receipt.artifactPath = '.proof-or-stop/other.json'; }],
       ['fingerprint identity', (receipt) => { receipt.gapFingerprint = '0'.repeat(64); }],
       ['sequence', (receipt) => { receipt.sequence = 99; }],
       ['previous hash', (receipt) => { receipt.previousIntegrityHash = 'f'.repeat(64); }],
@@ -867,7 +867,7 @@ function assertProvenanceAndConsumerMatrix(): void {
     rmSync(artifactPath);
     writeFileSync(artifactPath, JSON.stringify(data, null, 2));
     assert.equal(
-      classifySharedLifecycleMetadata(root, '.lattice/story/actives/B-META-framework-audit/../B-META-framework-audit/findings.json'),
+      classifySharedLifecycleMetadata(root, '.proof-or-stop/story/actives/B-META-framework-audit/../B-META-framework-audit/findings.json'),
       null,
       'non-canonical path aliases are not admitted',
     );
@@ -886,7 +886,7 @@ function assertProvenanceAndConsumerMatrix(): void {
   };
 
   {
-    const { root: legacyRoot } = prepareLegacy('lattice-gaplog-legacy-unchanged-');
+    const { root: legacyRoot } = prepareLegacy('proof-or-stop-gaplog-legacy-unchanged-');
     try {
       runGapLog(legacyRoot, {
         ...VALID,
@@ -904,7 +904,7 @@ function assertProvenanceAndConsumerMatrix(): void {
   }
 
   {
-    const { root: legacyRoot } = prepareLegacy('lattice-gaplog-legacy-delete-');
+    const { root: legacyRoot } = prepareLegacy('proof-or-stop-gaplog-legacy-delete-');
     try {
       writeFileSync(join(legacyRoot, GAP_LOG_ARTIFACT_PATH), JSON.stringify({ findings: [] }, null, 2));
       const rejected = runGapLogExpectFail(legacyRoot, {
@@ -922,10 +922,10 @@ function assertProvenanceAndConsumerMatrix(): void {
 
 // ── 11: gap_log is discoverable -> proof-or-stop help / proof-or-stop gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
-  const root = createMainProject('lattice-gaplog-discover-');
+  const root = createMainProject('proof-or-stop-gaplog-discover-');
   try {
     const help = execFileSync(process.execPath, [cliPath, 'gap_log', '--help'], {
-      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     assert.match(help, /gap_log/, 'proof-or-stop gap_log --help must render the command');
     assert.match(help, /category/, 'help must list the category parameter');
@@ -935,14 +935,14 @@ function assertCommandDiscoverable(): void {
 }
 
 function assertWrapperRootAuthorityParity(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-gaplog-wrapper-root-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-gaplog-wrapper-root-'));
   try {
     const gitCwd = join(root, 'repo');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       gitRoot: 'repo',
       scanRoot: 'src',
       rootDir: '.',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scopeProtection: { pathCanonicalization: 'off', astAnchors: 'off' },
     }));

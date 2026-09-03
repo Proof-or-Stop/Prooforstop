@@ -3,7 +3,7 @@
  * B-4f15 CHK-003: focused in-process smoke for the read-only reviewer command
  * policy delivered in CHK-002.
  *
- * Exercises enforceReviewerReadOnlyCommandGate + the LATTICE_REVIEWER_READONLY env
+ * Exercises enforceReviewerReadOnlyCommandGate + the PROOF_OR_STOP_REVIEWER_READONLY env
  * using a temp StoryStore. The critical assertion: a blocked review_pass_set call
  * must write NO review-passes.json artifact.
  */
@@ -19,7 +19,7 @@ import {
   enforceReviewerReadOnlyCommandGate,
 } from '../cli-engine.js';
 
-const root = join(tmpdir(), `lattice-reviewer-readonly-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `proof-or-stop-reviewer-readonly-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 const savedRO = process.env[REVIEWER_READONLY_ENV];
@@ -31,12 +31,12 @@ try {
   mkdirSync(storyDir, { recursive: true });
   const reviewPassesPath = join(storyDir, 'review-passes.json');
 
-  // ── 1. LATTICE_REVIEWER_READONLY=1 enables read-only mode ─────────────────
+  // ── 1. PROOF_OR_STOP_REVIEWER_READONLY=1 enables read-only mode ─────────────────
   delete process.env[REVIEWER_READONLY_ENV];
   assert.equal(isReviewerReadOnlyModeEnabled(), false, 'unset → disabled');
   process.env[REVIEWER_READONLY_ENV] = '1';
   assert.equal(isReviewerReadOnlyModeEnabled(), true, '=1 → enabled');
-  console.log('✓ LATTICE_REVIEWER_READONLY=1 enables read-only reviewer mode');
+  console.log('✓ PROOF_OR_STOP_REVIEWER_READONLY=1 enables read-only reviewer mode');
 
   // ── 2. Allowed: effective readOnly commands pass the gate ────────────────
   process.env[REVIEWER_READONLY_ENV] = '1';
@@ -99,13 +99,13 @@ try {
   delete process.env[REVIEWER_READONLY_ENV];
   assert.doesNotThrow(
     () => enforceReviewerReadOnlyCommandGate('review_pass_set', {}, null),
-    'review_pass_set not blocked when LATTICE_REVIEWER_READONLY is unset',
+    'review_pass_set not blocked when PROOF_OR_STOP_REVIEWER_READONLY is unset',
   );
   assert.doesNotThrow(
     () => enforceReviewerReadOnlyCommandGate('finding_add', {}, null),
-    'finding_add not blocked when LATTICE_REVIEWER_READONLY is unset',
+    'finding_add not blocked when PROOF_OR_STOP_REVIEWER_READONLY is unset',
   );
-  console.log('✓ normal reviewerWrite remains allowed without LATTICE_REVIEWER_READONLY');
+  console.log('✓ normal reviewerWrite remains allowed without PROOF_OR_STOP_REVIEWER_READONLY');
 
   console.log('✓ reviewer-readonly command policy smoke passed');
 } finally {

@@ -34,7 +34,7 @@ import {
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'scope-plan-scope-smoke', LATTICE_AGENT: 'scope-plan-scope-smoke' };
+const sessionEnv = { ...process.env, PROOF_OR_STOP_SESSION_ID: 'scope-plan-scope-smoke', PROOF_OR_STOP_AGENT: 'scope-plan-scope-smoke' };
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -170,15 +170,15 @@ function makeStory(storyId: string, phase: StoryPhase): StoryInfo {
 
 // ── 2–6. Gate tests using a temp git repo ───────────────────────────────────
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-scope-plan-scope-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-plan-scope-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'scope-plan@example.test']);
   git(root, ['config', 'user.name', 'Scope Plan Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -253,7 +253,7 @@ try {
     store.writeChecklist(storyId, checklistWithFiles);
 
     // Write corrupt JSON to scope-contract.json
-    const contractPath = join(root, '.lattice/story/actives', storyId, 'scope-contract.json');
+    const contractPath = join(root, '.proof-or-stop/story/actives', storyId, 'scope-contract.json');
     mkdirSync(dirname(contractPath), { recursive: true });
     writeFileSync(contractPath, '{ this is not valid json !!!', 'utf8');
 
@@ -359,15 +359,15 @@ try {
   // Uses a fresh isolated subdirectory-repo so git diff is clean after the
   // initial commit — all other test story metadata lives in a different repo.
   {
-    const iroot = mkdtempSync(join(tmpdir(), 'lattice-scope-integrate-'));
+    const iroot = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-integrate-'));
     try {
       git(iroot, ['init', '-b', 'main']);
       git(iroot, ['config', 'user.email', 'integrate@example.test']);
       git(iroot, ['config', 'user.name', 'Scope Integrate']);
-      write(iroot, 'lattice.config.json', JSON.stringify({
+      write(iroot, 'proof-or-stop.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
         storyPrefix: 'B',
       }, null, 2));

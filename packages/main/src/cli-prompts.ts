@@ -4,7 +4,7 @@
  * Displayed by `proof-or-stop <cmd> --help` to teach agents how to use commands.
  */
 
-import { PROOF_OR_STOP_PRIMARY_BIN } from './core/lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from './core/proof-or-stop-brand.js';
 
 export const STORY_CREATE_LONG = `
 ══════════════════════════════════════════════════════════
@@ -280,7 +280,7 @@ REVIEW→TEST PREFLIGHT (CLI gates)
   4. docs-drift: CLAUDE.md command references must match registry
   5. codex-adapter: required only when Codex adapter surfaces changed
   6. english-artifacts: branch commits + story metadata must be English (B-5f42)
-  7. lattice-residue: scan tracked source for un-rebranded brand residue (B-292d)
+  7. proof-or-stop-residue: scan tracked source for un-rebranded brand residue (B-292d)
 
 EXAMPLES
 
@@ -306,7 +306,7 @@ STEP-BY-STEP
 /**
  * B-cdf6 CHK-002: the footer tells the reader what to RUN NEXT, so it must name
  * a bin that actually resolves for them. It mirrors how the CLI was invoked
- * (`proof-or-stop` canonically, `lattice` when the deprecated alias was used).
+ * (`proof-or-stop` canonically, `proof-or-stop` when the deprecated alias was used).
  */
 export function sessionBriefFooter(bin: string = PROOF_OR_STOP_PRIMARY_BIN): string {
   return `\n-> Not sure what to do next? Run ${bin} session_brief to recover the project context.\n`;

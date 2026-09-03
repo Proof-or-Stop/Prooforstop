@@ -6,7 +6,7 @@
  *
  *   1) Commit subjects + bodies on this branch only: `git log main..HEAD`.
  *   2) The CURRENT story's AUTHOR-CONTROLLED metadata files only, resolved from
- *      .lattice/story/actives/<storyId>/ (or whatever storyDir the store uses):
+ *      .proof-or-stop/story/actives/<storyId>/ (or whatever storyDir the store uses):
  *        background.md, index.json, checklist.json, decision.json,
  *        understanding.json, plan.md, summary.json.
  *

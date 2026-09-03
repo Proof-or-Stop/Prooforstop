@@ -192,7 +192,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       return withReviewInventoryMutationLock(store, args.storyId, () => {
       const startedAt = new Date().toISOString();
       // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the
-      // storyDir-aware material/story hash exclusion loads lattice.config.json
+      // storyDir-aware material/story hash exclusion loads proof-or-stop.config.json
       // from the metadataRoot (where a CUSTOM storyDir is declared), NOT the
       // gitRoot. This matches buildReviewRunWorkspaceBinding.metadataRoot below,
       // so the persisted binding is authoritative and consumers recompute

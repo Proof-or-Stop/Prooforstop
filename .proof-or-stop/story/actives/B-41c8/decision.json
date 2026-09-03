@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "One owner per fact: each of the three facts ends the story implemented in exactly one place, and every other site consumes it.",
+    "Fail loudly, never silently: a row the reader cannot parse is an error, not a skip; an unresolvable ref stays a throw.",
+    "Measure, do not enumerate: the set of workspace-resolution callers is produced by a call-expression scan committed as a fixture, never by a hand-written list.",
+    "Prove the boundary: every claim that existing behaviour is preserved gets a fixture that would fail if it were not.",
+    "Bounded scope: the migration wave the audit reveals is a separate story; this story ends when the audit reports honestly, not when it reports zero."
+  ],
+  "drivers": [
+    "Three hand-written caller lists during this story's own draft review were each wrong (a wrong file, then two missed callers, then a substring over-count to thirty-one files).",
+    "The rename reader's failure mode is silent data loss under a success status, the most dangerous class for freshness-based gates.",
+    "The duplicated parser is a false-provenance risk between pin identity and DONE-required execution.",
+    "B-a745 F-010 showed a gitCwd-only fix leaves stale metadata and config in play; the resolver must own all three reads.",
+    "B-a745's closeout showed that any unrelated material change invalidates every gate binding, so the story must stay small and land in one wave."
+  ],
+  "options": [
+    {
+      "name": "A-nul-delimited-plus-call-expression-audit",
+      "pros": [
+        "`git diff --name-status -M -z` disables C-quoting entirely, so quoted paths never enter the parser and unparseable rows can be made a hard error.",
+        "A call-expression scan (regex over `resolveGitCwd(` outside comments and strings, or a TypeScript AST walk) counts real callers and ignores comment mentions such as validate-channel.ts.",
+        "The audit output is a committed artifact the follow-up story can consume verbatim."
+      ],
+      "cons": [
+        "NUL parsing changes the reader's internal shape and needs its own fixtures for rename, copy, delete and quoted paths.",
+        "An AST-based scan adds a dependency on the TypeScript compiler API in a test task; a regex scan is simpler but must exclude comments and strings deliberately."
+      ]
+    },
+    {
+      "name": "B-quotepath-false-plus-hand-list",
+      "pros": [
+        "Setting core.quotePath=false on the git invocation avoids touching the tab parser.",
+        "A hand-maintained caller list is quick to write."
+      ],
+      "cons": [
+        "quotePath=false still leaves tabs and newlines in paths ambiguous under tab-splitting, so the silent skip remains for those.",
+        "The hand list is exactly what failed three times in review; it would be wrong again the day a caller is added."
+      ]
+    },
+    {
+      "name": "C-migrate-everything-in-this-story",
+      "pros": [
+        "One story, no follow-up dependency."
+      ],
+      "cons": [
+        "Up to thirty-one handlers touched at once makes reviewer and cross-host verdicts meaningless and the DONE closeout fragile; B-a745 showed one unrelated commit can invalidate every binding.",
+        "Violates the user's grouping decision that the migration wave is scoped by the audit, not assumed."
+      ]
+    }
+  ],
+  "chosen": "A-nul-delimited-plus-call-expression-audit",
+  "rationale": "Option A is the only one that removes both silent failure modes rather than narrowing them: -z parsing eliminates quoting as a parser input, and a call-expression audit replaces the hand list that has already failed three times with a measurement. Option B keeps the tab parser's ambiguity for tabs and newlines and keeps the hand list. Option C is rejected for size and for contradicting the user's decision that the migration wave is a separate, audit-scoped story. A regex scan that skips comment lines and string literals is chosen over an AST walk for the audit, with a fixture asserting it classifies validate-channel.ts as comment-only and review-preflight.ts as a real caller; if the regex proves brittle, upgrading to the compiler API is a contained change.",
+  "preMortem": [
+    {
+      "scenario": "The NUL-delimited reader silently changes which paths count as story-owned, shifting storyFilesHash for every active story and staling their evidence.",
+      "trigger": "The -z parser normalizes or orders paths differently from the tab parser, or treats copies and renames differently.",
+      "consequence": "Every in-flight story's receipts and quorums go stale after this merges, repeating the B-a745 closeout cost repo-wide.",
+      "mitigation": "A fixture computes storyFilesHash and materialHash over the same fixture repository with the old and the new reader and asserts byte-identical results for every non-quoted case, so only genuinely quoted paths can differ, and those are asserted to now include both rename sides."
+    },
+    {
+      "scenario": "Delegating done-required-validation.ts to the canonical parser changes how a DONE-required command string is split, so a previously passing DONE-required suite fails or a different executable runs.",
+      "trigger": "The two parsers disagree on an edge input (quoted argument with embedded space, a metacharacter inside quotes).",
+      "consequence": "DONE gates start failing or, worse, run a different command than the receipt claims.",
+      "mitigation": "Before delegating, a fixture feeds a shared corpus of tricky strings through both parsers and asserts identical output; any disagreement is resolved explicitly as a named difference before the switch, and the corpus stays committed."
+    },
+    {
+      "scenario": "The shared resolver's phase-terminal guard refuses a story that a caller legitimately needs to read after DONE (for example a report over merged stories).",
+      "trigger": "Migrating story-query.ts or session.ts onto the helper applies the guard to a path that previously read DONE stories from main.",
+      "consequence": "Post-DONE reads silently return nothing.",
+      "mitigation": "The helper exposes the guard as an explicit option with the default matching each migrated caller's current behaviour, and a fixture per migrated caller asserts DONE-story reads behave exactly as before."
+    },
+    {
+      "scenario": "The audit fixture over- or under-counts callers, so the follow-up story is scoped wrongly again.",
+      "trigger": "The regex matches comment mentions or misses a caller that aliases the import.",
+      "consequence": "The migration wave repeats this story's draft-review failure.",
+      "mitigation": "The fixture asserts known cases: validate-channel.ts classified comment-only, review-preflight.ts a real caller, an aliased import in a temporary fixture file detected; and it prints the classified list so a reviewer can diff it against a manual grep."
+    }
+  ],
+  "timestamp": "2026-09-02T13:36:35.505Z"
+}

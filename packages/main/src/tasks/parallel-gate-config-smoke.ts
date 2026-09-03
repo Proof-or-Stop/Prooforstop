@@ -2,7 +2,7 @@
  * Smoke: parallel-decomposition gate config resolution (B-d2a8, program Story 3).
  *
  * Hermetic — resolveParallelGate is unit-tested directly with each profile default, and
- * resolveAuditConfig is exercised against a temp .lattice/audit-config.json under os.tmpdir().
+ * resolveAuditConfig is exercised against a temp .proof-or-stop/audit-config.json under os.tmpdir().
  * Proves: per-profile defaults, every sub-field override, mode "off", PRESENT-but-invalid vs
  * ABSENT semantics (an invalid mode of any type degrades to advise, never block), warn emission
  * at BOTH the direct-helper and the resolveAuditConfig config-file integration level,
@@ -19,7 +19,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resolveAuditConfig, resolveParallelGate } from '../core/audit-config.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
 
 let passed = 0;
@@ -264,7 +264,7 @@ void (() => {
       check('flaky broadGlobBlocks getter read once -> stored value is the guarded one', result.broadGlobBlocks === true);
     }
 
-    // === resolveAuditConfig integration (temp .lattice/audit-config.json) ===
+    // === resolveAuditConfig integration (temp .proof-or-stop/audit-config.json) ===
 
     // 9. Per-profile defaults with NO user config.
     check('light default via resolveAuditConfig', eq(resolveAuditConfig('light', tmpEmptyProject()).parallelGate!, LIGHT));

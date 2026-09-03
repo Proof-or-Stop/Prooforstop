@@ -1,0 +1,23 @@
+{
+  "storyId": "B-87b5",
+  "updatedAt": "2026-08-31T09:15:28.846Z",
+  "entries": [
+    {
+      "digest": "9d7094fdeea20787aa073cff4611fe2d08ade03eae6f1694b9e8226971b86383",
+      "terms": [
+        "## Conversational Texture The user explicitly asked not to expand B-5952 and questioned the time spent. This bug is isolated as its own main-baseline story so B-5952 remains a narrow 800-to-808 instrumentation repair, and the new work is limited to the gate defect that makes legal reviewer evidence impossible to consume.",
+        "## Key Insights The committed review-incremental-context smoke passes its temporal-cutoff and production-verifier scenarios, while the real story with prior rounds and resolved findings fails repeatedly. The missing coverage is therefore the real persisted-history composition, not the bounded-inventory implementation.",
+        "## Solution Tradeoffs The fix must preserve fail-closed rejection for real task, scope, role, runtime, material, and cutoff changes. It must not bypass Prompt Envelope verification or special-case B-5952; the smallest acceptable change is a deterministic as-of-run recomputation plus a regression using realistic prior rounds.",
+        "## Trigger Event B-5952 recorded fresh reviewer passes RP-018 through RP-020 in a clean REVIEW round, but REVIEW to TEST rejected all three with review_evidence_invalid on eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest.",
+        "## Trigger Event B-5952 recorded fresh reviewer passes RP-018 through RP-020 in a clean REVIEW round, but REVIEW to TEST rejected all three with review_evidence_invalid on eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest. ## Key Insights The committed review-incremental-context smoke passes its temporal-cutoff and production-verifier scenarios, while the real story with prior rounds and resolved findings fails repeatedly. The missing coverage is therefore the real persisted-history composition, not the bounded-inventory implementation. ## Solution Tradeoffs The fix must preserve fail-closed rejection for real task, scope, role, runtime, material, and cutoff changes. It must not bypass Prompt Envelope verification or special-case B-5952; the smallest acceptable change is a deterministic as-of-run recomputation plus a regression using realistic prior rounds. ## Conversational Texture The user explicitly asked not to expand B-5952 and questioned the time spent. This bug is isolated as its own main-baseline story so B-5952 remains a narrow 800-to-808 instrumentation repair, and the new work is limited to the gate defect that makes legal reviewer evidence impossible to consume.",
+        "Keep real-story Prompt Envelope eligibility stable after reviewer-pass writes",
+        "Make real-story reviewer Prompt Envelopes remain valid after their pass is recorded",
+        "On clean main, B-5952 produced fresh concept, quality, and test-coverage passes in multiple clean REVIEW rounds, yet REVIEW to TEST rejected every pass because eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest changed under authoritative recomputation. The targeted review-incremental-context smoke passes, so add a real-story-history regression and fix only the recomputation inconsistency without weakening envelope validation.",
+        "Reproduce with historical findings/resolutions and prior review rounds matching B-5952; preserve fail-closed rejection for genuinely changed task, scope, runtime, role, findings cutoff, and material. Add a regression that fails before the fix and passes after it."
+      ],
+      "reason": "Discarded after exact reviewer stdout proved the mismatch was caused by owner Node v24 versus reviewer Node v26 execution-environment binding; no framework code change is required.",
+      "discardedAt": "2026-08-31T09:15:28.846Z",
+      "storyId": "B-87b5"
+    }
+  ]
+}

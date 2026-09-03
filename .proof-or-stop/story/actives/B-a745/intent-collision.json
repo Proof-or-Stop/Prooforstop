@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a745",
+  "id": "IC-20260902011940",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The user named the execution-plan document and asked to open a Story for it and execute immediately, but did not name which of the document's six numbered rollout Stories to build. The document itself resolves the ambiguity: it is explicitly documentation-only, states that none of the proposed selector, tier flags, index or artifacts exist yet, and defines Rollout Story 1 (Stable identity and explain-only planner) as the first bounded implementation increment with its own exit criteria, deferring every set-shrinking capability to Stories 2 through 4. B-a745 is therefore scoped to exactly Rollout Story 1. The competing interpretation - build the whole tiering feature end to end so that validation actually runs fewer commands - was rejected because the plan forbids it in this increment: a selector without an impact index and exclusion proofs would either be unsound or would widen to the full set on every call anyway, and it would put a set-shrinking code path into the tree before the fixtures that make it safe exist. The consequence the user should know about is that after this Story validation does not get faster; what they get is stable command identity, honest pin resolution, and an explain output that says why no reduction happened.",
+  "acceptedInterpretationHash": "sha256:ffa2fd31f22ece1c69492112dcb461814408046ea4bba9b51edb0c36b0f39e90",
+  "notes": "Recorded at PLAN before any implementation. The narrower reading was chosen because it is the one the cited source document authorizes; the broader reading would have required overriding the document this Story exists to implement. Scope boundary and excluded scope for B-a745 record the same split, and the scope-plan reviewer independently confirmed no Rollout Story 2-6 work is present in the checklist.",
+  "createdAt": "2026-09-02T01:19:40.444Z",
+  "updatedAt": "2026-09-02T01:19:40.444Z"
+}

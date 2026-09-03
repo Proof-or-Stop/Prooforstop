@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-83aa",
+  "checkedAt": "2026-09-02T15:08:01.033Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "a7172af1cb2abc79c1706878d41a732d568050b651ad7b121bf83002181f7dfe",
+  "executionBoundaryHash": "5de1ddd3312a41bdb8aae37b411ece13ec797dfa56f89041b76c213e1f90c739",
+  "freshnessHash": "087dc20eb0ce81c91bbd36449b9d161b8d39b1a8abea93e8f742de336b7b4ba0",
+  "effectiveExcludedKeywords": [
+    "Any dev-memory, gap_log or global CLI change (owned by B-c86f, B-95bf, B-e256)",
+    "Changing the EvidenceHashSnapshot schema or making captureEvidenceHashSnapshot throw",
+    "Reworking review escalation / assurance floor quorum semantics"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any dev-memory, gap_log or global CLI change (owned by B-c86f, B-95bf, B-e256)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any dev-memory, gap_log or global CLI change (owned by B-c86f, B-95bf, B-e256)",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the EvidenceHashSnapshot schema or making captureEvidenceHashSnapshot throw",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the EvidenceHashSnapshot schema or making captureEvidenceHashSnapshot throw",
+      "excluded": true
+    },
+    {
+      "keyword": "Reworking review escalation / assurance floor quorum semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Reworking review escalation / assurance floor quorum semantics",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "bcdcb63752d5a1cfdd1c4074663dbb291690819167400058fd7f49f04bc7b0db"
+}

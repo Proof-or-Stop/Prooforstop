@@ -1,5 +1,5 @@
 // Runtime evidence retention + garbage collection (§B4b of
-// lattice-authority-live-integration.md). The planner emits a per-kind
+// proof-or-stop-authority-live-integration.md). The planner emits a per-kind
 // `retentionClassByKind` policy and `assertJobPolicyConsistency` rejects unknown
 // classes — but that is policy only. This module is the runtime layer that
 // actually decides what may be deleted and performs a deterministic sweep.

@@ -1,0 +1,37 @@
+{
+  "storyId": "B-2b3d",
+  "name": "w2e-disposable-runner-invariance",
+  "title": "Land the disposable-workspace runner and four-tuple net-state invariance (spec section 2)",
+  "description": "Implements section 2 of the trusted RED-evidence subsystem spec: every RED and GREEN run executes in a disposable detached git worktree, with a four-tuple (headHash, materialHash, indexState, gitStatus) captured immediately before the command starts and immediately after it exits. A run may produce a record only if all four compare byte-identical. Three of the four carry single normative definitions the spec pins because earlier revisions got them wrong - materialHash calls the existing currentMaterialHash rather than re-deriving it, indexState is the git write-tree object id verbatim rather than a hash over ls-files, and gitStatus is filtered by a rename-aware byte-level entry rule rather than line-wise. The claim is NET-STATE invariance and the spec forbids describing it as proof of zero mid-run writes.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "Program Workstream 2, spec section 2; follows B-9ff1 (W2d, section 1) DONE 2026-08-19",
+  "depends": [
+    "B-9ff1"
+  ],
+  "keywords": [
+    "red-evidence",
+    "runner",
+    "four-tuple",
+    "invariance",
+    "worktree",
+    "git-status",
+    "index-state",
+    "material-hash"
+  ],
+  "createdAt": "2026-08-20T01:00:17.510Z",
+  "startedAt": "2026-08-20T01:00:17.510Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-20T01:00:18.165Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    }
+  ]
+}

@@ -227,7 +227,7 @@ The baseline is generated, not checked in:
 - generator source is committed;
 - deterministic seed and manifest are committed;
 - generated data defaults to an explicit temp directory;
-- project-local output under `.lattice/benchmarks/memory-playbook/` is opt-in,
+- project-local output under `.proof-or-stop/benchmarks/memory-playbook/` is opt-in,
   no-overwrite, cleanup-able, and must be registered as a runtime artifact with
   materialHash exclusion;
 - `.gitignore` must exclude generated JSONL/object payloads and any optional

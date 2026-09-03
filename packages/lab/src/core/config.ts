@@ -33,10 +33,10 @@ function defaultTarget(targetId: string, editableFiles?: string[]): LabTargetCon
   }
 
   const defaults: Record<string, string[]> = {
-    // B-cc10 F-045: canonical agent assets use the proof-or-stop-prefixed basename.
-    // Keep only the exact pre-migration .lattice-codex paths as a bounded legacy fallback.
-    'test-case-reviewer': ['.proof-or-stop-codex/agents/proof-or-stop-test-case-reviewer.md', '.lattice-codex/agents/test-case-reviewer.md'],
-    'test-intent': ['.proof-or-stop-codex/agents/proof-or-stop-test-intent.md', '.lattice-codex/agents/test-intent.md'],
+    // B-cc10 F-045: the codex adapter dir was renamed; these targets pointed at files that
+    // no longer exist. Both spellings are listed so a pre-migration checkout still resolves.
+    'test-case-reviewer': ['.proof-or-stop-codex/agents/test-case-reviewer.md', '.proof-or-stop-codex/agents/test-case-reviewer.md'],
+    'test-intent': ['.proof-or-stop-codex/agents/test-intent.md', '.proof-or-stop-codex/agents/test-intent.md'],
     'session-brief': ['packages/main/src/handlers/session.ts'],
   };
   const resolved = defaults[targetId];

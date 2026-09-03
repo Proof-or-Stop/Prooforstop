@@ -57,21 +57,21 @@ const background = [
   'A maintainer sees the conclusion on stdout and a separate reload reminder on stderr after each checklist_update.',
 ].join('\n\n');
 
-// Pin LATTICE_SESSION_ID so all child processes — including the bash -c pipeline
+// Pin PROOF_OR_STOP_SESSION_ID so all child processes — including the bash -c pipeline
 // in Test 3 — share one stable session and don't trip the owner-lease gate via
 // a different ppid-derived id.
-const origSessionId = process.env.LATTICE_SESSION_ID;
-process.env.LATTICE_SESSION_ID = 'smoke-reload-hint';
+const origSessionId = process.env.PROOF_OR_STOP_SESSION_ID;
+process.env.PROOF_OR_STOP_SESSION_ID = 'smoke-reload-hint';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-reload-hint-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-reload-hint-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -91,7 +91,7 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
 
-  const checklistPath = join(root, '.lattice/story/actives', storyId!, 'checklist.json');
+  const checklistPath = join(root, '.proof-or-stop/story/actives', storyId!, 'checklist.json');
   const before = JSON.parse(readFileSync(checklistPath, 'utf8'));
   const itemBefore = before.items.find((i: any) => i.id === 'CHK-001');
   assert.ok(itemBefore, 'CHK-001 must exist after story_create');
@@ -138,9 +138,9 @@ try {
 } finally {
   rmSync(root, { recursive: true, force: true });
   if (origSessionId === undefined) {
-    delete process.env.LATTICE_SESSION_ID;
+    delete process.env.PROOF_OR_STOP_SESSION_ID;
   } else {
-    process.env.LATTICE_SESSION_ID = origSessionId;
+    process.env.PROOF_OR_STOP_SESSION_ID = origSessionId;
   }
 }
 

@@ -64,15 +64,15 @@ function freezeScope(root: string, storyId: string): void {
   assert.match(frozen, /PASS/, 'scope_freeze_check must pass so INIT_CHECK reaches the init-check gate');
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-init-required-agents-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-required-agents-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -112,14 +112,14 @@ try {
   assert.match(missingAll, /unknown or temporarily unavailable/, 'missing-init guard should preserve ambiguous reviewer identity');
   assert.doesNotMatch(missingAll, /no output for 4 minutes.*restart/i, 'missing-init guard must not restart on elapsed silence');
 
-  run(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  run(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(missingProduct, /missing_init_check_agent/);
   assert.match(missingProduct, /product-reviewer/);
   assert.match(missingProduct, /agentType":"proof-or-stop-product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
   assert.doesNotMatch(
     missingProduct,
-    /(?:subagent_type|agentType)[^\n]*lattice-review-story-init/,
+    /(?:subagent_type|agentType)[^\n]*proof-or-stop-review-story-init/,
     'partial recovery must not duplicate the already-recorded story-init reviewer',
   );
   assert.match(missingProduct, /Host-native task liveness policy/, 'partial product recovery should include canonical liveness guidance');
@@ -173,7 +173,7 @@ try {
   assert.match(missingStoryInit, /Host-native task liveness policy/, 'partial story-init recovery should include canonical liveness guidance');
   assert.match(missingStoryInit, /foreground, running, or background/, 'partial story-init recovery should continue monitoring live tasks');
 
-  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'lattice-review-story-init' });
+  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'proof-or-stop-review-story-init' });
   run(root, 'story_update', { storyId: tamperStoryId, title: 'Init tamper gate changed after review' });
   // story_update mutates the title — a freeze-gate input AND an init-check
   // signature input. The freeze gate runs first, so it would report

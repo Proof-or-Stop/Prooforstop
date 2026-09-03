@@ -246,6 +246,60 @@ export function readChangedFiles(projectRoot: string): string[] {
   return [...files].sort();
 }
 
+/**
+ * Return only exact repo-root paths removed by the current story diff: deleted
+ * paths and the old side of a rename. These identities are useful when a
+ * one-shot migration has already removed the old file, leaving filesystem
+ * ancestry unable to distinguish repo-root from source-root.
+ *
+ * The NUL-delimited parser is deliberately narrower than readChangedFiles:
+ * additions, modifications, copies, rename destinations, untracked files and
+ * arbitrary missing paths never enter this set.
+ */
+export function readRetiredRepoRootDiffPaths(gitCwd: string): string[] {
+  const paths = new Set<string>();
+  const addNameStatus = (output: string): void => {
+    const fields = output.split('\0');
+    let index = 0;
+    while (index < fields.length) {
+      const status = fields[index++];
+      if (!status) continue;
+      if (status === 'D') {
+        const removed = fields[index++];
+        if (removed) paths.add(normalizeScopePath(removed));
+        continue;
+      }
+      if (/^R\d+$/.test(status)) {
+        const removed = fields[index++];
+        index++; // the rename destination is active, not retired
+        if (removed) paths.add(normalizeScopePath(removed));
+        continue;
+      }
+      if (/^C\d+$/.test(status)) {
+        // Copies carry two paths like renames, but their source remains active.
+        index += 2;
+        continue;
+      }
+      // All remaining name-status records have exactly one path.
+      index++;
+    }
+  };
+  for (const args of [
+    ['diff', '--name-status', '-z', '--find-renames', 'main...HEAD'],
+    ['diff', '--name-status', '-z', '--find-renames'],
+    ['diff', '--name-status', '-z', '--find-renames', '--cached'],
+  ]) {
+    try {
+      addNameStatus(execFileSync('git', args, {
+        cwd: gitCwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }));
+    } catch { /* no repository/main ref: no trusted retired-path provenance */ }
+  }
+  return [...paths].filter(Boolean).sort();
+}
+
 // ── Path matching ──
 
 function isAcknowledged(filePath: string, contract: ScopeContractData): boolean {

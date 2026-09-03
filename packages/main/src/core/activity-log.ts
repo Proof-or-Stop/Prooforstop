@@ -1,7 +1,7 @@
 /**
  * Dual-source activity log module.
  *
- * Runtime logs go to <projectRoot>/.lattice/activity.jsonl.
+ * Runtime logs go to <projectRoot>/.proof-or-stop/activity.jsonl.
  * The older <projectRoot>/docs/story/activity.jsonl is a read-only source.
  * readActivityLogTail merges both sources. The old legacy runtime-path read
  * fallback was removed (B-a4e3).
@@ -12,9 +12,9 @@ import { join, dirname } from 'path';
 import {
   PROOF_OR_STOP_ACTIVITY_LOG,
   LEGACY_DOCS_ACTIVITY_LOG,
-} from './lattice-paths.js';
+} from './proof-or-stop-paths.js';
 
-/** Runtime activity log path: <projectRoot>/.lattice/activity.jsonl */
+/** Runtime activity log path: <projectRoot>/.proof-or-stop/activity.jsonl */
 export function getRuntimeActivityLogPath(projectRoot: string): string {
   return join(projectRoot, PROOF_OR_STOP_ACTIVITY_LOG);
 }

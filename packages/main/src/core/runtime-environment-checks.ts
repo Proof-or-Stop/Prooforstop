@@ -14,7 +14,7 @@ import {
 import {
   PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME,
   PROOF_OR_STOP_ROOT_PACKAGE_NAME,
-} from './lattice-brand.js';
+} from './proof-or-stop-brand.js';
 import { readBrandEnv } from './brand-env.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
@@ -353,12 +353,12 @@ export function classifyRuntimeEntrypointAuthority(
 
   const recoveryCommand = renderLocalEntrypointRecoveryCommand(worktreeRoot!, input.command, input.commandArgs);
   // B-cdf6:F-020 — read BOTH brand spellings, same as line ~1129 does for this exact
-  // semantic check. A raw `input.env?.LATTICE_CODEX_ENTRYPOINT` access here would miss the
+  // semantic check. A raw `input.env?.PROOF_OR_STOP_CODEX_ENTRYPOINT` access here would miss the
   // canonical PROOF_OR_STOP_CODEX_ENTRYPOINT spelling, which is equally valid under the
   // additive compat contract. Since classifyRuntimeEntrypointAuthority runs on EVERY command
   // in a self-host worktree (cli-engine.ts passes env: process.env), missing it would
   // misclassify a legitimate global-fallback session_brief heartbeat as a runtime-authority
-  // violation. Same bug class as F-016 (idleLattice), which is why this was swept for.
+  // violation. Same bug class as F-016 (idleProofOrStop), which is why this was swept for.
   const isExplicitSessionBriefFallback = input.command === 'session_brief'
     && readBrandEnv('CODEX_ENTRYPOINT', input.env) === 'global-fallback';
   if (isExplicitSessionBriefFallback) {
@@ -450,7 +450,7 @@ export function renderLocalEntrypointRecoveryCommand(
   args: readonly string[],
 ): string {
   const tokens = [command, ...args].map(shellQuote);
-  // B-cc10 CHK-006: was `bin/lattice.js`. A recovery command must name a wrapper that
+  // B-cc10 CHK-006: was `bin/proofOrStop.js`. A recovery command must name a wrapper that
   // still exists, or the operator's retry fails for a second, unrelated reason.
   return `cd -- ${shellQuote(worktreeRoot)} && node bin/proof-or-stop.js ${tokens.join(' ')}`;
 }
@@ -1019,30 +1019,21 @@ function resolveGlobalNpmRoot(projectRoot: string): string | null {
 
 function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {
   const invoked = process.argv[1] ? resolve(process.argv[1]) : null;
-  if (invoked && looksLikeLatticeEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
+  if (invoked && looksLikeProofOrStopEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
   return fallbackEntrypoint;
 }
 
-function looksLikeLatticeEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
+function looksLikeProofOrStopEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
-  // B-cc10 CHK-006: this recognized ONLY the deprecated spellings, so the CANONICAL
-  // wrapper/bin was not identified as a Lattice entrypoint at all. With the aliases
-  // deleted that gap became load-bearing: a legitimate `bin/proof-or-stop.js` invocation
-  // would not be recognized here. Both spellings are accepted, canonical first; the
-  // deprecated names stay so a pre-rename launcher on PATH still classifies.
   if (
     name === 'proof-or-stop'
     || name === 'proof-or-stop.cmd'
     || name === 'proof-or-stop.js'
     || name === 'proof-or-stop-codex.js'
-    || name === 'lattice'
-    || name === 'lattice.cmd'
-    || name === 'lattice.js'
-    || name === 'lattice-codex.js'
   ) return true;
   if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
-  for (const rel of ['proof-or-stop.js', 'proof-or-stop-codex.js', 'lattice.js', 'lattice-codex.js']) {
+  for (const rel of ['proof-or-stop.js', 'proof-or-stop-codex.js']) {
     if (samePath(real, join(projectRoot, 'bin', rel))) return true;
   }
   return false;
@@ -1074,7 +1065,7 @@ function resolveCorePackageCandidate(root: string): CorePackageCandidate {
     return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
   }
   // B-cc10 CHK-005: fall back to the deprecated scope so an already-installed global
-  // @lattice/core is still FOUND (and reported) instead of looking absent.
+  // @proof-or-stop/core is still FOUND (and reported) instead of looking absent.
   const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
   if (existsSync(deprecatedPath)) {
     return { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, exists: true };
@@ -1213,14 +1204,13 @@ function isPackagedRuntime(): boolean {
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;
-  const name = activePath ? basename(activePath) : '';
-  return name === 'lattice.js' || name === 'lattice-codex.js';
+  return false;
 }
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {
   if (!localRealpath) return `${localBin} exists but its realpath could not be resolved`;
   if (!cliRealpath) return `${localBin} exists but active Proof-or-Stop could not be resolved for comparison`;
-  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'lattice'} resolves to ${cliRealpath}`;
+  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'proof-or-stop'} resolves to ${cliRealpath}`;
 }
 
 function statusForDrift(severity: RuntimeFactSeverity): RuntimeFactStatus {

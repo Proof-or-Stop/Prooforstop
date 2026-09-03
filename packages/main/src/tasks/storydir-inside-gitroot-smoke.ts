@@ -39,7 +39,7 @@ import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
 import { evaluateStoryDirInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 
-const STORY_DIR_REL = '.lattice/story/actives';
+const STORY_DIR_REL = '.proof-or-stop/story/actives';
 const STORY_ID = 'B-test';
 
 function git(cmd: string, cwd: string): void {
@@ -53,11 +53,11 @@ function initGitRepo(dir: string): void {
   git('config user.name smoke', dir);
 }
 
-/** Write lattice.config.json so StoryStore + resolution share storyDir / gitRoot. */
+/** Write proof-or-stop.config.json so StoryStore + resolution share storyDir / gitRoot. */
 function writeConfig(metadataRoot: string, gitRoot?: string): void {
   const cfg: Record<string, unknown> = { storyDir: STORY_DIR_REL };
   if (gitRoot !== undefined) cfg.gitRoot = gitRoot;
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), JSON.stringify(cfg, null, 2));
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), JSON.stringify(cfg, null, 2));
 }
 
 /** Materialize a story index.json under metadataRoot's configured storyDir. */
@@ -77,7 +77,7 @@ function writeStoryIndex(metadataRoot: string): void {
   writeFileSync(join(storyDir, 'index.json'), JSON.stringify(story, null, 2));
 }
 
-const base = mkdtempSync(join(tmpdir(), 'lattice-storydir-gitroot-smoke-'));
+const base = mkdtempSync(join(tmpdir(), 'proof-or-stop-storydir-gitroot-smoke-'));
 
 try {
   // ── ok: storyDir inside gitRoot (metadataRoot == gitRoot) ───────────────────

@@ -1,16 +1,15 @@
 /**
  * tool_status — report actual Proof-or-Stop tool usage
  *
- * The data source is the dual-source activity.jsonl (runtime path .lattice/activity.jsonl + legacy path docs/story/activity.jsonl).
+ * The data source is the dual-source activity.jsonl (runtime path .proof-or-stop/activity.jsonl + legacy path docs/story/activity.jsonl).
  * Both CLI calls and the Claude hook write to the new path; the legacy path is read-only for compatibility.
  * Writes no state; pure read-only analysis.
  */
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
+import type { HandlerContext } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 // B-cc10 CHK-002: the state-dir name comes from the single read-both resolver, so
 // this reader follows the rename instead of silently reading a path that no longer
 // exists (which would look like "no activity recorded" rather than an error).
-import { PROOF_OR_STOP_DIR } from '../../../main/dist/core/lattice-paths.js';
-import { STATE_DIR_NAMES } from '../../../main/dist/core/brand-paths.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -39,6 +38,7 @@ interface ToolStat {
 
 export function createToolStatusHandlers(ctx: HandlerContext) {
   const { root } = ctx;
+  const { STATE_DIR_NAMES } = requireCoreRuntime(ctx);
 
   return {
     tool_status(args?: {

@@ -1,0 +1,398 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit current-behavior claims in root AGENTS.md against authoritative implementation and decision sources",
+      "context": "Distinguish current normative instructions from explicitly labeled legacy background; record reproducible source and command evidence for consistency conclusions.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T00:02:08.331Z",
+      "endTime": "2026-09-02T00:16:23.492Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build a claim-by-claim audit ledger for every root AGENTS.md statement that asserts current Proof-or-Stop behavior; each row names the exact AGENTS.md section, verdict, authoritative implementation, command registry, canonical role prompt or adopted decision source with a line reference, plus a reproducible repository-local CLI command and captured result wherever the claim is CLI-observable. The ledger contains no unsupported current-behavior conclusion. Persist the ledger and its evidence expectations in docs/audits/AGENTS-current-version-audit.md so a reviewer can inspect the RED and GREEN proof independently. WHY: consistency must be demonstrated from live authority rather than asserted from memory.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Classify every command, phase, role, artifact and example mentioned in AGENTS.md as current, compatibility-only or historical. Any command absent from `node bin/proof-or-stop.js help --full` is removed from active guidance or explicitly and locally labeled legacy or historical; no nonexistent command remains presented as an executable current instruction. WHY: retained background is acceptable only when a reader cannot mistake it for the current interface.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "CASE 42 PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mechanically enumerate every active `proof-or-stop` command example in AGENTS.md and verify it against the repository-local CLI version reported by `node bin/proof-or-stop.js --version`: every referenced command resolves and its `--help` succeeds, read-only examples execute with concrete repository-valid arguments, and mutating examples are exercised only in an isolated disposable repository or validated through the same registered command schema without changing this story. Include a deliberately malformed argument and prove that the checker rejects it. WHY: active examples must be operational and the audit must discriminate unsupported or malformed invocations instead of returning a false green.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "MUTATION malformed-argument REJECTED"
+            }
+          }
+        ]
+      },
+      "userSees": "The user sees \"Audit evidence: PASS\" with reproducible commands and source locations that distinguish current rules, compatibility background, and corrected inconsistencies.",
+      "files": {
+        "modify": [
+          "AGENTS.md"
+        ],
+        "create": [
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "test": [
+          "tests/AGENTS.verify.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/audits/AGENTS-current-version-audit.md",
+          "result": "pass",
+          "note": "The durable audit ledger maps all 26 baseline RED defects to current authoritative citations, final English claims, GREEN receipts, and the current verifier.",
+          "mechanical": false,
+          "headHash": "f1a324eb5e76f790f640415a406ebdb1276db8fd",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:23:58.298Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "The final verifier classifies current, compatibility-only, and historical commands and reaches the command-contract tail.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:21:09.341Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f1a324eb5e76f790f640415a406ebdb1276db8fd",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:23:58.298Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "The final verifier rejects a deliberately malformed command argument.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:22:07.307Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f1a324eb5e76f790f640415a406ebdb1276db8fd",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:23:58.298Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ec6e29708ff261ef71b0cedc154e4bb447fb91e5a9ce644c6f0c8e945522bd89",
+        "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+        "headHash": "d021086834fbd816191d16f2c8539cad45a932d9",
+        "attestedAt": "2026-09-02T00:16:23.794Z",
+        "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Translate the complete root AGENTS.md into English without semantic drift",
+      "context": "Translate all Chinese prose, headings, table cells, comments, examples, and operator guidance while preserving code blocks, CLI commands, JSON keys, identifiers, paths, lifecycle semantics, and explicit legacy/current distinctions.",
+      "relatedDocs": [
+        "AGENTS.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T00:16:25.066Z",
+      "endTime": "2026-09-02T00:17:28.561Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Translate every human-language surface in root AGENTS.md, including headings, prose, table cells, block quotes, HTML comments, code comments and example annotations, then scan the complete file and prove there are zero Unicode Han-script characters and zero U+FFFD replacement characters. Any remaining non-ASCII character must be an intentional language-neutral technical symbol rather than untranslated prose. WHY: a partial translation or corrupted replacement glyph does not satisfy the request for a fully English file.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "UNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compare the translated file with the pre-change story baseline using a deterministic structural and token inventory: preserve Markdown hierarchy, list nesting, tables, block quotes, fenced-block boundaries and language tags, HTML-comment boundaries, links, paths, command and role identifiers, JSON keys, phase names, story IDs and other technical tokens, except where the consistency audit explicitly records removal or historical relabeling of an obsolete item. All intentional structural or token differences are listed and justified. WHY: English prose must not silently damage executable syntax or document structure.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "STRUCTURE baselineDigest="
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Perform a focused semantic-drift review against the pre-translation text for every normative or lifecycle-sensitive sentence, especially MUST, MUST NOT, NEVER, only, current, legacy, advisory, blocking, phase transitions and actor authority. Prove the review detects representative mutations that invert a negation, change advisory to mandatory, or erase the current-versus-legacy qualifier; the final translation preserves polarity, modality, scope and exception boundaries. WHY: fluent English can still reverse a gate or workflow rule.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "SEMANTIC_MUTATION dev-only-to-every-phase REJECTED"
+            }
+          }
+        ]
+      },
+      "userSees": "The user opens root AGENTS.md and sees a complete English document with no Chinese prose, replacement characters, or altered technical identifiers.",
+      "files": {
+        "modify": [
+          "AGENTS.md"
+        ],
+        "create": [
+          "tests/AGENTS.verify.mjs"
+        ],
+        "test": [
+          "tests/AGENTS.verify.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "Whole-file scan proves the root AGENTS.md is English-only and contains no replacement glyphs.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:23:07.668Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f1a324eb5e76f790f640415a406ebdb1276db8fd",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:23:58.298Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "The final verifier checks structural and technical-token preservation against the baseline.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:23:58.081Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f1a324eb5e76f790f640415a406ebdb1276db8fd",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:23:58.298Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "The semantic mutation control proves lifecycle modality and scope inversions are rejected.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:25:05.976Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "9e5e3ff20b46cdca93c5fdd09cbbc3c98131b3f6",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:26:00.292Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e400207dbada5354d2f89e9e428eb3d74aa77537df68128ad3c1822e57d57e14",
+        "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+        "headHash": "009a0ccfa6495cc435b57c2ef1518322709e53c5",
+        "attestedAt": "2026-09-02T00:17:28.858Z",
+        "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5"
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify translation completeness and current-version consistency with reproducible evidence",
+      "context": "Use automated non-ASCII/CJK checks plus focused comparisons to current CLI help, registries, prompt assets, and authoritative decision documents; report any residual intentional non-English literals separately.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-09-02T00:17:30.209Z",
+      "endTime": "2026-09-02T00:19:03.562Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Produce reproducible final evidence that binds the audited AGENTS.md to the current repository state: record the CLI version and git HEAD, exact authoritative source references, exact commands, exit codes and salient outputs for the claim audit, translation-completeness scan, structural or technical-token comparison and command-example checks. A fresh reviewer can rerun the recorded commands from this worktree and reach the same pass or fail conclusions. Persist the evidence ledger and its rerun expectations in docs/audits/AGENTS-current-version-audit.md. WHY: the requested proof must be inspectable evidence, not a prose assurance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run whole-file Unicode checks rather than line samples: assert zero Han-script and U+FFFD characters, enumerate every remaining non-ASCII code point with line locations, and explicitly classify each residual as an intentional language-neutral technical symbol or fail the item. Also verify no mixed-language heading, table cell, comment or example was skipped. WHY: hidden residual text and replacement corruption commonly survive visual spot checks.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "UNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0"
+            }
+          },
+          {
+            "desc": "Record and separately report the repository-local worktree CLI and the globally resolved `proof-or-stop` runtime: capture each reported version plus the invoked path and canonical resolved realpath. Treat `node bin/proof-or-stop.js` from the B-d854 worktree as the authority for auditing current repository behavior and active examples; report any global version or path drift as a distinct environment finding without substituting the global runtime for local authority, concealing the drift, or treating unrelated global drift as proof that the worktree documentation is inconsistent. WHY: repository truth and host installation state are separate facts and the evidence must make that boundary reproducible.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "RUNTIME classification=VERSION_AND_REALPATH_DRIFT"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Independently extract all active CLI examples from the final AGENTS.md and smoke them through `node bin/proof-or-stop.js`, using real read-only invocations and an isolated disposable repository or registered-schema validation for mutations. Cross-check command names against `help --full`, require explicit historical labeling for every unavailable command, and add a known-invalid or malformed argument that must fail the audit. The evidence must show all genuine active examples pass and the malformed invocation is rejected. WHY: a command checker that accepts both valid and invalid examples proves nothing.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node tests/AGENTS.verify.mjs --final",
+              "selector": "MUTATION malformed-argument REJECTED"
+            }
+          }
+        ]
+      },
+      "userSees": "The user receives \"Translation verification: PASS\" with zero-Han/zero-U+FFFD scans, active-command checks, and repository-local version binding.",
+      "files": {
+        "modify": [
+          "AGENTS.md"
+        ],
+        "create": [
+          "docs/audits/AGENTS-current-version-audit.md",
+          "tests/AGENTS.verify.mjs"
+        ],
+        "test": [
+          "tests/AGENTS.verify.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/audits/AGENTS-current-version-audit.md",
+          "result": "pass",
+          "note": "The audit report binds independent Claude and Agy provenance and reconciles accepted findings to reproducible RED and GREEN proof.",
+          "mechanical": false,
+          "headHash": "f1a324eb5e76f790f640415a406ebdb1276db8fd",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:23:58.298Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "Independent convergence consumes the same English-only whole-file witness.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:26:00.109Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "9e5e3ff20b46cdca93c5fdd09cbbc3c98131b3f6",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:26:00.292Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "Repository-local authority remains separate from dynamically reported global runtime drift.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:26:59.265Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6d0eb22b39a49e528ac61d6593b3a9cd5848d33b",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:27:43.703Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node tests/AGENTS.verify.mjs --final",
+          "result": "pass",
+          "note": "Cross-audit convergence rejects malformed invocation evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f7e1eafe63950a40101b47445f1c76381a8d302b35d803463b3b4d83785c6f",
+            "outputTail": "t=be7dfc25bff059adfb464d066135d180cd2f12bd8f3a5df2fc20d3b87a33ce71\nSTRUCTURE_CATEGORY phases count=9 digest=bb550edc269333348f2123c108f841080c5eebb7599a3dac7239e103abf80458\nSTRUCTURE_CATEGORY storyTokens count=4 digest=933c043575539f439d7415f4034ea48d1c8331c2450499c05c63f5425e9be373\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_DOCUMENT rows=26 baselineSha=57157149f8cd6acdc8abb00896c8b8dd838f06baffefed04e38b1e69535494e9 finalSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nAUDIT_CITATION_LABEL_MUTATION A19 changed-label REJECTED refPreserved=1 documentHashesRefreshed=1\nAUDIT_CITATION_MUTATION vague REJECTED documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSOURCE_AUTHORITY_ROLE_MUTATION A05/background-entry definition-only REJECTED\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nROW_SEMANTIC_MUTATION M14 scope-question-omission REJECTED\nROW_SEMANTIC_MUTATION M14 scope-contract-advisory-inversion REJECTED\nROW_SEMANTIC_MUTATION M19 reviewer-list-omission REJECTED\nROW_SEMANTIC_MUTATION M19 policy-roster-omission REJECTED\nROW_SEMANTIC_MUTATION M19 quorum-prerequisite-omission REJECTED\nCOMPLETENESS_MUTATION ascii-spanish-substitution REJECTED auditShaRefreshed=1\nCOMPLETENESS_MUTATION ordinary-prose-deletion REJECTED auditShaRefreshed=1\nCOMPLETENESS agentsSha=e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26 english=PASS ordinaryProse=PASS\nMANAGED id=doc:AGENTS.md status=OK\nCOMMAND_LEDGER cases=46/46 PASS\nCASE 42 PASS\nMUTATION malformed-argument REJECTED\nUNICODE path=AGENTS.md han=0 ufffd=0 nonAscii=0\nSTRUCTURE baselineDigest=be1e674381b72472da79db4e2d7038e26ad140083cce32b9ff606f9ff6b61f6d finalDigest=3cf17b530a1bbef51b0cee59dd3607425f689abc26a0f55504e7309bd489e908 mutation=REJECTED\nSEMANTIC_MUTATION dev-only-to-every-phase REJECTED\nRUNTIME classification=VERSION_AND_REALPATH_DRIFT context=initial-audit receiptCommit=48d08c69e90dd9d90c7b783a112e54aa955d6241 receiptBlob=94a3682f2349e0fb42cbfb4ddea784c04a715201 intentRef=CHK-003:edge:1 outputDigest=8d66e8eae81c7be7326397a8c80b60a123bf1fabf1abfedb75d3cac2a5927748 currentClassification=REALPATH_DRIFT\nRUNTIME_GLOBAL invoked=/opt/homebrew/bin/proof-or-stop realpath=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js mode=0755 executable=true directOutcome=EXIT_0 directVersionPresent=true versionSource=DIRECT fallbackOutcome=NOT_USED fallbackVersionPresent=false version=Proof-or-Stop 0.3.271\nRUNTIME_CURRENT classification=REALPATH_DRIFT runScoped=true driftVersion=false driftRealpath=true driftExecutability=false\nRUNTIME_ENV_MUTATION pretendingExecutable=REJECTED hiddenDirectOutcome=REJECTED globalAsAuthority=REJECTED suppressedDrift=REJECTED directAndFallbackDoubleSuccess=REJECTED invalidFallbackState=REJECTED\nEXTERNAL_REVIEW_PROVENANCE claude=BOUND agy=BOUND authority=LOCAL_IMPLEMENTATION\nAUDIT_CITATION_EXHAUSTIVE rows=26 entries=117 removal=117 replacement=117 total=234 PASS documentHashesRefreshed=1\nSOURCE_AUTHORITY_MUTATION rows=14 chains=43 executableEndpoints=69 removalOrInversion=69 PASS\nSEMANTIC_CHAIN_SWAP_MUTATION rows=14 swaps=137 a20GuardSwaps=15 PASS\nEXTERNAL_ARTIFACT claude availability=LOCAL hash=VERIFIED session=VERIFIED\nAGY_PROVENANCE_MUTATION command=REJECTED cwd=REJECTED invocation=REJECTED promptHash=REJECTED\nEXTERNAL_ARTIFACT agy availability=LOCAL ordinal=953 bytes=38164 hash=VERIFIED command=VERIFIED cwd=VERIFIED prompt=VERIFIED session=VERIFIED\nAGENTS_VERIFY FINAL GREEN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T16:27:43.555Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6d0eb22b39a49e528ac61d6593b3a9cd5848d33b",
+          "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+          "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+          "timestamp": "2026-09-02T16:27:43.703Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "602ba7cd4d5be3c42db22fa28396820e789632c28b607e1facf2d3d32d218456",
+        "storyFilesHash": "a1ff8dc17affa07710d455429ba7f6c89850b97892aa9cc6f3126be77426ba07",
+        "headHash": "64ce8ccd7c405527bbbcfe2a087c294de9baa7e1",
+        "attestedAt": "2026-09-02T00:19:03.908Z",
+        "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5"
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "principles": [
+    "Decide at schema time what is decidable at schema time; never spend a run to discover a rejection the envelope already implies.",
+    "Fail closed on every admissibility rule, and return a tagged reason so a caller can tell schema violations from specificity violations from binding mismatches.",
+    "Pin the arithmetic exactly: total-bits entropy and a length-AND-entropy conjunction, both provable by a differential fixture table rather than by inspection.",
+    "Stay read-only: this leaf answers questions about an envelope and changes no gate verdict, no wiring and no enforcement mode.",
+    "Anchor cross-references on durable identifiers (command names, function names) rather than line numbers, because the referenced files drift."
+  ],
+  "drivers": [
+    "An envelope that is too generic silently destroys the value of the whole subsystem - a lone class matcher would accept any failing run whatsoever - so specificity has to be quantified, not judged.",
+    "Runs are the scarce resource the subsystem exists to protect, so the pre-flight must be cheap, read-only and available before any run is executed.",
+    "Two arithmetic details (total-bits entropy, and AND rather than OR) change admissibility verdicts, so the implementation has to be pinned by differential evidence rather than by reading."
+  ],
+  "options": [
+    {
+      "name": "Schema-time validator plus a read-only pre-flight command",
+      "pros": [
+        "An operator learns admissibility before spending a run",
+        "All rules live in one validated module reusable by the later runner",
+        "No gate verdict changes, so blast radius is minimal"
+      ],
+      "cons": [
+        "Adds a command surface that must be justified against the section 5.5 fence",
+        "Validation logic must stay in sync with the policy registry"
+      ]
+    },
+    {
+      "name": "Validate only inside the future runner at execution time",
+      "pros": [
+        "No new command surface"
+      ],
+      "cons": [
+        "An inadmissible envelope is only discovered after a run is spent - it destroys the exact resource the subsystem protects",
+        "Couples admissibility to the unbuilt W2e runner, blocking this leaf entirely"
+      ]
+    },
+    {
+      "name": "Validate in the gate at DEV/REVIEW transition",
+      "pros": [
+        "No separate command"
+      ],
+      "cons": [
+        "Turns an advisory schema check into enforcement wiring, which is precisely what the section 5.5 fence forbids",
+        "Gives the operator no way to check an envelope while authoring it"
+      ]
+    }
+  ],
+  "chosen": "Schema-time validator plus a read-only pre-flight command",
+  "rationale": "Only this option lets an operator discover an inadmissible envelope before spending a run, which is the resource the subsystem exists to protect, while keeping the change read-only and outside the section 5.5 enforcement fence; the alternatives either defer the discovery until after the cost is paid or convert an advisory check into enforcement wiring.",
+  "preMortem": [
+    {
+      "scenario": "Entropy computed per-symbol instead of total bits",
+      "trigger": "An implementer reads H as the answer rather than as a factor and returns H alone",
+      "consequence": "Admissibility verdicts differ from the spec on short high-variety and long low-variety values, silently admitting or rejecting the wrong matchers",
+      "mitigation": "Pin the formula with a differential fixture table under the frozen default policy whose verdicts separate total-bits from per-symbol, committed as a regression"
+    },
+    {
+      "scenario": "Minimum-specificity rule 2 implemented as a disjunction",
+      "trigger": "The length floor OR the entropy floor is treated as sufficient",
+      "consequence": "Matchers the spec forbids are admitted, and the specificity guarantee is void",
+      "mitigation": "A committed differential table containing values that pass exactly one of the two floors; AND and OR give different verdicts on those rows"
+    },
+    {
+      "scenario": "assertionDigest computed over the wrong subobject",
+      "trigger": "The validator forgets to strip assertionDigest, or omits policyDigest from the digest input",
+      "consequence": "The same envelope yields different digests across hosts, breaking every downstream identity comparison",
+      "mitigation": "Assert both directions in a committed test: the digest over the stored object must NOT equal the stored assertionDigest, and the digest over the correctly stripped subobject MUST"
+    },
+    {
+      "scenario": "A lone class matcher is accepted as present-in-red evidence",
+      "trigger": "Rule 3 is skipped because class matchers are already exempt from rule 2",
+      "consequence": "An envelope whose only positive evidence is stderr-nonempty accepts any failing run whatsoever, voiding the subsystem",
+      "mitigation": "Committed rejection test for a class-only present-in-red envelope, with the R1-2 tag asserted"
+    },
+    {
+      "scenario": "Path validation uses realpath",
+      "trigger": "An implementer resolves targetArtifactRef against the filesystem",
+      "consequence": "The RED case - the artifact does not exist yet - is misclassified, and escapes may be missed",
+      "mitigation": "Validate syntactically only, and commit rejection tests for absolute, empty, dot, dot-dot and backslash segments tagged R1-3"
+    },
+    {
+      "scenario": "R1-2 and R1-3 collapsed into one specificity bucket",
+      "trigger": "The tags are treated as interchangeable rejection codes",
+      "consequence": "A caller cannot distinguish a specificity failure from a bounds or path failure, and the tagged-reason value of the command is lost",
+      "mitigation": "Assert the exact tag per rejection class in the committed matrix; R1-3 covers bounds and paths, R1-2 covers specificity"
+    }
+  ],
+  "timestamp": "2026-08-13T16:29:27.382Z"
+}

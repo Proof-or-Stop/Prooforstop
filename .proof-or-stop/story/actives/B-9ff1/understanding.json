@@ -1,0 +1,46 @@
+{
+  "task": "Implement the assertion envelope schema and every field's validation rule (section 1.1), the three quantified minimum-specificity rules and the exact total-bits entropy formula (sections 1.3 and 1.11.4), the assertionDigest scope, and the committed-binding check, and expose them through a new read-only red_evidence_envelope_check pre-flight that tells an operator their envelope is inadmissible before a run is ever spent.",
+  "outcome": "An operator with a hand-written envelope runs one read-only command and learns immediately whether it is admissible, with a tagged reason if not. $ node bin/lattice.js red_evidence_envelope_check --storyId=B-9ff1 --assertionFile=envelope.json -> envelope REJECTED [R1-2]: matcher M2 value \"error\" fails minimum specificity (len 5 < minMatcherLen 12 AND entropyBits 10.9 < minMatcherEntropyBits 40) ; and after fixing it: $ node bin/lattice.js red_evidence_envelope_check --storyId=B-9ff1 --assertionFile=envelope.json -> envelope ADMISSIBLE: assertionDigest sha256:..., binding AB-001 -> adapter npm-script@1 test npm-script:test:foo, policyDigest sha256:470db382...",
+  "facts": [
+    "W2a (B-c054, DONE 0.3.236) shipped core/red-evidence/canon.ts (CANON digest + first12hex) and the fail-closed policy resolver with the frozen default policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767.",
+    "W2b (B-e10d, DONE 0.3.237) shipped core/red-evidence/target-bindings.ts including the committed-tree binding reader and the createdAt-stripped three-field targetBindingDigest.",
+    "W2c (B-506e, DONE 0.3.243) shipped the v2 record and chain plane; this leaf writes no records and executes no runs.",
+    "Section 1.11 rule 1 pins literal-line matching as a whole-line trimmed string comparison with no pattern dialect, no anchors and no quantifiers - nothing is compiled.",
+    "Section 1.11.4 fixes the entropy formula as entropyBits(value) = byteLength(value) times H, where H is the empirical per-byte Shannon entropy - total bits, not per-symbol.",
+    "Section 1.6 tags: R1-1 missing target-exercised proof; R1-2 below-threshold or class-only matcher set (minimum specificity); R1-3 matcher and path BOUNDS, which explicitly covers path validation and is a schema-bounds tag rather than a specificity tag; R1-6 unregistered or mismatched target binding.",
+    "The read-only house pattern to follow is the existing checkers acceptance_topology_check, topology_critic_receipt_check and proofstory_gate_check in packages/main/src/cli/command-catalog.ts, anchored by command name because that file drifts."
+  ],
+  "constraints": [
+    "Validation is schema-time and fail-closed: a decidable incompatibility (expectedExitClass timeout-is-failure combined with a script-exit adapter linkage) is rejected without spending a run.",
+    "Path validation for supplementaryArtifact targetArtifactRef is SYNTACTIC, because realpath cannot classify a path that does not yet exist - which is exactly the RED case.",
+    "Minimum-specificity rule 2 is a CONJUNCTION of a length floor AND an entropy floor; an OR implementation admits matchers the spec forbids.",
+    "assertionDigest is CANON over the assertion subobject INCLUDING policyDigest and EXCLUDING assertionDigest itself; both directions must be asserted.",
+    "The new command is READ-ONLY: it changes no gate verdict, no gate wiring and no enforcement mode, and it writes no chain record.",
+    "Reserved for later leaves: spawning processes and capturing output, receipt persistence and chunk framing, and the GREEN confirmation append entrypoint.",
+    "Story artifacts are English-only; commits are authored as lattice-implementer <lattice-implementer@noreply.local>."
+  ],
+  "unknowns": [
+    "Whether the entropy floor comparison is inclusive - RESOLVED: section 1.3 rule 2 states admissible iff len >= minMatcherLen AND entropyBits >= minMatcherEntropyBits, so both comparisons are inclusive (>=).",
+    "Whether class matchers are subject to rule 2 - RESOLVED: section 1.3 exempts class matchers from rule 2 because their breadth is bounded by the policy registry, but rule 3 still forbids a class matcher from being the sole present-in-red evidence.",
+    "Which R1-x tag carries path-validation failures - RESOLVED: R1-3, which the spec states explicitly covers path validation and not only matcher bounds; R1-2 is reserved for the minimum-specificity failure."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/red-evidence/envelope.ts",
+    "packages/main/src/core/red-evidence/specificity.ts",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-08-13T16:29:26.339Z"
+}

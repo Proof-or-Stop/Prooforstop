@@ -46,7 +46,7 @@ const ARTIFACT = 'red-target-bindings.json';
 const { MAIN_TOOLS } = await import(`${DIST}/cli-engine.js`);
 const { getCommandPolicy } = await import(`${DIST}/core/command-policy.js`);
 const { PROCESS_FACT_LEVELS } = await import(`${DIST}/core/process-fact-levels.js`);
-const { classifyLifecycleArtifact, LATTICE_LIFECYCLE_ARTIFACT_FILENAMES } = await import(`${DIST}/core/lifecycle-registry.js`);
+const { classifyLifecycleArtifact, PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES } = await import(`${DIST}/core/lifecycle-registry.js`);
 const {
   AGENT_DISPATCH_REGISTRY,
   entryPermitsMutation,
@@ -94,13 +94,13 @@ assert.throws(
 );
 
 // ── Point 9: lifecycle artifact classification (RED signal A) ────────────────
-assert.ok(LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(ARTIFACT),
-  `${ARTIFACT} must be in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts)`);
-const classified = classifyLifecycleArtifact(`.lattice/story/actives/B-e10d/${ARTIFACT}`);
+assert.ok(PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES.has(ARTIFACT),
+  `${ARTIFACT} must be in PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts)`);
+const classified = classifyLifecycleArtifact(`.proof-or-stop/story/actives/B-e10d/${ARTIFACT}`);
 assert.ok(classified && classified.kind === 'lifecycle',
   `${ARTIFACT} under an active story dir must classify as kind='lifecycle' (closes RED signal A)`);
 // Exact-match registration (adversarial): a lookalike must NOT classify.
-const lookalike = classifyLifecycleArtifact(`.lattice/story/actives/B-e10d/red-target-bindings-extra.json`);
+const lookalike = classifyLifecycleArtifact(`.proof-or-stop/story/actives/B-e10d/red-target-bindings-extra.json`);
 assert.ok(!lookalike || lookalike.kind !== 'lifecycle',
   'registration is exact-match — red-target-bindings-extra.json must not classify as lifecycle');
 

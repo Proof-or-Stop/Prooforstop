@@ -26,7 +26,7 @@
  *
  *   READ-ONLY HANDLER (over a seeded temp project's story_list scan):
  *     • recall --story <id> returns ranked results AND writes NOTHING: snapshot
- *       the entire .lattice tree before/after — byte-identical, no new file, no
+ *       the entire .proof-or-stop tree before/after — byte-identical, no new file, no
  *       derived-index/cache file anywhere.
  *     • recall --query returns keyword-matched stories.
  *     • recall with neither arg prints usage; unknown story id => informative,
@@ -98,10 +98,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b7561-recall-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -205,7 +205,7 @@ function run(): void {
   const savedEnv = { ...process.env };
   const savedCwd = process.cwd();
   const tmpRoots: string[] = [];
-  delete process.env.LATTICE_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
 
   try {
     // ─── buildStoryProfile populates every field ─────────────────────────────
@@ -492,14 +492,14 @@ function run(): void {
         understanding: { task: 'tweak grid spacing', outcome: 'nicer layout', facts: [], constraints: [], unknowns: [], touchpoints: ['web/styles/grid.css'], timestamp: PINNED_NOW },
       });
 
-      const latticeDir = join(root, '.lattice');
-      const beforeTree = treeSnapshot(latticeDir);
-      const beforeFiles = treeFiles(latticeDir);
+      const proofOrStopDir = join(root, '.proof-or-stop');
+      const beforeTree = treeSnapshot(proofOrStopDir);
+      const beforeFiles = treeFiles(proofOrStopDir);
 
       const out = h.recall({ storyId: 'B-tgt', top: 5 });
 
-      const afterTree = treeSnapshot(latticeDir);
-      const afterFiles = treeFiles(latticeDir);
+      const afterTree = treeSnapshot(proofOrStopDir);
+      const afterFiles = treeFiles(proofOrStopDir);
 
       assert.match(out, /recall --story B-tgt/, 'header echoes the story');
       assert.match(out, /B-sim/, 'the similar story is ranked');
@@ -509,9 +509,9 @@ function run(): void {
       assert.ok(idxSim >= 0, 'similar story present');
       assert.ok(idxDis === -1 || idxSim < idxDis, 'similar story outranks (precedes) the disjoint one');
 
-      // READ-ONLY: the entire .lattice tree is byte-identical before/after.
-      assert.equal(beforeTree, afterTree, 'recall wrote/modified NOTHING under .lattice');
-      assert.deepEqual(beforeFiles, afterFiles, 'recall created no new file under .lattice');
+      // READ-ONLY: the entire .proof-or-stop tree is byte-identical before/after.
+      assert.equal(beforeTree, afterTree, 'recall wrote/modified NOTHING under .proof-or-stop');
+      assert.deepEqual(beforeFiles, afterFiles, 'recall created no new file under .proof-or-stop');
     });
 
     check('handler: recall creates NO derived-index/cache file anywhere', () => {

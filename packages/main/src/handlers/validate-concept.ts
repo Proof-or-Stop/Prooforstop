@@ -10,7 +10,7 @@
  *
  * Output structure:
  *   {
- *     provider: "lattice-concept",
+ *     provider: "proof-or-stop-concept",
  *     status: "pass" | "warn",
  *     summary: string,
  *     deletedSymbols: string[],
@@ -41,7 +41,7 @@ export interface ConceptResidual {
 export interface ConceptCheckResult {
   // F-017 (B-9d95 Round 1 review): residuals ≥ 5 upgraded to fail (instead of warn),
   // aligned with the ok=false semantics returned by runConceptGateCli/CLI gate, rendering shows ✗ fail.
-  provider: 'lattice-concept';
+  provider: 'proof-or-stop-concept';
   status: 'pass' | 'warn' | 'fail';
   summary: string;
   deletedSymbols: string[];
@@ -1047,7 +1047,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     // but also don't fail outright (no diff → nothing to verify; e.g. orphan
     // branch case). recommendation=skip since we couldn't compute residuals.
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'warn',
       summary: `git diff failed (${base}...HEAD): ${String(e?.message ?? e)}`,
       deletedSymbols: [],
@@ -1065,7 +1065,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const skip = analysis.skipDiagnostics.length > 0 ? { skipDiagnostics: analysis.skipDiagnostics } : {};
   if (analysis.diagnostics.length > 0) {
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'fail',
       summary: `declaration diff parse failed closed: ${analysis.diagnostics[0]}`,
       deletedSymbols: analysis.symbols,
@@ -1078,7 +1078,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const symbols = analysis.symbols;
   if (symbols.length === 0) {
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'pass',
       summary: `no deleted exports in ${base}...HEAD`,
       deletedSymbols: [],
@@ -1092,7 +1092,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
 
   if (residuals.length === 0) {
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'pass',
       summary: `${symbols.length} symbol(s) deleted, no residual references`,
       deletedSymbols: symbols,
@@ -1110,7 +1110,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const status: ConceptCheckResult['status'] = residuals.length >= 5 ? 'fail' : 'warn';
 
   return {
-    provider: 'lattice-concept',
+    provider: 'proof-or-stop-concept',
     status,
     summary: `${symbols.length} symbol(s) deleted, ${residuals.length} residual reference(s) found`,
     deletedSymbols: symbols,

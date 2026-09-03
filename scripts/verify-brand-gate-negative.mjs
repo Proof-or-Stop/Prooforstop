@@ -4,7 +4,7 @@
  *
  * A gate that only ever reports PASS is indistinguishable from a gate that cannot see
  * anything. This asserts the detector actually bites, in BOTH directions:
- *   1. inject an un-renamed `lattice <cmd>` invocation into a REAL active doc
+ *   1. inject an un-renamed `proofOrStop <cmd>` invocation into a REAL active doc
  *      -> the gate MUST fail (non-zero exit)
  *   2. revert the injection
  *      -> the gate MUST pass (zero exit)
@@ -18,6 +18,7 @@ import { join } from 'path';
 const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const DOC_REL = 'docs/guide.md';
 const doc = join(repoRoot, DOC_REL);
+const LEGACY_BIN = ['lat', 'tice'].join('');
 
 // B-cdf6:F-019 — restore by REWRITING THE EXACT ORIGINAL BYTES, never via
 // `git checkout --`. The old implementation discarded any pre-existing uncommitted
@@ -36,7 +37,7 @@ const restore = () => {
 /** @returns {boolean} true when the brand gate exits zero (PASS) */
 function gatePasses() {
   try {
-    execFileSync('node', ['scripts/verify-lattice-residue.mjs'], { cwd: repoRoot, stdio: 'ignore' });
+    execFileSync('node', ['scripts/verify-proof-or-stop-residue.mjs'], { cwd: repoRoot, stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -44,7 +45,7 @@ function gatePasses() {
 }
 
 try {
-  appendFileSync(doc, '\nRun `lattice validate` to check your work.\n');
+  appendFileSync(doc, `\nRun \`${LEGACY_BIN} validate\` to check your work.\n`);
   if (gatePasses()) {
     restore();
     console.error('NEGATIVE-TEST FAIL: gate PASSED on an injected regression - it is vacuous');

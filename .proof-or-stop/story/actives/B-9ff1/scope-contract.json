@@ -1,0 +1,89 @@
+{
+  "storyId": "B-9ff1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/red-evidence/envelope.ts",
+    "packages/main/src/core/red-evidence/specificity.ts",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "W2d envelope validation plus one read-only command; the command needs the same registration recipe W2b and W2c used, including packages/main/src/registry.ts and core/lifecycle-registry.ts.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "activity-policy.ts is where the story's central read-only claim becomes mechanically enforced: adding red_evidence_envelope_check to READ_ONLY_COMMANDS is what guarantees at the CLI choke point that the pre-flight appends no hook, no activity log and no process event. CHK-012 asserts exactly that property, so this edit is squarely in scope; it was simply missed from the allowedModify list when the contract was authored.",
+      "timestamp": "2026-08-13T17:52:40.850Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ccc5342b80e4cba03e00e0cfacde8ccb4ecc6e5c",
+      "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lifecycle-required write with a diagnosed mechanical cause, not a chosen expansion. story_advance --phase=DONE refuses with missing_dev_memory_finish_decision until dev_memory_finish_decision is recorded, and recording 'captured' honestly required first capturing this story's three reusable lessons via dev_memory_capture, which appends to this one designed cross-agent ledger. THE MECHANISM, traced by the delivery reviewer rather than argued by me: packages/main/src/core/runtime-artifact-registry.ts carries an explicit dev-memory-finish-decision entry (prefix .lattice/dev-memory/finish-decisions/, materialHash 'exclude') - which is why the finish-decision file passed silently - and NO equivalent entry for its sibling .lattice/dev-memory/experience.jsonl, so the unknown path fails closed as OUT_OF_SCOPE. That registry entry's own comment records the identical problem being hit and fixed once already for the sibling path, noting it 'broke delivery-check materialHash freshness'. This is therefore a registry gap that every story capturing a lesson will hit, not evidence this story overran its contract, and it is filed as B-def6 with the reproduction and both candidate fixes. Worth recording plainly: the cheapest route past this gate today is --decision=no-reusable-lesson, which clears it by declining to record what the story learned, so the dishonest path is currently the cheap one. No story-owned source file changed; git diff main HEAD outside .lattice remains this story's own 18 files.",
+      "timestamp": "2026-08-18T20:31:04.542Z",
+      "paths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7f898e3446dfc6241f15501f4eda4ab276e58b65",
+      "materialHash": "43b7757370c874468e8c8623a1840ed5a0b7678bf9e5dc85dc56105ed8434cea"
+    }
+  ],
+  "createdAt": "2026-08-13T16:29:28.426Z",
+  "updatedAt": "2026-08-18T20:31:04.542Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/red-evidence.ts": "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts": "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/red-evidence/envelope.ts": "packages/main/src/core/red-evidence/envelope.ts",
+    "packages/main/src/core/red-evidence/specificity.ts": "packages/main/src/core/red-evidence/specificity.ts",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/tests/red/**": "packages/main/tests/red/**",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
+  }
+}

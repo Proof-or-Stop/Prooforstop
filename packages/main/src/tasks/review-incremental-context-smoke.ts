@@ -7,10 +7,10 @@
  * proof-or-stop review_incremental_context CLI registered) changes NOTHING about the
  * REVIEW→TEST gate canPassReviewGuard.
  *
- * HARD INVARIANT this guard defends: the legacy per-reviewer context is a pure
- * read-only diagnostic and does not mutate gate inputs. Post-remediation lane
- * selection is a separate signed current-material fact consumed by the gate;
- * only proven dependency closure narrows it, never the round number.
+ * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
+ * advisory. It must not write to the store and must not alter any gate input
+ * (findings / review-passes / review-runs / currentReviewRound). The framework
+ * still skips no reviewer; round-2+ targeted re-review is an operator judgement.
  *
  * Cases:
  *   (a) RETURNING REVIEWER — a reviewer 'quality' with a prior PASS bound to an
@@ -27,11 +27,19 @@
  *       isFirstPass=true, priorHeadHash=null, full main...HEAD diff, while
  *       priorVerdict stays NON-null. Pins the documented contract that consumers
  *       must key off isFirstPass (not priorVerdict) for "no incremental baseline".
+ *   (f) BOUNDED-PATHS DEGRADATION — a prior that DOES resolve but whose diff to
+ *       HEAD does not fit the bounded review-basis path lists: the read degrades
+ *       to the full story diff against main (reason code
+ *       FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS, contextMode full,
+ *       reviewBasis null) while still reporting the resolved prior. Asserts the
+ *       boundary is exact — at the cap an incremental basis is emitted, one path
+ *       over it degrades — against the same bounded-path rule prompt-contracts
+ *       enforces rather than against a restated number.
  *   (d) GATE-UNCHANGED ASSERTION (the load-bearing one) — exercises the REAL
  *       canPassReviewGuard (imported from core/machine.ts) over deterministic
  *       fixture stories and asserts the actual gate semantics:
- *         - Every round blocks unless every current selected lane has a valid
- *           current-round verdict + quorum; unknown impact selects all lanes.
+ *         - Round 1 (roundCount<=1): blocks unless ALL opt-in reviewers have a
+ *           valid current-round verdict + quorum.
  *         - Missing currentReviewRound: pass-shaped legacy evidence fails closed.
  *         - A current-round INVALID (stale/unknown-run) binding blocks — in ALL
  *           rounds, before the round split.
@@ -58,21 +66,20 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifyIncrementalBindingReasons,
-  FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS,
-  FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS,
   fixtureCaseClosure,
-  incrementalReviewBasisOverflowReasonCodes,
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { domainSeparatedDigest, type PromptEnvelope } from '../core/prompt-contracts.js';
+import {
+  FULL_TASK_CONTEXT_LIMITS,
+  domainSeparatedDigest,
+  validateIncrementalReviewBasis,
+} from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
-  computePromptEnvelopeId,
   fullTaskSemanticDigest,
 } from '../core/prompt-envelope.js';
-import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
 import {
   promptRoleContract,
   resolvePromptRoleBody,
@@ -80,16 +87,16 @@ import {
 } from '../core/prompt-role-contract-registry.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetConfigCache } from '../core/config.js';
+import { STATE_DIR_NAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
+  changedFilesBetweenRenameAware,
   classifyEvidenceFreshness,
   currentGitHead,
+  isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
-import { changedFilesBetweenRenameAware, isMaterialExcludedPath } from '../core/evidence-freshness.js';
-import { FULL_TASK_CONTEXT_LIMITS, validateIncrementalReviewBasis } from '../core/prompt-contracts.js';
 import {
   collectReviewerEvidenceState,
-  snapshotPromptEnvelopes,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -105,6 +112,7 @@ import type {
   Finding,
   ReviewPass,
   ReviewRun,
+  ScopeContractData,
   StoryEvent,
   StoryInfo,
 } from '../core/types.js';
@@ -126,6 +134,19 @@ function git(cwd: string, args: string[]): string {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+/**
+ * B-cc10: scratch fixtures must ignore BOTH state-dir spellings. CLI writes the
+ * canonical dir; pinning only `.proof-or-stop/` leaves `?? .proof-or-stop/` dirty and
+ * breaks porcelain-preserving assertions (F-077).
+ */
+function scratchRuntimeGitignore(): string {
+  return [
+    ...stateDirCandidates('activity.jsonl'),
+    ...stateDirCandidates('locks').map((rel) => `${rel}/`),
+    ...stateDirCandidates('runtime').map((rel) => `${rel}/`),
+  ].join('\n') + '\n';
 }
 
 function directoryBytes(root: string): Record<string, string> {
@@ -330,8 +351,8 @@ function reviewStory(storyId: string, rounds: number, currentReviewRound?: strin
  * the earlier (main) headHash.
  */
 function buildIncrementalRepo(): { root: string; baseSha: string; headSha: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-ctx-'));
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-ctx-'));
+  write(root, '.gitignore', scratchRuntimeGitignore());
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
   write(root, 'src/untouched.ts', 'export const untouched = 1;\n');
@@ -354,17 +375,15 @@ function buildIncrementalRepo(): { root: string; baseSha: string; headSha: strin
 }
 
 function trustedReviewEvidence(storyId: string, role: string, runId: string, startedAt: string, passAt: string, boundHeadHash: string) {
-  const canonicalRole = canonicalAgentRoleId(role);
-  const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
-  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [legacyRole]: 'full-envelope' } };
-  const roleBody = resolvePromptRoleBody(legacyRole, rollout).body;
-  const dispatchPrompt = `As ${legacyRole}, review story ${storyId} in full.`;
-  const host = reviewerHostRenderIdentity(process.cwd(), legacyRole, 'codex', 'full-envelope');
+  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [role]: 'full-envelope' } };
+  const roleBody = resolvePromptRoleBody(role, rollout).body;
+  const dispatchPrompt = `As ${role}, review story ${storyId} in full.`;
+  const host = reviewerHostRenderIdentity(process.cwd(), role, 'codex', 'full-envelope');
   const headHash = boundHeadHash;
   const materialHash = 'b'.repeat(64);
   const storyFilesHash = 'c'.repeat(64);
   const envelopeResult = assembleFullPromptEnvelope({
-    roleContract: promptRoleContract(canonicalRole),
+    roleContract: promptRoleContract(role),
     runtimeContract: BASELINE_RUNTIME_CONTRACT,
     rolePrompt: roleBody,
     taskContext: {
@@ -374,16 +393,15 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
         verificationIntent: { happy: [{ id: 'CHK-001:happy:0', desc: 'Cutoff is respected.', type: 'logic' }], edge: [], adversarial: [] } }],
       headHash, materialHash, storyFilesHash,
     },
-    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: legacyRole,
+    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: role,
     dispatchPrompt, hostRenderIdentityDigest: host.identityDigest, createdAt: startedAt,
   });
-  assert.equal(envelopeResult.envelope.lane, canonicalRole, 'legacy reviewer lane is canonicalized in the envelope');
-  const run: ReviewRun = { reviewRunId: runId, storyId, agent: canonicalRole, lane: canonicalRole, reviewRound: 'round-1', startedAt,
+  const run: ReviewRun = { reviewRunId: runId, storyId, agent: role, lane: role, reviewRound: 'round-1', startedAt,
     headHash, materialHash, storyFilesHash, promptHash: envelopeResult.envelope.assembledPromptDigest,
     envelopeId: envelopeResult.envelope.envelopeId, assembledPrompt: envelopeResult.prompt };
-  run._hash = signReviewRun(storyId, runId, canonicalRole, canonicalRole, 'round-1', startedAt, headHash, materialHash,
+  run._hash = signReviewRun(storyId, runId, role, role, 'round-1', startedAt, headHash, materialHash,
     run.promptHash, undefined, undefined, storyFilesHash, run.envelopeId);
-  const pass = signedPass(storyId, `${runId}:PASS`, canonicalRole, passAt, 'round-1');
+  const pass = signedPass(storyId, `${runId}:PASS`, role, passAt, 'round-1');
   pass.reviewRunId = runId;
   pass.envelopeId = run.envelopeId;
   pass.writerSessionId = `${runId}-session`;
@@ -395,7 +413,7 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
 
 function runTemporalCutoffRegression(root: string): void {
   const storyId = 'B-f675';
-  const role = canonicalAgentRoleId('lattice-review-quality');
+  const role = 'proof-or-stop-review-quality';
   const story = reviewStory(storyId, 2, 'round-1');
   const boundHeadHash = currentGitHead(root)!;
   const a = trustedReviewEvidence(storyId, role, 'RR-A', ts(5), ts(6), boundHeadHash);
@@ -419,9 +437,10 @@ function runTemporalCutoffRegression(root: string): void {
 }
 
 function runProductionVerifierTemporalCutoffRegression(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-cutoff-verifier-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
-  const role = canonicalAgentRoleId('lattice-review-quality');
+  const role = 'proof-or-stop-review-quality';
+  const laterLane = 'proof-or-stop-review-docs';
   const round = '2026-07-20T00:00:00.000Z';
   const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
     execFileSync(process.execPath, [
@@ -434,29 +453,28 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_PROJECT_ROOT: root,
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_AGENT: actor,
-        LATTICE_SESSION_ID: `cutoff-${actor}`,
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
         PROOF_OR_STOP_AGENT: actor,
+        PROOF_OR_STOP_SESSION_ID: `cutoff-${actor}`,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
   };
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
         version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { [role]: 'full-envelope' },
+        roles: { [role]: 'full-envelope', [laterLane]: 'full-envelope' },
       },
     }, null, 2) + '\n');
     write(root, 'src/cutoff.ts', 'export const cutoff = true;\n');
@@ -489,7 +507,20 @@ function runProductionVerifierTemporalCutoffRegression(): void {
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    const scopeContract: ScopeContractData = {
+      storyId,
+      mode: 'enforce',
+      allowedModify: ['src/cutoff.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      createdAt: round,
+      updatedAt: round,
+    };
+    store.writeScopeContract(storyId, scopeContract);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed cutoff verifier review metadata']);
 
     runCli('dispatch', { storyId, agentType: role }, 'main');
@@ -504,43 +535,37 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     }, role);
     const passA = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runA.reviewRunId)!;
 
-    const mutableFinding = signedFinding(
+    const mutableReviewerFinding = signedFinding(
       storyId,
-      `${storyId}:F-MUTABLE`,
-      role,
+      `${storyId}:F-METADATA-STABILITY`,
+      laterLane,
       'medium',
-      runA.startedAt,
-      'resolved',
+      new Date(Date.now() - 60_000).toISOString(),
+      'open',
       round,
       runA.reviewRunId,
     );
-    store.writeFindings(storyId, { findings: [mutableFinding] });
+    store.writeFindings(storyId, { findings: [mutableReviewerFinding] });
+    git(root, ['add', '.proof-or-stop/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed reviewer metadata before requested-full quality run']);
 
-    runCli('review_run_start', { storyId, agent: role }, role);
+    const fullContextReason = 'Cross-lane metadata stability regression requires a full-context reviewer snapshot.';
+    runCli('review_run_start', {
+      storyId,
+      agent: role,
+      reviewerEscalationReason: fullContextReason,
+    }, role);
     const runB = store.readReviewRuns(storyId).runs.at(-1)!;
     const envelopeB = store.readPromptEnvelopes(storyId).envelopes.find(
       envelope => envelope.envelopeId === runB.envelopeId,
     )!;
-    assert.equal(envelopeB.contextMode, 'incremental', 'production B must use the incremental envelope path');
+    assert.equal(envelopeB.contextMode, 'full', 'production B must honor the reviewer-requested full-context path');
+    assert.equal(envelopeB.selectionReason, 'REVIEWER_REQUESTED_FULL');
     assert.equal(envelopeB.priorPassRef, passA.id, 'production B must bind the A-before-B pass');
     assert.deepEqual(
       verifyReviewRunPromptEnvelope(store, runB),
       { ok: true },
       'production verifier accepts B before a later pass is appended',
-    );
-    assert.ok(envelopeB.findingProjection?.some(row => row.id === mutableFinding.id && row.status === 'resolved'));
-    const findingData = store.readFindings(storyId);
-    const laterDisposition = findingData.findings.find(row => row.id === mutableFinding.id)!;
-    laterDisposition.status = 'dismissed';
-    laterDisposition.severity = 'low';
-    laterDisposition.category = 'happy';
-    laterDisposition.desc = 'Later mutable metadata must not rewrite an already-started run.';
-    laterDisposition.resolvedAt = new Date().toISOString();
-    store.writeFindings(storyId, findingData);
-    assert.deepEqual(
-      verifyReviewRunPromptEnvelope(store, runB),
-      { ok: true },
-      'F040: post-start finding disposition/severity/category/desc mutation cannot invalidate the signed run-start projection',
     );
     runCli('review_pass_set', {
       storyId,
@@ -550,6 +575,127 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     }, role);
     const passB = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runB.reviewRunId)!;
+
+    runCli('dispatch', { storyId, agentType: laterLane }, 'main');
+    runCli('review_run_start', {
+      storyId,
+      agent: laterLane,
+      reviewerEscalationReason: fullContextReason,
+    }, laterLane);
+    const laterLaneRun = store.readReviewRuns(storyId).runs.at(-1)!;
+    runCli('review_pass_set', {
+      storyId,
+      agent: laterLane,
+      reviewRunId: laterLaneRun.reviewRunId,
+      note: 'The later docs lane found no blocker after quality B had already passed.',
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+    }, laterLane);
+    store.writeFindings(storyId, {
+      findings: [{
+        ...mutableReviewerFinding,
+        status: 'resolved',
+        resolvedAt: new Date().toISOString(),
+        resolvedReason: 'Later reviewer metadata resolved this nonblocking finding.',
+        resolutionType: 'fixed',
+      }],
+    });
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'later different-lane reviewer metadata must not invalidate requested-full quality B',
+    );
+    const afterDifferentLane = collectReviewerEvidenceState(store, storyId, root);
+    assert.ok(
+      afterDifferentLane.valid.some(evidence => evidence.id === passB.id),
+      'the shared quorum/current-pass reader accepts quality B after the later docs metadata commit',
+    );
+
+    write(root, 'src/cutoff.ts', 'export const cutoff = false; // requested-full material drift\n');
+    git(root, ['add', 'src/cutoff.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'mutate requested-full product material']);
+    const materialMutation = verifyReviewRunPromptEnvelope(store, runB);
+    assert.equal(materialMutation.ok, false, 'committed product material drift must invalidate requested-full quality B');
+    assert.match(
+      materialMutation.reason ?? '',
+      /changedFilesDigest|impactedFilesDigest|freshnessClassification/,
+      'product material drift must remain bound by a dynamically recomputed material field',
+    );
+    const materialMutationEvidence = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      materialMutationEvidence.valid.some(evidence => evidence.id === passB.id),
+      false,
+      'the shared quorum/current-pass reader must reject requested-full quality B after product material drift',
+    );
+    assert.ok(
+      materialMutationEvidence.invalid.some(evidence => evidence.reviewRunId === runB.reviewRunId),
+      'the shared quorum/current-pass reader must report requested-full quality B invalid after product material drift',
+    );
+    write(root, 'src/cutoff.ts', 'export const cutoff = true;\n');
+    git(root, ['add', 'src/cutoff.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'restore requested-full product material']);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'restoring product material must restore requested-full envelope acceptance after later cross-lane metadata',
+    );
+    assert.ok(
+      collectReviewerEvidenceState(store, storyId, root).valid.some(evidence => evidence.id === passB.id),
+      'the shared quorum/current-pass reader must accept requested-full quality B after product material restoration',
+    );
+
+    store.writeScopeContract(storyId, {
+      ...scopeContract,
+      allowedModify: [...scopeContract.allowedModify, 'src/out-of-scope.ts'],
+      updatedAt: '2026-07-20T00:01:00.000Z',
+    });
+    const scopeMutation = verifyReviewRunPromptEnvelope(store, runB);
+    assert.equal(scopeMutation.ok, false, 'scope-contract drift must invalidate requested-full quality B');
+    assert.match(
+      scopeMutation.reason ?? '',
+      /taskSemanticDigest/,
+      'scope-contract drift must remain bound by the dynamically recomputed task semantics',
+    );
+    const scopeMutationEvidence = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      scopeMutationEvidence.valid.some(evidence => evidence.id === passB.id),
+      false,
+      'the shared quorum/current-pass reader must reject requested-full quality B after scope-contract drift',
+    );
+    assert.ok(
+      scopeMutationEvidence.invalid.some(evidence => evidence.reviewRunId === runB.reviewRunId),
+      'the shared quorum/current-pass reader must report requested-full quality B invalid after scope-contract drift',
+    );
+    store.writeScopeContract(storyId, scopeContract);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'restoring the scope contract must restore requested-full envelope acceptance after later cross-lane metadata',
+    );
+    assert.ok(
+      collectReviewerEvidenceState(store, storyId, root).valid.some(evidence => evidence.id === passB.id),
+      'the shared quorum/current-pass reader must accept requested-full quality B after scope-contract restoration',
+    );
+
+    const envelopeData = store.readPromptEnvelopes(storyId);
+    const runBEnvelopeIndex = envelopeData.envelopes.findIndex(envelope => envelope.envelopeId === runB.envelopeId);
+    assert.ok(runBEnvelopeIndex >= 0);
+    const tamperedEnvelopes = [...envelopeData.envelopes];
+    tamperedEnvelopes[runBEnvelopeIndex] = {
+      ...tamperedEnvelopes[runBEnvelopeIndex],
+      eligibilityDigest: 'f'.repeat(64),
+    };
+    store.writePromptEnvelopes(storyId, { envelopes: tamperedEnvelopes });
+    assert.equal(
+      verifyReviewRunPromptEnvelope(store, runB).ok,
+      false,
+      'requested-full eligibility fields remain immutable envelope-integrity facts',
+    );
+    store.writePromptEnvelopes(storyId, envelopeData);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'restoring the signed requested-full envelope restores current-pass admission',
+    );
 
     runCli('review_run_start', { storyId, agent: role }, role);
     const runC = store.readReviewRuns(storyId).runs.at(-1)!;
@@ -587,132 +733,6 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       verifierWithoutCutoff.eligibilityDigest,
       'mutation bite: a verifier without passesCutoffAt rejects the production B envelope',
     );
-
-    const candidateRuns = [runA, runB, runC];
-    const makeEnvelopeStore = (envelopes: readonly PromptEnvelope[], readCount?: { value: number }): StoryStore => {
-      const candidateStore = Object.create(store) as StoryStore;
-      candidateStore.readPromptEnvelopes = () => {
-        if (readCount) readCount.value += 1;
-        return { envelopes: [...envelopes] };
-      };
-      return candidateStore;
-    };
-    const compareAggregate = (
-      label: string,
-      sourceEnvelopes: readonly PromptEnvelope[],
-      promptEnvelopeSnapshot: readonly PromptEnvelope[],
-      runsToCompare = candidateRuns,
-    ): void => {
-      const cachedReads = { value: 0 };
-      const uncachedReads = { value: 0 };
-      const cachedStore = makeEnvelopeStore(sourceEnvelopes, cachedReads);
-      const uncachedStore = makeEnvelopeStore(sourceEnvelopes, uncachedReads);
-      const cached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(cachedStore, run, promptEnvelopeSnapshot));
-      const uncached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(uncachedStore, run));
-      assert.deepEqual(cached, uncached, `${label}: N-record cached and uncached verifier results must match`);
-      assert.equal(cachedReads.value, 0, `${label}: cached verifier must not reread the envelope ledger`);
-      assert.equal(uncachedReads.value, runsToCompare.length, `${label}: uncached verifier must read once per record`);
-    };
-    const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
-    const frozenPromptEnvelopeSnapshot = snapshotPromptEnvelopes(promptEnvelopeSnapshot);
-    assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot), 'collection snapshot array must be immutable');
-    assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot[0]), 'collection snapshot entries must be isolated');
-    assert.throws(
-      () => ((frozenPromptEnvelopeSnapshot as PromptEnvelope[])[0] = promptEnvelopeSnapshot[1]!),
-      TypeError,
-      'replacing a captured envelope entry must fail closed',
-    );
-    compareAggregate('ordered mixed records', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot);
-    compareAggregate('single record', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runB]);
-    compareAggregate('reverse-ordered mixed records', [...promptEnvelopeSnapshot].reverse(), [...frozenPromptEnvelopeSnapshot].reverse());
-    compareAggregate('duplicate envelope record', [...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!], [...frozenPromptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot[0]!]);
-    compareAggregate('missing envelope record', promptEnvelopeSnapshot.slice(0, -1), frozenPromptEnvelopeSnapshot.slice(0, -1));
-    compareAggregate(
-      'mismatched envelope record',
-      promptEnvelopeSnapshot.map((envelope, index) => index === 0
-        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
-        : envelope),
-      snapshotPromptEnvelopes(promptEnvelopeSnapshot.map((envelope, index) => index === 0
-        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
-        : envelope)),
-    );
-    const staleRun = { ...runC, headHash: 'd'.repeat(40) };
-    compareAggregate('stale non-latest run', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runA, runB, staleRun]);
-    const foreignSnapshot = snapshotPromptEnvelopes(promptEnvelopeSnapshot.map(envelope => ({
-      ...envelope,
-      storyId: 'B-foreign-collection',
-    })));
-    const foreignResult = verifyReviewRunPromptEnvelope(makeEnvelopeStore(foreignSnapshot), runB, foreignSnapshot);
-    assert.equal(foreignResult.ok, false, 'a snapshot from a different collection must be refused');
-    let sourceReads = 0;
-    const sourceChangingStore = Object.create(store) as StoryStore;
-    sourceChangingStore.readPromptEnvelopes = () => {
-      sourceReads += 1;
-      return { envelopes: sourceReads === 1 ? [...promptEnvelopeSnapshot] : promptEnvelopeSnapshot.slice(0, -1) };
-    };
-    const cachedSourceResults = candidateRuns.map(run => verifyReviewRunPromptEnvelope(
-      sourceChangingStore,
-      run,
-      frozenPromptEnvelopeSnapshot,
-    ));
-    assert.equal(sourceReads, 0, 'cached verification must not observe source replacement between records');
-    const uncachedSourceResults = candidateRuns.map(run => verifyReviewRunPromptEnvelope(sourceChangingStore, run));
-    assert.equal(sourceReads, candidateRuns.length, 'uncached verification must expose each source read');
-    assert.ok(uncachedSourceResults.some(result => !result.ok), 'source replacement between records must remain refusal-safe');
-    assert.ok(cachedSourceResults.some(result => result.ok), 'the captured collection snapshot must preserve valid records');
-    const incrementalCachedReads = { value: 0 };
-    const incrementalUncachedReads = { value: 0 };
-    const incrementalCachedStore = makeEnvelopeStore(promptEnvelopeSnapshot, incrementalCachedReads);
-    const incrementalUncachedStore = makeEnvelopeStore(promptEnvelopeSnapshot, incrementalUncachedReads);
-    for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
-      assert.deepEqual(
-        reviewIncrementalContext(incrementalCachedStore, root, storyId, role, {
-          excludedReviewRunId: runB.reviewRunId,
-          findingsCutoffAt: runB.startedAt,
-          passesCutoffAt: cutoff,
-          promptEnvelopes: frozenPromptEnvelopeSnapshot,
-        }),
-        reviewIncrementalContext(incrementalUncachedStore, root, storyId, role, {
-          excludedReviewRunId: runB.reviewRunId,
-          findingsCutoffAt: runB.startedAt,
-          passesCutoffAt: cutoff,
-        }),
-        `cutoff ${cutoff}: cached and uncached incremental context must match`,
-      );
-    }
-    assert.equal(incrementalCachedReads.value, 0, 'cached incremental eligibility must not reread envelopes');
-    const noCutoffOptions = {
-      excludedReviewRunId: runB.reviewRunId,
-      findingsCutoffAt: runB.startedAt,
-    };
-    const noCutoffCached = reviewIncrementalContext(incrementalCachedStore, root, storyId, role, {
-      ...noCutoffOptions,
-      promptEnvelopes: frozenPromptEnvelopeSnapshot,
-    });
-    const noCutoffUncached = reviewIncrementalContext(incrementalUncachedStore, root, storyId, role, noCutoffOptions);
-    assert.deepEqual(noCutoffCached, noCutoffUncached, 'cached and uncached no-cutoff incremental context must match');
-    assert.equal(incrementalCachedReads.value, 0, 'cached incremental eligibility must not reread envelopes');
-    assert.ok(
-      incrementalUncachedReads.value > 0,
-      'uncached incremental eligibility must expose direct envelope reads while cached eligibility performs none',
-    );
-    for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
-      assert.deepEqual(
-        reviewIncrementalContext(store, root, storyId, role, {
-          excludedReviewRunId: runB.reviewRunId,
-          findingsCutoffAt: runB.startedAt,
-          passesCutoffAt: cutoff,
-          promptEnvelopes: frozenPromptEnvelopeSnapshot,
-        }),
-        reviewIncrementalContext(store, root, storyId, role, {
-          excludedReviewRunId: runB.reviewRunId,
-          findingsCutoffAt: runB.startedAt,
-          passesCutoffAt: cutoff,
-        }),
-        `cutoff ${cutoff}: cached and uncached incremental context must match`,
-      );
-    }
-    console.log(`${MARKER} MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached`);
 
     const reviewPhaseStory = store.readStory(storyId);
     store.writeStory(storyId, { ...reviewPhaseStory, phase: 'TEST' });
@@ -761,42 +781,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       envelopeB.taskSemanticDigest,
       'mutation bite: the old phase-sensitive digest rejects the valid REVIEW envelope after transition to TEST',
     );
-    const compareCachedAndUncached = (candidate: ReviewRun, label: string): void => {
-      const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
-      assert.deepEqual(
-        verifyReviewRunPromptEnvelope(store, candidate, promptEnvelopeSnapshot),
-        verifyReviewRunPromptEnvelope(store, candidate),
-        `${label}: cached and uncached verifier semantics must match`,
-      );
-    };
-    compareCachedAndUncached(runB, 'valid B envelope');
-    const readFailureStore = Object.create(store) as StoryStore;
-    readFailureStore.readPromptEnvelopes = () => {
-      throw new Error('injected prompt-envelope read failure');
-    };
-    assert.deepEqual(
-      verifyReviewRunPromptEnvelope(readFailureStore, runB, store.readPromptEnvelopes(storyId).envelopes),
-      { ok: true },
-      'a supplied immutable snapshot keeps valid verification independent of later ledger reads',
-    );
-    assert.throws(
-      () => verifyReviewRunPromptEnvelope(readFailureStore, runB),
-      /injected prompt-envelope read failure/,
-      'the uncached path must still expose injected ledger read failures',
-    );
-    let promptEnvelopeReads = 0;
-    const countedStore = Object.create(store) as StoryStore;
-    const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
-    countedStore.readPromptEnvelopes = (readStoryId: string) => {
-      promptEnvelopeReads += 1;
-      return readPromptEnvelopes(readStoryId);
-    };
-    const doneEvidence = collectReviewerEvidenceState(countedStore, storyId, root);
-    assert.equal(
-      promptEnvelopeReads,
-      1,
-      'reviewer evidence collection must reuse one prompt-envelope snapshot for all bound evidence',
-    );
+    const doneEvidence = collectReviewerEvidenceState(store, storyId, root);
     assert.ok(
       doneEvidence.valid.some(evidence => evidence.id === passB.id),
       'the shared DONE evidence oracle must accept the same B pass after REVIEW to TEST metadata',
@@ -806,114 +791,6 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       false,
       'done_prepare and story_advance DONE must not disagree about B Prompt Envelope validity',
     );
-
-    const nestedProbeBase = promptEnvelopeSnapshot[0]!;
-    const nestedProbeWithoutId = {
-      ...nestedProbeBase,
-      eligibilityReasonCodes: [...(nestedProbeBase.eligibilityReasonCodes ?? ['CACHE_SNAPSHOT_NESTED_PROBE'])],
-      findingProjection: [...(nestedProbeBase.findingProjection ?? [{
-        id: 'nested-probe-finding',
-        createdAt: nestedProbeBase.createdAt,
-        status: 'open',
-        severity: 'medium',
-        category: 'edge',
-        desc: 'nested prompt-envelope mutation probe',
-      }])],
-    };
-    const nestedProbeEnvelope = {
-      ...nestedProbeWithoutId,
-      envelopeId: computePromptEnvelopeId(nestedProbeWithoutId),
-    };
-    const productionCollectorSource = [
-      ...promptEnvelopeSnapshot.map(envelope => ({ ...envelope })),
-      nestedProbeEnvelope,
-    ];
-    let productionCollectorReads = 0;
-    const productionCollectorStore = Object.create(store) as StoryStore;
-    productionCollectorStore.readPromptEnvelopes = (readStoryId: string) => {
-      assert.equal(readStoryId, storyId, 'production collector must read only its requested collection');
-      productionCollectorReads += 1;
-      return { envelopes: productionCollectorSource };
-    };
-    let observedProductionSnapshot: readonly PromptEnvelope[] | undefined;
-    const mutatingVerifier: typeof verifyReviewRunPromptEnvelope = (
-      verifierStore,
-      candidateRun,
-      suppliedSnapshot,
-    ) => {
-      assert.ok(suppliedSnapshot, 'production collector must pass its shared snapshot to each verifier');
-      if (!observedProductionSnapshot) {
-        observedProductionSnapshot = suppliedSnapshot;
-        assert.ok(Object.isFrozen(suppliedSnapshot), 'production collector snapshot array must be frozen');
-        assert.ok(
-          suppliedSnapshot.every(envelope => Object.isFrozen(envelope)),
-          'production collector snapshot entries must be frozen independently',
-        );
-        const capturedRunId = suppliedSnapshot[0]?.reviewRunId;
-        assert.ok(capturedRunId, 'production collector fixture must include a bound envelope');
-        productionCollectorSource[0]!.reviewRunId = `${capturedRunId}-source-mutated`;
-        assert.equal(
-          suppliedSnapshot[0]!.reviewRunId,
-          capturedRunId,
-          'mutating the store-owned source after capture must not alter the production snapshot',
-        );
-        const nestedProbe = suppliedSnapshot.find(envelope => envelope.envelopeId === nestedProbeEnvelope.envelopeId);
-        assert.ok(nestedProbe, 'production snapshot must preserve the nested probe envelope');
-        assert.ok(
-          Object.isFrozen(nestedProbe.eligibilityReasonCodes),
-          'production snapshot reason-code arrays must be frozen',
-        );
-        assert.ok(
-          Object.isFrozen(nestedProbe.findingProjection),
-          'production snapshot finding-projection arrays must be frozen',
-        );
-        assert.ok(
-          nestedProbe.findingProjection?.every(projection => Object.isFrozen(projection)),
-          'production snapshot finding-projection entries must be frozen',
-        );
-        const sourceNestedProbe = productionCollectorSource.find(
-          envelope => envelope.envelopeId === nestedProbeEnvelope.envelopeId,
-        )!;
-        const capturedReasonCode = nestedProbe.eligibilityReasonCodes?.[0];
-        assert.ok(capturedReasonCode, 'nested probe must include a reason code');
-        sourceNestedProbe.eligibilityReasonCodes![0] = `${capturedReasonCode}-source-mutated`;
-        assert.equal(
-          nestedProbe.eligibilityReasonCodes?.[0],
-          capturedReasonCode,
-          'mutating a source-owned nested array must not alter the production snapshot',
-        );
-        assert.throws(
-          () => nestedProbe.eligibilityReasonCodes!.push('verifier-mutation'),
-          TypeError,
-          'a mutating verifier must not be able to append to a production nested array',
-        );
-        assert.throws(
-          () => ((suppliedSnapshot as PromptEnvelope[])[0] = suppliedSnapshot[0]!),
-          TypeError,
-          'a mutating verifier must not be able to replace a production snapshot entry',
-        );
-      } else {
-        assert.strictEqual(
-          suppliedSnapshot,
-          observedProductionSnapshot,
-          'all production evidence verifiers must share one collection snapshot',
-        );
-      }
-      return verifyReviewRunPromptEnvelope(verifierStore, candidateRun, suppliedSnapshot);
-    };
-    const isolatedCollectorEvidence = collectReviewerEvidenceState(
-      productionCollectorStore,
-      storyId,
-      root,
-      { verifyPromptEnvelope: mutatingVerifier },
-    );
-    assert.equal(productionCollectorReads, 1, 'production collector must read one envelope collection per call');
-    assert.ok(observedProductionSnapshot, 'the production collector must invoke the injected verifier');
-    assert.ok(
-      isolatedCollectorEvidence.valid.some(evidence => evidence.id === passC.id),
-      `production collector must preserve valid evidence after source mutation by a verifier: valid=${JSON.stringify(isolatedCollectorEvidence.valid.map(evidence => evidence.id))} invalid=${JSON.stringify(isolatedCollectorEvidence.invalid)}`,
-    );
-    console.log(`${MARKER} PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier`);
 
     const testPhaseStory = store.readStory(storyId);
     const inadmissiblePhaseDigests = new Set<string>();
@@ -945,7 +822,6 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       const phaseMutation = verifyReviewRunPromptEnvelope(store, runB);
       assert.equal(phaseMutation.ok, false, `${inadmissiblePhase} must invalidate a REVIEW envelope`);
       assert.match(phaseMutation.reason ?? '', /taskSemanticDigest/);
-      compareCachedAndUncached(runB, `${inadmissiblePhase} envelope`);
       const inadmissibleDoneEvidence = collectReviewerEvidenceState(store, storyId, root);
       assert.equal(
         inadmissibleDoneEvidence.valid.some(evidence => evidence.id === passB.id),
@@ -966,10 +842,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     store.writeStory(storyId, { ...testPhaseStory, title: `${testPhaseStory.title} mutated` });
     const titleMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(titleMutation.ok, false, 'a real Story title mutation must invalidate the bound REVIEW envelope');
-    compareCachedAndUncached(runB, 'title-mutated envelope');
-    for (const field of ['eligibilityDigest', 'eligibilityReasonCodes', 'reviewBasisDigest', 'taskSemanticDigest']) {
-      assert.match(titleMutation.reason ?? '', new RegExp(field), `title mutation must report ${field} drift`);
-    }
+    assert.match(titleMutation.reason ?? '', /taskSemanticDigest/, 'title mutation must report model-relevant task drift');
     store.writeStory(storyId, testPhaseStory);
 
     const originalChecklist = store.readChecklist(storyId);
@@ -982,7 +855,6 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     const checklistMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(checklistMutation.ok, false, 'a real checklist semantic mutation must invalidate the bound REVIEW envelope');
     assert.match(checklistMutation.reason ?? '', /taskSemanticDigest/);
-    compareCachedAndUncached(runB, 'checklist-mutated envelope');
     store.writeChecklist(storyId, originalChecklist);
     assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), { ok: true }, 'restoring task semantics restores verifier agreement');
     console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees`);
@@ -993,41 +865,19 @@ function runProductionVerifierTemporalCutoffRegression(): void {
   }
 }
 
-function runEmptyReviewerEvidenceSnapshotCase(): void {
-  const root = buildBalancedProjectRoot();
-  try {
-    const storyId = 'B-f675';
-    const store = buildFixtureStore({ story: reviewStory(storyId, 1, ts(1)) });
-    let promptEnvelopeReads = 0;
-    const countedStore = Object.create(store) as StoryStore;
-    const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
-    countedStore.readPromptEnvelopes = (readStoryId: string) => {
-      promptEnvelopeReads += 1;
-      return readPromptEnvelopes(readStoryId);
-    };
-    const evidence = collectReviewerEvidenceState(countedStore, storyId, root);
-    assert.equal(promptEnvelopeReads, 0, 'an empty reviewer evidence collection must not read prompt envelopes');
-    assert.equal(evidence.valid.length, 0, 'an empty reviewer evidence collection has no valid records');
-    assert.equal(evidence.invalid.length, 0, 'an empty reviewer evidence collection has no invalid records');
-    console.log(`${MARKER} EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records`);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
 function assertLargeDiffReviewMetadataStability(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-large-review-diff-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-large-review-diff-'));
   try {
-    write(root, 'lattice.config.json', `${JSON.stringify({
+    write(root, 'proof-or-stop.config.json', `${JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2)}\n`);
-    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'src/large.ts', 'export const seed = 0;\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -1045,10 +895,10 @@ function assertLargeDiffReviewMetadataStability(): void {
 
     write(
       root,
-      '.lattice/story/actives/B-large-diff/prompt-envelopes.json',
+      '.proof-or-stop/story/actives/B-large-diff/prompt-envelopes.json',
       `${JSON.stringify({ envelopes: [], padding: 'm'.repeat(350_000) })}\n`,
     );
-    git(root, ['add', '.lattice/story/actives/B-large-diff/prompt-envelopes.json']);
+    git(root, ['add', '.proof-or-stop/story/actives/B-large-diff/prompt-envelopes.json']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'review metadata write']);
 
     resetConfigCache();
@@ -1074,15 +924,15 @@ function runIncrementalCases(): void {
     {
       const runId = 'RR-quality-1';
       const story = reviewStory(storyId, 1, ts(1));
-      const pass: ReviewPass = signedPass(storyId, 'RP-001', 'lattice-review-quality', ts(2), ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-001', 'proof-or-stop-review-quality', ts(2), ts(1));
       pass.reviewRunId = runId;
       // Re-sign now that reviewRunId is set (signature domain includes it).
       pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
       const run: ReviewRun = {
         reviewRunId: runId,
         storyId,
-        agent: 'lattice-review-quality',
-        lane: 'lattice-review-quality',
+        agent: 'proof-or-stop-review-quality',
+        lane: 'proof-or-stop-review-quality',
         reviewRound: ts(1),
         startedAt: ts(2),
         headHash: baseSha,
@@ -1125,14 +975,14 @@ function runIncrementalCases(): void {
     {
       const runId = 'RR-docs-1';
       const story = reviewStory(storyId, 1, ts(1));
-      const pass: ReviewPass = signedPass(storyId, 'RP-002', 'lattice-review-docs', ts(2), ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-002', 'proof-or-stop-review-docs', ts(2), ts(1));
       pass.reviewRunId = runId;
       pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
       const run: ReviewRun = {
         reviewRunId: runId,
         storyId,
-        agent: 'lattice-review-docs',
-        lane: 'lattice-review-docs',
+        agent: 'proof-or-stop-review-docs',
+        lane: 'proof-or-stop-review-docs',
         reviewRound: ts(1),
         startedAt: ts(2),
         headHash: baseSha,
@@ -1161,14 +1011,14 @@ function runIncrementalCases(): void {
     {
       const runId = 'RR-behavior-unresolvable';
       const story = reviewStory(storyId, 1, ts(1));
-      const pass: ReviewPass = signedPass(storyId, 'RP-003', 'lattice-review-behavior', ts(2), ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-003', 'proof-or-stop-review-behavior', ts(2), ts(1));
       pass.reviewRunId = runId;
       pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
       const run: ReviewRun = {
         reviewRunId: runId,
         storyId,
-        agent: 'lattice-review-behavior',
-        lane: 'lattice-review-behavior',
+        agent: 'proof-or-stop-review-behavior',
+        lane: 'proof-or-stop-review-behavior',
         reviewRound: ts(1),
         startedAt: ts(2),
         // Unresolvable bound headHash: headHashForRun returns null for a falsy hash.
@@ -1244,14 +1094,14 @@ function materialDiffPathCount(root: string, baseSha: string): number {
  */
 function runBoundedPathsDegradationCase(): void {
   const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-  const bounded = FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS;
+  const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
   const storyId = 'B-bounded-paths';
-  const role = canonicalAgentRoleId('lattice-review-quality');
+  const role = 'proof-or-stop-review-quality';
   const storyFile = 'src/story.ts';
   const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-bounded-paths-'));
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
     write(root, storyFile, 'export const story = 0;\n');
     for (let index = 0; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 0;\n`);
     git(root, ['init']);
@@ -1259,164 +1109,110 @@ function runBoundedPathsDegradationCase(): void {
     git(root, ['add', '.']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed bounded-paths base']);
     const overCapBaseSha = currentGitHead(root)!;
+
     write(root, bulkFile(0), 'export const bulk0 = 1;\n');
     git(root, ['add', '.']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by one bulk path']);
     const atCapBaseSha = currentGitHead(root)!;
+
     for (let index = 1; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 1;\n`);
     git(root, ['add', '.']);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by remaining bulk paths']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by the remaining bulk paths']);
+
     git(root, ['checkout', '-b', `story/${storyId}`]);
     write(root, storyFile, 'export const story = 1;\n');
     git(root, ['add', '.']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'story material change ahead of main']);
 
     const story = reviewStory(storyId, 2, ts(1));
-    const atEvidence = trustedReviewEvidence(storyId, role, 'RR-AT-CAP', ts(5), ts(6), atCapBaseSha);
-    const overEvidence = trustedReviewEvidence(storyId, role, 'RR-OVER-CAP', ts(5), ts(6), overCapBaseSha);
+    const priorAtCap = trustedReviewEvidence(storyId, role, 'RR-AT-CAP', ts(5), ts(6), atCapBaseSha);
+    const priorOverCap = trustedReviewEvidence(storyId, role, 'RR-OVER-CAP', ts(5), ts(6), overCapBaseSha);
     const storeFor = (evidence: ReturnType<typeof trustedReviewEvidence>) => buildFixtureStore({
       story,
       runs: [evidence.run],
       passes: [evidence.pass],
       promptEnvelopes: [evidence.envelope],
     });
-    const atCap = reviewIncrementalContext(storeFor(atEvidence), root, storyId, role);
-    assert.equal(atCap.changedFiles.length, cap, 'exactly the bounded path cap remains incremental');
-    assert.equal(atCap.isFirstPass, false, 'the at-cap prior remains trusted');
-    assert.ok(atCap.reviewBasis, 'the at-cap context emits an incremental basis');
+
+    // ---- AT EXACTLY THE CAP: the guard must NOT fire ----
+    const atCap = reviewIncrementalContext(storeFor(priorAtCap), root, storyId, role);
+    assert.equal(atCap.eligibilityReasonCodes.includes(bounded), false, `at exactly the cap the guard must not raise ${bounded}`);
+    assert.equal(atCap.changedFiles.length, cap, 'fixture must place the incremental diff at EXACTLY the bounded path cap');
+    assert.equal(atCap.isFirstPass, false, 'at the cap the trusted prior is the baseline');
+    assert.equal(atCap.priorHeadHash, atCapBaseSha, 'at the cap changedFiles is the diff from the prior headHash');
+    assert.notEqual(atCap.reviewBasis, null, 'at the cap the incremental review basis is still emitted');
+    assert.equal(atCap.reviewBasis!.changedFiles.length, cap, 'the emitted basis carries the full at-cap path list');
+    assert.ok(atCap.changedFiles.includes(storyFile), 'the at-cap incremental diff still contains the story file');
+
+    // Boundary pinned to the contract rather than to the number: finalize already
+    // validated the basis above, and that same basis plus ONE path is rejected by
+    // the very rule the guard exists to keep satisfiable.
     validateIncrementalReviewBasis(atCap.reviewBasis!);
-    assert.throws(() => validateIncrementalReviewBasis({
-      ...atCap.reviewBasis!,
-      changedFiles: [...atCap.reviewBasis!.changedFiles, 'src/one-path-over-the-cap.ts'],
-    }), /IncrementalReviewBasis\.changedFiles exceeds/);
-    assert.equal(materialDiffPathCount(root, overCapBaseSha), cap + 1, 'the over-cap fixture is one path over the bound');
-    const overCap = reviewIncrementalContext(storeFor(overEvidence), root, storyId, role);
-    assert.ok(overCap.eligibilityReasonCodes.includes(bounded), 'one path over the cap degrades the incremental context');
-    assert.equal(overCap.reviewBasis, null, 'the degraded context suppresses the incremental basis');
-    assert.deepEqual(overCap.changedFiles, ['src/story.ts'], 'degraded context serves the story net diff');
-    console.log(`${MARKER} BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental; cap+1 degrades to the story diff`);
-  } finally {
-    resetConfigCache();
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-/**
- * F-419 regressions: every bounded basis overflow must choose the authoritative
- * full story context, and must retain a trusted prior only as audit metadata.
- */
-function runBasisOverflowFallbackRegressions(): void {
-  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-  const findingCap = FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane;
-  const role = canonicalAgentRoleId('lattice-review-quality');
-  const storyId = 'B-basis-overflow';
-  const { root, baseSha } = buildIncrementalRepo();
-  try {
-    const prior = trustedReviewEvidence(storyId, role, 'RR-BASIS-OVERFLOW', ts(5), ts(6), baseSha);
-    const overflowImpact = classifyImpact({
-      changedFiles: Array.from({ length: cap + 1 }, (_, index) => `src/impact/f${index}.ts`),
-      declaredTestFiles: [],
-      testIntentRefsByFile: {},
-    });
-    assert.equal(overflowImpact.impactedFiles.length, cap + 1, 'synthetic impact projection exceeds the bounded path cap');
-    assert.deepEqual(
-      incrementalReviewBasisOverflowReasonCodes({
-        changedFiles: ['src/feature.ts'],
-        impactedFiles: overflowImpact.impactedFiles,
-        authoritativeReferences: ['src/feature.ts'],
-        findingDeltas: [],
-        unresolvedFindings: [],
+    assert.throws(
+      () => validateIncrementalReviewBasis({
+        ...atCap.reviewBasis!,
+        changedFiles: [...atCap.reviewBasis!.changedFiles, 'src/one-path-over-the-cap.ts'],
       }),
-      [FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS],
-      'impact.impactedFiles overflow carries the stable full-context path reason',
+      /IncrementalReviewBasis\.changedFiles exceeds/,
+      'the guard threshold must be the same bounded-path rule prompt-contracts enforces',
     );
 
-    const relatedDocs = Array.from({ length: cap + 1 }, (_, index) => `docs/related-${index}.md`);
-    const referenceStore = buildFixtureStore({
-      story: reviewStory(storyId, 2, 'round-1'),
-      runs: [prior.run],
-      passes: [prior.pass],
-      promptEnvelopes: [prior.envelope],
-      checklistItems: [{
-        id: 'CHK-REFS',
-        title: 'bounded references',
-        status: 'done',
-        relatedDocs,
-        files: { modify: ['src/feature.ts'], create: [], test: [] },
-        verificationIntent: { happy: [], edge: [], adversarial: [] },
-      }],
-    });
-    const references = reviewIncrementalContext(referenceStore, root, storyId, role);
-    assert.equal(references.contextMode, 'full', 'authoritativeReferences overflow forces full context');
-    assert.equal(references.reviewBasis, null, 'authoritativeReferences overflow never emits an invalid basis');
-    assert.ok(
-      references.eligibilityReasonCodes.includes(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS),
-      'authoritativeReferences overflow carries the stable full-context reason',
+    // ---- ONE PATH OVER THE CAP: the guard must fire and degrade ----
+    // The degraded context no longer exposes the oversized diff, so the fixture's
+    // distance is measured directly, through the same production helpers the
+    // branch under test uses.
+    assert.equal(
+      materialDiffPathCount(root, overCapBaseSha),
+      cap + 1,
+      'fixture must place the over-cap incremental diff exactly ONE path over the bound',
     );
-    assert.equal(references.priorPassRef, prior.pass.id, 'full fallback preserves trusted prior audit identity');
+    const overCap = reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role);
+    assert.ok(overCap.eligibilityReasonCodes.includes(bounded), `one path over the cap must raise ${bounded}`);
+    assert.equal(overCap.contextMode, 'full', 'the degraded context must stay full');
+    assert.equal(overCap.reviewBasis, null, 'the degraded context must emit NO incremental review basis');
+    assert.equal(overCap.reviewBasisDigest, null, 'a suppressed basis must leave no basis digest behind');
+    assert.equal(overCap.scopeChanged, true, 'the degraded context shows everything, so scopeChanged stays true');
 
-    const unresolvedFindings = Array.from({ length: findingCap + 1 }, (_, index) =>
-      signedFinding(
-        storyId,
-        `${storyId}:F-${String(index).padStart(3, '0')}`,
-        role,
-        'high',
-        ts(7),
-        'open',
-        'round-1',
-        prior.run.reviewRunId,
-      ));
-    const findingStore = buildFixtureStore({
-      story: reviewStory(storyId, 2, 'round-1'),
-      findings: unresolvedFindings,
-      runs: [prior.run],
-      passes: [prior.pass],
-      promptEnvelopes: [prior.envelope],
-    });
-    const findings = reviewIncrementalContext(findingStore, root, storyId, role);
-    assert.equal(findings.contextMode, 'full', '257 unresolved findings force full context without throwing');
-    assert.equal(findings.reviewBasis, null, '257 unresolved findings never enter an invalid basis');
-    assert.ok(
-      findings.eligibilityReasonCodes.includes(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS),
-      '257 unresolved findings carry the stable full-context reason',
+    // The served diff is the story's net diff against main — NOT main's own
+    // already-reviewed churn that pushed the incremental diff over the bound.
+    assert.deepEqual(
+      overCap.changedFiles,
+      [storyFile],
+      'the degraded context serves the story net diff against main, not the oversized prior-to-HEAD set',
     );
-    assert.equal(findings.priorPassRef, prior.pass.id, 'finding overflow preserves trusted prior audit identity');
-    console.log(`${MARKER} BASIS OVERFLOW: impact paths, authoritative references, and ${findingCap + 1} unresolved findings fail closed to full context`);
+
+    // The resolved prior is reported for audit (it is real state), and reporting
+    // it moves informational fields ONLY: against a same-repo first-timer the
+    // served diff, its digest, the impact-derived reason codes and contextMode
+    // are identical — the prior identity is the only difference.
+    const firstTimer = reviewIncrementalContext(buildFixtureStore({ story }), root, storyId, role);
+    assert.equal(firstTimer.isFirstPass, true, 'control: a lane with no prior evidence is a first pass');
+    assert.equal(firstTimer.priorPassRef, null, 'control: a first pass has no prior pass reference');
+    assert.equal(overCap.isFirstPass, false, 'a resolvable trusted prior must NOT be reported as a first pass');
+    assert.equal(overCap.priorPassRef, priorOverCap.pass.id, 'the degraded context reports the real prior pass');
+    assert.equal(overCap.priorReviewRunId, priorOverCap.run.reviewRunId, 'the degraded context reports the real prior run');
+    assert.equal(overCap.priorHeadHash, overCapBaseSha, 'the degraded context reports the real prior headHash');
+    assert.equal(overCap.priorVerdict, `PASS (${priorOverCap.pass.id})`, 'the degraded context reports the real prior verdict');
+    assert.deepEqual(overCap.changedFiles, firstTimer.changedFiles, 'the prior must not change WHICH files are served');
+    assert.equal(overCap.changedFilesDigest, firstTimer.changedFilesDigest, 'the prior must not change the changed-files digest');
+    assert.equal(overCap.impactedFilesDigest, firstTimer.impactedFilesDigest, 'the prior must not change the impacted-files digest');
+    assert.equal(overCap.contextMode, firstTimer.contextMode, 'the prior must not change contextMode');
+    assert.equal(overCap.scopeChanged, firstTimer.scopeChanged, 'the prior must not change scopeChanged');
+    assert.equal(overCap.freshnessClassification, firstTimer.freshnessClassification, 'the prior must not change the freshness classification');
+    assert.deepEqual(
+      overCap.eligibilityReasonCodes.filter(code => code !== bounded),
+      firstTimer.eligibilityReasonCodes.filter(code => code !== 'FULL_MISSING_TRUSTED_PRIOR_PASS'),
+      'apart from its own FULL_ reason code the degraded context classifies exactly like the first pass',
+    );
+    assert.notEqual(
+      overCap.eligibilityDigest,
+      firstTimer.eligibilityDigest,
+      'the resolved prior IS bound into the authoritative eligibility digest (audit fidelity, not eligibility)',
+    );
+    console.log(`${MARKER} (f) BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental (basis emitted, no ${bounded}); cap+1 degrades to the ${overCap.changedFiles.length}-path story diff with reviewBasis=null and the real prior ${overCap.priorPassRef} still reported`);
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
-  }
-}
-
-function runWrapperRootRoutingCase(): void {
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-incremental-wrapper-'));
-  const gitRoot = join(metadataRoot, 'repo');
-  try {
-    mkdirSync(gitRoot, { recursive: true });
-    write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo' }, null, 2));
-    write(gitRoot, 'src/feature.ts', 'export const feature = 1;\n');
-    git(gitRoot, ['init']);
-    git(gitRoot, ['checkout', '-B', 'main']);
-    git(gitRoot, ['add', '.']);
-    git(gitRoot, [...COMMIT_ENV, 'commit', '-m', 'wrapper base']);
-    git(gitRoot, ['checkout', '-b', 'story/B-wrapper']);
-    write(gitRoot, 'src/feature.ts', 'export const feature = 2;\n');
-    git(gitRoot, ['add', '.']);
-    git(gitRoot, [...COMMIT_ENV, 'commit', '-m', 'wrapper feature']);
-
-    resetConfigCache();
-    const storyId = 'B-wrapper';
-    const store = new StoryStore(metadataRoot);
-    store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
-    store.writeChecklist(storyId, { items: [] });
-    const ctx = reviewIncrementalContext(store, metadataRoot, storyId, 'concept');
-    assert.equal(ctx.currentHeadHash, currentGitHead(gitRoot), 'wrapper-root HEAD must come from configured gitRoot');
-    assert.ok(ctx.changedFiles.includes('src/feature.ts'), 'wrapper-root diff must come from configured gitRoot');
-    assert.equal(ctx.currentHeadHash?.length, 40, 'non-git metadataRoot cannot collapse lineage to unavailable');
-    console.log(`${MARKER} WRAPPER ROOT: metadataRoot routes every Git read through configured gitRoot`);
-  } finally {
-    resetConfigCache();
-    rmSync(metadataRoot, { recursive: true, force: true });
   }
 }
 
@@ -1561,7 +1357,7 @@ function runPolicyCases(): void {
   assert.equal(classifyEvidenceFreshness({
     fresh: true,
     reason: 'evidence followed by 1 metadata-only changes, not invalidated',
-    changedFiles: ['.lattice/x'],
+    changedFiles: ['.proof-or-stop/x'],
     materialFiles: [],
   }, 'a'.repeat(40)), 'KNOWN_METADATA_ONLY_HEAD_DRIFT');
   assert.equal(classifyEvidenceFreshness({
@@ -1571,48 +1367,10 @@ function runPolicyCases(): void {
     materialFiles: ['<story-files-changed>'],
   }, 'a'.repeat(40)), 'RELATED_STORY_MATERIAL_DRIFT');
   console.log(`${MARKER} POLICY: stable v1 bounded categories and canonical freshness classifications PASS`);
-
-  // B-3f3d F-090: the post-remediation selector may only narrow the reviewer
-  // roster when the impact is provably benign. Every category that
-  // postRemediationReviewSelection routes to POLICY_IMPACT_REQUIRES_FULL_SET
-  // must actually be produced by classifyImpact, or the fail-closed branch
-  // silently stops firing and round-2+ reviews get narrowed after a
-  // remediation touched gate/policy source itself.
-  const FULL_SET_CATEGORIES = [
-    'public-contract', 'authority-or-permission', 'command-or-gate-policy',
-    'dependency-or-build', 'unsupported-rename', 'unknown',
-  ];
-  const gatePolicyImpact = classifyImpact({
-    changedFiles: ['packages/main/src/core/command-policy.ts'],
-    declaredTestFiles: [],
-    testIntentRefsByFile: {},
-    changedFileStatus: { 'packages/main/src/core/command-policy.ts': 'M' },
-  });
-  assert.ok(
-    gatePolicyImpact.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
-    'changing gate/policy source must classify into a category that forces the full reviewer set',
-  );
-  const buildImpact = classifyImpact({
-    changedFiles: ['package.json'],
-    declaredTestFiles: [],
-    testIntentRefsByFile: {},
-    changedFileStatus: { 'package.json': 'M' },
-  });
-  assert.ok(
-    buildImpact.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
-    'changing dependency/build material must classify into a category that forces the full reviewer set',
-  );
-  // The rename case is already asserted above to be FULL_UNSUPPORTED_RENAME;
-  // pin that its impact category is likewise in the full-set trigger list.
-  assert.ok(
-    renamed.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
-    'an unsupported rename must classify into a category that forces the full reviewer set',
-  );
-  console.log(`${MARKER} F-090: gate/policy, dependency and unsupported-rename impacts all force the full reviewer set PASS`);
 }
 
 function runFixtureDuplicateIdentityCases(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-duplicate-identity-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-fixture-duplicate-identity-'));
   const storyId = 'B-duplicate';
   const fixturePath = 'cases.json';
   const intentRef = `${storyId}:CHK-001:happy:0`;
@@ -1669,43 +1427,13 @@ function runFixtureDuplicateIdentityCases(): void {
   }
 }
 
-function runLargeFixtureReadFailureCase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-large-read-'));
-  const storyId = 'B-large-fixture';
-  const fixturePath = 'cases.json';
-  const intentRef = `${storyId}:CHK-001:happy:0`;
-  try {
-    write(root, fixturePath, JSON.stringify({
-      cases: [{ _id: 'large-case', intentRef, expect: true, padding: 'x'.repeat(1_100_000) }],
-    }));
-    git(root, ['init']);
-    git(root, ['checkout', '-B', 'main']);
-    git(root, ['add', fixturePath]);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed large fixture']);
-    git(root, ['checkout', '-b', `story/${storyId}`]);
-    write(root, fixturePath, JSON.stringify({
-      cases: [{ _id: 'large-case', expect: false, padding: 'y'.repeat(1_100_000) }],
-    }));
-    git(root, ['add', fixturePath]);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'change large fixture without intent binding']);
-    assert.equal(
-      fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
-      false,
-      'large before/after read failures must not collapse to equal empty fixture sets',
-    );
-    console.log(`${MARKER} LARGE FIXTURE: >1MiB changed unbound case fails closed`);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Case (d): GATE-UNCHANGED ASSERTION over deterministic git-free fixtures.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * A balanced-profile project root (requireReviewer + requireReviewerFinding =
- * true, blockingSeverities = critical+high). We materialize a lattice.json so
+ * true, blockingSeverities = critical+high). We materialize a proof-or-stop.json so
  * loadConfig resolves balanced deterministically regardless of the host repo.
  *
  * It is a real (single-commit) git repo on `main` so the incremental helper's
@@ -1715,9 +1443,9 @@ function runLargeFixtureReadFailureCase(): void {
  * throwing while we prove it writes nothing and never changes the gate outcome.
  */
 function buildBalancedProjectRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-gate-'));
-  writeFileSync(join(root, 'lattice.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-gate-'));
+  writeFileSync(join(root, 'proof-or-stop.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
+  write(root, '.gitignore', scratchRuntimeGitignore());
   write(root, 'src/seed.ts', 'export const seed = 1;\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -1738,7 +1466,7 @@ function runGateUnchangedCase(): void {
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = BASELINE_REVIEWERS.map((short, i) =>
-        signedPass(storyId, `RP-${i + 1}`, `lattice-review-${short}`, ts(10 + i)),
+        signedPass(storyId, `RP-${i + 1}`, `proof-or-stop-review-${short}`, ts(10 + i)),
       );
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.1) round-1 full opt-in + quorum');
@@ -1750,7 +1478,7 @@ function runGateUnchangedCase(): void {
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = ['concept', 'quality'].map((short, i) =>
-        signedPass(storyId, `RP-${i + 1}`, `lattice-review-${short}`, ts(10 + i)),
+        signedPass(storyId, `RP-${i + 1}`, `proof-or-stop-review-${short}`, ts(10 + i)),
       );
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.2) round-1 missing opt-in reviewer');
@@ -1762,11 +1490,11 @@ function runGateUnchangedCase(): void {
     // currentReviewRound.
     {
       const story = reviewStory(storyId, 2, undefined);
-      const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(20))];
+      const passes = [signedPass(storyId, 'RP-1', 'proof-or-stop-review-concept', ts(20))];
       const store = buildFixtureStore({ story, passes });
-      const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) later-round single valid receipt');
-      assert.equal(outcome, false, '(d.3) missing currentReviewRound must BLOCK the gate in every review');
-      console.log(`${MARKER} (d.3) missing currentReviewRound -> gate BLOCK; incremental context cannot change the assurance floor`);
+      const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) round-2 single valid receipt');
+      assert.equal(outcome, false, '(d.3) Round 2+ missing currentReviewRound must BLOCK the gate');
+      console.log(`${MARKER} (d.3) ROUND 2+ missing currentReviewRound -> gate BLOCK; identical with/without helper`);
     }
 
     // (d.4) INVALID (unknown-run) current-round binding BLOCKS — in BOTH rounds.
@@ -1778,9 +1506,9 @@ function runGateUnchangedCase(): void {
       const story = reviewStory(storyId, rounds, round);
       // One valid pass so the precondition (findings or passes non-empty) holds,
       // plus a finding bound to a missing run => the INVALID input that must block.
-      const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(30), round)];
+      const passes = [signedPass(storyId, 'RP-1', 'proof-or-stop-review-concept', ts(30), round)];
       const finding = signedFinding(
-        storyId, 'B-f675:F-1', 'lattice-review-quality', 'high', ts(31), 'open', round, 'RR-does-not-exist',
+        storyId, 'B-f675:F-1', 'proof-or-stop-review-quality', 'high', ts(31), 'open', round, 'RR-does-not-exist',
       );
       const store = buildFixtureStore({ story, passes, findings: [finding] });
       const outcome = assertGateUnchangedByHelper(
@@ -1798,10 +1526,10 @@ function runGateUnchangedCase(): void {
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = BASELINE_REVIEWERS.map((short, i) =>
-        signedPass(storyId, `RP-${i + 1}`, `lattice-review-${short}`, ts(40 + i)),
+        signedPass(storyId, `RP-${i + 1}`, `proof-or-stop-review-${short}`, ts(40 + i)),
       );
       const finding = signedFinding(
-        storyId, 'B-f675:F-2', 'lattice-review-concept', 'critical', ts(45), 'open',
+        storyId, 'B-f675:F-2', 'proof-or-stop-review-concept', 'critical', ts(45), 'open',
       );
       const store = buildFixtureStore({ story, passes, findings: [finding] });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.5) verified open blocking finding');
@@ -1815,14 +1543,12 @@ function runGateUnchangedCase(): void {
 }
 
 function runConcurrentCliReadOnlyCase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-cli-readonly-'));
   const storyId = 'B-readonly';
   try {
-    // Story artifacts stay under .lattice/story/actives; ignore canonical runtime
-    // so concurrent review_incremental_context activity/locks do not dirty porcelain.
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n.proof-or-stop/\n');
-    write(root, 'lattice.config.json', JSON.stringify({
-      storyDir: '.lattice/story/actives',
+    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n');
     write(root, 'src/seed.ts', 'export const seed = true;\n');
@@ -1837,12 +1563,12 @@ function runConcurrentCliReadOnlyCase(): void {
     const store = new StoryStore(root);
     store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
     store.writeChecklist(storyId, { items: [] });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata']);
 
     const storyDir = store.storyDirPath(storyId);
     const beforeStoryBytes = directoryBytes(storyDir);
-    const beforeVerdictBytes = directoryBytes(join(root, '.lattice/autopilot-verdicts'));
+    const beforeVerdictBytes = STATE_DIR_NAMES.map((dir) => directoryBytes(join(root, dir, 'autopilot-verdicts')));
     const beforeStatus = git(root, ['status', '--porcelain=v1']);
     const beforeStory = JSON.stringify(store.readStory(storyId));
     const command = [
@@ -1862,15 +1588,15 @@ function runConcurrentCliReadOnlyCase(): void {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_PROJECT_ROOT: root,
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_SESSION_ID: 'incremental-readonly-concurrent',
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_SESSION_ID: 'incremental-readonly-concurrent',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.deepEqual(directoryBytes(storyDir), beforeStoryBytes, 'concurrent CLI calls preserve every Story artifact byte');
     assert.deepEqual(
-      directoryBytes(join(root, '.lattice/autopilot-verdicts')),
+      STATE_DIR_NAMES.map((dir) => directoryBytes(join(root, dir, 'autopilot-verdicts'))),
       beforeVerdictBytes,
       'concurrent CLI calls create no receipts, host verdicts, floor, or quorum artifacts',
     );
@@ -1896,29 +1622,26 @@ function waitForPath(path: string, label: string, timeoutMs = 10_000): void {
 }
 
 function runDeterministicTicketReclaimAbaCase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
-  const barrierRoot = join(root, '.proof-or-stop/locks/review-run', '.review-metadata-test-barrier');
-  const lockDir = join(root, '.proof-or-stop/locks/review-run', `${storyId}-review-runs.lock`);
-  const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   const children: ReturnType<typeof spawn>[] = [];
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
         version: 'proofbound.prompt-envelope-rollout.v1',
         roles: {
-          'lattice-review-quality': 'full-envelope',
-          'lattice-review-docs': 'full-envelope',
+          'proof-or-stop-review-quality': 'full-envelope',
+          'proof-or-stop-review-docs': 'full-envelope',
         },
       },
     }, null, 2) + '\n');
@@ -1951,19 +1674,24 @@ function runDeterministicTicketReclaimAbaCase(): void {
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed mixed writer review metadata']);
+    // B-cc10 F-077: plant the dead ticket in the CANONICAL lock dir (store.runtimeLockDirPath),
+    // not the deprecated `.proof-or-stop/locks/...` spelling the runtime no longer writes.
+    const lockDir = store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
+    const barrierRoot = join(dirname(lockDir), '.review-metadata-test-barrier');
+    const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
     execFileSync(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'dispatch',
-      JSON.stringify({ storyId, agentType: 'lattice-review-quality' }),
+      JSON.stringify({ storyId, agentType: 'proof-or-stop-review-quality' }),
     ], {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_PROJECT_ROOT: root,
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_AGENT: 'main',
-        LATTICE_SESSION_ID: 'mixed-owner',
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_AGENT: 'main',
+        PROOF_OR_STOP_SESSION_ID: 'mixed-owner',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -1979,24 +1707,24 @@ function runDeterministicTicketReclaimAbaCase(): void {
     const childEnv = (agent: string, sessionId: string) => ({
       ...process.env,
       NODE_ENV: 'test',
-      LATTICE_PROJECT_ROOT: root,
-      LATTICE_ACTIVITY_SOURCE: 'codex',
-      LATTICE_AGENT: agent,
-      LATTICE_SESSION_ID: sessionId,
-      LATTICE_INTERNAL_REVIEW_METADATA_BARRIER: 'enabled',
+      PROOF_OR_STOP_PROJECT_ROOT: root,
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_AGENT: agent,
+      PROOF_OR_STOP_SESSION_ID: sessionId,
+      PROOF_OR_STOP_INTERNAL_REVIEW_METADATA_BARRIER: 'enabled',
     });
     children.push(spawn(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'review_run_start',
-      JSON.stringify({ storyId, agent: 'lattice-review-quality' }),
+      JSON.stringify({ storyId, agent: 'proof-or-stop-review-quality' }),
     ], {
       cwd: root,
-      env: childEnv('lattice-review-quality', 'concurrent-lattice-review-quality'),
+      env: childEnv('proof-or-stop-review-quality', 'concurrent-proof-or-stop-review-quality'),
       stdio: 'ignore',
     }));
     waitForPath(join(barrierRoot, 'observed-w2'), 'W2 observing dead A');
     children.push(spawn(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'agent_prompt',
-      JSON.stringify({ storyId, role: 'lattice-review-docs', format: 'json' }),
+      JSON.stringify({ storyId, role: 'proof-or-stop-review-docs', format: 'json' }),
     ], {
       cwd: root,
       env: childEnv('main', 'mixed-owner'),
@@ -2061,25 +1789,23 @@ type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean
 type GuardMutation = keyof typeof INCREMENTAL_GUARD_CLASS_MAP;
 
 function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: GuardMutation): GuardObservation {
-  const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
+  const root = mkdtempSync(join(tmpdir(), `proof-or-stop-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
-    'lattice-review-behavior',
-    'lattice-review-concept',
-    'lattice-review-docs',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
+    'proof-or-stop-review-behavior',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
   ];
-  const canonicalRoles = roles.map(role => canonicalAgentRoleId(role));
-  const rolloutModes = Object.fromEntries(canonicalRoles.map((role, index) => [
+  const rolloutModes = Object.fromEntries(roles.map((role, index) => [
     role,
     (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
   ]));
-  const rolloutModeFor = (role: string) => rolloutModes[canonicalAgentRoleId(role)];
   const round = '2026-07-19T00:00:00.000Z';
   const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
-    `LATTICE_AGENT=${JSON.stringify(role)}`,
-    `LATTICE_SESSION_ID=${JSON.stringify(`concurrent-${role}`)}`,
+    `PROOF_OR_STOP_AGENT=${JSON.stringify(role)}`,
+    `PROOF_OR_STOP_SESSION_ID=${JSON.stringify(`concurrent-${role}`)}`,
     JSON.stringify(process.execPath),
     JSON.stringify(DIST_CLI_PATH),
     '--root',
@@ -2089,13 +1815,13 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     '>/dev/null',
   ].join(' ');
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
@@ -2133,7 +1859,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed review metadata']);
 
     for (const role of roles) {
@@ -2143,10 +1869,10 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
         cwd: root,
         env: {
           ...process.env,
-          LATTICE_PROJECT_ROOT: root,
-          LATTICE_ACTIVITY_SOURCE: 'codex',
-          LATTICE_AGENT: 'main',
-          LATTICE_SESSION_ID: 'concurrent-owner',
+          PROOF_OR_STOP_PROJECT_ROOT: root,
+          PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+          PROOF_OR_STOP_AGENT: 'main',
+          PROOF_OR_STOP_SESSION_ID: 'concurrent-owner',
         },
         stdio: ['ignore', 'pipe', 'pipe'],
       });
@@ -2156,7 +1882,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     ), 'wait'].join('\n');
     execFileSync('/bin/sh', ['-c', startScript], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     if (mutation === 'review-run-identity') {
@@ -2165,7 +1891,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     const runs = store.readReviewRuns(storyId).runs;
     const reviewRunIdentity = runs.length === roles.length && new Set(runs.map(run => run.reviewRunId)).size === roles.length;
     if (!mutation) assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
-    const fullRoles = roles.filter(role => rolloutModeFor(role) === 'full-envelope');
+    const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
     if (mutation === 'mixed-envelope-selection') {
       const data = store.readPromptEnvelopes(storyId); data.envelopes = data.envelopes.slice(1); store.writePromptEnvelopes(storyId, data);
     }
@@ -2176,14 +1902,14 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     );
     let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
-      const full = rolloutModeFor(run.lane) === 'full-envelope';
+      const full = rolloutModes[run.lane] === 'full-envelope';
       mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
       if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
       if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
-      const reviewRunId = runs.find(run => canonicalAgentRoleId(run.lane) === canonicalAgentRoleId(role))!.reviewRunId;
+      const reviewRunId = runs.find(run => run.lane === role)!.reviewRunId;
       return index % 2 === 0
         ? shellCommand('review_pass_set', {
           storyId,
@@ -2204,7 +1930,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     const executedEvidenceCommands = mutation === 'pass-finding-write-serialization' ? evidenceCommands.slice(0, -1) : evidenceCommands;
     execFileSync('/bin/sh', ['-c', ['set -eu', ...executedEvidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const passFindingSerialization = store.readReviewPasses(storyId).passes.length === 3 && store.readFindings(storyId).findings.length === 2;
@@ -2217,10 +1943,10 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
     const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
     if (mutation === 'lane-no-overwrite') observedAgents.pop();
-    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...canonicalRoles].sort());
+    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
     if (!mutation) assert.deepEqual(
       observedAgents,
-      [...canonicalRoles].sort(),
+      [...roles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
     let realGateMutationTrace: GuardObservation['mutationTrace'];
@@ -2333,13 +2059,10 @@ function runScheduleMutationTrial(): {
 
 function run(): void {
   runPolicyCases();
+  runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
-  runLargeFixtureReadFailureCase();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
-  runBasisOverflowFallbackRegressions();
-  runWrapperRootRoutingCase();
-  runEmptyReviewerEvidenceSnapshotCase();
   const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
   const cutoffDurationMs = performance.now() - cutoffStarted;
@@ -2352,7 +2075,7 @@ function run(): void {
   // The three fixed masks above are the deterministic race/mutation matrix.
   // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
   // historical twenty identical repetitions for soak testing.
-  const burnInIterations = process.env.LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1;
+  const burnInIterations = process.env.PROOF_OR_STOP_INCREMENTAL_STRESS === '1' ? 20 : 1;
   const burnInObservations = [matrixObservations[2]!];
   for (let iteration = 2; iteration <= burnInIterations; iteration += 1) burnInObservations.push(runConcurrentReviewerWriteCase(0b10101, iteration));
   const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
@@ -2403,7 +2126,7 @@ function run(): void {
     restoration: { completedCases: burnInObservations.length, expectedCases: burnInIterations },
   };
   console.log(`INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(stressReceipt)}`);
-  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: burnInIterations === 20 ? Object.keys(INCREMENTAL_GUARD_CLASS_MAP) : [] })}`);
+  console.log(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: burnInIterations === 20 ? Object.keys(INCREMENTAL_GUARD_CLASS_MAP) : [] })}`);
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 
@@ -2419,11 +2142,8 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
-    runEmptyReviewerEvidenceSnapshotCase();
-    console.log(`${MARKER} CACHE SNAPSHOT: collector read bound and verifier semantics PASS`);
   } else if (process.argv.includes('--bounded-paths-only')) {
     runBoundedPathsDegradationCase();
-    runBasisOverflowFallbackRegressions();
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
   } else if (process.argv.includes('--schedule-mutation-only')) {

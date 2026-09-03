@@ -50,7 +50,7 @@ export type AgentDispatchCanonicalType =
   // use the proof-or-stop spellings above.
   | 'lattice-implementer'
   | 'verification-intent'
-  | 'lattice-review-story-init'
+  | 'proof-or-stop-review-story-init'
   | 'product-reviewer'
   | 'lattice-review-scope-plan'
   | 'lattice-review-topology-critic'
@@ -130,15 +130,15 @@ export type AgentDispatchReviewerLane =
   // canonical proof-or-stop lanes remain the runtime authority.
   | 'lattice-review-story-init'
   | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery';
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-channel'
+  | 'proof-or-stop-review-delivery';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
@@ -1074,6 +1074,17 @@ export interface VerificationEvidence {
   waiverType?: 'permanent' | 'deferred_gate_evidence';
   file?: string;
   command?: string;
+  /**
+   * B-a745 CHK-002: OPTIONAL stable id of the validation command this evidence
+   * pins (`core/validation-command-identity.ts`).
+   *
+   * New evidence should record it. Historical evidence has only the free-form
+   * `command` string above, which the canonical legacy pin resolver normalizes
+   * and matches on the complete executable tuple. A resolved id is written by a
+   * future re-record only: the resolver never rewrites historical evidence in
+   * place merely to migrate it.
+   */
+  commandId?: string;
   result?: 'pass' | 'fail';
   note: string;
   /** Optional git HEAD captured when evidence was recorded. */
@@ -1381,7 +1392,7 @@ export interface StorySummaryData {
   acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
   /** Terminal outcome classification for DONE stories; omitted legacy data defaults to success. */
   outcomeKind?: StoryOutcomeKind;
-  /** Real-machine verification coverage: auto-scaffolded by lattice, agent fills skipReasons only */
+  /** Real-machine verification coverage: auto-scaffolded by proofOrStop, agent fills skipReasons only */
   realMachineCoverage: {
     /** Cases that were actually run (auto-populated from test-evidence.json + evidence per fixture) */
     ran: Array<{ name: string; where: string }>;
@@ -1480,7 +1491,7 @@ export interface DisprovenEvidence {
   reproCommand?: string;
 }
 
-/** Finding: a finding raised by a lattice reviewer (replaces testIntent) */
+/** Finding: a finding raised by a proof-or-stop reviewer (replaces testIntent) */
 export interface Finding {
   id: string;            // format B-xxx:F-001
   desc: string;
@@ -2225,7 +2236,7 @@ export type ProcessEvent = {
   [key: string]: unknown;
 };
 
-// ── Scope Check (B-d4d1: signed scope-check.json written by lattice-review-scope-plan agent) ──
+// ── Scope Check (B-d4d1: signed scope-check.json written by proof-or-stop-review-scope-plan agent) ──
 // B-ed3e CHK-002: schema extended to 5 states + source field (backward compatible, missing fields in old data default to undefined / 0).
 // Signing domain (signScopeCheck parameters) unchanged: still only contains storyId / timestamp / gaps / covered / reviewRound,
 // newly added source / orphanSuspect / drift / openQuestions do not enter _hash (see decision preMortem 1).
@@ -2280,16 +2291,18 @@ export interface ScopeCheckData {
   _hash: string;
 }
 
-// ── Init Check (B-e71f: signed init-check.json written by lattice-review-story-init agent) ──
-// INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist,
-// `_hash` covers storyId / sha256(background.md) / title / description / sha256(initial checklist) / reviewRound + INIT_CHECK_SALT.
-// After main agent modifies background / title / description / initial checklist, _hash mismatches → story_advance INIT_CHECK
+// ── Init Check (B-e71f: signed init-check.json written by proof-or-stop-review-story-init agent) ──
+// INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist.
+// The signed components are declared, once, by INIT_CHECK_SIGNATURE_DOMAIN in core/init-check-gate.ts —
+// consult that declaration rather than any restatement of it (B-8df9 CHK-002 widened the domain and every
+// hand-written copy of the old list was wrong the moment it did).
+// After any signed component is modified, _hash mismatches → story_advance INIT_CHECK
 // reports init_check_tampered blocker (CHK-005 / CHK-006).
 // agentId field is reviewer's self-reported id, **for audit traceability only** (EXP-001 disproved mechanical verifiability of agentId, see
-// docs/story/actives/B-e71f/experiments/exp-001.md), not involved in signing nor gate decisions.
-// issues are advisory: critical / high do not block INIT_CHECK advancement, relying on reviewer template self-discipline to refuse calling the CLI as fallback
-// (on critical, reviewer should print issue list to stdout for main agent to fix background then restart reviewer,
-// without calling init_check_set).
+// docs/story/actives/B-e71f/experiments/exp-001.md), and is not a gate decision input on its own; when `agentResults`
+// is absent it is one of the inputs the gate's decision array is synthesized from, and is bound through that value.
+// issues DO gate: blockingInitCheckIssues treats critical / high as blockers of INIT_CHECK advancement
+// (a reviewer that records one self-blocks); medium / low are advisory and only echoed after the advance.
 
 export interface InitCheckIssue {
   /**
@@ -2338,14 +2351,19 @@ export interface InitCheckData {
    */
   agentId: string;
   /**
-   * List of issues raised by the reviewer, advisory mode: does not block INIT_CHECK advancement, only echoed in the advance success message.
-   * Empty array allowed (when the reviewer considers it fully qualified).
+   * List of issues raised by the reviewer. critical / high BLOCK the INIT_CHECK advance
+   * (blockingInitCheckIssues); medium / low are advisory and only echoed in the advance
+   * success message. Empty array allowed (when the reviewer considers it fully qualified).
+   * B-8df9 CHK-002: part of the signature domain — erasing a recorded blocker by hand
+   * invalidates `_hash` instead of quietly clearing the gate.
    */
   issues: InitCheckIssue[];
   /**
    * Per-reviewer records. New writes upsert by agentId so separate init reviewers
    * cannot silently overwrite each other. Legacy init-check.json files without
    * this field are interpreted as one record from `agentId`.
+   * B-8df9 CHK-002: part of the signature domain — injecting reviewer coverage by hand
+   * invalidates `_hash` instead of satisfying missingRequiredInitCheckAgents for free.
    */
   agentResults?: Array<{
     agentId: string;
@@ -2359,7 +2377,7 @@ export interface InitCheckData {
    * `init_check_repair` command (environments that cannot spawn the init
    * reviewer subagent), NOT by an independent reviewer run via `init_check_set`.
    * An audit/surface field, **not part of the signature / not part of gate validation** — signature is still produced by signInitCheck
-   * Computed from background/title/description/checklist; gate is still validated by missingRequiredInitCheckAgents
+   * over INIT_CHECK_SIGNATURE_DOMAIN; gate is still validated by missingRequiredInitCheckAgents
    * + blockingInitCheckIssues (fallback passes by marking agentResults as `<required>@fallback`
    * to satisfy the required reviewer check, rather than relaxing the gate). story_get / dashboard use this field to distinguish fallback/manual
    * attestation from independent reviewers.
@@ -2373,7 +2391,7 @@ export interface InitCheckData {
     evidenceRefs?: string[];
     /** Operator identifier (git user.name or explicitly passed in), audit traceability only. */
     actor?: string;
-    /** Session identifier (LATTICE_SESSION_ID / derived session id), audit traceability only. */
+    /** Session identifier (PROOF_OR_STOP_SESSION_ID / derived session id), audit traceability only. */
     session?: string;
     /** ISO 8601 attestation timestamp. */
     attestedAt: string;
@@ -2383,9 +2401,14 @@ export interface InitCheckData {
     materialHash?: string;
   };
   /**
-   * Signature: sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
-   * Computed by signInitCheck. issues / agentId / fallback are not included in the signature domain (issues are reviewer subjective judgment, allowed to be modified later;
-   * agentId is self-reported by reviewer and easily forged, backed by reviewer template fence; fallback is surface/audit metadata).
+   * Signature over the components declared by INIT_CHECK_SIGNATURE_DOMAIN (core/init-check-gate.ts),
+   * joined in that order and salted with INIT_CHECK_SALT. Computed by signInitCheck; the reviewer
+   * verdict enters through computeInitCheckVerdictHash (B-8df9 CHK-002), which covers BOTH the
+   * persisted `agentResults` / `issues` values AND the array the gate consumes.
+   * Still OUT of the domain: `fallback` (surface/audit metadata) and the top-level `agentId` as such —
+   * self-reported by the reviewer and not mechanically verifiable (EXP-001), backed by the reviewer
+   * template fence, though it is bound indirectly for records that carry no `agentResults`.
+   * Do not restate the component list here or anywhere else; read the declaration.
    */
   _hash: string;
 }
@@ -2411,7 +2434,7 @@ export type StallResolutionActionName =
 
 /**
  * B-7813 CHK-002: the signed stall-adjudication record persisted at
- * .lattice/story/actives/<id>/stall-adjudication.json. It authorizes clearing
+ * .proof-or-stop/story/actives/<id>/stall-adjudication.json. It authorizes clearing
  * the convergence-stall mint block for EXACTLY the review round it is bound to
  * (reviewRound === story.currentReviewRound at record time). Consumed on read by
  * the CHK-001 seam (hasCurrentRoundStallResolution) which re-validates reason
@@ -2978,7 +3001,7 @@ export interface SemanticScopeGateResult {
 
 // ── Guard Session (B-6bfd CHK-004: Proof-or-Stop-managed guarded session projection) ──
 //
-// A guard session is a *projection* of scope protection for a Lattice-dispatched
+// A guard session is a *projection* of scope protection for a ProofOrStop-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership
 // authority — the story owner lease (core/story-owner-lease.ts) remains
 // authoritative for writes. The guard session only records which provider runs

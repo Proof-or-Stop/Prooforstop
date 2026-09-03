@@ -201,12 +201,12 @@ function makeHermeticFixture() {
 async function proveIsolatedProductionEvidenceNoWrite() {
   const sandbox = await mkdtemp(path.join(tmpdir(), 'role-prompt-evidence-root-'));
   const isolatedExperimentRoot = path.join(sandbox, 'experiments', 'role-prompt-ab-replay');
-  const sentinelStoryRoot = path.join(sandbox, '.lattice', 'story', 'actives', 'B-sentinel');
-  const evidencePaths = ['.lattice'];
+  const sentinelStoryRoot = path.join(sandbox, '.proof-or-stop', 'story', 'actives', 'B-sentinel');
+  const evidencePaths = ['.proof-or-stop'];
   const sentinelFiles = new Map([
     ['review-passes.json', `${canonicalJson({
       passes: [{
-        agent: 'lattice-review-quality',
+        agent: 'proof-or-stop-review-quality',
         reviewRunId: 'B-sentinel:RR-001',
         reviewRound: 'round-1',
         headHash: '1'.repeat(40),
@@ -227,7 +227,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
     ['review-runs.json', `${canonicalJson({
       runs: [{
         id: 'B-sentinel:RR-001',
-        agent: 'lattice-review-quality',
+        agent: 'proof-or-stop-review-quality',
         reviewRound: 'round-1',
         signature: '4'.repeat(64),
       }],
@@ -245,7 +245,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
     })}\n`],
     ['validation-evidence.json', `${canonicalJson({
       status: 'pass',
-      command: 'lattice validate --story=B-sentinel',
+      command: 'proof-or-stop validate --story=B-sentinel',
       headHash: '1'.repeat(40),
       materialHash: '2'.repeat(64),
     })}\n`],
@@ -268,7 +268,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
       await writeFile(path.join(sentinelStoryRoot, name), bytes, 'utf8');
     }
     await writeFile(
-      path.join(sandbox, '.lattice', 'process-events.jsonl'),
+      path.join(sandbox, '.proof-or-stop', 'process-events.jsonl'),
       `${canonicalJson({
         event: 'validation',
         storyId: 'B-sentinel',
@@ -307,11 +307,11 @@ async function proveIsolatedProductionEvidenceNoWrite() {
     const after = await snapshotTree(sandbox, evidencePaths);
     assert.deepEqual(after, before);
     assert.deepEqual(
-      (await readdir(path.join(sandbox, '.lattice'))).sort(),
+      (await readdir(path.join(sandbox, '.proof-or-stop'))).sort(),
       ['process-events.jsonl', 'story'],
     );
 
-    const forgedStoryRoot = path.join(sandbox, '.lattice', 'story', 'actives', 'B-forged');
+    const forgedStoryRoot = path.join(sandbox, '.proof-or-stop', 'story', 'actives', 'B-forged');
     await mkdir(forgedStoryRoot, { recursive: true });
     await writeFile(
       path.join(forgedStoryRoot, 'review-passes.json'),
@@ -322,7 +322,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
     await rm(forgedStoryRoot, { recursive: true, force: true });
     assert.deepEqual(await snapshotTree(sandbox, evidencePaths), before);
 
-    const forgedUsageRoot = path.join(sandbox, '.lattice', 'usage');
+    const forgedUsageRoot = path.join(sandbox, '.proof-or-stop', 'usage');
     await mkdir(forgedUsageRoot, { recursive: true });
     await writeFile(
       path.join(forgedUsageRoot, 'llm-usage.jsonl'),
@@ -403,8 +403,8 @@ try {
     await expectCode('ROLE_CAMPAIGN_DIGEST_MISMATCH', async () =>
       evaluateStory5RoleCampaign(tampered, protocol, corpus, roleBodies));
     const substitutedBodies = clone(roleBodies);
-    substitutedBodies['lattice-review-concept'].modular =
-      substitutedBodies['lattice-review-quality'].modular;
+    substitutedBodies['proof-or-stop-review-concept'].modular =
+      substitutedBodies['proof-or-stop-review-quality'].modular;
     await expectCode('PROMPT_SNAPSHOT_DIGEST_MISMATCH', async () =>
       evaluateStory5RoleCampaign(STORY5_ROLE_CAMPAIGN, protocol, corpus, substitutedBodies));
   });
@@ -631,7 +631,7 @@ try {
 
   await check('path traversal and mutable live Story material are rejected', async () => {
     const traversal = clone(corpus);
-    traversal.samples[0].material.sourceHintPath = '../.lattice/story/actives/B-8d4b/index.json';
+    traversal.samples[0].material.sourceHintPath = '../.proof-or-stop/story/actives/B-8d4b/index.json';
     traversal.samples[0].materialDigest = materialDigest(traversal.samples[0]);
     await expectCode('PATH_ESCAPE', async () => replayExperiment({ protocol, corpus: traversal }));
     const mutable = clone(corpus);
@@ -724,15 +724,15 @@ try {
   });
 
   await check('experiment ledger path cannot escape into production evidence', async () => {
-    await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('../.lattice/story/forged.jsonl'));
-    await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('runtime/../../.lattice/usage/llm-usage.jsonl'));
+    await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('../.proof-or-stop/story/forged.jsonl'));
+    await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('runtime/../../.proof-or-stop/usage/llm-usage.jsonl'));
   });
 
   await check('symlink escape under the experiment runtime is rejected', async () => {
     const link = path.join(runtimeDir, 'escape-link');
     await mkdir(runtimeDir, { recursive: true });
     await rm(link, { force: true, recursive: true });
-    await symlink(path.join(repoRoot, '.lattice'), link);
+    await symlink(path.join(repoRoot, '.proof-or-stop'), link);
     try {
       await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('runtime/escape-link/forged.jsonl'));
     } finally {
@@ -744,7 +744,7 @@ try {
     const link = path.join(runtimeDir, 'file-link.jsonl');
     await mkdir(runtimeDir, { recursive: true });
     await rm(link, { force: true });
-    await symlink(path.join(repoRoot, '.lattice', 'process-events.jsonl'), link);
+    await symlink(path.join(repoRoot, '.proof-or-stop', 'process-events.jsonl'), link);
     try {
       await expectCode('LEDGER_PATH_ESCAPE', async () => appendLedgerRecord(
         'runtime/file-link.jsonl',

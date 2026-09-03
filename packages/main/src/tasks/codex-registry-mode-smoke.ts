@@ -6,11 +6,11 @@
  * @type feature
  * @priority high
  * @description
- * Verifies that verify_codex keeps lattice mirror mode strict while accepting
- * registry-backed thin prompt assets without .lattice-codex/agents, and rejects
+ * Verifies that verify_codex keeps proof-or-stop mirror mode strict while accepting
+ * registry-backed thin prompt assets without .proof-or-stop-codex/agents, and rejects
  * legacy-only adapter assets as an active runtime path.
  * @changes
- * - [CHK-003] Cover lattice mirror, registry thin, registry drift, tampered registry hash,
+ * - [CHK-003] Cover proof-or-stop mirror, registry thin, registry drift, tampered registry hash,
  *   and legacy-only adapter rejection.
  */
 
@@ -59,7 +59,7 @@ function makeRoot(name: string): string {
 }
 
 function seedCodexNativeHooks(root: string): void {
-  for (const relPath of ['.codex/hooks.json', '.codex/hooks/lattice-scope-pretool.cjs']) {
+  for (const relPath of ['.codex/hooks.json', '.codex/hooks/proof-or-stop-scope-pretool.cjs']) {
     writeText(root, relPath, readFileSync(join(repoRoot, relPath), 'utf8'));
   }
 }
@@ -113,9 +113,9 @@ try {
   rmSync(jointlyDriftedHostRoot, { recursive: true, force: true });
 }
 
-const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-legacy-only-'));
+const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-codex-legacy-only-'));
 try {
-  writeText(legacyOnlyRoot, '.lattice-codex/legacy.json', renderProofOrStopCodexAdapterManifest());
+  writeText(legacyOnlyRoot, '.proof-or-stop-codex/legacy.json', renderProofOrStopCodexAdapterManifest());
   writeText(legacyOnlyRoot, 'bin/legacy-bootstrap.js', renderProofOrStopBootstrapScript(packageRoot));
   writeText(legacyOnlyRoot, 'bin/legacy-codex.js', renderProofOrStopCodexWrapperScript());
   seedCodexNativeHooks(legacyOnlyRoot);
@@ -142,7 +142,7 @@ try {
   const actualCodexRegistryPrompt = renderPromptEntryForHost(entry, 'codex');
   assert.match(actualCodexRegistryPrompt, /review_run_start/, 'registry mode returns the reviewer bootstrap');
   assert.doesNotMatch(actualCodexRegistryPrompt, /proofbound:modular-role-body:v1/, 'registry mode never preloads the role body');
-  const identity = reviewerHostRenderIdentity(thinRoot, 'lattice-review-quality', 'codex');
+  const identity = reviewerHostRenderIdentity(thinRoot, 'proof-or-stop-review-quality', 'codex');
   assert.equal(identity.host, 'codex');
   assert.equal(identity.source, 'package-registry');
   assert.equal(identity.hostRenderDigest.length, 64);

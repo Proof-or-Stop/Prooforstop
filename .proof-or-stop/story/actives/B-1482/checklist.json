@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Persist the selector text on every verification receipt and expose it in checklist_get",
+      "context": "VerificationExecutionReceipt currently stores selectorMatched without the selector; add the selector text (and the command tuple digest) so a receipt is auditable on its own. RED: a receipt written today cannot answer which selector matched.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a narrowing-only re-pin that accepts a new selector only when recorded receipts prove it stricter, bounded to one re-pin per recorded-receipt set, keeping both pins and receipts visible with a reason",
+      "context": "checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hook's source. Narrowing proof uses ONLY tool-recorded receipts: the new selector must be absent from the outputTail of at least one recorded receipt of the pinned command that the old selector matched while the run was failing, and must match every recorded passing receipt; no caller-supplied transcript is accepted as input. RED cases, each must fail before the fix: (a) the exact B-a745 CHK-005:happy:0 case ('finalAuthority: no' -> 'status: plan') is accepted, citing the recorded stop-render receipt; (b) the reverse direction is refused; (c) a selector present in both plan and stop renders is refused as vacuous; (d) a re-pin that supplies a transcript instead of citing recorded receipts is refused outright; (e) a second re-pin on the same intent with no new recorded receipt is refused, so repeated narrowing cannot home in on one hand-picked run; (f) a re-pin with no recorded failing render is refused rather than accepted on a reason; (g) an ENGINEERED failing receipt -- a genuine tool-executed run of the pinned command deliberately driven to fail (for example against a scratch config) so that a chosen selector is absent from it -- must not be sufficient on its own: the design must require that the failing receipt used as proof predates the re-pin request, was recorded on the same story material as the receipts it is compared against, and that the new selector additionally matches every recorded passing receipt; the PLAN decision must state explicitly what further bound (for example reviewer co-attestation of the re-pin, or restricting admissible selectors to the renderer's declared status discriminators) closes the residual engineered-receipt gap, or state that it cannot be closed mechanically and record that as an accepted limitation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record the decision with pre-mortems and update the Verification Intent / Evidence section of CLAUDE.md",
+      "context": "decision_set with at least four pre-mortems: evidence-shopping via repeated narrowing (blocked by the one-re-pin-per-recorded-receipt-set bound), a forged failing transcript (impossible because transcripts are not an input), a receipt whose old selector never matched anything (refused for lack of a recorded failing render), and an ENGINEERED failing receipt from a genuine run driven to fail on purpose (the residual gap; the decision must name the bound that closes it or record it as an accepted limitation). CLAUDE.md's Verification Intent / Evidence section documents the new command form, the recorded-receipt-only proof, and the invariant that loosening is impossible. Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create's keyword scan elevates it, keep the elevation rather than dismissing it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

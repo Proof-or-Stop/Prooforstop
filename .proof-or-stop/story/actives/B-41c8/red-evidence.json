@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-41c8",
+  "records": [
+    {
+      "id": "RED-20260902133800",
+      "trigger": "Silent loss of C-quoted rename rows in the rename-aware diff reader, duplicated legacy command parser in done-required-validation.ts, four independent story-workspace resolvers, and no mechanical enumeration of resolveGitCwd call sites (B-a745 deferred findings).",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "25e10c945e0a7cd34fbbdd9e60590d8ae89e8267",
+      "baselineMaterialHash": "b9b94d68a9ffc826e19915e788ecf08aa0ec109de531a85f50548f5d351588aa",
+      "observedFailure": "On the baseline, packages/main/dist/tasks/single-owner-extraction-smoke.js does not exist, so the acceptance command fails with a module-not-found error; core/evidence-freshness.ts still splits git diff --name-status -M output on tabs and skips rows with fewer than two columns, core/done-required-validation.ts still defines its own splitShellWords, and no fixture enumerates resolveGitCwd callers.",
+      "failingCommand": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js"
+      },
+      "note": "Each CHK item adds its cases to the same smoke file RED first; the per-case RED commits are the finer-grained red evidence and are listed in the commit log with RED:/GREEN: subjects.",
+      "createdAt": "2026-09-02T13:38:00.560Z"
+    },
+    {
+      "id": "RED-20260902133922",
+      "trigger": "Silent loss of C-quoted rename rows in the rename-aware diff reader, duplicated legacy command parser in done-required-validation.ts, four independent story-workspace resolvers, and no mechanical enumeration of resolveGitCwd call sites (B-a745 deferred findings).",
+      "acceptanceTargetRef": "sha256:c890885b2f97af3bb182c3ff21985d011e822aafbe910be318069afe6f3e75e4",
+      "baselineHeadHash": "25e10c945e0a7cd34fbbdd9e60590d8ae89e8267",
+      "baselineMaterialHash": "b9b94d68a9ffc826e19915e788ecf08aa0ec109de531a85f50548f5d351588aa",
+      "observedFailure": "On the baseline, packages/main/dist/tasks/single-owner-extraction-smoke.js does not exist, so the acceptance command fails with a module-not-found error; core/evidence-freshness.ts still splits git diff --name-status -M output on tabs and skips rows with fewer than two columns, core/done-required-validation.ts still defines its own splitShellWords, and no fixture enumerates resolveGitCwd callers.",
+      "failingCommand": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:c890885b2f97af3bb182c3ff21985d011e822aafbe910be318069afe6f3e75e4",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js"
+      },
+      "note": "Supersedes RED-20260902133800, whose target REQ-001 is not a member of the expected red-target set (request hash, binding ids, intent refs). Each CHK item adds its cases to the same smoke file RED first; per-case RED commits carry RED:/GREEN: subjects.",
+      "createdAt": "2026-09-02T13:39:22.686Z"
+    }
+  ],
+  "createdAt": "2026-09-02T13:38:00.560Z",
+  "updatedAt": "2026-09-02T13:39:22.686Z"
+}

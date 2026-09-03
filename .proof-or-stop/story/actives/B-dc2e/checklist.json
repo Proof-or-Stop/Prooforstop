@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix the orphan validation-protocol smoke and register it in all three canonical inventories or delete it deliberately",
+      "context": "tasks/validation-protocol-smoke.ts:1229 CASE_MISMATCH assertion fails with undefined; decide whether runManagedAssetCheck fails to detect a case-only filename mismatch on a case-insensitive filesystem or the assertion is wrong; then npm script + test:serial-reference + RESOURCE_POLICY, all three, or a recorded deletion. Also sweep tasks/ for other files no npm script references. RED: run `node packages/main/dist/tasks/validation-protocol-smoke.js` and observe the CASE_MISMATCH assertion fail with actual undefined, then confirm `npm run test:serial-reference` never executes it; GREEN is the assertion passing AND the suite name present in all three inventories, with the full-suite runner refusing a chain member that has no policy row.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Give the full-suite membership smoke a real-data case that fails on genuine chain-versus-policy drift",
+      "context": "tasks/full-suite-runner-smoke.ts around line 563 only compares synthetic fixtures. RED: remove a real RESOURCE_POLICY row on a scratch copy and assert the new case fails; account for test:serial-reference-prefix members that legitimately read as stalePolicy against the main chain. Keep the synthetic cases.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend the RED-before-GREEN guard to finding-fix commits with a marker for legitimate no-RED fixes",
+      "context": "tasks/validation-tier-planner-smoke.ts guard (declaredChecklistItems plus the ^(RED|GREEN)\\(CHK-\\d{3}\\): commit-subject regex) matches only CHK ids. Derive F-nnn ids from git log subjects; require RED(F-nnn) before GREEN(F-nnn) or an explicit no-RED marker with reason for comment-only or registration-only fixes. RED: squash a RED into a GREEN on a scratch branch and assert the guard fails. Consider a shared helper so other stories' suites reuse it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Persist host B's parsed findings from cross_host_review as structured evidence",
+      "context": "handlers/cross-host-review.ts persists only stdoutDigest; findings exist in memory at diffFindings and findingCount. Persist title/severity/file/desc into the verdict JSON or register them through finding_add with the host as agent so they enter the resolve/dismiss lifecycle; never persist raw provider stdout. RED: a FAIL leaf with two findings must leave their text in a committed artifact.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

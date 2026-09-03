@@ -112,7 +112,7 @@ Two-host audit refined the risk:
 
 - `assertCwdInWorktree` checks the real `process.cwd()`, but
   `review_run_start` later captures `HEAD/materialHash` from `ctx.root`.
-  If `--root` or `LATTICE_PROJECT_ROOT` points at main while the operator is
+  If `--root` or `PROOF_OR_STOP_PROJECT_ROOT` points at main while the operator is
   inside the story worktree, the command can validate one workspace and sign
   another. This is a correctness risk, not a wording issue.
 - Direct REVIEW stories without `story.worktree` must remain supported when the
@@ -170,7 +170,7 @@ Rules:
   `snapshotRoot` must be that worktree root.
 - If a story has no recorded worktree, keep the current compatibility behavior:
   direct REVIEW may use the git-backed project root as `snapshotRoot`.
-- If `ctx.root`, `--root`, or `LATTICE_PROJECT_ROOT` disagrees with the verified
+- If `ctx.root`, `--root`, or `PROOF_OR_STOP_PROJECT_ROOT` disagrees with the verified
   worktree root, fail closed before signing. The error should say that signing
   against a different workspace would produce invalid reviewer evidence.
 - Do not normalize only the snapshot root while continuing to read/write story
@@ -237,7 +237,7 @@ Required cases:
 3. Git repo with no commit fails with a `missing_head` style message.
 4. Story with a linked worktree invoked from the wrong cwd returns a concrete
    worktree path hint.
-5. Cwd inside a story worktree while `--root` or `LATTICE_PROJECT_ROOT` points
+5. Cwd inside a story worktree while `--root` or `PROOF_OR_STOP_PROJECT_ROOT` points
    elsewhere fails closed before signing, unless the implementation explicitly
    rebases the entire handler/store/artifact context to the verified worktree
    root. Snapshot-only normalization is not acceptable.

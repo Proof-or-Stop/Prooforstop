@@ -7,7 +7,7 @@ import {
   PROOF_OR_STOP_STORY_DIR,
   PROOF_OR_STOP_STORY_DIR_NAMES,
   LEGACY_DOCS_STORY_DIR,
-} from './lattice-paths.js';
+} from './proof-or-stop-paths.js';
 import {
   EVIDENCE_HASH_SNAPSHOT_SCHEMA,
   isEvidenceHashSnapshotSchema,
@@ -193,7 +193,7 @@ function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: 
   try {
     // No full-output trim(): it would strip the first porcelain row's leading
     // status space (" M path" -> "M path"), shifting the fixed-width path
-    // offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
+    // offset and corrupting the first reported path (".proof-or-stop/x" -> "proofOrStop/x").
     const raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
       cwd: gitCwd,
       ...GIT_EXEC_OPTS,
@@ -309,68 +309,197 @@ export function changedFilesBetween(gitCwd: string, fromHead: string, toHead = '
 }
 
 /**
- * Rename-aware variant of changedFilesBetween. Uses `git diff --name-status -M`
+ * One parsed record of `git diff --name-status -M -z`.
+ *
+ * `status` is the raw status column (`M`, `A`, `D`, `T`, `U`, `X`, or `R<score>` /
+ * `C<score>`). Rename and copy records carry the source in `oldPath` and the
+ * destination in `path`; every other record carries only `path`.
+ */
+export type NameStatusRecord = { status: string; oldPath?: string; path: string };
+
+// Single-path statuses git can emit in --name-status output. Rename (R) and
+// copy (C) carry an optional similarity score and TWO paths.
+const NAME_STATUS_SINGLE_PATH = /^[ADMTUX]$/;
+const NAME_STATUS_TWO_PATH = /^[RC]\d{0,3}$/;
+
+/**
+ * B-41c8 CHK-001: the ONE parser for `git diff --name-status -M -z` output.
+ *
+ * `-z` terminates every field with NUL and disables C-quoting, so a path with a
+ * space, a non-ASCII character or a quote character arrives verbatim instead
+ * of as `"q\"uote.txt"` / `"\346\227\245\346\234\254.txt"` (which the previous
+ * tab parser reported as literal strings, silently losing both sides of such a
+ * rename). Record shape:
+ *
+ *   <status> NUL <path> NUL                      single-path statuses
+ *   <R|C><score> NUL <old> NUL <new> NUL         rename / copy
+ *
+ * Contract: a token stream that does not fit that shape throws an Error whose
+ * message contains the raw offending record. No record is ever skipped —
+ * skipping would turn a parse failure into a shorter path list under a success
+ * status, which is exactly the silent data loss this reader exists to prevent.
+ */
+export function parseNameStatusRecords(raw: string): NameStatusRecord[] {
+  if (raw.length === 0) return [];
+  // Every field is NUL-terminated, so a well-formed stream ends with NUL and the
+  // final split element is the empty string.
+  const fields = raw.split('\0');
+  const terminated = fields[fields.length - 1] === '';
+  if (terminated) fields.pop();
+  const records: NameStatusRecord[] = [];
+  const describe = (start: number, width: number): string =>
+    JSON.stringify(fields.slice(start, start + width));
+  const fail = (start: number, width: number, reason: string): never => {
+    throw new Error(
+      `git diff --name-status -z: unparseable record ${describe(start, width)} at field ${start} (${reason})`,
+    );
+  };
+  let index = 0;
+  while (index < fields.length) {
+    const status = fields[index];
+    if (NAME_STATUS_TWO_PATH.test(status)) {
+      const oldPath = fields[index + 1];
+      const path = fields[index + 2];
+      if (oldPath === undefined || path === undefined || (index + 2 === fields.length - 1 && !terminated)) {
+        fail(index, 3, 'rename/copy record needs two NUL-terminated paths');
+      }
+      if (!oldPath || !path) fail(index, 3, 'empty path');
+      records.push({ status, oldPath, path });
+      index += 3;
+      continue;
+    }
+    if (NAME_STATUS_SINGLE_PATH.test(status)) {
+      const path = fields[index + 1];
+      if (path === undefined || (index + 1 === fields.length - 1 && !terminated)) {
+        fail(index, 2, 'record needs one NUL-terminated path');
+      }
+      if (!path) fail(index, 2, 'empty path');
+      records.push({ status, path });
+      index += 2;
+      continue;
+    }
+    fail(index, 3, `unknown status ${JSON.stringify(status)}`);
+  }
+  return records;
+}
+
+/**
+ * Reads `git diff --name-status -M -z <fromHead>..<toHead>` and parses it.
+ *
+ * Contract (pinned by single-owner-extraction-smoke):
+ *   - an unresolvable ref THROWS (git exits 128 and execFileSync propagates);
+ *     callers classify that failure themselves — a `catch { return [] }`
+ *     around this reader is forbidden because it converts "could not read" into
+ *     "nothing changed";
+ *   - a malformed record THROWS via parseNameStatusRecords; nothing is skipped.
+ *
+ * B-6666 CHK-002: gitCwd is the resolved git invocation cwd (wrapper-root
+ * aware). Callers thread resolveGitCwd(...); plain repos pass projectRoot==gitCwd
+ * so behavior is byte-identical.
+ */
+function readNameStatusRecords(gitCwd: string, fromHead: string, toHead: string): NameStatusRecord[] {
+  const raw = execFileSync('git', ['diff', '--name-status', '-M', '-z', `${fromHead}..${toHead}`], {
+    cwd: gitCwd,
+    ...GIT_EXEC_OPTS,
+  });
+  return parseNameStatusRecords(raw);
+}
+
+/**
+ * Rename-aware variant of changedFilesBetween. Uses `git diff --name-status -M -z`
  * so a rename (R100 old new) surfaces BOTH the old and the new path rather than
  * being collapsed into a single name-only line that may hide one side. This is a
  * strictly stronger signal than the name-only variant (it never reports fewer
  * paths), which is why the incremental-context helper relies on it: a reviewer
  * whose file was renamed since its last pass must still see scopeChanged=true.
  *
- * Output is a de-duplicated, sorted list of paths. Status prefixes (M/A/D/R###/
- * C###) are parsed out; for rename (R) and copy (C) records both the source and
- * destination columns are emitted.
+ * Output is a de-duplicated, sorted list of paths. For rename (R) and copy (C)
+ * records both the source and destination paths are emitted. Throws on an
+ * unresolvable ref or a malformed record (see readNameStatusRecords).
  */
 export function changedFilesBetweenRenameAware(gitCwd: string, fromHead: string, toHead = 'HEAD'): string[] {
-  // B-6666 CHK-002: gitCwd is the resolved git invocation cwd (wrapper-root
-  // aware). Callers thread resolveGitCwd(...); plain repos pass
-  // projectRoot==gitCwd so behavior is byte-identical.
-  const raw = execFileSync('git', ['diff', '--name-status', '-M', `${fromHead}..${toHead}`], {
-    cwd: gitCwd,
-    ...GIT_EXEC_OPTS,
-  }).trim();
   const paths = new Set<string>();
-  for (const line of raw.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    // Columns are tab-separated: <status>\t<path> or <Rxxx>\t<old>\t<new>.
-    const cols = trimmed.split('\t').map(c => c.trim()).filter(Boolean);
-    if (cols.length < 2) continue;
-    const status = cols[0];
-    if ((status.startsWith('R') || status.startsWith('C')) && cols.length >= 3) {
-      // rename/copy: old path = cols[1], new path = cols[2]; both are material changes.
-      paths.add(cols[1]);
-      paths.add(cols[2]);
-    } else {
-      // M/A/D/T/U: the changed path is the last column.
-      paths.add(cols[cols.length - 1]);
-    }
+  for (const record of readNameStatusRecords(gitCwd, fromHead, toHead)) {
+    if (record.oldPath !== undefined) paths.add(record.oldPath);
+    paths.add(record.path);
   }
   return [...paths].sort();
 }
 
-/** Status map companion for callers whose policy must reject rename/delete. */
+/**
+ * Status map companion for callers whose policy must reject rename/delete.
+ * Throws on an unresolvable ref or a malformed record (see readNameStatusRecords).
+ */
 export function changedFileStatusesBetweenRenameAware(
   gitCwd: string,
   fromHead: string,
   toHead = 'HEAD',
 ): Record<string, string> {
-  const raw = execFileSync('git', ['diff', '--name-status', '-M', `${fromHead}..${toHead}`], {
-    cwd: gitCwd,
-    ...GIT_EXEC_OPTS,
-  }).trim();
   const statuses: Record<string, string> = {};
-  for (const line of raw.split('\n')) {
-    const cols = line.trim().split('\t').map(column => column.trim()).filter(Boolean);
-    if (cols.length < 2) continue;
-    const status = cols[0];
-    if ((status.startsWith('R') || status.startsWith('C')) && cols.length >= 3) {
-      statuses[cols[1]] = status;
-      statuses[cols[2]] = status;
-    } else {
-      statuses[cols[cols.length - 1]] = status;
-    }
+  for (const record of readNameStatusRecords(gitCwd, fromHead, toHead)) {
+    if (record.oldPath !== undefined) statuses[record.oldPath] = record.status;
+    statuses[record.path] = record.status;
   }
   return Object.fromEntries(Object.entries(statuses).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function mergeBaseWithMain(gitCwd: string, ref = 'HEAD'): string | undefined {
+  const mainCandidates = ['main', 'origin/main'];
+  for (const candidate of mainCandidates) {
+    try {
+      const base = execFileSync('git', ['merge-base', candidate, ref], {
+        cwd: gitCwd,
+        ...GIT_EXEC_OPTS,
+      }).trim();
+      if (base) return base;
+    } catch {
+      // Try the next conventional main ref.
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Story-owned file entries between two refs, feeding currentStoryFilesHash.
+ * The source side of a rename or copy is recorded as deleted (its object id no
+ * longer exists at `toHead`); the destination side is live. Exported so the
+ * single-owner-extraction smoke can drive it directly. Throws on an
+ * unresolvable ref or a malformed record (see readNameStatusRecords);
+ * currentStoryFilesHash is the ONLY caller that maps that throw to undefined.
+ */
+export function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHead = 'HEAD'): Array<{ path: string; deleted: boolean }> {
+  const files = new Map<string, { path: string; deleted: boolean }>();
+  const add = (path: string, deleted: boolean) => {
+    const existing = files.get(path);
+    files.set(path, { path, deleted: existing ? existing.deleted && deleted : deleted });
+  };
+  for (const record of readNameStatusRecords(gitCwd, fromHead, toHead)) {
+    if (record.oldPath !== undefined) add(record.oldPath, true);
+    add(record.path, record.status.startsWith('D'));
+  }
+  return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
+  const out = new Map<string, string>();
+  try {
+    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
+      cwd: gitCwd,
+      ...GIT_EXEC_OPTS,
+    });
+    for (const entry of raw.split('\0')) {
+      if (!entry) continue;
+      const tab = entry.indexOf('\t');
+      if (tab < 0) continue;
+      const meta = entry.slice(0, tab);
+      const filePath = entry.slice(tab + 1);
+      const objectId = meta.trim().split(/\s+/)[2];
+      if (filePath && objectId) out.set(filePath, objectId);
+    }
+  } catch {
+    return out;
+  }
+  return out;
 }
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
@@ -391,7 +520,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
 //
 // B-6666 F-001 (REVIEW fix): metadataRoot — NOT gitCwd — drives the
 // storyDir-aware metadata-path exclusion (isMaterialExcludedPath ->
-// isStoryMetadataPath -> loadConfig). The lattice.config.json that declares a
+// isStoryMetadataPath -> loadConfig). The proof-or-stop.config.json that declares a
 // CUSTOM storyDir lives at the metadataRoot, not the gitCwd; on a wrapper-root
 // layout (metadataRoot != gitRoot) with a non-default storyDir, loading config
 // from gitCwd silently misses the custom storyDir and WRONGLY includes the

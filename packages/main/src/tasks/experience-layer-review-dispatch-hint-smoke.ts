@@ -121,12 +121,12 @@ function seedSignals(root: string, signals: FindingSignal[]): void {
   writeFindingSignals(root, cacheOf(signals));
 }
 
-/** Minimal lattice.config.json so StoryStore + config resolve in the temp root. */
+/** Minimal proof-or-stop.config.json so StoryStore + config resolve in the temp root. */
 function writeProofOrStopConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));
@@ -454,7 +454,7 @@ check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered s
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
   const root = mkTempRoot();
   writeProofOrStopConfig(root);
-  // NOTE: the leaf reads .lattice/learning/ at the canonical main-repo root when
+  // NOTE: the leaf reads .proof-or-stop/learning/ at the canonical main-repo root when
   // the temp root is a git worktree, but these temp roots are NON-git dirs, so
   // resolveLearningRoot falls back to the temp root itself and the seeded signals
   // are read back here. (Same assumption every check in this file already relies on.)
@@ -487,7 +487,7 @@ check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered s
 // no-hints path, NOT the catch path). To genuinely exercise the leaf's try/catch
 // we make the TRACK (appendActivityLog) path throw: seed VALID signals (so
 // hasExperienceHints is true and the leaf reaches the append), then occupy the
-// runtime activity-log path .lattice/activity.jsonl with a DIRECTORY. appendFileSync
+// runtime activity-log path .proof-or-stop/activity.jsonl with a DIRECTORY. appendFileSync
 // against a directory throws EISDIR INSIDE the try block; the catch must swallow it
 // and early-return renderedSection='' / fired=false with NO partial event.
 // (If the leaf's try/catch were removed, this EISDIR would propagate and the
@@ -501,7 +501,7 @@ check('CHK-001 adversarial:0 — a load/track failure inside surfaceExperienceHi
 
   // Occupy the runtime activity-log path with a DIRECTORY so appendActivityLog's
   // appendFileSync throws EISDIR from inside the leaf's try block.
-  mkdirSync(join(root, '.lattice', 'activity.jsonl'), { recursive: true });
+  mkdirSync(join(root, '.proof-or-stop', 'activity.jsonl'), { recursive: true });
 
   let threw = false;
   let result: ReturnType<typeof surfaceExperienceHints> | undefined;
@@ -555,7 +555,7 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
 // This one exercises the TRANSITION-EFFECTS layer with the SAME failure injection
 // as CHK-001 adversarial:0 (the leaf-level direct check): seed VALID finding
 // signals on an ON-arm REVIEW story so the leaf REACHES the failing track step,
-// then occupy the runtime activity-log path .lattice/activity.jsonl with a
+// then occupy the runtime activity-log path .proof-or-stop/activity.jsonl with a
 // DIRECTORY so appendActivityLog's appendFileSync throws EISDIR INSIDE
 // surfaceExperienceHints. Crucially we drive it through buildNextSteps (the REVIEW
 // branch), NOT the leaf directly, to prove the transition guidance + reviewer-
@@ -578,7 +578,7 @@ check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never
   // activity-log path with a DIRECTORY so appendActivityLog throws EISDIR from
   // inside surfaceExperienceHints. (readActivityLogTail's dedup scan swallows the
   // directory gracefully; it is the append that throws, INSIDE the leaf try.)
-  mkdirSync(join(root, '.lattice', 'activity.jsonl'), { recursive: true });
+  mkdirSync(join(root, '.proof-or-stop', 'activity.jsonl'), { recursive: true });
 
   // Drive the failure THROUGH buildNextSteps (the REVIEW branch), NOT the leaf.
   let threw = false;

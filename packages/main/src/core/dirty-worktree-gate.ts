@@ -71,7 +71,7 @@ export function classifierOptionsForCheck(
  * A category contributes to the blocked verdict exactly when
  * `DIRTY_GATE_POLICY[cat].blocking === true` (material_source_changes,
  * fixture_changes, unexpected_dirty_files). The non-blocking categories
- * (lattice_metadata / runtime_artifact / declared_artifact) pass.
+ * (proof_or_stop_metadata / runtime_artifact / declared_artifact) pass.
  *
  * This shares the SAME table the DONE gate's `evaluateDirtyGate` reads, so the
  * blocked/allowed split is identical by construction — no inline category

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-a745",
+  "records": [
+    {
+      "id": "RED-20260902012114",
+      "trigger": "ACC-001-explain-output: the acceptance claim of B-a745 is that an operator can run a read-only validation_plan command and see requestedTier, effectiveTier, a runtime-derived selected-of-total count, per-command inclusion reasons, unclassified inputs, glossed escalation reason codes, and finalAuthority: no.",
+      "acceptanceTargetRef": "ACC-001-explain-output",
+      "baselineHeadHash": "3d86905687739cee312571b4bb504600debd0a59",
+      "baselineMaterialHash": "daf1d60de401c35080bd1eb26dd91a24f2efaf71041b85ddbde2b6e9da78eeb6",
+      "observedFailure": "The acceptance-claim command does not exist. Running `proof-or-stop validation_plan --storyId=B-a745 --tier=fast --explain` on the story branch at baseline HEAD 3d86905687739cee312571b4bb504600debd0a59 prints:\n\n  Unknown command: validation_plan\n  Did you mean:\n    proof-or-stop plan_skeleton\n    proof-or-stop plan_set\n    proof-or-stop plan_get\n  Use proof-or-stop help to view all commands.\n\nNothing about the acceptance claim is satisfied: there is no tier vocabulary, no command identity, no pin resolution and no explain output. A SECOND, separable defect is visible in the same observation and is being recorded rather than fixed here: the CLI exits 0 on an unknown command, so a caller cannot detect this failure by exit code and must string-match stderr. That exit-code defect is out of scope for B-a745, whose planner is a new command rather than a change to the unknown-command path.",
+      "failingCommand": "proof-or-stop validation_plan --storyId=B-a745 --tier=fast --explain",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACC-001-explain-output",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js"
+      },
+      "note": "Recorded at the PLAN to DEV boundary, before any implementation commit, from a real observation rather than a predicted one. This is the story-level red state that the whole Story turns green. Per-item RED commits for CHK-001 through CHK-005 follow the same discipline inside DEV: each item's fixture is committed failing before its implementation, which CHK-006 verifies by asserting a failing-fixture commit precedes each implementation commit in git log. greenRelation is same_acceptance because the green command proves the very same acceptance target, not a regression guard for a different one.",
+      "createdAt": "2026-09-02T01:21:14.216Z"
+    }
+  ],
+  "createdAt": "2026-09-02T01:21:14.216Z",
+  "updatedAt": "2026-09-02T01:21:14.216Z"
+}

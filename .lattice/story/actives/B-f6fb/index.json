@@ -1,0 +1,40 @@
+{
+  "storyId": "B-f6fb",
+  "name": "dev-memory-capture-durability-at-done",
+  "title": "Guarantee a captured dev-memory lesson survives DONE instead of being discarded with the worktree",
+  "description": "B-def6 registered .lattice/dev-memory/ in the runtime artifact registry so that dev_memory_capture no longer classifies as a blocking out-of-scope diff and no longer perturbs materialHash. That fixed the reported problem, but it also removed the pressure that previously forced the ledger to be dealt with: an uncommitted write there used to be blocking dirt, and now routes to the non-blocking runtime_artifact_changes category (packages/main/src/core/dirty-worktree.ts line 204).\n\nConsequence, raised as a MAJOR finding by an independent cross-vendor Codex reviewer during B-def6 closeout and verified against the source: dev_memory_capture only appends the file; the DONE path stages the story directory before merging and then force-removes the worktree. A story can therefore advance straight to DONE with the captured lesson still uncommitted, absent from the main merge, and deleted during worktree cleanup. The captured lesson is silently lost.\n\nCodex verbatim: \"dev_memory_capture only appends the file, while DONE stages only the story directory before merging and then force-removes the dirty worktree. A direct story_advance to DONE can therefore pass while the captured lesson remains uncommitted, is absent from the main merge, and is deleted during cleanup. The new smoke test masks this production path by manually committing the ledger before checking completion.\"\n\nThe masking point is fair and worth keeping: B-def6 asserts materialHash stability ACROSS an explicit commit of the ledger, which is the right assertion for the hash property but means no test exercises the capture-without-commit path through to DONE.\n\nCodex proposed fix: make capture durable in the canonical main ledger under the main-write lock, stage and commit the exact ledger during DONE, or keep tracked non-volatile runtime artifacts blocking until committed. Plus an end-to-end test that captures WITHOUT a manual commit, completes DONE, and verifies the entry exists on main.\n\nThis was deliberately not fixed inside B-def6: it touches DONE merge and worktree-cleanup semantics, and B-def6 execution boundary blocks the dev-memory handlers. A change to what DONE commits deserves its own review rather than riding a registry story at closeout.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "dev-memory",
+    "runtime-artifact-registry",
+    "done-merge",
+    "worktree-cleanup",
+    "durability"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-19T18:30:21.173Z",
+  "startedAt": "2026-08-19T18:30:21.173Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-19T18:30:21.715Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-def6-fix",
+      "agent": "main"
+    }
+  ]
+}

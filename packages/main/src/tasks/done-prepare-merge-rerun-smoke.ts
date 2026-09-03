@@ -151,7 +151,7 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
     materialHash,
     ...(storyFilesHash ? { storyFilesHash } : {}),
     reviewRound: NOW,
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -161,13 +161,13 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
 }
 
 function setupFixture(options: FixtureOptions = {}): Fixture {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-merge-rerun-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-prepare-merge-rerun-'));
   const config: Record<string, unknown> = {
     scanRoot: '.',
     rootDir: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
     staleThresholds: {
@@ -194,11 +194,11 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
     }];
   }
 
-  write(root, 'lattice.config.json', JSON.stringify(config, null, 2) + '\n');
+  write(root, 'proof-or-stop.config.json', JSON.stringify(config, null, 2) + '\n');
   write(root, '.gitignore', [
-    '.lattice/activity.jsonl',
-    '.lattice/learning/runtime-memory-pack-cache/',
-    '.lattice/locks/',
+    '.proof-or-stop/activity.jsonl',
+    '.proof-or-stop/learning/runtime-memory-pack-cache/',
+    '.proof-or-stop/locks/',
     '',
   ].join('\n'));
   write(root, 'README.md', '# done_prepare merge/rerun fixture\n');
@@ -289,7 +289,7 @@ async function assertUntrackedOverwriteHazard(): Promise<void> {
     write(root, MAIN_ONLY_PATH, 'local untracked work\n');
 
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
-    const storyBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const storyBefore = readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`);
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const transcript = await runDonePrepare(root, storyId, {
       mergeMain: true,
@@ -311,7 +311,7 @@ async function assertUntrackedOverwriteHazard(): Promise<void> {
       'hazard block must leave git status unchanged',
     );
     assert.deepEqual(
-      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`),
       storyBefore,
       'hazard block must leave story metadata byte-identical',
     );
@@ -344,7 +344,7 @@ async function assertDryRunNoMutation(): Promise<void> {
   const { root, storyId } = setupFixture({ validateWritesMetadata: true });
   try {
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
-    const storyBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const storyBefore = readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`);
     const transcript = await runDonePrepare(root, storyId, {
       mergeMain: false,
       refreshStale: false,
@@ -361,7 +361,7 @@ async function assertDryRunNoMutation(): Promise<void> {
       'dryRun must leave git status unchanged',
     );
     assert.deepEqual(
-      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`),
       storyBefore,
       'dryRun must leave story metadata byte-identical',
     );
@@ -375,23 +375,23 @@ async function assertModifiedTrackedPathExactness(): Promise<void> {
   try {
     // Seed tracked files: a story lifecycle metadata file (sorts before "notes/"
     // in porcelain output, so it lands on the first row) and an unrelated file.
-    write(root, `.lattice/story/actives/${storyId}/process-metrics.json`, '{"seed":true}\n');
+    write(root, `.proof-or-stop/story/actives/${storyId}/process-metrics.json`, '{"seed":true}\n');
     write(root, 'notes/keep.txt', 'original\n');
     commitAll(root, 'seed tracked lifecycle metadata and unrelated file');
 
     // Modify both: modified rows (" M path") are the case where a whole-output
-    // trim() used to eat the first row's leading char (".lattice" -> "lattice").
-    write(root, `.lattice/story/actives/${storyId}/process-metrics.json`, '{"seed":false}\n');
+    // trim() used to eat the first row's leading char (".proof-or-stop" -> "proof-or-stop").
+    write(root, `.proof-or-stop/story/actives/${storyId}/process-metrics.json`, '{"seed":false}\n');
     write(root, 'notes/keep.txt', 'edited\n');
 
     // F-002 regression: the generated-metadata core helper must also keep the
-    // first porcelain row intact (its first row here is " M .lattice/...").
+    // first porcelain row intact (its first row here is " M .proof-or-stop/...").
     const coreRows = gitStatusRowsForDonePrepareGeneratedMetadata(root);
     assert.ok(coreRows.length >= 2, `expected two dirty rows, got: ${JSON.stringify(coreRows)}`);
     assert.match(coreRows[0]!, /^ M \./, `first core status row must keep its leading status space: ${JSON.stringify(coreRows[0])}`);
     assert.equal(
       parseGitPorcelainRow(coreRows[0]!)?.path,
-      `.lattice/story/actives/${storyId}/process-metrics.json`,
+      `.proof-or-stop/story/actives/${storyId}/process-metrics.json`,
       'core helper first-row path must keep its leading dot',
     );
     const transcript = await runDonePrepare(root, storyId, {
@@ -403,7 +403,7 @@ async function assertModifiedTrackedPathExactness(): Promise<void> {
     assert.match(transcript, /^DONE prepare: BLOCKED/, transcript);
     assert.match(transcript, /^\s+- notes\/keep\.txt: unrelated dirty file$/m, transcript);
     assert.match(transcript, /files:\n  - notes\/keep\.txt/, transcript);
-    assert.doesNotMatch(transcript, /^\s*- lattice\//m, `first-row path must keep its leading dot:\n${transcript}`);
+    assert.doesNotMatch(transcript, /^\s*- proofOrStop\//m, `first-row path must keep its leading dot:\n${transcript}`);
     assert.doesNotMatch(
       transcript,
       /process-metrics\.json: unrelated dirty file/,
@@ -525,7 +525,7 @@ async function assertPlainNoHazardPass(): Promise<void> {
   const { root, storyId } = setupFixture();
   try {
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
-    const storyBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const storyBefore = readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`);
     const transcript = await runDonePrepare(root, storyId, {
       mergeMain: false,
       refreshStale: false,
@@ -547,7 +547,7 @@ async function assertPlainNoHazardPass(): Promise<void> {
       'plain no-hazard pass must leave git status unchanged',
     );
     assert.deepEqual(
-      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      readTreeSnapshot(root, `.proof-or-stop/story/actives/${storyId}`),
       storyBefore,
       'plain no-hazard pass must leave story metadata byte-identical',
     );

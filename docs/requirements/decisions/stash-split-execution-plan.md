@@ -18,7 +18,7 @@ separate future Proof-or-Stop story with its own tests and evidence.
    A normal stash diff omits them.
 6. Restore untracked files only from the captured stash object's third parent
    (`${STASH_OBJECT}^3`) and only by explicit path.
-7. Keep `.lattice/dev-memory/experience.jsonl` excluded by default by not
+7. Keep `.proof-or-stop/dev-memory/experience.jsonl` excluded by default by not
    restoring, staging, or committing it. It is local runtime data, not a normal
    source artifact.
 8. Defer the `packages/main/src/core/planner.ts` hash hunk unless a failing
@@ -41,12 +41,12 @@ Observed paths:
 
 ```text
 M  .gitignore
-A  .lattice/dev-memory/experience.jsonl
+A  .proof-or-stop/dev-memory/experience.jsonl
 M  docs/requirements/NAV.md
 M  docs/requirements/decisions/lifecycle-artifact-scope.md
 A  docs/requirements/decisions/unlock-layer4-production-safety-suite.md
 M  packages/main/src/core/dev-memory.ts
-M  packages/main/src/core/lattice-parallel-wave.ts
+M  packages/main/src/core/proof-or-stop-parallel-wave.ts
 M  packages/main/src/core/planner.ts
 M  packages/main/src/core/rollout-check.ts
 M  packages/main/src/core/runtime-artifact-registry.ts
@@ -57,7 +57,7 @@ M  packages/main/src/tasks/flow-stability-smoke.ts
 Untracked stash paths:
 
 ```text
-.lattice/dev-memory/experience.jsonl
+.proof-or-stop/dev-memory/experience.jsonl
 docs/requirements/decisions/unlock-layer4-production-safety-suite.md
 ```
 
@@ -74,22 +74,22 @@ packages/main/src/handlers/dev-memory.ts
 
 Handling:
 
-- Treat `.lattice/dev-memory/experience.jsonl` as inspection-only local runtime
+- Treat `.proof-or-stop/dev-memory/experience.jsonl` as inspection-only local runtime
   data for this bucket.
-- Do not restore, stage, or commit `.lattice/dev-memory/experience.jsonl`.
+- Do not restore, stage, or commit `.proof-or-stop/dev-memory/experience.jsonl`.
 - Do not treat the stashed `.gitignore` hunk as the mechanism for dev-memory
   exclusion. If a future story changes ignore policy, it must do so explicitly
   with its own acceptance evidence.
 - If a future story needs to inspect the data file, use:
 
 ```bash
-git show "${STASH_OBJECT}^3:.lattice/dev-memory/experience.jsonl"
+git show "${STASH_OBJECT}^3:.proof-or-stop/dev-memory/experience.jsonl"
 ```
 
 Acceptance:
 
 - Focused dev-memory tests pass.
-- `git status --porcelain` does not show `.lattice/dev-memory/experience.jsonl`
+- `git status --porcelain` does not show `.proof-or-stop/dev-memory/experience.jsonl`
   as restored, staged, or tracked.
 
 ### Bucket B: Runtime Artifact Cleanup
@@ -99,7 +99,7 @@ Scope:
 ```text
 .gitignore
 docs/requirements/decisions/lifecycle-artifact-scope.md
-packages/main/src/core/lattice-parallel-wave.ts
+packages/main/src/core/proof-or-stop-parallel-wave.ts
 packages/main/src/core/runtime-artifact-registry.ts
 ```
 

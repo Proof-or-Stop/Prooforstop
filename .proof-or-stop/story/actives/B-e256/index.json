@@ -1,0 +1,37 @@
+{
+  "storyId": "B-e256",
+  "name": "global-cli-worktree-drift",
+  "title": "Keep the global Proof-or-Stop executable working across dist rebuilds and worktrees",
+  "description": "The global proof-or-stop command is unreliable between sessions. Today (2026-09-02) proof-or-stop session_brief died with permission denied because packages/main/dist/cli.js was 0644 after the 13:29 rebuild; earlier (draft global-cli-worktree-drift) the /opt/homebrew/bin symlink resolved into the unrelated .worktrees/B-fe8f checkout. RED (repro probe rp-mtk46lj8-90q9av, red-reviewed rr-mtk4acx4-oqze5c, script red-global-cli-exec-bit.mjs): tsc emits a shebang entry as 0644, and scripts/build-main-with-binding.mjs + scripts/promote-dist.mjs never restore the executable bit on the package.json bin target after promoting dist.staging into dist, so every real re-emit breaks the global symlink that npm link chmod-ed once. GREEN candidate proven in a scratch worktree: promote-dist.mjs restoreBinExecutableBits(dist) after promotion restores a 0644 bin target to 0755 and the script exits 0. Scope: restore bin executable bits in the build pipeline (both main and utils builds), commit the red script as packages/main/tests/red/red-global-cli-exec-bit.mjs, and add a doctor/verify check that the global executable realpath points at the canonical main checkout and is executable, with the exact repoint/reinstall remediation printed.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-09-02T13:15:10.247Z",
+  "startedAt": "2026-09-02T13:15:10.247Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T13:15:10.818Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:11:13.922Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e256",
+    "branch": "story/B-e256",
+    "createdAt": "2026-09-02T15:11:08.780Z"
+  }
+}

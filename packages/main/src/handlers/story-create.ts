@@ -130,7 +130,7 @@ export function renderReproFirstStoryCreatePreflight(args: {
     events: [],
   } as StoryInfo;
   // B-956f FIX 5: the shared classifier fails CLOSED (throws MaterialCodePolicyError)
-  // on a malformed lattice.config.json or an unverifiable git snapshot. Catch it
+  // on a malformed proof-or-stop.config.json or an unverifiable git snapshot. Catch it
   // here — the SAME narrow catch as the floor/repro gate — so the raw error never
   // escapes uncaught out of story creation. Convert it to a structured message
   // naming the file + remediation (enforce → throw; warn → advisory).

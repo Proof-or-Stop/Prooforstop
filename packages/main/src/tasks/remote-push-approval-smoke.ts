@@ -28,14 +28,14 @@ function write(root: string, rel: string, content: string): void {
   writeFileSync(join(root, rel), content, 'utf8');
 }
 
-function setupRepo(prefix = 'lattice-push-approval-'): string {
+function setupRepo(prefix = 'proof-or-stop-push-approval-'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'push-approval@test']);
   git(root, ['config', 'user.name', 'Push Approval Test']);
   write(root, '.gitignore', '.lattice/tmp/\n.lattice/\n.proof-or-stop/tmp/\n.proof-or-stop/\n');
   write(root, 'README.md', '# temp\n');
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',

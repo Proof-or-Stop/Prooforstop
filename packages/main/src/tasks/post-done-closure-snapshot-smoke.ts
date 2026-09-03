@@ -51,11 +51,11 @@ function git(cwd: string, args: string[]): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       doneRequiredCommands: [
         { label: 'required pass', command: process.execPath, args: ['-e', 'process.exit(0)'] },
@@ -76,12 +76,12 @@ async function createDoneReadyFixture(): Promise<{
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements'), { recursive: true });
   writeConfig(root);
-  writeFileSync(join(root, '.gitignore'), '.lattice/\n', 'utf8');
+  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n', 'utf8');
   writeFileSync(join(root, 'README.md'), '# post done closure snapshot smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
-  git(root, ['add', '.gitignore', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', '.gitignore', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -160,7 +160,7 @@ async function createDoneReadyFixture(): Promise<{
     headHash,
     materialHash,
     reviewRound: '',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,

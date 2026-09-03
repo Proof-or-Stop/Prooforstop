@@ -1,0 +1,32 @@
+{
+  "storyId": "B-1482",
+  "checkedAt": "2026-09-02T13:39:12.405Z",
+  "reviewRound": "",
+  "agentId": "proof-or-stop-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "checklist CHK-002 context tells the implementer to consult \"checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hook's source\" -- but a repo-wide grep for receipt_selector_mismatch / selectorMatched / VerificationExecutionReceipt shows the evidence-pin seatbelt lives only in packages/main/src/handlers/checklist.ts, packages/main/src/core/types.ts, packages/main/src/core/verification.ts, and two smoke-test files under packages/main/src/tasks/; the only \"generated hook\" matches in the repo (packages/main/src/init-assets.ts:592,733) are the Claude/Codex scope-guard pretool hooks, an unrelated subsystem. The reference to \"the generated hook's source\" appears to be a copy-paste artifact and could send the implementer to the wrong file for a security-adjacent gate change."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-09-02T13:38:05.328Z",
+      "issues": []
+    },
+    {
+      "agentId": "proof-or-stop-review-story-init",
+      "checkedAt": "2026-09-02T13:39:12.405Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "checklist CHK-002 context tells the implementer to consult \"checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hook's source\" -- but a repo-wide grep for receipt_selector_mismatch / selectorMatched / VerificationExecutionReceipt shows the evidence-pin seatbelt lives only in packages/main/src/handlers/checklist.ts, packages/main/src/core/types.ts, packages/main/src/core/verification.ts, and two smoke-test files under packages/main/src/tasks/; the only \"generated hook\" matches in the repo (packages/main/src/init-assets.ts:592,733) are the Claude/Codex scope-guard pretool hooks, an unrelated subsystem. The reference to \"the generated hook's source\" appears to be a copy-paste artifact and could send the implementer to the wrong file for a security-adjacent gate change."
+        }
+      ]
+    }
+  ],
+  "_hash": "12f2916e43c5609a3513844391b8718f0fc80d813b66f588ccbfad0db8772e40"
+}

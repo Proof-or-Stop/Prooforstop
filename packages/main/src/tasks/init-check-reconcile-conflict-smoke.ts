@@ -37,7 +37,7 @@
  * the story dir (checklist.json) must be resolved the same way.
  *
  * Pattern mirrors init-check-atomicity-smoke.ts (self-contained node script,
- * mkdtemp git repo, lattice.config.json + .gitignore, StoryStore seeding).
+ * mkdtemp git repo, proof-or-stop.config.json + .gitignore, StoryStore seeding).
  */
 
 import { strict as assert } from 'node:assert';
@@ -70,18 +70,18 @@ function initRepo(prefix: string): string {
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   // Make local merges deterministic regardless of the host git config.
   git(root, ['config', 'commit.gpgsign', 'false']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    '.proof-or-stop/*',
+    '!.proof-or-stop/story/',
+    '!.proof-or-stop/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'init-check reconcile conflict smoke\n');
@@ -114,9 +114,9 @@ function story(storyId: string, phase: StoryPhase): StoryInfo {
  * conflict markers and resolves to the post-advance (main) state.
  */
 function assertReconcileNeverCommitsConflictMarkers(): void {
-  const root = initRepo('lattice-initcheck-reconcile-conflict-');
+  const root = initRepo('proof-or-stop-initcheck-reconcile-conflict-');
   const storyId = 'B-conflict';
-  const storyRel = `.lattice/story/actives/${storyId}`;
+  const storyRel = `.proof-or-stop/story/actives/${storyId}`;
   const indexRel = `${storyRel}/index.json`;
   const checklistRel = `${storyRel}/checklist.json`;
   const worktreeAbs = join(root, '.worktrees', storyId);

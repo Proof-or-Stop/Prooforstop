@@ -396,7 +396,7 @@ function gitRaw(gitCwd: string, args: string[]): string {
 export function gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd: string): string[] {
   // gitRaw, not git(): a full-output trim() strips the first porcelain row's
   // leading status space (" M path" -> "M path"), shifting the fixed-width
-  // path offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
+  // path offset and corrupting the first reported path (".proof-or-stop/x" -> "proofOrStop/x").
   const raw = gitRaw(gitCwd, ['status', '--porcelain=v1', '--untracked-files=all']);
   return raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
 }
@@ -913,7 +913,7 @@ export function commitImmutableMetadataTree(args: {
   const oldHead = oldHeadResult.output;
   const oldTree = oldTreeResult.output;
   const targetRef = targetRefResult.output;
-  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-immutable-metadata-index-'));
+  const tempDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-immutable-metadata-index-'));
   const temporaryIndexFile = join(tempDir, 'index');
   const messageFile = join(tempDir, 'COMMIT_EDITMSG');
   try {

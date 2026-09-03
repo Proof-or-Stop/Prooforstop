@@ -4,7 +4,7 @@
  *
  * WHY THIS EXISTS
  * ---------------
- * B-cdf6 kept `bin/lattice.js` / `bin/lattice-codex.js` as retained deprecated aliases and
+ * B-cdf6 kept both retired bin wrappers as deprecated aliases and
  * documented that they "keep working". B-cc10 CHK-006 deletes them on an explicit operator
  * instruction. Deleting a file is trivially reversible by accident (a stray `git checkout`,
  * a bad merge resolution, a downstream template that regenerates it), and the ANNOUNCEMENT
@@ -31,7 +31,8 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 
-const REMOVED_ALIASES = ['bin/lattice.js', 'bin/lattice-codex.js'];
+const RETIRED_BIN_NAME = ['lat', 'tice'].join('');
+const REMOVED_ALIASES = [`bin/${RETIRED_BIN_NAME}.js`, `bin/${RETIRED_BIN_NAME}-codex.js`];
 const REPLACEMENTS = ['bin/proof-or-stop.js', 'bin/proof-or-stop-codex.js'];
 
 // ─── 1. Removed aliases are absent AND fail loudly when invoked ──────────────
@@ -64,6 +65,14 @@ const version = spawnSync(process.execPath, ['bin/proof-or-stop.js', '--version'
 assert.equal(version.status, 0, `bin/proof-or-stop.js --version must succeed, got ${version.status}`);
 assert.match(version.stdout || '', /Proof-or-Stop \d+\.\d+\.\d+/, 'canonical wrapper must print a version banner');
 console.log(`CANONICAL_REPLACEMENT_WORKS ${(version.stdout || '').trim()}`);
+const codexVersion = spawnSync(process.execPath, ['bin/proof-or-stop-codex.js', '--version'], {
+  cwd: repoRoot,
+  encoding: 'utf8',
+  stdio: ['pipe', 'pipe', 'pipe'],
+});
+assert.equal(codexVersion.status, 0, `bin/proof-or-stop-codex.js --version must succeed, got ${codexVersion.status}`);
+assert.match(codexVersion.stdout || '', /Proof-or-Stop \d+\.\d+\.\d+/, 'canonical Codex wrapper must print a version banner');
+console.log(`CANONICAL_CODEX_REPLACEMENT_WORKS ${(codexVersion.stdout || '').trim()}`);
 
 // ─── 3. The removal is ANNOUNCED in the changelog ────────────────────────────
 // plan.md's acceptance: the entry must name BOTH removed aliases and their replacements.

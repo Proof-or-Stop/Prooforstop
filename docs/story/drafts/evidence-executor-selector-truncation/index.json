@@ -1,0 +1,15 @@
+{
+  "name": "evidence-executor-selector-truncation",
+  "title": "Match the proof selector against the full command output before truncating what the receipt stores",
+  "description": "packages/main/src/core/validation-executor.ts trimOutput keeps the first 12000 chars (MAX_OUTPUT_CHARS) of a pinned command output and the trimmed text is what the selector check in handlers/checklist.ts sees (executor line 1313 applies trimOutput before the receipt is built). A passing command whose selector line is printed after the first 12000 chars is refused with [receipt_selector_absent], and verification_evidence_refresh_stale demotes its earlier receipt to a non-mechanical attestation. Observed 2026-09-02 on B-41c8: single-owner-extraction-smoke passed 37/37 with a 14759-char output; the three CHK-004 selectors sat at offsets 12681 to 14450 and were refused. Fix: compute selectorMatched (and exit-derived result) over the complete output, then store a bounded outputTail plus the full-output digest on the receipt; add a RED case with a passing command printing its selector after 12000 chars of filler. Head truncation also hides the final PASS or FAIL line of any long-running suite, so tail-preserving truncation (head plus tail) is the better receipt shape.",
+  "type": "bug",
+  "priority": "high",
+  "keywords": [
+    "validation-executor",
+    "selector",
+    "truncation",
+    "receipt",
+    "MAX_OUTPUT_CHARS"
+  ],
+  "createdAt": "2026-09-02T15:43:23.385Z"
+}

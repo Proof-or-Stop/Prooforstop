@@ -1,0 +1,43 @@
+{
+  "storyId": "B-95bf",
+  "name": "gap-log-provenance-chain-unextendable",
+  "title": "Restore an extendable B-META gap-log provenance chain after the identity cutover",
+  "description": "proof-or-stop gap_log refuses every append on this repository: gap_log: existing provenance chain is not extendable (invalid_binding_shape); expected=(none) observed=(none). RED (repro probe rp-mtk465sr-hoyapk, red-reviewed rr-mtk4a7uu-t98f1q, read-only script red-gap-log-provenance-chain.mjs against the real ledger): verifyGapLogArtifactBinding returns trusted=false invalid_binding_shape for three independent reasons left by the .lattice -> .proof-or-stop cutover: (a) the receipt HMAC key at <git-common-dir>/proof-or-stop-gap-log-provenance.key does not exist (the pre-rename lattice-gap-log-provenance.key is absent too; commit 4106eb3531 renamed the path without migrating the key), so expectedReceiptHash is null and no receipt is authentic; (b) all 32 receipts carry artifactPath/ledgerPath literals under .lattice/ while the verifier requires byte-equality with the canonical constants; (c) committedArtifactDigest(receipts[0].parentHead d87f13e887) reads the canonical path in a commit where the artifact only existed under .lattice/, gets null, and demands the canonical-empty genesis digest. Because receipts are HMAC-bound over the path literals and the key is gone, the chain cannot be re-verified in place. Scope: design and implement an explicit, audited one-shot migration (re-anchor the chain with a genesis-reset record that cites the legacy ledger digest and parent head, re-key, canonicalize paths for new receipts), keep the verifier strict (no silent .lattice alias, per the proof-or-stop-residue rules), make gap_log succeed afterwards, and commit the red script as packages/main/tests/red/red-gap-log-provenance-chain.mjs.",
+  "type": "bug",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-09-02T13:15:08.839Z",
+  "startedAt": "2026-09-02T13:15:08.839Z",
+  "endedAt": "2026-09-02T15:04:16.996Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T13:15:09.451Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-09-02T15:04:16.996Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main",
+      "reason": "Duplicate of B-8d60 (Restore gap_log by re-anchoring the B-META provenance chain across the identity cutover and re-clone), created earlier today by a parallel session and already at INIT_CHECK. B-95bf's RED proof stays usable for B-8d60: repro probe rp-mtk465sr-hoyapk, review rr-mtk4a7uu-t98f1q, script and transcript in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/red-gap-log-provenance-chain.mjs (three causes: missing HMAC key after the 2026-08-30 re-clone, 32 receipts with .lattice/ path literals, artifact absent at the canonical path in receipts[0].parentHead)."
+    }
+  ]
+}

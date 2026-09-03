@@ -15,12 +15,12 @@ const EXPECTED_HOSTS = ['codex-cli', 'claude-cli'];
 const EXPECTED_ARMS = ['legacy', 'modular'];
 const EXPECTED_REPEATS = [1, 2, 3];
 const ROLE_ASSIGNMENT = Object.freeze({
-  'clean-pass-01': 'lattice-review-story-init',
-  'clean-pass-02': 'lattice-review-scope-plan',
-  'critical-01': 'lattice-implementer',
-  'critical-02': 'lattice-evaluator',
-  'closeout-01': 'lattice-review-delivery',
-  'closeout-02': 'lattice-implementer',
+  'clean-pass-01': 'proof-or-stop-review-story-init',
+  'clean-pass-02': 'proof-or-stop-review-scope-plan',
+  'critical-01': 'proof-or-stop-implementer',
+  'critical-02': 'proof-or-stop-evaluator',
+  'closeout-01': 'proof-or-stop-review-delivery',
+  'closeout-02': 'proof-or-stop-implementer',
 });
 const TOOLS = Object.freeze(['Read', 'Grep', 'Glob', 'Bash']);
 const ORDER = Object.freeze([
@@ -216,7 +216,7 @@ async function buildReport(options) {
   if (adjudication.schemaVersion !== 'proofbound.story6-independent-adjudication.v1'
       || adjudication.campaignId !== options.campaignId
       || typeof adjudication.adjudicatorId !== 'string'
-      || ['main', 'main-agent', 'lattice-implementer'].includes(adjudication.adjudicatorId.trim())
+      || ['main', 'main-agent', 'proof-or-stop-implementer'].includes(adjudication.adjudicatorId.trim())
       || typeof adjudication.method !== 'string'
       || !Array.isArray(adjudication.cells)) throw new Error('invalid independent adjudication provenance');
   assertDigest(adjudication.evidenceDigest, 'adjudication.evidenceDigest');

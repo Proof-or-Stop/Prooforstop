@@ -31,7 +31,7 @@
  *       PlaybookOutcome is false; aggregatePlaybookPromotion counts 0 helped /
  *       0 decisiveSamples for the pure exposure).
  *
- *   Fully hermetic: all fixtures live under mkdtemp; no live repo-root .lattice
+ *   Fully hermetic: all fixtures live under mkdtemp; no live repo-root .proof-or-stop
  *   state is read. This file adds NO new mechanism — it pins the existing M6 path.
  *
  * @changes
@@ -144,7 +144,7 @@ try {
   // ── HAPPY: pendingLearning surfaces the capability candidate + exposure record ─
   const root = mkdtemp('capability-candidate-exposure-');
   cleanup.push(root);
-  write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives' }));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives' }));
   writePlaybooks(root, [capabilityCandidate('candidate')]);
 
   const store = new StoryStore(root);
@@ -257,7 +257,7 @@ try {
 
     const activeRoot = mkdtemp('capability-candidate-exposure-active-');
     cleanup.push(activeRoot);
-    write(activeRoot, 'lattice.config.json', '{}');
+    write(activeRoot, 'proof-or-stop.config.json', '{}');
     writePlaybooks(activeRoot, [active]);
     const pack = buildMemoryFreshnessPack({
       projectRoot: activeRoot,

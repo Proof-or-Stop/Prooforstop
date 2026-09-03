@@ -6,7 +6,7 @@ import { loadConfig } from '../core/config.js';
 
 // scanRoot is read from environment variables or config; the CLI argument only accepts the flow name
 const config = loadConfig();
-const scanRoot = process.env.LATTICE_SCAN_ROOT || config.scanRoot;
+const scanRoot = process.env.PROOF_OR_STOP_SCAN_ROOT || config.scanRoot;
 const targetFlow = process.argv[2];
 
 const tasks = scan(scanRoot);

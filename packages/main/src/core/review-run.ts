@@ -850,15 +850,30 @@ export function verifyReviewRunPromptEnvelope(
         reason: `incremental eligibility could not be recomputed: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
+    // A reviewer-requested full run delivers the signed full Task Context, not
+    // the incremental Review Basis that was computed only as a discarded
+    // candidate. Later reviewer-lane metadata may legitimately change that
+    // candidate (for example, another lane resolves a nonblocking finding)
+    // without changing any product, requirement, scope, or prompt bytes the
+    // reviewer actually inspected. Keep the candidate fields integrity-bound
+    // inside the immutable envelope, but do not dynamically reinterpret them as
+    // current gate facts for this one full-context selection. All material and
+    // semantic facts below remain authoritatively recomputed and fail closed.
+    const reviewerRequestedFull = envelope.contextMode === 'full'
+      && envelope.selectionReason === 'REVIEWER_REQUESTED_FULL';
     const eligibilityMismatches = [
       ['impactPolicyVersion', envelope.impactPolicyVersion, incremental.impactPolicyVersion],
-      ['eligibilityDigest', envelope.eligibilityDigest, incremental.eligibilityDigest],
-      ['eligibilityReasonCodes', JSON.stringify(envelope.eligibilityReasonCodes), JSON.stringify(incremental.eligibilityReasonCodes)],
+      ...(!reviewerRequestedFull ? [
+        ['eligibilityDigest', envelope.eligibilityDigest, incremental.eligibilityDigest],
+        ['eligibilityReasonCodes', JSON.stringify(envelope.eligibilityReasonCodes), JSON.stringify(incremental.eligibilityReasonCodes)],
+      ] : []),
       ['freshnessClassification', envelope.freshnessClassification, incremental.freshnessClassification],
       ['priorPassRef', envelope.priorPassRef, incremental.priorPassRef ?? undefined],
       ['changedFilesDigest', envelope.changedFilesDigest, incremental.changedFilesDigest],
       ['impactedFilesDigest', envelope.impactedFilesDigest, incremental.impactedFilesDigest],
-      ['reviewBasisDigest', envelope.reviewBasisDigest, incremental.reviewBasisDigest ?? undefined],
+      ...(!reviewerRequestedFull ? [
+        ['reviewBasisDigest', envelope.reviewBasisDigest, incremental.reviewBasisDigest ?? undefined],
+      ] : []),
       ['taskSemanticDigest', envelope.taskSemanticDigest, incremental.taskSemanticDigest ?? undefined],
     ].filter(([, actual, expected]) => actual !== expected);
     if (eligibilityMismatches.length > 0) {

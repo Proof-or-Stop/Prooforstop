@@ -1,0 +1,43 @@
+{
+  "storyId": "B-4f25",
+  "name": "config-merge-field-integrity",
+  "title": "Catch field-level loss when a structured-config merge keeps both sides keys",
+  "description": "A merge resolution of lattice.config.json kept the story side as base for entries present on both sides, silently dropping mains B-7dff resource declarations from 92 commands - 97 of 111 declared on main became 5 of 117. No command key was lost, so key-level review passed; nothing failed, because an undeclared command safely defaults to serial; and validate-resource-claims.test.mjs still passed because its only real-config assertion is declared.length > 0. Found as B-9ff1:F-079 and deferred here rather than patched from the story that found it, since the test belongs to B-7dff.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "B-9ff1:F-079 (quality lane found and quantified it; test-coverage lane judged the coverage gap real and recommended filing rather than patching in place)",
+  "depends": [
+    "B-9ff1"
+  ],
+  "keywords": [
+    "lattice.config",
+    "merge",
+    "resources",
+    "validate-commands",
+    "coverage",
+    "b-7dff",
+    "structured-merge"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "incident"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-08-19T15:33:32.388Z",
+  "startedAt": "2026-08-19T15:33:32.388Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-19T15:33:33.152Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    }
+  ]
+}

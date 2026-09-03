@@ -92,7 +92,7 @@ All verified present in the tree:
 - `handlers/live-smoke-transcript.ts` (`--capture`, ~lines 26-28) — runs ONLY the
   explicitly given command; comment states it "never derives or appends commands".
   Reuse its discipline.
-- `core/lattice-dispatch.ts:1732-1738` — rejects non-allowlisted commands before
+- `core/proof-or-stop-dispatch.ts:1732-1738` — rejects non-allowlisted commands before
   execution. Reuse for the executor allowlist.
 - Mismatch error convention already exists: `done-required-validation.ts:701`
   (`receipt-command-mismatch: expected X, got Y`) and `core/repro-intake.ts:310-316`
@@ -123,7 +123,7 @@ message is genuinely useful — as a SEATBELT, not the enforcement floor (that i
   from output, is refused.
 - `intentRef` that does not resolve to an intent on the item is refused.
 - Both single (`verification_evidence_add`) and batch evidence paths, plus direct
-  `node bin/lattice.js` invocation, reach the same enforcement boundary.
+  `node bin/proof-or-stop.js` invocation, reach the same enforcement boundary.
 - Reviewers see real `exitCode`/`outputDigest`/`outputTail`, not prose claims.
 
 ## 6. Migration & escape semantics (do not skip)

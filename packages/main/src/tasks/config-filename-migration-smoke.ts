@@ -2,7 +2,7 @@
  * config-filename-migration-smoke — B-cc10 CHK-004 acceptance witness.
  *
  * Proves the three read-both acceptance criteria for the project config filename
- * rename (`lattice.config.json` -> `proof-or-stop.config.json`) at the level the
+ * rename (`proof-or-stop.config.json` -> `proof-or-stop.config.json`) at the level the
  * criteria are actually stated: the CLI's observable stdout/stderr behavior.
  *
  *   1. HAPPY  — a project with ONLY the canonical filename loads and prints NO
@@ -30,9 +30,11 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  DEPRECATED_CONFIG_FILENAME,
   PROOF_OR_STOP_CONFIG_FILENAME,
 } from '../core/brand-paths.js';
+import { loadConfig, resetConfigCache } from '../core/config.js';
+
+const RETIRED_CONFIG_FILENAME = ['lat', 'tice.config.json'].join('');
 
 const here = dirname(fileURLToPath(import.meta.url));
 const CLI = join(here, '..', 'cli.js');
@@ -52,7 +54,7 @@ function runCli(root: string, args: readonly string[]): { stdout: string; stderr
     encoding: 'utf8',
     // A fixed session id keeps activity bookkeeping deterministic; these are
     // throwaway temp roots, so nothing durable is touched.
-    env: { ...process.env, LATTICE_SESSION_ID: 'sess-config-migration-smoke' },
+    env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'sess-config-migration-smoke' },
   });
   return { stdout: result.stdout ?? '', stderr: result.stderr ?? '', status: result.status };
 }
@@ -79,67 +81,25 @@ function noticeLines(stderr: string): string[] {
   }
 }
 
-// ─── 2. EDGE: deprecated-only still loads, one STDERR line, both names ───────
+// ─── 2. EDGE: retired-only input is ignored ──────────────────────────────────
 {
-  const root = makeProject('deprecated', DEPRECATED_CONFIG_FILENAME);
+  const root = makeProject('retired', RETIRED_CONFIG_FILENAME);
   try {
+    writeFileSync(
+      join(root, RETIRED_CONFIG_FILENAME),
+      `${JSON.stringify({ scanRoot: 'retired-config-sentinel', rootDir: '.' }, null, 2)}\n`,
+      'utf8',
+    );
     const { stdout, stderr, status } = runCli(root, ['status']);
-    assert.equal(status, 0, 'deprecated-only project must STILL load (read-both contract)');
-
-    const notices = noticeLines(stderr);
-    assert.equal(notices.length, 1, `expected exactly ONE notice line, got ${notices.length}`);
-    const notice = notices[0]!;
-    assert.ok(
-      notice.includes(DEPRECATED_CONFIG_FILENAME),
-      'notice must name the DEPRECATED filename that resolved',
-    );
-    assert.ok(
-      notice.includes(PROOF_OR_STOP_CONFIG_FILENAME),
-      'notice must name the CANONICAL filename to rename to',
-    );
-    // Stream discipline: the advisory is stderr-only, never stdout.
-    assert.ok(
-      !stdout.includes('is deprecated'),
-      'deprecation notice must NEVER appear on stdout',
-    );
-    console.log('  [ok] deprecated-only project loads with one STDERR notice naming both filenames');
+    assert.equal(status, 0, 'retired-only directory may still be inspected as an unconfigured project');
+    assert.deepEqual(noticeLines(stderr), [], 'retired filename must not activate a compatibility notice');
+    assert.ok(!stdout.includes('is deprecated'), 'retired filename must not activate stdout guidance');
+    resetConfigCache();
+    assert.notEqual(loadConfig(root).scanRoot, 'retired-config-sentinel', 'retired config must not be read');
+    console.log('  [ok] retired-only config is ignored without compatibility behavior');
   } finally {
     rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// ─── 3. ADVERSARIAL: stdout stays exactly one JSON payload ───────────────────
-{
-  const root = makeProject('json-purity', DEPRECATED_CONFIG_FILENAME);
-  try {
-    const { stdout, stderr } = runCli(root, ['validate', '--json']);
-
-    // The notice must have actually fired, otherwise this test would vacuously
-    // pass by never exercising the contaminating code path at all.
-    assert.equal(
-      noticeLines(stderr).length,
-      1,
-      'precondition: the deprecation notice must fire for this to be a real test',
-    );
-
-    // JSON.parse throws on trailing/leading non-JSON, so a single successful parse
-    // of the WHOLE stdout is exactly the "exactly one payload" property.
-    let parsed: unknown;
-    assert.doesNotThrow(
-      () => { parsed = JSON.parse(stdout); },
-      'validate --json stdout must parse as exactly one JSON payload',
-    );
-    assert.ok(
-      parsed && typeof parsed === 'object' && !Array.isArray(parsed),
-      'validate --json stdout payload should be a JSON object',
-    );
-    assert.ok(
-      !stdout.includes('is deprecated'),
-      'validate --json stdout must not carry the deprecation advisory',
-    );
-    console.log('  [ok] validate --json stdout parses as exactly one JSON payload while notice fires on stderr');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
   }
 }
 

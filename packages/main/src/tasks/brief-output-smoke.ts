@@ -9,7 +9,7 @@
  *   (a) brief defaults for milestone_status / finding_list / help / story_list /
  *       bug_list stay under their byte budgets and are smaller than --full;
  *   (b) --full restores the complete output (spot markers);
- *   (c) LATTICE_BRIEF_OUTPUT=0 restores full on bare invocation, and a per-call
+ *   (c) PROOF_OR_STOP_BRIEF_OUTPUT=0 restores full on bare invocation, and a per-call
  *       --brief still wins over the env hatch;
  *   (d) explicit --json field sets are identical with the brief env on/off
  *       (JSON opt-in bypasses brief — frozen machine shape);
@@ -54,7 +54,7 @@ function git(cwd: string, args: string[]): void {
 function runCli(root: string, args: string[], env: Record<string, string> = {}): string {
   return execFileSync(process.execPath, [cliBin, '--root', root, ...args], {
     cwd: root,
-    env: { ...process.env, LATTICE_NO_HOOKS: '1', ...env },
+    env: { ...process.env, PROOF_OR_STOP_NO_HOOKS: '1', ...env },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -109,7 +109,7 @@ function makeFinding(
     evidenceState: overrides.evidenceState,
     ...(overrides.uncertaintyReason ? { uncertaintyReason: overrides.uncertaintyReason } : {}),
     ...(overrides.resolvedBy ? { resolvedBy: overrides.resolvedBy } : {}),
-    agent: 'lattice-review-quality',
+    agent: 'proof-or-stop-review-quality',
     createdAt: REVIEW_ROUND,
     reviewRound: REVIEW_ROUND,
     reviewRunId: 'RR-001',
@@ -117,15 +117,15 @@ function makeFinding(
   };
 }
 
-const temp = mkdtempSync(join(tmpdir(), 'lattice-brief-output-'));
+const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-brief-output-'));
 try {
-  writeJson(join(temp, 'lattice.config.json'), {
+  writeJson(join(temp, 'proof-or-stop.config.json'), {
     scanRoot: '.',
     rootDir: 'src',
     outDir: 'dist',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   });
@@ -137,7 +137,7 @@ try {
   git(temp, ['commit', '-m', 'init']);
 
   const storyId = 'B-brief';
-  const activesDir = join(temp, '.lattice', 'story', 'actives');
+  const activesDir = join(temp, '.proof-or-stop', 'story', 'actives');
   const storyDir = join(activesDir, storyId);
   mkdirSync(storyDir, { recursive: true });
   writeJson(join(storyDir, 'index.json'), makeStory(storyId, 'DEV'));
@@ -249,13 +249,13 @@ try {
   assert.match(msFull, /\| Milestone \| Purpose \| Status: \|/, 'milestone_status --full restores the table');
   assert.ok(bytes(msBrief) < bytes(msFull), 'milestone brief is smaller than full');
   // (c) env hatch + per-call override
-  const msEnvFull = runCli(temp, ['milestone_status', `--storyId=${storyId}`], { LATTICE_BRIEF_OUTPUT: '0' });
-  assert.match(msEnvFull, /\| Milestone \| Purpose \|/, 'LATTICE_BRIEF_OUTPUT=0 restores the full table on bare invocation');
-  const msEnvBrief = runCli(temp, ['milestone_status', `--storyId=${storyId}`, '--brief'], { LATTICE_BRIEF_OUTPUT: '0' });
-  assert.match(msEnvBrief, /Milestone Status - B-brief \(brief\)/, 'per-call --brief wins over LATTICE_BRIEF_OUTPUT=0');
+  const msEnvFull = runCli(temp, ['milestone_status', `--storyId=${storyId}`], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
+  assert.match(msEnvFull, /\| Milestone \| Purpose \|/, 'PROOF_OR_STOP_BRIEF_OUTPUT=0 restores the full table on bare invocation');
+  const msEnvBrief = runCli(temp, ['milestone_status', `--storyId=${storyId}`, '--brief'], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
+  assert.match(msEnvBrief, /Milestone Status - B-brief \(brief\)/, 'per-call --brief wins over PROOF_OR_STOP_BRIEF_OUTPUT=0');
   // only the literal "0" disables brief
-  const msEnvNonZero = runCli(temp, ['milestone_status', `--storyId=${storyId}`], { LATTICE_BRIEF_OUTPUT: 'false' });
-  assert.match(msEnvNonZero, /Milestone Status - B-brief \(brief\)/, 'non-"0" LATTICE_BRIEF_OUTPUT keeps brief');
+  const msEnvNonZero = runCli(temp, ['milestone_status', `--storyId=${storyId}`], { PROOF_OR_STOP_BRIEF_OUTPUT: 'false' });
+  assert.match(msEnvNonZero, /Milestone Status - B-brief \(brief\)/, 'non-"0" PROOF_OR_STOP_BRIEF_OUTPUT keeps brief');
   // scaling boundary (CHK-001 edge:1 / F-003): >20 milestones, every id visible in brief
   const msScaleBrief = runCli(temp, ['milestone_status', `--storyId=${scaleStoryId}`]);
   assert.match(msScaleBrief, new RegExp(`\\(${SCALE_MILESTONE_COUNT} total\\)`), 'scaling brief counts all milestones');
@@ -288,7 +288,7 @@ try {
   assert.ok(bytes(flBriefText) < bytes(flFullText), 'finding_list brief is smaller than full');
   // (d) explicit --json field set identical with the brief env on/off
   const flJsonEnvUnset = runJson<Record<string, unknown> & { findings: Array<Record<string, unknown>> }>(temp, ['finding_list', `--storyId=${storyId}`, '--json']);
-  const flJsonEnvZero = runJson<Record<string, unknown> & { findings: Array<Record<string, unknown>> }>(temp, ['finding_list', `--storyId=${storyId}`, '--json'], { LATTICE_BRIEF_OUTPUT: '0' });
+  const flJsonEnvZero = runJson<Record<string, unknown> & { findings: Array<Record<string, unknown>> }>(temp, ['finding_list', `--storyId=${storyId}`, '--json'], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
   assert.deepEqual(Object.keys(flJsonEnvUnset).sort(), Object.keys(flJsonEnvZero).sort(), 'finding_list --json top-level keys identical regardless of brief env');
   assert.deepEqual(Object.keys(flJsonEnvUnset.findings[0]).sort(), Object.keys(flJsonEnvZero.findings[0]).sort(), 'finding_list --json finding field set identical regardless of brief env');
   assert.equal((flJsonEnvUnset as { _brief?: boolean })._brief, undefined, 'explicit --json is not the brief shape');
@@ -299,7 +299,7 @@ try {
   // ─────────────────────────────────────────────────────────────────────────
   const helpBrief = runCli(temp, ['help']);
   const helpFull = runCli(temp, ['help', '--full']);
-  // B-cdf6 CHK-005: LATTICE_PRODUCT_NAME is now 'Proof-or-Stop' (approved RENAMED row in
+  // B-cdf6 CHK-005: PROOF_OR_STOP_PRODUCT_NAME is now 'Proof-or-Stop' (approved RENAMED row in
   // docs/requirements/decisions/brand-rename-mapping.md; `Proof-or-Stop` is a legacy spelling on the
   // normalize list). Same repin CHK-002 applied to command-catalog-smoke. The banner is still
   // asserted, so help losing its product name still fails.
@@ -315,7 +315,7 @@ try {
   // and the live registry is >100 commands, covering the scaling boundary.
   // Full-catalog rows are `    name<2+ spaces>description`; brief rows are
   // `    name` alone. Anchoring both patterns keeps footer prose (e.g.
-  // "lattice <command> --help") out of the name sets.
+  // "proofOrStop <command> --help") out of the name sets.
   const fullNames = new Set(
     helpFull
       .split('\n')
@@ -339,9 +339,9 @@ try {
   // ─────────────────────────────────────────────────────────────────────────
   const cgBare = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true']);
   const cgBriefFlag = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true', '--brief']);
-  const cgEnvOn = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true'], { LATTICE_BRIEF_OUTPUT: '1' });
+  const cgEnvOn = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true'], { PROOF_OR_STOP_BRIEF_OUTPUT: '1' });
   assert.equal(cgBriefFlag, cgBare, 'checklist_get ignores --brief (no behavior change)');
-  assert.equal(cgEnvOn, cgBare, 'checklist_get ignores LATTICE_BRIEF_OUTPUT (no behavior change)');
+  assert.equal(cgEnvOn, cgBare, 'checklist_get ignores PROOF_OR_STOP_BRIEF_OUTPUT (no behavior change)');
 
   // ─────────────────────────────────────────────────────────────────────────
   // story_list
@@ -363,7 +363,7 @@ try {
   assert.ok(bytes(JSON.stringify(slBrief)) < 20000, 'story_list brief under budget');
   // (d) --json field parity with brief env on/off
   const slJsonUnset = runJson<Record<string, unknown>>(temp, ['story_list', '--json']);
-  const slJsonZero = runJson<Record<string, unknown>>(temp, ['story_list', '--json'], { LATTICE_BRIEF_OUTPUT: '0' });
+  const slJsonZero = runJson<Record<string, unknown>>(temp, ['story_list', '--json'], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
   assert.deepEqual(Object.keys(slJsonUnset).sort(), Object.keys(slJsonZero).sort(), 'story_list --json keys identical regardless of brief env');
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -412,13 +412,13 @@ try {
   assert.match(srFullText, /Please review the PLAN-phase artifacts/, 'story_review --full restores the full _reviewPrompt body');
   assert.ok(bytes(srBriefText) < bytes(srFullText), 'story_review brief is smaller than full');
 
-  const srEnvFullText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`], { LATTICE_BRIEF_OUTPUT: '0' });
-  assert.match(srEnvFullText, /Please review the PLAN-phase artifacts/, 'LATTICE_BRIEF_OUTPUT=0 restores full story_review on bare invocation');
-  const srEnvBriefText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`, '--brief'], { LATTICE_BRIEF_OUTPUT: '0' });
-  assert.doesNotMatch(srEnvBriefText, /Please review the PLAN-phase artifacts/, 'per-call --brief wins over LATTICE_BRIEF_OUTPUT=0 for story_review');
+  const srEnvFullText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
+  assert.match(srEnvFullText, /Please review the PLAN-phase artifacts/, 'PROOF_OR_STOP_BRIEF_OUTPUT=0 restores full story_review on bare invocation');
+  const srEnvBriefText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`, '--brief'], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
+  assert.doesNotMatch(srEnvBriefText, /Please review the PLAN-phase artifacts/, 'per-call --brief wins over PROOF_OR_STOP_BRIEF_OUTPUT=0 for story_review');
 
   const srJsonUnset = runJson<Record<string, unknown>>(temp, ['story_review', `--storyId=${reviewStoryId}`, '--json']);
-  const srJsonZero = runJson<Record<string, unknown>>(temp, ['story_review', `--storyId=${reviewStoryId}`, '--json'], { LATTICE_BRIEF_OUTPUT: '0' });
+  const srJsonZero = runJson<Record<string, unknown>>(temp, ['story_review', `--storyId=${reviewStoryId}`, '--json'], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
   assert.deepEqual(Object.keys(srJsonUnset).sort(), Object.keys(srJsonZero).sort(), 'story_review --json keys identical regardless of brief env');
   assert.equal(srJsonUnset._brief, undefined, 'story_review --json is not the brief shape');
   assert.match(String(srJsonUnset._reviewPrompt), /Please review the PLAN-phase artifacts/, 'story_review --json keeps the full _reviewPrompt (frozen shape)');
@@ -431,7 +431,7 @@ try {
   // machine and minute; with it enabled the byte-budget assertion below tests
   // the reviewer's session history instead of the brief projection (B-fa65
   // F-004). Disable it via its documented env switch for deterministic output.
-  const docEnv = { LATTICE_BURN_ALERT_RECENT_HOURS: '0' };
+  const docEnv = { PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS: '0' };
   const docBrief = runCli(temp, ['doctor'], docEnv);
   const docFull = runCli(temp, ['doctor', '--full'], docEnv);
   assert.match(docBrief, /→ Brief view\. Full diagnostics: proof-or-stop doctor --full/, 'doctor brief carries the --full hint');
@@ -449,13 +449,13 @@ try {
   }
   assert.ok(bytes(docBrief) < 20000, `doctor brief under budget, got ${bytes(docBrief)}`);
 
-  const docEnvFull = runCli(temp, ['doctor'], { ...docEnv, LATTICE_BRIEF_OUTPUT: '0' });
-  assert.match(docEnvFull, /fallback command discovery is advisory/, 'LATTICE_BRIEF_OUTPUT=0 restores full doctor on bare invocation');
-  const docEnvBrief = runCli(temp, ['doctor', '--brief'], { ...docEnv, LATTICE_BRIEF_OUTPUT: '0' });
-  assert.match(docEnvBrief, /→ Brief view\./, 'per-call --brief wins over LATTICE_BRIEF_OUTPUT=0 for doctor');
+  const docEnvFull = runCli(temp, ['doctor'], { ...docEnv, PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
+  assert.match(docEnvFull, /fallback command discovery is advisory/, 'PROOF_OR_STOP_BRIEF_OUTPUT=0 restores full doctor on bare invocation');
+  const docEnvBrief = runCli(temp, ['doctor', '--brief'], { ...docEnv, PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
+  assert.match(docEnvBrief, /→ Brief view\./, 'per-call --brief wins over PROOF_OR_STOP_BRIEF_OUTPUT=0 for doctor');
 
   const docJsonUnset = runJson<Record<string, unknown>>(temp, ['doctor', '--format=json']);
-  const docJsonZero = runJson<Record<string, unknown>>(temp, ['doctor', '--format=json'], { LATTICE_BRIEF_OUTPUT: '0' });
+  const docJsonZero = runJson<Record<string, unknown>>(temp, ['doctor', '--format=json'], { PROOF_OR_STOP_BRIEF_OUTPUT: '0' });
   assert.deepEqual(Object.keys(docJsonUnset).sort(), Object.keys(docJsonZero).sort(), 'doctor --format=json keys identical regardless of brief env');
   assert.ok(docJsonUnset.runtimeMode && docJsonUnset.partialDone, 'doctor --format=json keeps the full machine shape');
 

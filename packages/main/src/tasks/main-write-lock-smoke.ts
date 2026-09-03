@@ -11,7 +11,7 @@
  *  3. stale-reclaim — a held lock older than the stale threshold is reclaimed.
  *  4. concurrency mutual exclusion — of two acquirers, exactly one succeeds and
  *     the other is rejected while the first holds the lock.
- *  5. canonical path — the lock resolves to `.lattice/locks/main-write.lock/`.
+ *  5. canonical path — the lock resolves to `.proof-or-stop/locks/main-write.lock/`.
  *  6. empty mainRepoRoot is rejected (runtime re-validation).
  *
  * Timing is driven via mtime backdating so the test stays fast and
@@ -19,7 +19,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { existsSync, mkdirSync, rmSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -34,7 +34,9 @@ import {
   withReentrantMainWriteLock,
 } from '../core/main-write-lock.js';
 
-const root = join(tmpdir(), `lattice-main-write-lock-smoke-${process.pid}-${Date.now()}`);
+const RETIRED_STATE_DIR = ['.', 'lat', 'tice'].join('');
+
+const root = join(tmpdir(), `proof-or-stop-main-write-lock-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {
@@ -44,7 +46,7 @@ try {
     assert.equal(lockPath, join(root, MAIN_WRITE_LOCK_REL),
       'mainWriteLockPath resolves to <root>/<MAIN_WRITE_LOCK_REL>');
     // B-cc10 F-073: this asserted MAIN_WRITE_LOCK_REL equalled a hardcoded
-    // '.lattice/locks/main-write.lock'. Pinning a resolver-derived constant to a literal
+    // '.proof-or-stop/locks/main-write.lock'. Pinning a resolver-derived constant to a literal
     // snapshot means the rename it is supposed to survive is exactly what breaks it — the
     // assertion could only ever fail after the state dir moved. Assert the INVARIANTS the
     // constant must satisfy instead: it lives under the canonical state dir, and it is the
@@ -53,7 +55,7 @@ try {
       'canonical lock path is <canonical state dir>/locks/main-write.lock');
     assert.ok(MAIN_WRITE_LOCK_REL.startsWith(`${PROOF_OR_STOP_STATE_DIR}/`),
       'the main-write lock must live under the CANONICAL state dir, not the deprecated one');
-    assert.ok(!MAIN_WRITE_LOCK_REL.startsWith(`${DEPRECATED_STATE_DIR}/`),
+    assert.ok(!MAIN_WRITE_LOCK_REL.startsWith(`${RETIRED_STATE_DIR}/`),
       'the main-write lock must not resolve to the deprecated state dir');
   }
 

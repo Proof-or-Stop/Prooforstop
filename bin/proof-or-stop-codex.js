@@ -2,29 +2,21 @@
 /**
  * Canonical local Codex entrypoint (B-cdf6).
  *
- * B-cc10 CHK-006 REMOVED the deprecated `bin/lattice-codex.js` alias that used to
+ * B-cc10 CHK-006 REMOVED the deprecated `bin/proof-or-stop-codex.js` alias that used to
  * delegate here. This is the sole local Codex entrypoint; there is no old name to
  * fall back to, so an invocation of the removed alias now fails loudly rather than
  * silently resolving. See CHANGELOG.md for the announcement and replacements.
  */
-// B-cdf6 (concept round-2 sweep): this committed wrapper previously wrote ONLY the
-// deprecated LATTICE_* spellings, while the wrapper `init` GENERATES into new projects
-// dual-writes both. That asymmetry happened to work only because every reader currently
-// falls back via readBrandEnv - i.e. it depended on no reader ever going canonical-only,
-// which is exactly the fragile assumption F-020 caught breaking. These helpers mirror the
-// generated wrapper's contract: write BOTH spellings, read canonical-first BY PRESENCE.
+// Canonical-only environment helpers. The clean break deliberately carries no
+// retired environment alias or fallback.
 function setEnv(suffix, value) {
   process.env['PROOF_OR_STOP_' + suffix] = value;
-  process.env['LATTICE_' + suffix] = value;
 }
 function readEnv(suffix) {
-  const canonical = process.env['PROOF_OR_STOP_' + suffix];
-  if (canonical !== undefined) return canonical;
-  return process.env['LATTICE_' + suffix];
+  return process.env['PROOF_OR_STOP_' + suffix];
 }
 function deleteEnv(suffix) {
   delete process.env['PROOF_OR_STOP_' + suffix];
-  delete process.env['LATTICE_' + suffix];
 }
 
 setEnv('ACTIVITY_SOURCE', 'codex');
@@ -45,7 +37,7 @@ setEnv('OWNER_SESSION_ADAPTER_AGENT',
 deleteEnv('ACTIVITY_SESSION');
 
 /**
- * Sibling bootstrap wrapper. B-cc10 CHK-006 removed the deprecated `lattice.js`
+ * Sibling bootstrap wrapper. B-cc10 CHK-006 removed the deprecated `proofOrStop.js`
  * fallback: it named a file this repository no longer ships, so keeping it in the
  * search list could only mask a genuinely broken checkout behind a stale name.
  */

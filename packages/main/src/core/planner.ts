@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryInfo, StoryType, VerificationIntent } from './types.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { STATE_DIR_NAMES } from './brand-paths.js';
 
 /**
@@ -167,7 +167,7 @@ export interface PlannerReviewResult {
 
 export interface PlannedStep {
   stepId: string;
-  type: 'lattice.command' | 'provider.fake' | 'provider.codex' | 'provider.claude' | 'validate.run' | 'codex.verify' | 'gate.evaluate' | 'story.advance' | 'stop.summary';
+  type: 'proofOrStop.command' | 'provider.fake' | 'provider.codex' | 'provider.claude' | 'validate.run' | 'codex.verify' | 'gate.evaluate' | 'story.advance' | 'stop.summary';
   title: string;
   purpose: string;
   cwdPolicy: 'story-worktree' | 'project-root' | 'read-only';
@@ -193,7 +193,7 @@ function isPlaceholderText(value: string): boolean {
 
 export const PlannedStepSchema = z.object({
   stepId: z.string().min(1),
-  type: z.enum(['lattice.command', 'provider.fake', 'provider.codex', 'provider.claude', 'validate.run', 'codex.verify', 'gate.evaluate', 'story.advance', 'stop.summary']),
+  type: z.enum(['proofOrStop.command', 'provider.fake', 'provider.codex', 'provider.claude', 'validate.run', 'codex.verify', 'gate.evaluate', 'story.advance', 'stop.summary']),
   title: z.string().min(1),
   purpose: z.string().min(1),
   cwdPolicy: z.enum(['story-worktree', 'project-root', 'read-only']),
@@ -302,7 +302,7 @@ export interface PlannerProviderPolicyInput {
 }
 
 export interface JobWorktreePolicy {
-  resolver: 'lattice.story.resolve';
+  resolver: 'proofOrStop.story.resolve';
   requiresAuthoritativeWorktree: boolean;
   allowWorktreeRepair: boolean;
   allowedPathRoots: string[];
@@ -543,7 +543,7 @@ function textDigest(text: string): string {
 
 function slug(text: string): string {
   const ascii = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  return (ascii || 'lattice-planner-run').slice(0, 52);
+  return (ascii || 'proof-or-stop-planner-run').slice(0, 52);
 }
 
 function normalizeInteractionMode(value: unknown): PlannerInteractionMode {
@@ -942,7 +942,7 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
   const base: PlannedStep[] = [
     {
       stepId: 'step-001-story-resolve',
-      type: 'lattice.command',
+      type: 'proofOrStop.command',
       title: 'Resolve Story context',
       purpose: 'Load Story, checklist, related docs, and current lifecycle state.',
       cwdPolicy: 'story-worktree',
@@ -956,7 +956,7 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
     },
     {
       stepId: 'step-002-context-read',
-      type: 'lattice.command',
+      type: 'proofOrStop.command',
       title: 'Read context',
       purpose: 'Read auxiliary docs and verification intent before provider execution.',
       cwdPolicy: 'read-only',
@@ -986,7 +986,7 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
     ].entries()) {
       base.push({
         stepId: `step-redev-${String(index + 1).padStart(2, '0')}`,
-        type: 'lattice.command',
+        type: 'proofOrStop.command',
         title: operation,
         purpose: `Run source-aligned redevelopment operation ${operation}.`,
         cwdPolicy: 'story-worktree',
@@ -1078,7 +1078,7 @@ function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]):
     // can never disagree about which provider is allowed to run.
     providerPolicy: { ...draft.providerPolicy },
     worktreePolicy: {
-      resolver: 'lattice.story.resolve',
+      resolver: 'proofOrStop.story.resolve',
       requiresAuthoritativeWorktree: false,
       allowWorktreeRepair: false,
       allowedPathRoots: [],
@@ -1155,7 +1155,7 @@ export function assertJobPolicyConsistency(plan: JobPlan): JobPlan {
     fail('fake provider cannot be a production-DONE provider unless allowFakeProviderForProductionDone is true');
   }
 
-  if (wt.resolver !== 'lattice.story.resolve') fail('worktreePolicy.resolver must be lattice.story.resolve');
+  if (wt.resolver !== 'proofOrStop.story.resolve') fail('worktreePolicy.resolver must be proofOrStop.story.resolve');
   if (wt.preserveUnrelatedDirtyChanges !== true) fail('worktreePolicy.preserveUnrelatedDirtyChanges must remain true');
   if (wt.requireGitStatusEvidence !== true) fail('worktreePolicy.requireGitStatusEvidence must remain true');
 

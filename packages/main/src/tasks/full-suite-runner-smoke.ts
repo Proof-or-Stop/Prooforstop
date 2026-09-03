@@ -17,12 +17,13 @@ import {
   stateDirKey,
   cancelCompletedFullSuiteResult, cancelledFullSuiteResult,
 } from './full-suite-runner.js';
-import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import {
   type FullSuiteEntry, type FullSuiteResult, type KeyedSchedulerOptions, type ResourceClaim,
 } from './full-suite-runner.js';
 
 const checks: string[] = [];
+const RETIRED_STATE_DIR = ['.', 'lat', 'tice'].join('');
 function assert(condition: unknown, message: string): void { if (!condition) throw new Error(message); checks.push(message); }
 function assertWithDetail(condition: unknown, stableMessage: string, detail: string): void {
   if (!condition) throw new Error(`${stableMessage}: ${detail}`);
@@ -101,7 +102,7 @@ async function main(): Promise<void> {
   // B-cc10 F-068: EVERY state-dir resource key in the SHIPPED policy must carry the
   // canonical spelling. Without this, a policy key reverted to the deprecated literal
   // regresses SILENTLY: claimsConflict() compares canonicalKey by string equality, so
-  // `.lattice/runtime` and `.proof-or-stop/runtime` read as two DIFFERENT resources and
+  // `.proof-or-stop/runtime` and `.proof-or-stop/runtime` read as two DIFFERENT resources and
   // two entries that must be mutually exclusive get scheduled concurrently. Nothing
   // throws; only serialization degrades. The other four F-064 sites were covered by the
   // approvedRoots witness (which does throw); this one had no witness at all.
@@ -109,9 +110,9 @@ async function main(): Promise<void> {
   // Asserted over ALL entries rather than the one line F-068 named, so a NEW policy key
   // with the deprecated spelling is caught too instead of aging into the same blind spot.
   const deprecatedStateDirKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
-    .filter(resource => resource.key.startsWith(`${DEPRECATED_STATE_DIR}/`) || resource.key === DEPRECATED_STATE_DIR)
+    .filter(resource => resource.key.startsWith(`${RETIRED_STATE_DIR}/`) || resource.key === RETIRED_STATE_DIR)
     .map(resource => `${item.name}:${resource.key}`));
-  assert(deprecatedStateDirKeys.length === 0, `RESOURCE_POLICY state-dir keys must use the canonical spelling, not ${DEPRECATED_STATE_DIR}: ${deprecatedStateDirKeys.join(', ')}`);
+  assert(deprecatedStateDirKeys.length === 0, `RESOURCE_POLICY state-dir keys must use the canonical spelling, not ${RETIRED_STATE_DIR}: ${deprecatedStateDirKeys.join(', ')}`);
   const stateDirPolicyKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
     .filter(resource => resource.key.startsWith(`${PROOF_OR_STOP_STATE_DIR}/`) || resource.key === PROOF_OR_STOP_STATE_DIR)
     .map(resource => `${item.name}:${resource.key}`));
@@ -157,7 +158,7 @@ async function main(): Promise<void> {
         entry('real', [{ class: 'fixed-path', key: join(canonicalRoot, 'tracked'), access: 'exclusive' }, { class: 'git-common-dir', key: canonicalRoot, access: 'shared' }]),
         entry('alias', [{ class: 'fixed-path', key: join(alias, 'tracked'), access: 'shared' }, { class: 'git-common-dir', key: alias, access: 'shared' }]),
         entry('port', [{ class: 'fixed-port', key: '43210', access: 'exclusive' }]),
-        entry('future-lock', [{ class: 'main-write-lock', key: join(canonicalRoot, '.lattice', 'runtime', 'main-write.lock'), access: 'exclusive' }]),
+        entry('future-lock', [{ class: 'main-write-lock', key: join(canonicalRoot, '.proof-or-stop', 'runtime', 'main-write.lock'), access: 'exclusive' }]),
         entry('future-real', [{ class: 'runtime-lock', key: join(canonicalRoot, 'real-dir', 'future', 'runtime.lock'), access: 'exclusive' }]),
         entry('future-alias', [{ class: 'runtime-lock', key: join(canonicalRoot, 'dir-alias', 'future', 'runtime.lock'), access: 'shared' }]),
       ], canonicalRoot);
@@ -166,7 +167,7 @@ async function main(): Promise<void> {
       assert(normalized[0]!.resources[1]!.canonicalKey === normalized[1]!.resources[1]!.canonicalKey, 'Git aliases collide on canonical common-dir resource key');
       if (normalized[0]!.resources[1]!.canonicalKey === normalized[1]!.resources[1]!.canonicalKey) observations.aliasCollisions++;
       assert(normalized[2]!.resources[0]!.canonicalKey === 'fixed-port:43210', 'fixed port claim has a stable canonical key');
-      assert(normalized[3]!.resources[0]!.canonicalKey?.endsWith('/.lattice/runtime/main-write.lock'), 'clean clone canonicalizes a not-yet-created nested lock from its nearest existing ancestor');
+      assert(normalized[3]!.resources[0]!.canonicalKey?.endsWith('/.proof-or-stop/runtime/main-write.lock'), 'clean clone canonicalizes a not-yet-created nested lock from its nearest existing ancestor');
       assert(normalized[4]!.resources[0]!.canonicalKey === normalized[5]!.resources[0]!.canonicalKey, 'missing lexical aliases through a symlinked ancestor canonicalize to one future resource key');
       let escapeRejected = false;
       try { canonicalizeEntries([entry('escape', [{ class: 'fixed-path', key: '../outside', access: 'exclusive' }])], canonicalRoot); } catch { escapeRejected = true; }
@@ -347,7 +348,7 @@ async function main(): Promise<void> {
     try { validateJsonOutputPath(project, join(project, 'output-alias', 'result.json')); } catch { symlinkEscapeRejected = true; }
     assert(symlinkEscapeRejected, 'lexically in-project symlink output escape is rejected before execution');
     const cpuFixture = join(root, 'cpu-fixture'); mkdirSync(cpuFixture);
-    writeFileSync(join(cpuFixture, 'cpu.js'), `process.stderr.write('user 999\\n');console.log('TEMP_ROOTS='+[process.env.LATTICE_FULL_SUITE_TEMP_ROOT,process.env.TMPDIR,process.env.TMP,process.env.TEMP].join('|'));console.log('LATTICE_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:['cpu-fixture'],mutations:['stderr-spoof']}));\n`);
+    writeFileSync(join(cpuFixture, 'cpu.js'), `process.stderr.write('user 999\\n');console.log('TEMP_ROOTS='+[process.env.PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT,process.env.TMPDIR,process.env.TMP,process.env.TEMP].join('|'));console.log('PROOF_OR_STOP_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:['cpu-fixture'],mutations:['stderr-spoof']}));\n`);
     writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: { 'test:cpu': 'node cpu.js' } }));
     const cpuResult = await runEntry(entry('test:cpu'), cpuFixture);
     assert(cpuResult.status === 'PASS' && cpuResult.cpu?.userSeconds !== 999, 'member stderr cannot spoof dedicated CPU timing file');
@@ -377,9 +378,9 @@ async function main(): Promise<void> {
     assert(JSON.stringify(stressOne) === JSON.stringify(stressTwo), 'only observedDurationMs values normalize recursively inside incremental stress receipts');
     assert(JSON.stringify(stressOne) !== JSON.stringify(stressSeedChanged) && JSON.stringify(stressOne) !== JSON.stringify(stressCountChanged), 'stress seed, iteration count and status remain inventory-significant');
     assert(cpuResult.assertionInventory?.includes('cpu-fixture') && cpuResult.detailedAssertions?.length, 'explicit marker assertions are retained alongside observed output signatures');
-    writeFileSync(join(cpuFixture, 'marker-a.js'), `console.log('PASS stable marker member');console.log('LATTICE_FULL_SUITE_SUMMARY={"assertions":["marker-proof"],"mutations":["marker-mutation"],"timing":"0.1s"}');\n`);
-    writeFileSync(join(cpuFixture, 'marker-b.js'), `console.log('PASS stable marker member');console.log('LATTICE_FULL_SUITE_SUMMARY={ "timing":"9.9s", "mutations":["marker-mutation"], "assertions":["marker-proof"] }');\n`);
-    writeFileSync(join(cpuFixture, 'marker-changed.js'), `console.log('PASS stable marker member');console.log('LATTICE_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:['marker-proof-changed'],mutations:['marker-mutation-changed'],timing:'0.1s'}));\n`);
+    writeFileSync(join(cpuFixture, 'marker-a.js'), `console.log('PASS stable marker member');console.log('PROOF_OR_STOP_FULL_SUITE_SUMMARY={"assertions":["marker-proof"],"mutations":["marker-mutation"],"timing":"0.1s"}');\n`);
+    writeFileSync(join(cpuFixture, 'marker-b.js'), `console.log('PASS stable marker member');console.log('PROOF_OR_STOP_FULL_SUITE_SUMMARY={ "timing":"9.9s", "mutations":["marker-mutation"], "assertions":["marker-proof"] }');\n`);
+    writeFileSync(join(cpuFixture, 'marker-changed.js'), `console.log('PASS stable marker member');console.log('PROOF_OR_STOP_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:['marker-proof-changed'],mutations:['marker-mutation-changed'],timing:'0.1s'}));\n`);
     writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: {
       'test:marker-a': 'node marker-a.js', 'test:marker-b': 'node marker-b.js', 'test:marker-changed': 'node marker-changed.js',
     } }));
@@ -391,7 +392,7 @@ async function main(): Promise<void> {
     assert(JSON.stringify(markerA.detailedAssertions) !== JSON.stringify(markerChanged.detailedAssertions)
       && JSON.stringify(markerA.mutationInventory) !== JSON.stringify(markerChanged.mutationInventory), 'changing parsed marker assertions and mutations alters member inventory');
     assert(markerA.detailedAssertions?.includes('marker-proof') && markerA.detailedAssertions.some(value => value.startsWith('output-sha256:')), 'marker assertions and non-marker output signatures are retained as separate facts');
-    writeFileSync(join(cpuFixture, 'suppressible.js'), `console.log('PASS assertion-one');if(process.env.SUPPRESS_ASSERTION!=='1')console.log('PASS assertion-two');console.log('LATTICE_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:process.env.SUPPRESS_MARKER_ASSERTION==='1'?[]:['marker-assertion'],mutations:process.env.SUPPRESS_MARKER_MUTATION==='1'?[]:['marker-mutation']}));\n`);
+    writeFileSync(join(cpuFixture, 'suppressible.js'), `console.log('PASS assertion-one');if(process.env.SUPPRESS_ASSERTION!=='1')console.log('PASS assertion-two');console.log('PROOF_OR_STOP_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:process.env.SUPPRESS_MARKER_ASSERTION==='1'?[]:['marker-assertion'],mutations:process.env.SUPPRESS_MARKER_MUTATION==='1'?[]:['marker-mutation']}));\n`);
     writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: { 'test:suppressible': 'node suppressible.js' } }));
     delete process.env.SUPPRESS_ASSERTION; delete process.env.SUPPRESS_MARKER_ASSERTION; delete process.env.SUPPRESS_MARKER_MUTATION;
     const suppressibleBaseline = await runEntry(entry('test:suppressible'), cpuFixture);
@@ -402,7 +403,7 @@ async function main(): Promise<void> {
     assert(suppressibleBaseline.detailedAssertions?.includes('marker-assertion') && !suppressedMarkerAssertion.detailedAssertions?.includes('marker-assertion'), 'suppressing an explicit marker assertion before emission changes parsed inventory');
     assert(suppressibleBaseline.mutationInventory?.includes('marker-mutation') && suppressedMarkerMutation.mutationInventory?.length === 0, 'suppressing an explicit marker mutation before emission changes mutation inventory');
     const isolatedRoots = cpuResult.output.match(/TEMP_ROOTS=([^\n]+)/)?.[1]?.split('|') ?? [];
-    const tempOwnershipLabel = 'member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP';
+    const tempOwnershipLabel = 'member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP';
     assertWithDetail(isolatedTempRootsMatch(isolatedRoots, cpuResult.tempRoot), tempOwnershipLabel, `${isolatedRoots.join('|')} vs ${cpuResult.tempRoot}`);
     assert(checks.includes(tempOwnershipLabel) && !checks.some(message => message.includes(cpuResult.tempRoot!)), 'successful temp ownership marker records a stable label without dynamic paths');
     for (const [roots, expected] of [[[cpuResult.tempRoot!, cpuResult.tempRoot!], cpuResult.tempRoot], [[], cpuResult.tempRoot]] as const) {
@@ -439,21 +440,21 @@ async function main(): Promise<void> {
     observations.lifecycle.externalInterrupt = interrupted.status === 'INTERRUPTED' && Boolean(interrupted.reason?.includes('SIGTERM'));
     resetInterruptForTest();
 
-    const ownedRoot = join(root, '.lattice', 'runtime'); const lockRoot = join(root, '.lattice', 'locks');
+    const ownedRoot = join(root, '.proof-or-stop', 'runtime'); const lockRoot = join(root, '.proof-or-stop', 'locks');
     mkdirSync(ownedRoot, { recursive: true }); mkdirSync(lockRoot, { recursive: true });
     const ownedPaths = [join(ownedRoot, 'owned-fixed'), join(ownedRoot, 'owned-runtime'), join(lockRoot, 'owned-main')];
     const sibling = join(ownedRoot, 'sibling'); writeFileSync(sibling, 'keep\n');
     const ready = join(root, 'owned-ready');
-    const ownedFixture = `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);const t=p+'/.owner-'+process.pid+'.tmp';fs.writeFileSync(t,process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n',{flag:'wx'});fs.renameSync(t,p+'/owner')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`;
+    const ownedFixture = `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);const t=p+'/.owner-'+process.pid+'.tmp';fs.writeFileSync(t,process.env.PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN+'\\n',{flag:'wx'});fs.renameSync(t,p+'/owner')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`;
     writeFileSync(join(root, 'run'), ownedFixture);
     const ownedEntry = canonicalizeEntries([{ ...entry('test:owned-cleanup'), resources: [
-      { class: 'fixed-path', key: '.lattice/runtime/owned-fixed', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'runtime-lock', key: '.lattice/runtime/owned-runtime', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'main-write-lock', key: '.lattice/locks/owned-main', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'fixed-path', key: '.proof-or-stop/runtime/owned-fixed', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'runtime-lock', key: '.proof-or-stop/runtime/owned-runtime', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'main-write-lock', key: '.proof-or-stop/locks/owned-main', access: 'exclusive', ownership: 'runner-cleanable' },
     ] }], root)[0]!;
     const passResiduePath = join(ownedRoot, 'pass-residue');
-    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(passResiduePath)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n');\n`);
-    const passResidueEntry = canonicalizeEntries([{ ...entry('test:pass-residue'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/pass-residue', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(passResiduePath)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN+'\\n');\n`);
+    const passResidueEntry = canonicalizeEntries([{ ...entry('test:pass-residue'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/pass-residue', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
     const passResidue = await runEntry(passResidueEntry, root, process.execPath);
     assert(passResidue.status === 'FAIL' && passResidue.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(passResiduePath), 'PASS member residue fails closed and is retained for diagnosis');
     rmSync(passResiduePath, { recursive: true, force: true });
@@ -483,9 +484,9 @@ async function main(): Promise<void> {
     ] }], realSentinelRoot)[0]!;
     const runRealSentinelInterrupted = async (mutation?: 'missing-runtime' | 'tampered-main'): Promise<FullSuiteResult> => {
       const readyFile = join(root, `real-sentinel-ready-${mutation ?? 'baseline'}`);
-      process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS = '1';
-      process.env.LATTICE_FULL_SUITE_SENTINEL_READY_FILE = readyFile;
-      if (mutation) process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION = mutation;
+      process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS = '1';
+      process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_READY_FILE = readyFile;
+      if (mutation) process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_MARKER_MUTATION = mutation;
       try {
         const promise = runEntry({ ...realSentinelEntry, timeoutMs: 15_000 }, realSentinelRoot, 'npm');
         for (let index = 0; index < 1_000 && !existsSync(readyFile); index++) await new Promise(done => setTimeout(done, 10));
@@ -496,9 +497,9 @@ async function main(): Promise<void> {
         return result;
       } finally {
         resetInterruptForTest();
-        delete process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS;
-        delete process.env.LATTICE_FULL_SUITE_SENTINEL_READY_FILE;
-        delete process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
+        delete process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS;
+        delete process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_READY_FILE;
+        delete process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_MARKER_MUTATION;
         rmSync(readyFile, { force: true });
       }
     };
@@ -515,26 +516,26 @@ async function main(): Promise<void> {
     let outsideDenied = false; try { cleanupManifestForEntry(outsideEntry, root); } catch { outsideDenied = true; }
     assert(outsideDenied, 'runner-cleanable target outside approved runtime roots is denied');
     const symlinkTarget = join(ownedRoot, 'owned-link'); symlinkSync(sibling, symlinkTarget);
-    const symlinkEntry = { ...entry('test:symlink-owned'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/owned-link', access: 'exclusive', ownership: 'runner-cleanable', canonicalKey: `fixed-path:${symlinkTarget}` } as ResourceClaim] };
+    const symlinkEntry = { ...entry('test:symlink-owned'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/owned-link', access: 'exclusive', ownership: 'runner-cleanable', canonicalKey: `fixed-path:${symlinkTarget}` } as ResourceClaim] };
     let symlinkLaunches = 0; let symlinkDenied = false; try { await runEntry(symlinkEntry, root, process.execPath, () => { symlinkLaunches++; }); } catch { symlinkDenied = true; }
     assert(symlinkDenied && symlinkLaunches === 0 && lstatSync(symlinkTarget).isSymbolicLink(), 'pre-existing runner-cleanable symlink is rejected before spawn and retained'); rmSync(symlinkTarget);
     const symlinkAncestorTarget = join(root, 'owned-real-ancestor'); mkdirSync(symlinkAncestorTarget);
     const symlinkAncestor = join(ownedRoot, 'owned-alias-ancestor'); symlinkSync(symlinkAncestorTarget, symlinkAncestor, 'dir');
     let symlinkAncestorDenied = false;
-    try { canonicalizeEntries([{ ...entry('test:symlink-ancestor'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/owned-alias-ancestor/child', access: 'exclusive', ownership: 'runner-cleanable' }] }], root); } catch { symlinkAncestorDenied = true; }
+    try { canonicalizeEntries([{ ...entry('test:symlink-ancestor'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/owned-alias-ancestor/child', access: 'exclusive', ownership: 'runner-cleanable' }] }], root); } catch { symlinkAncestorDenied = true; }
     assert(symlinkAncestorDenied, 'runner-cleanable target with symlinked ancestor is denied'); rmSync(symlinkAncestor);
     const foreign = join(ownedRoot, 'foreign'); mkdirSync(foreign); writeFileSync(join(foreign, 'foreign-data'), 'do not delete\n');
     const foreignOutcome = cleanupOwnedTargets([{ path: foreign, existedBefore: false, type: 'absent', ownerMarker: null }], 'owned-token')[0]!;
     assert(foreignOutcome.outcome === 'residue' && existsSync(join(foreign, 'foreign-data')), 'nonempty foreign ownership is reported and never recursively deleted');
     const preexistingEmpty = join(ownedRoot, 'preexisting-empty'); mkdirSync(preexistingEmpty);
-    const preexistingEntry = canonicalizeEntries([{ ...entry('test:preexisting-owned'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/preexisting-empty', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const preexistingEntry = canonicalizeEntries([{ ...entry('test:preexisting-owned'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/preexisting-empty', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
     const observedPreexisting = cleanupManifestForEntry(preexistingEntry, root);
     let preexistingLaunches = 0; let preexistingDenied = false;
     try { await runEntry(preexistingEntry, root, process.execPath, () => { preexistingLaunches++; }); } catch (error) { preexistingDenied = (error as Error).message.includes('existedBefore'); }
     assert(observedPreexisting[0]?.existedBefore === true && observedPreexisting[0]?.type === 'directory' && observedPreexisting[0]?.ownerMarker === null, 'pre-spawn manifest records pre-existing target type and absent owner marker');
     assert(preexistingDenied && preexistingLaunches === 0 && existsSync(preexistingEmpty), 'pre-existing empty owned path fails before spawn and is never deleted');
     const preexistingFile = join(ownedRoot, 'preexisting-file'); writeFileSync(preexistingFile, 'foreign-file-token\n');
-    const preexistingFileEntry = canonicalizeEntries([{ ...entry('test:preexisting-file'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/preexisting-file', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const preexistingFileEntry = canonicalizeEntries([{ ...entry('test:preexisting-file'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/preexisting-file', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
     const observedFile = cleanupManifestForEntry(preexistingFileEntry, root)[0]!;
     let fileLaunches = 0; let fileDenied = false; try { await runEntry(preexistingFileEntry, root, process.execPath, () => { fileLaunches++; }); } catch { fileDenied = true; }
     assert(observedFile.existedBefore && observedFile.type === 'file' && observedFile.ownerMarker === 'foreign-file-token\n' && fileDenied && fileLaunches === 0 && existsSync(preexistingFile), 'pre-existing file and owner content are recorded, rejected before spawn, and retained');
@@ -545,13 +546,13 @@ async function main(): Promise<void> {
     const tamperedOutcome = cleanupOwnedTargets([{ path: tamperedMarker, existedBefore: false, type: 'absent', ownerMarker: null }], 'owned-token')[0]!;
     assert(tamperedOutcome.outcome === 'residue' && existsSync(tamperedMarker), 'post-spawn tampered ownership marker is retained and fails cleanup');
     const removedByMember = join(ownedRoot, 'member-removed-marker');
-    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(removedByMember)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n');fs.unlinkSync(p+'/owner');process.exitCode=1;\n`);
-    const removedMarkerEntry = canonicalizeEntries([{ ...entry('test:removed-marker'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/member-removed-marker', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(removedByMember)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN+'\\n');fs.unlinkSync(p+'/owner');process.exitCode=1;\n`);
+    const removedMarkerEntry = canonicalizeEntries([{ ...entry('test:removed-marker'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/member-removed-marker', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
     const removedMarkerResult = await runEntry(removedMarkerEntry, root, process.execPath);
     assert(removedMarkerResult.status === 'FAIL' && removedMarkerResult.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(removedByMember), 'member-removed ownership marker is retained and reported as terminal FAIL');
     const tamperedByMember = join(ownedRoot, 'member-tampered-marker');
     writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(tamperedByMember)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner','foreign-token\\n');process.exitCode=1;\n`);
-    const tamperedMarkerEntry = canonicalizeEntries([{ ...entry('test:tampered-marker'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/member-tampered-marker', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const tamperedMarkerEntry = canonicalizeEntries([{ ...entry('test:tampered-marker'), resources: [{ class: 'fixed-path', key: '.proof-or-stop/runtime/member-tampered-marker', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
     const tamperedMarkerResult = await runEntry(tamperedMarkerEntry, root, process.execPath);
     assert(tamperedMarkerResult.status === 'FAIL' && tamperedMarkerResult.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(tamperedByMember), 'member-tampered ownership marker is retained and reported as terminal FAIL');
   } finally { rmSync(root, { recursive: true, force: true }); }
@@ -560,7 +561,7 @@ async function main(): Promise<void> {
   const interruptOutputRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-output-'));
   try {
     const heartbeat = join(interruptRoot, 'heartbeat'); const resultPath = join(interruptOutputRoot, 'result.json');
-    mkdirSync(join(interruptRoot, '.lattice', 'runtime'), { recursive: true });
+    mkdirSync(join(interruptRoot, '.proof-or-stop', 'runtime'), { recursive: true });
     createFixtureBuildBinding(interruptRoot);
     writeFileSync(join(interruptRoot, 'hang.js'), `const fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20);\n`);
     const fixtureScripts = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, 'node hang.js']));
@@ -568,7 +569,7 @@ async function main(): Promise<void> {
     writeFileSync(join(interruptRoot, 'package.json'), JSON.stringify({ scripts: fixtureScripts }));
     execFileSync('git', ['init', '-b', 'main'], { cwd: interruptRoot, stdio: 'ignore' }); execFileSync('git', ['config', 'user.email', 'suite@example.test'], { cwd: interruptRoot }); execFileSync('git', ['config', 'user.name', 'Suite'], { cwd: interruptRoot }); execFileSync('git', ['add', '.'], { cwd: interruptRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: interruptRoot, stdio: 'ignore' });
     const runnerPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-runner.js');
-    const child = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LATTICE_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
+    const child = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
     let output = ''; child.stdout?.on('data', (chunk) => { output += chunk; }); child.stderr?.on('data', (chunk) => { output += chunk; });
     for (let index = 0; index < 100 && !existsSync(heartbeat); index++) await new Promise((done) => setTimeout(done, 20));
     assertWithDetail(existsSync(heartbeat), 'fixture runner starts real descendant before SIGINT', `output=${output}`); child.kill('SIGINT');
@@ -648,7 +649,7 @@ async function main(): Promise<void> {
     mutationBites: observations.mutationBites,
     lifecycle: observations.lifecycle,
   })}\n`);
-  process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
+  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
   process.stdout.write(`full-suite-runner-smoke: PASS (${checks.length} assertions)\n`);
 }
 

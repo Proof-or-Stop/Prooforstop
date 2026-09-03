@@ -66,7 +66,7 @@ Canonical artifact kinds used by Evidence Runtime are hyphenated:
 - `story-evidence-binding`
 
 CLI command names stay underscore-style, while artifact kinds stay canonicalized.
-Storage for pre-story artifacts follows `.lattice/evidence/`.
+Storage for pre-story artifacts follows `.proof-or-stop/evidence/`.
 
 ### Canonical red/green binding
 

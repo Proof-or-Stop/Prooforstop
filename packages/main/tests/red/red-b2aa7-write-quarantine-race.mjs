@@ -191,7 +191,7 @@ function runQuarantine(injectAt) {
 
     let error = null;
     try {
-      quarantine({ storyId, recordId: redAssert.id, reason: 'write-boundary race repro', agent: 'lattice-implementer' });
+      quarantine({ storyId, recordId: redAssert.id, reason: 'write-boundary race repro', agent: 'proof-or-stop-implementer' });
     } catch (e) {
       error = e?.message ?? String(e);
     }

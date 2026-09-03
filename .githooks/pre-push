@@ -69,7 +69,7 @@ const [root, remoteName, localSha, remoteRef] = process.argv.slice(1);
 // approval or keep requiring the deprecated path forever.
 const approvalCandidates = [
   path.join(root, ".proof-or-stop", "tmp", "remote-push-approval.json"),
-  path.join(root, ".lattice", "tmp", "remote-push-approval.json"),
+  path.join(root, ".proof-or-stop", "tmp", "remote-push-approval.json"),
 ];
 const approvalPath = approvalCandidates.find((candidate) => fs.existsSync(candidate)) || approvalCandidates[0];
 function reject(message) {
@@ -159,13 +159,13 @@ fi
 PKG_NAME="$(node -e "try{process.stdout.write(String(JSON.parse(require('fs').readFileSync(process.argv[1],'utf-8')).name||''))}catch(e){process.stdout.write('')}" "$MAIN_PKG" 2>/dev/null)"
 # Self-host detection accepts EVERY package name this repo may publish under.
 #
-# B-cdf6: the brand rename left the npm name `@lattice/core` in place on purpose (nothing
+# B-cdf6: the brand rename left the npm name `@proof-or-stop/core` in place on purpose (nothing
 # imports it from source; renaming it would only risk this comparison). But the failure mode
 # here is silent — a mismatch `exit 0`s, DISARMING the recursive tsc gate with no signal at
 # all rather than failing loudly. So the comparison is widened to a name SET now, before any
 # future rename, so that renaming the package can never quietly turn the gate off.
 case "$PKG_NAME" in
-  '@lattice/core'|'@proof-or-stop/core')
+  '@proof-or-stop/core'|'@proof-or-stop/core')
     ;;
   *)
     # packages/main 不是本仓自身：立即放行

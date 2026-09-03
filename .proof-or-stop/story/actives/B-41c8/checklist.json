@@ -1,0 +1,615 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the rename-aware diff reader parse NUL-delimited output and fail loudly on unparseable rows",
+      "context": "core/evidence-freshness.ts changedFilesBetween / changedFilesBetweenRenameAware / changedFileStatusesBetweenRenameAware. RED fixtures: a rename of a path with a space, a non-ASCII path, and a path containing a quote character, each asserting BOTH sides survive; an unparseable row raises instead of being skipped. Keep the throw on an unresolvable ref and document it as the contract; audit callers for any catch-and-return-empty.",
+      "status": "done",
+      "startTime": "2026-09-02T13:48:22.936Z",
+      "endTime": "2026-09-02T13:58:16.124Z",
+      "relatedDocs": [
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "Running `node packages/main/dist/tasks/single-owner-extraction-smoke.js` prints one line per reader case and ends `single-owner-extraction-smoke: PASS`. In a fixture repository where a file whose name contains a non-ASCII character is renamed, the reader reports both the old and the new path; a deliberately corrupted diff row makes the reader raise an error naming the row instead of returning a shorter list.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A rename of a path containing a space, a non-ASCII character, or a quote character yields both the old and the new path from changedFileStatusesBetweenRenameAware and changedFilesBetweenRenameAware.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] rename of a path with a quote reports both sides through both reader functions"
+            }
+          },
+          {
+            "desc": "materialHash and storyFilesHash computed with the new reader are byte-identical to the old reader over a fixture repository containing no quoted paths.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A deleted path remains reported, and a copy reports both sides, under NUL-delimited parsing.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] a copy record (C100) reports both sides through all three readers"
+            }
+          },
+          {
+            "desc": "An unresolvable ref still throws, and a fixture asserts that no caller in packages/main/src catches that throw and returns an empty array.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An unparseable diff row raises an error naming the row rather than being skipped; a fixture that injects a malformed row asserts the raise.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "2244c3e63b7a55603bcc8b7529a0dce216d9397312c22f401b7f4af1f4efc1b4",
+        "storyFilesHash": "1720671a78e11774123a5e3574d8c425654a2559968b2f94796fd19e46dd25c8",
+        "headHash": "bb1814bec32b788063dc26acdc7d51dad77384b4",
+        "attestedAt": "2026-09-02T13:58:16.306Z",
+        "materialHash": "8a59cc6c5114f04ade31c6962d98cbd3c218a9d13484e985630d5ae54a9899a1"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Smoke cases for space, non-ASCII and quote renames each assert both sides come back from changedFilesBetweenRenameAware and changedFileStatusesBetweenRenameAware; the quote case selector is the strictest of the three printed lines.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:38:23.453Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "ee389f6441ee7cef812a300be3d8a85436038808",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:38:53.937Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "The smoke computes both hashes over a plain-path fixture repository with the new reader and with a local tab-parser reference and asserts equality.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:38:31.088Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "ee389f6441ee7cef812a300be3d8a85436038808",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:38:53.937Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Deleted-path and copy cases are separate smoke lines; the copy line is the selector, the deleted-path line precedes it in the same run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:38:38.450Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "ee389f6441ee7cef812a300be3d8a85436038808",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:38:53.937Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Unresolvable ref still throws (own smoke line) and the structural case greps packages/main/src for catch-and-return-empty around the three readers.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:38:46.028Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "ee389f6441ee7cef812a300be3d8a85436038808",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:38:53.937Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "A PATH-stubbed git emits a malformed NUL record; all three readers throw with the raw fields in the message.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:38:53.811Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "ee389f6441ee7cef812a300be3d8a85436038808",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:38:53.937Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Delegate the DONE-required command parser to the canonical legacy parser and prove all call sites agree",
+      "context": "core/done-required-validation.ts private SHELL_META_RE / splitShellWords / commandFromString around lines 40, 113, 276 versus parseLegacyValidationCommandString in core/validation-command-identity.ts. RED fixture: a shared set of tricky inputs (metacharacters, quoted arguments, embedded spaces) parsed through every call site must agree on shell-versus-argv; any intentional divergence becomes an explicit, named, tested difference.",
+      "status": "done",
+      "startTime": "2026-09-02T14:03:19.525Z",
+      "endTime": "2026-09-02T14:07:08.152Z",
+      "relatedDocs": [
+        "CLAUDE.md#handler-encoding-conventions"
+      ],
+      "userSees": "The smoke prints one line per parser case and ends `single-owner-extraction-smoke: PASS`; `grep -n splitShellWords packages/main/src/core/done-required-validation.ts` prints nothing, and a DONE-required command containing a quoted argument with an embedded space executes exactly as it did before the change.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done-required-validation.ts delegates its command-string parse to parseLegacyValidationCommandString and no private SHELL_META_RE, splitShellWords or commandFromString remains in it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A committed corpus of tricky inputs (metacharacters, quoted arguments, embedded spaces, empty string) produces identical shell-versus-argv results through every call site.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the DONE-required path needs any divergence from the routine parse, it is an explicit named function with its own fixture; a fixture asserts no unnamed divergence exists by diffing outputs over the corpus.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "39b6780f88858c442fbdff27633bd1f15a666639ab3fa7f2d56b7d2616eb6161",
+        "storyFilesHash": "6859dc78fd4d73948a631394c12d16f345b46faff44d1dd626a7afc617508a92",
+        "headHash": "ce0ea8a3df9cb95b8cdcf737723e8f12de408e2a",
+        "attestedAt": "2026-09-02T14:07:08.339Z",
+        "materialHash": "90d623c78680fb19f4155096eec26da7cbf3af64f9f6049577e3df4e47336bb4"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Structural case reads done-required-validation.ts and fails while SHELL_META_RE, splitShellWords or commandFromString exist or the canonical import is missing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:03.477Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3680c009436602c8e4a5b06f4f8fdc8277ff93f9",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:19.511Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "A committed 24-entry corpus (metacharacters, quoted args with spaces, escaped quotes, empty, whitespace, tabs, unterminated quote, trailing backslash) pins an expected tuple per entry.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:11.599Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3680c009436602c8e4a5b06f4f8fdc8277ff93f9",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:19.511Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Both production entry points are driven through a temp proof-or-stop.config.json; the one representational difference (argv branch omits the shell key) is a named wrapper pinned by the separate shape case.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:19.381Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3680c009436602c8e4a5b06f4f8fdc8277ff93f9",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:19.511Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extract one story-workspace resolver with the phase-terminal guard and migrate the four existing resolver implementations onto it",
+      "context": "story-query.ts readStoryProjection, session.ts listActiveWorktrees and readStoryFromLinkedWorktree, local-assurance-story-projection.ts collectLinkedStoryWorktrees, validation-plan.ts resolveStoryWorkspace. The helper returns gitCwd via resolveGitCwd, a workspace-rooted StoryStore and workspace-loaded config, and applies the phase-terminal guard (`phase !== 'DONE' && phase !== 'DISCARDED'`). RED fixture per migrated site: invoke from a different cwd and assert identical output, modelled on B-a745's F-010 main-checkout and wrapper-root cases; plus a DONE-story case asserting the guard refuses a merged-and-removed worktree.",
+      "status": "done",
+      "startTime": "2026-09-02T14:22:54.048Z",
+      "endTime": "2026-09-02T14:31:19.946Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "The smoke prints one line per resolver case and ends `single-owner-extraction-smoke: PASS`. `node packages/main/dist/cli.js validation_plan --storyId=<active story> --tier=fast --json` run from the story worktree and from the main checkout prints the same selectionDigest, and run against a DONE story it reports the story as not resolvable from a linked worktree rather than reading a removed worktree.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-workspace.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "One helper in core/story-workspace.ts returns gitCwd via resolveGitCwd, a workspace-rooted StoryStore and workspace-loaded config, and the four named implementations call it instead of their own logic.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The phase-terminal guard is an explicit option whose default matches each migrated caller's prior behaviour, and a fixture per migrated caller asserts DONE-story reads behave exactly as before.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off"
+            }
+          },
+          {
+            "desc": "For each migrated caller, invoking from the story worktree and from the main checkout yields identical output, and a configured wrapper-root layout resolves the story worktree.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The helper derives the state directory from core/brand-paths.ts; a fixture greps the helper for the retired literal state-dir spelling and asserts zero hits.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "01d4e757bf528c72b3cf9d7d5df64c7fcdd894e548081a916c35cdf8d8360ed5",
+        "storyFilesHash": "8f883880f3172f34748750767ac054e67e0cac5b50fb786db56368862af88d00",
+        "headHash": "909b373d48af99032a273b23800eef0d529a639c",
+        "attestedAt": "2026-09-02T14:31:20.144Z",
+        "materialHash": "4350c6a171b0fcd537df4e388cf4e3782db7d780664b0c9d06b04e07734664bc"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "core/story-workspace.ts exports resolveStoryWorkspace returning gitCwd (via resolveGitCwd), a workspace-rooted store, workspace config and source; the structural case reads the four files and asserts delegation plus removal of their own logic; the helper cases assert linked-worktree and invocation-root resolution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:28.222Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "8a677dd230341f90a3918377d1b31de1ed61b931",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:51.240Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "terminalPhaseGuard is an explicit option; per-caller cases (validation_plan, story_list, session_brief, local assurance) assert DONE-story reads are unchanged from pre-CHK-003 behaviour.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:35.961Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "8a677dd230341f90a3918377d1b31de1ed61b931",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:51.240Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "story_list, session_brief and local-assurance cases assert the same from both roots; the wrapper-root case resolves the story worktree with gitRoot configured below the invocation root.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:43.541Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "8a677dd230341f90a3918377d1b31de1ed61b931",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:51.240Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "Paths derive transitively through StoryStore.storyDirPath -> proof-or-stop-paths -> brand-paths; the case asserts neither the retired nor the canonical literal appears in the helper.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:39:51.114Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "8a677dd230341f90a3918377d1b31de1ed61b931",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:39:51.240Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a mechanical audit fixture that enumerates every resolveGitCwd call site in handlers and classifies each as workspace-rooted or ctx.root-reading",
+      "context": "Match call expressions (resolveGitCwd({...})), not substrings -- a file-level grep on main returns thirty-one files including a comment-only mention in validate-channel.ts, which receives gitCwd threaded from review-preflight.ts as deps.gitCwd. For each real call site, classify whether the same handler reads the story index, checklist or validate.commands through ctx.store/ctx.root rather than the resolved workspace, and print the classified list. The fixture is registered in the canonical inventories and its output becomes the scope of the follow-up draft migrate-resolvegitcwd-callers-to-workspace; this story does NOT migrate the flagged callers beyond the four resolver implementations in the previous item. RED: the fixture must initially report a non-empty flagged list.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-09-02T14:46:47.347Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "userSees": "`npm run test:single-owner-extraction` ends `single-owner-extraction-smoke: PASS` and prints a block headed `resolveGitCwd call sites` listing every handler file with a real call and, for each, `workspace-rooted` or `reads ctx.root: <which of story|checklist|config>`; validate-channel.ts appears under `comment-only mentions`. The suite name is present in test:serial-reference, RESOURCE_POLICY and validate.commands.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The audit lists every handler with a real resolveGitCwd call expression and classifies each as workspace-rooted or ctx.root-reading, printing the classified list.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:single-owner-extraction",
+              "selector": "[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "validate-channel.ts is classified as a comment-only mention and review-preflight.ts as a real caller; a temporary fixture file with an aliased import is detected as a caller.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+              "selector": "[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The suite is registered in test:serial-reference, RESOURCE_POLICY and validate.commands, verified by a fixture reading the real files, and the audit initially reports a non-empty flagged list (RED) that the story does not attempt to empty.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:single-owner-extraction",
+              "selector": "[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "160f62ab2b773fca6b1417b368d76867dfa71cb2e9c268ffbe97efafaa5979f5",
+        "storyFilesHash": "f520c53bcbf768cfcedebf67008b447569321dd0955d3c0e6e349396b15048c5",
+        "headHash": "b11dd0fb02a623197d56a044212b024e01cf2802",
+        "attestedAt": "2026-09-02T14:46:47.550Z",
+        "materialHash": "c31ee3d8a4ed8d88f7a3f76018f0dd7727d1c93db45da966d1603554423f42e2"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "npm run test:single-owner-extraction",
+          "result": "pass",
+          "note": "The registered suite prints the classified caller block (28 real callers, 26 flagged as reading ctx.root, 4 comment-only mentions) from a masked call-expression scan of packages/main/src/handlers.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e5e3186a35c11bce7560dd904889f57450221d47da53843d533a7677021fb8d4",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:40:00.723Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "813f4b0c1eacf9e56aecf53b2a53d95eea2a43e0",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:40:18.476Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
+          "result": "pass",
+          "note": "The preceding edge case asserts validate-channel.ts is comment-only and review-preflight.ts a real caller with exact call lines; this case covers the aliased import in a runner-owned temp dir.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1aa02819050a934636bd31cdee5e64dd030fcf38a6396d705a219421c7e43e56",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:40:09.316Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "813f4b0c1eacf9e56aecf53b2a53d95eea2a43e0",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:40:18.476Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "command": "npm run test:single-owner-extraction",
+          "result": "pass",
+          "note": "Registration verified against the real files; the flagged list is asserted non-empty (26) and printed, and this story does not attempt to empty it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e5e3186a35c11bce7560dd904889f57450221d47da53843d533a7677021fb8d4",
+            "outputTail": "ecklist\n    story-create.ts              L558                reads ctx.root: story, config, via-handler(nextStoryId)\n    story-review.ts              L148                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, safeReadScopeContract)\n    transition-effects.ts        L174                reads ctx.root: story, checklist, config\n    transition-orchestrator.ts   L1061,L1199,L1325,L1469  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)\n    verifier.ts                  L476,L490,L536,L960,L1213,L1243,L1478  reads ctx.root: story, checklist, config, via-handler(currentCertificationIdentity, sessionHandlers.session_brief)\n  comment-only mentions (4):\n    done-effects.ts              L89, L93\n    validate-channel.ts          L417\n    validate-concept.ts          L1014\n    validation-plan.ts           L693\n  flagged callers (reads ctx.root): 28 of 28\n[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed\n[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions\n[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines\n[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up\n[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads\n[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)\n[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it\n[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets\n[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function\nflagged callers: 28\n[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed\n[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands\ndefault stdout projection: 10609 chars (bound 11000; audit block 4303 chars)\n[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars\n40/40 cases passed\nsingle-owner-extraction-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T03:40:18.342Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "813f4b0c1eacf9e56aecf53b2a53d95eea2a43e0",
+          "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+          "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+          "timestamp": "2026-09-03T03:40:18.476Z"
+        }
+      ]
+    }
+  ]
+}

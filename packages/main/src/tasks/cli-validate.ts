@@ -4,7 +4,7 @@ import { join } from 'path';
 import { validate } from './validate.js';
 import { loadConfig } from '../core/config.js';
 
-const rootDir = process.env.LATTICE_PROJECT_ROOT || process.cwd();
+const rootDir = process.env.PROOF_OR_STOP_PROJECT_ROOT || process.cwd();
 const scanRoot = join(rootDir, loadConfig(rootDir).scanRoot);
 
 const result = validate(scanRoot);

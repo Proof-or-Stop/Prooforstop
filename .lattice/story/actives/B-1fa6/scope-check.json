@@ -1,0 +1,232 @@
+{
+  "storyId": "B-1fa6",
+  "checkedAt": "2026-08-30T22:40:53.596Z",
+  "features": [
+    {
+      "feature": "Produce one canonical English Markdown execution plan at docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/plan.md"
+    },
+    {
+      "feature": "Enumerate exactly seven historical Finding failure classes and, for each, state the observed failure, why the current model permits it, and named retrievable evidence.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Derive point-in-time corpus figures through authorized CLI surfaces, include reproducible commands or a checked-in read-only procedure, and disclose HEAD/date, denominators, legacy evidenceState projection, optional-field gaps, and reviewer-run versus round semantics.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Label named incidents as historical observations and avoid claiming that an old outcome proves the same defect remains unresolved now.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/understanding.json"
+    },
+    {
+      "feature": "Use characteristic evidence for all seven classes, including B-cdf6:F-056/F-067/F-070, B-META-framework-audit:F-029/F-030/F-031/F-032/F-035, repeated root-cause or runaway-review evidence, and current learning/signature audits.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Distinguish raw Finding provenance, derived learning/signature records, and current gate evidence; lineage dedup does not prove semantic defect equivalence and historical learning remains non-authoritative.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Define exactly four responsibility components: Finding Ledger Integrity; Candidate and Defect Identity; Dynamic Applicability; Freshness and Supersession.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/understanding.json"
+    },
+    {
+      "feature": "Specify the end-to-end records and authority boundary from DetectorSignal through CandidateFinding, verified Finding, canonical defect, signed applicability assessment, routing, freshness, supersession, batch manifest, and Gate.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/plan.md"
+    },
+    {
+      "feature": "Keep detector hits, candidates, signature tags, playbooks, historical matches, file-disjoint heuristics, and DONE outcomes non-authoritative until current signed evidence is minted.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md"
+    },
+    {
+      "feature": "Define one shared blocking predicate: an open evidence- and severity-blocking Finding blocks only with a current signed applicable assessment, while missing, unknown, unsigned, stale, mismatched, or tampered high/critical assessments fail closed.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Require evidence-backed non-blocking verdicts: base/head and no worsening for pre-existing, structured scope proof plus routing for out-of-scope, and a valid canonical owner for duplicate.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/decision.json"
+    },
+    {
+      "feature": "Define freshness behavior for materialHash match, unrelated materialHash drift with matching storyFilesHash and explicit advisory, story-owned drift, scope drift, and runtime-artifact drift.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Preserve append-only history while resolving supersession chains and canonical records; keep legacy Findings readable, fail-safe when assessment is missing, and assess history lazily without bulk rewrite.",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Define exactly three future implementation Stories: Dynamic Finding Applicability; Finding Identity and Historical Lineage; Finding Ledger and Runtime Evidence Integrity.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/understanding.json"
+    },
+    {
+      "feature": "Map P1 through P7 to one primary component and exact future Story, distinguish direct solution from mitigation, and give each a falsifiable acceptance result.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Reconcile four components into three Stories, splitting historical supersession/canonical lookup into Story 2 and runtime receipt/stale-artifact invalidation into Story 3 without orphan responsibility.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/plan.md"
+    },
+    {
+      "feature": "Expose the acyclic safe execution order Story 3 then Story 2 then Story 1 enforcement; allow earlier Story 1 observe-only work only while non-gating.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/decision.json"
+    },
+    {
+      "feature": "Preserve the existing review-convergence breaker as a backstop, the review assurance floor, process-fact registry/contract-verifier duties, and merged-state combination review for parallel process-framework changes.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Require the three future Stories collectively to test concurrent write loss and retry idempotency, candidate-versus-Finding separation, canonical supersession, historical non-authority, base/head applicability and routing, stale scope/material/runtime invalidation, tamper rejection, and unknown high/critical fail-closed behavior.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Define observe, warn, and enforce rollout states with entry/exit criteria, permitted writes, authority, visible output, kill switch, rollback, and enforcement prerequisites.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Define a reproducible rollout scorecard with numerator, denominator, procedure, window, thresholds, and rollback triggers covering safety, classification, manual work/review cycles, and p50/p95 triage latency while separating compute, triage, genuine repair, and convergence costs.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Use @lattice/lab to @proof-or-stop/lab as a scope-change example: preserve B-cc10 historical out-of-scope, treat the new operator request as current scope evidence, remint a fresh assessment, and produce verified plus applicable without granting history gate authority.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+    },
+    {
+      "feature": "Separate brand scope from package resolution; future rename acceptance must choose publish or local workspace/file-link policy and verify manifests, dependency, lockfiles, exact-name verifier, filesystem-path bootstrap distinction, and a clean temporary install.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Implement runtime schemas, commands, gates, receipts, locks, or package behavior in this specification Story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This Story is documentation-only; implementation is assigned to the three future Stories.",
+      "source": ".lattice/story/actives/B-1fa6/background.md"
+    },
+    {
+      "feature": "Create the three follow-up implementation Stories as part of this specification Story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The output defines future Story contracts but explicitly does not create them.",
+      "source": ".lattice/story/actives/B-1fa6/background.md"
+    },
+    {
+      "feature": "Bulk-rewrite or migrate the historical Finding corpus.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "History remains append-only and target-Story assessment is lazy.",
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Rename @lattice/lab or expand the rename to @lattice/utils, the root package, signature salts, archived evidence, or other frozen identities in this Story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The lab rename is an example only; any actual or expanded rename requires a separate scope decision and Story.",
+      "source": ".lattice/story/actives/B-1fa6/checklist.json"
+    },
+    {
+      "feature": "Rebuild or replace the existing review-convergence breaker.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The existing convergence/stall adjudication remains the backstop and is consumed rather than duplicated.",
+      "source": "docs/step3-review-budget-breaker-handoff.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-1fa6/background.md",
+      ".lattice/story/actives/B-1fa6/checklist.json",
+      ".lattice/story/actives/B-1fa6/decision.json",
+      ".lattice/story/actives/B-1fa6/plan.md",
+      ".lattice/story/actives/B-1fa6/understanding.json",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/step3-review-budget-breaker-handoff.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 28,
+    "covered": 23,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8a5b6c3a8ebed1947e6d701b76d363e51f83b2facb36f951b308cfad209f918d",
+  "openQuestions": []
+}

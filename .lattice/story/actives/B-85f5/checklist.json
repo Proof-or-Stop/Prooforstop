@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Make the registered rollout cohort preserve each nested reviewer actor under a canonical parent actor",
-      "context": "The parent writer sets PROOF_OR_STOP_AGENT=acceptance-rollout-verifier while the nested CLI helper currently writes only LATTICE_AGENT=<lane>; canonical precedence hides the lane. Fix the child boundary without relaxing resolveAgentMutationAuthority or registering a verifier identity as a reviewer.",
+      "context": "The parent writer sets PROOF_OR_STOP_AGENT=acceptance-rollout-verifier while the nested CLI helper currently writes only LATTICE_AGENT=<lane>; canonical precedence hides the lane. Fix the child boundary without relaxing the dispatch mutation resolver or registering a verifier identity as a reviewer.",
       "relatedDocs": [
         "docs/requirements/decisions/brand-rename-mapping.md",
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"

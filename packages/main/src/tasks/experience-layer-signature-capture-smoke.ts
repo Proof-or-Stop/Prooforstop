@@ -58,10 +58,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b5d48-sig-cap-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -106,7 +106,7 @@ function run(): void {
   const savedCwd = process.cwd();
   const tmpRoots: string[] = [];
   // agent='main' avoids the reviewer review-run binding requirement entirely.
-  delete process.env.LATTICE_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
 
   try {
     // ─── LEAF: main derivation path ──────────────────────────────────────────

@@ -28,7 +28,7 @@ import {
   type AcquiredMkdirLock,
   type MkdirLockHolderInfo,
 } from './mkdir-lock.js';
-import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from './lattice-paths.js';
+import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from './proof-or-stop-paths.js';
 
 /**
  * Canonical main write lock directory, relative to the main repo root.

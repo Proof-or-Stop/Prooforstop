@@ -24,7 +24,7 @@ function check(name: string, cond: boolean): void {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     validate: {
       commands: [
         {
@@ -44,7 +44,7 @@ function writeConfig(root: string): void {
 }
 
 async function run(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-focus-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-focus-'));
   try {
     writeConfig(root);
     resetConfigCache();
@@ -56,13 +56,13 @@ async function run(): Promise<void> {
     const validate = createVerifierHandlers(ctx).validate;
 
     const full = JSON.parse(await validate({ json: true }));
-    check('full provider remains configured commands', full.provider === 'lattice-verifier-configured-commands');
+    check('full provider remains configured commands', full.provider === 'proof-or-stop-verifier-configured-commands');
     check('full run executes all configured commands', full.commands.length === 2);
     check('full run has no focused metadata', full.focus === undefined);
     check('full summary is not marked focused', !String(full.summary).includes('Focused validation'));
 
     const focused = JSON.parse(await validate({ focus: 'fast', json: true }));
-    check('focused provider is visibly focused', focused.provider === 'lattice-verifier-configured-commands-focused');
+    check('focused provider is visibly focused', focused.provider === 'proof-or-stop-verifier-configured-commands-focused');
     check('focused run executes only tagged commands', focused.commands.length === 1 && focused.commands[0].label === 'fast-tagged');
     check('focused summary names focused mode', String(focused.summary).includes('Focused validation (fast)'));
     check('focused details reject final proof interpretation', focused.details.some((line: string) => line.includes('not final full validation') && line.includes('not DONE-required proof')));

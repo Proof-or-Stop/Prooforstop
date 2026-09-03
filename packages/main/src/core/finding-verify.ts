@@ -141,7 +141,7 @@ export function verifyFinding(
 import { PROOF_OR_STOP_STATE_DIR, stateDirCandidates } from './brand-paths.js';
 
 export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
-// B-cc10: these hardcoded '.lattice/' after CHK-003's move, so gap_log wrote to the
+// B-cc10: these hardcoded '.proof-or-stop/' after CHK-003's move, so gap_log wrote to the
 // DEPRECATED directory. The write reported success while the canonical B-META ledger
 // never received the finding — a framework gap I believed I had recorded was in fact
 // unrecorded. Derive from the resolver. GAP_LOG_PROVENANCE_SCHEMA above stays frozen:
@@ -197,7 +197,7 @@ function gitCommonDir(gitCwd: string): string {
 }
 
 function receiptKeyPath(gitCwd: string): string {
-  return join(gitCommonDir(gitCwd), 'lattice-gap-log-provenance.key');
+  return join(gitCommonDir(gitCwd), 'proof-or-stop-gap-log-provenance.key');
 }
 
 function receiptPayload(receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string {

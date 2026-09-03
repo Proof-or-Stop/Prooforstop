@@ -32,21 +32,21 @@ import {
   runStoryTransition,
 } from './transition-orchestrator.js';
 
-// B-cc10 CHK-005: the npm package was renamed @lattice/core -> @proof-or-stop/core.
+// B-cc10 CHK-005: the npm package was renamed @proof-or-stop/core -> @proof-or-stop/core.
 // Canonical is the only name written; the deprecated name is still accepted for READS so
 // an already-installed global link keeps resolving. Never collapse this to a single literal
 // inside a comparison — that is exactly the B-cdf6 regression class.
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
-const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+const DEPRECATED_CORE_PACKAGE_NAME = '@proof-or-stop/core';
 
-export interface GlobalLatticeLinkRepairOptions {
+export interface GlobalProofOrStopLinkRepairOptions {
   globalPackagePath?: string;
   globalPackageRoot?: string;
   unlinkImpl?: typeof unlinkSync;
   symlinkImpl?: typeof symlinkSync;
 }
 
-export interface GlobalLatticeLinkRepairResult {
+export interface GlobalProofOrStopLinkRepairResult {
   action: 'relinked' | 'skipped';
   message: string;
 }
@@ -81,7 +81,7 @@ function entryExists(path: string): boolean {
   }
 }
 
-function resolveGlobalCorePackagePaths(options: GlobalLatticeLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
+function resolveGlobalCorePackagePaths(options: GlobalProofOrStopLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
   if (options.globalPackagePath) {
     return [{
       path: options.globalPackagePath,
@@ -118,8 +118,8 @@ function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
   resolvedGlobalPackage: ResolvedGlobalCorePackagePath,
-  options: GlobalLatticeLinkRepairOptions,
-): GlobalLatticeLinkRepairResult {
+  options: GlobalProofOrStopLinkRepairOptions,
+): GlobalProofOrStopLinkRepairResult {
   const globalPackagePath = resolvedGlobalPackage.path;
   const packageDescription = describeGlobalCorePackage(resolvedGlobalPackage);
 
@@ -159,11 +159,11 @@ function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   return { action: 'relinked', message: `✓ global ${packageDescription} has been relinked from story worktree to ${mainPackagePath}` };
 }
 
-export function repairGlobalLatticeLinkBeforeWorktreeDelete(
+export function repairGlobalProofOrStopLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
-  options: GlobalLatticeLinkRepairOptions = {},
-): GlobalLatticeLinkRepairResult {
+  options: GlobalProofOrStopLinkRepairOptions = {},
+): GlobalProofOrStopLinkRepairResult {
   const resolvedGlobalPackages = resolveGlobalCorePackagePaths(options);
   if (resolvedGlobalPackages.length === 0) {
     return { action: 'skipped', message: `global ${CANONICAL_CORE_PACKAGE_NAME} path not found, skipping relink` };
@@ -359,7 +359,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     repoRoot: string;
   }): void {
     const { storyId, branch, storyRel, repoRoot } = args;
-    const tempDir = mkdtempSync(join(tmpdir(), `lattice-index-${storyId}-`));
+    const tempDir = mkdtempSync(join(tmpdir(), `proof-or-stop-index-${storyId}-`));
     const indexFile = join(tempDir, 'index');
     try {
       const head = gitFile(['rev-parse', '--verify', 'HEAD'], repoRoot);
@@ -367,7 +367,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       gitFile(['read-tree', 'HEAD'], repoRoot, env);
       // B-854c CHK-002: force-add (`-f`) so the scoped bootstrap NEVER hard-fails
       // with "The following paths are ignored by one of your .gitignore files"
-      // when a project broadly ignores `.lattice/`. Without -f, an ignored
+      // when a project broadly ignores `.proof-or-stop/`. Without -f, an ignored
       // metadata path aborts INIT_CHECK with an opaque error; with -f the
       // metadata is always committed = tracked = clean-proof. The post-commit
       // check-ignore guard (in dev_start) separately surfaces the still-unsafe
@@ -426,7 +426,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
    * shared pure predicate so bootstrap, doctor, and tests agree on the verdict.
    *
    * Runs git ls-files / git check-ignore on the ACTUAL leaf path (e.g.
-   * `<storyRel>/index.json`), NOT the `.lattice` prefix — a negation allowlist
+   * `<storyRel>/index.json`), NOT the `.proof-or-stop` prefix — a negation allowlist
    * re-includes the leaf, so probing the parent would false-positive a safe
    * repo. check-ignore exit 0 = ignored; exit 1 = not ignored (the safe
    * negation-allowlist / no-ignore case). Failure to probe (git unavailable)
@@ -491,7 +491,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }
     throw new Error(
       `Cannot bootstrap INIT_CHECK worktree: configured gitRoot is unusable (${resolution.unresolvedReason || 'unresolved'}). ` +
-      `Fix lattice.config.json gitRoot so it points at a valid git repository root that contains the story metadata, then retry.`,
+      `Fix proof-or-stop.config.json gitRoot so it points at a valid git repository root that contains the story metadata, then retry.`,
     );
   }
 
@@ -1032,7 +1032,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       // B-854c CHK-002: after the scoped commit, probe the ACTUAL metadata leaf
       // (index.json). If the project default still leaves it ignored/untracked
-      // (broad `.lattice/` ignore), force-add committed it for THIS story but the
+      // (broad `.proof-or-stop/` ignore), force-add committed it for THIS story but the
       // next git clean on an untracked sibling can still lose data — surface a
       // loud warning pointing at `proof-or-stop doctor --repair`. A negation allowlist
       // (Orchestrate) or a tracked leaf produces no warning (no false positive).
@@ -1247,7 +1247,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // mainWriteLock, the established order, not an inversion. The real reasons:
       // (1) the only candidate mutex, acquireStoryTransitionLock, is documented as
       // advisory and is disabled outright by
-      // LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so it could narrow this
+      // PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so it could narrow this
       // window but never close it; (2) story_discard is the RECOVERY COMMAND, and
       // that lock exposes no fail-fast option — an acquire polls the 180s deadline
       // and then throws, and a leaked lock whose pid was recycled by an unrelated

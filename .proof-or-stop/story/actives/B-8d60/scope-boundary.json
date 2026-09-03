@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8d60",
+  "mode": "correctness_fix",
+  "allowed": [
+    "An explicit, acknowledged, audited chain re-anchor command for the lost-key case that never re-signs legacy receipts",
+    "Decision docs (lifecycle-artifact-scope.md, identity-cutover cross-reference) and a CLAUDE.md pointer",
+    "Re-anchoring the real repository ledger and proving gap_log end to end with literal output",
+    "Rename-aware verification of the legacy 32-receipt gap_log provenance segment (finding-verify.ts)",
+    "Smoke and logic tests for every new verifier branch and the re-anchor command",
+    "Verifier and consumer updates (audit-meta-store, lifecycle-registry, done-prepare-generated-metadata, scope-path-classifier) plus actionable error reasons and a doctor check"
+  ],
+  "excluded": [
+    "Any change to the frozen GAP_LOG_PROVENANCE_SCHEMA literal or other identity-cutover frozen classes",
+    "Deleting the legacy ledger and restarting from genesis as the primary path",
+    "Global CLI symlink pointing at a story worktree; tracked by draft global-cli-worktree-drift",
+    "Re-signing or rewriting the 32 legacy receipts under a new key",
+    "Sibling keyed ledgers (acceptance-basis, acceptance-rollout, pre-review-check, finding-ledger) key-loss handling; tracked separately"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request on 2026-09-02: gap_log signature chain is broken and B-49df did not fix it; needs its own story with a design decision on migrating the 32 historical receipts whose paths sit inside the signature domain.",
+  "createdAt": "2026-09-02T13:23:52.929Z",
+  "updatedAt": "2026-09-02T13:23:52.929Z",
+  "_hash": "797124b2fae59cf639dd483914e184bb48748512d00a9700b994aff59048c87c"
+}

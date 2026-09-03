@@ -24,8 +24,8 @@ import {
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical } from '../core/authority-signing.js';
 import {
   findRuntimeArtifactEntry,
-  LATTICE_RUNTIME_IGNORE_BLOCK_END,
-  LATTICE_RUNTIME_IGNORE_BLOCK_START,
+  PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
+  PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo, TopologyCriticReceiptV1 } from '../core/types.js';
@@ -46,7 +46,7 @@ import {
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = resolve(packageRoot, '..');
 const repositoryRoot = resolve(sourceRoot, '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
+const proofOrStopBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const storyId = 'B-topology-critic-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 const smokeArgs = process.argv.slice(2);
@@ -87,8 +87,8 @@ function sessionIdFor(root: string, sessionTask: string, agent: string): string 
 }
 
 function asSession<T>(agent: string, sessionTask: string, fn: () => T): T {
-  const priorAgent = process.env.LATTICE_AGENT;
-  process.env.LATTICE_AGENT = agent;
+  const priorAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = agent;
   resetSessionIdForTest();
   try {
     return withAdapterSessionEnv(sessionTask, agent, () => {
@@ -98,17 +98,17 @@ function asSession<T>(agent: string, sessionTask: string, fn: () => T): T {
     });
   }
   finally {
-    if (priorAgent === undefined) delete process.env.LATTICE_AGENT; else process.env.LATTICE_AGENT = priorAgent;
+    if (priorAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT; else process.env.PROOF_OR_STOP_AGENT = priorAgent;
     resetSessionIdForTest();
   }
 }
 
 function cli(root: string, command: string, args: Record<string, unknown>, agent?: string, sessionTask?: string): string {
-  return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
+  return execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
     cwd: root,
     env: {
       ...process.env,
-      ...(agent ? { LATTICE_AGENT: agent } : {}),
+      ...(agent ? { PROOF_OR_STOP_AGENT: agent } : {}),
       ...(sessionTask ? adapterSessionEnv(sessionTask, agent ?? 'main') : {}),
     },
     encoding: 'utf8',
@@ -164,7 +164,7 @@ function scopeContract(): ScopeContractData {
 }
 
 function scopeCheck(root: string): ScopeCheckData {
-  const base = { storyId, checkedAt: now, reviewRound: '', agentId: 'lattice-review-scope-plan', issues: [], features: [], summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 } } as unknown as ScopeCheckData;
+  const base = { storyId, checkedAt: now, reviewRound: '', agentId: 'proof-or-stop-review-scope-plan', issues: [], features: [], summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 } } as unknown as ScopeCheckData;
   const cwd = process.cwd(); process.chdir(root);
   try { return { ...base, _hash: signScopeCheck(storyId, now, 0, 1, '') }; }
   finally { process.chdir(cwd); }
@@ -222,17 +222,17 @@ const CRITIC_SESSION_TASK = 'sess-critic';
 const IMPLEMENTER_SESSION_TASK = 'sess-impl';
 const SCOPE_SESSION_TASK = 'sess-scope';
 const criticSessionId = sessionIdFor(root, CRITIC_SESSION_TASK, TOPOLOGY_CRITIC_ROLE);
-const implementerSessionId = sessionIdFor(root, IMPLEMENTER_SESSION_TASK, 'lattice-implementer');
+const implementerSessionId = sessionIdFor(root, IMPLEMENTER_SESSION_TASK, 'proof-or-stop-implementer');
 const scopeSessionId = sessionIdFor(root, SCOPE_SESSION_TASK, TOPOLOGY_EXCLUSION_APPROVER_ROLE);
 smokeSuite: try {
   write(root, '.gitignore', [
-    LATTICE_RUNTIME_IGNORE_BLOCK_START,
+    PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
     ...listRuntimeArtifactIgnorePatterns(),
-    LATTICE_RUNTIME_IGNORE_BLOCK_END,
+    PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
     '',
   ].join('\n'));
-  write(root, 'lattice.config.json', JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     proofStory: { acceptanceTopologyGateMode: 'enforce' },
   }));
   write(root, 'tsconfig.json', '{}\n');
@@ -272,7 +272,7 @@ smokeSuite: try {
   assert.doesNotMatch(planToDevTranscript, /topology critic|receipt/i, 'Wave 2A adds no PLAN to DEV receipt requirement');
   const ctx = { root, scanRoot: join(root, 'packages/main'), store };
   const dispatch = createStoryDispatchHandlers(ctx);
-  asSession('lattice-implementer', IMPLEMENTER_SESSION_TASK, () => dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }));
+  asSession('proof-or-stop-implementer', IMPLEMENTER_SESSION_TASK, () => dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }));
   git(root, ['config', 'user.name', 'Critic Reviewer']);
   git(root, ['config', 'user.email', 'critic@noreply.local']);
   cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, CRITIC_SESSION_TASK);
@@ -291,7 +291,7 @@ smokeSuite: try {
     assert.equal(producerResult.receipt.criticRole, TOPOLOGY_CRITIC_ROLE, 'live critic receipt uses the registered canonical role');
     assert.deepEqual(producerResult.verification.independence, { agent: true, session: true, dispatch: true, businessCommitAuthor: true }, 'live critic remains independent in all four dimensions');
     assert.equal(checkResult.verification.code, 'ok', checkOutput);
-    console.log('Topology critic eligibility: PASS role=lattice-review-topology-critic independence=agent:true,session:true,dispatch:true,businessCommitAuthor:true');
+    console.log('Topology critic eligibility: PASS role=proof-or-stop-review-topology-critic independence=agent:true,session:true,dispatch:true,businessCommitAuthor:true');
     console.log(`Topology critic receipt: PASS check=${checkResult.verification.code} semanticOk=${checkResult.verification.ok}`);
     break smokeSuite;
   }
@@ -469,7 +469,7 @@ smokeSuite: try {
     assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context, critic: collided, implementation, approvals: [], events, verdict: 'pass' }), /independence failed/, `${dimension} collision must fail before signing`);
   }
   assert.deepEqual(independenceMatrix(receipt.criticProvenance, implementation), { agent: true, session: true, dispatch: true, businessCommitAuthor: true });
-  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'lattice-review-topology-critic-spoof', sessionId: criticSessionId, sessionSource: 'host-adapter', context, implementation }), /role eligibility failed/);
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'proof-or-stop-review-topology-critic-spoof', sessionId: criticSessionId, sessionSource: 'host-adapter', context, implementation }), /role eligibility failed/);
   assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: implementerSessionId, sessionSource: 'host-adapter', context, implementation }), /no current registered dispatch provenance/);
 
   // CHK-003 / CHK-005: the signing guard bites on session SOURCE, independently of every other
@@ -498,7 +498,7 @@ smokeSuite: try {
   assert.equal(verify(receipt, { ...context, basisStatus: 'partial' }).ok, false, 'critic cannot override partial');
   assert.equal(verify(receipt, { ...context, basisStatus: 'unsupported' }).ok, false, 'critic cannot override unsupported');
 
-  const basisPath = join(root, '.lattice/story/actives', storyId, 'acceptance-basis.json');
+  const basisPath = join(root, '.proof-or-stop/story/actives', storyId, 'acceptance-basis.json');
   const cleanBasisBytes = readFileSync(basisPath, 'utf8');
   rmSync(basisPath);
   assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, false, 'missing basis fails production CLI verification');
@@ -564,7 +564,7 @@ smokeSuite: try {
     });
     assert.ok(criticCollisionDiagnostics.includes('exclusion approver is not independent from topology critic'), `re-signed exclusion verifier rejects approver-vs-critic ${dimension} collision`);
   }
-  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, 'lattice-implementer', IMPLEMENTER_SESSION_TASK), 'implementer cannot exercise exclusion approval authority');
+  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, 'proof-or-stop-implementer', IMPLEMENTER_SESSION_TASK), 'implementer cannot exercise exclusion approval authority');
   assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, TOPOLOGY_CRITIC_ROLE, CRITIC_SESSION_TASK), 'ineligible critic role cannot exercise scope-plan exclusion authority');
   for (const [, field] of criticProvenanceDimensions) {
     const collidedApprover = { ...scopeActor, [field]: implementation[field] };
@@ -618,23 +618,23 @@ smokeSuite: try {
   for (const mutation of ['drop-topology-critic-prompt', 'drop-topology-critic-handler', 'drop-topology-critic-cli-schema', 'drop-topology-critic-verifier', 'add-topology-critic-lifecycle-consumer', 'weaken-topology-critic-incomplete-basis']) {
     assert.throws(() => execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], {
       cwd: repositoryRoot,
-      env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
+      env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: mutation },
       encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
     }), `process-fact mutation ${mutation} must bite`);
   }
-  assert.equal(findRuntimeArtifactEntry('.lattice/activity.jsonl')?.id, 'runtime-activity-log', 'activity log is classified by the production runtime-artifact registry');
-  assert.equal(git(root, ['ls-files', '.lattice/activity.jsonl']), '', 'runtime activity log is never tracked in the business baseline');
-  execFileSync('git', ['check-ignore', '-q', '.lattice/activity.jsonl'], { cwd: root, stdio: 'ignore' });
-  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/topology-critic-receipt.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed critic proof remains visible rather than hidden by a broad .lattice ignore');
-  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/acceptance-basis.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed basis proof remains visible rather than hidden by a broad .lattice ignore');
-  const persistedReceiptBytes = readFileSync(join(root, '.lattice/story/actives', storyId, 'topology-critic-receipt.json'), 'utf8');
+  assert.equal(findRuntimeArtifactEntry('.proof-or-stop/activity.jsonl')?.id, 'runtime-activity-log', 'activity log is classified by the production runtime-artifact registry');
+  assert.equal(git(root, ['ls-files', '.proof-or-stop/activity.jsonl']), '', 'runtime activity log is never tracked in the business baseline');
+  execFileSync('git', ['check-ignore', '-q', '.proof-or-stop/activity.jsonl'], { cwd: root, stdio: 'ignore' });
+  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.proof-or-stop/story/actives/${storyId}/topology-critic-receipt.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed critic proof remains visible rather than hidden by a broad .proof-or-stop ignore');
+  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.proof-or-stop/story/actives/${storyId}/acceptance-basis.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed basis proof remains visible rather than hidden by a broad .proof-or-stop ignore');
+  const persistedReceiptBytes = readFileSync(join(root, '.proof-or-stop/story/actives', storyId, 'topology-critic-receipt.json'), 'utf8');
   assert.doesNotMatch(persistedReceiptBytes, /forged|tampered|nonexistent/, 'no forged or mutated critic proof remains reusable');
   assert.equal(store.readTopologyExclusionApprovals(storyId).approvals.length, 0, 'no synthetic exclusion approval remains persisted');
   assert.equal(git(root, ['status', '--porcelain', '--untracked-files=all']), '', 'all proof mutations restore exactly; only registered ignored runtime artifacts may remain');
   assert.ok(existsSync(join(sourceRoot, 'src/core/topology-critic-receipt.ts')));
   console.log('ProofStory topology critic smoke: PASS');
   console.log('  real PLAN to DEV structural gate transcript without critic receipt requirement: PASS');
-  console.log('  real bin/lattice dispatch + producer + read-only CLI verifier: PASS');
+  console.log('  real bin/proof-or-stop dispatch + producer + read-only CLI verifier: PASS');
   console.log('  alter/delete fields, signatures, provenance, freshness, replay, canonical refs: PASS');
   console.log('  zero/one/multiple exclusions + authority/freshness/one-to-one + restoration: PASS');
   console.log('  prompt/schema/handler/verifier/no-lifecycle-gate/incomplete-basis mutations: PASS');

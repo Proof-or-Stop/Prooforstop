@@ -1,0 +1,43 @@
+{
+  "task": "Complete the pre-public Proof-or-Stop identity cutover without corrupting historical proof bytes.",
+  "outcome": "Terminal acceptance: `$ proof-or-stop --version` prints `Proof-or-Stop 0.3.270`; `$ proof-or-stop help` and `$ proof-or-stop lab help` succeed; clean installs expose only the `proof-or-stop` bin and `@proof-or-stop/core`, `@proof-or-stop/lab`, `@proof-or-stop/utils`; `proof-or-stop-review-story-init` and the canonical Proof-or-Stop Agent set resolve while `lattice-review-story-init`, invoking `lattice`, and resolving `@lattice/*` fail; root and Core report 0.3.270 while Utils remains independently versioned at 0.3.268 and Lab at 0.3.65; the active-residue verifier reports zero non-allowlisted legacy identities; named historical artifacts retain identical bytes/digests and still verify.",
+  "facts": [
+    "Repository is pre-public and maintained by two people; the operator explicitly rejected active compatibility aliases.",
+    "Current root package is lattice, sibling packages are @lattice/lab and @lattice/utils, and core still exports a lattice npm bin alias.",
+    "Active source still contains legacy role IDs, env/path/config compatibility helpers, comments, prompts, scripts, hooks, and docs.",
+    "The operator explicitly requires lattice-review-story-init and every current lattice-named Agent/role identity to be renamed to Proof-or-Stop with no active role alias.",
+    "Historical story/provenance artifacts and signature salts must remain verifiable and byte-stable.",
+    "B-cc10 already migrated core/state/config/adapter surfaces additively; B-022e supersedes that compatibility policy for active surfaces."
+  ],
+  "constraints": [
+    "No direct reads or writes under story/fixture protected directories; use Proof-or-Stop CLI.",
+    "No production edits before the superseding decision and committed RED proof.",
+    "No mechanical rewrite of historical stories, legacy migration inputs, compatibility fixtures, changelog records, signature salts, schemas, or provenance-bound bytes.",
+    "Canonical new writes and user-visible guidance must contain only Proof-or-Stop identities, including Agent/role IDs, template filenames, registry keys, frontmatter, configuration routing, and generated assets.",
+    "Runtime behavior change requires patch version synchronization, builds, package tarball/clean-install proof, REVIEW, TEST, done_prepare, and DONE."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/utils/package.json",
+    "packages/lab/package.json",
+    "packages/main/src",
+    "packages/utils/src",
+    "packages/lab/src",
+    "bin",
+    "scripts",
+    ".githooks",
+    ".github",
+    "packages/main/templates",
+    ".claude/agents",
+    ".proof-or-stop-codex/agents",
+    "proof-or-stop.config.json",
+    "README.md",
+    "docs/CLI.md",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-09-01T17:13:36.905Z"
+}

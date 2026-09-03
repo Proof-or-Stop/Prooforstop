@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
   isModularComplexRoleId,
   isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
@@ -43,6 +43,7 @@ const requiredSourcePaths = [
   '.claude/agents',
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   '.proof-or-stop-codex/agents',
+
   'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/core/managed-assets.ts',
   'packages/main/src/handlers/story-query.ts',
@@ -73,7 +74,7 @@ const compactQueryGuidancePhrases = [
   `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
   `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
-const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_LATTICE_PROMPT_SLICE
+const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE
   .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
   .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
@@ -139,7 +140,7 @@ function assertPromptReductions(): void {
     const roleId = file.replace(/\.md$/, '');
     if (isModularReviewerRoleId(roleId)) {
       assert.equal(
-        content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/),
+        content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/),
         null,
         `${file} does not rematerialize the legacy runtime guide`,
       );
@@ -154,7 +155,7 @@ function assertPromptReductions(): void {
       assert.doesNotMatch(content, /<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/, `${file} does not inline the host runtime slice`);
     } else {
       const expectedLoadBearingSlice = file === 'proof-or-stop-review-channel.md'
-        ? LOAD_BEARING_LATTICE_PROMPT_SLICE
+        ? LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE
         : LEGACY_LOAD_BEARING_PROMPT_SLICE;
       assert.equal(
         extractLatticeBlock(content),
@@ -200,7 +201,7 @@ function assertMirrorsMatch(): void {
     // rest it branched only on isModularReviewerRoleId, so it computed the wrong
     // expected content for the 5 MODULAR_COMPLEX_ROLE_IDS (10 mismatches: 5 roles x 2
     // hosts). It was latent only because a pre-existing assertion earlier in this file
-    // ('expected lattice managed block', which fails identically on main) aborts the
+    // ('expected proof-or-stop managed block', which fails identically on main) aborts the
     // run before this function executes. Delegating to renderPromptEntryForHost — the
     // single helper the other three sites now use — is what stops a fifth copy.
     const registryEntry = readPromptRegistry().agents.find(entry => entry.agentId === roleId);
@@ -232,7 +233,7 @@ function jsonBytes(value: unknown): number {
 }
 
 function assertSlimOutputCompatibility(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prompt-token-smoke-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prompt-token-smoke-'));
   const store = new StoryStore(root);
   const storyId = 'B-smoke';
   const story: StoryInfo = {

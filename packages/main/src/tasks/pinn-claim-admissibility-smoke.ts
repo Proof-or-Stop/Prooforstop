@@ -42,7 +42,7 @@ function assertCliRejectsProductionReadyClaim(command: string): void {
     cwd: repoRoot,
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
     encoding: 'utf8',
   });

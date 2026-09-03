@@ -1,0 +1,415 @@
+{
+  "storyId": "B-2220",
+  "name": "retire-b3434-writer-boundary-followup",
+  "title": "Retire the unassigned B-3434 writer-owned-boundary follow-up",
+  "description": "Update the B-3434 artifact-growth decision record to reflect the human decision not to pursue a writer-owned canonical boundary now. Preserve the historical findings, explain that the proposal only guarantees measured bytes equal written bytes rather than input consistency, and define evidence-based conditions for reconsideration.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "low",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-30T22:44:21.236Z",
+  "startedAt": "2026-08-30T22:44:21.236Z",
+  "endedAt": "2026-09-01T01:05:09.471Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-30T22:44:21.735Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-b945b1ec56e9cf6f19f535e49b445684",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-30T22:47:38.989Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-b945b1ec56e9cf6f19f535e49b445684",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-30T22:48:05.556Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T22:58:28.897Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:02:35.178Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:07:42.867Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:07:50.603Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:13:00.818Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:14:26.406Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:18:10.751Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:18:12.679Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:24:04.008Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:26:30.793Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:31:10.475Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:31:57.243Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:35:33.657Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:37:17.497Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:42:31.649Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:44:16.271Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:49:33.652Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:51:06.818Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:57:24.525Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T23:59:32.312Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-31T00:05:48.926Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-31T00:10:59.937Z",
+      "branch": "story/B-2220",
+      "user": "Harmony",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-31T22:35:28.235Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-31T22:36:50.515Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-31T22:56:10.599Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:12:16.915Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:15:27.310Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:18:55.997Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:18:58.365Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:22:14.212Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:22:30.466Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-31T23:38:50.037Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:24:04.410Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:24:10.518Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:27:47.376Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:28:50.665Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:31:42.627Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:32:22.241Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-01T00:50:11.669Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-01T01:05:09.471Z",
+      "branch": "story/B-2220",
+      "user": "Harmonynet",
+      "sessionId": "sess-d055c6d3c4c6ac95f883c6031acbd5b6",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the word production only describes the existing plain-JSON code path. This story edits one decision document and performs no production operation, deployment, incident response, or runtime change.",
+      "at": "2026-08-30T22:44:39.618Z"
+    }
+  ],
+  "currentReviewRound": "2026-09-01T00:32:22.241Z"
+}

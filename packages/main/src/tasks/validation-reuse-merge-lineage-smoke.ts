@@ -79,8 +79,8 @@ function buildMergeRepo(opts: { genuineChange: boolean }): { root: string; H1: s
   writeFileSync(join(root, 'foo.ts'), 'export const x = 1;\n'); git(root, ['add', '.']); git(root, ['commit', '-qm', 'story: foo.ts']);
   const H1 = git(root, ['rev-parse', 'HEAD']);
   git(root, ['checkout', '-q', 'mainx']);
-  mkdirSync(join(root, '.lattice/story/actives/B-x'), { recursive: true });
-  writeFileSync(join(root, '.lattice/story/actives/B-x/meta.json'), '{}\n');
+  mkdirSync(join(root, '.proof-or-stop/story/actives/B-x'), { recursive: true });
+  writeFileSync(join(root, '.proof-or-stop/story/actives/B-x/meta.json'), '{}\n');
   if (opts.genuineChange) writeFileSync(join(root, 'shared.ts'), 'export const y = 2;\n'); // non-metadata file landing on main
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'main: advance']);
   git(root, ['checkout', '-q', story]);
@@ -176,8 +176,8 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     // comfortably past Node's 1 MiB default, while staying fast to create (~1s vs ~18s at
     // 25k tiny files) — file COUNT dominates wall time far more than per-file byte size.
     const FILE_COUNT = 8_000;
-    mkdirSync(join(root, '.lattice/story/actives/B-big'), { recursive: true });
-    for (let i = 0; i < FILE_COUNT; i++) writeFileSync(join(root, `.lattice/story/actives/B-big/f${i}-${'p'.repeat(220)}.json`), `{"i":${i}}\n`);
+    mkdirSync(join(root, '.proof-or-stop/story/actives/B-big'), { recursive: true });
+    for (let i = 0; i < FILE_COUNT; i++) writeFileSync(join(root, `.proof-or-stop/story/actives/B-big/f${i}-${'p'.repeat(220)}.json`), `{"i":${i}}\n`);
     git(root, ['add', '.']); git(root, ['commit', '-qm', 'many metadata files']);
     const H2 = git(root, ['rev-parse', 'HEAD']);
 

@@ -205,7 +205,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         });
       }
       // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
-      // shared `.lattice/locks/prompt-envelopes/<id>-prompt-envelopes.lock` (same
+      // shared `.proof-or-stop/locks/prompt-envelopes/<id>-prompt-envelopes.lock` (same
       // canonical lock the review_run_start prompt-envelope write uses).
       const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
       const promptBudget = isBudgetedComplexRole(role)

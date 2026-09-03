@@ -19,10 +19,10 @@ function parseCliJson(text) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-lab-foundation-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-lab-foundation-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -37,8 +37,8 @@ function createTempProject() {
   mkdirSync(join(dir, '.proof-or-stop-codex', 'agents'), { recursive: true });
   writeFileSync(join(dir, '.proof-or-stop-codex', 'agents', 'proof-or-stop-test-case-reviewer.md'), '# test-case-reviewer\n');
   execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Lab Test'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proof-or-stop-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   return dir;
@@ -107,10 +107,16 @@ try {
   ));
   assert(snapshot.$schema === 'proof-or-stop-lab/experiment.v1', 'lab run snapshots should preserve the canonical proof-or-stop-lab schema');
 
-  const allowedEval = lab.lab_eval({
-    config: 'experiments/configs/lab-reviewer-reviewer-quality-v1.json',
-    files: ['.lattice-codex/agents/test-case-reviewer.md'],
-  });
+  const allowedEval = run([
+    'bin/proof-or-stop.js',
+    '--root', temp,
+    'lab',
+    'eval',
+    JSON.stringify({
+      config: 'experiments/configs/lab-reviewer-reviewer-quality-v1.json',
+      files: ['.proof-or-stop-codex/agents/test-case-reviewer.md'],
+    }),
+  ]);
   assert(parseCliJson(allowedEval).ok === true, 'lab eval should allow editableFiles');
 
   const blockedEval = lab.lab_eval({

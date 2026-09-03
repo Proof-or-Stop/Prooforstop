@@ -1,0 +1,47 @@
+{
+  "storyId": "B-b0fe",
+  "name": "repair-pre-review-live-proof-brand-actor-baseline",
+  "title": "Repair canonical pre-review live-proof execution after identity cutover",
+  "description": "The registered pre-review live-proof command fails on clean current main before producing authority evidence: the smoke reads the retired .lattice-codex adapter path although the tracked canonical assets are under .proof-or-stop-codex, and the registered acceptance rollout cohort sets PROOF_OR_STOP_AGENT=acceptance-rollout-verifier while that exact internal verifier identity is rejected by the dispatch mutation guard. Reproduce both failures, make canonical path resolution and least-privilege internal verifier authority explicit, and prove the registered cohort plus live-proof command reaches Green without weakening unknown-actor denial.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-31T03:39:42.436Z",
+  "startedAt": "2026-08-31T03:39:42.436Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-31T03:39:42.924Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-31T03:46:36.573Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b0fe",
+    "branch": "story/B-b0fe",
+    "createdAt": "2026-08-31T03:46:34.090Z"
+  }
+}

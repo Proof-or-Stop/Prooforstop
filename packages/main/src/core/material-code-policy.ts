@@ -47,7 +47,7 @@ export const MATERIAL_CLASSIFICATION_SNAPSHOT_SCHEMA_VERSION =
 
 /** Level-1 immutable runtime/build-config manifest basenames (exact, case-insensitive). */
 export const IMMUTABLE_MANIFEST_BASENAMES: readonly string[] = [
-  // JS/TS runtime + lockfiles + lattice config.
+  // JS/TS runtime + lockfiles + proof-or-stop config.
   'package.json',
   'package-lock.json',
   'pnpm-lock.yaml',
@@ -151,7 +151,7 @@ function isStructuralArtifactPath(path: string): boolean {
  * B-956f FIX 4: the shared step-0 "structurally non-material artifact" predicate
  * reused by the classifier and the exclusion preflight so precedence matches
  * exactly. A manifest under a generated/vendored artifact directory
- * (dist/package.json, node_modules/pkg/package.json) or a lattice runtime/build
+ * (dist/package.json, node_modules/pkg/package.json) or a proof-or-stop runtime/build
  * artifact is a build output's / dependency's file — NOT the project's own
  * level-1 runtime/build manifest — so a config excludePaths entry covering it is
  * never an immutable-manifest violation. Composes the same two structural checks
@@ -284,7 +284,7 @@ export function matchesScopePathEntry(entry: string, path: string): boolean {
  * B-956f FIX 1 (codex MED — wrapper-root path namespace mismatch): the tree-bound
  * exclusion preflight and the per-file classifier compare git-emitted paths against
  * `excludePaths` / `pathPrefixes` / storyDir, which are PROJECT-relative (relative to
- * `projectRoot`, where lattice.config.json lives). Under the B-6666 resolveGitCwd
+ * `projectRoot`, where proof-or-stop.config.json lives). Under the B-6666 resolveGitCwd
  * convention `gitCwd` is the resolved git ROOT (wrapper-root aware), so `git
  * ls-tree`/`git diff` emit REPO-relative paths (e.g. `project/backend/go.mod`). On a
  * wrapper-root layout (config in `<gitRoot>/project/`) those two namespaces disagree,
@@ -439,7 +439,7 @@ function computePolicyDigest(policy: Omit<MaterialCodePolicy, 'policyDigest'>): 
 
 /**
  * Read the RAW materialCode config block plus a content signature for the cache
- * key. Reads lattice.config.json DIRECTLY (not via loadConfig): loadConfig
+ * key. Reads proof-or-stop.config.json DIRECTLY (not via loadConfig): loadConfig
  * caches per-root forever and swallows parse errors — both wrong at this
  * fail-closed, drift-sensitive boundary (CX4 FIX A: "re-resolve" must actually
  * reload config; a malformed config file must fail CLOSED, never silently
@@ -637,7 +637,7 @@ export function classifyMaterialCodePath(
   const name = baseName(path);
   const ext = materialPathExtension(path);
 
-  // Step 0 (structural): generated/vendored artifact directories and lattice
+  // Step 0 (structural): generated/vendored artifact directories and proofOrStop
   // runtime artifacts are never your material — checked BEFORE the
   // immutable-manifest rule so a dependency's or a build output's manifest
   // (node_modules/pkg/package.json, dist/package.json — CX4 FIX D) is not
@@ -658,7 +658,7 @@ export function classifyMaterialCodePath(
 
   // Step 2: story-metadata exclusion via the resolved storyDir (config-aware).
   if (isStoryMetadataPath(path, opts.projectRoot)) {
-    return { path, materialCode: false, reason: 'lattice runtime/story metadata' };
+    return { path, materialCode: false, reason: 'proof-or-stop runtime/story metadata' };
   }
 
   // Step 3: project config excludePaths (segment-aware) → non-material.
@@ -1092,7 +1092,7 @@ const MAX_SNAPSHOT_HEAD_STABILITY_RETRIES = 2;
  * single-root layout resolves to the projectRoot's own toplevel (identity prefix —
  * byte-identical classification); a non-git projectRoot falls back to projectRoot
  * verbatim (unchanged fail-closed behavior downstream). Config-load failures fall
- * back to config-less resolution — a malformed lattice.config.json already fails
+ * back to config-less resolution — a malformed proof-or-stop.config.json already fails
  * closed in resolveMaterialCodePolicyConfigOnly BEFORE this default is consulted.
  */
 function resolveDefaultSnapshotGitCwd(projectRoot: string | undefined): string {

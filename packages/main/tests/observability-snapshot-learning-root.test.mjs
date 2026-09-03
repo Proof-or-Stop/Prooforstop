@@ -25,7 +25,7 @@ const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { LEARNING_DIR, resolveLearningDir } = await import(join(distRoot, 'core/learning-store.js'));
 const { createObservabilitySnapshotHandlers } = await import(join(distRoot, 'handlers/observability-snapshot.js'));
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-obs-learning-root-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-obs-learning-root-'));
 try {
   const store = new StoryStore(root);
   const ctx = { store, root, scanRoot: root };

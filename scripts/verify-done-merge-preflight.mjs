@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 const repoRoot = process.cwd();
 const cli = join(repoRoot, 'packages/main/dist/cli.js');
-const temp = mkdtempSync(join(tmpdir(), 'lattice-done-preflight-'));
+const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-preflight-'));
 const storyId = 'B-preflight';
 const branch = `story/${storyId}`;
 const wtPath = join(temp, '.worktrees', storyId);
@@ -15,7 +15,7 @@ function git(cwd, args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
-function runLattice(payload) {
+function runProofOrStop(payload) {
   return execFileSync('node', [cli, '--root', wtPath, 'story_advance', JSON.stringify(payload)], {
     cwd: wtPath,
     encoding: 'utf8',
@@ -23,9 +23,9 @@ function runLattice(payload) {
   });
 }
 
-function runLatticeExpectFail(payload) {
+function runProofOrStopExpectFail(payload) {
   try {
-    runLattice(payload);
+    runProofOrStop(payload);
     throw new Error('story_advance unexpectedly passed');
   } catch (error) {
     return `${error.stdout || ''}${error.stderr || ''}${error.message || ''}`;
@@ -43,7 +43,7 @@ try {
   writeFileSync(join(temp, 'README.md'), '# temp\n');
   writeFileSync(join(temp, '.gitignore'), '.worktrees\nnode_modules\n');
   writeFileSync(join(temp, 'packages', 'main', 'src', 'index.ts'), 'export const ok = true;\n');
-  writeFileSync(join(temp, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(temp, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -54,8 +54,8 @@ try {
     storyPrefix: 'B',
   }, null, 2) + '\n');
   git(temp, ['init', '-b', 'main']);
-  git(temp, ['config', 'user.name', 'Lattice Test']);
-  git(temp, ['config', 'user.email', 'lattice@example.com']);
+  git(temp, ['config', 'user.name', 'ProofOrStop Test']);
+  git(temp, ['config', 'user.email', 'proofOrStop@example.com']);
   git(temp, ['add', '.']);
   git(temp, ['commit', '-m', 'init']);
   git(temp, ['branch', branch]);
@@ -104,7 +104,7 @@ try {
   writeFileSync(join(staleMainStoryDir, 'index.json'), '{"stale":true}\n');
 
   const before = JSON.parse(readFileSync(join(wtPath, 'docs', 'story', 'actives', storyId, 'index.json'), 'utf8'));
-  const out = runLatticeExpectFail({ storyId, phase: 'DONE', confirm: true });
+  const out = runProofOrStopExpectFail({ storyId, phase: 'DONE', confirm: true });
   const after = JSON.parse(readFileSync(join(wtPath, 'docs', 'story', 'actives', storyId, 'index.json'), 'utf8'));
 
   assert(out.includes('Cannot enter DONE: main 工作区有会被 story merge 覆盖'), `preflight error message missing:\n${out}`);
@@ -116,7 +116,7 @@ try {
   const lockDir = join(temp, '.git', 'koala');
   mkdirSync(lockDir, { recursive: true });
   writeFileSync(join(lockDir, 'done-auto-git.lock'), JSON.stringify({ storyId: 'B-other', pid: 123, acquiredAt: now }) + '\n');
-  const lockOut = runLatticeExpectFail({ storyId, phase: 'DONE', confirm: true });
+  const lockOut = runProofOrStopExpectFail({ storyId, phase: 'DONE', confirm: true });
   const afterLock = JSON.parse(readFileSync(join(wtPath, 'docs', 'story', 'actives', storyId, 'index.json'), 'utf8'));
   assert(lockOut.includes('another DONE auto-git operation is already running'), `lock error message missing:\n${lockOut}`);
   assert(lockOut.includes('不要并行执行多个 DONE confirm'), 'parallel DONE warning missing');

@@ -32,11 +32,11 @@
  *     (HostRunArgs.cwd — bound by the handler to the SAME root the ledger rows
  *     attribute), never the caller's process.cwd(); a missing cwd is refused
  *     pre-spawn, so execution and ledger attribution cannot diverge.
- *   - The ledger seam mirrors runClaudeCodeRealLeafDispatch (lattice-dispatch.ts):
+ *   - The ledger seam mirrors runClaudeCodeRealLeafDispatch (proof-or-stop-dispatch.ts):
  *     preflight estimate (sequence 1) -> budget guard -> concurrency guard ->
  *     spawn -> provider/unavailable final (sequence 2, supersedes the estimate).
  *     Every ledger call is fail-open (never throws to the caller).
- *   - LATTICE_USAGE_LEDGER=0 keeps the run byte-identical: no preflight, no budget
+ *   - PROOF_OR_STOP_USAGE_LEDGER=0 keeps the run byte-identical: no preflight, no budget
  *     guard, no concurrency slots (no dirs), no final — just build argv + spawn.
  *   - This core imports the usage seam ONLY through usage-ledger/dispatch-usage.js
  *     (the single thin import surface); it never reaches into other ledger modules.
@@ -80,7 +80,7 @@ import {
   type DispatchUsageOptions,
 } from './usage-ledger/dispatch-usage.js';
 import { readBrandEnv } from './brand-env.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export type HostRunHost = CanonicalReviewHost;
 
@@ -593,7 +593,7 @@ export function writeSlotFileExclusive(file: string, meta: SlotFileMeta): boolea
  *     simply never age-reclaimed and waiters refuse at cap.
  *   - missing/corrupt meta (the holder crashed between the wx create and the
  *     meta bytes landing, or external damage): pid liveness is unknowable, so
- *     the LATTICE_HOST_RUN_SLOT_STALE_MS mtime backstop is the only signal
+ *     the PROOF_OR_STOP_HOST_RUN_SLOT_STALE_MS mtime backstop is the only signal
  *     left — reclaim only past that age (env semantics unchanged; its scope is
  *     just narrowed to this meta-less window). A YOUNG meta-less slot is
  *     waited out, never stolen.
@@ -1324,7 +1324,7 @@ interface MaterializedLaunch {
 function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
   const spec = canonicalReviewHostLauncherSpec(args.host);
   if (args.host === 'claude') {
-    const dir = mkdtempSync(join(tmpdir(), 'lattice-host-run-'));
+    const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-host-run-'));
     const promptFile = join(dir, 'prompt.txt');
     writeFileSync(promptFile, args.promptText, { encoding: 'utf8', mode: 0o600 });
     const full = materializeLauncherArgv(spec, { promptFile });

@@ -76,10 +76,10 @@ function writeAbs(filePath: string, content: string): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b01df-source-lineage-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -281,7 +281,7 @@ function seedRichLearningStores(root: string, store: StoryStore): void {
   store.writeChecklist(STORY_ID, { items: [] });
   store.writeFindings(STORY_ID, { findings: [finding()] });
 
-  write(root, '.lattice/dev-memory/experience.jsonl', [
+  write(root, '.proof-or-stop/dev-memory/experience.jsonl', [
     JSON.stringify(devMemoryEntry('memline1', {
       sourceStoryId: STORY_ID,
       evidenceRefs: [FINDING_ID],
@@ -388,11 +388,11 @@ function artifactKinds(report: SourceLineageAuditReport): Set<SourceLineageArtif
 }
 
 const roots: string[] = [];
-const savedGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+const savedGlobalMemoryDir = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
 const globalMemoryRoot = mkdtempSync(join(tmpdir(), 'b01df-source-lineage-global-memory-'));
 
 try {
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = globalMemoryRoot;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = globalMemoryRoot;
 
   check('duplicate grouping and all learning artifact collectors', () => {
     const root = mkProject(); roots.push(root);
@@ -470,12 +470,12 @@ try {
     const root = mkProject(); roots.push(root);
     const { ctx } = mkCtx(root);
     const before = snapshot(root);
-    assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project has no .lattice directory');
+    assert.equal(existsSync(join(root, '.proof-or-stop')), false, 'fresh project has no .proof-or-stop directory');
     const report = audit(ctx);
     const after = snapshot(root);
 
     assert.equal(after, before, 'empty audit writes no files or directories');
-    assert.equal(existsSync(join(root, '.lattice')), false, 'empty audit does not create .lattice');
+    assert.equal(existsSync(join(root, '.proof-or-stop')), false, 'empty audit does not create .proof-or-stop');
     assert.equal(report.sourceRecordCount, 0);
     assert.equal(report.records.length, 0);
     assert.equal(report.missingLineageCount, 0);
@@ -523,8 +523,8 @@ try {
 } finally {
   for (const root of roots) rmSync(root, { recursive: true, force: true });
   rmSync(globalMemoryRoot, { recursive: true, force: true });
-  if (savedGlobalMemoryDir === undefined) delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  else process.env.LATTICE_GLOBAL_MEMORY_DIR = savedGlobalMemoryDir;
+  if (savedGlobalMemoryDir === undefined) delete process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+  else process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = savedGlobalMemoryDir;
 }
 
 if (process.exitCode) {

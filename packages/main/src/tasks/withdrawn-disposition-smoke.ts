@@ -250,7 +250,7 @@ function assertSessionBriefExcludesWithdrawn(): void {
 function run(): void {
   const root = mkdtempSync(join(tmpdir(), 'b1909-withdrawn-disposition-'));
   try {
-    // A fresh temp root carries NO lattice.config.json, so config resolves to
+    // A fresh temp root carries NO proof-or-stop.config.json, so config resolves to
     // defaults — proofStory gate mode = observe. Every refusal below therefore
     // holds under the DEFAULT observe config and is independent of doneGateMode
     // (the write-time floor never reads it).

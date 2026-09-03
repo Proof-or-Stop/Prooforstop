@@ -3,8 +3,7 @@
  * A bootstrap script calls register(registry, ctx) to inject all auxiliary
  * handlers into the main package's Registry.
  */
-import type { Registry } from '../../main/dist/registry.js';
-import type { HandlerContext } from '../../main/dist/handlers/context.js';
+import type { HandlerContext, Registry } from '@proof-or-stop/core/extension-api';
 import { createAuxHandlers } from './handlers/auxiliary.js';
 import { createAuxSyncHandlers } from './handlers/aux-sync.js';
 import { createAuxTraceHandlers } from './handlers/aux-trace.js';

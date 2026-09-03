@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "RED: reproduce unrelated blocking, unsafe deferral, stale reuse, and gate divergence",
+      "context": "Before implementation, create executable failing evidence showing irrelevant Findings blocking a Story, unowned deferral disappearing, current-change regressions being deferred, stale assessments remaining accepted after scope or hash changes, and lifecycle consumers disagreeing about blocking status.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#91-story-1--dynamic-finding-applicability"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement authoritative applicability assessments and two safety floors",
+      "context": "Define signed Assessment verdicts for current Story scope and freshness. Enforce both assessment-integrity and mandatory-repair floors so malformed, stale, severe, regression, safety, evidence-integrity, release, CLI-main-path, Agent parsing, or lifecycle-gate Findings cannot be deferred.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#91-story-1--dynamic-finding-applicability"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement defer-with-proof routing and re-evaluation lifecycle",
+      "context": "Require canonicalDefectId, evidence, reason, target Story or B-META gap, owner, route receipt, current hash, expiry, and re-trigger conditions. Use compare-and-set updates, lineage links, and re-attestation when scope, ownership, or hashes change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#91-story-1--dynamic-finding-applicability"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Unify gate consumption, batching, scorecards, and rollout controls",
+      "context": "Make REVIEW, TEST, DONE, batch manifests, and reporting consume one shared blocking predicate. Add observe or warn rollout, enforcement prerequisites, scorecards, auditability, bounded failure handling, and kill or rollback controls.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#91-story-1--dynamic-finding-applicability"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "GREEN: prove applicability, deferral safety, freshness, and rollout contracts",
+      "context": "Turn every RED case GREEN and add the full verdict, severity, scope, regression, ownership, routing, hash drift, expiry, batch, concurrency, dependency, scorecard, snapshot, rollback, and kill-switch matrix required by the execution plan.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#91-story-1--dynamic-finding-applicability"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

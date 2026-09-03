@@ -209,10 +209,10 @@ function gitStatus(root: string): string {
 }
 
 function writeConfig(root: string, slowMs: number): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
@@ -269,12 +269,12 @@ function createStory(store: StoryStore, storyId: string, phase: StoryInfo['phase
 }
 
 function createMetadataFixture(slowMs: number): { root: string; store: StoryStore } {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'lattice-readiness-metadata-')));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-readiness-metadata-')));
   writeConfig(root, slowMs);
   write(root, 'README.md', '# DONE readiness metadata benchmark\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json']);
   gitCommit(root, 'base');
   const store = new StoryStore(root);
   createStory(store, METADATA_STORY_ID);
@@ -296,7 +296,7 @@ async function runMetadataRound(round: number, slowMs: number, keepTemp: boolean
     const immediate = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: METADATA_STORY_ID, store, gitCwd: root });
     assert.equal(immediate.blocking, false, `round ${round}: freshly written evidence must not block: ${immediate.reasons.join(', ')}`);
 
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     gitCommit(root, 'metadata evidence commit');
     const afterMetadataCommit = hashes(root);
 
@@ -365,8 +365,8 @@ function runProofOrStop(
   args: Record<string, unknown>,
 ): string {
   const env = { ...process.env };
-  delete env.LATTICE_PROJECT_ROOT;
-  const legacyAuthorityEnvPrefix = 'LATTICE_' + 'AUTHORITY_';
+  delete env.PROOF_OR_STOP_PROJECT_ROOT;
+  const legacyAuthorityEnvPrefix = 'PROOF_OR_STOP_' + 'AUTHORITY_';
   for (const key of Object.keys(env)) {
     if (key.startsWith(legacyAuthorityEnvPrefix)) delete (env as Record<string, string | undefined>)[key];
   }
@@ -443,7 +443,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     headHash,
     materialHash,
     reviewRound: '',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -467,9 +467,9 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
 }
 
 function createDonePrepareFixture(slowMs: number): { root: string; worktreePath: string; store: StoryStore } {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'lattice-readiness-prepare-')));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-readiness-prepare-')));
   writeConfig(root, slowMs);
-  write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+  write(root, '.gitignore', '.worktrees/\n.proof-or-stop/activity.jsonl\n');
   write(root, 'README.md', '# DONE readiness prepare benchmark\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);

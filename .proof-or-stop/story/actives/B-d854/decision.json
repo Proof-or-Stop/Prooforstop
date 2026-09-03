@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Repository-local executable behavior outranks stale prose.",
+    "Translation must preserve technical meaning and distinguish current rules from legacy history.",
+    "Every correction must have a reproducible source or command check."
+  ],
+  "drivers": [
+    "The user asked for both complete English and proof of version consistency.",
+    "The existing document contains active-looking instructions for commands that no longer exist.",
+    "The current managed-asset recognizer explicitly accepts an English expanded AGENTS guide."
+  ],
+  "options": [
+    {
+      "name": "A: Literal translation only",
+      "pros": [
+        "Smallest semantic intervention",
+        "Easy to diff against the Chinese source"
+      ],
+      "cons": [
+        "Would preserve proven broken commands and outdated lifecycle instructions",
+        "Would fail the requested current-version consistency check"
+      ]
+    },
+    {
+      "name": "B: Evidence-backed English translation with narrow current-version corrections",
+      "pros": [
+        "Delivers a fully English prompt that operators can follow",
+        "Corrects only claims disproven by current CLI/source evidence",
+        "Keeps legacy background when clearly labeled"
+      ],
+      "cons": [
+        "Produces a larger diff",
+        "Requires careful verification that corrections do not overstate current behavior"
+      ]
+    }
+  ],
+  "chosen": "B: Evidence-backed English translation with narrow current-version corrections",
+  "rationale": "Option B is the only approach that satisfies both requested outcomes: a complete English file and an evidence-backed consistency result that does not knowingly preserve broken current instructions.",
+  "preMortem": [
+    {
+      "scenario": "A Chinese string or mojibake remains in the translated file.",
+      "trigger": "CJK or replacement-character scan returns any match.",
+      "consequence": "The file is not fully translated.",
+      "mitigation": "Run explicit Unicode Han and U+FFFD scans after editing and inspect every residual match."
+    },
+    {
+      "scenario": "A historical command is translated as if it were still runnable.",
+      "trigger": "Extracted command list contains a name rejected by current local CLI help.",
+      "consequence": "The prompt remains operationally inconsistent.",
+      "mitigation": "Remove active invocations and describe retired commands only as historical, non-runnable background."
+    },
+    {
+      "scenario": "A current lifecycle gate is lost or misstated during translation.",
+      "trigger": "Diff review disagrees with story-lifecycle.md or current command help.",
+      "consequence": "Agents can follow an invalid phase path.",
+      "mitigation": "Cross-check lifecycle, INIT, REVIEW, TEST, and DONE sections against authoritative sources and run documentation review."
+    }
+  ],
+  "timestamp": "2026-09-01T22:59:50.244Z"
+}

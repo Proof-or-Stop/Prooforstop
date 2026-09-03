@@ -55,7 +55,7 @@ void (() => {
     const finding: Finding = {
       severity: 'BLOCKER',
       title: 'unguarded readScopeContract crashes wave create',
-      file: 'packages/main/src/commands/lattice-parallel-wave.ts',
+      file: 'packages/main/src/commands/proof-or-stop-parallel-wave.ts',
       line: 142,
       issue: 'a corrupt scope-contract re-throws SyntaxError, crashing the whole command',
       fix: 'catch the SyntaxError in storyRef() and treat a corrupt contract like a missing one',

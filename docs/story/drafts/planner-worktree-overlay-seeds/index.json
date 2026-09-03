@@ -1,0 +1,15 @@
+{
+  "name": "planner-worktree-overlay-seeds",
+  "title": "Add staged, unstaged and untracked worktree files as explicit overlay seeds in the validation planner",
+  "description": "Rollout Story 2 of docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md (owned by B-ccf4, currently on branch story/B-ccf4 only) assigns 'current-HEAD plus staged/unstaged/untracked overlay projection, double-read race detection, and exclusion-proof completeness' to a later increment. Story B-a745 (Rollout Story 1) therefore collects relevance seeds only from committed main..HEAD statuses. An independent Codex host in cross-host review (B-a745 run B-a745-xhr-r2) filed this as MAJOR: the hash snapshot already records materialDirtyFiles, but seed collection ignores them and the selection digest does not bind them, so during normal DEV work modified or untracked source files are absent from unclassifiedInputs and the plan neither binds nor explains the actual worktree state. In Story 1 this cannot omit a command, because nothing is ever pruned; it does mean the explain output is silent about dirty state, which is an honesty gap for an explain-only tool and is stated as such in B-a745's dismissal of the finding. This story delivers the overlay seeds, digest binding, the workspace_snapshot_changed escalation for an unreadable git status, and fixtures for tracked and untracked dirty files asserting both the reported inputs and the digest change.",
+  "type": "feature",
+  "priority": "medium",
+  "keywords": [
+    "validation",
+    "planner",
+    "worktree-overlay",
+    "tiers",
+    "relevance"
+  ],
+  "createdAt": "2026-09-02T08:23:41.621Z"
+}

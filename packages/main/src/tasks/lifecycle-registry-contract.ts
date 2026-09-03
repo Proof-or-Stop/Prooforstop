@@ -32,7 +32,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   COMMAND_LIFECYCLE_PHASES,
-  LATTICE_LIFECYCLE_ARTIFACT_FILENAMES,
+  PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES,
   LIFECYCLE_ORACLE_ARTIFACT_REFS,
   LIFECYCLE_PHASE_ARTIFACTS,
   LIFECYCLE_TRANSITIONS,
@@ -310,14 +310,14 @@ const CLASSIFICATION_CROSS_CHECK_FILENAMES = [
 
 function checkAcceptanceTopologyArtifactClassification(): void {
   for (const fileName of CLASSIFICATION_CROSS_CHECK_FILENAMES) {
-    const path = `.lattice/story/actives/B-5e4a/${fileName}`;
+    const path = `.proof-or-stop/story/actives/B-5e4a/${fileName}`;
     const classification = classifyLifecycleArtifact(path);
     if (!classification || classification.kind !== 'lifecycle') {
       record(
         'acceptance-topology-classification',
-        `${fileName} does not classify as kind='lifecycle' under .lattice/story/actives/<storyId>/ — ` +
+        `${fileName} does not classify as kind='lifecycle' under .proof-or-stop/story/actives/<storyId>/ — ` +
         `classifyLifecycleArtifact('${path}') returned ${classification ? `kind='${classification.kind}'` : 'null'} ` +
-        `(is ${fileName} missing from LATTICE_LIFECYCLE_ARTIFACT_FILENAMES?)`,
+        `(is ${fileName} missing from PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES?)`,
       );
     }
   }
@@ -335,7 +335,7 @@ function checkAcceptanceTopologyArtifactClassification(): void {
  *      const followed through store.ts's relative import — e.g.
  *      REVIEW_LOOP_FILENAME → './review-loop.js' → 'review-loops.jsonl').
  * Each derived filename must be either registered in
- * LATTICE_LIFECYCLE_ARTIFACT_FILENAMES or listed in the named exemption
+ * PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES or listed in the named exemption
  * constant below. This closes the B-956f / B-bf52 regression class
  * mechanically: a new StoryStore top-level artifact write without a registry
  * entry fails this contract with a named divergence instead of surfacing later
@@ -624,14 +624,14 @@ function checkStoryStoreTopLevelArtifactCoverage(): StoryStoreCoverageResult {
   }
   const missing = [...derived]
     .filter((fileName) =>
-      !LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName) &&
+      !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName) &&
       !STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS.has(fileName))
     .sort();
   for (const fileName of missing) {
     record(
       'storystore-coverage',
       `StoryStore reads/writes top-level story artifact ${fileName} but it is neither in ` +
-      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS — register it in ` +
+      `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES nor in STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS — register it in ` +
       `packages/main/src/core/lifecycle-registry.ts or add a justified named exemption`,
     );
   }
@@ -644,10 +644,10 @@ function checkStoryStoreTopLevelArtifactCoverage(): StoryStoreCoverageResult {
         `exemption ${fileName} is no longer derived from StoryStore — remove the stale exemption`,
       );
     }
-    if (LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+    if (PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
       record(
         'storystore-coverage',
-        `exemption ${fileName} is now registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES — remove the redundant exemption`,
+        `exemption ${fileName} is now registered in PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES — remove the redundant exemption`,
       );
     }
   }

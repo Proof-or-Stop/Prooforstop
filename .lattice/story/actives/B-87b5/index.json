@@ -1,0 +1,33 @@
+{
+  "storyId": "B-87b5",
+  "name": "stabilize-real-story-review-envelope-recomputation",
+  "title": "Keep real-story Prompt Envelope eligibility stable after reviewer-pass writes",
+  "description": "On clean main, B-5952 produced fresh concept, quality, and test-coverage passes in multiple clean REVIEW rounds, yet REVIEW to TEST rejected every pass because eligibilityDigest, eligibilityReasonCodes, and reviewBasisDigest changed under authoritative recomputation. The targeted review-incremental-context smoke passes, so add a real-story-history regression and fix only the recomputation inconsistency without weakening envelope validation.",
+  "type": "bug",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "createdAt": "2026-08-31T09:14:20.186Z",
+  "startedAt": "2026-08-31T09:14:20.186Z",
+  "endedAt": "2026-08-31T09:15:28.816Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-31T09:14:20.761Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-b945b1ec56e9cf6f19f535e49b445684",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-08-31T09:15:28.817Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-b945b1ec56e9cf6f19f535e49b445684",
+      "agent": "main",
+      "reason": "Discarded after exact reviewer stdout proved the mismatch was caused by owner Node v24 versus reviewer Node v26 execution-environment binding; no framework code change is required."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2b3d",
+  "allowedCommands": [
+    "git rev-parse|write-tree|status|ls-tree",
+    "git worktree add|remove",
+    "node packages/main/dist/tasks/*.js",
+    "node packages/main/tests/red/*.mjs",
+    "npm --prefix packages/main run build",
+    "npx tsc --noEmit -p packages/main"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/red-evidence",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/tasks",
+    "packages/main/tests/red"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/tests/validate-resource-claims.test.mjs"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-08-20T01:01:11.219Z",
+  "updatedAt": "2026-08-20T01:01:11.219Z",
+  "_hash": "2cb0e4785677a9be40909c76b2d7ea8c7387f03482e8d111b001bc65b8256a96"
+}

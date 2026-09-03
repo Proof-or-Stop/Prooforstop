@@ -48,11 +48,11 @@ function gitStatus(root: string): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n',
@@ -109,7 +109,7 @@ function seedDeliveryCheck(store: StoryStore): void {
     storyId: STORY_ID,
     checkedAt: NOW,
     reviewRound: 'r1',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises: [{ docPath: 'README.md', promise: PLAN_PROMISE, status: 'verified' }],
     realMachineTests: [{ featureId: 'F1', transcript: 'ran the smoke; printed pass' }],
     closingSelfCheck: {
@@ -127,14 +127,14 @@ function createFixture(
   seedChecklist: () => ChecklistData,
   opts: { withPlan?: boolean; withLiveSmokeTranscript?: boolean; withDeliveryCheck?: boolean; phase?: StoryInfo['phase'] } = {},
 ): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-delivctx-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-delivctx-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# delivery context pack smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   // Introduce a delivery-scoped change on a story branch ahead of main so the
@@ -279,8 +279,8 @@ assert.equal(
     const storyDir = store.storyDirPath(STORY_ID);
     const beforeSnapshot = snapshotDir(root, storyDir);
     const invalidCases = [
-      { storyId: '../../outside', rogueDir: join(root, '.lattice', 'outside') },
-      { storyId: 'B-bad/leaf', rogueDir: join(root, '.lattice', 'story', 'actives', 'B-bad', 'leaf') },
+      { storyId: '../../outside', rogueDir: join(root, '.proof-or-stop', 'outside') },
+      { storyId: 'B-bad/leaf', rogueDir: join(root, '.proof-or-stop', 'story', 'actives', 'B-bad', 'leaf') },
     ];
 
     for (const { storyId, rogueDir } of invalidCases) {
@@ -476,17 +476,17 @@ assert.equal(
 
 {
   const { root, store } = createFixture(checklistWithDeliveryContext, { withDeliveryCheck: true });
-  const savedSession = process.env.LATTICE_SESSION_ID;
+  const savedSession = process.env.PROOF_OR_STOP_SESSION_ID;
   try {
     const storyDir = store.storyDirPath(STORY_ID);
-    process.env.LATTICE_SESSION_ID = 'sess-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
     resetSessionIdForTest();
     acquireOwnerLease(storyDir, { command: 'checklist_add', cwd: '/tmp/owner-worktree' });
     const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf8');
     const snapshotBefore = snapshotDir(root, storyDir);
     const statusBefore = gitStatus(root);
 
-    process.env.LATTICE_SESSION_ID = 'sess-intruder';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-intruder';
     resetSessionIdForTest();
 
     // Default read-only is ungated even on a foreign-owned story.
@@ -507,8 +507,8 @@ assert.equal(
     assert.equal(gitStatus(root), statusBefore, 'rejected owner gate leaves git status unchanged');
     assertNoSignerOrEvidenceArtifacts(store);
   } finally {
-    if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
-    else process.env.LATTICE_SESSION_ID = savedSession;
+    if (savedSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+    else process.env.PROOF_OR_STOP_SESSION_ID = savedSession;
     resetSessionIdForTest();
     rmSync(root, { recursive: true, force: true });
   }

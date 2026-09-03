@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a745",
+  "sourceText": "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md -- open a story for this, execute immediately, first RED and Green, and follow these rules while working: fix major or acceptance-blocking defects on the spot; record non-major, non-blocking defects with evidence and defer them; do not expand scope without bound in pursuit of an unconditional all-green. (1) For each new defect found during development, first judge whether it is a major risk to the current Story or blocks its acceptance. (2) If the defect is critical/high, involves security, data integrity, or destructive compatibility, or would block acceptance, REVIEW, TEST or DONE of the current Story, it must be fixed in the current Story. (3) If the defect is medium/low and is not a direct regression of the current acceptance surface, does not affect the user's core result, and does not distort a lifecycle gate, preserve reproduction steps, evidence, impact scope and a suggested handling, record it to finding/gap/backlog with a clear later-Story owner, and do not expand the current Story's scope. (4) Deferral may not rest on a verbal judgement: it must leave a traceable record, and if later evidence shows the severity has escalated or it has become an acceptance blocker, it must be pulled back into the current Story immediately. Continue until development is fully done.",
+  "normalizedOutcome": "An operator can run a read-only proof-or-stop validation_plan command against a Story and see, for every configured validation command, a stable id that does not come from its label or its position, whether each pinned piece of verification evidence resolves to exactly one real command, which Story inputs were collected, and a plain-language explanation of why the effective tier is still the full repository set rather than a reduced one. Nothing about routine validation, the existing focus flag, TEST, DONE, or any lifecycle gate changes behaviour.",
+  "acceptanceClaim": "proof-or-stop validation_plan --storyId=B-a745 --tier=fast --explain prints requestedTier story-fast, effectiveTier repository-full, a runtime-derived selected-of-total command count, per-command inclusion reasons, unclassified inputs, each escalation reason code followed by a plain-language gloss, and finalAuthority: no, while the story store is byte-identical before and after the call.",
+  "keyRequirementIds": [
+    "REQ-001-stable-command-identity",
+    "REQ-002-legacy-pin-resolver",
+    "REQ-003-story-input-collector",
+    "REQ-004-fail-closed-planner",
+    "REQ-005-read-only-cli",
+    "REQ-006-canonical-fixture-registration"
+  ],
+  "requestHash": "sha256:5c58b40f4b57b2735012fe62d36a6f07bef20c7696005a5431f4e186149e93fe",
+  "createdAt": "2026-09-02T01:19:12.509Z",
+  "updatedAt": "2026-09-02T01:19:12.509Z"
+}

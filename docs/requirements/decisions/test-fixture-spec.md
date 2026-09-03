@@ -49,7 +49,7 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 
 `@test application/agent-service-facade` → `{fixturesDir}/application/agent-service-facade.json`
 
-- The path is relative to the `fixturesDir` of `lattice.config.json`
+- The path is relative to the `fixturesDir` of `proof-or-stop.config.json`
 - No `.json` suffix
 - Multiple functions can point to the same fixture file (use the `fn` field to distinguish which case belongs to which)
 
@@ -335,10 +335,10 @@ For existing dispatch-style fixtures, batch-process them with the conversion scr
 
 ```bash
 # Convert the entire fixtures directory
-node /path/to/lattice/scripts/convert-fixtures.cjs tests/fixtures
+node /path/to/proof-or-stop/scripts/convert-fixtures.cjs tests/fixtures
 
 # Convert a single file
-node /path/to/lattice/scripts/convert-fixtures.cjs tests/fixtures/application/agent-service-facade.json
+node /path/to/proof-or-stop/scripts/convert-fixtures.cjs tests/fixtures/application/agent-service-facade.json
 ```
 
 Conversion rules:
@@ -374,13 +374,13 @@ The handler is preferentially part of the `js.execute` compatibility path only; 
 When `test_auto` runs, it creates a temporary store to isolate the test data, and loads handlers:
 
 1. **Proof-or-Stop itself**: uses `createToolHandlers(testStore, root)` directly
-2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `lattice.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
+2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `proof-or-stop.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
 
 ## Browser Real-Machine Tests (browser case)
 
 ### Configuration
 
-Add a `browser` config to `lattice.config.json` (`proof-or-stop init` will auto-detect a browser project):
+Add a `browser` config to `proof-or-stop.config.json` (`proof-or-stop init` will auto-detect a browser project):
 
 ```json
 {
@@ -418,7 +418,7 @@ A case with `browser: true` in the fixture is executed by the `browser_test` MCP
 | `assert` | `selector`, `contains` | Assert the DOM text content (auto-polls, default 3s timeout) |
 | `screenshot` | `saveTo` | Take a screenshot and save it to tests/screenshots/ |
 | `wait` | `ms` | Wait (use assert instead where possible) |
-| `call` | `code`(fn name), `text`(args JSON) | Call a function registered in __lattice_modules |
+| `call` | `code`(fn name), `text`(args JSON) | Call a function registered in __proof_or_stop_modules |
 | `trace` | none | Get the window.__trace call chain |
 
 ### How to Run

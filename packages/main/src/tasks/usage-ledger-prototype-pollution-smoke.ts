@@ -67,7 +67,7 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
   }
 }
 
-const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const ON = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 
 const POLLUTION_VALUE = 999;
 
@@ -122,7 +122,7 @@ function freshRoot(): string {
 }
 
 function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
-  return { storyId: 'S-proto', phase: 'dispatch', agentType: 'lattice-dispatch', model: 'test-model', ...over };
+  return { storyId: 'S-proto', phase: 'dispatch', agentType: 'proof-or-stop-dispatch', model: 'test-model', ...over };
 }
 
 function opts() {
@@ -663,7 +663,7 @@ async function main(): Promise<void> {
       recordedAt: '2026-06-20T00:00:00.000Z',
       projectRootHash: 'sha256:deadbeef',
       phase: 'dispatch',
-      agentType: 'lattice-dispatch',
+      agentType: 'proof-or-stop-dispatch',
       storyId: null,
       sequence: 1,
       supersedesRecordIds: [],

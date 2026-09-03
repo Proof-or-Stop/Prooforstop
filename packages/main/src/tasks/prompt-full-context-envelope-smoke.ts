@@ -30,12 +30,12 @@ import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
 import { StoryStore } from '../core/store.js';
 
-const role = promptRoleContract('lattice-review-quality');
+const role = promptRoleContract('proof-or-stop-review-quality');
 const fullRollout = {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: {
-    'lattice-review-quality': 'full-envelope',
-    'lattice-review-behavior': 'full-envelope',
+    'proof-or-stop-review-quality': 'full-envelope',
+    'proof-or-stop-review-behavior': 'full-envelope',
   },
 } as const;
 const taskContext: FullTaskContext = {
@@ -87,7 +87,7 @@ const common = {
   dispatchKind: 'review-run' as const,
   reviewRunId: 'B-envelope:RR-001',
   reviewRound: '2026-07-18T00:00:00.000Z',
-  lane: 'lattice-review-quality',
+  lane: 'proof-or-stop-review-quality',
   dispatchPrompt: 'Trusted story-review dispatch prompt.',
   hostRenderIdentityDigest: 'f'.repeat(64),
 };
@@ -256,7 +256,7 @@ assert.throws(
 assert.throws(
   () => assembleFullPromptEnvelope({
     ...common,
-    lane: 'lattice-review-behavior',
+    lane: 'proof-or-stop-review-behavior',
     createdAt: '2026-07-18T00:00:01.000Z',
   }),
   /role\/lane mismatch/,
@@ -264,7 +264,7 @@ assert.throws(
 assert.throws(
   () => assembleFullPromptEnvelope({
     ...common,
-    rolePrompt: resolvePromptRoleBody('lattice-review-behavior', fullRollout).body,
+    rolePrompt: resolvePromptRoleBody('proof-or-stop-review-behavior', fullRollout).body,
     createdAt: '2026-07-18T00:00:01.000Z',
   }),
   /renderDigest does not match/,
@@ -286,9 +286,9 @@ assert.throws(() => resolvePromptEnvelopeRolloutMode(role.roleId, {
 assert.equal(isReviewerAgent('implementation-reviewer'), false);
 assert.equal(isReviewerAgent('test-intent'), false);
 assert.equal(isReviewerAgent('test-case-reviewer'), false);
-assert.equal(isReviewerAgent('lattice-review-channel'), false);
+assert.equal(isReviewerAgent('proof-or-stop-review-channel'), false);
 assert.throws(
-  () => resolveReviewRunLane('lattice-review-channel'),
+  () => resolveReviewRunLane('proof-or-stop-review-channel'),
   /retired or not eligible/,
 );
 assert.throws(
@@ -298,23 +298,23 @@ assert.throws(
 
 const tempRoot = mkdtempSync(join(tmpdir(), 'proofbound-agent-prompt-envelope-'));
 try {
-  writeFileSync(join(tempRoot, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(tempRoot, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     flows: { defaults: {}, patterns: [] },
     promptEnvelope: {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-      roles: { 'lattice-review-quality': 'full-envelope' },
+      roles: { 'proof-or-stop-review-quality': 'full-envelope' },
     },
   }));
   execFileSync('git', ['init', '-q'], { cwd: tempRoot });
   execFileSync('git', ['config', 'user.email', 'prompt@example.invalid'], { cwd: tempRoot });
   execFileSync('git', ['config', 'user.name', 'Prompt Smoke'], { cwd: tempRoot });
-  execFileSync('git', ['add', 'lattice.config.json'], { cwd: tempRoot });
+  execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: tempRoot });
   execFileSync('git', ['commit', '-qm', 'initial'], { cwd: tempRoot });
   const store = new StoryStore(tempRoot);
   store.writeStory('B-envelope', {
@@ -340,7 +340,7 @@ try {
   } as never);
   const handlers = createAgentPromptHandlers({ root: tempRoot, scanRoot: tempRoot, store });
   const response = JSON.parse(handlers.agent_prompt({
-    role: 'lattice-review-quality',
+    role: 'proof-or-stop-review-quality',
     storyId: 'B-envelope',
     format: 'json',
   }));
@@ -353,7 +353,7 @@ try {
   assert.equal(dispatchEvents[0]?.promptEnvelopeId, response.envelope.envelopeId);
   assert.equal(dispatchEvents[0]?.assembledPromptDigest, response.envelope.assembledPromptDigest);
   const response2 = JSON.parse(handlers.agent_prompt({
-    role: 'lattice-review-quality',
+    role: 'proof-or-stop-review-quality',
     storyId: 'B-envelope',
     format: 'json',
   }));
@@ -365,20 +365,20 @@ try {
   eventFailureStore.appendProcessEvent = () => { throw new Error('mutated process-event persistence failure'); };
   const eventRequiredHandlers = createAgentPromptHandlers({ root: tempRoot, scanRoot: tempRoot, store: eventFailureStore });
   assert.throws(
-    () => eventRequiredHandlers.agent_prompt({ role: 'lattice-review-quality', storyId: 'B-envelope', format: 'json' }),
+    () => eventRequiredHandlers.agent_prompt({ role: 'proof-or-stop-review-quality', storyId: 'B-envelope', format: 'json' }),
     /mutated process-event persistence failure/,
     'story-aware dispatch must fail closed when its production event cannot persist',
   );
   assert.throws(
-    () => handlers.agent_prompt({ role: 'lattice-review-quality', storyId: 'B-envelope', envelopeId: 'forged' }),
+    () => handlers.agent_prompt({ role: 'proof-or-stop-review-quality', storyId: 'B-envelope', envelopeId: 'forged' }),
     /unsupported caller-controlled field/,
   );
-  const legacyBody = resolvePromptRoleBody('lattice-implementer', {
+  const legacyBody = resolvePromptRoleBody('proof-or-stop-implementer', {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { 'lattice-review-quality': 'full-envelope' },
+    roles: { 'proof-or-stop-review-quality': 'full-envelope' },
   }).body;
   assert.equal(
-    handlers.agent_prompt({ role: 'lattice-implementer', storyId: 'B-envelope', format: 'json' }),
+    handlers.agent_prompt({ role: 'proof-or-stop-implementer', storyId: 'B-envelope', format: 'json' }),
     legacyBody,
     'per-role rollback preserves exact legacy bytes even when Story args remain',
   );

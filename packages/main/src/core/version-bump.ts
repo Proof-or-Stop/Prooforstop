@@ -6,7 +6,7 @@
  *   2. <root>/package-lock.json                         "version" + root package entry
  *   3. <root>/packages/main/package.json                "version"
  *   4. <root>/packages/main/package-lock.json           "version" + root package entry
- *   5. <root>/packages/main/src/core/lattice-brand.ts   export const LATTICE_CLI_VERSION
+ *   5. <root>/packages/main/src/core/proof-or-stop-brand.ts   export const PROOF_OR_STOP_CLI_VERSION
  *
  * This module is PURE (no git, no done-effects import — avoids a circular dependency;
  * done-effects passes in the `shouldBump` decision and a `runGit` runner). It reads all
@@ -28,7 +28,7 @@ export const VERSION_SYNC_FILES = {
   rootPackageLock: 'package-lock.json',
   mainPackageJson: 'packages/main/package.json',
   mainPackageLock: 'packages/main/package-lock.json',
-  brand: 'packages/main/src/core/lattice-brand.ts',
+  brand: 'packages/main/src/core/proof-or-stop-brand.ts',
 } as const;
 
 /** Ordered list of the three relative sync-point paths (for `git add`). */
@@ -43,19 +43,19 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/;
 const ACCEPTED_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set(['proof-or-stop', 'lattice']);
 /**
- * Matches an EXPORTED LATTICE_CLI_VERSION declaration in lattice-brand.ts. Anchored to the
+ * Matches an EXPORTED PROOF_OR_STOP_CLI_VERSION declaration in proof-or-stop-brand.ts. Anchored to the
  * start of a line (`^[ \t]*` under `/m`) followed by `export const`, and applied to a
  * COMMENT-STRIPPED view of the file (see stripComments), so neither a `// ...` line comment,
  * a commented-out `// export const ...` line, nor a `/* ... *​/` block-commented export can
  * be mistaken for the real constant. Global so callers can count occurrences.
  */
-const BRAND_EXPORT_RE = /^[ \t]*export\s+const\s+LATTICE_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/gm;
+const BRAND_EXPORT_RE = /^[ \t]*export\s+const\s+PROOF_OR_STOP_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/gm;
 
 /**
  * Remove `/* *​/` block comments and `//` line comments. Pragmatic for the controlled
- * lattice-brand.ts (no comment markers live inside its string literals) — NOT a full TS
+ * proof-or-stop-brand.ts (no comment markers live inside its string literals) — NOT a full TS
  * parser; findBrandExport adds a raw-vs-stripped count guard to refuse any file where an
- * export-shaped LATTICE_CLI_VERSION line also appears in a comment.
+ * export-shaped PROOF_OR_STOP_CLI_VERSION line also appears in a comment.
  */
 function stripComments(src: string): string {
   return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
@@ -238,18 +238,18 @@ function bumpPackageLockVersionContent(content: string, from: string, to: string
 }
 
 /**
- * Locate THE single real exported LATTICE_CLI_VERSION. Matches against the comment-stripped
+ * Locate THE single real exported PROOF_OR_STOP_CLI_VERSION. Matches against the comment-stripped
  * code (so a commented-out export — line or block — never matches), requires exactly one
  * match in that code, and refuses if the raw file has a different match count (i.e. an
  * export-shaped line also lives in a comment). Never a false success on a non-export.
  */
 function findBrandExport(content: string, label: string): { version: string; raw: RegExpMatchArray } {
   const codeMatches = [...stripComments(content).matchAll(BRAND_EXPORT_RE)];
-  if (codeMatches.length === 0) throw new Error(`version-bump: ${label} has no exported LATTICE_CLI_VERSION constant`);
-  if (codeMatches.length > 1) throw new Error(`version-bump: ${label} has ${codeMatches.length} exported LATTICE_CLI_VERSION declarations (ambiguous; refusing to bump)`);
+  if (codeMatches.length === 0) throw new Error(`version-bump: ${label} has no exported PROOF_OR_STOP_CLI_VERSION constant`);
+  if (codeMatches.length > 1) throw new Error(`version-bump: ${label} has ${codeMatches.length} exported PROOF_OR_STOP_CLI_VERSION declarations (ambiguous; refusing to bump)`);
   const rawMatches = [...content.matchAll(BRAND_EXPORT_RE)];
   if (rawMatches.length !== 1) {
-    throw new Error(`version-bump: ${label} has a LATTICE_CLI_VERSION export-shaped line in a comment as well as the real export (ambiguous; refusing to bump)`);
+    throw new Error(`version-bump: ${label} has a PROOF_OR_STOP_CLI_VERSION export-shaped line in a comment as well as the real export (ambiguous; refusing to bump)`);
   }
   return { version: rawMatches[0][1], raw: rawMatches[0] };
 }
@@ -258,9 +258,9 @@ function readBrandVersion(absPath: string): string {
   return findBrandExport(readFileSync(absPath, 'utf-8'), absPath).version;
 }
 
-/** Return a brand-file content string with the single real exported LATTICE_CLI_VERSION set to `to`. */
+/** Return a brand-file content string with the single real exported PROOF_OR_STOP_CLI_VERSION set to `to`. */
 function bumpBrandContent(content: string, from: string, to: string): string {
-  const { version, raw } = findBrandExport(content, 'lattice-brand.ts');
+  const { version, raw } = findBrandExport(content, 'proof-or-stop-brand.ts');
   if (version !== from) throw new Error(`version-bump: brand version "${version}" != expected "${from}"`);
   const replaced = raw[0].replace(`'${from}'`, `'${to}'`);
   const at = raw.index ?? content.indexOf(raw[0]);
@@ -279,7 +279,7 @@ export function readSyncedVersion(root: string): string {
     ...readPackageLockVersions(join(root, VERSION_SYNC_FILES.rootPackageLock), 'root lockfile', ['packages/main']),
     { label: 'packages/main', version: readJsonVersion(join(root, VERSION_SYNC_FILES.mainPackageJson)) },
     ...readPackageLockVersions(join(root, VERSION_SYNC_FILES.mainPackageLock), 'packages/main lockfile'),
-    { label: 'lattice-brand', version: readBrandVersion(join(root, VERSION_SYNC_FILES.brand)) },
+    { label: 'proof-or-stop-brand', version: readBrandVersion(join(root, VERSION_SYNC_FILES.brand)) },
   ];
   const [first] = versions;
   if (versions.some((entry) => entry.version !== first.version)) {

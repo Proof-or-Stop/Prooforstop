@@ -528,8 +528,8 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     if (command !== null) {
       const budget = liveSmokeCaptureBudget(ctx.root, command);
       const captureEnv = budget.nestedMaxTimeoutMs === undefined
-        ? { ...process.env, LATTICE_ACTIVE_STORY_ID: args.storyId }
-        : { ...process.env, LATTICE_ACTIVE_STORY_ID: args.storyId, LATTICE_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
+        ? { ...process.env, PROOF_OR_STOP_ACTIVE_STORY_ID: args.storyId }
+        : { ...process.env, PROOF_OR_STOP_ACTIVE_STORY_ID: args.storyId, PROOF_OR_STOP_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
       return runCapture(command, gitCwd, budget.timeoutMs, ctx.log, captureEnv).then(({ actual, timedOut }) => {
         if (timedOut) reclaimStaleValidationExecutionLock(ctx.root, args.storyId);
         return finish(actual);

@@ -1,4 +1,4 @@
-<!-- lattice:start -->
+<!-- proof-or-stop:start -->
 # CLAUDE.md
 
 ## 行为准则
@@ -32,9 +32,9 @@
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
 | **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
-| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`lattice-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
+| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`proof-or-stop-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
 | **TEST** | `proof-or-stop validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
-| **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.lattice/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
+| **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.proof-or-stop/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
 
 ### 如何选通道
 
@@ -68,13 +68,13 @@ proof-or-stop decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"opt
 
 ## Claude Prompt Hook
 
-`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.lattice/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `proof-or-stop session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
+`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.proof-or-stop/activity.jsonl`，并兼容读取旧版 `docs/story/activity.jsonl` 及 story-scoped `docs/story/actives/*/activity.jsonl` heartbeat。默认 60 分钟内跑过 `proof-or-stop session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
 
 ```text
 建议先运行 proof-or-stop session_brief 恢复现场
 ```
 
-阈值可用 `PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES` 配置（旧名 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 仍被读取，两者同时设置时新名优先；见 `core/brand-env.ts`）。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。每个 host 的 hook/settings 都是框架在 `proof-or-stop init` 时按 host 生成的 managed asset：Claude host 落在 `.claude/`（如 `.claude/hooks/lattice-scope-pretool.cjs`，已纳入 git），Codex adapter 落在其各自的 adapter 目录（同样由框架生成对应的 scope-guard hook）。这些是框架管理的生成产物，不要手写或手改；要调整 hook 行为请改生成源（`init-assets` / `core/managed-assets`），而不是直接编辑产物。
+阈值可用 `PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES` 配置；旧环境变量不再读取。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。每个 host 的 hook/settings 都是框架在 `proof-or-stop init` 时按 host 生成的 managed asset：Claude host 落在 `.claude/`（如 `.claude/hooks/proof-or-stop-scope-pretool.cjs`，已纳入 git），Codex adapter 落在其各自的 adapter 目录（同样由框架生成对应的 scope-guard hook）。这些是框架管理的生成产物，不要手写或手改；要调整 hook 行为请改生成源（`init-assets` / `core/managed-assets`），而不是直接编辑产物。
 
 ## 框架自省 audit 配置
 
@@ -92,11 +92,11 @@ B-9bd9 引入了「跨 story 框架自省 audit」机制（定期扫 CLAUDE.md �
 
 | 层 | 来源 | 说明 |
 |---|---|---|
-| 1 | `<projectRoot>/.lattice/audit-config.json` | 项目级覆盖，按字段逐项覆盖 |
+| 1 | `<projectRoot>/.proof-or-stop/audit-config.json` | 项目级覆盖，按字段逐项覆盖 |
 | 2 | profile 默认 | `auditTriggerWindow`：light=10 / balanced=5 / strict=3（其他字段所有 profile 共用第 3 层硬编码） |
 | 3 | 硬编码兜底 | `{auditTriggerWindow:5, requireClaudeMdDiff:true, mode:"semi-auto"}` |
 
-**手改配置**：直接编辑 `<projectRoot>/.lattice/audit-config.json`（如需）：
+**手改配置**：直接编辑 `<projectRoot>/.proof-or-stop/audit-config.json`（如需）：
 
 ```json
 {
@@ -195,13 +195,13 @@ import { GameMachine } from './machines/game/machine.js';
 
 const app = await devHost(createApp, GameMachine);
 
-if (process.env.LATTICE_SHELL === 'cli') {
+if (process.env.PROOF_OR_STOP_SHELL === 'cli') {
   const { startCliShell } = await import('../shells/cli/main.js');
   startCliShell(app.bridge);
 }
 ```
 
-框架的 `devHost()` 负责：杀旧进程 → 创建 app → 启动 bridge-host WS → 写 `.lattice-serve.json` → cleanup。
+框架的 `devHost()` 负责：杀旧进程 → 创建 app → 启动 bridge-host WS → 写 `.proof-or-stop-serve.json` → cleanup。
 
 ### Bridge 接口
 
@@ -217,7 +217,7 @@ interface GameBridge {
 
 // createLocalBridge：在 bridge.ts 中实现，import machine.ts + fn.ts
 // createWSBridge：浏览器端使用，连接 proof-or-stop serve 提供的 WS server
-// createBridge：自动选择（检测 window.__LATTICE_WS_PORT）
+// createBridge：自动选择（检测 window.__PROOF_OR_STOP_WS_PORT）
 ```
 
 ### 三种运行模式
@@ -242,7 +242,7 @@ proof-or-stop serve --port=N        # 显式端口（可选）
 
 端口基于 projectRoot 路径哈希自动分配，**不同 worktree / main 分支互不冲突**。
 
-启动时自动写 `.lattice-serve.json` 到项目目录：
+启动时自动写 `.proof-or-stop-serve.json` 到项目目录：
 
 ```json
 {
@@ -255,11 +255,11 @@ proof-or-stop serve --port=N        # 显式端口（可选）
 
 **Claude Code 调试流程**：
 
-1. 读 `.lattice-serve.json` → 拿到 `api` URL
+1. 读 `.proof-or-stop-serve.json` → 拿到 `api` URL
 2. 文件不存在或 pid 已死 → 先启动 `proof-or-stop serve`
 3. 用读到的 URL 调 Bridge API / 打开 Dashboard
 
-不需要记端口号。`.lattice-serve.json` 已加入 `.gitignore`，进程退出时自动清理。
+不需要记端口号。`.proof-or-stop-serve.json` 已加入 `.gitignore`，进程退出时自动清理。
 
 ### Core 完整性原则
 
@@ -304,15 +304,15 @@ POST /bridge/reset                                          → 重置到初始�
 典型调试流程：
 
 ```bash
-# 启动（端口自动分配，写入 .lattice-serve.json）
+# 启动（端口自动分配，写入 .proof-or-stop-serve.json）
 proof-or-stop serve --dev="npx vite"
 
 # 另一个终端，从发现文件读端口
-API=$(node -e "console.log(JSON.parse(require('fs').readFileSync('.lattice-serve.json','utf-8')).api)")
+API=$(node -e "console.log(JSON.parse(require('fs').readFileSync('.proof-or-stop-serve.json','utf-8')).api)")
 curl -X POST $API/bridge/event -d '{"event":"MOVE","input":{"row":7,"col":7}}'
 curl $API/bridge/state
 curl -X POST $API/bridge/replay -d '[{"event":"MOVE","input":{"row":7,"col":7}}]'
-# 或直接打开 Dashboard URL（.lattice-serve.json 里的 dashboard 字段）
+# 或直接打开 Dashboard URL（.proof-or-stop-serve.json 里的 dashboard 字段）
 ```
 
 ## Story 图谱（`proof-or-stop graph`）
@@ -437,7 +437,7 @@ project/
 
 **远端写入纪律**：Proof-or-Stop 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `proof-or-stop release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
-**版本递增纪律**：每个会改变 Proof-or-Stop CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `LATTICE_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `proof-or-stop --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
+**版本递增纪律**：每个会改变 Proof-or-Stop CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `PROOF_OR_STOP_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `proof-or-stop --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
 
 **Host DONE convergence / drift handling（DONE 收束纪律）**：并行 story 收束时按此操作，避免在 DONE 前反复撞。这是对既有机制的**投影**，规则源以下列决策文档为准、不在此重定义：`docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md`、`docs/requirements/decisions/story-files-hash-material-drift.md`、`docs/requirements/decisions/done-prepare-automation-execution-plan.md`、`docs/requirements/decisions/review-assurance-floor-execution-plan.md`，以及 `proof-or-stop done_prepare --help`。
 
@@ -469,7 +469,7 @@ project/
 
 ### 多 session 写协调（设计真相源）
 
-Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.lattice/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `proof-or-stop doctor` 的 stale story-owner-lease 检查。rollout step 1-6 已全部完成（B-8596 / B-f60c / B-c55d），其中 step 5（stuck-lock + stale story-owner-lease 检查）与 step 6（多 session 收敛 / 回归 smoke）由 B-c55d 收口。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
+Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.proof-or-stop/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `proof-or-stop doctor` 的 stale story-owner-lease 检查。rollout step 1-6 已全部完成（B-8596 / B-f60c / B-c55d），其中 step 5（stuck-lock + stale story-owner-lease 检查）与 step 6（多 session 收敛 / 回归 smoke）由 B-c55d 收口。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
 
 ## Checklist 写法
 
@@ -570,7 +570,7 @@ English-artifact gates scan all recursively scanned string leaves of story metad
 | Verify | 是 | 验证命令和期望输出 |
 | DoneWhen | 是 | 完成判定条件（具体、可检查） |
 
-**存储位置**：`docs/story/actives/B-xxxx/plan.md`，和 understanding.json / decision.json / checklist.json 同级。主 agent 直接写文件（当前无 CLI 命令，后续按需加 `plan_set`）。
+**存储位置**：由 `proof-or-stop.config.json` 的 `storyDir` 决定（本仓库为 `.proof-or-stop/story/actives/B-xxxx/plan.md`），和 understanding.json / decision.json / checklist.json 同级。读取必须使用 `proof-or-stop plan_get '{"storyId":"B-xxxx"}'`；写入必须使用 `proof-or-stop plan_set` 并按 `proof-or-stop plan_set --help` 传参，禁止直接读取或编辑 StoryStore 文件。
 
 规则：
 - 每个 checklist item 都必须有对应章节，不允许孤儿章节
@@ -584,20 +584,26 @@ English-artifact gates scan all recursively scanned string leaves of story metad
 
 **机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
-**签名域**（[init-check.ts](packages/main/src/handlers/init-check.ts) `signInitCheck`）：
+**签名域**（真相源是 [init-check-gate.ts](packages/main/src/core/init-check-gate.ts) 的 `INIT_CHECK_SIGNATURE_DOMAIN`；`describeInitCheckSignatureDomain()` 渲染当前列表，别照抄下面这行）：
 
 ```
-sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(checklist.items[*].{title,context})}:${reviewRound}:lattice-init-check-integrity-v1`)
+sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(checklist.items[*].{title,context})}:${reviewRound}:${verdictHash}:lattice-init-check-integrity-v1`)
 ```
+
+`verdictHash`（B-8df9 CHK-002 加入）= `computeInitCheckVerdictHash` 对 gate 实际判定的两个字段的摘要：`agentResults`（`missingRequiredInitCheckAgents` 读）和 `issues`（`blockingInitCheckIssues` 读）。**加入前 reviewer 结论本身不在签名域内**——手改 `agentResults` 注入一个从没跑过的 reviewer、或删掉一条 critical issue，签名照样有效、gate 照样放行。
+
+**这个属性的边界**：`INIT_CHECK_SALT` 是导出的源码常量，`signInitCheck` 也是导出函数——能改文件的人就能用产品自己的函数重新签名并通过 gate。所以签名域买到的是 **tamper-evidence**（挡住误改、损坏、不重签的手改），**不是**「reviewer 覆盖可信」，也挡不住蓄意行为者。任何暗示 reviewer 覆盖因此变可信的表述都是错的。
 
 **Blocker 类型**（[guard-utils.ts](packages/main/src/core/guard-utils.ts) INIT_CHECK 分支）：
 
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
-- `[init_check_tampered]` — `_hash` 与重算结果不符（主 agent 改了 background / title / description / checklist 任一字段）
+- `[init_check_tampered]` — `_hash` 与重算结果不符（签名域内任一组件改了：background / title / description / checklist / reviewRound / reviewer verdict）。注意 `recomputeInitCheckHash` 是对 story **当前**内容重算的，而 story 内容在 PLAN/DEV 会正常演进——所以 INIT 之后 `_hash` 失配是**预期常态**，不是损坏；gate 只在 phase === `INIT` 时读它，其他 phase 直接 early-return
 - `[missing_init_check_agent]` — 必需 reviewer 没有记录结果
 - `[init_check_blocking_issues]` — init-check.json 中存在 critical/high issue
 
 **issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
+
+**存量语料迁移立场**：不迁移，接受失效——理由和重新测得的计数见 `docs/requirements/decisions/story-lifecycle.md` 的「init-check signature domain widened to the reviewer verdict — migration position」节。
 
 **反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。
 
@@ -629,7 +635,7 @@ proof-or-stop init_check_repair '{
 设计约束（与上面反自豁免架构一致）：
 
 - **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符 → 拒绝、不产出文件、不改 phase。
-- **不绕过签名**：复用同一 `signInitCheck`，签名域不变（background/title/description/checklist）。事后改任一签名内容仍触发 `[init_check_tampered]`。
+- **不绕过签名**：复用同一 `signInitCheck`，跟普通 `init_check_set` 用**同一个**签名域，fallback 不因此签得更弱。B-8df9 CHK-002 后该域已包含 reviewer verdict（`agentResults` + `issues`），事后改任一签名内容仍触发 `[init_check_tampered]`；域的当前列表以 `describeInitCheckSignatureDomain()` 为准。
 - **不放宽 gate**：必需 reviewer 覆盖靠把 agentResults 记成 `<required>@fallback`（`initCheckAgentMatches` 认 `<required>@` 前缀），既满足校验又与独立 reviewer **机械可区分**；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
 - **不引入 agentId 校验**：EXP-001 已证伪调用方机械可区分性。
 - **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`proof-or-stop story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
@@ -682,7 +688,7 @@ scope-plan reviewer 按搜索预算契约（B-cee5：完整枚举 `<requirements
   "id": "OQ-1",
   "q": "description 说 X，但 decisions/foo.md §2 又说 Y，以哪个为准？",
   "evidence": "引用两处原文",
-  "sourcePointers": ["docs/story/actives/.../index.json#description", "docs/requirements/decisions/foo.md#section-2"]
+  "sourcePointers": [".proof-or-stop/story/actives/.../index.json#description", "docs/requirements/decisions/foo.md#section-2"]
 }
 ```
 
@@ -824,7 +830,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
 | **proof-or-stop-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。旧的 `lattice-review-channel` LLM agent 已退役（S1），由 `validate --channel` CLI 接管；`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
 | **proof-or-stop-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
 | **proof-or-stop-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
@@ -861,11 +867,11 @@ Proof-or-Stop agent prompt 的**正文（body）只有一个真相源**：包内
 | Codex | `.proof-or-stop-codex/proof-or-stop.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
 
 - **取正文命令**：`proof-or-stop agent_prompt --role=<name>`（如 `proof-or-stop-implementer` / `proof-or-stop-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
-- **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "proof-or-stop-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `proof-or-stop agent_prompt --role=<自身角色>` 取权威指令**再执行。
+- **spawn**：主 agent 使用 `Agent({ subagent_type: "proof-or-stop-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `proof-or-stop agent_prompt --role=<自身角色>` 取权威指令**再执行。
 - **init 行为**：`proof-or-stop init` 往**项目里写 0 个 agent 文件**；17 个 thin-shim 一次性放在全局 `~/.claude/agents`，所有项目共用。
 - **迁移显式**：已有 project-local 管理文件时，普通 `init` 只 WARN 不删；删除/迁移仅在 `proof-or-stop init --upgrade`，且只删 17 个管理 basename、保留用户自建文件。`proof-or-stop doctor` 报 `agentAssetMode: runtime-owned`。
-- **角色数量**：registry 共 **17** 个 role 模板（`scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT = 17` 钉住）；当前身份与输出指导使用 `proof-or-stop-*`，另有 **13** 个 `lattice-` 前缀仅作为兼容读取别名保留，不能作为新的身份或输出写入。
-- 真相源：`docs/requirements/decisions/lifecycle-artifact-scope.md` →「Policy: host-neutral prompt content, thin host adapters (B-097f)」+ `lattice-runtime-owned-agent-assets-execution-plan.md` 的 Implementation Status。
+- **角色数量**：registry 共 **17** 个 role 模板（`scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT = 17` 钉住），其中 **13** 个带 `proof-or-stop-` 前缀。这 13 个 role ID 是当前 `subagent_type` 值，旧前缀 role 不再解析。
+- 真相源：`docs/requirements/decisions/lifecycle-artifact-scope.md` →「Policy: host-neutral prompt content, thin host adapters (B-097f)」+ runtime-owned Agent assets 的当前实现状态。
 
 ## REVIEW 阶段规则（框架实现）
 
@@ -915,7 +921,7 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 
 **双层校验（Handler 编码约定）**：Zod（`command-catalog.ts` 的 `.int().positive().max(CAP)` / `.min(30)`）只是第一道防线；`resolveEvidenceCommandTimeout` 在**两个 handler 入口**和**共享执行边界 `enforceAndStampEvidence`** 各再校验一次，故绕开 Zod 的内部 fn 调用 / 老 JSON 同样被拒。cap 与 default 常量由 `core/validation-executor.ts` 单点导出、schema 与 handler 同时 import，两层不会漂移。
 
-**注意外层 CLI watchdog 仍然生效**：默认 5 分钟无输出 / 15 分钟总时长即被外层 watchdog 杀掉（`cli-engine.ts`）。所以一条静默跑多分钟的 pinned command，除了 `commandTimeoutMs` 还需为同一次调用抬高 `PROOF_OR_STOP_IDLE_TIMEOUT_MS` / `PROOF_OR_STOP_MAX_TIMEOUT_MS`（旧 `LATTICE_*` 名仍被 `core/brand-env.ts` 读取，新名优先）。超时报错文案里会提示这一点。
+**注意外层 CLI watchdog 仍然生效**：默认 5 分钟无输出 / 15 分钟总时长即被外层 watchdog 杀掉（`cli-engine.ts`）。所以一条静默跑多分钟的 pinned command，除了 `commandTimeoutMs` 还需为同一次调用抬高 `PROOF_OR_STOP_IDLE_TIMEOUT_MS` / `PROOF_OR_STOP_MAX_TIMEOUT_MS`。超时报错文案里会提示这一点。
 
 #### verify_codex heartbeat 超时：独立报错 + 有界受审计的 override（B-cdf6 / B-META F-013）
 
@@ -949,9 +955,9 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 proof-or-stop 命令与 registry 对齐 | fail → block REVIEW→TEST |
 | codex-adapter | `node bin/proof-or-stop-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 | english-artifacts | `english-artifacts` preflight (B-5f42, no standalone flag; standalone `npm run test:legacy -- english-only-guards`) | 本分支 commit + 当前 story 元数据必须英文(CJK 触发 fail) | fail → block REVIEW→TEST |
-| lattice-residue | `lattice-residue` preflight (B-292d, no standalone flag; standalone `npm run test:lattice-residue`) | 四个独立 check（见 `scripts/verify-lattice-residue.mjs`，**文件名为 FROZEN**：`review-preflight.ts` 硬编码该路径且缺失时 fail-closed）：**[koala]** 对 product runtime source（`packages/*/src`）零容忍扫 `koala` 残留，无 exemption；**[brand-prose]** (B-cdf6) 扫 active docs 的 markdown（scan roots：`README.md` / `CLAUDE.md` / `AGENTS.md` / `docs` / `packages/main/templates`，外加 **host adapter 目录 `.claude/agents` + `.proof-or-stop-codex/agents`**——B-cdf6 CHK-003 follow-up 补入，因为这两处曾各带约 20 行陈旧 `lattice <cmd>` 却因在扫描范围外而无人报错；它们是 registry 的派生镜像，命中即表示模板/注入 slice 陈旧或镜像未重生成，且会被原样喂给 spawn 出来的 agent），检出 `lattice <subcommand>` 这类仍在教用户跑旧 bin 名的调用式 prose，应改写为 `proof-or-stop <cmd>`。brand-prose **不能**照抄 koala 的零容忍设计——`packages/*/src` 下有 602 个文件合法含该 token（签名 salt / `.lattice/` 路径 / `LATTICE_*` env / `lattice-*` role ID 等，均为 `docs/requirements/decisions/brand-rename-mapping.md` 的 FROZEN 行），故按「须跟空格 + 小写子命令」结构性排除这些 FROZEN 类，另加一份带理由、且会自校验是否失效的 `EXEMPT_PROSE_FILES`；**[brand-exec]** (B-cdf6 CHK-006 Pass A) 扫**可执行面**——scan roots：`bin` / `.codex` / `package.json` / `proof-or-stop.config.json` / `lattice.config.json` / `CITATION.cff` / `packages/utils/src`——同样检出裸 `lattice <cmd>` 调用式，但**无 exemption**，因为这些路径本不该出现教旧 bin 名的调用；这一 root 集合是 B-cdf6 补入的，此前 `bin/` / `.codex/` 从未被任何 gate 扫过；**[brand-decision]** (B-cc10 CHK-007) 扫 product runtime source 的**路径判定点**，把 deprecated brand-path 字面量（`.lattice` / `.lattice-codex` / `lattice.config.json` / `lattice.json`，token 由 `packages/main/src/core/brand-paths.ts` 解析得出而非硬编码）从 exempt 翻成 **forbidden**——即代码不得再用 deprecated 拼写做**决策**（比较 / 读路径 / existsSync 探测）；read-both 场景应改为走 resolver 导出的 `STATE_DIR_NAMES` / `ADAPTER_DIR_NAMES` 候选列表。注意这一 check 只管 decision site，不禁止 deprecated 名字在 read-both 候选列表、FROZEN 签名 salt、或引用旧名解释迁移的 decision 文档里出现 | 任一 check fail → block REVIEW→TEST |
+| proof-or-stop-residue | `proof-or-stop-residue` preflight (standalone `npm run test:proof-or-stop-residue`) | 四个独立 check（见 `scripts/verify-proof-or-stop-residue.mjs`）：**[koala]** 对 product runtime source 零容忍扫无关产品残留；**[brand-prose]** 扫 active docs 与 host Agent mirrors，拒绝仍在教用户调用已退役命令的文案；**[brand-exec]** 扫可执行入口，拒绝退役命令；**[brand-decision]** 扫 product runtime source 的路径判定点，拒绝退役路径参与常规读写。历史签名 salt、不可变证据和显式 one-shot migration 输入由 identity-cutover verifier 的逐文件逐 token 规则校验，不是 active alias。 | 任一 check fail → block REVIEW→TEST |
 
-legacy `lattice-review-channel` LLM agent 已退役（S1），由 `proof-or-stop validate --channel --story=<id>` CLI gate 接管；`proof-or-stop-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`proof-or-stop-review-quality` 假设 lint 已绿只审主观项。
+`proof-or-stop-review-channel` LLM agent 已退役（S1），由 `proof-or-stop validate --channel --story=<id>` CLI gate 接管；`proof-or-stop-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`proof-or-stop-review-quality` 假设 lint 已绿只审主观项。
 
 ### REVIEW→TEST gate behavior (`canPassReviewGuard`) + incremental review context (B-f675)
 
@@ -1206,7 +1212,7 @@ pre-push hook 的核心设计约束：**不调用旧 CLI alias**。原因：hook
 - **Proof-or-Stop 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Proof-or-Stop 仓，立即 `exit 0`（对非 Proof-or-Stop 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Proof-or-Stop 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
-  3. 用 `node` 解析 package.json 的 `name` 字段，命中名字集合（`@proof-or-stop/core` 或历史名 `@lattice/core`）才继续；否则非 Proof-or-Stop 自身，立即 `exit 0`。比较的是**名字集合**而非单个名字，故重命名 package 不会静默关掉递归 tsc gate
+  3. 用 `node` 解析 package.json 的 `name` 字段，只有精确命中 `@proof-or-stop/core` 才继续；否则非 Proof-or-Stop 自身，立即 `exit 0`
   注意本仓是扁平布局 `packages/main`，不是嵌套布局
 - **先构建 `packages/main`**：`npm --prefix packages/main run build`。原因是 `packages/utils` 的源码 import `packages/main/dist` 的编译产物，若 `dist` 不存在，递归 tsc 跑到 `packages/utils` 会因找不到模块而 FAIL。`npm run build` 即 tsc（非 Proof-or-Stop CLI 命令，符合约束）。构建失败 → push 被拒
 - **递归 tsc**：`find` REPO_ROOT 下所有 `tsconfig.json`（排除黑名单目录 `node_modules / dist / build / .worktrees / .git`），对每个所在目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，消除 B-9bd9 的单根 tsconfig 子包盲区
@@ -1254,62 +1260,4 @@ see story/B-5a28
 - 测试统一通过 `proof-or-stop validate` 执行
 - `proof-or-stop validate` 全绿 = 可以提交
 - 调用出错时先 `proof-or-stop <command> --help`，不要靠记忆猜参数
-
-### Defect triage: fix, defer, or decline (scope discipline)
-
-Three rules govern what you do with a defect found mid-story. They are ordered: classify first, then act.
-
-1. **Fix major or acceptance-blocking defects on the spot.** If a defect blocks a gate, blocks
-   acceptance, or is major in its own right, repair it in this story rather than deferring it. A
-   blocking defect is not a follow-up candidate — deferring it just moves the blockage.
-2. **Record non-major, non-blocking defects with evidence and defer them.** A real defect that is
-   neither major nor blocking for *this* story is deferred, but only *with durable evidence*: file it
-   (`finding_add`) or resolve it with the full analysis recorded (`finding_resolve --resolutionType=accepted_risk`),
-   citing file:line, why it is out of this story's claimed scope, and what a follow-up must do.
-   "Deferred" never means "silently dropped" — a deferral with no written evidence is a dropped defect.
-3. **Never expand scope without bound in pursuit of all-green.** Do not widen a story to fix
-   everything a reviewer can find. If a defect is not claimed by any checklist item and is not
-   blocking, it belongs to a dedicated story. A green gate bought by unbounded scope creep is worse
-   than an honest deferral, because it destroys the story's reviewability and its scope contract.
-
-**Decision procedure (run it in this order, on every new defect found mid-story):**
-
-1. **Classify first.** Before touching anything, decide whether the defect is a major risk to the
-   current Story or blocks its acceptance. Do not start fixing and classify afterwards.
-2. **Must fix in the current Story** if ANY of these holds:
-   - severity is `critical` or `high`; or
-   - it touches **security**, **data integrity**, or **destructive/compatibility** behavior; or
-   - it would block this Story's acceptance, REVIEW, TEST, or DONE.
-3. **Record and defer** if ALL of these hold: severity is `medium`/`low`, AND it is not a direct
-   regression of the current acceptance scope, AND it does not affect the user's core outcome, AND it
-   cannot distort a lifecycle gate. Then capture, at minimum: **reproduction steps, evidence, blast
-   radius, and recommended handling**, into a finding / gap / backlog entry with the follow-up owner
-   named. The current Story does not expand scope.
-4. **Deferral is never a verbal judgement.** It must leave a traceable record. And it is revisable: if
-   later evidence shows the severity was underestimated, or the defect becomes an acceptance blocker,
-   pull it back into the current Story immediately.
-
-**How to tell major/blocking from deferrable** — decide on mechanical signals, not vibes:
-
-| Signal | Reading |
-|---|---|
-| A gate reports it `BLOCKED` / `blocking=true` | Blocking → rule 1, fix now |
-| `blocking=false` / `diagnostic_only` / advisory | Not blocking → rule 2 is available |
-| Severity `critical` | Always fix; never dismissable in any round |
-| Claimed by a checklist item's `Files`/scope | In scope → fix now |
-| Not enumerated by any CHK item | Unclaimed scope → rule 2 + rule 3 |
-| Fix requires coordinated edits beyond the story's files | Strong deferral signal; needs its own review |
-| Touches security / data integrity / destructive compat | Fix now regardless of nominal severity |
-| Would make a gate report a false PASS | Gate distortion → fix now, never defer |
-| Deferred item's severity later escalates | Pull back into the current story immediately |
-
-**Why:** a story that fixes every defect it happens to notice stops being reviewable — its diff no
-longer corresponds to its checklist, and reviewers can no longer judge whether the claimed work was
-done. Conversely, a story that defers a *blocking* defect ships a known-broken gate. The evidence
-requirement in rule 2 is what keeps the middle case honest: a deferral that is written down is a
-handoff, while a deferral that is only reasoned about in a session transcript is an untracked
-regression. Precedent: B-5a88 fixed its acceptance-blocking evidence-binding defect in place, deferred
-a confirmed-but-unclaimed `lattice-*` provider-discriminant rename (41 occurrences across 9 files,
-including a DONE-gate path) with the full analysis recorded on the finding, and deliberately left 282
-already-readable persisted `schemaVersion: 'lattice.*'` literals alone rather than chase all-green.
-<!-- lattice:end -->
+<!-- proof-or-stop:end -->

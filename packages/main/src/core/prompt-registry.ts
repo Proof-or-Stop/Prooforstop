@@ -70,7 +70,7 @@ export const MODULAR_COMPLEX_ROLE_IDS = [
 export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
 /**
- * B-cdf6 CHK-005: re-approved after the `lattice` -> `proof-or-stop` bin rename
+ * B-cdf6 CHK-005: re-approved after the `proof-or-stop` -> `proof-or-stop` bin rename
  * rewrote command-invocation prose inside every registry template. The digests
  * below are recomputed content addresses, not a relaxation: the reconstruction
  * check still fails closed on any unapproved template edit. Repinning in place
@@ -82,8 +82,8 @@ export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
  *
  * B-cdf6 CHK-003 follow-up: repinned a SECOND time, because CHK-005 only covered
  * the registry TEMPLATES while the injected slice below
- * (`LOAD_BEARING_LATTICE_PROMPT_SLICE`) and `TEST_COVERAGE_LEGACY_PROCESS_CONTRACT`
- * / `STORY_INIT_LEGACY_TAIL` still taught `lattice <cmd>` to every spawned agent.
+ * (`LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE`) and `TEST_COVERAGE_LEGACY_PROCESS_CONTRACT`
+ * / `STORY_INIT_LEGACY_TAIL` still taught `proofOrStop <cmd>` to every spawned agent.
  * Those three payloads are reconstruction inputs, so rebranding them necessarily
  * moves every digest here. Same discipline as above, and additionally proven
  * before repinning: normalizing brand tokens and line-wrapping makes the new
@@ -113,16 +113,47 @@ const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.
 const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proof-or-stop:story-init-legacy-tail:v1 -->';
 const STORY_INIT_LEGACY_TAIL_MARKER_LEGACY = '<!-- proofbound:story-init-legacy-tail:v1 -->';
 // Frozen gzip -n payload of the pre-Story-6 `## 4. Procedure` through EOF.
-// B-cdf6 CHK-003: re-encoded after the `lattice` -> `proof-or-stop` bin rename.
+// B-cdf6 CHK-003: re-encoded after the `proof-or-stop` -> `proof-or-stop` bin rename.
 // This payload is injected into the LIVE story-init reviewer body (default mode
 // is `legacy-full-context`), so its `init_check_set` invocations were teaching
 // the retired bin name. Only RENAMED-class tokens changed: the bin name in
-// invocations plus the product prose. The FROZEN `lattice-review-story-init`
+// invocations plus the product prose. The FROZEN `proof-or-stop-review-story-init`
 // role ID is preserved verbatim wherever it appears as an `agentId` value.
 const STORY_INIT_LEGACY_TAIL_GZIP_BASE64 = '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';
 const STORY_INIT_LEGACY_TAIL = gunzipSync(
   Buffer.from(STORY_INIT_LEGACY_TAIL_GZIP_BASE64, 'base64'),
 ).toString('utf8');
+
+const STORY_INIT_CLI_ONLY_REPLACEMENTS: ReadonlyArray<readonly [string, string]> = [
+  ['## 4. Procedure (8 steps)', '## 4. Procedure (7 steps)'],
+  [
+    '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
+    '2. **Read the background through the CLI**: run `proof-or-stop background_get \'{"storyId":"<storyId>"}\'`, read the full returned background, note all letter codes, abbreviations, jargon, and first definitions, and mark factual claims about the existing system.',
+  ],
+  [
+    '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
+    '3. **Read the story fields through the CLI**: run `proof-or-stop story_get \'{"storyId":"<storyId>"}\'` and extract only `title` / `description` / `type` / `priority` / `riskSignals`.',
+  ],
+  [
+    '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
+    '4. **Read the checklist through the CLI**: run `proof-or-stop checklist_get \'{"storyId":"<storyId>"}\'`, iterate over `items[]`, and use only `title` and `context`.',
+  ],
+  [
+    'After all review work is finished and `init_check_set` has been called, you must read the following JSON file and write into the answer:\n\n```bash\ncat docs/story/actives/<storyId>/init-self-check.json\n```\n\nIf the file does not exist, create it first:\n\n```bash\necho \'{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}\' > docs/story/actives/<storyId>/init-self-check.json\n```\n\nThen use the Edit tool to fill in the `answer` field completely (answer honestly). This is for audit traceability and does not affect the signature.',
+    'After `init_check_set`, state in the answer whether you read `CLAUDE.md`. Do not create, read, or edit a StoryStore sidecar directly; `init_check_set` is the only persisted reviewer result.',
+  ],
+];
+
+function rewriteStoryInitLegacyTailForCliOnly(content: string): string {
+  let rewritten = content;
+  for (const [before, after] of STORY_INIT_CLI_ONLY_REPLACEMENTS) {
+    if (!rewritten.includes(before)) {
+      throw new Error(`story-init CLI-only rewrite source drift: ${before.slice(0, 80)}`);
+    }
+    rewritten = rewritten.replace(before, after);
+  }
+  return rewritten;
+}
 
 const TEST_COVERAGE_LEGACY_PROCESS_CONTRACT = `
 ## Two-Layer Process Fact Contract
@@ -138,7 +169,7 @@ Execution rules:
 - Gates consume structured facts: signatures, hashes, verificationEvidence, review pass, init/scope/delivery check, and validate evidence. Do not let gates infer process facts from ordinary text like "passed / no problem".
 - When changing reviewer prompts, CLI schema, handlers, or gates, run \`npm run test:process-fact-contract\` to confirm the prompt has not drifted and the process fact inventory still proves the hard fallback exists.
 `;
-export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- proof-or-stop:start -->
+export const LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE = `<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -364,7 +395,7 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
     modularMarker,
     canonicalRole === 'proof-or-stop-review-test-coverage'
       ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
-      : LOAD_BEARING_LATTICE_PROMPT_SLICE,
+      : LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
   );
   if (canonicalRole === 'proof-or-stop-review-story-init') {
     const tailMarker = restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)

@@ -5,7 +5,7 @@
  *
  * ── WHAT WENT WRONG, AND WHY THE ENUMERATION HAS NO NAME PATTERN ────────────
  *
- * Thirty-three red harnesses are committed in this directory. `lattice validate`
+ * Thirty-three red harnesses are committed in this directory. `proof-or-stop validate`
  * ran thirteen of them. The other twenty were never registered and nothing said
  * so, because the only two guards that looked at registration each looked at a
  * NARROWER population than the one they appeared to protect:
@@ -25,7 +25,7 @@
  *
  * ── THE RULE ────────────────────────────────────────────────────────────────
  *
- * Every member is EITHER registered in `lattice.config.json` `validate.commands`
+ * Every member is EITHER registered in `proof-or-stop.config.json` `validate.commands`
  * OR listed in REGISTRATION_EXCLUSIONS with a stated reason. Nothing may be
  * silently neither: an unregistered, unexcluded member lands in `undecided` and
  * this guard FAILS naming it. Silent absence is indistinguishable from an
@@ -79,7 +79,7 @@ const pkgRoot = join(here, '..', '..'); // packages/main
 const repoRoot = join(pkgRoot, '..', '..');
 // B-cc10: resolve whichever config filename exists. The canonical name is now
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
-const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
+const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'proof-or-stop.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 const SELF_REL = relative(repoRoot, SELF_ABS).split(sep).join('/');
 
 /** POPULATION 2 — governed by this file. */
@@ -224,7 +224,7 @@ function auditExclusions(pop, exclusions) {
 const configRaw = readFileSync(CONFIG_PATH, 'utf8');
 const config = JSON.parse(configRaw);
 if (!Array.isArray(config?.validate?.commands) || config.validate.commands.length === 0) {
-  console.error('red-b49d4-harness-registration: lattice.config.json must declare a non-empty validate.commands array');
+  console.error('red-b49d4-harness-registration: proof-or-stop.config.json must declare a non-empty validate.commands array');
   process.exit(1);
 }
 
@@ -243,8 +243,8 @@ if (population.length !== rawEntries.length || population.length === 0) {
 if (real.undecided.length > 0) {
   const describe = (rel) => (isDirectory(rel) ? `${rel} (a DIRECTORY — a flat enumeration cannot see harnesses inside it)` : rel);
   fail('registration',
-    `these ${POPULATION_DIR_REL} members are NEITHER registered in lattice.config.json validate.commands NOR listed `
-    + `in REGISTRATION_EXCLUSIONS with a reason, so \`lattice validate\` never runs them and nobody decided that it `
+    `these ${POPULATION_DIR_REL} members are NEITHER registered in proof-or-stop.config.json validate.commands NOR listed `
+    + `in REGISTRATION_EXCLUSIONS with a reason, so \`proof-or-stop validate\` never runs them and nobody decided that it `
     + `should not: ${real.undecided.map(describe).join(', ')}. Register the harness, or exclude it here and say why.`);
 }
 if (real.wronglyRegistered.length > 0) {
@@ -328,7 +328,7 @@ if (failures.length > 0) {
 
 console.log(
   `red-b49d4-harness-registration: OK (all ${population.length} entries of ${POPULATION_DIR_REL} found ON DISK are `
-  + `accounted for: ${real.registered.length} registered in lattice.config.json validate.commands and `
+  + `accounted for: ${real.registered.length} registered in proof-or-stop.config.json validate.commands and `
   + `${real.excluded.length} excluded with a stated reason. The enumeration is TOTAL — no name pattern, no extension `
   + 'filter — so a differently-prefixed newcomer is inside the population rather than invisible to it, and this file '
   + `is inside it too with no self-exception. Proven non-vacuous in both directions: an unregistered, unexcluded `

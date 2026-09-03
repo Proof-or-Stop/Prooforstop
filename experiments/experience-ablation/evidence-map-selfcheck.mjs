@@ -72,7 +72,7 @@ function stubRecord(fixtureId, arm, overrides) {
     cleanTask: fx.trapGroup === 'clean',
     memoryPackShown: arm === 'treatment',
     surfacedMemoryIds: ['les-stale-doc'],
-    storeRoot: `/tmp-stub/ablation-${fixtureId}-${arm}/workspace/.lattice/learning`,
+    storeRoot: `/tmp-stub/ablation-${fixtureId}-${arm}/workspace/.proof-or-stop/learning`,
     defectPresent: false,
     repeatDefectPresent: false,
     timeToDoneMs: 1000,
@@ -151,7 +151,7 @@ const STUB_LIVE_READOUT = {
  */
 function makeRoot(base, name, { omit = [], scoreText, nFreezeOverrides } = {}) {
   const root = join(base, name);
-  const evidence = join(root, '.lattice', 'experiments', 'experience-ablation', EXP_ID);
+  const evidence = join(root, '.proof-or-stop', 'experiments', 'experience-ablation', EXP_ID);
   mkdirSync(evidence, { recursive: true });
 
   let memorySnapshotHash = 'a'.repeat(64);
@@ -282,7 +282,7 @@ try {
     SECTION18_ROWS.every((r) => md.includes(r.claim)));
 
   // --- existence + digest checks on every cited artifact -----------------------------------
-  const evidence = join(root, '.lattice', 'experiments', 'experience-ablation', EXP_ID);
+  const evidence = join(root, '.proof-or-stop', 'experiments', 'experience-ablation', EXP_ID);
   const citedByName = new Map();
   for (const r of rows) for (const a of r.artifacts) citedByName.set(a.path.split('/').pop(), a);
   const digestsOk = REQUIRED_ARTIFACTS.every((name) => {
@@ -374,7 +374,7 @@ try {
 
   // --- tamper detection: recorded hash vs recomputation ----------------------------------------------
   const tamperProto = makeRoot(tmp, 'root-tamper-proto');
-  const protoPath = join(tamperProto, '.lattice', 'experiments', 'experience-ablation', EXP_ID, 'protocol.json');
+  const protoPath = join(tamperProto, '.proof-or-stop', 'experiments', 'experience-ablation', EXP_ID, 'protocol.json');
   const protoDoc = JSON.parse(readFileSync(protoPath, 'utf8'));
   protoDoc.taskClasses.inStore = ['tampered-after-freeze'];
   writeFileSync(protoPath, `${JSON.stringify(protoDoc, null, 2)}\n`);
@@ -382,13 +382,13 @@ try {
     runTool(errArgs(tamperProto), { cwd: tmp }), 'protocolHash recompute');
 
   const tamperManifest = makeRoot(tmp, 'root-tamper-manifest');
-  const manifestPath = join(tamperManifest, '.lattice', 'experiments', 'experience-ablation', EXP_ID, 'fixture-manifest.jsonl');
+  const manifestPath = join(tamperManifest, '.proof-or-stop', 'experiments', 'experience-ablation', EXP_ID, 'fixture-manifest.jsonl');
   writeFileSync(manifestPath, readFileSync(manifestPath, 'utf8') + `${JSON.stringify({ fixtureId: 'fx-evil', trapClass: 'stale-doc', trapGroup: 'in_store', oracleRef: 'oracle.mjs' })}\n`);
   assertOneLineError('tamper: manifest row appended after sealing -> manifestHash mismatch',
     runTool(errArgs(tamperManifest), { cwd: tmp }), 'manifestHash');
 
   const tamperSnap = makeRoot(tmp, 'root-tamper-snapshot');
-  writeFileSync(join(tamperSnap, '.lattice', 'experiments', 'experience-ablation', EXP_ID, 'memory-snapshot', 'lessons.jsonl'),
+  writeFileSync(join(tamperSnap, '.proof-or-stop', 'experiments', 'experience-ablation', EXP_ID, 'memory-snapshot', 'lessons.jsonl'),
     '{"id":"les-stale-doc","lesson":"tampered after freeze"}\n');
   assertOneLineError('tamper: memory snapshot edited after freeze -> memorySnapshotHash recompute mismatch',
     runTool(errArgs(tamperSnap), { cwd: tmp }), 'memorySnapshotHash recompute');
@@ -400,22 +400,22 @@ try {
     'pilot baseline recount');
 
   // --- store isolation: separator-safe production-store prefix check (F-001) -------------------------
-  // A SIBLING path <root>/.lattice/learning-extra/... shares the string prefix
-  // <root>/.lattice/learning but is NOT inside the production store — must pass.
+  // A SIBLING path <root>/.proof-or-stop/learning-extra/... shares the string prefix
+  // <root>/.proof-or-stop/learning but is NOT inside the production store — must pass.
   const siblingRoot = join(tmp, 'root-sibling-store');
-  const siblingRecords = stubRecords().map((r) => ({ ...r, storeRoot: join(siblingRoot, '.lattice', 'learning-extra', 'x') }));
+  const siblingRecords = stubRecords().map((r) => ({ ...r, storeRoot: join(siblingRoot, '.proof-or-stop', 'learning-extra', 'x') }));
   makeRoot(tmp, 'root-sibling-store', { scoreText: stubScoreRecordsText(siblingRecords) });
   const siblingOut = join(tmp, 'out-sibling-store');
   const sibling = runTool([`--root=${siblingRoot}`, `--experimentId=${EXP_ID}`, `--out=${siblingOut}`], { cwd: tmp });
-  check('store isolation: sibling storeRoot <root>/.lattice/learning-extra/x does NOT trigger the violation',
+  check('store isolation: sibling storeRoot <root>/.proof-or-stop/learning-extra/x does NOT trigger the violation',
     sibling.status === 0,
     `status=${sibling.status} stderr=${sibling.stderr}`);
-  // A path UNDER the production store <root>/.lattice/learning/... MUST fail.
+  // A path UNDER the production store <root>/.proof-or-stop/learning/... MUST fail.
   const prodStoreRoot = join(tmp, 'root-production-store');
   const prodRecords = stubRecords();
-  prodRecords[0].storeRoot = join(prodStoreRoot, '.lattice', 'learning', 'x'); // fx-1 control (non-voided)
+  prodRecords[0].storeRoot = join(prodStoreRoot, '.proof-or-stop', 'learning', 'x'); // fx-1 control (non-voided)
   makeRoot(tmp, 'root-production-store', { scoreText: stubScoreRecordsText(prodRecords) });
-  assertOneLineError('store isolation: storeRoot <root>/.lattice/learning/x MUST trigger the violation',
+  assertOneLineError('store isolation: storeRoot <root>/.proof-or-stop/learning/x MUST trigger the violation',
     runTool(errArgs(prodStoreRoot), { cwd: tmp }), 'per-run store isolation');
 
   // --- fail-closed verdict guard ------------------------------------------------------------------------

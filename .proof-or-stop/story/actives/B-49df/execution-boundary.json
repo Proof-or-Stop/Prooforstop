@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-49df",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git show",
+    "git status",
+    "node",
+    "npm",
+    "proof-or-stop",
+    "rg"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story",
+    "historical signed Story artifacts"
+  ],
+  "confirmedBy": "human",
+  "confirmationNote": "User approved implementation and requested the standard Story lifecycle with RED and GREEN proof.",
+  "createdAt": "2026-09-02T07:47:20.537Z",
+  "updatedAt": "2026-09-02T07:47:20.537Z",
+  "_hash": "1e04eb2b244c16ca8adf907f80c986c333706211d5a9636a158913dd417252c3"
+}

@@ -7,6 +7,7 @@
  * and handlers.
  */
 
+import { validateExternalCommandDeclarations, validateExternalCommandHandlers } from './cli/extension-admission.js';
 import { z, type ZodType } from 'zod';
 import { existsSync, realpathSync } from 'fs';
 import {
@@ -31,11 +32,8 @@ import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
-import {
-  formatLatticeVersionLine,
-  detectProofOrStopBrand,
-} from './core/lattice-brand.js';
-import { PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+import { detectProofOrStopBrand, formatProofOrStopVersionLine } from './core/proof-or-stop-brand.js';
+import { PROOF_OR_STOP_DIR } from './core/proof-or-stop-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
 import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
@@ -49,12 +47,7 @@ import {
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
-import {
-  ownerLeaseHelpBlock,
-  storyIdFromArgs,
-  enforceRetiredRootGuard,
-  enforceStoryOwnerLeaseGate,
-} from './cli/ownership-gate.js';
+import { enforceRetiredRootGuard, enforceStoryOwnerLeaseGate, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, storyIdFromArgs } from './cli/ownership-gate.js';
 import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate.js';
 import {
   resolveMainRootFromWorktreeRoot,
@@ -319,8 +312,8 @@ export function enforceExperimentArmRetrievalGate(cmd: string, root: string): vo
  * name: 'host_status'
  * name: 'init_check_repair'
  * name: 'init_check_set'
- * name: 'lattice_config_doctor'
- * name: 'lattice_config_repair'
+ * name: 'proof_or_stop_config_doctor'
+ * name: 'proof_or_stop_config_repair'
  * name: 'learning_effectiveness'
  * name: 'learning_scan'
  * name: 'learning_validate'
@@ -726,7 +719,15 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
 export async function runCli(opts?: {
   extraTools?: ToolDef[];
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;
+  extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
+  extraAllowedPhases?: Readonly<Record<string, readonly string[] | 'all'>>;
 }): Promise<void> {
+  const externalAdmission = validateExternalCommandDeclarations({
+    mainTools: MAIN_TOOLS,
+    extraTools: opts?.extraTools,
+    extraOwnershipClasses: opts?.extraOwnershipClasses,
+    extraAllowedPhases: opts?.extraAllowedPhases,
+  });
   // Inject extras: merge tool defs and keep extras register for later invocation.
   TOOLS = opts?.extraTools && opts.extraTools.length > 0
     ? [...MAIN_TOOLS, ...opts.extraTools]
@@ -804,7 +805,7 @@ export async function runCli(opts?: {
     return;
   }
   if (cmd === 'version' || cmd === '--version' || cmd === '-v') {
-    process.stdout.write(`${formatLatticeVersionLine()}\n`);
+    process.stdout.write(`${formatProofOrStopVersionLine()}\n`);
     return;
   }
 
@@ -849,12 +850,20 @@ export async function runCli(opts?: {
     process.exit(1);
   }
 
-  if (arg === '--help' || arg === '-h') { printToolHelp(tool, { ownerLeaseHelpBlock }); return; }
+  const helpInvocation = normalizedAlias.matched ? normalizedAlias.displayAlias : undefined;
+  if (arg === '--help' || arg === '-h') { printToolHelp(tool, { ownerLeaseHelpBlock, invocation: helpInvocation }); return; }
 
   // Phase gate: When an active story exists, reject commands outside the allowlist.
   if (activeStory) {
     const config = loadConfig(root0);
-    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
+    // Optional bootstrap extensions are not members of the core lifecycle
+    // registry. They must independently declare BOTH ownership and lifecycle
+    // phases; a tool definition or ownership class alone cannot bypass the
+    // active-Story phase gate.
+    const extensionPhases = externalAdmission.allowedPhases[cmd];
+    const isDeclaredExtensionCommand = externalAdmission.commandNames.has(cmd)
+      && (extensionPhases === 'all' || (Array.isArray(extensionPhases) && extensionPhases.includes(activeStory.phase)));
+    if (!isDeclaredExtensionCommand && !isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
       console.error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
@@ -873,7 +882,7 @@ export async function runCli(opts?: {
     parsed = parseCommandArgs(argv.slice(1), tool);
   } catch (e) {
     console.error((e as Error).message);
-    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
+    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock, invocation: helpInvocation });
     process.exit(1);
   }
 
@@ -926,8 +935,10 @@ export async function runCli(opts?: {
   const scanRoot = join(root, config0.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };
   const registry = createMainRegistry(ctx);
+  const coreHandlerSnapshot = new Map(Object.entries(registry.toObject()));
   if (opts?.extraRegister) opts.extraRegister(registry, ctx);
   const handlers = registry.toObject() as Record<string, Function>;
+  validateExternalCommandHandlers(externalAdmission, coreHandlerSnapshot, handlers, opts?.extraTools);
 
   function appendMilestoneStatusAfterMutation(output: string): string {
     if (wantsMachineJson(parsed)) return output;
@@ -1051,7 +1062,7 @@ export async function runCli(opts?: {
   } catch { /* never block */ }
 
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
-  // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
+  // Can be overridden with PROOF_OR_STOP_IDLE_TIMEOUT_MS / PROOF_OR_STOP_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
   const explicitIdle = Number(readBrandEnv('IDLE_TIMEOUT_MS'));
   const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
@@ -1137,7 +1148,7 @@ export async function runCli(opts?: {
       || value?.result === 'blocked';
   }
 
-  // Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).
+  // Unified logging: write to .proof-or-stop/activity.jsonl (dual-source module, legacy path is read-compatible only).
   // Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.
   // staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).
   function writeLog(entry: {
@@ -1231,7 +1242,9 @@ export async function runCli(opts?: {
     // for BOTH the success and error call sites in run() (and any future
     // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
     // so no post-command process-event surface can bypass the contract.
-    if (isReadOnlyCommand(entry.command, argsObject)) return;
+    const eventStoryId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
+    const eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses);
+    if (eventOwnership === 'readOnly' || isReadOnlyCommand(entry.command, argsObject)) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
     // canonical commit dirty again (and would mutate pre-dirty refusal bytes).
@@ -1348,7 +1361,7 @@ export async function runCli(opts?: {
     // before the owner lease gate, so a blocked command cannot trigger hooks
     // or acquire/mutate lease state.
     try {
-      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory);
+      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, externalAdmission.ownershipClasses);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1362,7 +1375,7 @@ export async function runCli(opts?: {
     // because those are still writes even though they are intentionally exempt
     // from per-story owner leases.
     try {
-      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root);
+      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root, externalAdmission.ownershipClasses);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1374,10 +1387,13 @@ export async function runCli(opts?: {
     // F-028: gate on the arg-aware read-only predicate so a plain (no --out)
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
-    if (config0?.hooks?.preCommand && !isReadOnlyCommand(cmd, parsed)) {
-      process.stderr.write(`[lattice-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+    const commandStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
+    const effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses);
+    const effectiveReadOnly = effectiveOwnership === 'readOnly' || isReadOnlyCommand(cmd, parsed);
+    if (config0?.hooks?.preCommand && !effectiveReadOnly) {
+      process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
-    if (!isReadOnlyCommand(cmd, parsed)) {
+    if (!effectiveReadOnly) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
     try {
@@ -1399,7 +1415,7 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, externalAdmission.ownershipClasses);
       // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
       // (which owns the canonical-storyId / path-traversal guard and the ownership
       // check) so the breaker only ever derives a story path and writes state for a
@@ -1480,12 +1496,12 @@ export async function runCli(opts?: {
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       // F-028: same arg-aware read-only gate as the preCommand hooks above.
-      if (config0?.hooks?.postCommand && !isReadOnlyCommand(cmd, parsed)) {
-        process.stderr.write(`[lattice-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+      if (config0?.hooks?.postCommand && !effectiveReadOnly) {
+        process.stderr.write(`[proof-or-stop-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
-      if (!isReadOnlyCommand(cmd, parsed)) {
+      if (!effectiveReadOnly) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
-          LATTICE_RESULT_JSON: truncateForEnv(resultText),
+          PROOF_OR_STOP_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
       }
       if (closesCanonicalTerminal) {
@@ -1547,10 +1563,10 @@ export async function runCli(opts?: {
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {
-        process.stderr.write(`[lattice-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[proof-or-stop-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
-        LATTICE_ERROR: String(e?.message || e),
+        PROOF_OR_STOP_ERROR: String(e?.message || e),
       }), config0, root);
       process.stderr.write(`Error: ${e.message}\n`);
       process.exitCode = 1;

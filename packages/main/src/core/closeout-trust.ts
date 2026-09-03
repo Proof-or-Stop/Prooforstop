@@ -39,7 +39,7 @@ export interface CloseoutArtifactPolicy {
 
 /**
  * Gate-trusted lifecycle metadata is deliberately smaller than the lifecycle
- * path registry. Recognition as Lattice-owned metadata never grants trust.
+ * path registry. Recognition as ProofOrStop-owned metadata never grants trust.
  * `milestone-closeout.json` is intentionally absent: B-9188 owns that artifact.
  */
 export const CLOSEOUT_ARTIFACT_POLICIES = [

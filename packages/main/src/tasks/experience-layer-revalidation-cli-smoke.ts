@@ -13,10 +13,10 @@
  *   - `--story <real DONE id>` restricts derivation without crashing;
  *   - `--story <nonexistent>` yields an empty report (total/validRate/driftRate 0)
  *     without crashing;
- *   - NOTHING is written: no `.lattice/learning` path or `activity.jsonl` appears
+ *   - NOTHING is written: no `.proof-or-stop/learning` path or `activity.jsonl` appears
  *     in `git status --porcelain` (the read-only contract this story is about).
  *
- * The lattice CLI prints leading log lines to stderr, so stdout is the clean
+ * The proofOrStop CLI prints leading log lines to stderr, so stdout is the clean
  * report/JSON; for JSON we still slice from the first `{` defensively. Prints
  * `cli smoke passed` on success; exits non-zero on any failed assertion.
  */
@@ -138,11 +138,11 @@ function run(): void {
     assert.equal(report.driftRate, 0, 'nonexistent story => driftRate 0');
   });
 
-  // ─── READ-ONLY: nothing written (no .lattice/learning, no activity.jsonl) ────
-  check('cli: learning_validate writes nothing (no .lattice/learning / activity.jsonl)', () => {
+  // ─── READ-ONLY: nothing written (no .proof-or-stop/learning, no activity.jsonl) ────
+  check('cli: learning_validate writes nothing (no .proof-or-stop/learning / activity.jsonl)', () => {
     const after = porcelain();
     const introduced = newDirtyLines(before, after);
-    const offending = introduced.filter((l) => /\.lattice[\\/]learning|activity\.jsonl/.test(l));
+    const offending = introduced.filter((l) => /\.proof-or-stop[\\/]learning|activity\.jsonl/.test(l));
     assert.deepEqual(offending, [], `read-only violated; new write(s): ${introduced.join(' | ')}`);
   });
 

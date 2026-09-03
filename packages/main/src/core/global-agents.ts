@@ -19,7 +19,7 @@
  *   one mode-selected role body. Every shim contains NO role body.
  *
  *   Keeping the `tools:` frontmatter verbatim preserves each host's read-only
- *   sandbox (e.g. `lattice-review-*` stay read-only). Thinning the body does not
+ *   sandbox (e.g. `proof-or-stop-review-*` stay read-only). Thinning the body does not
  *   weaken the sandbox.
  *
  * This module is pure logic with injectable fs deps so it unit-tests without a
@@ -178,7 +178,7 @@ export function renderAgentShim(frontmatter: string, role: string): string {
 
 /**
  * Project-local full-asset hosts still load this small bootstrap before the
- * reviewer asks Lattice for its mode-selected prompt. The bootstrap contains no
+ * reviewer asks ProofOrStop for its mode-selected prompt. The bootstrap contains no
  * role instructions, so exactly one selected role body reaches the reviewer:
  * frozen legacy bytes or the assembled full/incremental envelope.
  */

@@ -11,7 +11,7 @@
  * metadata from `storyFilesHash`. Its prefix list is derived from the state-dir
  * constant. Measured against the pre-migration build:
  *
- *     isStoryMetadataPath('.lattice/story/actives/B-cdf6/index.json')       -> true
+ *     isStoryMetadataPath('.proof-or-stop/story/actives/B-cdf6/index.json')       -> true
  *     isStoryMetadataPath('.proof-or-stop/story/actives/B-cdf6/index.json') -> false
  *
  * So if the on-disk directory is renamed while any copy of the OLD prefix stays
@@ -22,16 +22,16 @@
  *
  * WHY IT FLIPS THE CONSTANT INSTEAD OF ASSERTING STRINGS
  * -----------------------------------------------------
- * Today canonical == deprecated (`.lattice`), because CHK-002 lands the resolver
+ * Today canonical == deprecated (`.proof-or-stop`), because CHK-002 lands the resolver
  * BEFORE anything moves. A test that merely asserted
- * `isStoryMetadataPath('.lattice/...') === true` would therefore pass whether or
+ * `isStoryMetadataPath('.proof-or-stop/...') === true` would therefore pass whether or
  * not the prefix is hardcoded — it would prove nothing and would keep passing
  * after someone reintroduced the literal.
  *
  * So case (a) REBUILDS the module graph in a scratch copy with
  * `PROOF_OR_STOP_STATE_DIR` flipped to a distinct sentinel, and asserts the
  * exclusion moved with it. If a future edit hardcodes the old prefix anywhere in
- * the chain (brand-paths -> lattice-paths -> evidence-freshness), the canonical
+ * the chain (brand-paths -> proof-or-stop-paths -> evidence-freshness), the canonical
  * assertion in case (a) FAILS. That is the "would fail if someone hardcodes the
  * old prefix again" property this item is required to demonstrate.
  *
@@ -87,11 +87,11 @@ function caseRenameFollowThrough(): void {
     const brandPathsFile = join(coreDst, 'brand-paths.js');
     const original = readFileSync(brandPathsFile, 'utf-8');
 
-    // Flip ONLY the canonical constant. The deprecated one stays `.lattice`, so
+    // Flip ONLY the canonical constant. The deprecated one stays `.proof-or-stop`, so
     // this scratch build represents the post-rename world: canonical moved,
     // deprecated still readable.
     // B-cc10 CHK-006 fix: match WHATEVER the current canonical value is, rather than
-    // the literal '.lattice'. CHK-003 legitimately renamed the canonical constant to
+    // the literal '.proof-or-stop'. CHK-003 legitimately renamed the canonical constant to
     // '.proof-or-stop', which made this guard fail closed on a correct change — the
     // guard was pinned to one spelling, the same defect class it exists to catch.
     const flipped = original.replace(
@@ -118,9 +118,7 @@ function caseRenameFollowThrough(): void {
         const probe = (p) => isStoryMetadataPath(p);
         console.log(JSON.stringify({
           canonicalDir: bp.PROOF_OR_STOP_STATE_DIR,
-          deprecatedDir: bp.DEPRECATED_STATE_DIR,
           canonicalExcluded: probe(bp.PROOF_OR_STOP_STATE_DIR + '/story/actives/B-cdf6/index.json'),
-          deprecatedExcluded: probe(bp.DEPRECATED_STATE_DIR + '/story/actives/B-cdf6/index.json'),
           sourceIncluded: probe('packages/main/src/core/config.ts'),
         }));
         `,
@@ -134,14 +132,8 @@ function caseRenameFollowThrough(): void {
       SENTINEL_STATE_DIR,
       'scratch build did not pick up the flipped canonical constant',
     );
-    assert.equal(
-      out.deprecatedDir,
-      '.lattice',
-      'deprecated spelling must stay readable; only the canonical name moves',
-    );
-
     // THE assertion this item exists for. Fails if any hardcoded copy of the old
-    // prefix survives in brand-paths -> lattice-paths -> evidence-freshness.
+    // prefix survives in brand-paths -> proof-or-stop-paths -> evidence-freshness.
     assert.equal(
       out.canonicalExcluded,
       true,
@@ -153,16 +145,6 @@ function caseRenameFollowThrough(): void {
         + 'resolver; derive it from PROOF_OR_STOP_STATE_DIR instead.',
     );
 
-    // The mirror hazard: mid-migration archives that have NOT moved yet.
-    assert.equal(
-      out.deprecatedExcluded,
-      true,
-      'storyFilesHash HAZARD (mirror): story metadata under the DEPRECATED state '
-        + 'dir stopped being excluded, so an archive that has not been moved yet '
-        + 'would silently enter the digest during migration. The exclusion must '
-        + 'hold on BOTH sides of the rename.',
-    );
-
     // Sanity: the exclusion must stay narrow, not swallow real material.
     assert.equal(
       out.sourceIncluded,
@@ -171,7 +153,7 @@ function caseRenameFollowThrough(): void {
         + 'that broad would hide real material drift',
     );
 
-    pass(`rename follow-through: exclusion moved to ${SENTINEL_STATE_DIR}, deprecated still excluded, source still included`);
+    pass(`rename follow-through: exclusion moved to ${SENTINEL_STATE_DIR}, source still included`);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -189,13 +171,12 @@ async function caseCanonicalFirst(): Promise<void> {
     ['MANIFEST_FILENAMES', bp.MANIFEST_FILENAMES, bp.PROOF_OR_STOP_MANIFEST_FILENAME],
   ];
   for (const [label, list, canonical] of lists) {
-    assert.ok(list.length >= 1, `${label} must not be empty`);
+    assert.equal(list.length, 1, `${label} must expose only the canonical identity`);
     assert.equal(
       list[0],
       canonical,
       `${label} must put the CANONICAL name FIRST — canonical-wins for reads is `
-        + 'implemented by iteration order, so a reordered list silently makes the '
-        + 'deprecated spelling win',
+        + 'implemented by iteration order',
     );
     assert.equal(
       new Set(list).size,
@@ -203,7 +184,7 @@ async function caseCanonicalFirst(): Promise<void> {
       `${label} must not contain duplicates (probing the same path twice is a bug)`,
     );
   }
-  pass('candidate lists put canonical first and contain no duplicates');
+  pass('candidate lists contain exactly one canonical identity');
 }
 
 /* ------------------------------------------------------------------ *
@@ -243,7 +224,10 @@ async function caseDecisionHelpersAcceptBoth(): Promise<void> {
       `isManifestFilename must accept ${name}`);
   }
 
-  pass('decision helpers accept every accepted spelling and reject unrelated paths');
+  const retiredStateDir = ['.', 'lat', 'tice'].join('');
+  assert.equal(bp.isStateDirPath(`${retiredStateDir}/story/actives/B-1/index.json`), false,
+    'isStateDirPath must reject the retired state directory');
+  pass('decision helpers accept canonical spellings and reject retired/unrelated paths');
 }
 
 /* ------------------------------------------------------------------ *
@@ -258,19 +242,10 @@ async function caseManifestCrossProduct(): Promise<void> {
     `${bp.PROOF_OR_STOP_ADAPTER_DIR}/${bp.PROOF_OR_STOP_MANIFEST_FILENAME}`,
     'the canonical dir + canonical filename pair must be probed FIRST',
   );
-  for (const dir of bp.ADAPTER_DIR_NAMES) {
-    for (const file of bp.MANIFEST_FILENAMES) {
-      assert.ok(
-        candidates.includes(`${dir}/${file}`),
-        `adapterManifestCandidates must include the ${dir}/${file} mix — a partially `
-          + 'migrated checkout can have a canonical dir holding a deprecated filename '
-          + 'or vice versa, and probing only the matched pairs would miss both mixes',
-      );
-    }
-  }
-  assert.equal(new Set(candidates).size, candidates.length,
-    'adapterManifestCandidates must not repeat a candidate');
-  pass(`adapter manifest candidates cover the full cross product (${candidates.length})`);
+  assert.deepEqual(candidates, [
+    `${bp.PROOF_OR_STOP_ADAPTER_DIR}/${bp.PROOF_OR_STOP_MANIFEST_FILENAME}`,
+  ], 'adapter manifest candidates must contain only the canonical pair');
+  pass('adapter manifest candidates contain only the canonical pair');
 }
 
 /* ------------------------------------------------------------------ *
@@ -300,7 +275,7 @@ async function caseCodexTouchpointBothSpellings(): Promise<void> {
     false,
     'storyRequiresCodexEvidence must not arm for unrelated stories',
   );
-  pass('codex touchpoint detection arms on every adapter-dir spelling');
+  pass('codex touchpoint detection arms on the canonical adapter directory');
 }
 
 async function main(): Promise<void> {

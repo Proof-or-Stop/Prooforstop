@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fe8f",
+  "name": "dynamic-finding-ledger-runtime-integrity",
+  "title": "Finding Ledger and Runtime Evidence Integrity",
+  "description": "Implement Section 9.3 of the accepted Dynamic Finding execution plan. Deliver Story 3A fenced exactly-once Finding ledger writes and Story 3B signed runtime-evidence freshness as the first dependency in the implementation sequence. RED begins with an honest audit and characterization of current locks and store transactions, then records executable failures only for still-unimplemented or non-conforming contracts; already-correct behavior remains a GREEN baseline. GREEN proves the complete accepted contracts, migrations, adversarial cases, and non-authority boundaries.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+  "keywords": [
+    "finding-ledger-integrity",
+    "runtime-evidence-receipt",
+    "exactly-once",
+    "fenced-cas",
+    "dynamic-finding"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-09-01T08:12:55.547Z",
+  "startedAt": "2026-09-01T08:12:55.547Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-01T08:12:56.143Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-01T08:21:26.395Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fe8f",
+    "branch": "story/B-fe8f",
+    "createdAt": "2026-09-01T08:21:23.519Z"
+  }
+}

@@ -109,8 +109,8 @@ const ENV_KEYS = [
   BURN_ALERT_ENV.recentHours,
   BURN_ALERT_ENV.codexDir,
   BURN_ALERT_ENV.claudeDir,
-  'LATTICE_SESSION_ID',
-  'LATTICE_AGENT',
+  'PROOF_OR_STOP_SESSION_ID',
+  'PROOF_OR_STOP_AGENT',
   'CODEX_THREAD_ID',
   'CLAUDE_CODE_SESSION_ID',
   'AGY_SESSION_ID',
@@ -196,7 +196,7 @@ function row(over: Partial<SweepSessionRow> & { host: SweepSessionRow['host'] })
     cwd: '/tmp/synth',
     originator: 'synthetic',
     originLabel: over.host === 'codex' ? 'codex-desktop' : 'claude-code',
-    latticeCwd: false,
+    proofOrStopCwd: false,
     firstTimestamp: iso(NOW - 60_000),
     lastTimestamp: iso(NOW),
     usage: null,
@@ -533,8 +533,8 @@ async function main(): Promise<void> {
       {
         [BURN_ALERT_ENV.codexDir]: nativeSentinelCodexDir,
         [BURN_ALERT_ENV.claudeDir]: nativeSentinelClaudeDir,
-        LATTICE_SESSION_ID: undefined,
-        LATTICE_AGENT: 'main',
+        PROOF_OR_STOP_SESSION_ID: undefined,
+        PROOF_OR_STOP_AGENT: 'main',
         CODEX_THREAD_ID: codexNativeSentinel,
       },
       async () => {
@@ -611,8 +611,8 @@ async function main(): Promise<void> {
     resetSessionIdForTest();
 
     for (const [provider, env, sentinel] of [
-      ['claude-code', { CLAUDE_CODE_SESSION_ID: claudeNativeSentinel, LATTICE_AGENT: 'main' }, claudeNativeSentinel],
-      ['antigravity', { AGY_SESSION_ID: agyNativeSentinel, LATTICE_AGENT: 'main' }, agyNativeSentinel],
+      ['claude-code', { CLAUDE_CODE_SESSION_ID: claudeNativeSentinel, PROOF_OR_STOP_AGENT: 'main' }, claudeNativeSentinel],
+      ['antigravity', { AGY_SESSION_ID: agyNativeSentinel, PROOF_OR_STOP_AGENT: 'main' }, agyNativeSentinel],
     ] as const) {
       const identity = resolveSessionIdentity(
         env,
@@ -770,7 +770,7 @@ async function main(): Promise<void> {
     );
     const doctorLines = renderHostBurnScan(ev, { disabled: false }).join('\n');
     assert.ok(doctorLines.includes('✗ BURN ALERT codex r1'), 'doctor block flags the session');
-    assert.ok(doctorLines.includes('lattice cannot stop sessions it did not launch'), 'advisory action line present');
+    assert.ok(doctorLines.includes('proof-or-stop cannot stop sessions it did not launch'), 'advisory action line present');
     const sweepLines = renderSweepAlertSection(ev).join('\n');
     assert.ok(sweepLines.includes('BURN ALERT: 1 session(s) over burn thresholds'), 'sweep trailer counts findings');
     const clean = evaluateBurnAlerts([], { nowMs: NOW, thresholds: T, fileSizeOf: () => 0 });
@@ -980,14 +980,14 @@ async function main(): Promise<void> {
 
   // ── 11e. activity-log classification with --alert ───────────────────────────
   await checkAsync('classification: shouldWriteActivityLog(usage_sweep,{alert:true}) stays false by default', () => {
-    const prev = process.env.LATTICE_ACTIVITY_RECORD_READONLY;
-    delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+    const prev = process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
+    delete process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
     try {
       assert.equal(shouldWriteActivityLog('usage_sweep', { alert: true }), false, '--alert writes no activity row by default');
       assert.equal(shouldWriteActivityLog('usage_sweep', { alert: true, out: 'r.json' }), true, '--out remains the only activity-write trigger');
     } finally {
-      if (prev === undefined) delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
-      else process.env.LATTICE_ACTIVITY_RECORD_READONLY = prev;
+      if (prev === undefined) delete process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY;
+      else process.env.PROOF_OR_STOP_ACTIVITY_RECORD_READONLY = prev;
     }
   });
 

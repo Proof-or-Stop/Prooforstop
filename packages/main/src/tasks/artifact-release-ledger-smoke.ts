@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
   ARTIFACT_RELEASE_LEDGER_REL_PATH,
+  ArtifactReleaseLedgerError,
   artifactReleaseLedgerPath,
   computeArtifactSetDigest,
   createArtifactReleaseRecordForTest,
@@ -45,7 +46,7 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeProofOrStopConfig(root: string, config: Record<string, unknown> = {}): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2), 'utf-8');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify(config, null, 2), 'utf-8');
 }
 
 function makeGitFixture(): string {
@@ -114,13 +115,13 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
 }
 
 function writeVersionSyncFiles(root: string, version: string): void {
-  write(root, 'package.json', JSON.stringify({ name: 'lattice', version }, null, 2) + '\n');
+  write(root, 'package.json', JSON.stringify({ name: 'proof-or-stop', version }, null, 2) + '\n');
   write(root, 'package-lock.json', JSON.stringify({
-    name: 'lattice',
+    name: 'proof-or-stop',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: 'lattice', version },
+      '': { name: 'proof-or-stop', version },
     },
   }, null, 2) + '\n');
   write(root, 'packages/main/package.json', JSON.stringify({
@@ -136,10 +137,10 @@ function writeVersionSyncFiles(root: string, version: string): void {
       '': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
-  write(root, 'packages/main/src/core/lattice-brand.ts', [
+  write(root, 'packages/main/src/core/proof-or-stop-brand.ts', [
     "import { basename } from 'path';",
     '',
-    `export const LATTICE_CLI_VERSION = '${version}' as const;`,
+    `export const PROOF_OR_STOP_CLI_VERSION = '${version}' as const;`,
     "export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;",
     'void basename;',
     '',
@@ -376,6 +377,25 @@ try {
     assert.equal(records[0].runtimeSemverChanged, true);
     assert.ok(records[0].claimBoundary.includes('provenance-only'));
     assert.ok(readFileSync(artifactReleaseLedgerPath(root), 'utf-8').includes('"schemaVersion"'));
+  });
+
+  check('reader FAILS CLOSED on missing or inconsistent required release fields', () => {
+    const invalidRoot = mkdtemp('artifact-release-ledger-invalid-');
+    cleanup.push(invalidRoot);
+    const record = createArtifactReleaseRecordForTest({
+      root,
+      storyId: 'B-invalid',
+      mainCommit: head,
+      changedPaths: ['docs/release.md'],
+      runtimeSemverChanged: false,
+      now: '2026-07-05T00:05:00.000Z',
+    });
+    write(invalidRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH, `${JSON.stringify({ ...record, changedPathCount: 2 })}\n`);
+    assert.throws(() => readArtifactReleaseLedger(invalidRoot), ArtifactReleaseLedgerError);
+    write(invalidRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH, `${JSON.stringify({ ...record, idempotencyKey: '' })}\n`);
+    assert.throws(() => readArtifactReleaseLedger(invalidRoot), ArtifactReleaseLedgerError);
+    write(invalidRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH, `${JSON.stringify({ ...record, paths: [], changedPathCount: 0 })}\n`);
+    assert.throws(() => readArtifactReleaseLedger(invalidRoot), ArtifactReleaseLedgerError);
   });
 
   check('already-recorded dirty ledger retry commits the existing row durably', () => {

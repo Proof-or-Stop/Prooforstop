@@ -2,13 +2,13 @@
 /**
  * RED artifact (B-49d4, CHK-001) — the registration guard asserts a FIXED
  * allowlist instead of DERIVING its population, so it is structurally blind to
- * anything nobody put on the list, and `lattice validate` never runs 15 of the
+ * anything nobody put on the list, and `proof-or-stop validate` never runs 15 of the
  * red harnesses that are committed next to it.
  *
  * ── THE DEFECT'S UNUSUAL FAILURE MODE ───────────────────────────────────────
  *
  * The failure IS a confident success line, not an error.
- * `red-w2c-validate-registration.mjs` compares `lattice.config.json`
+ * `red-w2c-validate-registration.mjs` compares `proof-or-stop.config.json`
  * `validate.commands` against a hardcoded `REQUIRED_VALIDATE_COMMANDS` array of
  * three entries and then prints:
  *
@@ -40,14 +40,14 @@
  *                  against the real members rather than asserted about the probe
  *                  this file just wrote (see `PLANTED_MEMBER_MATCHES_THE_SHAPE_OF
  *                  _REAL_MEMBERS`). It is registered NOWHERE and it exits
- *                  NON-ZERO, so `lattice validate` would fail if it ran. The
+ *                  NON-ZERO, so `proof-or-stop validate` would fail if it ran. The
  *                  REAL guard is then spawned. Two independent assertions:
  *                  (A1) it must not exit 0, and (A2) a confident success line
  *                  must never report fewer members than exist on disk. A1 is the
  *                  gap; A2 is WHY the gap can never be seen.
  *
  *   B. CONTROL     Blindness only means something if the guard is capable of
- *                  failing at all. A COPY of `lattice.config.json` with one
+ *                  failing at all. A COPY of `proof-or-stop.config.json` with one
  *                  currently-listed command removed must make the guard exit
  *                  non-zero. The REAL config is never written to; its sha256 is
  *                  taken before anything happens and re-checked at the end, and
@@ -118,7 +118,7 @@
  * contains no imitation of anybody's enumeration. A simulation written here
  * would let a narrowed implementation pass this test, which would defeat the
  * whole purpose. The targets are derived: the guard this story names, plus every
- * `*.mjs` in the red directory that reads `lattice.config.json` AND enumerates a
+ * `*.mjs` in the red directory that reads `proof-or-stop.config.json` AND enumerates a
  * directory (i.e. anything that decides registration by looking). Today that set
  * also contains `red-b2aa7-chk007-receipt.mjs`, so its narrowed regex is
  * measured rather than argued about: it is a real shipped derived guard that
@@ -149,7 +149,7 @@
  *   - `finally` does not run through SIGKILL or a watchdog kill, so a killed run
  *     stranded `b49d4-newcomer-probe-unprefixed.mjs` in the red directory, and
  *     the guard then FAILED naming it — the artifact created the debris and the
- *     guard tripped on it, breaking `lattice validate` for a registration gap
+ *     guard tripped on it, breaking `proof-or-stop validate` for a registration gap
  *     that did not exist. The file was not gitignored either, so it could be
  *     committed by accident.
  *   - the startup sweep does not save it: it is itself racy. Two concurrent runs
@@ -200,7 +200,7 @@ const DIST_TASKS_REL = 'packages/main/dist/tasks';
 const SRC_TASKS_REL = 'packages/main/src/tasks';
 // B-cc10: resolve whichever config filename exists. The canonical name is now
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
-const CONFIG_REL = (['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
+const CONFIG_REL = (['proof-or-stop.config.json', 'proof-or-stop.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 const CONFIG_PATH = join(repoRoot, CONFIG_REL);
 
 /** The guard this story names. It is spawned as a REAL child process, never imitated. */
@@ -379,7 +379,7 @@ function runNode(args, cwd = repoRoot) {
   };
 }
 
-// ── lattice.config.json is READ-ONLY here ───────────────────────────────────
+// ── proof-or-stop.config.json is READ-ONLY here ───────────────────────────────────
 const configBytes = readFileSync(CONFIG_PATH);
 const CONFIG_DIGEST_BEFORE = sha256(configBytes);
 const configRaw = configBytes.toString('utf8');
@@ -461,8 +461,8 @@ try {
     '#!/usr/bin/env node',
     `// ${PLANTED_BY_MARKER} (B-49d4 CHK-001).`,
     '// A genuine member of the packages/main/dist/tasks/red-evidence-*.js population that is',
-    '// registered NOWHERE in lattice.config.json validate.commands. It exits NON-ZERO, so if',
-    '// `lattice validate` ran it, validate would fail. Nothing runs it, and nothing notices.',
+    '// registered NOWHERE in proof-or-stop.config.json validate.commands. It exits NON-ZERO, so if',
+    '// `proof-or-stop validate` ran it, validate would fail. Nothing runs it, and nothing notices.',
     '// It lives in a private temporary mirror of the repository and is never written to the',
     '// repository, so a kill at any moment can strand nothing that any guard enumerates.',
     "process.stderr.write('red-evidence-b49d4-blindness-probe: FAIL (unregistered member, deliberately non-zero)\\n');",
@@ -701,7 +701,7 @@ try {
   const deciderRun = runNode([DECIDER_ABS]);
   const deciderCounts = new RegExp(
     'all (\\d+) entries of (\\S+) found ON DISK are accounted for: (\\d+) registered in '
-    + 'lattice\\.config\\.json validate\\.commands and (\\d+) excluded with a stated reason',
+    + 'proof-or-stop\\.config\\.json validate\\.commands and (\\d+) excluded with a stated reason',
   ).exec(deciderRun.out);
   let deciderRecordBlock = '';
   try {
@@ -741,7 +741,7 @@ try {
     + `by the audited exclusion record of ${basename(DECIDER_REL)} `
     + `(${derived.decided.join(', ') || 'none'}) and ${derived.unaccounted.length} are UNACCOUNTED: `
     + `${derived.unaccounted.join(', ') || 'none'}. EXECUTION IS A DIFFERENT PROPERTY AND IS NOT CLAIMED HERE: `
-    + `lattice validate does not run those ${derived.unregistered.length} directly, and whether anything else executes `
+    + `proof-or-stop validate does not run those ${derived.unregistered.length} directly, and whether anything else executes `
     + 'them is not measured by this block — a filename appearing in a registered file is a mention, not a spawn',
     'every member of packages/main/tests/red/*.mjs must be registered in validate.commands, or its non-registration '
     + 'must be a recorded decision the shipped guard audits; a member that is silently neither is coverage nobody has '
@@ -817,7 +817,7 @@ try {
   /**
    * WHICH GUARDS JUDGE THE NEWCOMER — DERIVED, AND ASSERTED COMPLETE.
    *
-   * A target is any `*.mjs` here that reads `lattice.config.json` AND enumerates
+   * A target is any `*.mjs` here that reads `proof-or-stop.config.json` AND enumerates
    * a directory: anything that decides registration by LOOKING rather than by
    * remembering. A file that spawns THIS one has to be skipped or the run
    * recurses forever — but that skip used to be a bare `text.includes(SELF)`
@@ -1118,6 +1118,6 @@ console.log(
   + 'validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and '
   + 'passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is '
   + 'made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a '
-  + 'config COPY while the real lattice.config.json stays byte-identical)',
+  + 'config COPY while the real proof-or-stop.config.json stays byte-identical)',
 );
 process.exit(0);

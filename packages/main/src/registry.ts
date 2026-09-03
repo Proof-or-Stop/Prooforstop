@@ -51,6 +51,7 @@ import { createAuditHandlers } from './handlers/audit.js';
 import { createClusterHandlers } from './handlers/cluster.js';
 import { createReviewerListHandlers } from './handlers/reviewer-list.js';
 import { createReviewIncrementalContextHandlers } from './handlers/review-incremental-context.js';
+import { createValidationPlanHandlers } from './handlers/validation-plan.js';
 import { createStoryDraftHandlers } from './handlers/story-draft.js';
 import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
@@ -110,13 +111,13 @@ import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
 import { createPromptMeasurementHandlers } from './handlers/prompt-measurement.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
-import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
-import { createLatticeDispatchHandlers } from './handlers/lattice-dispatch.js';
-import { createLatticeAutopilotHandlers } from './handlers/lattice-autopilot.js';
-import { createLatticeEvidenceHandlers } from './handlers/lattice-evidence.js';
-import { createLatticeParallelWaveHandlers } from './handlers/lattice-parallel-wave.js';
-import { createLatticeBaselineHandlers } from './handlers/lattice-baseline.js';
-import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
+import { createProofOrStopHandoffHandlers } from './handlers/proof-or-stop-handoff.js';
+import { createProofOrStopDispatchHandlers } from './handlers/proof-or-stop-dispatch.js';
+import { createProofOrStopAutopilotHandlers } from './handlers/proof-or-stop-autopilot.js';
+import { createProofOrStopEvidenceHandlers } from './handlers/proof-or-stop-evidence.js';
+import { createProofOrStopParallelWaveHandlers } from './handlers/proof-or-stop-parallel-wave.js';
+import { createProofOrStopBaselineHandlers } from './handlers/proof-or-stop-baseline.js';
+import { createProofOrStopCliHandlers } from './handlers/proof-or-stop-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
@@ -134,8 +135,10 @@ import { createCandidateSpecRoutingHandlers } from './handlers/candidate-spec-ro
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
+import { createIdentityStateMigrateHandlers } from './handlers/identity-state-migrate.js';
 import { nextStoryId } from './handlers/context.js';
 import { readBrandEnv } from './core/brand-env.js';
+import { createProofOrStopExtensionRuntime } from './core/extension-runtime.js';
 
 export type HandlerFn = (...args: any[]) => any;
 
@@ -182,6 +185,7 @@ export class Registry {
  * 由 bootstrap 脚本调用 utils 的 register() 函数追加注入。
  */
 export function createMainRegistry(ctx: HandlerContext): Registry {
+  ctx.extensionRuntime ??= createProofOrStopExtensionRuntime();
   const registry = new Registry();
 
   registry.registerBatch(createStoryHandlers(ctx));
@@ -237,6 +241,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-f675 CHK-002: review_incremental_context — read-only reviewer incremental
   // context (prior verdict + since-last-pass diff + scopeChanged). No writes.
   registry.registerBatch(createReviewIncrementalContextHandlers(ctx));
+
+  // B-a745 CHK-005: validation_plan — read-only Story-relevance validation
+  // planner (explain-only). Executes nothing and writes nothing.
+  registry.registerBatch(createValidationPlanHandlers(ctx));
 
   // B-9975 CHK-001: story_draft / story_draft_list / story_draft_discard
   registry.registerBatch(createStoryDraftHandlers(ctx));
@@ -344,12 +352,12 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createSignatureBackfillHandlers(ctx));
   // B-8387/B-cc94 (Experience Layer): staged Process Playbook lifecycle
   // (playbook_propose/diff/approve/activate/reject). Never files findings /
-  // touches gates; writes only under .lattice/learning/. Approve/activate fail
+  // touches gates; writes only under .proof-or-stop/learning/. Approve/activate fail
   // closed on stale digests.
   registry.registerBatch(createPlaybookHandlers(ctx));
   registry.registerBatch(createRecallHandlers(ctx));
   // B-4eb6 (Experience Layer ③.1): learning_scan derives + PERSISTS the advisory
-  // finding-signals cache under .lattice/learning/ that the Phase 1.5 hint loader
+  // finding-signals cache under .proof-or-stop/learning/ that the Phase 1.5 hint loader
   // reads. Writing (not read-only); files no findings / touches no gate.
   registry.registerBatch(createLearningScanHandlers(ctx));
   registry.registerBatch(createLearningValidateHandlers(ctx));
@@ -401,11 +409,11 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createPromptMeasurementHandlers());
 
   // Proof-or-Stop productized export and cross-host handoff surfaces.
-  registry.registerBatch(createLatticeCliHandlers(ctx));
-  registry.registerBatch(createLatticeAutopilotHandlers(ctx));
+  registry.registerBatch(createProofOrStopCliHandlers(ctx));
+  registry.registerBatch(createProofOrStopAutopilotHandlers(ctx));
   // Autopilot projection/executor surfaces (autopilot_run/status/execute/doctor).
   //
-  // createLatticeAutopilotHandlers owns the shipped autopilot policy engine.
+  // createProofOrStopAutopilotHandlers owns the shipped autopilot policy engine.
   // createAutopilotHandlers contributes only names that are not already present.
   registry.registerBatchMissing(createAutopilotHandlers(ctx));
   registry.registerBatch(createPlannerHandlers(ctx));
@@ -421,18 +429,28 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createRolloutCheckHandlers(ctx));
   registry.registerBatch(createStoryExportHandlers(ctx));
   registry.registerBatch(createObservabilitySnapshotHandlers(ctx));
-  registry.registerBatch(createLatticeHandoffHandlers(ctx));
-  registry.registerBatch(createLatticeDispatchHandlers(ctx));
-  registry.registerBatch(createLatticeEvidenceHandlers(ctx));
-  registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
-  registry.registerBatchMissing(createLatticeBaselineHandlers(ctx));
+  registry.registerBatch(createProofOrStopHandoffHandlers(ctx));
+  registry.registerBatch(createProofOrStopDispatchHandlers(ctx));
+  registry.registerBatch(createProofOrStopEvidenceHandlers(ctx));
+  registry.registerBatch(createProofOrStopParallelWaveHandlers(ctx));
+  registry.registerBatchMissing(createProofOrStopBaselineHandlers(ctx));
 
   // W2b (B-e10d): red_evidence_binding_set — the trusted RED-evidence
   // subsystem's first mutating command. Owner-lease + mutation-authority gated;
   // registers the per-story target binding (§1.1.3) before a RED run.
   // W2c (B-506e) adds red_evidence_quarantine / red_evidence_recover (the two
   // owner-gated chain-control appends) to the SAME batch — auto-registered here.
+  // W2d (B-9ff1) adds the READ-ONLY red_evidence_envelope_check: a §1.1 envelope
+  // admissibility pre-flight that executes no envelope. Canonical scope
+  // sentence, used verbatim at every site that states this guarantee: Scoped to
+  // the command handler itself and the CLI story-evidence writers, it writes no
+  // RED-evidence record, chain record or story/evidence artifact, emits no
+  // process event, changes no gate verdict, and runs no preCommand or
+  // postCommand hook. Nothing outside that scope is covered: see the
+  // red_evidence_envelope_check note in cli/activity-policy.ts, which lists the
+  // surfaces known when it was written and is not a proof of exhaustiveness.
   registry.registerBatch(createRedEvidenceHandlers(ctx));
+  registry.registerBatch(createIdentityStateMigrateHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));
