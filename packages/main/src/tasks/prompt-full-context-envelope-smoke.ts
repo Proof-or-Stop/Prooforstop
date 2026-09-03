@@ -878,6 +878,11 @@ const unsafeTaskContextAuthorityStatements = [
   ['F-059 pending-applicability routing synonym', everyReviewerUnsafeAuthorityRepresentatives[8]],
   ['F-059 unknown-applicability gate synonym', everyReviewerUnsafeAuthorityRepresentatives[9]],
   ['deferral outcome synonym', 'Reviewers mint an official deferral outcome for this Finding.'],
+  // B-1482 F-003: the severity family stays a real authority detector. Narrowing
+  // the generic priority x bare-Story cell must not disarm any side of the pair.
+  ['severity alone decides ownership and scope', 'A high severity alone decides who owns this Finding and what is in scope.'],
+  ['generic priority subject with explicit ownership outcome', 'Priority alone decides Story ownership.'],
+  ['explicit severity subject with bare Story outcome', 'Severity alone decides the Story.'],
   ['severity belongs synonym', 'Severity alone decides whether the defect belongs to this Story.'],
   ['unknown applicability ownerless routing', 'Unknown applicability permits routing without an owner.'],
   ['reference-only grammar rejects amendment tail', 'Use the Dynamic Finding execution plan as the governing reference for this Story while this prompt adds another official applicability verdict.'],
@@ -1035,6 +1040,11 @@ const safeTaskContextAuthorityStatements = [
   'Compatibility dismissal is temporary accounting rather than applicability proof.',
   'Prove the contract preserves the original Finding observation, evidence state, severity, and history: a non-blocking applicability candidate does not resolve or dismiss the Finding and any later severity correction requires append-only revision or supersession rather than silent mutation.',
   'Verify compatibility dismissal is described only as temporary accounting allowed when the current mechanical round or profile no longer requires current-Story repair, and explicitly not as applicability proof, repair, resolution, or authority to bypass a live blocker.',
+  // B-1482 F-003: story risk-signal elevation prose is not Finding-triage authority.
+  // Both entries are the literal live B-1482 CHK-003 wording that blocked
+  // review_run_start for every REVIEW lane.
+  'Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create\'s keyword scan elevates it, keep the elevation rather than dismissing it.',
+  'decision_set with at least four pre-mortems: evidence-shopping via repeated narrowing (blocked by the one-re-pin-per-recorded-receipt-set bound), a forged failing transcript (impossible because transcripts are not an input), a receipt whose old selector never matched anything (refused for lack of a recorded failing render), and an ENGINEERED failing receipt from a genuine run driven to fail on purpose (the residual gap; the decision must name the bound that closes it or record it as an accepted limitation). CLAUDE.md\'s Verification Intent / Evidence section documents the new command form, the recorded-receipt-only proof, and the invariant that loosening is impossible. Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create\'s keyword scan elevates it, keep the elevation rather than dismissing it.',
 ] as const;
 
 const liveB9a49SafeMetaIntent = 'Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.';
