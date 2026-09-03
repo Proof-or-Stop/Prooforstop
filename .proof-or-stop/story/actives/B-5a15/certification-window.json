@@ -354,9 +354,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-5a15:CW-018",
       "storyId": "B-5a15",
-      "state": "RUNNING",
+      "state": "INVALIDATED",
       "createdAt": "2026-09-02T22:18:59.423Z",
-      "updatedAt": "2026-09-02T22:19:10.003Z",
+      "updatedAt": "2026-09-03T08:42:17.528Z",
       "frozen": {
         "headHash": "db38a2efa54b9d40553805d703cab6e15ffb2790",
         "materialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03",
@@ -380,7 +380,31 @@
         "authorizesTest": false
       },
       "receiptId": "B-5a15:PRECERT-005",
-      "_hash": "812ef755a77ecbd5621b1731dc2dbb9a09fe53bb0b319bb5e63b0e1e31032960"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "invalidation": {
+        "detectedAt": "2026-09-03T08:42:17.528Z",
+        "oldHeadHash": "db38a2efa54b9d40553805d703cab6e15ffb2790",
+        "currentHeadHash": "0f654959df0507a4acfcc4f479cc87c8c858b2e4",
+        "oldMaterialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03",
+        "currentMaterialHash": "bf79130e72225c94df16730030b7b0c1cdda8a077dc2c4249c22ac074914fa87",
+        "oldStoryFilesHash": "04f8f891183d61679f9e1cdceaa536265fba7ed805f5e640daa5aa2fb413a168",
+        "currentStoryFilesHash": "16d060c47bd820a4dc76be14c37f1e716dda89b2ffa5fb7ffe316ab024b44e80",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "1a675abddcd309cb51f6a051a526df6f78981ec529ef6d271ae5d95d5d1844eb"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a15:CW-019",
+      "storyId": "B-5a15",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T08:42:51.118Z",
+      "updatedAt": "2026-09-03T08:42:51.118Z",
+      "blockerCode": "pre_cert_causal_freshness_required",
+      "blockerDetail": "CausalEvidence requires fresh affected-node evidence: dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "inventory": {},
+      "_hash": "02d7bfde66daeed3c725044c02a280d28f0bada29679ab285f252ca27dd22b8a"
     }
   ],
   "receipts": [
