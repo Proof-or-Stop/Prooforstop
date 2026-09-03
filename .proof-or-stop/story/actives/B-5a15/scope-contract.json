@@ -554,10 +554,26 @@
       "phase": "DEV",
       "headHash": "9cdf7d2e89aa4a8a18ea97949efccb48ff90a395",
       "materialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Dev-memory append written by dev_memory_capture while recording the five reusable lessons this story produced (scope-ack ordering, refresh_stale rebind-vs-re-earn, wait-loop observability, single-host assurance floor, gate-retry breaker freeze). The DONE gate itself requires a dev_memory_finish_decision, so this file necessarily changes during closeout; it is append-only session experience, contains no product code, and affects no gate evidence (authority: non_authoritative, gateEvidence: false).",
+      "timestamp": "2026-09-03T02:19:14.522Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c9867250294b50b00898e326a86664459fbd8db4",
+      "materialHash": "e31e6c8c66b369bdf3270a302741eccc89441c0f5351bbc30df92e817243a30a"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-09-02T21:09:45.346Z",
+  "updatedAt": "2026-09-03T02:19:14.522Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -649,6 +665,7 @@
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "lattice.config.json": "lattice.config.json",
     "CLAUDE.md": "CLAUDE.md",
-    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs"
+    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl"
   }
 }
