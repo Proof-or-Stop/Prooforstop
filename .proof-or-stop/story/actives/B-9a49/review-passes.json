@@ -947,6 +947,52 @@
         "scanEscalationReason": null
       },
       "_hash": "3391f8c8e3868749bdf668820975d81260aa0157d98f70c069d2070608df8ac2"
+    },
+    {
+      "id": "B-9a49:RP-022",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review passed on committed material through 59db18177a: exact signed F-071/F-072 RED reproductions are represented by committed unsafe period, semicolon, and consequently-polarity fixtures; current build and full-context smoke pass those fixtures plus the bounded safe one-input controls across all five REVIEW roles and story, checklist, and verificationIntent surfaces. CLI reports 60 unique current mechanical passing receipts with no waiver, pre-review pass/current/biting/related/admissible, rollout pass/current/full-3x2, no open findings, and no protected Dynamic Finding path diff.",
+      "createdAt": "2026-09-03T13:26:44.613Z",
+      "reviewRound": "2026-09-03T13:24:28.264Z",
+      "reviewRunId": "B-9a49:RR-121",
+      "envelopeId": "ad5346c5b49abe701b375e4ae0071eae55759859f9179e8fdc1fc0863b4ee940",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5e7250e81b418bc6de6ef4e792615ae437041a5c222e88053d7fb5b6623334f1"
+      },
+      "readDiagnostics": [],
+      "_hash": "992850af7632f883b964eda18652f2a2f3edc61455250f11a7cbf6d0ae17a379"
     }
   ]
 }
