@@ -15744,6 +15744,63 @@
         "scanEscalationReason": null
       },
       "_hash": "3227fefeaca2d989e1f207534b35e4cb79a18abb79fe688711758092db528e5d"
+    },
+    {
+      "id": "B-5a15:RP-347",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-verified after scope_contract_acknowledge for package.json invalidated prior RP-342 (Prompt Envelope only, not a code change). Confirmed via git log/diff that no product source changed since prior pass: only commits since e3e336a593 are a5f7c83fef (scope ack, story metadata only) and dc2823b3a4 (B-META gap-log, story metadata only). git diff main...HEAD -- packages/ file set is identical to the prior RP-342 review. One non-blocking cosmetic observation from the prior pass stands unchanged, re-confirmed, and remains deliberately not filed: verify-missing-assets-fail.mjs:33 rebuiltStash naming/comment drift, equivalent rationale still present at point of use. No blocking findings.",
+      "createdAt": "2026-09-03T12:08:50.782Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-962",
+      "envelopeId": "e783ca7a7c5c00c920d622de297b05dd22789ba58c2e9cc94d8e0232f28c9268",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58a0bccc25ae1f8efd914039c17eeed17bb48e3cb07b906b31443f9b5684fe69"
     }
   ]
 }
