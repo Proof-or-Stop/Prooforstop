@@ -19671,7 +19671,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:325-425 (probeGitTopLevel/probeGitIndex/probeWritableEvidenceTarget/probeActiveCli/probeWriterLease/probeCausalPreflightFacts) and packages/main/src/handlers/verifier.ts:552-640 (probeVerifierWorktree/probeVerifierIndex/probeVerifierTarget/probeVerifierCli/probeVerifierLease/probeValidationCausalPreflightFacts) are near byte-identical copy-pasted implementations of the same six causal-preflight probe functions (~90 lines), differing only in cosmetic naming and one execSync vs execFileSync git-index invocation style. Each module uses its own copy consistently for both the initial preflight snapshot and revalidateBeforeRun snapshot within a single evidence write, so this is NOT a live correctness bug today. It is a maintainability/DRY defect: any future change to preflight-fact semantics (e.g. a new probe, a changed lease-mismatch reason string, a git-index digest algorithm change) must be made in two places by hand, and the two copies can silently drift out of sync with no compiler or test signal forcing them to match, since nothing asserts byte-identical behavior between the two. Recommended handling: extract the six probe functions plus probeCausalPreflightFacts/probeValidationCausalPreflightFacts into a single shared module (e.g. core/causal-preflight-probes.ts) that both handlers import, matching the Data/Machine/Fn separation the project already uses elsewhere.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T02:35:30.835Z",
@@ -19683,7 +19683,10 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-373, the current-round re-file of the same duplicated causal-preflight probe logic (checklist.ts vs verifier.ts) bound to reviewRunId RR-906. F-372 was additionally misattributed to agent=main by a reviewer shell missing PROOF_OR_STOP_AGENT. The defect remains open and deferred as F-373: medium, non-blocking, no live correctness bug, and the cross-module extraction would widen this story's diff and re-stale its acceptance chain. The quality reviewer independently agreed with this deferral.",
+      "resolvedAt": "2026-09-03T03:48:38.359Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-368",
