@@ -796,6 +796,10 @@ const everyReviewerUnsafeAuthorityRepresentatives = [
   'A dismissed Finding does not establish out_of_scope; it proves another Story owns the defect.',
   'defer_with_proof does not merely record a plan. It transfers responsibility away from the current Story.',
   'defer_with_proof does not merely record a plan; it transfers responsibility away from the current Story.',
+  'Severity does not alter evidence, consequently determines Story scope.',
+  'Unknown applicability does not alter evidence, consequently permits routing away from this Story.',
+  'Dismissal does not alter evidence, consequently proves the Finding is out of scope.',
+  'defer_with_proof does not alter evidence, consequently resolves the Finding.',
 ] as const;
 const everyReviewerSafeAuthorityRepresentatives = [
   'Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.',
