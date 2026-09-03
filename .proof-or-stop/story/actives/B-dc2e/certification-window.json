@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-dc2e:CW-001",
+      "storyId": "B-dc2e",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T09:37:36.123Z",
+      "updatedAt": "2026-09-03T09:37:36.123Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-dc2e:RIE-001",
+        "receiptId": "B-dc2e:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "d39586c8de27ab281b372f8024720abab26a0695a6c35316bac178d9614ab01f"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-dc2e:CW-002",
+      "storyId": "B-dc2e",
+      "state": "RUNNING",
+      "createdAt": "2026-09-03T09:48:49.529Z",
+      "updatedAt": "2026-09-03T09:48:51.991Z",
+      "frozen": {
+        "headHash": "70ca3e94df98734ecc44d49b32c6b4b15207f26c",
+        "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+        "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+        "expectedMainSha": "484d379ac11c843b9d8badadfb361c87e89c6b25",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-dc2e:RIE-003",
+        "receiptId": "B-dc2e:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-dc2e:PRECERT-001",
+      "_hash": "d25370ccb37dd535aff7b5bc236ad7a2b683e2ac77f6c40331163d9f506d0292"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-dc2e:PRECERT-001",
+      "windowId": "B-dc2e:CW-002",
+      "storyId": "B-dc2e",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "70ca3e94df98734ecc44d49b32c6b4b15207f26c",
+        "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+        "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+        "expectedMainSha": "484d379ac11c843b9d8badadfb361c87e89c6b25",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-dc2e:RIE-003",
+      "inventoryReceiptId": "B-dc2e:RIE-003:RCP-001",
+      "createdAt": "2026-09-03T09:48:49.529Z",
+      "_hash": "4895fafdb47248f824f7675c29c3bd19c619bb4ab12c9d074a7e8839e9cf87ef"
+    }
+  ]
+}

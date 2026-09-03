@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2696",
+  "allowedCommands": [
+    "find",
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "grep",
+    "node -e",
+    "node -p",
+    "node scripts/verify-claude-md-claims.mjs",
+    "npm run build",
+    "npm run test:*",
+    "proof-or-stop *",
+    "rg",
+    "wc"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-2696",
+    "CLAUDE.md",
+    "package.json",
+    "packages/main/package.json",
+    "scripts/verify-claude-md-claims.mjs"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git rebase",
+    "git reset --hard",
+    "proof-or-stop init --upgrade",
+    "proof-or-stop release_approve_push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".claude/agents",
+    "packages/main/src/core/audit-scan.ts"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-09-03T09:58:30.838Z",
+  "updatedAt": "2026-09-03T09:58:30.838Z",
+  "_hash": "9d20352d78f5d8d53909875abeec63082eb6363bc4ab8a51212e59adcf365447"
+}

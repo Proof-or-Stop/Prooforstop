@@ -1,0 +1,35 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-09-03T04:43:14.657Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Fix the orphan validation-protocol smoke and register it in all three canonical inventories or delete it deliberately + Give the full-suite membership smoke a real-data case that fails on genuine chain-versus-policy drift are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/observability-snapshot-smoke.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "3fa3f5c6b9cc5e943da7a549a0920b899c5648943f10b384d4bf2d51cb544375"
+    },
+    {
+      "timestamp": "2026-09-03T04:43:40.652Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Fix the orphan validation-protocol smoke and register it in all three canonical inventories or delete it deliberately + Give the full-suite membership smoke a real-data case that fails on genuine chain-versus-policy drift are performed simultaneously?)"
+        }
+      ],
+      "_hash": "1a1f536eec04cd3769a959ff5a6894f17d6bf7d8986e7ab352db764123a935b8"
+    }
+  ]
+}

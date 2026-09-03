@@ -38,12 +38,13 @@
  *   CHK-002:adversarial:0 host-A/host-B verdicts on different materialHash → blocked (never pass).
  *   CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct.
  *   CHK-002:adversarial:2 hostA/hostB same identity → fail-closed before spawn/record.
+ *   CHK-004 (B-dc2e):happy:0/edge:0/adversarial:0 host B parsed findings persisted (bounded) in the verdict artifact + --json; PASS → empty array; raw stdout sentinel absent from every state-tree file.
  */
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
@@ -67,6 +68,9 @@ import {
   createCrossHostReviewHandlers,
   CROSS_HOST_REVIEW_DIRTY_WORKTREE,
   CROSS_HOST_REVIEW_HEAD_DRIFT,
+  PERSISTED_FINDING_TEXT_CAP,
+  PERSISTED_FINDING_TITLE_CAP,
+  PERSISTED_FINDING_TRUNCATION_MARKER,
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
@@ -1570,6 +1574,161 @@ async function run(): Promise<void> {
       );
       assert.equal(seamInvoked, false, 'codex seam is never invoked when host identities collapse');
       assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === runId).length, 0, 'no verdict recorded for a collapsed host identity');
+    });
+
+    // ── CHK-004 (B-dc2e): host B's PARSED findings must be persisted as structured
+    // evidence in the verdict artifact — not merely counted. Before this item only
+    // stdoutDigest + findingCount survived; the finding text lived in memory
+    // (diffFindings) and was dropped. Raw provider stdout is still NEVER persisted.
+    const SENTINEL = 'SENTINEL-RAW-STDOUT-7f3a';
+    const walkFiles = (dir: string): string[] => {
+      const out: string[] = [];
+      for (const name of readdirSync(dir)) {
+        const abs = join(dir, name);
+        const st = statSync(abs);
+        if (st.isDirectory()) out.push(...walkFiles(abs));
+        else out.push(abs);
+      }
+      return out;
+    };
+    type PersistedFinding = { severity: string; title: string; file: string; line: number; description: string; fix: string; truncatedFields?: string[] };
+    type VerdictWithFindings = { findings?: PersistedFinding[]; findingCount?: number };
+    const verdictFileFor = (runId: string, provider: string): { path: string; raw: string; parsed: VerdictWithFindings } => {
+      const verdict = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === runId && v.provider === provider);
+      assert.ok(verdict, `a ${provider} verdict is recorded for ${runId}`);
+      const path = join(root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID, `${verdict!.verdictId}.json`);
+      const raw = readFileSync(path, 'utf8');
+      return { path, raw, parsed: JSON.parse(raw) as VerdictWithFindings };
+    };
+
+    // CHK-004:happy:0 — FAIL leaf with TWO findings → title/severity/file/description persisted.
+    await check('CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([hostAFinding], null, 2), 'utf8');
+      const runId = `${STORY_ID}-xhr-chk004-fail`;
+      const hostBFindings: Finding[] = [
+        { severity: 'BLOCKER', title: 'Unbounded loop in seed', file: 'packages/main/src/index.ts', line: 5, issue: 'loop never terminates on empty input', fix: 'bound the iteration' },
+        { severity: 'MINOR', title: 'Missing doc comment', file: 'packages/main/src/index.ts', line: 1, issue: 'exported constant is undocumented', fix: 'add a JSDoc line' },
+      ];
+      // Plant the sentinel in the RAW transcript (noise before the verdict object).
+      const stdout = [`codex: ${SENTINEL} internal scratch that must never be persisted`, verdictJsonStdout(materialHash, 'fail', hostBFindings, 'two findings')].join('\n');
+      const handlers = createCrossHostReviewHandlers(ctx, { codexRunner: fakeSeam(stdout) });
+      const result = await handlers.cross_host_review({
+        storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId, json: true,
+      }) as CrossHostReviewResult & { hostB: { findings?: PersistedFinding[] }; hostA: { findings?: PersistedFinding[] } };
+      assert.equal(result.hostB.decision, 'fail', 'host B decision fail');
+      assert.equal(result.hostB.findingCount, 2, 'findingCount still reports two');
+
+      const { raw, parsed } = verdictFileFor(runId, 'codex');
+      assert.ok(Array.isArray(parsed.findings), 'persisted host B verdict carries a findings array');
+      assert.equal(parsed.findings!.length, 2, 'both host B findings persisted');
+      for (const expected of hostBFindings) {
+        const hit: PersistedFinding | undefined = parsed.findings!.find((f: PersistedFinding) => f.title === expected.title);
+        assert.ok(hit, `finding "${expected.title}" persisted by title`);
+        assert.equal(hit!.severity, expected.severity, `severity persisted for "${expected.title}"`);
+        assert.equal(hit!.file, expected.file, `file persisted for "${expected.title}"`);
+        assert.equal(hit!.line, expected.line, `line persisted for "${expected.title}"`);
+        assert.equal(hit!.description, expected.issue, `description persisted for "${expected.title}"`);
+        assert.equal(hit!.fix, expected.fix, `fix persisted for "${expected.title}"`);
+      }
+      assert.equal(parsed.findingCount, 2, 'persisted findingCount matches');
+      // Host A's caller-authored findings are persisted with the same shape.
+      const hostAPersisted = verdictFileFor(runId, 'claude').parsed;
+      assert.ok(Array.isArray(hostAPersisted.findings), 'persisted host A verdict carries a findings array');
+      assert.equal(hostAPersisted.findings!.length, 1, 'host A finding persisted');
+      assert.equal(hostAPersisted.findings![0].title, hostAFinding.title, 'host A finding title persisted');
+      // The CLI --json result exposes the SAME array (deep-equal to the artifact).
+      assert.deepEqual(result.hostB.findings, parsed.findings, '--json hostB.findings equals the persisted array');
+      assert.deepEqual(result.hostA.findings, hostAPersisted.findings, '--json hostA.findings equals the persisted array');
+      // No raw stdout: neither the artifact nor the JSON result carries the sentinel or a stdout field.
+      assert.equal(raw.includes(SENTINEL), false, 'verdict artifact does not contain the raw-stdout sentinel');
+      assert.equal(/"stdout"\s*:/.test(raw), false, 'verdict artifact has no stdout field');
+      const resultText = JSON.stringify(result);
+      assert.equal(resultText.includes(SENTINEL), false, '--json result does not contain the raw-stdout sentinel');
+      assert.equal(/"stdout"\s*:/.test(resultText), false, '--json result has no stdout field');
+      console.log('  [PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact');
+    });
+
+    // CHK-004:edge:0 — PASS verdict persists an EMPTY array; runaway fields/count are bounded.
+    await check('CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      const passRun = `${STORY_ID}-xhr-chk004-pass`;
+      const passHandlers = createCrossHostReviewHandlers(ctx, { codexRunner: fakeSeam(verdictJsonStdout(materialHash, 'pass', [], 'clean')) });
+      const passResult = await passHandlers.cross_host_review({
+        storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: passRun, json: true,
+      }) as CrossHostReviewResult & { hostB: { findings?: PersistedFinding[] } };
+      assert.equal(passResult.hostB.decision, 'pass', 'host B pass');
+      const passPersisted = verdictFileFor(passRun, 'codex').parsed;
+      assert.deepEqual(passPersisted.findings, [], 'PASS verdict persists an empty findings array');
+      assert.deepEqual(passResult.hostB.findings, [], '--json exposes the empty array');
+
+      // Runaway provider: 60 findings with 20k-char fields must not bloat the artifact.
+      const bloatRun = `${STORY_ID}-xhr-chk004-bloat`;
+      const huge = 'x'.repeat(20_000);
+      const runaway: Finding[] = Array.from({ length: 60 }, (_, i) => ({
+        severity: 'MAJOR' as const, title: `${huge}-${i}`, file: `${huge}.ts`, line: i, issue: huge, fix: huge,
+      }));
+      const bloatHandlers = createCrossHostReviewHandlers(ctx, { codexRunner: fakeSeam(verdictJsonStdout(materialHash, 'fail', runaway, 'many')) });
+      const bloatResult = await bloatHandlers.cross_host_review({
+        storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: bloatRun, json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(bloatResult.hostB.findingCount, 60, 'findingCount reports the TRUE count');
+      const bloat = verdictFileFor(bloatRun, 'codex');
+      assert.ok(Array.isArray(bloat.parsed.findings), 'runaway verdict still persists a findings array');
+      assert.ok(bloat.parsed.findings!.length < 60, `persisted finding count is capped (got ${bloat.parsed.findings!.length})`);
+      assert.ok(bloat.parsed.findings!.length >= 1, 'cap keeps at least the first finding');
+      for (const f of bloat.parsed.findings!) {
+        assert.ok(f.title.length < 20_000, 'title is capped');
+        assert.ok(f.file.length < 20_000, 'file is capped');
+        assert.ok(f.description.length < 20_000, 'description is capped');
+        assert.ok(f.fix.length < 20_000, 'fix is capped');
+      }
+      assert.equal(bloat.parsed.findingCount, 60, 'persisted findingCount keeps the TRUE count so truncation is visible');
+      assert.ok(bloat.raw.length < 256 * 1024, `bounded artifact (got ${bloat.raw.length} bytes)`);
+    });
+
+    // F-001 — per-field truncation must be VISIBLE, never silent. A field that is cut
+    // ends with a fixed marker (the marker counts toward the cap, so the length
+    // invariant holds and the verdictId still digests the capped text) and the
+    // persisted finding names the cut fields in `truncatedFields`; an uncut finding,
+    // including one exactly AT the cap, carries no marker and an empty list.
+    await check('F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', async () => {
+      const truncRun = `${STORY_ID}-xhr-f001-truncation`;
+      const cut: Finding = {
+        severity: 'MAJOR', title: 't'.repeat(PERSISTED_FINDING_TITLE_CAP + 1), file: 'cut.ts', line: 2,
+        issue: 'i'.repeat(PERSISTED_FINDING_TEXT_CAP + 1), fix: 'fits',
+      };
+      const atCap: Finding = { severity: 'MINOR', title: 'c'.repeat(PERSISTED_FINDING_TITLE_CAP), file: 'at-cap.ts', line: 3, issue: 'at cap', fix: 'none' };
+      const short: Finding = { severity: 'MINOR', title: 'short', file: 'short.ts', line: 1, issue: 'short issue', fix: 'short fix' };
+      const truncHandlers = createCrossHostReviewHandlers(ctx, { codexRunner: fakeSeam(verdictJsonStdout(materialHash, 'fail', [cut, atCap, short], 'cut')) });
+      const truncResult = await truncHandlers.cross_host_review({
+        storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: truncRun, json: true,
+      }) as CrossHostReviewResult & { hostB: { findings?: PersistedFinding[] } };
+      const persisted = verdictFileFor(truncRun, 'codex').parsed.findings ?? [];
+      assert.equal(persisted.length, 3, 'all three findings persisted');
+      const [first, second, third] = persisted as [PersistedFinding, PersistedFinding, PersistedFinding];
+      assert.equal(first.title.length, PERSISTED_FINDING_TITLE_CAP, 'the cut title is exactly the cap long (the marker counts toward the cap)');
+      assert.ok(first.title.endsWith(PERSISTED_FINDING_TRUNCATION_MARKER), `the cut title ends with the truncation marker (tail: ${JSON.stringify(first.title.slice(-24))})`);
+      assert.equal(first.description.length, PERSISTED_FINDING_TEXT_CAP, 'the cut description is exactly the cap long');
+      assert.ok(first.description.endsWith(PERSISTED_FINDING_TRUNCATION_MARKER), 'the cut description ends with the truncation marker');
+      assert.equal(first.fix, 'fits', 'an uncut field of a cut finding is stored verbatim');
+      assert.deepEqual(first.truncatedFields, ['title', 'description'], 'the persisted finding names exactly the cut fields, in field order');
+      assert.equal(second.title, atCap.title, 'a title exactly at the cap is not cut and carries no marker');
+      assert.deepEqual(second.truncatedFields, [], 'a finding exactly at the cap lists no truncated field');
+      assert.equal(third.title, 'short');
+      assert.deepEqual(third.truncatedFields, [], 'an uncut finding lists no truncated field');
+      assert.deepEqual(truncResult.hostB.findings?.map(f => f.truncatedFields), [['title', 'description'], [], []], '--json exposes the same truncatedFields per finding');
+      console.log('  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names');
+    });
+
+    // CHK-004:adversarial:0 — the raw-stdout sentinel is absent from EVERY file under the state tree.
+    await check('CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree', async () => {
+      const stateRoot = join(root, PROOF_OR_STOP_STATE_DIR);
+      const files = walkFiles(stateRoot);
+      assert.ok(files.length > 0, 'state tree has persisted files to sweep');
+      assert.ok(files.some(f => f.startsWith(store.storyDirPath(STORY_ID))), 'sweep covers the story directory');
+      assert.ok(files.some(f => f.includes('autopilot-verdicts')), 'sweep covers the verdict artifacts');
+      const leaks = files.filter(f => readFileSync(f, 'utf8').includes(SENTINEL));
+      assert.deepEqual(leaks, [], 'no persisted file contains the raw-stdout sentinel');
     });
 
     console.log(`\n✓ cross_host_review smoke passed (${passed} checks)`);

@@ -11,7 +11,7 @@
     {
       "id": "CHK-002",
       "title": "Correct the host-neutral agent prompt asset section to match runtime-owned reality",
-      "context": "CLAUDE.md claims init writes zero agent files into the project and that host shims carry no body. Reality: .claude/agents holds 17 tracked managed files totalling 2067 lines with full role bodies, doctor reports agentAssetMode runtime-owned plus a shadowing warning, and reviewer shims bootstrap via review_run_start rather than agent_prompt.",
+      "context": "CLAUDE.md claims proof-or-stop init writes zero agent files into the project and that host shims carry no role body. Reality in this repository: .claude/agents holds 17 git-tracked managed files totalling 2067 lines, of which 5 are genuine 9-line bootstrap shims (the concept, quality, docs, behavior and test-coverage reviewers) and 12 carry substantial embedded bodies ranging from 23 to 289 lines. proof-or-stop doctor reports agentAssetMode runtime-owned together with a warning that these 17 files shadow the global source. The 5 thin reviewer shims bootstrap via review_run_start, not via agent_prompt as the document states.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -35,7 +35,7 @@
     {
       "id": "CHK-005",
       "title": "Repair the stale source citations and the broken experiment link",
-      "context": "The story-review.ts line citation points at the risk-signal advisory rather than the scope check, the INIT_CHECK blocker strings live in init-preflight.ts and cli/lifecycle-dispatch.ts rather than guard-utils.ts whose INIT_CHECK branch was migrated out, and the referenced experiment markdown file is absent from the whole repository.",
+      "context": "Two stale citations plus one broken link. The story-review.ts line citation points at the risk-signal advisory rather than the scope-check blocker, which is emitted near line 580. The four INIT_CHECK blocker messages are defined in packages/main/src/core/machine.ts inside getGuardFailureReason at lines 1216, 1234, 1238 and 1250, not in guard-utils.ts whose INIT_CHECK branch was migrated out and whose comment at lines 91 to 94 records that migration; handlers/init-preflight.ts:143 separately defines a preflight tamper detail that also carries the init_check_tampered code, and cli/lifecycle-dispatch.ts only mentions one code in a comment. The referenced experiment markdown file is absent from the entire repository.",
       "status": "pending",
       "startTime": null,
       "endTime": null

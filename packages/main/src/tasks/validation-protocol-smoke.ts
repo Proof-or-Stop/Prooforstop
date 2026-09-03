@@ -3,7 +3,7 @@
 import { strict as assert } from 'node:assert';
 import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +23,7 @@ import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
+import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
@@ -80,6 +81,164 @@ function assertRuntimeModeShape(value: any): void {
   assert.ok(value.message.length > 0);
   assert.deepEqual(Object.keys(value).sort(), ['authority', 'message', 'mode', 'requiresProjectJavaScriptRuntime', 'source'].sort());
 }
+
+// ---------------------------------------------------------------------------
+// B-dc2e CHK-001: inventory registration and tasks/ orphan sweep.
+//
+// Until B-dc2e this smoke was an orphan: no npm script named it, the
+// test:serial-reference chain never ran it, full-suite-runner RESOURCE_POLICY
+// had no row for it and proof-or-stop.config.json validate.commands did not list
+// it. Its CASE_MISMATCH assertion (further down) had been failing on every direct
+// run and nobody could see it. The cases below turn orphaning itself into a
+// failure, so the next silent drop-out of an inventory is visible here.
+//
+// Four inventories are consulted. The three canonical ones are the npm scripts
+// (root and packages/main package.json, plus main package exports/bin), the
+// full-suite-runner RESOURCE_POLICY (read through FULL_SUITE_ENTRIES, never
+// copied) and validate.commands. The fourth is run-all-smokes discovery: every
+// dist/tasks/*-smoke.js not marked skip in smoke-manifest.json is executed by
+// `npm run test:all`, so a smoke reachable only that way is still executed and
+// is reported as registered:test:all rather than listed as an orphan. Files
+// referenced by no inventory are printed one per line and must be classified:
+// reached by path from another source file, kept with an explicit reason, or
+// recorded as deleted (the file must then be absent).
+// ---------------------------------------------------------------------------
+const repoRoot = resolve(packageRoot, '..', '..', '..'); // packageRoot is packages/main/dist
+const SELF_SCRIPT = 'test:validation-protocol';
+const SELF_DIST = 'tasks/validation-protocol-smoke.js';
+
+/** Files with no inventory reference and no source-path reference, kept on purpose. Stale entries fail the sweep. */
+const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {
+  'cli-executor': 'legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story',
+  'drift-check': 'legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story',
+  'test-runner': 'legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story',
+  'test-fixture-gen': 'legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit',
+  'metadata-cross-check': 'loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design',
+  'story6-acceptance-transcript': 'one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke',
+};
+/** Files this story deleted on purpose; each must be absent. */
+const SWEEP_RECORDED_DELETIONS: Readonly<Record<string, string>> = {};
+/** The orphans that triggered this item and the classification they must now carry. */
+const SWEEP_STORY_LEDGER: Readonly<Record<string, string>> = {
+  'validation-protocol-smoke': 'registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all',
+  'observability-snapshot-smoke': 'registered:npm-script+test:all',
+};
+
+function listSourceFiles(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) listSourceFiles(full, out);
+    else if (entry.endsWith('.ts')) out.push(full);
+  }
+  return out;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function runInventoryAndSweep(): void {
+  const rootPkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
+  const mainPkg = JSON.parse(readFileSync(join(repoRoot, 'packages', 'main', 'package.json'), 'utf8'));
+  const scripts: Record<string, string> = rootPkg.scripts ?? {};
+  const scriptText = JSON.stringify({ root: rootPkg.scripts, main: mainPkg.scripts, exports: mainPkg.exports, bin: mainPkg.bin });
+  const chainNames = [
+    ...parseSerialReference(scripts['test:serial-reference'] ?? ''),
+    ...parseSerialReference(scripts['test:serial-reference-prefix'] ?? ''),
+  ];
+  const chainText = chainNames.map((name) => scripts[name] ?? '').join('\n');
+  const policyNames = FULL_SUITE_ENTRIES.map((entry) => entry.name);
+  const policyText = policyNames.map((name) => scripts[name] ?? '').join('\n');
+  const config = JSON.parse(readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
+  const validateText = JSON.stringify(config.validate?.commands ?? []);
+  const manifest = JSON.parse(readFileSync(join(repoRoot, 'packages', 'main', 'smoke-manifest.json'), 'utf8'));
+  const skippedSmokes = new Set<string>((manifest.smokes ?? []).filter((m: any) => m?.skip).map((m: any) => `${m.name}-smoke`));
+
+  // Case 1: this smoke is reachable from every canonical inventory, and the
+  // chain resolves through the real policy without an unknown or stale row.
+  assert.ok(typeof scripts[SELF_SCRIPT] === 'string' && scripts[SELF_SCRIPT].includes(SELF_DIST), `root package.json must define ${SELF_SCRIPT} -> ${SELF_DIST}`);
+  assert.ok(chainNames.includes(SELF_SCRIPT), `${SELF_SCRIPT} must be a test:serial-reference member`);
+  assert.ok(policyNames.includes(SELF_SCRIPT), `${SELF_SCRIPT} must have a full-suite-runner RESOURCE_POLICY row`);
+  assert.ok(validateText.includes(SELF_DIST), `proof-or-stop.config.json validate.commands must list ${SELF_DIST}`);
+  const unknownPolicy = chainNames.filter((name) => !policyNames.includes(name));
+  const stalePolicy = policyNames.filter((name) => !chainNames.includes(name));
+  assert.deepEqual(unknownPolicy, [], `chain members with no RESOURCE_POLICY row: ${unknownPolicy.join(', ')}`);
+  assert.deepEqual(stalePolicy, [], `RESOURCE_POLICY rows absent from both chains: ${stalePolicy.join(', ')}`);
+  console.log('[PASS] validation-protocol-smoke registered in npm scripts, test:serial-reference, RESOURCE_POLICY and validate.commands');
+
+  // Case 2: the runner refuses a chain member that has no policy row, naming it.
+  const policyWithoutSelf = Object.fromEntries(FULL_SUITE_ENTRIES.filter((entry) => entry.name !== SELF_SCRIPT).map((entry) => [entry.name, entry]));
+  assert.throws(
+    () => entriesFromSerialReference(scripts['test:serial-reference'] ?? '', scripts, policyWithoutSelf),
+    (error: unknown) => error instanceof Error && /unknownPolicy=\[[^\]]*test:validation-protocol/.test(error.message),
+    'entriesFromSerialReference must fail closed and name the member without a policy row',
+  );
+  console.log('[PASS] full-suite runner refuses a test:serial-reference member without a RESOURCE_POLICY row: test:validation-protocol');
+
+  // Case 3: sweep every packages/main/src/tasks/*.ts file.
+  const tasksDir = join(repoRoot, 'packages', 'main', 'src', 'tasks');
+  const bases = readdirSync(tasksDir).filter((f) => f.endsWith('.ts')).map((f) => f.slice(0, -3)).sort();
+  const sources = listSourceFiles(join(repoRoot, 'packages', 'main', 'src')).map((file) => ({ file, text: readFileSync(file, 'utf8') }));
+  const counts: Record<string, number> = {};
+  const lines: string[] = [];
+  const classification = new Map<string, string>();
+  const usedKept = new Set<string>();
+  let unclassified = 0;
+  for (const base of bases) {
+    const dist = `tasks/${base}.js`;
+    const tags: string[] = [];
+    if (scriptText.includes(dist)) tags.push('npm-script');
+    if (chainText.includes(dist)) tags.push('serial-reference');
+    if (policyText.includes(dist)) tags.push('RESOURCE_POLICY');
+    if (validateText.includes(dist)) tags.push('validate.commands');
+    if (base.endsWith('-smoke') && !skippedSmokes.has(base)) tags.push('test:all');
+    let label: string;
+    if (tags.length) {
+      label = `registered:${tags.join('+')}`;
+      for (const tag of tags) counts[tag] = (counts[tag] ?? 0) + 1;
+    } else {
+      const self = join(tasksDir, `${base}.ts`);
+      // A reference must resolve into tasks/: a sibling tasks/ file may name
+      // it as ./<base>.js or as a quoted '<base>.js' path segment; any other
+      // source file must spell tasks/<base>.js (or join(..., 'tasks', '<base>.js')).
+      // A bare <base>.js elsewhere (for example core/types.js) does not count.
+      const siblingPattern = new RegExp(`(^|['"\`]|\\./)${escapeRegExp(base)}\\.js\\b`, 'm');
+      const outsidePattern = new RegExp(`tasks(?:/|['"]\\s*,\\s*['"])${escapeRegExp(base)}\\.js\\b`);
+      const referrers = sources
+        .filter((s) => s.file !== self && (dirname(s.file) === tasksDir ? siblingPattern : outsidePattern).test(s.text))
+        .map((s) => s.file.slice(repoRoot.length + 1));
+      if (referrers.length) {
+        label = `kept-unregistered: reached by path from ${referrers[0]}${referrers.length > 1 ? ` (+${referrers.length - 1} more)` : ''}`;
+      } else if (base in SWEEP_KEPT_UNREGISTERED) {
+        usedKept.add(base);
+        label = `kept-unregistered: ${SWEEP_KEPT_UNREGISTERED[base]}`;
+      } else {
+        unclassified += 1;
+        label = 'UNCLASSIFIED: no inventory reference, no source-path reference, no SWEEP_KEPT_UNREGISTERED reason';
+      }
+      lines.push(`  ${base}  ${label}`);
+    }
+    classification.set(base, label);
+  }
+  for (const [base, reason] of Object.entries(SWEEP_RECORDED_DELETIONS)) {
+    assert.ok(!existsSync(join(tasksDir, `${base}.ts`)), `recorded deletion still present: ${base}.ts`);
+    lines.push(`  ${base}  deleted: ${reason}`);
+  }
+  const staleKept = Object.keys(SWEEP_KEPT_UNREGISTERED).filter((base) => !usedKept.has(base));
+  console.log(`tasks sweep: ${bases.length} files under packages/main/src/tasks; registered by inventory: ${Object.entries(counts).map(([k, v]) => `${k}=${v}`).join(' ')}`);
+  console.log('tasks sweep: files referenced by no inventory (npm scripts, serial-reference, RESOURCE_POLICY, validate.commands, test:all discovery):');
+  for (const line of lines) console.log(line);
+  for (const [base, expected] of Object.entries(SWEEP_STORY_LEDGER)) {
+    const actual = classification.get(base);
+    console.log(`  ledger ${base}  ${actual ?? 'MISSING'}`);
+    assert.equal(actual, expected, `story ledger classification for ${base}`);
+  }
+  assert.deepEqual(staleKept, [], `stale SWEEP_KEPT_UNREGISTERED entries (now referenced elsewhere or absent): ${staleKept.join(', ')}`);
+  assert.equal(unclassified, 0, `${unclassified} packages/main/src/tasks file(s) are unclassified; see the sweep lines above`);
+  console.log(`[PASS] tasks sweep: ${bases.length} packages/main/src/tasks files classified, 0 unclassified`);
+}
+
+runInventoryAndSweep();
 
 try {
   const subdir = join(tmp, 'sub');
@@ -1223,10 +1382,27 @@ try {
 
   const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-case-mismatch-'));
   try {
-    writeFileSync(join(caseMismatchAssetRoot, 'proofOrStop.md'), 'case mismatch\n');
+    // B-dc2e CHK-001 root cause: the fixture used to write 'proofOrStop.md',
+    // which is NOT a case-only variant of PROOF_OR_STOP.md (it lacks the
+    // underscores; it is the mechanical rewrite of the pre-rename 'lattice.md'
+    // by the B-022e identity migration). detectManagedAssetMode() only selects
+    // 'full' mode when the lowercased directory listing contains
+    // 'proof_or_stop.md', so the root was classified global-thin, no
+    // PROOF_OR_STOP.md definition was listed at all, and `find` returned
+    // undefined. The detector itself is filesystem-neutral: findCaseVariant()
+    // compares lowercased readdir() names, so a genuine case-only variant is
+    // reported as CASE_MISMATCH on both case-sensitive and case-insensitive
+    // disks (probed below; on a case-insensitive disk existsSync() of the
+    // canonical name is also true, which is exactly why the variant check
+    // must run first). The assertion was right; the fixture name was wrong.
+    writeFileSync(join(caseMismatchAssetRoot, 'proof_or_stop.md'), 'case mismatch\n');
+    const canonicalExists = existsSync(join(caseMismatchAssetRoot, 'PROOF_OR_STOP.md'));
+    assert.equal(detectManagedAssetMode(caseMismatchAssetRoot), 'full', 'a case-only variant of PROOF_OR_STOP.md must still select full managed-asset mode');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'PROOF_OR_STOP.md');
     assert.equal(item?.status, 'CASE_MISMATCH');
+    assert.equal(item?.actualRelPath, 'proof_or_stop.md');
+    console.log(`[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: ${canonicalExists ? 'case-insensitive' : 'case-sensitive'})`);
     assert.equal(item?.applied, undefined);
     assert.equal(result.applied.includes('PROOF_OR_STOP.md'), false, 'CASE_MISMATCH must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
@@ -1395,6 +1571,21 @@ try {
       startedAt: now,
       endedAt: null,
       events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
+    });
+    // B-dc2e CHK-001: while this smoke was orphaned, B-a7c5 CHK-001 added the
+    // dev-memory preflight ack gate in front of every DEV door, so the
+    // review-record reason below was pre-empted by
+    // [missing_dev_memory_preflight_ack]. Acknowledge the preflight through the
+    // store (the same artifact the ack handler writes) so the case keeps
+    // exercising the review-record reason it was written for.
+    store.writeDevMemoryPreflightAck(storyId, {
+      schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+      storyId,
+      packDigest: null,
+      topHitIds: [],
+      acknowledgedAt: now,
+      acknowledgedBy: 'validation-protocol-smoke',
+      downgradeReason: 'synthetic PLAN story; the case under test is the review-record reason, not the preflight pack',
     });
     resetConfigCache();
     const actorWithoutSnapshotCan = {
@@ -1906,6 +2097,13 @@ try {
         ],
       },
     }));
+    // B-dc2e CHK-001: while this smoke was orphaned, workspace validation
+    // capacity started resolving git-common-dir identity, so a bare temp dir
+    // now fails as an execution error before the gate reaches the configured
+    // command. Seed the same minimal repository the sibling gate fixtures use.
+    initSmokeGitRepo(gateFailRoot);
+    gitQuiet(gateFailRoot, ['add', 'proof-or-stop.config.json']);
+    gitQuiet(gateFailRoot, ['commit', '-m', 'seed validate gate fail smoke']);
     resetConfigCache();
     const store = new StoryStore(gateFailRoot);
     const storyId = 'B-vgate-fail';
@@ -1940,6 +2138,13 @@ try {
         ],
       },
     }));
+    // B-dc2e CHK-001: while this smoke was orphaned, workspace validation
+    // capacity started resolving git-common-dir identity, so a bare temp dir
+    // now fails as an execution error before the gate reaches the configured
+    // command. Seed the same minimal repository the sibling gate fixtures use.
+    initSmokeGitRepo(gateInfraRoot);
+    gitQuiet(gateInfraRoot, ['add', 'proof-or-stop.config.json']);
+    gitQuiet(gateInfraRoot, ['commit', '-m', 'seed validate gate infra smoke']);
     resetConfigCache();
     const store = new StoryStore(gateInfraRoot);
     const storyId = 'B-vgate-infra';
@@ -2001,7 +2206,25 @@ try {
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-storyid-alias-'));
   try {
     resetConfigCache();
+    // B-dc2e CHK-001: validate now resolves git-common-dir identity for its
+    // workspace capacity lock, so these alias fixtures (bare temp dirs while
+    // this smoke was orphaned) are seeded as minimal repositories; the
+    // no-story case still proves nothing under .proof-or-stop/ is created.
+    initSmokeGitRepo(storyIdAliasRoot);
+    gitQuiet(storyIdAliasRoot, ['commit', '--allow-empty', '-m', 'seed storyIdAliasRoot']);
     const aliasStore = new StoryStore(storyIdAliasRoot);
+    // B-dc2e CHK-001: the canonical evidence transaction resolves the story
+    // directory (realpath) before persisting test evidence, so a story-scoped
+    // validate against a story that was never written now fails as
+    // canonical-validation-persistence-failed instead of writing evidence.
+    // Seed the story the alias refers to, as every other evidence-writing
+    // fixture in this smoke already does.
+    aliasStore.writeStory('B-alias-smoke', {
+      storyId: 'B-alias-smoke', name: 'alias-smoke', title: 'storyId alias smoke',
+      description: 'seeded so the alias validate can persist evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
+      currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
+    });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2022,7 +2245,15 @@ try {
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-story-flag-'));
   try {
     resetConfigCache();
+    initSmokeGitRepo(storyFlagRoot);
+    gitQuiet(storyFlagRoot, ['commit', '--allow-empty', '-m', 'seed storyFlagRoot']);
     const storyFlagStore = new StoryStore(storyFlagRoot);
+    storyFlagStore.writeStory('B-story-flag-smoke', {
+      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'story flag smoke',
+      description: 'seeded so the alias validate can persist evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
+      currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
+    });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,
@@ -2041,6 +2272,8 @@ try {
   const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-no-story-'));
   try {
     resetConfigCache();
+    initSmokeGitRepo(noStoryReadOnlyRoot);
+    gitQuiet(noStoryReadOnlyRoot, ['commit', '--allow-empty', '-m', 'seed noStoryReadOnlyRoot']);
     const noStoryJson = await createVerifierHandlers({
       root: noStoryReadOnlyRoot,
       scanRoot: noStoryReadOnlyRoot,
@@ -2049,7 +2282,19 @@ try {
     }).validate({ json: true });
     const noStoryResult = JSON.parse(noStoryJson);
     assert.equal(noStoryResult.provider, 'proof-or-stop-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
-    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.proof-or-stop')), false, 'no-story validate must not create any .proof-or-stop/ state (read-only)');
+    // B-dc2e CHK-001: since this smoke was orphaned, official validation
+    // execution serialises through a workspace capacity mkdir-lock under
+    // .proof-or-stop/locks/ (keyed by git-common-dir identity), and the empty
+    // lock directory outlives the run. That is runtime coordination
+    // scaffolding, not story or evidence state, so the read-only claim is now
+    // stated precisely: no story store, no evidence, no activity, and nothing
+    // under .proof-or-stop/ other than the locks/ scaffold.
+    const stateDir = join(noStoryReadOnlyRoot, '.proof-or-stop');
+    const leftovers = existsSync(stateDir) ? readdirSync(stateDir).sort() : [];
+    assert.equal(existsSync(join(stateDir, 'story')), false, 'no-story validate must not create a story store');
+    assert.equal(existsSync(join(stateDir, 'activity.jsonl')), false, 'no-story validate must not record activity');
+    assert.deepEqual(leftovers.filter((entry) => entry !== 'locks'), [], `no-story validate must not create .proof-or-stop/ state beyond the locks/ scaffold; found: ${leftovers.join(', ')}`);
+    console.log(`[PASS] no-story validate is read-only for story state (.proof-or-stop/ entries after run: ${leftovers.join(', ') || 'none'})`);
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }

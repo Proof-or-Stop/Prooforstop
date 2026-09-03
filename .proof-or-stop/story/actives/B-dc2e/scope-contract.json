@@ -1,0 +1,43 @@
+{
+  "storyId": "B-dc2e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/handlers/cross-host-review.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/red-green-commit-guard.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/tasks/cross-host-review-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-03T04:37:02.565Z",
+  "updatedAt": "2026-09-03T04:43:39.849Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/tasks/validation-protocol-smoke.ts": "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts": "packages/main/src/tasks/observability-snapshot-smoke.ts",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/handlers/cross-host-review.ts": "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/red-green-commit-guard.ts": "packages/main/src/core/red-green-commit-guard.ts",
+    "packages/main/src/tasks/cross-host-review-smoke.ts": "packages/main/src/tasks/cross-host-review-smoke.ts"
+  }
+}
