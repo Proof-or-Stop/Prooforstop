@@ -19702,7 +19702,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:103-121 - defaultGitDiffReader/defaultGrepReader run `git diff --unified=1000000 main...HEAD` via execSync; on stories with large diffs (e.g. this one, >239MB) this fails with spawnSync /bin/sh ENOBUFS (a pipe ceiling, not the maxBuffer guard - raising maxBuffer to 200MB does not fix it). checkConcept (~line 1040-1055) maps any diff-read failure to status=warn, recommendation=skip, so `validate --concept` silently no-ops on large diffs instead of failing closed. Out of B-5a15 scope (validate-concept.ts is not touched by this story diff); recorded and deferred per Defect Triage rule 3, re-filed from prior review rounds (originally F-366, then F-368, now re-bound to RR-905 for epoch RI-070).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-03T03:38:08.783Z",
@@ -19713,7 +19713,10 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-370. The concept reviewer's first finding_add call omitted the agent attribution and was auto-recorded as agent=main, so it does not count as reviewer evidence; the reviewer re-filed the identical ENOBUFS defect correctly attributed as F-370 bound to RR-905. Reviewers have no resolve authority, so the reviewer flagged it for main-agent dedupe. Same underlying defect, no loss of tracking.",
+      "resolvedAt": "2026-09-03T03:48:21.056Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-370",
