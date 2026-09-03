@@ -12,6 +12,7 @@ import {
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
 import { readBrandEnv } from './brand-env.js';
+import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -62,6 +63,20 @@ export interface RuntimeEnvironmentOptions {
   // global-core-realpath executable fact (owner/group cases cannot be built
   // hermetically by an unprivileged test). Production always uses the default.
   executableAccessProbe?: (path: string) => boolean;
+  // B-e256 cross-host review B-e256-xhr-r12 MAJOR: test seam for the realpath(3)
+  // resolution of the global core package. A candidate that lstat/exists as
+  // `resolved` can still fail realpath (EACCES/EPERM/EIO on the target, or the
+  // checkout disappearing between the presence probe and the resolution), and an
+  // unprivileged hermetic fixture cannot build that divergence: every
+  // construction that makes realpath(3) fail makes the presence probe fail
+  // first, so it would be classified before this code is reached. Production
+  // always uses the default (realpathSync plus errno capture).
+  globalCoreRealpathProbe?: (path: string) => GlobalCoreRealpathProbeResult;
+}
+
+export interface GlobalCoreRealpathProbeResult {
+  realpath: string | null;
+  errorCode: string | null;
 }
 
 interface RuntimeCheckContext {
@@ -74,6 +89,7 @@ interface RuntimeCheckContext {
   activeCliEntrypoint: string | null;
   globalNpmRoot: string | null;
   executableAccessProbe: (path: string) => boolean;
+  globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
 }
 
 export const STALE_GLOBAL_RUNTIME_REASON_CODE = 'stale_global_runtime_in_worktree' as const;
@@ -139,12 +155,20 @@ const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-o
 // was deleted (exactly the failure this story targets) reads as `absent` and
 // the global-core-realpath row silently passes with installed=false. A link
 // entry that is present but does not resolve is its own state.
-type CorePackagePresence = 'resolved' | 'dangling' | 'absent';
+// B-e256 cross-host review B-e256-xhr-r12 MAJOR: presence is FOUR-valued. The
+// probe itself can fail (EACCES on the scope directory, EPERM, EIO, ...); that
+// observes NOTHING about whether a package is installed, so collapsing it into
+// `absent` turned an unverifiable - possibly broken - global installation into a
+// green "not installed" informational pass. Only ENOENT/ENOTDIR mean the path
+// genuinely holds no package.
+type CorePackagePresence = 'resolved' | 'dangling' | 'unreadable' | 'absent';
 
 interface CorePackageCandidate {
   path: string;
   packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof DEPRECATED_CORE_PACKAGE_NAME;
   presence: CorePackagePresence;
+  // errno of the failed probe when `presence === 'unreadable'`; null otherwise.
+  errorCode: string | null;
 }
 
 export function runRuntimeEnvironmentChecks(
@@ -166,6 +190,7 @@ export function runRuntimeEnvironmentChecks(
     activeCliEntrypoint: resolveActiveCliEntrypoint(resolvedRoot, corePackageRoot, cliEntrypoint),
     globalNpmRoot,
     executableAccessProbe: options.executableAccessProbe ?? defaultExecutableAccessProbe,
+    globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
   };
 
   const results = RUNTIME_FACT_REGISTRY.map((entry) => runRegistryCheck(entry, context));
@@ -537,6 +562,14 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 //   (5) installed but unverifiable (package.json unreadable / no `bin` /
 //       no proof-or-stop bin entry) -> drift naming the exact reason + path;
 //       never a pass with executable=unverified (B-e256-xhr-r6 MAJOR)
+//   (3c) the presence probe itself FAILED with something other than
+//       ENOENT/ENOTDIR (EACCES / EPERM / EIO ...) -> drift naming the errno;
+//       never "not installed", because nothing was observed (B-e256-xhr-r12)
+//   (3d) a RESOLVED candidate whose realpath cannot be resolved -> drift naming
+//       the errno; never "not installed" either (B-e256-xhr-r12 MAJOR)
+//   (6) a missing or non-canonical version on a readable package.json -> drift
+//       with rebuild-and-relink; the version is a verified fact, not a
+//       display-only decoration (B-e256-xhr-r12 MAJOR)
 type GlobalCoreExecutableVerification = 'ok' | 'package-json-unreadable' | 'bin-field-missing' | 'bin-entry-missing';
 
 interface GlobalCoreExecutableFacts {
@@ -621,8 +654,12 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
   const globalRoot = context.globalNpmRoot;
   const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
   const globalPackagePath = globalPackage?.path ?? null;
-  const globalRealpath = globalPackage && globalPackage.presence === 'resolved' ? safeRealpath(globalPackage.path) : null;
+  const realpathProbe: GlobalCoreRealpathProbeResult = globalPackage && globalPackage.presence === 'resolved'
+    ? context.globalCoreRealpathProbe(globalPackage.path)
+    : { realpath: null, errorCode: null };
+  const globalRealpath = realpathProbe.realpath;
   const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
+  const expectedVersion = readExpectedCoreVersion(expected);
   const relink = globalCoreRelinkCommand(expected);
   if (globalPackage && globalPackagePath && globalPackage.presence === 'dangling') {
     // (3b) The scoped package entry is still there, so the global install is
@@ -649,6 +686,8 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
         linkTarget,
         realpath: null,
         version: null,
+        expectedVersion,
+        errorCode: null,
         binTarget: null,
         binMode: null,
         executable: null,
@@ -658,6 +697,72 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       },
       expected,
       warnings,
+    };
+  }
+  if (globalPackage && globalPackagePath && globalPackage.presence === 'unreadable') {
+    // (3c) B-e256-xhr-r12 MAJOR: the presence PROBE failed (EACCES / EPERM /
+    // EIO / ...). Nothing was observed, so nothing may be claimed: rendering
+    // this as "not installed" turns an unverifiable - possibly broken - global
+    // installation into a green informational pass. `installed` is null
+    // (unknown), never false.
+    const code = globalPackage.errorCode ?? 'UNKNOWN';
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: null,
+        presence: 'unreadable',
+        errorCode: code,
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: relink,
+      },
+      expected,
+      warnings: [
+        `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} could not be probed [${code}]: the filesystem refused the lookup, so this installation is UNVERIFIABLE - it is not known to be absent`,
+        `inspect then repoint: ls -ld ${shellQuote(globalPackagePath)} && ${relink}`,
+      ],
+    };
+  }
+  if (globalPackage && globalPackagePath && globalPackage.presence === 'resolved' && !globalRealpath) {
+    // (3d) B-e256-xhr-r12 MAJOR: the candidate WAS classified as an installed
+    // package, then realpath resolution failed. Falling through to (3) reported
+    // that broken install as "not installed" and passed.
+    const code = realpathProbe.errorCode ?? 'UNKNOWN';
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: true,
+        presence: 'resolved',
+        errorCode: code,
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: relink,
+      },
+      expected,
+      warnings: [
+        `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} is installed but its realpath could not be resolved [${code}], so it is UNVERIFIABLE - it is not known to be absent`,
+        `inspect then repoint: ls -ld ${shellQuote(globalPackagePath)} && ${relink}`,
+      ],
     };
   }
   if (!globalPackage || !globalPackagePath || !globalRealpath) {
@@ -673,6 +778,8 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
         linkTarget: null,
         realpath: null,
         version: null,
+        expectedVersion,
+        errorCode: null,
         binTarget: null,
         binMode: null,
         executable: null,
@@ -686,12 +793,18 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       ],
     };
   }
-  const version = readPackageJson(globalRealpath)?.version;
+  const globalPackageJson = readPackageJson(globalRealpath);
+  const declaredVersion = globalPackageJson?.version;
+  const version = typeof declaredVersion === 'string' && declaredVersion.trim().length > 0 ? declaredVersion.trim() : null;
   const executableFacts = inspectGlobalCoreExecutable(globalRealpath, context.executableAccessProbe);
   const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
   const pathMatches = samePath(globalRealpath, expected);
   const warnings: string[] = [];
   const remediations: string[] = [];
+  // The same command can be the fix for two independent facts (a missing
+  // version and a missing bin target both want rebuild-and-relink); the
+  // operator must never be handed `x && y && x`.
+  const addRemediation = (command: string): void => { if (!remediations.includes(command)) remediations.push(command); };
   if (!pathMatches) {
     // (1) Drift: keep the historical explanatory line, then the exact repoint command.
     warnings.push(`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`);
@@ -699,7 +812,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       warnings.push(`global realpath is inside a \`.worktrees/\` checkout; it will break when that worktree is removed or rebuilt`);
     }
     warnings.push(`repoint: ${relink}`);
-    remediations.push(relink);
+    addRemediation(relink);
   }
   if (executableFacts.verification !== 'ok') {
     // (5) Installed but unverifiable is drift, never a silent pass: name the
@@ -710,7 +823,8 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     if (pathMatches) {
       const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
-      remediations.push(rebuild, relink);
+      addRemediation(rebuild);
+      addRemediation(relink);
     } else {
       warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
     }
@@ -724,7 +838,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       if (pathMatches) {
         const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
         warnings.push(`global bin target ${executableFacts.binTarget} does not exist; rebuild: ${rebuild}`);
-        remediations.push(rebuild);
+        addRemediation(rebuild);
       } else {
         warnings.push(`global bin target ${executableFacts.binTarget} does not exist (reported for the obsolete target only; the repoint above is the fix)`);
       }
@@ -736,13 +850,44 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
       warnings.push(`global bin target ${executableFacts.binTarget} is marked executable (mode ${executableFacts.binMode}) but the current user still cannot execute it; \`chmod +x\` cannot repair this - the likely causes are file ownership or an ACL denying execute to this user, or a filesystem mounted noexec`);
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
-      remediations.push(rebuild, relink);
+      addRemediation(rebuild);
+      addRemediation(relink);
     } else if (pathMatches) {
       const chmod = `chmod +x ${shellQuote(executableFacts.binTarget)}`;
       warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}); fix: ${chmod}`);
-      remediations.push(chmod);
+      addRemediation(chmod);
     } else {
       warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}; reported for the obsolete target only; the repoint above is the fix)`);
+    }
+  }
+  // (6) B-e256-xhr-r12 MAJOR: the version is a VERIFIED fact, not decoration.
+  // It is only checked when package.json was readable at all: when it was not,
+  // (5) above already reports that exact reason and the absent version is its
+  // consequence, not an independent finding.
+  //
+  // This does NOT duplicate the separate `package-version` runtime fact. That
+  // one is a cross-copy CONSISTENCY fact over the local workspace: it collects
+  // runtime / root / packages-main / global versions, FILTERS missing ones out,
+  // passes when <= 1 distinct value survives, and for an external project it
+  // ignores the global version entirely. So it is structurally blind to exactly
+  // the two cases below - a global install with no version at all, and any
+  // global version drift outside a self project - while this check is the
+  // per-install fact: the global core must carry the canonical version and its
+  // remediation is that install's rebuild/repoint, not a workspace-wide notice.
+  if (globalPackageJson && (version === null || version !== expectedVersion)) {
+    const observed = version === null
+      ? `declares no version in ${join(globalRealpath, 'package.json')}`
+      : `reports version ${version}`;
+    if (pathMatches) {
+      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+      warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} ${observed}; expected ${expectedVersion}`);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      addRemediation(rebuild);
+      addRemediation(relink);
+    } else {
+      // Same obsolete-target discipline as (2)/(5): the repoint pushed in (1)
+      // stays the sole actionable remediation for a path we are abandoning.
+      warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} ${observed}; expected ${expectedVersion} (reported for the obsolete target only; the repoint above is the fix)`);
     }
   }
   const status = warnings.length === 0 ? 'pass' : statusForDrift(severity);
@@ -751,12 +896,14 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     actual: {
       installed: true,
       presence: 'resolved',
+      errorCode: null,
       npmRoot: globalRoot,
       packageName: globalPackage.packageName,
       packagePath: globalPackagePath,
       linkTarget: null,
       realpath: globalRealpath,
-      version: typeof version === 'string' ? version : null,
+      version,
+      expectedVersion,
       binTarget: executableFacts.binTarget,
       binMode: executableFacts.binMode,
       executable: executableFacts.executable,
@@ -1292,15 +1439,37 @@ function packagePathFromName(root: string, packageName: string): string {
 // B-e256-xhr-r11: lstat sees the link ENTRY (existsSync follows it), so a
 // package directory that is a symlink to a removed checkout is reported as
 // `dangling` instead of `absent`.
-function probeCorePackagePresence(path: string): CorePackagePresence {
+function probeCorePackagePresence(path: string): { presence: CorePackagePresence; errorCode: string | null } {
   let entry;
   try {
     entry = lstatSync(path);
-  } catch {
-    return 'absent';
+  } catch (error) {
+    const code = errnoCode(error);
+    // B-e256-xhr-r12 MAJOR: ENOENT / ENOTDIR are the only two errors that mean
+    // "nothing is installed here" (no entry, or a non-directory in the path).
+    // EACCES, EPERM, EIO, ELOOP and friends mean the probe could not look, and
+    // must never be reported as an absent install.
+    if (code === 'ENOENT' || code === 'ENOTDIR') return { presence: 'absent', errorCode: code };
+    return { presence: 'unreadable', errorCode: code };
   }
-  if (!entry.isSymbolicLink()) return 'resolved';
-  return existsSync(path) ? 'resolved' : 'dangling';
+  if (!entry.isSymbolicLink()) return { presence: 'resolved', errorCode: null };
+  return { presence: existsSync(path) ? 'resolved' : 'dangling', errorCode: null };
+}
+
+function errnoCode(error: unknown): string {
+  const code = (error as NodeJS.ErrnoException | null)?.code;
+  return typeof code === 'string' && code.length > 0 ? code : 'UNKNOWN';
+}
+
+// B-e256-xhr-r12 MAJOR: realpath failure on an installed package is drift, so
+// the errno has to survive the probe (plain `safeRealpath` collapses it to null).
+function defaultGlobalCoreRealpathProbe(path: string): GlobalCoreRealpathProbeResult {
+  try {
+    return { realpath: realpathSync(path), errorCode: null };
+  } catch (error) {
+    // PROBE: an unresolvable realpath is reported as drift with its errno.
+    return { realpath: null, errorCode: errnoCode(error) };
+  }
 }
 
 // B-e256-xhr-r11: the raw link target of a broken link, so the warning can name
@@ -1321,15 +1490,19 @@ function resolveCorePackageCandidate(root: string): CorePackageCandidate {
   // @proof-or-stop/core is still FOUND (and reported) instead of looking absent.
   const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
   const candidates: CorePackageCandidate[] = [
-    { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, presence: probeCorePackagePresence(canonicalPath) },
-    { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, presence: probeCorePackagePresence(deprecatedPath) },
+    { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, ...probeCorePackagePresence(canonicalPath) },
+    { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, ...probeCorePackagePresence(deprecatedPath) },
   ];
-  // A usable install always wins; a broken link is only reported when nothing resolves.
+  // A usable install always wins; a broken link is only reported when nothing
+  // resolves; an unprobeable entry outranks `absent` because "we could not look"
+  // must never be downgraded to "there is nothing there" (B-e256-xhr-r12).
   const resolved = candidates.find((candidate) => candidate.presence === 'resolved');
   if (resolved) return resolved;
   const dangling = candidates.find((candidate) => candidate.presence === 'dangling');
   if (dangling) return dangling;
-  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, presence: 'absent' };
+  const unreadable = candidates.find((candidate) => candidate.presence === 'unreadable');
+  if (unreadable) return unreadable;
+  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, presence: 'absent', errorCode: null };
 }
 
 function describeCorePackageCandidate(candidate: CorePackageCandidate): string {
@@ -1391,6 +1564,19 @@ function readPackageJson(dir: string): any | null {
     // PROBE: missing or malformed package.json is reported as an unavailable package summary.
     return null;
   }
+}
+
+// B-e256-xhr-r12 MAJOR: the expectation for the global package's version is the
+// CANONICAL core package this check already resolves as `expected` (the same
+// root `expectedSelfCoreRoot` / `resolveCanonicalCoreRoot` produce). When that
+// package.json cannot be read the expectation falls back to the running build's
+// own PROOF_OR_STOP_CLI_VERSION instead of becoming null, because an
+// unresolvable expectation would silently switch the comparison off - the exact
+// silent-pass class this fix closes. That constant is not a second source of
+// truth: it is the value those package.json files are bumped to in lockstep.
+function readExpectedCoreVersion(canonicalCoreRoot: string): string {
+  const declared = readPackageJson(canonicalCoreRoot)?.version;
+  return typeof declared === 'string' && declared.trim().length > 0 ? declared.trim() : PROOF_OR_STOP_CLI_VERSION;
 }
 
 function packageSummary(pkg: any | null, dir: string): { path: string; name: unknown; version: unknown } | null {
@@ -1500,6 +1686,13 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
       // B-e256-xhr-r11: a broken link must never render as "not installed".
       const hint = typeof actual?.remediation === 'string' ? ` (repoint: ${actual.remediation})` : '';
       return `broken link ${actual?.packagePath ?? 'unknown'} -> ${actual?.linkTarget ?? 'unreadable link target'}${hint}`;
+    }
+    if (actual?.presence === 'unreadable' || (actual?.presence === 'resolved' && !actual?.realpath)) {
+      // B-e256-xhr-r12: a probe that could not look, or an installed package
+      // whose realpath will not resolve, must never render as "not installed".
+      const hint = typeof actual?.remediation === 'string' ? ` (repoint: ${actual.remediation})` : '';
+      const reason = actual?.presence === 'unreadable' ? 'probe refused' : 'realpath unresolved';
+      return `unverifiable ${actual?.packagePath ?? 'unknown'} [${actual?.errorCode ?? 'UNKNOWN'}] (${reason}; not known to be absent)${hint}`;
     }
     if (!actual?.realpath) {
       const hint = typeof actual?.remediation === 'string' ? ` (informational; link one with: ${actual.remediation})` : '';

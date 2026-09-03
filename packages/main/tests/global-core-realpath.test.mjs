@@ -22,15 +22,33 @@
 // installed=false; (ii) `chmod +x` is offered only when the execute bits are
 // actually clear - X_OK denied WITH the bits set is an ownership/ACL/noexec
 // denial that chmod cannot repair, so it gets rebuild-and-relink instead.
+// B-e256 cross-host review B-e256-xhr-r12 (MAJOR x2): (i) a presence probe that
+// FAILS with anything other than ENOENT/ENOTDIR observed nothing, so it is
+// unverifiable drift naming the errno - never a green "not installed" - and the
+// same holds for an installed candidate whose realpath will not resolve;
+// (ii) the global package version is a VERIFIED fact: a missing version, or one
+// that differs from the canonical core package's, is drift with a
+// rebuild-and-relink remediation, not a decorative `version=unknown`.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
-const { runRuntimeEnvironmentChecks } = await import(join(distRoot, 'core', 'runtime-environment-checks.js'));
+const { runRuntimeEnvironmentChecks, renderRuntimeEnvironmentReport } = await import(join(distRoot, 'core', 'runtime-environment-checks.js'));
+// The documented fallback expectation used when the canonical core package.json
+// carries no readable version (B-e256-xhr-r12), read from the same build.
+const { PROOF_OR_STOP_CLI_VERSION } = await import(join(distRoot, 'core', 'proof-or-stop-brand.js'));
+
+// The doctor row itself, so "never renders as not installed" is asserted on the
+// rendered output an operator actually reads, not only on the structured facts.
+function globalCoreRow(report) {
+  return renderRuntimeEnvironmentReport(report)
+    .split('\n')
+    .find((line) => line.includes('global-core-realpath')) ?? '';
+}
 
 function git(cwd, ...args) {
   execFileSync('git', args, { cwd, stdio: 'pipe', env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null' } });
@@ -40,9 +58,13 @@ function git(cwd, ...args) {
 // executable-bit facts are exercised; `binMode` controls the target's mode and
 // `binTarget` its shape: 'file' (default), 'absent' (declared but never
 // emitted) or 'directory' (declared path exists but is not a regular file).
-function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file' } = {}) {
+// `version` controls the package.json `version` field: a string declares it,
+// `null` omits it entirely (the B-e256-xhr-r12 missing-version case).
+function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', version = '0.0.0' } = {}) {
   mkdirSync(join(coreRoot, 'dist'), { recursive: true });
-  writeFileSync(join(coreRoot, 'package.json'), JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0', bin: { 'proof-or-stop': 'dist/cli.js' } }) + '\n');
+  const manifest = { name: '@proof-or-stop/core', bin: { 'proof-or-stop': 'dist/cli.js' } };
+  if (version !== null) manifest.version = version;
+  writeFileSync(join(coreRoot, 'package.json'), JSON.stringify(manifest) + '\n');
   const bin = join(coreRoot, 'dist', 'cli.js');
   if (binTarget === 'absent') {
     // keep dist/ non-empty so git tracks the directory without the bin target
@@ -60,9 +82,9 @@ function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file' } = {}
   return bin;
 }
 
-function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', worktreeDir } = {}) {
+function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', worktreeDir, version = '0.0.0' } = {}) {
   const repo = join(base, 'repo');
-  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget });
+  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget, version });
   git(repo, 'init', '-b', 'main');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '.');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-m', 'init');
@@ -586,6 +608,218 @@ for (const [variant, reasonCode, reasonText] of [
     const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
     assert.ok(warnings.includes(`global bin target ${expectedBin} is not executable by the current user (mode 0644); fix: chmod +x ${expectedBin}`), `got: ${warnings}`);
     assert.doesNotMatch(warnings, /marked executable/, 'the bits are clear, so the ownership/ACL diagnostic must not fire');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 19. B-e256-xhr-r12 MAJOR (a): the presence probe itself FAILS with an errno
+//    that is NOT ENOENT/ENOTDIR (here EACCES: the scope directory is mode 0).
+//    Nothing was observed about the installation, so the row must be
+//    unverifiable drift naming the errno - never the green "not installed"
+//    informational pass the old catch-all produced.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-probe-eacces-'));
+  const scope = join(base, 'global', 'node_modules', '@proof-or-stop');
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const globalRoot = join(base, 'global', 'node_modules');
+    writeCorePackage(join(scope, 'core'));
+    const packagePath = join(scope, 'core');
+    chmodSync(scope, 0o000);
+    // root ignores the mode bits, so the denial cannot be built there; assert
+    // the fixture really denies before trusting it.
+    let denied = true;
+    try { lstatSync(packagePath); denied = false; } catch { denied = true; }
+    assert.ok(denied, 'the EACCES fixture must actually deny the lookup (do not run this suite as root)');
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a probe that could not look must never pass');
+    assert.equal(actual.presence, 'unreadable', 'a refused probe is unreadable, not absent');
+    assert.notEqual(actual.installed, false, 'nothing was observed, so installed=false is a claim the probe cannot make');
+    assert.equal(actual.installed, null, 'installed is UNKNOWN for a refused probe');
+    assert.equal(actual.errorCode, 'EACCES', 'the errno is carried on the row');
+    assert.equal(actual.packagePath, packagePath);
+    assert.equal(actual.remediation, relink);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`at ${packagePath} could not be probed [EACCES]`), `the warning must name the path and the errno, got: ${warnings}`);
+    assert.match(warnings, /it is not known to be absent/, `the warning must refuse the absent claim, got: ${warnings}`);
+    assert.ok(warnings.includes(relink), `the warning must carry the exact repoint command, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /not installed/, 'a refused probe is not an absent install');
+    const row = globalCoreRow(report);
+    assert.doesNotMatch(row, /not installed/, `the doctor row must never render a probe failure as "not installed", got: ${row}`);
+    assert.ok(row.includes('[EACCES]'), `the doctor row must name the errno, got: ${row}`);
+  } finally {
+    try { chmodSync(scope, 0o755); } catch { /* fixture may not exist */ }
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 20. B-e256-xhr-r12 MAJOR (a, second half): a candidate classified as RESOLVED
+//    whose realpath resolution then fails. Every hermetic construction that
+//    makes realpath(3) fail (unsearchable parent, removed target, symlink loop)
+//    also makes the presence probe fail first, so it would be classified before
+//    this branch is reached - hence the injectable `globalCoreRealpathProbe`
+//    seam (same shape production fills with realpathSync + errno capture).
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-realpath-fail-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const packagePath = join(globalRoot, '@proof-or-stop', 'core');
+    const probed = [];
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, {
+      globalCoreRealpathProbe: (path) => { probed.push(path); return { realpath: null, errorCode: 'EIO' }; },
+    });
+    const actual = report.globalCoreRealpath.actual;
+    assert.deepEqual(probed, [packagePath], 'the probe must be asked about exactly the global package path');
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'an installed package whose realpath will not resolve must never pass');
+    assert.equal(actual.presence, 'resolved');
+    assert.equal(actual.installed, true, 'the package entry resolved, so it IS installed');
+    assert.equal(actual.realpath, null);
+    assert.equal(actual.errorCode, 'EIO');
+    assert.equal(actual.remediation, relink);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`at ${packagePath} is installed but its realpath could not be resolved [EIO]`), `got: ${warnings}`);
+    assert.match(warnings, /it is not known to be absent/);
+    assert.doesNotMatch(warnings, /not installed/);
+    const row = globalCoreRow(report);
+    assert.doesNotMatch(row, /not installed/, `the doctor row must never render a realpath failure as "not installed", got: ${row}`);
+    assert.ok(row.includes('[EIO]'), `got: ${row}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 21. B-e256-xhr-r12 regression guard: a GENUINELY absent install (ENOENT, and
+//    the ENOTDIR variant where a file sits where the scope directory should be)
+//    keeps today's informational pass unchanged. Only these two errnos mean
+//    "nothing is installed here". (Case 6 covers the plain ENOENT row facts.)
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-absent-errnos-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const relink = `cd -- ${realpathSync(join(repo, 'packages', 'main'))} && npm link`;
+
+    const enoentRoot = join(base, 'enoent', 'node_modules');
+    mkdirSync(enoentRoot, { recursive: true });
+    const enoent = runChecks(join(base, 'enoent'), join(worktree, 'packages', 'main'), enoentRoot);
+    assert.equal(enoent.globalCoreRealpath.status, 'pass', 'ENOENT stays the informational pass');
+    assert.equal(enoent.globalCoreRealpath.warnings, undefined);
+    assert.equal(enoent.globalCoreRealpath.actual.presence, 'absent');
+    assert.equal(enoent.globalCoreRealpath.actual.installed, false);
+    assert.equal(enoent.globalCoreRealpath.actual.errorCode, null);
+    assert.ok((enoent.globalCoreRealpath.details ?? []).join('\n').includes(relink));
+    assert.match(globalCoreRow(enoent), /not installed/, 'a genuinely absent install still reads as not installed');
+
+    // ENOTDIR: a regular file where the `@proof-or-stop` scope directory belongs.
+    const enotdirRoot = join(base, 'enotdir', 'node_modules');
+    mkdirSync(enotdirRoot, { recursive: true });
+    writeFileSync(join(enotdirRoot, '@proof-or-stop'), 'not a directory\n');
+    const enotdir = runChecks(join(base, 'enotdir'), join(worktree, 'packages', 'main'), enotdirRoot);
+    assert.equal(enotdir.globalCoreRealpath.status, 'pass', 'ENOTDIR is also genuinely absent');
+    assert.equal(enotdir.globalCoreRealpath.warnings, undefined);
+    assert.equal(enotdir.globalCoreRealpath.actual.presence, 'absent');
+    assert.equal(enotdir.globalCoreRealpath.actual.installed, false);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 22. B-e256-xhr-r12 MAJOR (b): a canonical, executable global install whose
+//    package.json declares NO usable version used to render version=unknown and
+//    still pass. The version is a verified fact: missing (or whitespace-only)
+//    is drift with the rebuild-and-relink remediation. The expectation falls
+//    back to the running build's PROOF_OR_STOP_CLI_VERSION because the
+//    canonical package.json this row compares against has no version either.
+for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) {
+  const base = mkdtempSync(join(tmpdir(), `gcr-version-${label.split('-')[0]}-`));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { version });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = `cd -- ${canonical} && npm link`;
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', `[${label}] a global install without a usable version must never pass`);
+    assert.equal(actual.realpath, canonical, `[${label}] the install is otherwise canonical`);
+    assert.equal(actual.executable, true, `[${label}] the install is otherwise executable`);
+    assert.equal(actual.verification, 'ok', `[${label}] package.json itself is readable`);
+    assert.equal(actual.version, null, `[${label}] a whitespace-only or absent version is no version`);
+    assert.equal(actual.expectedVersion, PROOF_OR_STOP_CLI_VERSION, `[${label}] the expectation falls back to the running build's version`);
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`, `[${label}] a canonical install is rebuilt and relinked`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`at ${canonical} declares no version in ${join(canonical, 'package.json')}; expected ${PROOF_OR_STOP_CLI_VERSION}`), `[${label}] the warning must name the file and the expectation, got: ${warnings}`);
+    assert.ok(warnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `[${label}] the warning must carry the remediation, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /resolves to/, `[${label}] the path itself is canonical`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 23. B-e256-xhr-r12 MAJOR (b, second half): the global version DIFFERS from
+//    the canonical core package's. A mismatch is only constructible with a
+//    drifted realpath - when the paths match both versions are read from the
+//    same package.json, which is exactly why case 22 (missing version) is what
+//    bites on the canonical path. The version fact is reported for the obsolete
+//    target and the repoint stays the sole actionable remediation (xhr-r7).
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-version-mismatch-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { version: '0.0.0' });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const stale = join(base, 'stale-core');
+    writeCorePackage(stale, { version: '9.9.9' });
+    const globalRoot = makeGlobalRootLinkedTo(base, stale);
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass');
+    assert.equal(actual.version, '9.9.9');
+    assert.equal(actual.expectedVersion, '0.0.0');
+    assert.equal(actual.remediation, relink, 'a drifted realpath is repointed, never rebuilt in place');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`reports version 9.9.9; expected 0.0.0 (reported for the obsolete target only; the repoint above is the fix)`), `the warning must name BOTH versions, got: ${warnings}`);
+    assert.match(warnings, /resolves to/, 'the path drift is still named');
+    assert.equal(warnings.split(relink).length - 1, 1, 'the relink command appears exactly once');
+    assert.doesNotMatch(warnings, /npm --prefix/, 'no rebuild of the obsolete checkout');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 24. B-e256-xhr-r12 regression guard: a version that MATCHES the canonical
+//    core package produces no version warning at all - on the canonical path
+//    (clean pass) and on a drifted path (only the repoint is reported).
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-version-match-'));
+  try {
+    const worktreeDir = join(base, 'repo', '.worktrees', 'B-test');
+    const { repo, worktree } = makeRepoWithWorktree(base, { worktreeDir, version: '1.2.3' });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const globalRoot = makeGlobalRootLinkedTo(join(base, 'match'), join(repo, 'packages', 'main'));
+    const matched = runChecks(join(base, 'match'), join(worktree, 'packages', 'main'), globalRoot);
+    assert.equal(matched.globalCoreRealpath.status, 'pass', `a matching version must not warn, got: ${(matched.globalCoreRealpath.warnings ?? []).join(' | ')}`);
+    assert.equal(matched.globalCoreRealpath.warnings, undefined);
+    assert.equal(matched.globalCoreRealpath.actual.version, '1.2.3');
+    assert.equal(matched.globalCoreRealpath.actual.expectedVersion, '1.2.3');
+    assert.ok(globalCoreRow(matched).includes(`${canonical} version=1.2.3 mode=0755 executable=yes`), `got: ${globalCoreRow(matched)}`);
+
+    // Drifted path, identical version (the worktree copy of the same commit):
+    // the repoint is reported, the version is not.
+    const driftRoot = makeGlobalRootLinkedTo(join(base, 'drift'), join(worktree, 'packages', 'main'));
+    const drifted = runChecks(join(base, 'drift'), join(worktree, 'packages', 'main'), driftRoot);
+    const driftWarnings = (drifted.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.notEqual(drifted.globalCoreRealpath.status, 'pass');
+    assert.equal(drifted.globalCoreRealpath.actual.version, '1.2.3');
+    assert.equal(drifted.globalCoreRealpath.actual.expectedVersion, '1.2.3');
+    assert.match(driftWarnings, /resolves to/);
+    assert.doesNotMatch(driftWarnings, /reports version|declares no version/, 'a matching version adds no warning');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
