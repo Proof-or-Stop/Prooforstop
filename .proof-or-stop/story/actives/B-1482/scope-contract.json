@@ -4,7 +4,11 @@
   "allowedModify": [
     "packages/main/src/core/types.ts",
     "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/core/verification.ts"
+    "packages/main/src/core/verification.ts",
+    "CLAUDE.md",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json"
   ],
   "allowedCreate": [
     "packages/main/src/tasks/narrowing-repin-smoke.ts"
@@ -17,13 +21,17 @@
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
   "acknowledgements": [],
   "createdAt": "2026-09-03T20:59:27.439Z",
-  "updatedAt": "2026-09-03T20:59:27.439Z",
+  "updatedAt": "2026-09-03T21:00:11.616Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
     "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
     "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts",
+    "CLAUDE.md": "CLAUDE.md",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
     "packages/main/src/tasks/narrowing-repin-smoke.ts": "packages/main/src/tasks/narrowing-repin-smoke.ts"
   }
 }
