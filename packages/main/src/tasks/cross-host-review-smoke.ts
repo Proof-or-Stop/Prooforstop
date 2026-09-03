@@ -68,6 +68,8 @@ import {
   createCrossHostReviewHandlers,
   CROSS_HOST_REVIEW_DIRTY_WORKTREE,
   CROSS_HOST_REVIEW_HEAD_DRIFT,
+  PERSISTED_FINDING_TEXT_CAP,
+  PERSISTED_FINDING_TITLE_CAP,
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
@@ -1588,7 +1590,7 @@ async function run(): Promise<void> {
       }
       return out;
     };
-    type PersistedFinding = { severity: string; title: string; file: string; line: number; description: string; fix: string };
+    type PersistedFinding = { severity: string; title: string; file: string; line: number; description: string; fix: string; truncatedFields?: string[] };
     type VerdictWithFindings = { findings?: PersistedFinding[]; findingCount?: number };
     const verdictFileFor = (runId: string, provider: string): { path: string; raw: string; parsed: VerdictWithFindings } => {
       const verdict = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === runId && v.provider === provider);
@@ -1681,6 +1683,43 @@ async function run(): Promise<void> {
       }
       assert.equal(bloat.parsed.findingCount, 60, 'persisted findingCount keeps the TRUE count so truncation is visible');
       assert.ok(bloat.raw.length < 256 * 1024, `bounded artifact (got ${bloat.raw.length} bytes)`);
+    });
+
+    // F-001 — per-field truncation must be VISIBLE, never silent. A field that is cut
+    // ends with a fixed marker (the marker counts toward the cap, so the length
+    // invariant holds and the verdictId still digests the capped text) and the
+    // persisted finding names the cut fields in `truncatedFields`; an uncut finding,
+    // including one exactly AT the cap, carries no marker and an empty list.
+    // Expected marker text (the handler exports it once it exists).
+    const PERSISTED_FINDING_TRUNCATION_MARKER = ' ...[truncated]';
+    await check('F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', async () => {
+      const truncRun = `${STORY_ID}-xhr-f001-truncation`;
+      const cut: Finding = {
+        severity: 'MAJOR', title: 't'.repeat(PERSISTED_FINDING_TITLE_CAP + 1), file: 'cut.ts', line: 2,
+        issue: 'i'.repeat(PERSISTED_FINDING_TEXT_CAP + 1), fix: 'fits',
+      };
+      const atCap: Finding = { severity: 'MINOR', title: 'c'.repeat(PERSISTED_FINDING_TITLE_CAP), file: 'at-cap.ts', line: 3, issue: 'at cap', fix: 'none' };
+      const short: Finding = { severity: 'MINOR', title: 'short', file: 'short.ts', line: 1, issue: 'short issue', fix: 'short fix' };
+      const truncHandlers = createCrossHostReviewHandlers(ctx, { codexRunner: fakeSeam(verdictJsonStdout(materialHash, 'fail', [cut, atCap, short], 'cut')) });
+      const truncResult = await truncHandlers.cross_host_review({
+        storyId: STORY_ID, policy: reviewOnlyPolicy(), hostAFindingsFile, runId: truncRun, json: true,
+      }) as CrossHostReviewResult & { hostB: { findings?: PersistedFinding[] } };
+      const persisted = verdictFileFor(truncRun, 'codex').parsed.findings ?? [];
+      assert.equal(persisted.length, 3, 'all three findings persisted');
+      const [first, second, third] = persisted as [PersistedFinding, PersistedFinding, PersistedFinding];
+      assert.equal(first.title.length, PERSISTED_FINDING_TITLE_CAP, 'the cut title is exactly the cap long (the marker counts toward the cap)');
+      assert.ok(first.title.endsWith(PERSISTED_FINDING_TRUNCATION_MARKER), `the cut title ends with the truncation marker (tail: ${JSON.stringify(first.title.slice(-24))})`);
+      assert.equal(first.description.length, PERSISTED_FINDING_TEXT_CAP, 'the cut description is exactly the cap long');
+      assert.ok(first.description.endsWith(PERSISTED_FINDING_TRUNCATION_MARKER), 'the cut description ends with the truncation marker');
+      assert.equal(first.fix, 'fits', 'an uncut field of a cut finding is stored verbatim');
+      assert.deepEqual(first.truncatedFields, ['title', 'description'], 'the persisted finding names exactly the cut fields, in field order');
+      assert.equal(second.title, atCap.title, 'a title exactly at the cap is not cut and carries no marker');
+      assert.deepEqual(second.truncatedFields, [], 'a finding exactly at the cap lists no truncated field');
+      assert.equal(third.title, 'short');
+      assert.deepEqual(third.truncatedFields, [], 'an uncut finding lists no truncated field');
+      const jsonFindings = truncResult.hostB.findings as PersistedFinding[] | undefined;
+      assert.deepEqual(jsonFindings?.map(f => f.truncatedFields), [['title', 'description'], [], []], '--json exposes the same truncatedFields per finding');
+      console.log('  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names');
     });
 
     // CHK-004:adversarial:0 — the raw-stdout sentinel is absent from EVERY file under the state tree.
