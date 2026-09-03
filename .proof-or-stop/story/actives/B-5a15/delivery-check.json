@@ -1,124 +1,104 @@
 {
   "storyId": "B-5a15",
-  "checkedAt": "2026-09-02T23:15:40.997Z",
-  "headHash": "71804b65b90e9e04007f42f4add0d23f33db6585",
-  "materialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03",
-  "storyFilesHash": "04f8f891183d61679f9e1cdceaa536265fba7ed805f5e640daa5aa2fb413a168",
-  "reviewRound": "2026-09-02T21:18:15.582Z",
+  "checkedAt": "2026-09-03T16:23:34.510Z",
+  "headHash": "9ea991c8e32564388c8037f3be4e0669df6b03f8",
+  "materialHash": "c0a6d28bdba97588b91b278dd0dadf3b2cf573e8af43fb4d146ed48f93e6d448",
+  "storyFilesHash": "fd065ab3d98eb4c4c22a6b0fed4a4459745a4c2897536bfb797deb6e7f1bbea8",
+  "reviewRound": "2026-09-03T14:55:02.746Z",
   "agentId": "",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
-      "promise": "createCausalExecutionKey builds a content-addressed identity from realpath cwd, structured command/bootstrap, explicit inputs and storyFilesHash, redacted effective environment, runtime/tool version, and selector-policy digest.",
-      "verifiedBy": "read/grep",
-      "evidence": "Re-verified against current HEAD: packages/main/src/core/causal-evidence.ts defines createCausalExecutionKey with realpathSync(cwd), storyFilesHash completeness check, redactEnvironment, and selectorPolicyDigest(); incomplete identity is marked non-reusable. grep confirmed executionKey/storyFilesHash/selectorPolicyDigest symbols present in current file."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03a",
+      "promise": "createCausalExecutionKey builds a content-addressed identity from realpath cwd, structured command/bootstrap spec, explicit inputs and storyFilesHash, effective redacted environment, runtime/tool version, and selector-policy data",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/causal-evidence.ts:414 createCausalExecutionKey(input: CausalExecutionIdentityInput) is present and used at lines 668, 964, 1007, 1468; verified independently via node --test packages/main/tests/causal-evidence.test.mjs subtest 'CHK-001: keys bind all identity fields...' which passed"
     },
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
-      "promise": "createCausalEvidenceBatch groups exact execution keys, executes each unique key once, and evaluates each intent selector independently against bounded redacted output.",
-      "verifiedBy": "read/test",
-      "evidence": "Independently re-ran node --test packages/main/tests/causal-evidence.test.mjs at current HEAD: CHK-001 'keys bind all identity fields, deduplicate exact complete work, and fan out selectors' PASS; 21/21 tests pass overall in this file."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03a",
+      "promise": "createCausalEvidenceBatch groups exact execution keys, executes each unique key once, and evaluates each intent's selector independently against bounded redacted output",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/causal-evidence.ts:598 createCausalEvidenceBatch present; oversized-output-probe test at CHK-001:edge confirms bounded 12000-char probe; independently ran node --test causal-evidence.test.mjs, both CHK-001 subtests PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
-      "promise": "A PASS receipt is reusable only when identity, schema, status, and causal fields verify; failed, timed-out, cancelled, partial, skipped, or incomplete receipts are not upgraded into reusable PASS evidence.",
-      "verifiedBy": "read/test",
-      "evidence": "verifyCausalEvidenceReceipt in causal-evidence.ts requires status===pass && exitCode===0 for reuse; F-007 test 'non-PASS outcomes never occupy a reusable receipt key or batch cache' PASS on current HEAD."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03a",
+      "promise": "The receipt path is separate from canonical checklist import: CAS receipt is written before canonical import; importCausalEvidenceReceipt validates key/hash/material identity/writer lease/current facts and performs an idempotent import transaction; import retries repeat the transaction only, never the command",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/causal-evidence.ts:1447 importCausalEvidenceReceipt returns {receiptHash, attempts, commandReruns: 0}; independently ran node --test causal-evidence.test.mjs subtest 'CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper' and 'an injected index-write failure recovers the orphaned receipt without relaunching', both PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
-      "promise": "The CAS receipt is written before canonical checklist import; importCausalEvidenceReceipt validates key, receipt hash, material identity, writer lease, and current facts, and retries only the import transaction.",
-      "verifiedBy": "read/test",
-      "evidence": "CHK-002 'CAS receipts precede isolated import, retry commit only, and fail closed on tamper' PASS on current HEAD; causal-evidence.ts throws causal_receipt_tampered on identity mismatch (line ~676) and causal_receipt_invalid on raw/unsigned/partial import (line ~1450)."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03a",
+      "promise": "runtime-artifact-registry.ts registers the story-scoped causal receipt/index paths as runtime artifacts excluded from the behavioral material hash",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/runtime-artifact-registry.ts:133-140 registers id 'runtime-causal-evidence-receipts' with a regexp matcher over .../causal-evidence(/|$) paths, comment explicitly cites B-5a15"
     },
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
-      "promise": "Story-scoped causal receipt/index paths are registered in runtime-artifact-registry.ts as runtime artifacts excluded from behavioral materialHash.",
-      "verifiedBy": "grep",
-      "evidence": "runtime-artifact-registry.ts contains id 'runtime-causal-evidence-receipts' with materialHash:'exclude' and matchers covering .lattice/.proof-or-stop story causal-evidence paths plus ignorePatterns ['**/causal-evidence/']. Confirmed present in current diff (git diff main...HEAD --name-status shows this file modified)."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03a",
+      "promise": "checklist handler treats caller-supplied receipt/freshness fields as untrusted; on bulk re-persist, trusted provenance can be carried forward only from the existing on-disk row after semantic and material checks; exact semantic re-persistence may retain old binding, changed semantic fields receive current binding",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/handlers/checklist.ts: carryForwardOnDiskProvenance (line 839) and evidenceHashesForPersistence (line 601) implement this fork; comments at 594/609/655/2178/2181 cross-reference each other; independently ran node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js -> PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#4",
-      "promise": "carryForwardOnDiskProvenance and evidenceHashesForPersistence in checklist.ts keep freshness hashes server-owned: exact same-semantic re-persist may retain prior binding; a changed semantic field receives current hashes and cannot inherit caller-supplied receipt authority.",
-      "verifiedBy": "read",
-      "evidence": "grep confirmed both functions present in packages/main/src/handlers/checklist.ts at current HEAD: sameEvidenceSemantics (line 527), evidenceHashesForPersistence (line 601-619) forking on provenance, carryForwardOnDiskProvenance (line 839) invoked at persistence site (line 2181)."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03b",
+      "promise": "evaluateCausalDependencies computes the affected transitive closure, distinguishes complete identity from strict fallback, and reports affectedNodeRerun, unrelatedSpecializedRerun, falseFresh, and storyFilesHashAdvisory; a missing/ambiguous/legacy/uncomputable identity fails closed to strict material freshness",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/causal-evidence.ts:1194 evaluateCausalDependencies; storyFilesHashAdvisory at 1075/1244/1264, affectedNodeRerun at 1289/1318, falseFresh computed at 1295 as identityComplete ? missingReruns.length : 0 (fails closed when identity incomplete); independently ran node --test causal-evidence.test.mjs subtests 'CHK-003: dependency domains shadow-compare closure...' and 'F-314: production domain inputs invalidate only the declared transitive closure', both PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03b",
-      "promise": "evaluateCausalDependencies computes the affected transitive closure; missing, ambiguous, legacy, or uncomputable identity fails closed to strict material freshness.",
-      "verifiedBy": "read/test",
-      "evidence": "CHK-003 'dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses' PASS on current HEAD, plus F-314 domain isolation test PASS."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#u-03b",
+      "promise": "CertificationWindow consumes the signed causal dependency decision and rejects stale affected-node bypasses",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/certification-window.ts imports causalDependencyDecisionMatchesCurrentIdentity and verifyCausalDependencyDecision from causal-evidence.js (lines 8-11), CertificationWindowAdmitFacts carries causalDecision (line 210); independently ran subtest 'F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains' PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03b",
-      "promise": "storyFilesHash is secondary evidence, not a replacement for materialHash; CertificationWindow consumes the signed causal decision and rejects stale affected-node bypasses; DONE-required build/full-suite evidence remains strict on whole-tree drift.",
-      "verifiedBy": "read/test",
-      "evidence": "F-318/F-320 'CertificationWindow handlers preserve advisory drift and invalidate changed test domains' PASS on current HEAD; handlers/certification-window.ts calls evaluateCausalDependencies (confirmed by grep)."
+      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#section-1",
+      "promise": "verifier.ts's last-moment preflight callback refreshes a lease only when the existing lease belongs to the current session, refuses a missing or foreign lease, and does not create ownership as a side effect of a preflight",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/handlers/verifier.ts refreshSameOwnerLease (~line 716) returns false when !lease or lease.sessionId !== getSessionId(); beforeLaunch (line 744-753) throws state_changed_before_launch when refreshSameOwnerLease() is false or facts/preflight changed, matching comment at 748-749 'refusing missing/foreign leases rather than acquiring ownership as an accidental side effect of a preflight'; independently ran verifier-causal-preflight-smoke.js -> PASS (2/2 subtests)"
+    },
+    {
+      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#verification-commands",
+      "promise": "Implementation baseline verification commands: node packages/main/tests/causal-evidence.test.mjs, npm --prefix packages/main run build, verifier-causal-preflight-smoke.js, tool-executed-evidence-receipt-smoke.js, proof-or-stop validate --story=B-5a15",
+      "verifiedBy": "execution",
+      "evidence": "Independently re-ran all listed commands from the current worktree at current materialHash c0a6d28bdba9...: build already current (dist smoke tasks executed successfully), verifier-causal-preflight-smoke.js PASS, tool-executed-evidence-receipt-smoke.js PASS, causal-evidence.test.mjs 20/21 PASS with 1 known non-blocking failure (see closingSelfCheck and F-407/F-408)"
     },
     {
       "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#invariants",
-      "promise": "Metrics are diagnostic facts, not waivers and not substitutes for review, coverage, validation, or DONE-required evidence.",
-      "verifiedBy": "read/test",
-      "evidence": "CHK-005:adversarial:2 'metrics PASS cannot bypass open findings missing coverage dirty tree or strict whole-tree causal drift' PASS on current HEAD."
-    },
-    {
-      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#1",
-      "promise": "The last-moment verifier callback in verifier.ts refreshes a lease only when the existing lease belongs to the current session, then rechecks signed causal preflight facts before launching a child; it refuses a missing or foreign lease.",
-      "verifiedBy": "read/test",
-      "evidence": "grep confirmed refreshSameOwnerLease (verifier.ts line 717) and causal_preflight_refused throw sites (lines 742, 751) present at current HEAD; verifier-causal-preflight.test.mjs F-012 both tests PASS on current HEAD."
-    },
-    {
-      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#5",
-      "promise": "Declared dependency domains are source, test, build-input, manifest-semantic, integration, and review-subject.",
-      "verifiedBy": "read",
-      "evidence": "Read packages/main/src/core/causal-evidence.ts lines 47-54 at current HEAD: CAUSAL_DEPENDENCY_DOMAINS is exactly ['source','test','build-input','manifest-semantic','integration','review-subject']."
-    },
-    {
-      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#2",
-      "promise": "The execution ledger is the source for intentCount, uniqueExecutionKeys, commandExecutions, cacheHitRate, commandReruns, commitFailureReruns, unrelatedSpecializedRerun, affectedNodeRerun, and falseFresh.",
-      "verifiedBy": "read/test",
-      "evidence": "grep confirmed all nine metric fields present in causal-evidence.ts deriveCausalMetrics/renderCausalMetrics at current HEAD; CHK-005 metrics tests PASS."
-    },
-    {
-      "docPath": "Wave4-independent-read#acceptance_commands",
-      "promise": "acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check remain independently executable; observe/warn/enforce keep identical status/diagnostics semantics and enforce alone blocks; quorum is genuine full-3x2 (codex-cli + claude-cli), never degraded 3x1.",
-      "verifiedBy": "independent CLI read at current HEAD",
-      "evidence": "Independently re-ran all four for B-5a15 at current material (this supersedes the prior FAIL recorded in the superseded delivery-check dated 2026-08-31): acceptance_topology_check -> mode=observe status=pass structural pass=yes blocking=no diagnostics=none. pre_review_check_read -> mode=observe status=PASS blocking=false codes=none (plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible). acceptance_rollout_report_read -> PASS receipt=current quorum=full-3x2 codes=none. acceptance_rollout_check -> mode=enforce status=pass blocking=false receipt=current quorum=full-3x2 codes=none (enforce mode passing, not merely observe/warn). No degraded 3x1 quorum observed in any of the four reads."
-    },
-    {
-      "docPath": "Wave4-regression-recovery",
-      "promise": "F-247 and F-249 (verifier-owned topology/pre-review checks and rollout reads) resolve from the FAIL state recorded in the prior superseded delivery-check to a current PASS, without weakening the underlying fail-closed checks.",
-      "verifiedBy": "test",
-      "evidence": "Independently re-ran node --test packages/main/tests/causal-evidence.test.mjs at current HEAD: F-247 'verifier-owned topology and pre-review checks are executable and current' PASS; F-249 (grouped assertion) 'verifier-owned acceptance reads and rollout mutations are executable' PASS. Full file: 21/21 tests pass, 0 fail, 0 skipped, duration 43628ms."
+      "promise": "A canonical import failure does not rerun the already completed command; a receipt collision, tampered key, incomplete selector set, or missing identity fails closed",
+      "verifiedBy": "diff/grep + read + execution",
+      "evidence": "Independently ran node --test causal-evidence.test.mjs adversarial subtests for CHK-001 (tampered CAS receipt rejected, execution-key/receipt collision fails closed, changed provenance/selector cannot replay as PASS) and F-007 (non-PASS outcomes never occupy a reusable receipt key); all PASS in this run"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Independent re-run at current HEAD of node --test packages/main/tests/causal-evidence.test.mjs: CHK-001 'keys bind all identity fields, deduplicate exact complete work, and fan out selectors' PASS (5931ms); 'oversized output probes stay within the receipt verification bound' PASS; F-007/F-011/F-298/F-300/F-301/F-047/F-267/F-273/F-274 redaction and split-on-mutation tests all PASS."
+      "transcript": "node --test packages/main/tests/causal-evidence.test.mjs subtests 'CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors' and 'CHK-001: oversized output probes stay within the receipt verification bound' both PASS on independent re-run; covers happy (exact key reuse, single/batch identity match), edge (single-field mutation produces distinct keys, selector fan-out on shared receipt, near-duplicate vs exact-key dedup, 12001-char output bounded to 12000), adversarial (tampered receipt rejected, collision fails closed, changed provenance rejected)"
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Independent re-run at current HEAD: CHK-002 'CAS receipts precede isolated import, retry commit only, and fail closed on tamper' PASS (198ms); orphaned-receipt-recovery test PASS. Concurrency suite (causal-evidence-concurrency.test.mjs) also independently re-run: 3/3 PASS (single-flight exact keys, shared retry flight, StoryStore index writes)."
+      "transcript": "node --test causal-evidence.test.mjs subtests 'CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper' and 'an injected index-write failure recovers the orphaned receipt without relaunching' both PASS on independent re-run; verifies receipt persisted before import, import retry does not rerun command, orphaned receipt recovery after simulated index-write failure"
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Independent re-run at current HEAD: CHK-003 'dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses' PASS (683ms); F-314 domain isolation PASS; F-318/F-320 CertificationWindow handler PASS."
+      "transcript": "node --test causal-evidence.test.mjs subtests 'CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses', 'F-314: production domain inputs invalidate only the declared transitive closure', 'F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains', 'causal rerun receipts bind the current story and snapshot identity', 'a dependency decision remains verifiable across linked worktrees' all PASS on independent re-run"
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Independent re-run at current HEAD: CHK-004 'preflight refuses exact readiness failures with zero execution/evidence counters' PASS (574ms); CHK-006 atomic pre-run revalidation PASS; verifier-causal-preflight.test.mjs 2/2 PASS. F-247 'verifier-owned topology and pre-review checks are executable and current' PASS -- this supersedes the prior delivery-check's recorded FAIL for this exact assertion; independently confirmed via direct CLI reads: pre_review_check_read PASS (codes=none), acceptance_topology_check pass (blocking=no), acceptance_rollout_report_read PASS (quorum=full-3x2), acceptance_rollout_check PASS in enforce mode (blocking=false, quorum=full-3x2, codes=none). checklist-causal-preflight-batch.test.mjs (1/1 PASS, 19161ms) also independently re-run."
+      "transcript": "node --test causal-evidence.test.mjs subtest 'CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters' PASS on independent re-run, covering the 4 must-priority happy/edge/adversarial rows. The 2 should-priority rows (happy:2, happy:3, calling acceptance_topology_check/pre_review_check_read live) are currently blocked from earning real coverage by an unrelated self-inflicted pre_review_check artifact-cutoff sequencing defect (F-247 in this same suite is RED, 20/21); those two rows are honestly recorded as kind=waiver/waiverType=deferred_gate_evidence rather than falsely marked PASS, and priority=should means core/verification.ts isRequired() excludes them from mandatory acceptance coverage. Independently reproduced: pre_review_check_read currently returns status=fail codes=[PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND], root-caused in pre-review-check.ts evidenceState() to evidence rows timestamped after the artifact's frozen cutoffAt -- confirmed via source read, not taken on trust. This check is mode=observe/blocking=false/diagnostic_only (command-policy.ts) and does not block TEST readiness (lifecycle_check --target=TEST independently reports localReady:true, blockers:0)."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Independent re-run at current HEAD: CHK-005 'metrics are zero-safe and tamper-resistant canonical-ledger projections' PASS (4668ms) covering happy/edge/adversarial: zero-safe empty plan, mixed reuse counts, incomplete-identity non-reusability, affectedNodeRerun<100% on partial rerun, unrelatedSpecializedRerun=0/affectedNodeRerun=100%/falseFresh=0 on mixed correctness, metrics field exclusion (no elapsed/reviewer/coverage/waiver fields), metrics-cannot-bypass-gates, and ledger tamper detection. F-249 'verifier-owned acceptance reads and rollout mutations are executable' PASS (15797ms), F-250/F-252/F-256/F-260/F-262 'validate-file execution uses the causal preflight plan' PASS (2029ms). Full causal-evidence.test.mjs run: 21 tests, 21 pass, 0 fail, 0 skipped. Story-scoped proof-or-stop validate --story=B-5a15 --json independently re-run at current HEAD: allPass=true (lattice-verifier-configured-commands provider, ~807s)."
+      "transcript": "node --test causal-evidence.test.mjs subtest 'CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections' PASS on independent re-run, plus edge/adversarial rows for legacy/missing-identity non-reuse, incomplete rerun failing correctness, tamper detection on metric fields"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "node --test causal-evidence.test.mjs subtest 'CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes' PASS on independent re-run; cross-verified against packages/main/dist/tasks/verifier-causal-preflight-smoke.js run directly, which independently PASSED both subtests (refusal on changed preflight snapshot, same-owner lease refresh before later launch)"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
-    "hasUnresolvedTodos": false,
-    "summary": "This delivery-check supersedes a stale one bound to a prior materialHash whose closingSelfCheck reported two Wave 4 integration tests (F-247/F-249) failing because pre_review_check_read was not a current signed PASS. I independently re-verified at the CURRENT material and found both conditions resolved: pre_review_check_read, acceptance_topology_check, acceptance_rollout_report_read, and acceptance_rollout_check all now read PASS (rollout check passes in enforce mode specifically, not just observe/warn; quorum is genuine full-3x2 across codex-cli+claude-cli, not degraded 3x1). Re-running node --test on causal-evidence.test.mjs, causal-evidence-concurrency.test.mjs, checklist-causal-preflight-batch.test.mjs, and verifier-causal-preflight.test.mjs at current HEAD gave 21+3+1+2 = 27 passing tests, 0 failures, covering happy/edge/adversarial for all 5 CHK items (execution-key binding, CAS receipt transactionality, dependency-domain freshness, preflight gating, and metrics reporting). Story-scoped 'proof-or-stop validate --story=B-5a15 --json' independently re-run at current HEAD also reports allPass=true. All 13 docs promises checked against the actual diff/source at current HEAD verify. No unresolved TODO/FIXME/HACK found in this story's non-test diff. One out-of-scope acceptance-blocking fix (scripts/verify-core-package-rename.mjs maxBuffer bump for an ENOENT/ENOBUFS git ls-files failure caused by the repo crossing Node's 1MB default buffer, unrelated to this story's causal-evidence feature but required because the fail-fast full-suite runner cancelled 36 suites on it) was made and is scope-acknowledged per the defect-triage rules -- it is a mechanical buffer-size correction, not a behavior change, and does not weaken any check. One medium, non-blocking finding (F-366: validate --concept warns-and-skips instead of failing closed on an oversized diff read) was independently observed firing live in this story's own REVIEW->TEST preflight and is correctly deferred out of this story's scope per the defect-triage decision procedure -- it predates this story, is not claimed by any CHK item, and does not distort any gate this story depends on."
+    "hasUnresolvedTodos": true,
+    "summary": "The 5 core U-03 mechanisms (execution-key identity/dedup, CAS receipt+import retry, dependency-domain invalidation, tamper-resistant metrics, and preflight pre-run revalidation) are all implemented as documented and independently re-verified by me against source and by direct execution: 20 of 21 pinned tests pass, plus 3 standalone built smoke tasks (causal-evidence-smoke, verifier-causal-preflight-smoke, tool-executed-evidence-receipt-smoke) all PASS. One pinned test (F-247) is RED, caused by a self-inflicted pre_review_check artifact-cutoff sequencing error unrelated to the U-03 feature code (evidence written 2 minutes after the artifact's frozen cutoff); it is diagnostic_only/non-blocking, transparently recorded in findings F-407 (high, deferred with full root-cause evidence) and F-408 (medium, duplicate), and leaves only 2 should-priority (not must) CHK-004 intents as honest waivers rather than false PASS. I am marking hasUnresolvedTodos=true not because of a code TODO/FIXME comment but because this is a real open, unfixed defect in this story's own review-process artifact chain that a future DEV pass on this or a related story should close by re-issuing pre_review_check as the final step with no subsequent writes."
   },
-  "_hash": "d9d717f8faceb9d8dbcde1b5a3b954e882a936855e91444639d946129a22182f"
+  "_hash": "be008e74d448a64e4695c022b1db670acc1a2566b28f126925d56ff7861ffc5e"
 }
