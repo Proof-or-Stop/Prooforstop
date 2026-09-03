@@ -20768,7 +20768,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:118-172 (RESOURCE_POLICY): fdb0837a8b added test:verifier-causal-preflight to root package.json test:serial-reference (the sole membership authority per this file own comment at line 117-118) but did NOT add a matching entriesFromSerialReference/RESOURCE_POLICY registration (compare to sibling test:closeout-trust entry at full-suite-runner.ts:172, which has one). Mechanically confirmed: entriesFromSerialReference (full-suite-runner.ts:207-215) computes unknown = names.filter(name => !policy[name]); the new script name is now in test:serial-reference but absent from RESOURCE_POLICY keys (verified against built dist/tasks/full-suite-runner.js, the file npm test actually runs), so this throws canonical inventory mismatch unknownPolicy=[test:verifier-causal-preflight] the next time npm test (root scripts.test -> full-suite-runner.js main()) runs, breaking the DONE-required full suite entrypoint entirely rather than merely skipping the new task. Fix: add a RESOURCE_POLICY entry for test:verifier-causal-preflight, e.g. repoRead(name) with default tempOwnership runner-owned-unique, since the smoke only mkdtempSync-isolates and reads repo/dist per packages/main/tests/verifier-causal-preflight.test.mjs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T10:35:40.889Z",
@@ -20807,7 +20807,10 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|json|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-5a15:F-402, which the concept lane filed at RR-953 roughly one minute earlier and which reports the identical defect at the identical line with the identical prescribed fix. The quality lane identified the duplication itself, noted it lacks finding_resolve authority as a reviewer role, and flagged it for main-agent dedupe -- doing exactly the right thing rather than leaving two findings for one root cause. Both are now closed by the fix in 1a243905ee. Worth recording that two lanes reached this independently and near-simultaneously from different angles (concept via package.json residue analysis, quality via the coexistence question I asked it about registering a previously-orphaned task), which is corroboration rather than redundancy.",
+      "resolvedAt": "2026-09-03T10:40:02.722Z",
+      "resolutionType": "superseded"
     }
   ]
 }
