@@ -19796,6 +19796,25 @@
       ],
       "signatureTag": "adversarial|mjs|packages-graph-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-372",
+      "desc": "Re-filing B-5a15:F-367 (originally RR-904) against the new review round: no code change since. packages/main/src/handlers/checklist.ts:340-425 (probeGitTopLevel/probeGitIndex/probeWritableEvidenceTarget/probeActiveCli/probeWriterLease) and packages/main/src/handlers/verifier.ts:551-635 (probeVerifierWorktree/probeVerifierIndex/probeVerifierTarget/probeVerifierCli/probeVerifierLease) still contain ~90 lines of near-line-for-line duplicated causal-preflight probe logic (confirmed by diff against current HEAD), with no shared helper and no test forcing the two copies to stay in sync. Agree with the prior triage: this is medium and non-blocking, not acceptance-blocking. Both copies are independently called within their own handler flow with no live correctness break today; the risk is a future divergent edit to one copy silently skipping the other. Deferring further, per defect-triage rule 3 (fixing it now would require a cross-module extraction touching both handlers, widening this story diff and re-staling the acceptance chain for an unrelated one-line gate-repin story).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T03:40:14.783Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-906",
+      "_hash": "8a98b7eeef36eda39232e66928d9aef45f0f4a2b421efad5e7717f928afa79d4",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|filing-5a15-originally",
+      "signatureTagSource": "auto"
     }
   ]
 }
