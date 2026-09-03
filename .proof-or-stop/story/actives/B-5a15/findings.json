@@ -19981,7 +19981,7 @@
       "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:52 stashes the genuine pre-verifier assets/app.html to `stash`. In branch (a) (rebuilt-on-demand), line 75 does a SECOND `fs.renameSync(asset, stash)` after the on-demand rebuild -- Node renameSync silently overwrites an existing destination (verified: `fs.renameSync(new, existing)` replaces existing content with new, no error), so this second rename clobbers the true original captured at line 52 with the freshly on-demand-rebuilt copy. There is no code path in branch (a) that ever restores the genuine original file; it always ends by discarding it (either via the line-75 overwrite, or later via the line-102 rmSync(stash) if the live-serve probe also rebuilds). The finally block comment (lines 96-100) claims to \"prefer the stashed original\", but that clause is dead in branch (a) because the true original no longer exists in `stash` by the time finally runs -- it was already overwritten by a rebuild. Net effect: running this verifier permanently replaces the working tree's built app.html (a gitignored build artifact, so low material impact) with a fresh on-demand rebuild, silently, even on a passing run. Severity kept low because app.html is a reproducible gitignored build artifact and the script never leaves the tree without SOME functional client (so the invariant the fix was written to prove -- never serve a client-less page -- still holds); filing because the finally block's own documented contract (never lose the stashed original when avoidable) is violated by branch (a)'s own logic, and a future edit that makes the two builds diverge (e.g. embedding a build timestamp or differing flags) would silently discard state with no warning.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T03:54:16.744Z",
@@ -20013,7 +20013,9 @@
         "packages/graph/scripts/verify-missing-assets-fail.mjs"
       ],
       "signatureTag": "missing|mjs|packages-graph-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c5324ce44a. F-377: the rebuilt copy now parks under its own path (.app.html.verify-rebuilt) so the stash always holds the genuine original; restore prefers the original unconditionally and cleans both parking spots. renameSync's silent-overwrite behaviour was confirmed empirically before fixing. F-379: child.on('error') now captures spawn-level failures so ENOENT reports through the script's own MISSING_ASSET_HANDLING_BROKEN channel instead of crashing the verifier, and the previously-unread log variable is now quoted as a tail in every failure reason. Controls stated in advance: positive run exits 0 with app.html md5 ab17d72bf16a5d7b4748800e96f3842e unchanged before and after plus zero stray parking files (md5 is the decisive check for F-377, because the pre-fix code passed while silently clobbering the file); negative run spawning a nonexistent binary exits 1 with 'could not spawn the server: spawn definitely-not-a-real-binary-xyz ENOENT' and the original md5 survives that failure path, proving the hardened finally still executes.",
+      "resolvedAt": "2026-09-03T04:56:28.576Z"
     },
     {
       "id": "B-5a15:F-378",
