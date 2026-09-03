@@ -153,6 +153,24 @@
       ],
       "signatureTag": "missing|ts|evidence-guard-generated",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-009",
+      "desc": "handlers/checklist.ts:755, :760 and :881 (receipt_command_mismatch / receipt_selector_mismatch, the real enforcement floor per evidence-pin-guard.ts own docstring which explicitly refuses the same mismatch even when the PreToolUse seatbelt hook is bypassed) still say plain \"(the verification pin is immutable)\" with zero mention of verification_pin_narrow. Only the separate evidence-pin-guard.ts seatbelt teaching message was updated in F-005. Any caller invoking verification_evidence_add directly -- without a Claude/Codex PreToolUse hook installed or firing -- hits only this absolute floor message, which is exactly the CLAUDE.md/decision-doc invariant point 5 asks to check for (\"a pinned selector is immutable with no exception\"). The PLAN checklist itself (CHK-002 context: \"checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hooks source\") named this exact literal error code as reading scope, suggesting the floor message was in-scope for the rewrite too.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-03T23:19:18.576Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-004",
+      "_hash": "d4bcdc95add22a7a3e5c5bf272aadac0ac244a4158004645f43da58e926ec7a2",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|handlers-checklist-receipt",
+      "signatureTagSource": "auto"
     }
   ]
 }
