@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "A receipt must be auditable on its own: whoever reads it can tell what was required of the run.",
+    "Only the tool's own records are evidence; anything a caller can author is not an input to a gate decision.",
+    "Tightening a check is a different act from loosening it, and only one of them is safe to allow.",
+    "Every relaxation is bounded and visible: both pins, both receipts, a reason and the receipt ids used.",
+    "Where the proof cannot be made, refuse rather than accept a reason in its place."
+  ],
+  "drivers": [
+    "B-a745 F-002 left a known-false receipt in place for the life of the story because the correction was refused as a pin change.",
+    "Immutability today conflates loosening with tightening, so the only remedies are a fixture standing in for the receipt or a waiver, both of which weaken the record.",
+    "A selector that prints on every branch is invisible in the current receipt, so nobody can audit for it after the fact.",
+    "The gate is consumed by DONE, so any change must fail closed and must not create a new path a caller can drive."
+  ],
+  "options": [
+    {
+      "name": "A-narrowing-only-repin-proved-from-recorded-receipts",
+      "pros": [
+        "Corrects a false receipt with a proof the tool itself produced, so no new caller-authored input reaches the gate.",
+        "Keeps both pins and receipts, so the record shows what was believed before and after.",
+        "The one-narrowing-per-recorded-receipt-set bound stops a chain of re-pins from homing in on a hand-picked run.",
+        "Persisting the selector makes vacuous selectors findable in existing stories, not just future ones."
+      ],
+      "cons": [
+        "outputTail is bounded, so absence can only be asserted within the retained tail and the proof must say so.",
+        "An engineered failing run remains possible: an author could drive a genuine run to fail in a way that makes the desired selector absent. This is the residual gap and must be named."
+      ]
+    },
+    {
+      "name": "B-reason-bearing-supersede-without-proof",
+      "pros": [
+        "Simple; any wrong pin can be corrected with an explanation."
+      ],
+      "cons": [
+        "A reason is not evidence; this reopens evidence-shopping through the back door and is exactly what the seatbelt exists to prevent."
+      ]
+    },
+    {
+      "name": "C-relax-immutability-outright",
+      "pros": [
+        "No new machinery."
+      ],
+      "cons": [
+        "Removes the seatbelt entirely; a pin could be moved to whatever matches, which destroys the meaning of a mechanical receipt."
+      ]
+    }
+  ],
+  "chosen": "A-narrowing-only-repin-proved-from-recorded-receipts",
+  "rationale": "Option A is the only one that lets a false receipt be corrected while keeping the property the seatbelt protects: the gate still decides from tool-recorded facts alone. Options B and C both admit caller judgement into the gate, which is the failure mode B-ec67 introduced the seatbelt to stop. The cost of A is that its proof is bounded by what the tool retained and that an engineered failing run is not excluded; both are named in the pre-mortems and the second is either bounded by the decision or recorded as an accepted limitation rather than papered over.",
+  "preMortem": [
+    {
+      "scenario": "Evidence-shopping by repeated narrowing: an author re-pins repeatedly, each step proved, until the selector matches only one favourable run.",
+      "trigger": "No bound on how many times a selector may be narrowed against the same recorded evidence.",
+      "consequence": "The seatbelt is defeated one legal step at a time.",
+      "mitigation": "A set of recorded receipts admits at most one narrowing; a further re-pin requires a new recorded receipt that the current selector wrongly matched, and a fixture asserts the second attempt against unchanged receipts is refused."
+    },
+    {
+      "scenario": "A forged failing transcript is used as the narrowing proof.",
+      "trigger": "The proof accepts caller-supplied output.",
+      "consequence": "Any selector could be justified.",
+      "mitigation": "Transcripts are not an input at all: the proof reads only receipts the tool wrote, and a fixture asserts that passing output or a transcript argument is rejected rather than considered."
+    },
+    {
+      "scenario": "A pin whose old selector never matched a failing run is re-pinned anyway, on the strength of a reason.",
+      "trigger": "The implementation falls back to a reason when no failing receipt exists.",
+      "consequence": "The refusal path becomes optional, which is the same as not having it.",
+      "mitigation": "With no recorded failing render the re-pin is refused; a fixture covers the empty-evidence case and asserts the refusal names the missing proof."
+    },
+    {
+      "scenario": "An engineered failing receipt: the author drives a genuine run to fail in a way that makes the desired selector absent, then uses it as the narrowing proof.",
+      "trigger": "The proof cannot tell an incidental failure from one arranged to shape the evidence.",
+      "consequence": "A narrowing is accepted that serves the author rather than the check.",
+      "mitigation": "The decision must either name a bound that closes it (for example requiring the failing receipt to predate the re-pin request and to share the story material with the compared receipts, or restricting admissible selectors to declared status discriminators) or record it as an accepted limitation in CLAUDE.md; the implementation must not claim it is mechanically excluded."
+    },
+    {
+      "scenario": "The persisted selector is caller-injected onto a receipt that was earned under a different selector.",
+      "trigger": "The selector field is added to a caller-facing schema rather than the tool-owned receipt block.",
+      "consequence": "The audit record can be forged.",
+      "mitigation": "The field lives inside the tool-owned receipt, which every caller-facing schema strips; a fixture attempts to inject it through verification_evidence_add and asserts it is ignored."
+    }
+  ],
+  "timestamp": "2026-09-03T20:59:18.569Z"
+}

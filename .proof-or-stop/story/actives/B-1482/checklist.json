@@ -6,7 +6,46 @@
       "context": "VerificationExecutionReceipt currently stores selectorMatched without the selector; add the selector text (and the command tuple digest) so a receipt is auditable on its own. RED: a receipt written today cannot answer which selector matched.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent--evidence"
+      ],
+      "userSees": "`node packages/main/dist/tasks/narrowing-repin-smoke.js` prints one line per case and ends `narrowing-repin-smoke: PASS`; `checklist_get --storyId=<id> --json` shows each receipt carrying the selector text it was judged against next to selectorMatched, and a receipt written before this change still reads without it.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A receipt written after the change records the selector text it was matched against, and checklist_get exposes it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A receipt written before this change (no selector field) still loads and renders; nothing assumes the field is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The selector field lives inside the tool-owned receipt: an attempt to supply it through verification_evidence_add is ignored, proven by a case that passes a forged selector and asserts the stored value is the executed one.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

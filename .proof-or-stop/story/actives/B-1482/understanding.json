@@ -1,0 +1,35 @@
+{
+  "task": "Make a verification receipt auditable on its own by persisting the selector it was judged against, and allow a pinned selector to be replaced only when the tool's own recorded receipts prove the new one strictly narrower, so a known-false receipt can be corrected without reopening evidence-shopping.",
+  "outcome": "Every receipt records the selector text it matched against alongside selectorMatched, and checklist_get exposes it, so a reader can see whether a selector could discriminate at all. A re-pin is accepted only when the new selector is absent from the outputTail of at least one recorded receipt of the same pinned command that the old selector matched on a failing run, and still matches every recorded passing receipt; both pins and both receipts stay visible with a reason and the ids of the receipts the proof used. Loosening stays refused, a re-pin without a recorded failing render is refused, and a set of recorded receipts admits at most one narrowing.",
+  "facts": [
+    "core/types.ts VerificationExecutionReceipt (line 974) stores exitCode, outputDigest, outputTail, selectorMatched, executedAt and the optional timeoutMs / timeoutOverride block; it records no selector text, so a receipt cannot answer which selector was matched.",
+    "handlers/checklist.ts computes selectorMatched as run.output.includes(pinSelector) (line 771), refuses a missing selector (line 806), stamps the receipt (line 816) and derives result as exitOk && selectorMatched (line 834); the pin is immutable-once with receipt-command-mismatch and the selector likewise immutable (documented at lines 638-640, enforced from line 732).",
+    "B-a745 finding F-002 is the motivating case: the receipt for CHK-005:happy:0 was pinned to the selector 'finalAuthority: no', which that renderer prints on every branch including failures, so the receipt recorded pass while its own outputTail showed status: stop. The stricter selector 'status: plan' was refused as an immutable-pin change, and the finding closed as partially mitigated with a committed fixture standing in for the receipt.",
+    "outputTail is a bounded tail, not the full output, so a narrowing proof over recorded receipts can only assert absence within the tail that was retained; the proof must say so rather than claim absence from the whole run.",
+    "Receipts live on the checklist item's verificationEvidence entries; the story tree is the only durable record, so a narrowing proof reads receipts already written by the tool and never a caller-supplied transcript.",
+    "Every caller-facing schema strips the tool-owned receipt block (the B-cdf6 timeoutOverride comment at types.ts lines 990-996 states this), so a persisted selector field on the receipt cannot be caller-injected either.",
+    "The story is high-risk on its merits because it edits an evidence gate that DONE consumes; the sibling test-and-guard story B-dc2e (DONE 2026-09-03) deliberately excluded this item."
+  ],
+  "constraints": [
+    "Loosening a selector must remain refused on every path; only a proven narrowing is accepted.",
+    "The narrowing proof takes only tool-recorded receipts as input; no caller-supplied transcript, output or claim is admissible.",
+    "Both the old and the new pin, and the receipts on both sides, stay visible after a re-pin, with a reason and the receipt ids the proof used.",
+    "A given set of recorded receipts admits at most one narrowing, so repeated re-pins cannot walk a selector down to one hand-picked run.",
+    "Where no recorded failing render exists, the re-pin is refused rather than accepted on a reason alone.",
+    "The persisted selector must live on the tool-owned receipt so it cannot be caller-injected.",
+    "Every behaviour change lands RED first, with commit subjects RED(CHK-nnn): / GREEN(CHK-nnn): and RED(F-nnn): / GREEN(F-nnn): (the guard B-dc2e added reads exactly these forms; a fix with no failing fixture needs a No-RED body line of at least thirty characters).",
+    "Use the worktree's own built CLI (node packages/main/dist/cli.js); commits and story metadata are English only and carry no host names or attribution trailers."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/tasks/narrowing-repin-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "package.json",
+    "proof-or-stop.config.json",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-09-03T20:59:17.690Z"
+}
