@@ -1150,6 +1150,36 @@
         "scanEscalationReason": null
       },
       "_hash": "8ea422785ed7e1222c01d3dd54f52eac9bd1e3365fa8ffbe6c212301b08028a1"
+    },
+    {
+      "id": "B-9f2c:RP-039",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-verified RP-033 at frozen tree 74b9aeafea inside RI-005. No .md changed since RP-033 (only .proof-or-stop metadata dirty). Verified scope-contract fifth acknowledgement claims against git history (3aa57145d8, three repair commits vs F-005/F-006/F-008), F-010 pre-existing-diagnostics claim (byte-identical across 9b6da93f05 and current basis), and standing doc claims unchanged. No inconsistency found.",
+      "createdAt": "2026-09-03T07:29:58.903Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-063",
+      "envelopeId": "2cb065434786328bea2f94c7c76f9d9a0a3aed1f13dfb700856ae70025d772c5",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6f4e2569e47e3005cb1176bea7cf3800e4ae51301ae2039478b69a8991a18faa"
     }
   ]
 }
