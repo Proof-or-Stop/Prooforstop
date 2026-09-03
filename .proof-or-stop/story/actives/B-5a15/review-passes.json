@@ -15527,6 +15527,38 @@
       },
       "readDiagnostics": [],
       "_hash": "768b96f626e9786b6901ec617cdfd0f28319e1f86937eacce566e558fc135633"
+    },
+    {
+      "id": "B-5a15:RP-340",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave-1 completeness critic for RI-073: verified all three required lanes (concept RR-944/RP-338, quality RR-945/RP-339, test-coverage RR-943/RP-337) are in-epoch (seq 943-945 > initialRunSequenceBoundary=942), bind identical materialHash 2bd82edd7938 and storyFilesHash d535628105e8fb2a matching the epoch cutoff exactly, and signatureValid=true per review_run_list. Confirmed the only non-metadata commit since the prior round baseline (RR-940 head 64de3e8c58f9) is d16cdeeec8, touching exactly 3 files (runtime-artifact-registry.ts, certification-window.ts, certification-window-smoke.ts, 80 insertions/2 deletions), matching what all three RPs independently claim as the incremental basis -- confirmed by git log --reverse over the full commit range showing every other commit is a proof-or-stop: process-metadata commit. No material file went unreviewed. Independently re-verified F-396 (grep confirms zero references to certification-window-smoke in package.json/full-suite-runner.ts/command-catalog.ts/proof-or-stop.config.json) and F-397 (read certification-window.ts:143-201: 8 regex rules, no catch-all, matches.length!==1 returns undefined, and deriveCertificationDomainInputHashes line 194 aborts the entire per-domain hash derivation on the first unclassified path -- F-397's severity framing is mechanically accurate, not overstated). Both raw findings are well-evidenced, correctly severity-classified, and correctly non-blocking. blocking=[] confirmed. Epoch RI-073 cutoff matches acceptance_basis binding exactly (storyFilesHash/materialHash), receiptVerification.ok=true, excludedPathRefs=[] so no separate scope-plan approval is owed this wave.",
+      "createdAt": "2026-09-03T10:12:54.145Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-948",
+      "envelopeId": "8f045684313a1448f3eacf585cfcc8081677194af82c0e5e5544852efacd79a4",
+      "writerSessionId": "sess-e67531d65a1be8912ccf8b6e62108866",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ad853c66ba248fe7f5113635ed418875047a164a0e6ffffc8899c4d8c8d1714"
     }
   ]
 }
