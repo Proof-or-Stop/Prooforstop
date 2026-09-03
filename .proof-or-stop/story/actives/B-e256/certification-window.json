@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-e256:CW-001",
+      "storyId": "B-e256",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-03T02:54:35.908Z",
+      "updatedAt": "2026-09-03T02:54:35.908Z",
+      "frozen": {
+        "headHash": "7add745db103fb8aa4e9d90af70b98df65345e68",
+        "materialHash": "e3ae0ca4f96af9efe05416ae92929681aa114741282cc93977df44b19fe387ea",
+        "storyFilesHash": "6a8f639e945c1fb0f2aec6e6fda6e7d174b6780bb8f7d5898f97d893188f0272",
+        "expectedMainSha": "44e438faff6d05c9258d021f976b9728a9ccffbf",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-e256:RIE-001",
+        "receiptId": "B-e256:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-e256:PRECERT-001",
+      "_hash": "86648a5db0f088ab82ca27d65d25dd176268eff65d152b7e8f118bebd070fbec"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-e256:PRECERT-001",
+      "windowId": "B-e256:CW-001",
+      "storyId": "B-e256",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "7add745db103fb8aa4e9d90af70b98df65345e68",
+        "materialHash": "e3ae0ca4f96af9efe05416ae92929681aa114741282cc93977df44b19fe387ea",
+        "storyFilesHash": "6a8f639e945c1fb0f2aec6e6fda6e7d174b6780bb8f7d5898f97d893188f0272",
+        "expectedMainSha": "44e438faff6d05c9258d021f976b9728a9ccffbf",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-e256:RIE-001",
+      "inventoryReceiptId": "B-e256:RIE-001:RCP-001",
+      "createdAt": "2026-09-03T02:54:35.908Z",
+      "_hash": "8a7b921f2258ec697481c7ca24fe1693c00a262889bd6f9a9ce6d80fb1a1b7a6"
+    }
+  ]
+}
