@@ -15801,6 +15801,37 @@
         "scanEscalationReason": null
       },
       "_hash": "58a0bccc25ae1f8efd914039c17eeed17bb48e3cb07b906b31443f9b5684fe69"
+    },
+    {
+      "id": "B-5a15:RP-348",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review after the scope_contract_acknowledge for package.json (commit a5f7c83fef). Verified the ack claims no new scope: git diff main...HEAD -- package.json shows exactly one addition (test:verifier-causal-preflight inserted into test:serial-reference after test:closeout-trust), matching finding F-400/F-402/F-403 root cause and fix. Cross-checked all 45 non-.proof-or-stop/ files touched by this story against scope-contract.json allowedCreate+allowedModify+allowedTest union with acknowledgements: zero uncovered files. Confirmed the deletion-looking diff hunks (isCallableDeclaration, sameFileCallableBody/CallNames/Calls/Reachable, hasSameFileIncomingCall, normalizeEvidence, ReexecStamp, currentPreReviewInputForContext, preReviewCaseRequiresSemanticBinding) are either in-file refactors (acceptance-discovery-adapters.ts old regex-based reachability replaced by TypeChecker-based version, same file) or signature/body edits with symbols still defined in HEAD at their original files -- zero orphaned references. Mechanically reran entriesFromSerialReference with the correct main()-style joined reference (test:serial-reference-prefix + test:serial-reference) against the built dist/tasks/full-suite-runner.js: no throw, 60 entries, test:verifier-causal-preflight present -- confirms the RESOURCE_POLICY fix actually resolves the unknownPolicy failure it was written for. No concept-lane defect found; verdict unchanged from prior RP-343 pass.",
+      "createdAt": "2026-09-03T12:12:09.278Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-961",
+      "envelopeId": "74a691f0922161478bd7537a7c689c06f8761033e4f37160dc18d32637b545e0",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "acd09569a27a10ac4bb2851e6ca2659f012d0e0ff96060cc3b49cddeb43b3d51"
     }
   ]
 }
