@@ -1,0 +1,396 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-1482",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "proof-or-stop acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:4dce5562662969361793d40f39781e68a1dbb4e7970a91627de667a5d47a96b9",
+          "source-file:packages/main/src/handlers/checklist.ts:sha256:f63f8daca7cb9944dfcca5627db3d8b9aef3660d5bcd08f11302969cc1e734a0",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:107e6bd9c7b42f9ab4157d18ba8672feb666d190a414803ee0b6085cfa05b532",
+          "source-file:packages/main/src/registry.ts:sha256:8fb43eccee793fc29d12f22f8e55dc26d69df8a2cfa4418cfb763b885aa9a369",
+          "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+            "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+            "scope:file:proof-or-stop.config.json"
+          ]
+        },
+        "resultDigest": "sha256:a75362b4f10e1158b96ed8aa74a83266121b0423886d77049f769c18099b94f3"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:75035153f0eb620c282bc800396b6c10f34ddc0316f06fdb03b54055412c0c38",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:107e6bd9c7b42f9ab4157d18ba8672feb666d190a414803ee0b6085cfa05b532",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:cee4043eb935e6a2dd85539dfc4dc68d06c7832ddb682f8805b1d6fdfb00c351",
+          "source-file:packages/main/src/registry.ts:sha256:8fb43eccee793fc29d12f22f8e55dc26d69df8a2cfa4418cfb763b885aa9a369",
+          "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:e1d832f8e08810a3951a16b8f8e8bd8a0378e3587929c34b4568c1841b834a37"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+            "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+            "scope:file:proof-or-stop.config.json"
+          ]
+        },
+        "resultDigest": "sha256:713c729536319a20be9637fc761cd048cb11458d884f2af70a7be89ca10858d4"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:57cf460f1e8b2f9597d9553fc4fc1fa024cb96daaba7082d9be21883084201a0",
+          "runtime-trace:story:B-1482:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+            "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+            "scope:file:proof-or-stop.config.json"
+          ]
+        },
+        "resultDigest": "sha256:7b9507a91578d20a13f7db5e2de046c7cb3adaea77b0e9a651e8254d9985c28d"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:file:CLAUDE.md",
+          "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "scope:file:package.json",
+          "scope:file:packages/main/src/cli/command-catalog.ts",
+          "scope:file:packages/main/src/core/command-policy.ts",
+          "scope:file:packages/main/src/core/config.ts",
+          "scope:file:packages/main/src/core/process-fact-levels.ts",
+          "scope:file:packages/main/src/core/types.ts",
+          "scope:file:packages/main/src/core/verification.ts",
+          "scope:file:packages/main/src/handlers/checklist.ts",
+          "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+          "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "scope:file:proof-or-stop.config.json",
+          "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+            "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+            "scope:file:proof-or-stop.config.json"
+          ]
+        },
+        "resultDigest": "sha256:8c36592a3037e5774353e4c1464cbf332cca7a0eff3e98629590034fa825dc4d"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:CLAUDE.md:sha256:5d2086235595d948a7323d64d2a997d134c4d79fb78f0f522d58ed9ec64d5009",
+          "source-file:docs/requirements/decisions/narrowing-only-evidence-repin.md:sha256:35e5c51829bf8dcff3abba7ff6af6114facfb89adf8fdd742a4c17b96e3d0921",
+          "source-file:package.json:sha256:6ad2d87cee3e44b9ae31d50ed8a78e178226c4869fc8252c8f92c81b15c7cbf5",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:4dce5562662969361793d40f39781e68a1dbb4e7970a91627de667a5d47a96b9",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:75035153f0eb620c282bc800396b6c10f34ddc0316f06fdb03b54055412c0c38",
+          "source-file:packages/main/src/core/command-policy.ts:sha256:edecb0b3b2d9beb47f1d858d113bb98bf6cd8e7b475f7d799da2e0edc62b3392",
+          "source-file:packages/main/src/core/config.ts:sha256:d90afbf25455c05ba77047723245bf1e03648a38f3fede57ad86f72b3c76e849",
+          "source-file:packages/main/src/core/process-fact-levels.ts:sha256:2ef0908cdba7a1896bf7cf3ba0b1c70eab4463ceed77ef66a74ed12e891cdd01",
+          "source-file:packages/main/src/core/types.ts:sha256:29153a30dbc243eeecca3b0992845b4831030ff09d2651443b82a7db451a21f1",
+          "source-file:packages/main/src/core/verification.ts:sha256:7e4ab3eb7a8668f95fcfdd9ff9a0f4c1e25d3636a2aa3bdb21c6af90506faa0c",
+          "source-file:packages/main/src/handlers/checklist.ts:sha256:f63f8daca7cb9944dfcca5627db3d8b9aef3660d5bcd08f11302969cc1e734a0",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:107e6bd9c7b42f9ab4157d18ba8672feb666d190a414803ee0b6085cfa05b532",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:cee4043eb935e6a2dd85539dfc4dc68d06c7832ddb682f8805b1d6fdfb00c351",
+          "source-file:packages/main/src/tasks/full-suite-runner.ts:sha256:eec4c67b0086b80f226b9eeab333d5dd8fff032170bd30da0c407205cbd95c8a",
+          "source-file:packages/main/src/tasks/narrowing-repin-smoke.ts:sha256:ec3bf31ff9208a072f031c717a180711b089d59a320b7b8b7bfc1cb6ed9f5931",
+          "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:e1d832f8e08810a3951a16b8f8e8bd8a0378e3587929c34b4568c1841b834a37"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+            "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+            "scope:file:proof-or-stop.config.json"
+          ]
+        },
+        "resultDigest": "sha256:42bec66a639346ce27b9ef1d451a19172c5f45edbcbba247a20d1c88853d4487"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:file:CLAUDE.md",
+      "scope:file:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+      "scope:file:package.json",
+      "scope:file:packages/main/src/cli/command-catalog.ts",
+      "scope:file:packages/main/src/core/command-policy.ts",
+      "scope:file:packages/main/src/core/config.ts",
+      "scope:file:packages/main/src/core/process-fact-levels.ts",
+      "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/core/verification.ts",
+      "scope:file:packages/main/src/handlers/checklist.ts",
+      "scope:file:packages/main/src/tasks/full-suite-runner.ts",
+      "scope:file:packages/main/src/tasks/narrowing-repin-smoke.ts",
+      "scope:file:proof-or-stop.config.json"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:CLAUDE.md",
+      "source-file:closure:docs/requirements/decisions/narrowing-only-evidence-repin.md",
+      "source-file:closure:package.json",
+      "source-file:closure:packages/main/src/cli/command-catalog.ts",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/core/command-policy.ts",
+      "source-file:closure:packages/main/src/core/config.ts",
+      "source-file:closure:packages/main/src/core/process-fact-levels.ts",
+      "source-file:closure:packages/main/src/core/types.ts",
+      "source-file:closure:packages/main/src/core/verification.ts",
+      "source-file:closure:packages/main/src/handlers/checklist.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/full-suite-runner.ts",
+      "source-file:closure:packages/main/src/tasks/narrowing-repin-smoke.ts",
+      "source-file:closure:proof-or-stop.config.json",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:proof-or-stop.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:6709fa7e5e051d0c2d380a2ff9247982e0fc45eb848ae3094a0422664c0cdb66",
+      "inventoryDirectoryCount": 22,
+      "sourceSnapshotDigest": "sha256:7747bb90c96157e85cee090a8e2bf4247a3faff5bb54b1e16099298b4ce1feb3",
+      "sourceSnapshotCount": 836,
+      "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        }
+      ],
+      "sealDigest": "sha256:f4863cb60ee672f6ba68a7d06cbdfe5dbdccafe53cd8e8802201c3428ec194ac"
+    },
+    "binding": {
+      "headHash": "eeb4395bdb7d0778323057a68bf78ac11a17437e",
+      "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11",
+      "storyFilesHash": "8688f79da9108e3eec8e0aecbf4df2ef9453042f29d419ad5050fa701eaba31e",
+      "scopeCheckDigest": "sha256:7b06a57eb8547441d03682aac7aff1e114b2ace15408944ce464a933038078c4",
+      "scopeContractDigest": "sha256:4c0676bb3c01e3ff2440b9c517075772522a848ddc71eb5f623a1aaf2b677712",
+      "closureFilesHash": "sha256:b8bcf5ac0d3f824b76dfd8a1e11ae6e9093a8b8aed1cf73f54d06583726f0fcc"
+    },
+    "receiptRef": "receipt:coverage-basis:B-1482:plan:8f52f8568b04206f",
+    "basisDigest": "sha256:b4d6a74842f493a8a5d57269a87fd3fe86be6f52e07e03723bc0f7e645a17198"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-1482:plan:8f52f8568b04206f",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
+    "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
+    "storyId": "B-1482",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:b4d6a74842f493a8a5d57269a87fd3fe86be6f52e07e03723bc0f7e645a17198",
+    "topologyDigest": "sha256:34dbcd00c58b43ab7a953a8588463e55490eaa56051cd2b872bb480a0bac4fa3",
+    "scopeCheckDigest": "sha256:7b06a57eb8547441d03682aac7aff1e114b2ace15408944ce464a933038078c4",
+    "scopeContractDigest": "sha256:4c0676bb3c01e3ff2440b9c517075772522a848ddc71eb5f623a1aaf2b677712",
+    "headHash": "eeb4395bdb7d0778323057a68bf78ac11a17437e",
+    "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11",
+    "storyFilesHash": "8688f79da9108e3eec8e0aecbf4df2ef9453042f29d419ad5050fa701eaba31e",
+    "closureFilesHash": "sha256:b8bcf5ac0d3f824b76dfd8a1e11ae6e9093a8b8aed1cf73f54d06583726f0fcc",
+    "sealDigest": "sha256:f4863cb60ee672f6ba68a7d06cbdfe5dbdccafe53cd8e8802201c3428ec194ac",
+    "workspaceIdentityDigest": "sha256:83b16f11631acbc47ee3559a5b35b4f3329f6b9627331cc0b35b9bb6f8d5c8be",
+    "signature": "80u5BbA9zdUhI+3LWdh+ByG4YRX9LM55SKot0w5U7q7mSTg0n0yHfmGMQYBLN/GVvF6PHfdvr1DCX8w0cEXADA=="
+  }
+}
