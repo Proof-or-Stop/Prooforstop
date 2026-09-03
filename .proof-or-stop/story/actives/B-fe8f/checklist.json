@@ -282,13 +282,13 @@
             "outputDigest": "654a878599b491fe2134269da29ca7d99779c645b592dc9f69b60292212e215a",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true legacyPinnedNegativeControl=\"red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\"\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-03T14:05:42.011Z",
+            "executedAt": "2026-09-03T14:28:26.183Z",
             "timeoutMs": 180000
           },
-          "headHash": "275b0a49d3e56022dc4c7cfc9770150649076f89",
-          "materialHash": "8b74fcf8b82f666231bde004b7edb53a677e4c69649cbea368e8c957dfdd360a",
-          "storyFilesHash": "826c8cfb95cebb0604bd4b651d01d63e7c1ad47743b5d0b2f905ef4a0ac67788",
-          "timestamp": "2026-09-03T14:05:42.177Z"
+          "headHash": "991dbcb693fcffeba6b02aaa673f3c357ed57ee2",
+          "materialHash": "a0053da6a218bb962c02d712ef4565efd40e522dfd4bad95834749ac22dee8c6",
+          "storyFilesHash": "5a72ba13859202fbea851cf08e24db9834ecaa01d5cd1c4812a442725fed7d21",
+          "timestamp": "2026-09-03T14:28:26.504Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
