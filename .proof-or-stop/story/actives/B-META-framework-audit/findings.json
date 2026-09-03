@@ -753,6 +753,26 @@
         "packages/main/src/core/validation-catalog.ts"
       ],
       "_hash": "55c8aacb1d121a543b618d6641c6a90590611310daae65ec599c9d7dc249ee0f"
+    },
+    {
+      "id": "B-META-framework-audit:F-041",
+      "desc": "lifecycle_check's review.verification_evidence PASS ('Required verification intent evidence is present or waived') and test.validation PASS are STRUCTURAL-PRESENCE checks, not freshness checks, and nothing in CLAUDE.md or docs/requirements/decisions/ says so. lifecycle-readiness.ts:318 calls getBlockingVerificationEvidenceIssues with currentHead=undefined, and staleness detection in core/verification.ts:196-226 requires a currentHead argument to fire at all, so both checks report PASS while every verificationEvidence row is bound to a long-superseded headHash/storyFilesHash. Concrete instance: on B-5a15 round 65 all 53 evidence rows were bound to headHash 300ec83e / storyFilesHash 8e57bba8 and test-evidence.json to headHash c5db2440, all stale against HEAD eb39629bc0 (storyFilesHash fd065ab3) across story-owned SOURCE commits fdb0837a8b and 1a243905ee -- while lifecycle_check reported both as PASS. Impact: an operator or agent reading these PASSes reasonably concludes evidence is current when it is not. The main agent on B-5a15 did exactly that and cited both PASSes to the user as evidence of good standing; the test-coverage lane caught it. This is a DOCUMENTATION gap, not a code defect -- the fail-closed freshness enforcement does exist, but it lives in the DONE-gate and done_prepare paths, not in lifecycle_check, and that division is undocumented. Recommended fix: document in CLAUDE.md that lifecycle_check is a readiness REPORT (its own output already says admissibilityStatus: readiness-report / evidenceScope: lifecycle-gate-diagnostics) whose evidence checks are presence-only, and that freshness must be judged via verification_evidence_refresh_stale --dryRun or by comparing each row's binding against current HEAD. Deferred out of B-5a15 per CLAUDE.md defect-triage rule 3: medium severity, non-blocking, unclaimed by any of B-5a15's 5 checklist items (CausalEvidence DAG execution keys / CAS receipts / freshness invalidation), and it distorts no gate into a false PASS -- the DONE gate still fails closed on stale evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T11:37:57.847Z",
+      "reviewRound": "",
+      "gapFingerprint": "1f85409e09bd2ada40fd1eca359c51158d5f5d42a2b817ca75a740f88eccc9cb",
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts:318",
+        "packages/main/src/core/verification.ts:196-226",
+        "CLAUDE.md",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "_hash": "5f84bd6e61297b2694e743e050940cc7fa70f5c4a7f1dcfda0f564f161ec938a"
     }
   ]
 }
