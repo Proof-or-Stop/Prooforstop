@@ -23,7 +23,7 @@
       "desc": "validation-tier-planner-smoke case F-023 fails on a literal commandSetDigest pin (validation-tier-planner-smoke.ts around line 471): expected 056e47fd..., actual d98a2288.... Acceptance-blocking, because that suite is in the validate chain the REVIEW to TEST gate runs. Cause: this story CHK-003 added the narrowing-repin entry to validate.commands in proof-or-stop.config.json, which is exactly the condition the pin maintenance note names. Confirmed pre-existing to the F-001 edit by stashing that edit, rebuilding and reproducing the identical failure and digest. Fix: re-pin the literal to the value the current inventory produces, deriving it through the case own code path rather than copying it from the error message, and extend the maintenance comment to say B-1482 CHK-003 moved it by registering test:narrowing-repin. Note for the reviewer: this literal has now moved three times across three stories (B-a745, B-41c8 CHK-004, this one). Another session is replacing it with a structural assertion that the real inventory digest equals the same commands with an explicit dot cwd, which does not move when the inventory grows; that replacement is not on main yet, so this story re-pins the literal and their merge supersedes it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-03T22:24:32.269Z",
@@ -34,7 +34,8 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "missing|ts|validation-tier-planner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-03T22:33:11.433Z"
     }
   ]
 }
