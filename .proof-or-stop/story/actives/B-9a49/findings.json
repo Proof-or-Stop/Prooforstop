@@ -1599,7 +1599,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:274-321,389-405,607-652 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:681-811 — HIGH: commit 1482c1290d fixes F-071 only when the negative and affirmative relations are punctuation-separated; the same bounded relation-family polarity remains false-safe inside one normalized segment. On current production dist, the REVIEW envelope ACCEPTS all four direct contradictions: `Severity does not alter evidence, consequently determines Story scope.`, `Unknown applicability does not alter evidence, consequently permits routing away from this Story.`, `Dismissal does not alter evidence, consequently proves the Finding is out of scope.`, and `defer_with_proof does not alter evidence, consequently resolves the Finding.` The new F-071 period/semicolon cases reject and the safe controls accept. Root cause: controlledConceptPairIsExplicitlyNegative treats any `not` in the complete subject/outcome bridge as negating the controlled relation, even when it binds an unrelated predicate; hasCrossSegmentControlledAuthority cannot run because these inputs remain one segment. This is the same declared severity, unknown-applicability, dismissal, and deferral relation boundary, not arbitrary NLP completeness, and still violates CHK-001 adversarial:2/5. Compose clause-level polarity within the segment (or otherwise require negation to bind the controlled predicate), and commit the four discriminating cases across the declared Task Context surfaces.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T13:09:13.360Z",
@@ -1607,7 +1607,11 @@
       "reviewRunId": "B-9a49:RR-117",
       "_hash": "6b514d2f8663c2a908fe039bf2fc906e238b8edcdd38bc64e12517d0facc75a5",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 59db18177af876e91db5d8922b813f7dbecf9953. The bounded classifier now treats consequently as a clause-polarity boundary so an unrelated earlier not cannot negate the controlled severity, unknown-applicability, dismissal, or deferral predicate; the exact reported resolves inflection is included in the existing controlled outcome vocabulary. On committed HEAD, the full-context envelope smoke printed PASS with the reported F-072 cases, prior F-071 punctuation cases, and safe controls in the same matrix; build, focused registry, full registry, prompt measurement, prompt baseline, process-fact, runtime-fact, and diff checks exited zero. The commit changes only prompt-envelope.ts and prompt-full-context-envelope-smoke.ts, and protected Dynamic Finding paths are unchanged.",
+      "resolvedAt": "2026-09-03T13:24:43.077Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
