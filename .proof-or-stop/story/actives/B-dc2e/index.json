@@ -4,7 +4,7 @@
   "title": "Make four checks that look green actually bite: orphan smoke, real-data membership check, finding-fix RED guard, persisted host-B findings",
   "description": "Story B-a745 (DONE 2026-09-02) found four places (a fifth, the immutable evidence pin, is split into its own design story draft named narrowing-only-evidence-repin because it changes an anti-evidence-shopping invariant) where a check appears to run and pass but cannot catch the failure it exists for, each with a reproduction. (1) packages/main/src/tasks/validation-protocol-smoke.ts fails at line 1229 (assert.equal(item?.status, 'CASE_MISMATCH') gets undefined) and is referenced by no npm script, not by test:serial-reference, RESOURCE_POLICY, or validate.commands, so it has been failing unnoticed. (2) packages/main/src/tasks/full-suite-runner-smoke.ts rebuilds fixtureScripts['test:serial-reference'] from FULL_SUITE_ENTRIES around line 563, so it only ever compares synthetic scripts with synthetic policies; it reported PASS while test:validation-tier-planner was in the real chain with no RESOURCE_POLICY row, and the real unknownPolicy fail-closed surfaced only when npm test ran. (3) The RED-before-GREEN guard in packages/main/src/tasks/validation-tier-planner-smoke.ts (the declaredChecklistItems helper and the commit-subject regex it feeds) derives ids only from CHK section headers and matches only RED(CHK-nnn)/GREEN(CHK-nnn) subjects, so finding-fix commits of the form RED(F-0xx)/GREEN(F-0xx) pass it vacuously (B-a745:F-012). (4) packages/main/src/handlers/cross-host-review.ts parses and diffs host B's findings but persists only a stdout digest; on run B-a745-xhr-r1 Codex returned FAIL with two findings and no committed artifact carried their text, which had to be recovered from the Codex session log. This story makes each of the four checks bite, RED first.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "smoke",
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-09-02T13:18:31.270Z",
   "startedAt": "2026-09-02T13:18:31.270Z",
-  "endedAt": null,
+  "endedAt": "2026-09-03T14:06:38.301Z",
   "events": [
     {
       "phase": "INIT",
@@ -143,12 +143,16 @@
       "user": "Harmonynet",
       "sessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-03T14:06:38.301Z",
+      "branch": "story/B-dc2e",
+      "user": "Harmonynet",
+      "sessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-dc2e",
-    "branch": "story/B-dc2e",
-    "createdAt": "2026-09-03T04:33:42.599Z"
-  },
   "currentReviewRound": "2026-09-03T11:25:21.397Z"
 }
