@@ -76,6 +76,16 @@ function evaluateRealInventory(input: RealInventoryInput): { mainChain: string; 
   try { entriesFromSerialReference(mainChain, input.scripts, input.policy); } catch (error) { mainOnlyMessage = error instanceof Error ? error.message : String(error); }
   assertWithDetail(input.prefixMembersReadStale(mainOnlyMessage, prefixMembers),
     'real inventory: against the main chain alone exactly the test:serial-reference-prefix members read as stalePolicy', `message=${mainOnlyMessage || '<no throw>'}`);
+  // F-002 control: the edge predicate must DISCRIMINATE. Against a scratch policy with
+  // the prefix rows removed the main chain alone reads clean (nothing stale, so no
+  // throw), and the predicate must reject that message. A predicate that accepts it
+  // too (one neutralised to a constant true) fails here, before the membership line.
+  const controlPolicy: Record<string, FullSuiteEntry> = { ...input.policy };
+  for (const name of prefixMembers) delete controlPolicy[name];
+  let controlMessage = '';
+  try { entriesFromSerialReference(mainChain, input.scripts, controlPolicy); } catch (error) { controlMessage = error instanceof Error ? error.message : String(error); }
+  assertWithDetail(!input.prefixMembersReadStale(controlMessage, prefixMembers),
+    'real inventory: the prefix-stale edge predicate rejects the main chain evaluated against a policy without the prefix rows', `message=${controlMessage || '<no throw>'}`);
   const composedChain = [prefixChain, mainChain].join(' && ');
   const members = parseSerialReference(composedChain);
   const entries = entriesFromSerialReference(composedChain, input.scripts, input.policy);
