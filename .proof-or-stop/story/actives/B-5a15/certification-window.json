@@ -405,6 +405,18 @@
       "blockerDetail": "CausalEvidence requires fresh affected-node evidence: dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
       "inventory": {},
       "_hash": "02d7bfde66daeed3c725044c02a280d28f0bada29679ab285f252ca27dd22b8a"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a15:CW-020",
+      "storyId": "B-5a15",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T08:49:54.896Z",
+      "updatedAt": "2026-09-03T08:49:54.896Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "9c3ed9573b4ae340c1c2176489da82505bd17e69c06dc4bcf5e2a2b63dcccb69"
     }
   ],
   "receipts": [
