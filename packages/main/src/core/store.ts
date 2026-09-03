@@ -82,6 +82,33 @@ interface LegacyFindingIdentityBindingPayload {
   findingHash: string;
 }
 
+interface LegacyLifecycleReceiptBindingEntry {
+  receiptId: string;
+  legacyReceiptDigest: string;
+  transitionRecordId: string;
+  transitionRecordHash: string;
+  findingId: string;
+  findingRecordId: string;
+  findingRecordHash: string;
+  outerExactRequestDigest: string;
+  priorLedgerDigest: string;
+  committedLedgerDigest: string;
+}
+
+interface LegacyLifecycleReceiptBindingSet {
+  schemaVersion: 1;
+  bindingType: 'legacy-lifecycle-transition-set';
+  storyId: string;
+  observedLedgerDigest: string;
+  bindings: LegacyLifecycleReceiptBindingEntry[];
+}
+
+const LEGACY_LIFECYCLE_BINDING_ENTRY_KEYS = [
+  'committedLedgerDigest', 'findingId', 'findingRecordHash', 'findingRecordId',
+  'legacyReceiptDigest', 'outerExactRequestDigest', 'priorLedgerDigest', 'receiptId',
+  'transitionRecordHash', 'transitionRecordId',
+].sort();
+
 function trustedLegacyFindingIdentityBinding(
   ledger: LedgerEnvelope<unknown>,
   storyId: string,
@@ -176,12 +203,136 @@ function findingMatchesLegacyIdentityHash(
   return canonicalHash(original) === findingHash;
 }
 
+function trustedLegacyLifecycleReceiptBindingSet(
+  ledger: LedgerEnvelope<unknown>,
+  storyId: string,
+  record: LedgerRecord<unknown>,
+  trust: FindingLedgerReceiptTrust | undefined,
+): LegacyLifecycleReceiptBindingSet | undefined {
+  if (!trust || record.recordType !== 'legacy_lifecycle_receipt_binding'
+    || !record.payload || typeof record.payload !== 'object') return undefined;
+  const payload = record.payload as LegacyLifecycleReceiptBindingSet;
+  if (JSON.stringify(Object.keys(payload).sort()) !== JSON.stringify([
+    'bindingType', 'bindings', 'observedLedgerDigest', 'schemaVersion', 'storyId',
+  ])
+    || payload.schemaVersion !== 1
+    || payload.bindingType !== 'legacy-lifecycle-transition-set'
+    || payload.storyId !== storyId
+    || !/^[0-9a-f]{64}$/.test(payload.observedLedgerDigest)
+    || !Array.isArray(payload.bindings)
+    || payload.bindings.length === 0
+    || record.uniqueBindingKey !== `legacy-lifecycle-binding:${canonicalHash(payload.bindings)}`) return undefined;
+  const targetDigests = new Set<string>();
+  for (const binding of payload.bindings) {
+    if (!binding || typeof binding !== 'object'
+      || JSON.stringify(Object.keys(binding).sort()) !== JSON.stringify(LEGACY_LIFECYCLE_BINDING_ENTRY_KEYS)
+      || [
+        binding.legacyReceiptDigest, binding.transitionRecordHash, binding.findingRecordHash,
+        binding.outerExactRequestDigest, binding.priorLedgerDigest, binding.committedLedgerDigest,
+      ].some((value) => typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value))
+      || [
+        binding.receiptId, binding.transitionRecordId, binding.findingId, binding.findingRecordId,
+      ].some((value) => typeof value !== 'string' || !value.trim())
+      || targetDigests.has(binding.legacyReceiptDigest)) return undefined;
+    const targetCarriers = (ledger.receipts as SignedLedgerCommitReceipt[]).filter((candidate) => (
+      candidate.receiptId === binding.receiptId
+      && canonicalHash(candidate) === binding.legacyReceiptDigest
+    ));
+    const targetRecordIndex = ledger.records.findIndex((candidate) => (
+      candidate.recordId === binding.transitionRecordId
+    ));
+    if (targetCarriers.length !== 1
+      || !targetCarriers[0]!.recordIds.includes(binding.transitionRecordId)
+      || targetRecordIndex < 0
+      || targetRecordIndex >= ledger.records.findIndex((candidate) => candidate.recordId === record.recordId)) {
+      return undefined;
+    }
+    targetDigests.add(binding.legacyReceiptDigest);
+  }
+
+  const recordIndex = ledger.records.findIndex((candidate) => candidate.recordId === record.recordId);
+  if (recordIndex < 0) return undefined;
+  const carriers = (ledger.receipts as SignedLedgerCommitReceipt[])
+    .filter((candidate) => candidate.recordIds.includes(record.recordId));
+  if (carriers.length !== 1) return undefined;
+  const carrier = carriers[0]!;
+  const signed = carrier.findingLedgerReceipt;
+  const requestRecords = [{
+    recordType: record.recordType,
+    payload: record.payload,
+    uniqueBindingKey: record.uniqueBindingKey,
+  }];
+  const expectedStorageRequestDigest = canonicalHash({
+    operation: 'append_legacy_identity_binding',
+    idempotencyKey: carrier.idempotencyKey,
+    records: requestRecords,
+    ledgerSchemaEpoch: ledger.ledgerSchemaEpoch,
+    writerCapability: ledger.minimumWriterCapability,
+  });
+  const expectedExactRequestDigest = canonicalHash({
+    storyId,
+    operation: 'append_legacy_identity_binding',
+    idempotencyKey: carrier.idempotencyKey,
+    records: requestRecords,
+    casBindings: [],
+    expectedPriorLedgerDigest: payload.observedLedgerDigest,
+  });
+  const expectedPriorDigest = canonicalHash(ledger.records.slice(0, recordIndex));
+  const expectedCommittedDigest = canonicalHash(ledger.records.slice(0, recordIndex + 1));
+  if (!signed || !verifyFindingLedgerReceipt(signed, trust)
+    || carrier.operation !== 'append_legacy_identity_binding'
+    || signed.operation !== 'append_legacy_identity_binding'
+    || signed.storyId !== storyId
+    || signed.receiptId !== carrier.receiptId
+    || signed.idempotencyKey !== carrier.idempotencyKey
+    || carrier.idempotencyKey !== `legacy-lifecycle-binding:${canonicalHash(payload.bindings)}`
+    || record.idempotencyKey !== carrier.idempotencyKey
+    || signed.recordIds.length !== 1 || signed.recordIds[0] !== record.recordId
+    || carrier.recordIds.length !== 1 || carrier.recordIds[0] !== record.recordId
+    || signed.casBindings.length !== 0
+    || carrier.requestDigest !== expectedStorageRequestDigest
+    || carrier.exactRequestDigest !== expectedExactRequestDigest
+    || signed.exactRequestDigest !== expectedExactRequestDigest
+    || payload.observedLedgerDigest !== expectedPriorDigest
+    || record.priorDigest !== expectedPriorDigest
+    || carrier.priorLedgerDigest !== expectedPriorDigest
+    || signed.priorLedgerDigest !== expectedPriorDigest
+    || carrier.committedLedgerDigest !== expectedCommittedDigest
+    || signed.committedLedgerDigest !== expectedCommittedDigest
+    || signed.committedAt !== carrier.committedAt
+    || signed.writerSessionId !== carrier.writerSessionId
+    || signed.writerFenceToken !== carrier.writerFenceToken
+    || signed.replayed !== false || carrier.replayed !== false) return undefined;
+  return payload;
+}
+
+function trustedLegacyLifecycleReceiptBindings(
+  ledger: LedgerEnvelope<unknown>,
+  storyId: string,
+  trust: FindingLedgerReceiptTrust | undefined,
+): Map<string, LegacyLifecycleReceiptBindingEntry> {
+  const candidates = new Map<string, LegacyLifecycleReceiptBindingEntry[]>();
+  for (const record of ledger.records) {
+    const payload = trustedLegacyLifecycleReceiptBindingSet(ledger, storyId, record, trust);
+    if (!payload) continue;
+    for (const binding of payload.bindings) {
+      const entries = candidates.get(binding.legacyReceiptDigest) ?? [];
+      entries.push(binding);
+      candidates.set(binding.legacyReceiptDigest, entries);
+    }
+  }
+  return new Map([...candidates.entries()]
+    .filter(([, entries]) => entries.length === 1)
+    .map(([digest, entries]) => [digest, entries[0]!]));
+}
+
 function isTrustedFindingLifecycleTransition(
   ledger: LedgerEnvelope<unknown>,
   storyId: string,
   record: LedgerRecord<unknown>,
   transition: FindingLifecycleTransition,
   trust: FindingLedgerReceiptTrust | undefined,
+  legacyBindings: ReadonlyMap<string, LegacyLifecycleReceiptBindingEntry>,
 ): boolean {
   if (!trust) return false;
   const recordIndex = ledger.records.findIndex((candidate) => candidate.recordId === record.recordId);
@@ -211,8 +362,8 @@ function isTrustedFindingLifecycleTransition(
     || carrier.replayed !== false
     || typeof carrier.exactRequestDigest !== 'string'
     || !/^[0-9a-f]{64}$/.test(carrier.exactRequestDigest)
-    || typeof signed.exactRequestDigest !== 'string'
-    || signed.exactRequestDigest !== carrier.exactRequestDigest) return false;
+    || (signed.exactRequestDigest !== undefined
+      && signed.exactRequestDigest !== carrier.exactRequestDigest)) return false;
 
   const recordsBefore = ledger.records.slice(0, recordIndex);
   const recordsThrough = ledger.records.slice(0, recordIndex + 1);
@@ -230,7 +381,36 @@ function isTrustedFindingLifecycleTransition(
     findingId: transition.findingId,
     findingRecordId: transition.findingRecordId,
   });
-  return signed.casBindings.length === 1
+  const exactCurrentReceipt = typeof signed.exactRequestDigest === 'string'
+    && signed.exactRequestDigest === carrier.exactRequestDigest;
+  const carrierIndex = ledger.receipts.indexOf(carrier);
+  const firstCurrentExactReceiptIndex = (ledger.receipts as SignedLedgerCommitReceipt[])
+    .findIndex((candidate) => {
+      const candidateSigned = candidate.findingLedgerReceipt;
+      return candidate.operation !== 'append_legacy_identity_binding'
+        && !!candidateSigned
+        && verifyFindingLedgerReceipt(candidateSigned, trust)
+        && candidateSigned.storyId === storyId
+        && typeof candidate.exactRequestDigest === 'string'
+        && candidateSigned.exactRequestDigest === candidate.exactRequestDigest;
+    });
+  const legacyBinding = legacyBindings.get(canonicalHash(carrier));
+  const exactLegacyReattestation = signed.exactRequestDigest === undefined
+    && carrierIndex >= 0
+    && firstCurrentExactReceiptIndex >= 0
+    && carrierIndex < firstCurrentExactReceiptIndex
+    && !!legacyBinding
+    && legacyBinding.receiptId === carrier.receiptId
+    && legacyBinding.transitionRecordId === record.recordId
+    && legacyBinding.transitionRecordHash === canonicalHash(record)
+    && legacyBinding.findingId === transition.findingId
+    && legacyBinding.findingRecordId === source.recordId
+    && legacyBinding.findingRecordHash === canonicalHash(source)
+    && legacyBinding.outerExactRequestDigest === carrier.exactRequestDigest
+    && legacyBinding.priorLedgerDigest === carrier.priorLedgerDigest
+    && legacyBinding.committedLedgerDigest === carrier.committedLedgerDigest;
+  return (exactCurrentReceipt || exactLegacyReattestation)
+    && signed.casBindings.length === 1
     && signed.casBindings[0]!.recordType === source.recordType
     && signed.casBindings[0]!.expectedRecordId === source.recordId
     && signed.casBindings[0]!.expectedRecordHash === canonicalHash(source)
@@ -662,6 +842,11 @@ export class StoryStore {
     const lifecycleTrust = ledger.records.some((record) => record.recordType === 'finding_lifecycle_transition')
       ? currentFindingLedgerTrustFromWorkspace(this.projectRootValue)
       : undefined;
+    const legacyLifecycleBindings = trustedLegacyLifecycleReceiptBindings(
+      ledger,
+      storyId,
+      lifecycleTrust,
+    );
     const trustedFindingRecordIds = new Set<string>();
     for (const record of ledger.records) {
       if (record.recordType !== 'finding' || !record.payload || typeof record.payload !== 'object') continue;
@@ -720,6 +905,7 @@ export class StoryStore {
         record,
         transition,
         lifecycleTrust,
+        legacyLifecycleBindings,
       )) continue;
       const finding = data.findings.find((candidate) => (
         candidate.id === transition.findingId

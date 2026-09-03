@@ -127,11 +127,11 @@ export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
 export const PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY = {
   recordType: 'finding_lifecycle_transition',
   level: 'L4',
-  producer: 'handlers/finding.appendFindingLifecycleTransition',
+  producer: 'handlers/finding.appendFindingLifecycleTransition + handlers/finding-ledger.bindLegacyFindingLedgerReceipts',
   allowedConsumers: ['StoryStore.readFindings', 'storyMachine.canPassReview'],
   gateEvidence: true,
   lifecycleAuthority: 'terminal-finding-state',
-  rationale: 'A signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. Original Finding rows remain immutable.',
+  rationale: 'A current exact-signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. A pre-upgrade current-key transition missing only the nested exact digest remains fail-closed unless a separate current exact-signed legacy_lifecycle_receipt_binding re-attests its immutable carrier, record, source identity, and chain. Original Finding rows and historical transition bytes remain immutable.',
 } as const;
 
 export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
@@ -1422,17 +1422,17 @@ export const PROCESS_FACT_ARTIFACTS = [
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'gate-evidence', 'blocker-state', 'finding-state'],
     level: 'L4',
-    producer: 'handlers/finding.appendFindingLifecycleTransition',
+    producer: 'handlers/finding.appendFindingLifecycleTransition + handlers/finding-ledger.bindLegacyFindingLedgerReceipts',
     consumerGate: 'StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate',
     artifact: {
       name: 'finding-ledger-lifecycle-transition',
       path: 'finding-ledger.json',
       signed: true,
-      signature: 'FindingLedgerReceipt covers the immutable finding_lifecycle_transition record and exact source-record CAS binding',
+      signature: 'FindingLedgerReceipt covers the immutable finding_lifecycle_transition record and exact source-record CAS binding; pre-upgrade nested-digest omission additionally requires a current exact-signed legacy_lifecycle_receipt_binding over exact carrier/record/source/chain bytes',
       producerCommand: 'finding_resolve/finding_dismiss',
       consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     },
-    rationale: 'Only the signed finding_lifecycle_transition record class carries terminal Finding authority; other rows in the same ledger retain their narrower registered levels.',
+    rationale: 'Only a current exact-signed finding_lifecycle_transition, or the same current-key pre-upgrade transition with a unique valid current exact-signed legacy_lifecycle_receipt_binding, carries terminal Finding authority; the binding alone and all other ledger rows retain narrower levels.',
   },
   {
     name: 'artifact:review-passes.json',

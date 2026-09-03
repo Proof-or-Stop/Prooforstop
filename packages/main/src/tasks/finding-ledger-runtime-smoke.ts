@@ -824,6 +824,30 @@ function runFindingProjectionRegression(root: string): void {
     true,
     'legacy receipt compatibility may remain available to the read-only query surface',
   );
+  const currentOmissionLockDir = store.storyFilePath(authorityStoryId, 'findings.lock');
+  const currentOmissionLock = acquireMkdirLock(currentOmissionLockDir, {
+    label: 'current lifecycle omission migration refusal regression', requireHolderToken: true,
+  });
+  try {
+    const fence = captureMkdirLockFence(currentOmissionLockDir);
+    assert.equal(bindLegacyFindingLedgerReceipts({
+      storyId: authorityStoryId,
+      store,
+      writerSessionId: 'current-omission-smoke',
+      writerLeaseId: 'current-omission-smoke',
+      writerFenceToken: fence.writerFenceToken,
+      fence,
+      signer: findingLedgerSignerFromWorkspace(root),
+    }), null, 'a post-boundary current omission must not be eligible for legacy migration');
+  } finally {
+    currentOmissionLock.release();
+  }
+  assert.equal(
+    store.readFindingLedger<JsonValue>(authorityStoryId).records
+      .some((record) => record.recordType === 'legacy_lifecycle_receipt_binding'),
+    false,
+    'migration appended a legacy binding for a post-boundary current omission',
+  );
   console.log('finding.lifecycle_signed_exact_request_digest: PASS missingSigned=open legacyQuery=accepted');
 
   const tamperedAuthority = structuredClone(validAuthorityLedger);
@@ -842,8 +866,326 @@ function runFindingProjectionRegression(root: string): void {
   writeAuthorityCandidate(validAuthorityLedger);
   assert.equal(store.readFindings(authorityStoryId).findings[0]?.status, 'resolved');
   console.log('finding.lifecycle_transition_authority: PASS unsigned=open badSignature=open missingSignedExactRequestDigest=open tampered=open signed=resolved exactCas=true');
+
+  const preUpgradeAuthority = structuredClone(validAuthorityLedger) as typeof validAuthorityLedger & {
+    receipts: Array<Record<string, unknown>>;
+  };
+  const preUpgradeCarrier = preUpgradeAuthority.receipts.find((receipt) => (
+    (receipt.recordIds as string[]).includes(authorityTransition.recordId)
+  ))!;
+  const preUpgradeSigned = (preUpgradeCarrier as unknown as Record<string, unknown>)
+    .findingLedgerReceipt as ReturnType<typeof signFindingLedgerReceipt>;
+  const {
+    exactRequestDigest: _preUpgradeExactRequestDigest,
+    receiptHash: _preUpgradeReceiptHash,
+    signature: _preUpgradeSignature,
+    ...preUpgradeUnsigned
+  } = preUpgradeSigned;
+  (preUpgradeCarrier as unknown as Record<string, unknown>).findingLedgerReceipt = signFindingLedgerReceipt(
+    preUpgradeUnsigned,
+    findingLedgerSignerFromWorkspace(root),
+  );
+  const preUpgradeSourceCarrier = preUpgradeAuthority.receipts.find((receipt) => (
+    receipt.receiptId !== (preUpgradeCarrier as unknown as { receiptId: string }).receiptId
+    && receipt.recordIds.includes((authorityTransition.payload as Record<string, string>).findingRecordId)
+  )) as typeof preUpgradeAuthority.receipts[number] & {
+    findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt>;
+  };
+  const {
+    exactRequestDigest: _preUpgradeSourceExactRequestDigest,
+    receiptHash: _preUpgradeSourceReceiptHash,
+    signature: _preUpgradeSourceSignature,
+    ...preUpgradeSourceUnsigned
+  } = preUpgradeSourceCarrier.findingLedgerReceipt;
+  preUpgradeSourceCarrier.findingLedgerReceipt = signFindingLedgerReceipt(
+    preUpgradeSourceUnsigned,
+    findingLedgerSignerFromWorkspace(root),
+  );
+  writeAuthorityCandidate(preUpgradeAuthority);
+  store.writeFindings(authorityStoryId, authorityOpenMirror);
+  const preMigrationProjection = store.readFindings(authorityStoryId).findings
+    .find((finding) => finding.id === `${authorityStoryId}:F-001`)!;
+  assert.equal(
+    preMigrationProjection.status,
+    'open',
+    'a pre-upgrade lifecycle receipt without a current re-attestation must fail closed',
+  );
+  assert.match(authorityHandlers.finding_add({
+    storyId: authorityStoryId,
+    desc: 'strict successor proving the pre-upgrade lifecycle boundary',
+    severity: 'low',
+    category: 'edge',
+    agent: 'main',
+    idempotencyKey: 'finding-add:post-upgrade-boundary',
+  }), /Finding B-LIFECYCLE-AUTHORITY:F-002 created/);
+  assert.equal(
+    store.readFindings(authorityStoryId).findings
+      .find((finding) => finding.id === `${authorityStoryId}:F-001`)?.status,
+    'open',
+    'the strict successor boundary alone must not grant legacy lifecycle authority',
+  );
+  console.log('finding.lifecycle_preupgrade_pre_migration: PASS outerExact=true signedExact=false strictSuccessor=true binding=absent projected=open');
+  const historicalTransitionBytes = canonicalJson({
+    carrier: preUpgradeCarrier,
+    record: preUpgradeAuthority.records.find((record) => record.recordId === authorityTransition.recordId),
+  });
+  const migrationLockDir = store.storyFilePath(authorityStoryId, 'findings.lock');
+  const runLifecycleMigration = (): void => {
+    const migrationLock = acquireMkdirLock(migrationLockDir, {
+      label: 'pre-upgrade lifecycle re-attestation regression', requireHolderToken: true,
+    });
+    try {
+      const fence = captureMkdirLockFence(migrationLockDir);
+      bindLegacyFindingLedgerReceipts({
+        storyId: authorityStoryId,
+        store,
+        writerSessionId: 'f029-migration-smoke',
+        writerLeaseId: 'f029-migration-smoke',
+        writerFenceToken: fence.writerFenceToken,
+        fence,
+        signer: findingLedgerSignerFromWorkspace(root),
+      });
+    } finally {
+      migrationLock.release();
+    }
+  };
+  runLifecycleMigration();
+  const migratedPreUpgradeLedger = store.readFindingLedger<JsonValue>(authorityStoryId);
+  const bindingRecords = migratedPreUpgradeLedger.records.filter((record) => (
+    record.recordType === 'legacy_lifecycle_receipt_binding'
+  ));
+  assert.equal(bindingRecords.length, 1, 'migration must append exactly one lifecycle re-attestation set');
+  const migratedHistoricalCarrier = migratedPreUpgradeLedger.receipts.find((receipt) => (
+    receipt.receiptId === (preUpgradeCarrier as unknown as { receiptId: string }).receiptId
+  ))!;
+  assert.equal(canonicalJson({
+    carrier: migratedHistoricalCarrier,
+    record: migratedPreUpgradeLedger.records.find((record) => record.recordId === authorityTransition.recordId),
+  }), historicalTransitionBytes, 'migration rewrote immutable historical transition bytes');
+  const migratedCounts = {
+    records: migratedPreUpgradeLedger.records.length,
+    receipts: migratedPreUpgradeLedger.receipts.length,
+  };
+  runLifecycleMigration();
+  assert.deepEqual({
+    records: store.readFindingLedger<JsonValue>(authorityStoryId).records.length,
+    receipts: store.readFindingLedger<JsonValue>(authorityStoryId).receipts.length,
+  }, migratedCounts, 'lifecycle re-attestation replay appended duplicate rows');
+
+  const currentLedgerSigner = findingLedgerSignerFromWorkspace(root);
+  const resignBindingCandidate = (
+    candidate: typeof migratedPreUpgradeLedger,
+    signer: LedgerSigner = currentLedgerSigner,
+  ): void => {
+    const record = candidate.records.find((entry) => (
+      entry.recordType === 'legacy_lifecycle_receipt_binding'
+    ))!;
+    const payload = record.payload as Record<string, JsonValue>;
+    const idempotencyKey = `legacy-lifecycle-binding:${canonicalHash(payload.bindings)}`;
+    record.idempotencyKey = idempotencyKey;
+    record.uniqueBindingKey = idempotencyKey;
+    record.payloadHash = canonicalHash(record.payload);
+    const carrier = candidate.receipts.find((entry) => entry.recordIds.includes(record.recordId)) as (
+      typeof candidate.receipts[number] & {
+        exactRequestDigest?: string;
+        findingLedgerReceipt?: ReturnType<typeof signFindingLedgerReceipt>;
+      }
+    );
+    carrier.idempotencyKey = idempotencyKey;
+    carrier.requestDigest = canonicalHash({
+      operation: carrier.operation,
+      idempotencyKey,
+      records: [{
+        recordType: record.recordType,
+        payload: record.payload,
+        uniqueBindingKey: record.uniqueBindingKey,
+      }],
+      ledgerSchemaEpoch: candidate.ledgerSchemaEpoch,
+      writerCapability: candidate.minimumWriterCapability,
+    });
+    const exactRequestDigest = canonicalHash({
+      storyId: payload.storyId,
+      operation: carrier.operation,
+      idempotencyKey,
+      records: [{
+        recordType: record.recordType,
+        payload: record.payload,
+        uniqueBindingKey: record.uniqueBindingKey,
+      }],
+      casBindings: [],
+      expectedPriorLedgerDigest: payload.observedLedgerDigest,
+    });
+    candidate.committedLedgerDigest = canonicalHash(candidate.records);
+    carrier.exactRequestDigest = exactRequestDigest;
+    carrier.committedLedgerDigest = candidate.committedLedgerDigest;
+    const priorSigned = carrier.findingLedgerReceipt!;
+    const {
+      receiptHash: _candidateReceiptHash,
+      signature: _candidateSignature,
+      ...priorUnsigned
+    } = priorSigned;
+    carrier.findingLedgerReceipt = signFindingLedgerReceipt({
+      ...priorUnsigned,
+      storyId: String(payload.storyId),
+      idempotencyKey,
+      exactRequestDigest,
+      committedLedgerDigest: candidate.committedLedgerDigest,
+      keyId: signer.keyId,
+      trustRootDigest: signer.trustRootDigest,
+      keyFreshnessPolicyDigest: signer.keyFreshnessPolicyDigest,
+    }, signer);
+  };
+  const expectLegacyBindingRefusal = (
+    label: string,
+    mutate: (candidate: typeof migratedPreUpgradeLedger, binding: Record<string, unknown>) => void,
+    signer: LedgerSigner = currentLedgerSigner,
+  ): void => {
+    const candidate = structuredClone(migratedPreUpgradeLedger);
+    const bindingRecord = candidate.records.find((record) => (
+      record.recordType === 'legacy_lifecycle_receipt_binding'
+    ))!;
+    mutate(candidate, bindingRecord.payload as Record<string, unknown>);
+    resignBindingCandidate(candidate, signer);
+    writeAuthorityCandidate(candidate);
+    let projectedStatus: string | undefined;
+    try {
+      projectedStatus = store.readFindings(authorityStoryId).findings
+        .find((finding) => finding.id === `${authorityStoryId}:F-001`)?.status;
+    } catch {
+      // Invalid envelopes and invalid current signatures are both fail-closed.
+    }
+    assert.notEqual(projectedStatus, 'resolved', `${label} binding received lifecycle authority`);
+  };
+  const bindingEntry = (payload: Record<string, unknown>): Record<string, unknown> => (
+    (payload.bindings as Array<Record<string, unknown>>)[0]!
+  );
+  expectLegacyBindingRefusal('wrong receipt', (_candidate, payload) => {
+    bindingEntry(payload).receiptId = 'wrong-receipt';
+  });
+  expectLegacyBindingRefusal('wrong transition hash', (_candidate, payload) => {
+    bindingEntry(payload).transitionRecordHash = '0'.repeat(64);
+  });
+  expectLegacyBindingRefusal('wrong story', (_candidate, payload) => {
+    payload.storyId = 'B-WRONG-STORY';
+  });
+  const attackerPair = generateEd25519KeyPair();
+  const attackerSigner: LedgerSigner = {
+    privateKey: attackerPair.privateKey,
+    publicKey: attackerPair.publicKey,
+    keyId: `retired-${canonicalHash({ publicKey: attackerPair.publicKey }).slice(0, 24)}`,
+    trustRootDigest: canonicalHash({ profile: 'retired-ledger-key', publicKey: attackerPair.publicKey }),
+    keyFreshnessPolicyDigest: currentLedgerSigner.keyFreshnessPolicyDigest,
+  };
+  expectLegacyBindingRefusal('wrong current key', () => {}, attackerSigner);
+  expectLegacyBindingRefusal('wrong chain', (_candidate, payload) => {
+    bindingEntry(payload).priorLedgerDigest = '1'.repeat(64);
+  });
+  expectLegacyBindingRefusal('partial', (_candidate, payload) => {
+    delete bindingEntry(payload).findingRecordHash;
+  });
+  expectLegacyBindingRefusal('duplicate', (_candidate, payload) => {
+    (payload.bindings as Array<Record<string, unknown>>).push(structuredClone(bindingEntry(payload)));
+  });
+  writeAuthorityCandidate(migratedPreUpgradeLedger);
+  const historicalProjection = store.readFindings(authorityStoryId).findings
+    .find((finding) => finding.id === `${authorityStoryId}:F-001`)!;
+  assert.equal(
+    historicalProjection.status,
+    'resolved',
+    'pre-upgrade signed lifecycle transition was not restored by an append-only current-trust re-attestation',
+  );
+  console.log('finding.lifecycle_preupgrade_reattestation: PASS preMigration=open currentReattestation=valid immutableBytes=true replayRows=0 projected=resolved');
+  console.log('finding.lifecycle_preupgrade_adversarial: PASS noBinding=reject wrongReceipt=reject wrongHash=reject wrongStory=reject wrongKey=reject wrongChain=reject partial=reject duplicate=reject currentOmission=open');
   sparseProjectionRegressionCompleted = true;
   console.log('lifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none');
+}
+
+function runRealBfe8fLifecycleMigrationRegression(repositoryRoot: string, scratch: string): void {
+  const historicalCommit = 'bed6e0bf392bd2b082787994ae17304809631376';
+  const ledgerText = git(repositoryRoot, [
+    'show', `${historicalCommit}:.proof-or-stop/story/actives/B-fe8f/finding-ledger.json`,
+  ]);
+  const corpusRoot = join(scratch, 'f029-real-bfe8f-corpus');
+  const corpusStore = new StoryStore(corpusRoot);
+  const storyId = 'B-fe8f';
+  mkdirSync(corpusStore.storyDirPath(storyId), { recursive: true });
+  writeFileSync(corpusStore.findingLedgerPath(storyId), `${ledgerText}\n`);
+  writeFileSync(corpusStore.storyFilePath(storyId, 'findings.json'), '{"findings":[]}\n');
+  const commonDirRaw = git(repositoryRoot, ['rev-parse', '--git-common-dir']);
+  const commonDir = resolve(repositoryRoot, commonDirRaw);
+  const corpusKeyDir = join(corpusRoot, '.proof-or-stop', 'keys');
+  mkdirSync(corpusKeyDir, { recursive: true });
+  writeFileSync(
+    join(corpusKeyDir, 'proof-or-stop-finding-ledger-v1.key'),
+    readFileSync(join(commonDir, 'proof-or-stop-finding-ledger-v1.key')),
+    { mode: 0o600 },
+  );
+
+  const before = corpusStore.readFindingLedger<JsonValue>(storyId);
+  const recordsById = new Map(before.records.map((record) => [record.recordId, record]));
+  const historicalCarriers = before.receipts.filter((carrier) => {
+    const signed = (carrier as typeof carrier & {
+      findingLedgerReceipt?: { exactRequestDigest?: string };
+    }).findingLedgerReceipt;
+    return carrier.operation === 'append_finding_lifecycle_transition'
+      && typeof (carrier as typeof carrier & { exactRequestDigest?: string }).exactRequestDigest === 'string'
+      && signed?.exactRequestDigest === undefined;
+  });
+  const historicalFindingIds = historicalCarriers.map((carrier) => (
+    (recordsById.get(carrier.recordIds[0]!)!.payload as Record<string, string>).findingId
+  ));
+  assert.equal(historicalCarriers.length, 16, 'immutable B-fe8f corpus lost its 16 pre-upgrade lifecycle receipts');
+  assert.equal(
+    historicalFindingIds.every((findingId) => (
+      corpusStore.readFindings(storyId).findings.find((finding) => finding.id === findingId)?.status === 'open'
+    )),
+    true,
+    'pre-upgrade B-fe8f corpus did not reproduce the terminal projection loss',
+  );
+  const historicalBytes = canonicalJson(historicalCarriers);
+  const migrationLockDir = corpusStore.storyFilePath(storyId, 'findings.lock');
+  const migrate = (): void => {
+    const lock = acquireMkdirLock(migrationLockDir, {
+      label: 'real B-fe8f lifecycle migration regression', requireHolderToken: true,
+    });
+    try {
+      const fence = captureMkdirLockFence(migrationLockDir);
+      bindLegacyFindingLedgerReceipts({
+        storyId,
+        store: corpusStore,
+        writerSessionId: 'f029-real-corpus-smoke',
+        writerLeaseId: 'f029-real-corpus-smoke',
+        writerFenceToken: fence.writerFenceToken,
+        fence,
+        signer: findingLedgerSignerFromWorkspace(corpusRoot),
+      });
+    } finally {
+      lock.release();
+    }
+  };
+  migrate();
+  const after = corpusStore.readFindingLedger<JsonValue>(storyId);
+  assert.equal(after.records.filter((record) => record.recordType === 'legacy_lifecycle_receipt_binding').length, 1);
+  assert.equal(canonicalJson(after.receipts.filter((carrier) => (
+    historicalCarriers.some((historical) => historical.receiptId === carrier.receiptId)
+  ))), historicalBytes, 'real B-fe8f migration rewrote historical carrier bytes');
+  const projection = corpusStore.readFindings(storyId);
+  assert.equal(
+    historicalFindingIds.every((findingId) => (
+      ['resolved', 'dismissed'].includes(projection.findings.find((finding) => finding.id === findingId)?.status ?? '')
+    )),
+    true,
+    'real B-fe8f terminal projection was not restored after current-trust migration',
+  );
+  const migratedCounts = { records: after.records.length, receipts: after.receipts.length };
+  migrate();
+  const replayed = corpusStore.readFindingLedger<JsonValue>(storyId);
+  assert.deepEqual(
+    { records: replayed.records.length, receipts: replayed.receipts.length },
+    migratedCounts,
+    'real B-fe8f migration replay appended rows',
+  );
+  console.log('finding.lifecycle_real_bfe8f_corpus: PASS historical=16 preMigration=open postMigration=terminal immutableBytes=true replayRows=0');
 }
 
 function readTreeText(root: string): string {
@@ -3176,6 +3518,7 @@ if (process.argv[2] === '--ledger-worker') {
     runFailClosedBoundaryMatrix(scratch);
 
     const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
+    runRealBfe8fLifecycleMigrationRegression(repositoryRoot, scratch);
     runBuildLockFifoRegression(repositoryRoot, scratch);
     assertRedGreenRelation(repositoryRoot);
     assertVersionSync(repositoryRoot);

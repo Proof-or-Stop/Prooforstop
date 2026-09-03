@@ -7691,10 +7691,16 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     && /gateEvidence: true/.test(lifecyclePolicy)
     && /lifecycleAuthority: 'terminal-finding-state'/.test(lifecyclePolicy),
   'Story 3: signed Finding lifecycle transition must be an explicit L4 terminal-state fact');
+  assert(/legacy_lifecycle_receipt_binding/.test(lifecyclePolicy)
+    && /current exact-signed/.test(lifecyclePolicy)
+    && /immutable carrier, record, source identity, and chain/.test(lifecyclePolicy),
+  'Story 3: pre-upgrade lifecycle authority must require current-trust exact-byte re-attestation');
   assert(/name: 'runtime:finding_ledger_lifecycle_transition_gate', level: 'L4'[^\n]+gateConsumer: 'storyMachine\.canPassReview REVIEW to TEST gate'/.test(levelRegistrySource),
   'Story 3: lifecycle transition gate fact missing from level registry');
   assert(read('packages/main/src/handlers/finding.ts').includes("operation: 'append_finding_lifecycle_transition'")
-    && read('packages/main/src/core/store.ts').includes("record.recordType !== 'finding_lifecycle_transition'"),
+    && read('packages/main/src/core/store.ts').includes("record.recordType !== 'finding_lifecycle_transition'")
+    && read('packages/main/src/handlers/finding-ledger.ts').includes("recordType: 'legacy_lifecycle_receipt_binding'")
+    && read('packages/main/src/core/store.ts').includes('trustedLegacyLifecycleReceiptBindings'),
   'Story 3: resolve/dismiss lifecycle record is not wired to canonical read projection');
 }
 
