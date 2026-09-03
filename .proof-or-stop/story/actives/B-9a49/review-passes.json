@@ -1223,6 +1223,31 @@
         "scanEscalationReason": null
       },
       "_hash": "80f7ea4eceb106f216bd5f8924c3b156baa440648f7bd74e7840805ffee30ce2"
+    },
+    {
+      "id": "B-9a49:RP-030",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Binding refresh after lifecycle metadata drift; re-inspected git diff main...HEAD and CHK-004 prompt-registry/version-witness changes. No concept deletion/replacement in this round: role-body prose in CLAUDE.md/AGENTS.md was rewritten (defect-triage section) but grepped for residue of removed Chinese phrases (多揽责任少推卸/跨 story 全局意识) - zero hits in active source, only an intentional historical mention inside delivery-check.json evidence. acceptance-coverage-basis.ts topology-path changes are additive (new helper functions), no symbol deletion. No blocker this round.",
+      "createdAt": "2026-09-03T17:14:06.191Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-133",
+      "envelopeId": "f210f99dd7b0b239971bb1bab9058956e378b413d7ea7b46aa6ace0d428ad94b",
+      "writerSessionId": "sess-a62dc1e677d82626357b204d11070dd5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/delivery-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "75c1bb5976981b1bdbc33e55f337c30a59c0e512f73810a72b156c3a7f4e62f6"
     }
   ]
 }
