@@ -140,7 +140,25 @@ const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyD
   ['build-input', /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/],
   ['manifest-semantic', /^(?:\.proof-or-stop-codex|\.codex|\.claude)\//],
   ['manifest-semantic', /^\.proof-or-stop\/proof-or-stop\.json$/],
+  // B-5a15: `scripts/` here anchors at the repo root, so a per-package verifier
+  // script such as packages/graph/scripts/verify-missing-assets-fail.mjs matched NO
+  // rule. Because certificationDomainForPath requires exactly one match, an unmatched
+  // path made deriveCertificationDomainInputHashes return undefined for the whole
+  // story, which blocked certification_window_begin with
+  // [pre_cert_causal_freshness_required]. Package-local scripts are integration
+  // surface for the same reason root scripts/ is: they are executable verifiers, not
+  // product source.
+  //
+  // The added alternative EXCLUDES utils and lab, which the rule above already
+  // covers wholesale. certificationDomainForPath requires `matches.length === 1`,
+  // so a path matching two rules is treated as ambiguous and returns undefined --
+  // identically to matching none. A first draft of this fix used a bare
+  // `packages/[^/]+/scripts/`, which made packages/utils/scripts/** and
+  // packages/lab/scripts/** double-match and would have broken certification for
+  // any future story touching them, while passing here only because this story
+  // touches neither. Verified by enumeration, not by inspection.
   ['integration', /^(?:bin|scripts|\.githooks|packages\/(?:utils|lab))\//],
+  ['integration', /^packages\/(?!utils\/|lab\/)[^/]+\/scripts\//],
   ['source', /^packages\/main\/src\/(?!tasks\/)/],
   ['review-subject', /^(?:docs\/|(?:AGENTS|CLAUDE|README)(?:\.[^/]+)?$)/],
 ];
