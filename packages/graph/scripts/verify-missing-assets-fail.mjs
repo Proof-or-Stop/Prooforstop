@@ -50,6 +50,34 @@ try {
     out = String(e.stdout ?? '') + String(e.stderr ?? '');
   }
 
+  // Our own listener must be stopped BEFORE sampling, and UNCONDITIONALLY.
+  //
+  // Two defects this ordering fixes, both found by review:
+  //   - RACE: execFileSync's timeout can fire while the child is still inside its own
+  //     `npm run build`, so a single fs.existsSync() sample taken immediately after can
+  //     read false for a rebuild that succeeds moments later. Stopping the child first
+  //     makes the sample deterministic: once it is dead, assets/app.html stops changing.
+  //   - LEAK: cleanup used to be gated behind `if (rebuilt)`, so in exactly the branch
+  //     where a leaked listener matters most (recovery believed impossible) the still
+  //     serving process was neither killed nor reported. It is now always stopped, and
+  //     separately still REPORTED as a failure in that branch.
+  const ours = (pid) => {
+    try {
+      return execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' })
+        .includes('proof-or-stop');
+    } catch { return false }
+  };
+  const listeners = () => {
+    try {
+      return execFileSync('lsof', ['-ti', `:${PORT}`], { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] })
+        .split('\n').filter(Boolean).filter(ours);
+    } catch { return [] }
+  };
+  const leaked = listeners();
+  for (const pid of leaked) { try { process.kill(Number(pid), 'SIGKILL') } catch { /* already gone */ } }
+  // Give the killed child a moment to release the file handles it was writing.
+  if (leaked.length) execFileSync('sleep', ['1']);
+
   const rebuilt = fs.existsSync(asset);
 
   if (rebuilt) {
@@ -100,22 +128,11 @@ try {
   // process (observed here: Google Chrome, holding both 8819 and a freshly chosen 8877)
   // can occupy any high port, so a bare `lsof -ti:<port>` hit must never be reported as
   // our leaked listener. Match on the command line instead.
-  const ours = (pid) => {
-    try {
-      return execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' })
-        .includes('proof-or-stop');
-    } catch { return false }
-  };
-  let held = [];
-  try {
-    held = execFileSync('lsof', ['-ti', `:${PORT}`], { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] })
-      .split('\n').filter(Boolean).filter(ours);
-  } catch { /* nothing listening */ }
-
-  if (rebuilt) {
-    for (const pid of held) { try { process.kill(Number(pid), 'SIGKILL') } catch { /* already gone */ } }
-  } else if (held.length) {
-    failures.push(`a listener was left on ${PORT} despite the missing client: ${held.join(',')}`);
+  // Reporting, using the pre-sample snapshot. Serving after a successful rebuild is
+  // correct for a foreground serve command, so it is only a failure when the client was
+  // still missing -- which is the invariant this script exists to protect.
+  if (!rebuilt && leaked.length) {
+    failures.push(`a listener was left on ${PORT} despite the missing client: ${leaked.join(',')}`);
   }
 
   if (!failures.length) {
