@@ -20451,7 +20451,7 @@
       "desc": "packages/main/src/handlers/certification-window.ts CERTIFICATION_DOMAIN_PATH_RULES (line 138) now has two integration rules that must stay mutually exclusive by hand (the bare packages/(utils|lab)/ rule and the new negative-lookahead packages/(?!utils/|lab/)[^/]+/scripts/ rule), enforced only by certificationDomainForPath requiring matches.length===1 -- a violation fails CLOSED (returns undefined, blocking certification_window_begin) rather than silently misclassifying, which is the right failure mode, but there is no dedicated table-driven test pinning this invariant across the known edge cases (utils/scripts, lab/scripts, utils-extra/scripts, lab-extra/scripts, hypothetical nested packages/*/src/**/scripts/ paths). Verified: no path in this rule range currently double-matches (checked utils-extra, lab-extra explicitly -- the lookahead correctly excludes only exact utils/ and lab/ segments), and grep across packages/main/src/tasks confirms only integration-level smoke tests (closeout-trust-smoke.ts, done-required-validation-smoke.ts, etc.) exercise deriveCertificationDomainInputHashes indirectly against the real repo tree, not a focused unit test enumerating rule-table edge cases. This gap pre-dates this commit (the rule table existed testless before), and the commit's own comment already documents the risk (\"Verified by enumeration, not by inspection\") -- so this is not a new regression, but adding a second rule to an already-testless invariant increases the surface for a future silent double-match. Low/medium severity, non-blocking (fail-closed protects correctness even without the test), advisory: recommend a follow-up unit test asserting matches.length===1 for a fixed table of representative paths.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T09:11:28.309Z",
@@ -20462,7 +20462,9 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in d16cdeeec8. The finding was correct that CERTIFICATION_DOMAIN_PATH_RULES mutual exclusivity was maintained by hand with no regression test, and it quoted my own commit message back at me ('Verified by enumeration, not by inspection') -- true, but verified once, by me, with nothing preventing the next edit from reintroducing the overlap. Added a guard asserting single-match across 24 probe paths (one per declared domain, the whole packages/*/scripts/ family, and the adjacent utils-extra/lab-extra names that must ESCAPE the negative lookahead), plus its own positive control: a deliberately overlapping rule pair that must be observed as a double match, so the assertion cannot pass vacuously. The rules table is exported as data for the test; the classifier itself stays private. Verified against the built dist: 8 rules exported, zero ambiguous across all probes, positive control fires. Note the guard's host task (certification-window-smoke.ts) currently fails earlier for an unrelated pre-existing reason filed separately as F-394, so the guard logic was verified standalone against the compiled rules table rather than via that suite.",
+      "resolvedAt": "2026-09-03T09:54:30.709Z"
     },
     {
       "id": "B-5a15:F-394",

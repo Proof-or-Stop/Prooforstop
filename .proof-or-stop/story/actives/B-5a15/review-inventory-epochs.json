@@ -7441,6 +7441,33 @@
       "cancelReason": "RIE-096 deadlocked: its receipt RCP-001 is unconsumed so review_inventory_begin refuses a fresh epoch, while story_advance DEV (the only consumer) refuses with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED because the epoch was finalized before finding F-395 was filed and the live aggregate no longer matches its saturated wave. Each command points at the other. Cancelling the orphaned receipt so a fresh epoch can bind the current aggregate, which is the documented recovery path for late evidence invalidating a finalized receipt.",
       "terminalRunSequenceBoundary": 942,
       "_hash": "769d6883e373a5cc90b202d64ec678c426817664f4f8eecf000558adc16e12da"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-073",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-03T09:53:40.939Z",
+      "updatedAt": "2026-09-03T09:53:40.939Z",
+      "cutoff": {
+        "headHash": "ff23bd3a3e7c3a886a95f86a53a8886a34b70b3c",
+        "materialHash": "2bd82edd7938c473dab104dfb05aa2ca63b8e9fc813b2d0be445be58411e1cc6",
+        "storyFilesHash": "d535628105e8fb2a7a570eb34b5ed3591f098e32267c5d07b244fb1db06a7b28"
+      },
+      "scopeDigest": "79389e09fd8d698aa9b725ebaf5dc45a1b3d153e273ee54ed12e788bdecd6b89",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 942,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "1df5fa21bfd386b37c7e9fa0ef5d2f782986c6eb2188c2d7ad316a72d503e6cf"
     }
   ],
   "receipts": [
