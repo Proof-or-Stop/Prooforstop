@@ -258,6 +258,28 @@
         "scanEscalationReason": null
       },
       "_hash": "5ded9a82699bdda7f42439f011f2f2a9227b26f6b2dc54f054305e80161dac96"
+    },
+    {
+      "id": "B-dc2e:RP-010",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round-4 re-review after merge-only HEAD move (no story source changed since RP-007). Verified the new .githooks/commit-msg attribution-strip hook does not interact with this story RED-before-GREEN guard: built a scratch git repo with core.hooksPath pointed at the same .githooks, committed GREEN(F-nnn) subjects with a No-RED: <reason> body line plus a Co-Authored-By trailer, and confirmed the hook strips only the trailer (uses git stripspace, no reflow) while the RED/GREEN subject and the No-RED marker line survive byte-for-byte, including exact 30/29-char reason-length boundary preservation. This matches how the guard actually reads commits (readRedGreenCommits in validation-tier-planner-smoke.ts uses git log --format=%s%x00%b%x1e, subject/body split on NUL, record split on RS), so trailer stripping cannot hide or fabricate a marker. Re-ran the short battery: squashed RED rejected, story-qualified prior-RED accepted only for the same story (bare/other-story ids rejected), No-RED reason length boundary enforced, merge-base movement handled — all already covered and passing inside validation-tier-planner-smoke.js CHK-006. Re-ran all four story smokes against a fresh build: validation-tier-planner-smoke, validation-protocol-smoke, full-suite-runner-smoke, cross-host-review-smoke — all PASS.",
+      "createdAt": "2026-09-03T11:31:26.910Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-017",
+      "envelopeId": "3f105e4cca1ec19fce45a8367cb54447128807bef76ca84ed3fab2eb81977af2",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/commit-msg",
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          "packages/main/src/core/red-green-commit-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "caad95ac5b18df05847d061c99fb8ee3e80fe41d6ab732ffbcf4112cb0317ba5"
     }
   ]
 }
