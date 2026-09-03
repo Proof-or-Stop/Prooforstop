@@ -521,6 +521,74 @@
         "scanEscalationReason": null
       },
       "_hash": "3ef7f38ac4b43ff7271b76d2aee702f10fb60c07427e76552bd0e039f0e2e561"
+    },
+    {
+      "id": "B-fe8f:RP-020",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 13 quality review found no blocker. Commit 0d29f422 binds outer operation to the signed receipt and recomputes requestDigest from persisted carrier records plus ledger epoch/capability; end-to-end mutations reject both mismatches while legacy signed receipts remain query-only. Build, complete Story 3 smoke, process-fact contract, diff checks, 71/71 evidence freshness, and implementer authorship were verified.",
+      "createdAt": "2026-09-03T02:42:24.888Z",
+      "reviewRound": "2026-09-03T01:37:49.444Z",
+      "reviewRunId": "B-fe8f:RR-041",
+      "envelopeId": "830e5debc25ff047b2042e5b4c797bf7fb73feae25ac507829305abd550cef7a",
+      "writerSessionId": "sess-07e5c15f639f45389443aab1d51b3ffb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/handlers/finding-runtime-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "packages/utils/package-lock.json",
+          "proof-or-stop.config.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "16af62ac611bf9f26ff50095424e60321babe339d1c0fc5d71d4c19b569425ed"
     }
   ]
 }
