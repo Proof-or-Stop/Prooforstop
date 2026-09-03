@@ -155,6 +155,21 @@ restricted to one direction, on one command, once per recorded-receipt set, with
 attributable reason, against receipts the tool itself produced. What it does not buy
 is protection from someone who can make the verification genuinely fail.
 
+## Pre-mortems
+
+This decision moves a security-adjacent invariant, so the ways it could fail are
+recorded with it rather than left in the story metadata. Each row names what would
+have to be true for the failure, what it would cost, and what in the shipped design
+answers it.
+
+| # | scenario | trigger | consequence | mitigation |
+|---|---|---|---|---|
+| PM-1 | Evidence-shopping by repeated narrowing: an author re-pins repeatedly, each step proved, until the selector matches only one favourable run | no bound on how many times a selector may be narrowed against the same recorded evidence | the seatbelt is defeated one legal step at a time | a recorded-receipt set admits at most one narrowing, checked BEFORE the proof; unlocking another requires a new recorded failing render the CURRENT pin matched (`narrowing_receipt_set_unchanged`) |
+| PM-2 | A forged failing transcript is used as the narrowing proof | the proof accepts caller-supplied output | any selector could be justified | a transcript, output or receipt field is not an input; a request carrying one is refused before any proof is attempted (`narrowing_caller_output_not_admissible`) |
+| PM-3 | A pin whose selector never matched a failing run is re-pinned anyway, on the strength of a reason | the implementation falls back to the reason when no failing receipt exists | the refusal path becomes optional, which is the same as not having it | with no recorded failing render the re-pin is refused and the refusal names the missing side (`narrowing_no_recorded_failing_render`); the reason is retained for attribution and is never the proof |
+| PM-4 | An engineered failing receipt: the author drives a genuine run to fail so the desired selector is absent, then uses it as the proof | the proof cannot tell an incidental failure from one arranged to shape the evidence | a narrowing is accepted that serves the author rather than the check | bounded, not closed: the witness must predate the request and share the recorded story material with the compared passing receipts (`narrowing_receipt_not_predating_request`, `narrowing_receipt_material_mismatch`); the residue is recorded above as an accepted limitation and is never described as prevented |
+| PM-5 | The persisted selector is caller-injected onto a receipt earned under a different selector | the selector is added to a caller-facing schema rather than to the tool-owned receipt block | the audit record can be forged | the field lives inside the tool-owned receipt, which every caller-facing schema strips; a receipt whose recorded selector is unknown can never serve as the witness (`narrowing_receipt_selector_unknown`) |
+
 ## Alternatives rejected
 
 - **Keep the pin absolutely immutable.** Leaves the B-a745 class with no mechanical
