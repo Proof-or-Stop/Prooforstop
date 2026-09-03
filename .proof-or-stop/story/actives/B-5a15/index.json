@@ -4,7 +4,7 @@
   "title": "U-03 CausalEvidence DAG: unique execution keys, CAS receipts, and precise freshness invalidation",
   "description": "Implement the P0-3 / U-03 item from docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md: a CausalEvidence DAG with transactional persistence. Today intent, command execution, selector, material identity, and canonical evidence commit are not layered, so coarse hashes stale unrelated results and a failed Git/metadata commit discards already-PASS command output. This story makes identical execution keys run once with immutable receipt fan-out, writes CAS receipts before canonical import, and invalidates only declared dependency domains. It must not implement ReviewConvergence (U-01), ManagedRunSupervisor (U-02), or dependency-scoped re-review (U-09), must not rewrite stored hashes, and must keep materialHash plus the current strict DONE-required policy.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "U-03",
@@ -1577,6 +1577,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-09-03T09:03:49.640Z",
+      "branch": "story/B-5a15",
+      "user": "Pan Qi",
+      "sessionId": "claude-b5a15-1788234253",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T14:32:30.368Z",
       "branch": "story/B-5a15",
       "user": "Pan Qi",
       "sessionId": "claude-b5a15-1788234253",
