@@ -210,6 +210,31 @@
         "scanEscalationReason": null
       },
       "_hash": "b8503dab7101db270043bc6e1292be355ab8ed7ebac49bce28f35511dad67c8d"
+    },
+    {
+      "id": "B-e256:RP-009",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed commit 69a7f65753: drift branches now push only relink, canonical branches unchanged; tests 14-16 pass; tsc clean; doctor row prefix intact.",
+      "createdAt": "2026-09-03T06:43:10.243Z",
+      "reviewRound": "2026-09-03T06:39:54.131Z",
+      "reviewRunId": "B-e256:RR-015",
+      "envelopeId": "db27b22ddb5c764a5402044b117fa5b7ee987446240067dda1fdc0661b895838",
+      "writerSessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe37f7fec38cac5018700f6c189a345471a57c2975901086022a8e3253bb0094"
     }
   ]
 }
