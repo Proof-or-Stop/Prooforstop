@@ -320,6 +320,34 @@
         "scanEscalationReason": null
       },
       "_hash": "f5f0e58abdccd4d0fc97f83c4b5dfcf988ce18b4cf0b11eb768fb1649ef4084c"
+    },
+    {
+      "id": "B-e256:RP-013",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed 4f09dff2db (runtime-environment-checks.ts + global-core-realpath.test.mjs): three-valued presence correctly probed via lstat, B-cc10 resolved-over-dangling precedence preserved, mode-bit branch correctly gated on executeBitsSet, no other consumer reads the old .exists field, no any/dead-code introduced, English-only. Independently reverted both fixes (always-chmod branch, existsSync presence probe) after tsc-clean edits, rebuilt, and confirmed the test suite fails each time (AssertionError on remediation string / broken-link-must-never-pass), then restored byte-identical (diff clean) and rebuilt green. Doctor row prefix unchanged: global-core-realpath [hard] .../packages/main version=0.3.272 mode=0755 executable=yes. Judged the no-runnable-chmod assertion adequate: it bans both the fix: chmod phrase and the literal chmod +x <path> substring while pinning the exact rebuild-and-relink text, and my mutation testing confirms it discriminates the real defect.",
+      "createdAt": "2026-09-03T10:25:07.999Z",
+      "reviewRound": "2026-09-03T10:14:45.943Z",
+      "reviewRunId": "B-e256:RR-019",
+      "envelopeId": "bb9a8d6172875d0f595ac53487c76fd71bcf1b8fb7138549d412a1ec34936528",
+      "writerSessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7aa5bc9cbe89f3f4b4446edd7a3903b84e501523457c992bc4a8de86b0705a09"
     }
   ]
 }
