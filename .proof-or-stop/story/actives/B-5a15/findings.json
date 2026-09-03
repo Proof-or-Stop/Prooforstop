@@ -20201,6 +20201,21 @@
       ],
       "signatureTag": "missing|ts|file-5a15-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-383",
+      "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:108-113 (finally block): the F-377 fix replaced a single mutating fs call per restore branch with a two-step sequence -- fs.rmSync(asset) followed by fs.renameSync(stash, asset) -- with no intervening safety net. Empirically confirmed: a positive run of this verifier exercises branch (a) (rebuilt-on-demand) on this checkout, which lands in exactly this two-line path (existsSync(stash) true, existsSync(asset) true) on every ordinary success -- this is the routine hot path, not a rare corner. If anything throws or the process is killed (SIGKILL/OOM/EBUSY/EPERM on rmSync, or an external signal) after rmSync(asset) succeeds but before renameSync(stash, asset) runs, assets/app.html is deleted and the true original is left stranded under the dotfile .app.html.verify-stash. I reproduced this by patching a temp copy of the script to throw between the two lines: after the throw, ls packages/graph/assets/ showed app.html completely absent and the 401347-byte original only present as .app.html.verify-stash. Worse, this state does NOT self-heal: re-running the unpatched verifier from this stranded state immediately hits the precondition check at line 49-52 and exits with only PRECONDITION_FAILED: assets/app.html is not built -- it never looks at .app.html.verify-stash, so the genuine original sits invisible to a plain ls and is not recovered by any documented path; a human has to know to look for a dotfile. This is a regression relative to the pre-fix code, which never had this window: the old finally only ever did existsSync(asset)?rmSync(stash):renameSync(stash,asset) -- a single atomic mutating call per branch, so a crash there could at worst leave a stray stash next to a fine asset, never delete the asset itself. The fix for F-377 (dont let renameSync silently clobber the original) is directionally correct but introduced this new destructive-if-interrupted rmSync+renameSync pair as the mechanism. A crash-safe fix would rename stash directly onto a temp path first or use a single renameSync with an explicit unlink-then-rename only after confirming the destination write would succeed, or write to a fresh temp name and atomically swap, so there is never a moment where the true original exists nowhere on disk under a name the script itself will look for.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T05:07:10.736Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-917",
+      "_hash": "c30b1b8b0080556ecf17f76d112b55996209f0e803c71c93ef1049307b3449c9",
+      "signatureTag": "adversarial|unknown|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
