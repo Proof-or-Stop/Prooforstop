@@ -15832,6 +15832,30 @@
         "scanEscalationReason": null
       },
       "_hash": "acd09569a27a10ac4bb2851e6ca2659f012d0e0ff96060cc3b49cddeb43b3d51"
+    },
+    {
+      "id": "B-5a15:RP-349",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independently reproduced and confirmed: acceptance_topology_check status=fail/AT_SCOPE_BINDING_MISSING is a genuine, correctly fail-closed digest mismatch caused by the a5f7c83fef scope_contract_acknowledge (package.json) landing after acceptance-basis.json was generated -- verified by recomputing digestCanonicalJson over the live scope-contract.json (31634a78...) against acceptance-basis.json's stored basis.binding.scopeContractDigest (5be7cb91...): they differ. This is diagnostic_only/mode=observe/blocking=false (not evidentiary), and evaluateReviewVerdict/canPassReviewGuard (machine.ts:819-949) never consumes acceptance_topology_check or any AT_* code -- REVIEW->TEST gates solely on collectReviewerEvidenceState (finding/pass validity for the current round). The sole live REVIEW->TEST blocker was my own two prior stale topology-critic passes (RP-345/RP-346 bound to superseded reviewRunId RR-959/RR-960, invalidated by the same scope-contract move), confirmed directly against production collectReviewerEvidenceState output (3 invalid, all mine: RP-340/RP-345/RP-346; 3 valid: F-404 test-coverage, RP-347 quality, RP-348 concept). This fresh pass, bound to RR-965 (headHash 7b7d3b2af3, matching current HEAD), supersedes those stale entries. Also independently assessed F-401/F-404's regression in packages/main/tests/causal-evidence.test.mjs:2643 (allow-list omits bare AT_SCOPE_BINDING_MISSING): confirmed it is a real allow-list under-enumeration, not a topology defect, and confirmed it is TEST-phase-only (npm test/full-suite-runner), not part of any REVIEW->TEST CLI preflight gate -- filed as B-5a15:F-405 rather than silently deferred. Did not attempt to force topology_critic_receipt_set verdict=pass: proofstory.ts:576-584 correctly refuses that while basisVerification.ok is false, and I did not modify the working tree to route around it.",
+      "createdAt": "2026-09-03T12:57:35.713Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-965",
+      "envelopeId": "e3be09dc6bddae0e608ca6997efdda4eb7c5298bb6d2a944868d9bac3cdd3fbd",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "929af076d5290cf2f39b2128b59e3d4f8c29c2a516c2238150fc4e3e3a3af60c"
     }
   ]
 }
