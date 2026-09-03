@@ -1248,6 +1248,34 @@
         "scanEscalationReason": null
       },
       "_hash": "75c1bb5976981b1bdbc33e55f337c30a59c0e512f73810a72b156c3a7f4e62f6"
+    },
+    {
+      "id": "B-9a49:RP-031",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Stale binding refresh only, no code/requirements/prompt/docs changes made. Re-inspected git diff main...HEAD (prompt-registry.ts/prompt-envelope.ts/prompt-role-contract-registry.ts, verify-proof-or-stop-prompt-baseline.mjs digest pins, five REVIEW role templates, delivery/acceptance/scope-check story artifacts). CHK-004 shell-free version-witness command re-executed locally on clean HEAD 16bf7de: exit 0, output version sync: PASS 0.3.273, matching stored receipt outputDigest c18dcd17. Confirmed String.fromCharCode(39) marker construction avoids breaking shell-free parseAllowlistedCommand tokenizer while assertions are unchanged - no semantic weakening. finding_list shows all findings resolved/dismissed, zero open blockers. No dead code, unsafe any-casts, or I/O isolation violations found. No blocker this round.",
+      "createdAt": "2026-09-03T17:15:24.541Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-134",
+      "envelopeId": "068d3959b428a1200cbe13789e16a136f066758438c41402edfcd9ee6907e2d3",
+      "writerSessionId": "sess-f3fb916602021177fe521af78eef164d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "30ca4f768f2a21221d38943dd3347d586cd6b07b086ee823975e9ad3da8b4ead"
     }
   ]
 }
