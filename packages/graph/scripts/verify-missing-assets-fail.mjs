@@ -75,8 +75,26 @@ try {
   };
   const leaked = listeners();
   for (const pid of leaked) { try { process.kill(Number(pid), 'SIGKILL') } catch { /* already gone */ } }
-  // Give the killed child a moment to release the file handles it was writing.
-  if (leaked.length) execFileSync('sleep', ['1']);
+
+  // Settle UNCONDITIONALLY, and by polling rather than by a blind sleep.
+  //
+  // An earlier version armed the settle only `if (leaked.length)`, which review showed
+  // misses the worse window. ensureGraphClientBuilt runs `npm run build` through a
+  // SYNCHRONOUS spawnSync, so while that build is in flight the command has not bound the
+  // port yet. If execFileSync's timeout fires during the build, the SIGTERM reaches only
+  // our direct child; the nested build is orphaned and keeps writing assets/app.html. In
+  // that case `leaked` is empty -- nothing was ever listening -- so the settle was skipped
+  // and `rebuilt` was sampled with zero delay against a file still being written.
+  //
+  // Polling for the asset is both stricter and faster than a fixed sleep: it returns as
+  // soon as the orphan finishes, and it waits the full budget when it never does. The
+  // budget is deliberately longer than a slow rebuild's tail so a true negative (recovery
+  // genuinely impossible) still costs it in full, which is the correct trade for a check
+  // that must not report a working rebuild as broken.
+  const settleDeadline = Date.now() + 15_000;
+  while (!fs.existsSync(asset) && Date.now() < settleDeadline) {
+    execFileSync('sleep', ['0.25']);
+  }
 
   const rebuilt = fs.existsSync(asset);
 
