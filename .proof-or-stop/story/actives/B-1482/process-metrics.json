@@ -1,12 +1,12 @@
 {
   "storyId": "B-1482",
-  "generatedAt": "2026-09-03T21:07:08.467Z",
+  "generatedAt": "2026-09-03T21:40:39.621Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 3,
-    "reviewRounds": 2,
+    "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -108,7 +108,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -219,7 +219,7 @@
           ]
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -227,13 +227,12 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -277,13 +276,12 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -310,7 +308,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 2,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -345,13 +343,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
