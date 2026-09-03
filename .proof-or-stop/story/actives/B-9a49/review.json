@@ -1138,6 +1138,55 @@
         }
       ],
       "_hash": "92117a412f565f14f924fd0cb29300e2056fd877ead7b3730828087207d78a36"
+    },
+    {
+      "timestamp": "2026-09-03T16:53:43.222Z",
+      "issueCount": 7,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Reconcile truthful existing process-fact topology edges with verifier-owned acceptance basis paths\") was added in PLAN phase: Add the explicit delivery item required by PLAN review for verified high blocker F-020 and the approved minimal scope extension."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier\") was added in PLAN phase: A fail-closed live transcript exposed this current-Story acceptance blocker after CHK-005 topology became structurally valid."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Deliver one canonical Finding triage contract to every active REVIEW lane + Align Story Owner, implementer, and reviewer authority guidance are performed simultaneously?)"
+        }
+      ],
+      "_hash": "bf68eb912ee0dc81396deb7f28d274f70d2a9d6962e1857e8332ec11c544d472"
     }
   ]
 }
