@@ -67,7 +67,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -89,7 +89,10 @@ import { runDoneOracleGate } from '../handlers/phase-gates.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { assertCurrentReviewRunForEvidence, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import type { ChecklistData, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
 import type { RoutineValidationIdentity } from '../core/validation-types.js';
 
 type RoutineReuseArgs = Parameters<typeof evaluateRoutineValidationReuse>[0];
@@ -202,6 +205,67 @@ function danglingHeadRepo(storyId: string): { root: string; store: StoryStore } 
   writeFileSync(join(root, '.git', 'refs', 'heads', 'story', storyId), `${FAKE_HEAD}\n`, 'utf-8');
   assert.equal(git(root, ['rev-parse', 'HEAD']).trim(), FAKE_HEAD, 'fixture sanity: HEAD must resolve to the dangling sha');
   return { root, store };
+}
+
+/** B-83aa CHK-003: WRAPPER-ROOT layout. metadataRoot holds the config + story
+ * metadata and is NOT a git repository; the real repo is the configured
+ * `gitRoot: 'repo'` subdir checked out on `story/<id>` (with a `main` ref when
+ * not unborn). Mirrors review-assurance-floor-smoke's makeWrapperRepo. */
+function wrapperRootRepo(storyId: string, opts: { unborn: boolean }): { metadataRoot: string; gitRoot: string; store: StoryStore } {
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'pos-hash-classifier-wrapper-'));
+  const gitRoot = join(metadataRoot, 'repo');
+  mkdirSync(gitRoot, { recursive: true });
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), JSON.stringify({
+    gitRoot: 'repo',
+    workflow: { profile: 'light' },
+  }, null, 2) + '\n', 'utf-8');
+  resetConfigCache();
+  if (opts.unborn) {
+    git(gitRoot, ['init', '-b', `story/${storyId}`]);
+  } else {
+    mkdirSync(join(gitRoot, 'src'), { recursive: true });
+    writeFileSync(join(gitRoot, 'src', 'a.ts'), 'export const a = 1;\n', 'utf-8');
+    git(gitRoot, ['init', '-b', 'main']);
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, ['commit', '-m', 'base on main']);
+    git(gitRoot, ['checkout', '-b', `story/${storyId}`]);
+    writeFileSync(join(gitRoot, 'src', 'a.ts'), 'export const a = 2;\n', 'utf-8');
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, ['commit', '-m', 'story change']);
+  }
+  const store = new StoryStore(metadataRoot);
+  writeTestStory(store, storyId);
+  store.writeStory(storyId, { ...store.readStory(storyId), currentReviewRound: NOW });
+  return { metadataRoot, gitRoot, store };
+}
+
+/** Signed review run with deliberately NO workspaceBinding (legacy shape). */
+function legacyReviewRun(story: StoryInfo, headHash: string, materialHash: string, storyFilesHash: string | undefined): ReviewRun {
+  const agent = 'proof-or-stop-review-concept';
+  const reviewRunId = `${story.storyId}:RR-legacy-1`;
+  const startedAt = NOW;
+  // Legacy (pre-envelope) runs must carry the frozen legacy role-body promptHash.
+  const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
+  const _hash = signReviewRun(
+    story.storyId, reviewRunId, agent, agent, story.currentReviewRound!, startedAt,
+    headHash, materialHash, promptHash, undefined, undefined, storyFilesHash,
+  );
+  return {
+    storyId: story.storyId,
+    reviewRunId,
+    agent,
+    lane: agent,
+    reviewRound: story.currentReviewRound!,
+    startedAt,
+    headHash,
+    materialHash,
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+    promptHash,
+    _hash,
+  };
 }
 
 /** F-022 fixture shape: the canonical reader's failure is an OMITTED key, never null. */
@@ -509,6 +573,91 @@ try {
       assert.equal(brief.includes('DONE pre-check unavailable'), false);
     } finally {
       rmSync(root, { recursive: true, force: true });
+      resetConfigCache();
+    }
+  });
+  // ── B-83aa CHK-003 follow-up: wrapper-root layouts ─────────────────────────
+  // metadataRoot is NOT a git repository; the real repo is the configured
+  // `gitRoot` subdir. Every consumer must classify the snapshot captured from
+  // the RESOLVED git cwd (B-6666 pattern), never from the bare metadataRoot —
+  // otherwise the fail-closed classifier blocks a legitimately clean DONE.
+  testCase('wrapper-root (edge): clean configured gitRoot -> resolved-cwd snapshot complete, no evidence-hash-snapshot row, readiness DONE has no *_hash_unavailable row, legacy review run accepted', () => {
+    const { metadataRoot, gitRoot, store } = wrapperRootRepo(STORY_ID, { unborn: false });
+    try {
+      const gitCwd = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot, projectRoot: metadataRoot });
+      assert.equal(realpathSync(gitCwd), realpathSync(gitRoot), 'resolveGitCwd must resolve the configured gitRoot on a wrapper-root layout');
+      assert.notEqual(realpathSync(gitCwd), realpathSync(metadataRoot), 'wrapper-root fixture sanity: resolved cwd differs from metadataRoot (no self-comparison)');
+
+      // The bare metadataRoot is not a repo: capturing from it yields a partial
+      // snapshot. That is the wrong-cwd shape the classifier must never see on
+      // a clean wrapper root; the resolved cwd yields a complete one.
+      const fromBareRoot = classifyEvidenceHashSnapshot(captureEvidenceHashSnapshot({ gitCwd: metadataRoot, metadataRoot, ref: 'HEAD' }));
+      assert.equal(fromBareRoot.complete, false, 'bare metadataRoot capture must be partial (fixture sanity, non-tautological)');
+      const resolved = captureEvidenceHashSnapshot({ gitCwd, metadataRoot, ref: 'HEAD' });
+      const resolvedClassification = classifyEvidenceHashSnapshot(resolved);
+      assert.equal(resolvedClassification.complete, true, `resolved-cwd snapshot must be complete: ${resolvedClassification.detail}`);
+      assert.deepEqual(resolvedClassification.missing, []);
+
+      // done-oracle with the resolved gitCwd threaded (as every B-6666 caller does).
+      const rows = buildDoneChecklist(STORY_ID, store, metadataRoot, { auditWriter: null, gitCwd });
+      assert.equal(rows.some((r) => r.id === 'evidence-hash-snapshot'), false, 'clean wrapper root must push no evidence-hash-snapshot row');
+      assert.equal(/Evidence hash snapshot/.test(renderDoneChecklist(STORY_ID, rows)), false);
+
+      // lifecycle-readiness resolves gitCwd itself when none is supplied.
+      for (const target of ['DONE', 'REVIEW', 'TEST'] as LifecycleReadinessTarget[]) {
+        const report = buildStoryReadinessReport({ storyId: STORY_ID, target, store, root: metadataRoot });
+        assert.equal(report.readiness.some((r) => /_hash_unavailable$/.test(r.code)), false, `${target}: no *_hash_unavailable row on a clean wrapper root`);
+      }
+
+      // The regression: a LEGACY review run (no workspaceBinding) recomputed its
+      // freshness from the bare projectRoot (== metadataRoot). With the fail-closed
+      // classifier that read "HEAD unreadable" and blocked DONE. It must resolve
+      // the git cwd and accept the run bound to the resolved digests.
+      const story = store.readStory(STORY_ID);
+      const legacyRun = legacyReviewRun(story, resolved.headHash!, resolved.materialHash!, resolved.storyFilesHash);
+      store.writeReviewRuns(STORY_ID, { runs: [legacyRun] });
+      const accepted = assertCurrentReviewRunForEvidence(store, story, metadataRoot, legacyRun.agent, legacyRun.reviewRunId);
+      assert.equal(accepted.reviewRunId, legacyRun.reviewRunId, 'legacy run bound to the resolved-cwd digests must be accepted from the bare metadataRoot');
+    } finally {
+      rmSync(metadataRoot, { recursive: true, force: true });
+      resetConfigCache();
+    }
+  });
+
+  testCase('wrapper-root (adversarial): unborn configured gitRoot still FAILS CLOSED (row fail/blocking, readiness DONE blocking, legacy review run rejected)', () => {
+    const { metadataRoot, gitRoot, store } = wrapperRootRepo(STORY_ID, { unborn: true });
+    try {
+      const gitCwd = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot, projectRoot: metadataRoot });
+      const snapshot = captureEvidenceHashSnapshot({ gitCwd, metadataRoot, ref: 'HEAD' });
+      const classification = classifyEvidenceHashSnapshot(snapshot);
+      assert.equal(classification.complete, false, `unborn wrapper gitRoot (${gitRoot}) must yield a partial snapshot`);
+      assert.ok(classification.missing.includes('headHash') && classification.missing.includes('materialHash'), classification.detail);
+
+      const rows = buildDoneChecklist(STORY_ID, store, metadataRoot, { auditWriter: null, gitCwd });
+      const row = rows.find((r) => r.id === 'evidence-hash-snapshot');
+      assert.ok(row, 'unborn wrapper gitRoot must push the evidence-hash-snapshot row');
+      assert.equal(row.status, 'fail');
+      assert.equal(row.blocking, true);
+      assert.match(row.detail ?? '', /headHash/);
+      assert.match(row.detail ?? '', /materialHash/);
+
+      const report = buildStoryReadinessReport({ storyId: STORY_ID, target: 'DONE', store, root: metadataRoot });
+      const head = report.readiness.find((r) => r.code === 'head_hash_unavailable');
+      const material = report.readiness.find((r) => r.code === 'material_hash_unavailable');
+      assert.ok(head && material, 'unborn wrapper gitRoot must surface head/material unavailable rows for DONE');
+      assert.equal(head.blocking, true);
+      assert.equal(material.blocking, true);
+
+      const story = store.readStory(STORY_ID);
+      const legacyRun = legacyReviewRun(story, FAKE_HEAD, FAKE_MATERIAL, FAKE_STORY_FILES);
+      store.writeReviewRuns(STORY_ID, { runs: [legacyRun] });
+      assert.throws(
+        () => assertCurrentReviewRunForEvidence(store, story, metadataRoot, legacyRun.agent, legacyRun.reviewRunId),
+        /fail closed/,
+        'legacy run over an unborn wrapper gitRoot must still be rejected fail-closed',
+      );
+    } finally {
+      rmSync(metadataRoot, { recursive: true, force: true });
       resetConfigCache();
     }
   });

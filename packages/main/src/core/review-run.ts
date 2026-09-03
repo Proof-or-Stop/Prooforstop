@@ -23,7 +23,7 @@ import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewI
 import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
-import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
+import { resolveGitCwd, resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
 import {
   buildCurrentScopeContext,
   compareScopeBinding,
@@ -1193,13 +1193,33 @@ function validateRunWorkspaceBindingMatchesCurrentResolution(
   };
 }
 
+function resolveLegacyRunGitCwd(store: StoryStore, storyId: string, fallbackProjectRoot: string): string {
+  return resolveGitCwd({
+    store,
+    storyId,
+    metadataRoot: fallbackProjectRoot,
+    projectRoot: fallbackProjectRoot,
+  });
+}
+
 function validateRunWorkspaceBinding(
   store: StoryStore,
   run: ReviewRun,
   fallbackProjectRoot: string,
 ): RunWorkspaceBindingValidation {
   if (!run.workspaceBinding) {
-    return { ok: true, projectRoot: fallbackProjectRoot };
+    // B-83aa CHK-003: a legacy run (no workspaceBinding) used to recompute its
+    // freshness with the bare fallbackProjectRoot as the git cwd. Production
+    // passes ctx.root == metadataRoot here, which on a wrapper-root layout is
+    // NOT a git repository: the probe read no HEAD and, before B-83aa CHK-001,
+    // checkEvidenceFreshnessForGit silently returned fresh=true for it. Now that
+    // an unreadable HEAD FAILS CLOSED, the probe must run from the resolved git
+    // cwd (B-6666 pattern: resolveGitCwd threads the configured gitRoot; plain
+    // repos resolve to fallbackProjectRoot itself, byte-identical). The freshness
+    // recompute metadataRoot (run.workspaceBinding?.metadataRoot ?? projectRoot)
+    // is deliberately NOT changed by this. A genuinely unreadable resolved repo
+    // (unborn HEAD, dangling ref) still fails closed downstream.
+    return { ok: true, projectRoot: resolveLegacyRunGitCwd(store, run.storyId, fallbackProjectRoot) };
   }
 
   if (!verifyReviewRunWorkspaceBinding(run.workspaceBinding, run)) {
