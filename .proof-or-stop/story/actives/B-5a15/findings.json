@@ -19818,6 +19818,46 @@
       "resolvedReason": "Misfiled without agent=proof-or-stop-review-quality, so it did not register as reviewer evidence. Superseded by a correctly-attributed re-file of the same content.",
       "resolvedAt": "2026-09-03T03:40:40.383Z",
       "resolutionType": "superseded"
+    },
+    {
+      "id": "B-5a15:F-373",
+      "desc": "Re-filing B-5a15:F-367 (originally RR-904) against reviewRunId RR-906: no code change since. packages/main/src/handlers/checklist.ts:340-425 (probeGitTopLevel/probeGitIndex/probeWritableEvidenceTarget/probeActiveCli/probeWriterLease) and packages/main/src/handlers/verifier.ts:551-635 (probeVerifierWorktree/probeVerifierIndex/probeVerifierTarget/probeVerifierCli/probeVerifierLease) still contain ~90 lines of near-line-for-line duplicated causal-preflight probe logic (confirmed by diff against current HEAD), with no shared helper and no test forcing the two copies to stay in sync. Agree with the prior triage: medium, non-blocking, not acceptance-blocking. Both copies are independently called within their own handler flow with no live correctness break today; the risk is a future divergent edit to one copy silently skipping the other. Deferring further per defect-triage rule 3: fixing it now would require a cross-module extraction touching both handlers, widening this one-line gate-repin story diff and re-staling the acceptance chain.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T03:41:11.799Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-906",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "74bfba35ba457d20d690f50c44ab336c3c86415dad9320f3941f660d93507ac9",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|filing-5a15-originally",
+      "signatureTagSource": "auto"
     }
   ]
 }
