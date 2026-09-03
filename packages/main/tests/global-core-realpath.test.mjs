@@ -8,6 +8,11 @@
 // B-e256 F-002: a declared bin target that is absent (ENOENT) or is not a
 // regular file (a directory) is the distinct "rebuild" remediation
 // (`npm --prefix <realpath> run build`), never a `chmod +x`.
+// B-e256 cross-host review B-e256-xhr-r6 (MAJOR x2): the executable fact is
+// the access(2) X_OK verdict for the CURRENT process (mode bits are display
+// only), and an INSTALLED package whose package.json is unreadable, has no
+// `bin`, or lacks the proof-or-stop bin entry is drift with a named reason,
+// never a pass rendered as executable=unverified.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -64,7 +69,19 @@ function makeGlobalRootLinkedTo(base, target) {
   return globalRoot;
 }
 
-function runChecks(base, corePackageRoot, globalRoot) {
+// Breaks the package.json of an already-committed core package IN PLACE
+// (call it on the canonical repo copy after makeRepoWithWorktree so the
+// worktree copy that acts as corePackageRoot stays valid).
+function breakPackageJson(coreRoot, variant) {
+  const path = join(coreRoot, 'package.json');
+  if (variant === 'malformed') return writeFileSync(path, '{ this is not json\n');
+  if (variant === 'missing') return rmSync(path, { force: true });
+  if (variant === 'no-bin') return writeFileSync(path, JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0' }) + '\n');
+  if (variant === 'bin-entry-missing') return writeFileSync(path, JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0', bin: { 'some-other-cli': 'dist/cli.js' } }) + '\n');
+  throw new Error(`unknown variant ${variant}`);
+}
+
+function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   const projectRoot = join(base, 'fixture-project');
   mkdirSync(projectRoot, { recursive: true });
   const bin = join(base, 'fake-proofOrStop');
@@ -73,6 +90,7 @@ function runChecks(base, corePackageRoot, globalRoot) {
     commandResolver: () => bin,
     globalNpmRootResolver: () => globalRoot,
     corePackageRoot,
+    ...extraOptions,
   });
 }
 
@@ -120,14 +138,16 @@ function runChecks(base, corePackageRoot, globalRoot) {
 {
   const base = mkdtempSync(join(tmpdir(), 'gcr-nongit-fallback-'));
   try {
+    // B-e256-xhr-r6: a bare directory is an unverifiable install (case 10);
+    // the non-git fallback is exercised with a real core package.
     const plainCore = join(base, 'plain-core');
-    mkdirSync(plainCore, { recursive: true });
+    writeCorePackage(plainCore);
     const globalRootMatch = makeGlobalRootLinkedTo(join(base, 'm'), plainCore);
     const matched = runChecks(join(base, 'm'), plainCore, globalRootMatch);
     assert.equal(matched.globalCoreRealpath.status, 'pass', 'non-git fallback with matching global must pass (unchanged behavior)');
 
     const other = join(base, 'other-core');
-    mkdirSync(other, { recursive: true });
+    writeCorePackage(other);
     const globalRootDrift = makeGlobalRootLinkedTo(join(base, 'd'), other);
     const drifted = runChecks(join(base, 'd'), plainCore, globalRootDrift);
     assert.notEqual(drifted.globalCoreRealpath.status, 'pass', 'non-git fallback with differing global must warn (unchanged behavior)');
@@ -201,6 +221,8 @@ function runChecks(base, corePackageRoot, globalRoot) {
     assert.equal(report.globalCoreRealpath.warnings, undefined);
     assert.equal(actual.installed, false);
     assert.equal(actual.realpath, null);
+    assert.equal(actual.executable, null);
+    assert.equal(actual.verification, null, 'an ABSENT install has nothing to verify and must not be classified as unverifiable');
     assert.equal(actual.remediation, relink);
     const details = (report.globalCoreRealpath.details ?? []).join('\n');
     assert.ok(details.includes(relink), `informational row must name how to link one, got: ${details}`);
@@ -263,6 +285,122 @@ function runChecks(base, corePackageRoot, globalRoot) {
     assert.ok(warnings.includes(`global bin target ${expectedBin} does not exist; rebuild: ${rebuild}`), `warning must carry the exact rebuild command, got: ${warnings}`);
     assert.doesNotMatch(warnings, /chmod \+x/, 'a non-file target is a rebuild problem, not a mode problem');
     assert.doesNotMatch(warnings, /resolves to/, 'canonical realpath must not be reported as drift');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 9. B-e256-xhr-r6 MAJOR (a): the executable verdict is the access(2) X_OK
+//    probe for the current process, not "any 0o111 bit set". The root-owned
+//    0100 case cannot be built by an unprivileged test, so the injectable probe
+//    (`executableAccessProbe`, the same seam production fills with accessSync
+//    X_OK) is what proves the owner/group case: with the bit set and the probe
+//    denying, the row reports executable=no; with the bit clear and the probe
+//    allowing, executable=yes. The default probe is then exercised on files
+//    owned by the current user (0700 -> yes, 0600 -> no).
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-xok-probe-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { binMode: 0o755 });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const expectedBin = realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js'));
+
+    // (i) mode 0755 but the current user may NOT execute it (probe denies)
+    const probed = [];
+    const denied = runChecks(join(base, 'deny'), join(worktree, 'packages', 'main'), globalRoot, {
+      executableAccessProbe: (path) => { probed.push(path); return false; },
+    });
+    assert.deepEqual(probed, [expectedBin], 'the probe must be asked about exactly the bin target');
+    assert.notEqual(denied.globalCoreRealpath.status, 'pass', 'a target the current user cannot execute must never pass, whatever its mode bits say');
+    assert.equal(denied.globalCoreRealpath.actual.executable, false, 'executable is the X_OK verdict, not the mode bits');
+    assert.equal(denied.globalCoreRealpath.actual.binMode, '0755', 'the mode is still reported for display');
+    assert.equal(denied.globalCoreRealpath.actual.verification, 'ok');
+    assert.equal(denied.globalCoreRealpath.actual.remediation, `chmod +x ${expectedBin}`);
+    const deniedWarnings = (denied.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(deniedWarnings.includes(`global bin target ${expectedBin} is not executable by the current user (mode 0755); fix: chmod +x ${expectedBin}`), `warning must say the CURRENT USER cannot execute it, got: ${deniedWarnings}`);
+
+    // (ii) mode 0644 but the probe allows -> executable=yes (the probe decides, the mode is display only)
+    chmodSync(expectedBin, 0o644);
+    const allowed = runChecks(join(base, 'allow'), join(worktree, 'packages', 'main'), globalRoot, { executableAccessProbe: () => true });
+    assert.equal(allowed.globalCoreRealpath.status, 'pass', `probe-allowed target must pass, got: ${(allowed.globalCoreRealpath.warnings ?? []).join(' | ')}`);
+    assert.equal(allowed.globalCoreRealpath.actual.executable, true);
+    assert.equal(allowed.globalCoreRealpath.actual.binMode, '0644');
+
+    // (iii) default probe = real access(2) X_OK for the current user
+    chmodSync(expectedBin, 0o700);
+    const ownerExec = runChecks(join(base, 'owner-exec'), join(worktree, 'packages', 'main'), globalRoot);
+    assert.equal(ownerExec.globalCoreRealpath.status, 'pass');
+    assert.equal(ownerExec.globalCoreRealpath.actual.executable, true, 'owner-executable 0700 file is executable by the owning current user');
+    assert.equal(ownerExec.globalCoreRealpath.actual.binMode, '0700');
+    chmodSync(expectedBin, 0o600);
+    const ownerNoExec = runChecks(join(base, 'owner-noexec'), join(worktree, 'packages', 'main'), globalRoot);
+    assert.notEqual(ownerNoExec.globalCoreRealpath.status, 'pass');
+    assert.equal(ownerNoExec.globalCoreRealpath.actual.executable, false, '0600 file is not executable by the current user');
+    assert.equal(ownerNoExec.globalCoreRealpath.actual.binMode, '0600');
+    assert.match((ownerNoExec.globalCoreRealpath.warnings ?? []).join('\n'), /is not executable by the current user \(mode 0600\)/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 10-12. B-e256-xhr-r6 MAJOR (b)(c)(d): an INSTALLED global package whose
+//    package.json is malformed / missing, declares no `bin`, or whose `bin`
+//    lacks the proof-or-stop entry is drift: warning naming the exact reason
+//    and the package.json path, a concrete remediation (rebuild + relink for
+//    the canonical checkout), and a status that is never pass.
+for (const [variant, reasonCode, reasonText] of [
+  ['malformed', 'package-json-unreadable', 'package.json is missing or malformed'],
+  ['missing', 'package-json-unreadable', 'package.json is missing or malformed'],
+  ['no-bin', 'bin-field-missing', 'package.json declares no `bin` field'],
+  ['bin-entry-missing', 'bin-entry-missing', 'package.json `bin` has no proof-or-stop entry'],
+]) {
+  const base = mkdtempSync(join(tmpdir(), `gcr-unverifiable-${variant}-`));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    breakPackageJson(join(repo, 'packages', 'main'), variant);
+    const globalRoot = makeGlobalRootLinkedTo(base, canonical);
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = `cd -- ${canonical} && npm link`;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', `[${variant}] an installed but unverifiable package must never pass`);
+    assert.equal(actual.installed, true, `[${variant}] the package directory exists, so it IS installed`);
+    assert.equal(actual.realpath, canonical);
+    assert.equal(actual.executable, null, `[${variant}] nothing could be verified`);
+    assert.equal(actual.verification, reasonCode);
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`, `[${variant}] canonical checkout gets rebuild + relink`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`at ${canonical} cannot be verified [${reasonCode}]: ${reasonText} (${join(canonical, 'package.json')})`), `[${variant}] warning must name the reason and the package path, got: ${warnings}`);
+    assert.ok(warnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `[${variant}] warning must carry the exact remediation, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /resolves to/, `[${variant}] canonical realpath must not be reported as path drift`);
+    assert.doesNotMatch(warnings, /chmod \+x/, `[${variant}] nothing to chmod when the bin target is unknown`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 13. B-e256-xhr-r6: an unverifiable package at a DRIFTED realpath keeps the
+//    drift line + relink and adds the reason; the relink is not duplicated.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-unverifiable-drift-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const unrelated = join(base, 'unrelated-core');
+    mkdirSync(unrelated, { recursive: true });
+    const globalRoot = makeGlobalRootLinkedTo(base, unrelated);
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    const relink = `cd -- ${canonical} && npm link`;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass');
+    assert.equal(actual.verification, 'package-json-unreadable');
+    assert.equal(actual.executable, null);
+    assert.equal(actual.remediation, relink, 'a drifted realpath is repointed, not rebuilt');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.match(warnings, /resolves to/);
+    assert.ok(warnings.includes('cannot be verified [package-json-unreadable]'), `got: ${warnings}`);
+    assert.equal(warnings.split(relink).length - 1, 1, 'the relink command appears exactly once');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
