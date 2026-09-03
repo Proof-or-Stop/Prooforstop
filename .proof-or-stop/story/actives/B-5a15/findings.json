@@ -20873,6 +20873,36 @@
       ],
       "signatureTag": "missing|mjs|independent-topology-critic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-406",
+      "desc": "Wave 4 independent re-verification (round 2026-09-03T09:03:49.640Z, RR-969): acceptance_topology_check now returns status=pass/structuralPass=true/basisStatus=complete/diagnostics=[] (verified live). acceptance_rollout_check returns status=fail/blocking=true/mode=enforce/code=AR_REPORT_STALE, but mechanically confirmed this does NOT gate REVIEW->TEST: command-policy.ts declares acceptance_rollout_report allowedPhases=[DEV] only, and transition-orchestrator.ts:137-153/1002-1005 wires runAcceptanceRolloutGate (and runPreReviewCheckGate) to fire ONLY at story.phase===DEV && args.phase===REVIEW (both throw Cannot-enter-DEV/Cannot-enter-REVIEW, never REVIEW->TEST); review-preflight.ts and machine.ts contain zero acceptance_rollout*/pre_review_check references. Rollout report itself claims quorum=full-3x2 (genuine, not degraded 3x1) per its own eligibleMembership/sourceRecords. causal-evidence.test.mjs 21/21 pass, independently re-run live via node --test, confirming the honest-fix framing (basis regenerated at its root, not the allow-list widened) for the primary AT_SCOPE_BINDING_MISSING drift F-401/F-404/F-405 were tracking. HOWEVER: I independently discovered a DISTINCT, NEW, live-reproduced mechanical defect while attempting my own review-pass verdict: topology_critic_receipt_set verdict=pass is REFUSED right now (proofstory.ts:587-589 basisVerification.ok===false) with diagnostics scope-contract/closure-files/snapshot-seal/basis-semantic-digest mismatch plus storyFilesHash freshness mismatch. Root cause: currentTopologyReceiptStateForContext (proofstory.ts:307-327) unconditionally prefers the STALE stored store.readPreReviewCheck(storyId).preReviewBasisArtifact over a freshly-rederived one, with NO freshness fallback -- unlike currentPreReviewInputForContext (proofstory.ts:190-215) which DOES fall back to a freshly-computed currentArtifact when the stale one fails re-verification, which is exactly why pre_review_check_read correctly reports live FAIL/PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED while the on-disk pre-review-check.json itself still says status=pass,codes=[] (basisDigest sha256:1f232e...9b, superseded by the REVIEW-phase-regenerated acceptance-basis.json basisDigest sha256:f5beef...8c). This is the exact CLAUDE.md-documented B-45a0 F-435/F-438 acceptance_basis_generate-after-pre_review_check ordering trap, but manifesting as a SEPARATE irreparable-in-REVIEW dead end for my own role: pre_review_check (the only writer that could refresh the stale artifact) is allowedPhases=[DEV] only, and this story is now in REVIEW, so there is no in-phase remediation path for a topology-critic pass verdict. NOT currently blocking: mode=observe project-wide (confirmed via both acceptance_topology_check and pre_review_check_read output), so PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED never triggers (pre-review-check.ts:372 only fires in enforce mode); topology-critic is not in the required lane roster for canPassReviewGuard (reviewer_list confirms only concept/quality/test-coverage); topology_critic_receipt is not referenced by transition-orchestrator.ts, phase-gates.ts, or machine.ts anywhere -- confirmed by lifecycle_check --target=TEST reporting exactly 1 blocking readiness item (review.evidence_bindings, stale reviewRunId bindings on F-404/F-405/RP-340), not a missing topology-critic verdict. Recorded as a real, reproducible, but non-blocking defect for this story per CLAUDE.md defect-triage rule 3 (medium/low, not a regression of this story's acceptance scope, does not affect the story's core outcome, does not currently distort a live gate since mode=observe): the fix belongs to a follow-up story that adds the same freshness-fallback verifyAcceptanceBasisReceipt-plus-recompute pattern currentPreReviewInputForContext already has to currentTopologyReceiptStateForContext, so a topology-critic pass verdict remains obtainable in REVIEW after a legitimate REVIEW-phase acceptance_basis_generate rerun, and/or adds a mode=enforce-safe recovery path other than the DEV-only pre_review_check writer.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-03T13:40:52.932Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-969",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e4f589aa7a2a3b0c6d7a3db0c89bf1fa4136716829990880b7153ece4bc39ee",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|wave-independent-verification",
+      "signatureTagSource": "auto"
     }
   ]
 }
