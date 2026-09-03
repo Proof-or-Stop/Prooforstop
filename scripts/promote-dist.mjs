@@ -11,9 +11,15 @@
 // This module imports ONLY node: built-ins, so it adds no third-party dependency to
 // its callers' fresh-checkout footprint.
 import { chmodSync, readFileSync, renameSync, rmSync, statSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join, relative } from 'node:path';
 
 export function promoteDist(dist, staging, trash) {
+  // B-e256: the freshly built staging tree came straight out of tsc, which emits every file 0644;
+  // restore the executable bit on package.json `bin` targets ON STAGING, BEFORE the old dist is
+  // evicted. A non-ENOENT stat/chmod failure (EACCES, EROFS, I/O error) throws here and aborts the
+  // promotion while the previous, working dist is still in place — it is never evicted for a tree
+  // whose bin target cannot be made executable. (An absent target / package without `bin` is a no-op.)
+  restoreBinExecutableBits(staging, dist);
   // Evict the old dist. ENOENT is the SOLE benign case (a first build has no prior
   // dist to evict); every other error (EACCES, EXDEV, …) surfaces. `evicted` records
   // whether trash now holds the old dist, so the restore path only runs when there is
@@ -41,9 +47,6 @@ export function promoteDist(dist, staging, trash) {
     throw error;
   }
   rmSync(trash, { recursive: true, force: true });
-  // B-e256: the freshly promoted dist came straight out of tsc, which emits every file 0644;
-  // restore the executable bit on package.json `bin` targets (see restoreBinExecutableBits).
-  restoreBinExecutableBits(dist);
   // KNOWN LIMITATION / FOLLOW-UP (B-1734, deferred to a build-concurrency infra story).
   // This in-process catch restores dist only while THIS builder is still alive. A SIGKILL/host crash
   // AFTER `renameSync(dist, trash)` but BEFORE `renameSync(staging, dist)` bypasses the catch entirely
@@ -62,14 +65,24 @@ export function promoteDist(dist, staging, trash) {
 // in the build pipeline restored the bit after promoteDist swapped in the fresh dist, so the
 // global symlink (/opt/homebrew/bin/proof-or-stop -> .../dist/cli.js) broke on every re-emit.
 //
-// Reads `<dirname(dist)>/package.json` and ORs 0o111 into the mode of each `bin` value.
-// Returns the list of restored bin paths (package-relative). Deliberately non-fatal: a
-// missing/unparseable package.json or a package without `bin` returns [] and changes
-// nothing (promoteDist behaviour stays byte-identical to before for such packages), and an
-// absent bin target (first build, partial fixture) is skipped per target rather than thrown.
-// Mode bits are not part of the content-bound build binding, so the chmod does not
-// invalidate the fast-path verify. Only node: built-ins (fresh-checkout footprint rule).
-export function restoreBinExecutableBits(dist) {
+// `tree` is the directory whose files are chmodded; `dist` is the path that tree occupies (or
+// will occupy) once promoted, and defaults to `tree` itself. promoteDist passes the STAGING tree
+// with its final `dist` path so the bits are restored before the old dist is evicted; tests and
+// post-hoc repairs call `restoreBinExecutableBits(dist)` on a promoted tree. package.json is read
+// from `dirname(dist)` (the package root), each `bin` value is package-relative, and its location
+// under `tree` is `join(tree, relative(dist, join(packageRoot, bin)))`. A bin value that resolves
+// OUTSIDE dist is not re-emitted by tsc and is skipped.
+//
+// ORs 0o111 into the mode of each bin target and returns the list of restored bin paths
+// (package-relative). Non-fatal ONLY for the benign shapes: a missing/unparseable package.json or
+// a package without `bin` returns [] and changes nothing (promoteDist behaviour stays byte-identical
+// to before for such packages), and an ABSENT bin target (ENOENT: first build, partial fixture) is
+// skipped per target. Every OTHER stat/chmod failure (EACCES, EROFS, EPERM, I/O error) is
+// PROPAGATED: silently ignoring it (Codex cross-host finding on B-e256) let a promotion report
+// success with a non-executable global bin, and because mode bits are not part of the
+// content-bound build binding, later builds took the fast path and never repaired it.
+// Only node: built-ins (fresh-checkout footprint rule).
+export function restoreBinExecutableBits(tree, dist = tree) {
   const packageRoot = dirname(dist);
   let bin;
   try {
@@ -82,12 +95,16 @@ export function restoreBinExecutableBits(dist) {
   const restored = [];
   for (const rel of targets) {
     if (typeof rel !== 'string') continue;
-    const abs = join(packageRoot, rel);
+    const underDist = relative(dist, join(packageRoot, rel));
+    if (underDist === '' || underDist.startsWith('..') || isAbsolute(underDist)) continue; // not inside the promoted tree
+    const target = join(tree, underDist);
     try {
-      chmodSync(abs, statSync(abs).mode | 0o111);
+      chmodSync(target, statSync(target).mode | 0o111);
       restored.push(rel);
-    } catch {
-      /* absent bin target (ENOENT etc.): nothing to restore */
+    } catch (error) {
+      if (error && error.code === 'ENOENT') continue; // absent bin target: nothing to restore
+      error.message = `restoreBinExecutableBits: cannot restore the executable bit on bin target ${rel} at ${target}: ${error.message}`;
+      throw error;
     }
   }
   return restored;

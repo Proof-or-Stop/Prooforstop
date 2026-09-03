@@ -36,6 +36,15 @@
  *     (c) returns [] without throwing when package.json has no `bin`, is
  *     unparseable, or is missing. Pre-fix main has no such export: the import
  *     failure is reported as a RED case (not a crash).
+ *   - HERMETIC (B-e256 CHK-001 follow-up, Codex cross-host MAJOR finding): (d) a
+ *     NON-ENOENT stat/chmod failure on an existing bin target PROPAGATES (only an
+ *     absent target is benign; a swallowed EACCES/EROFS left a non-executable
+ *     global bin that the content-bound fast path never repaired); (e) promoteDist
+ *     restores the bit on the STAGING tree, so the promoted dist bin target is
+ *     executable and trash is gone; (f) when that staging restoration fails,
+ *     promoteDist throws BEFORE evicting the old dist (previous working dist kept,
+ *     no trash). (d)/(f) rely on a 0o000 parent directory and are skipped with a
+ *     printed note when running as root (root ignores mode bits).
  *
  * Run from the repository root:
  *   node packages/main/tests/red/red-global-cli-exec-bit.mjs
@@ -45,7 +54,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { tmpdir, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -100,9 +109,11 @@ for (const rel of binTargets) {
 // 4. hermetic: restoreBinExecutableBits(dist) from scripts/promote-dist.mjs (B-e256 CHK-002)
 const promoteDistPath = join(repoRoot, 'scripts/promote-dist.mjs');
 let restoreBinExecutableBits = null;
+let promoteDist = null;
 try {
   const mod = await import(pathToFileURL(promoteDistPath).href);
   restoreBinExecutableBits = typeof mod.restoreBinExecutableBits === 'function' ? mod.restoreBinExecutableBits : null;
+  promoteDist = typeof mod.promoteDist === 'function' ? mod.promoteDist : null;
 } catch (err) {
   console.log(`hermetic: import of ${promoteDistPath} failed: ${err.message}`);
 }
@@ -177,6 +188,97 @@ expect('hermetic (c): package.json with no bin field, unparseable package.json a
       console.log(`hermetic (c): ${label} -> ${JSON.stringify(restored)}`);
     });
   }
+});
+
+// (d) a NON-ENOENT failure on an existing bin target must propagate (only an absent target is benign).
+// Simulated hermetically: the bin target exists but its parent directory is 0o000, so stat() fails with
+// EACCES (not ENOENT). Root ignores mode bits, so the case is skipped (with a note) when uid === 0.
+const isRoot = typeof process.getuid === 'function' ? process.getuid() === 0 : userInfo().uid === 0;
+if (isRoot) console.log('hermetic (d)/(f): running as root (uid 0) — mode-bit denial cannot be simulated; skipped');
+expect('hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed', () => {
+  assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available (see the export case above)');
+  if (isRoot) return;
+  withTempPackage((pkgRoot, dist) => {
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: { 'red-exec-bit': 'dist/cli.js' } }));
+    const target = join(dist, 'cli.js');
+    writeFileSync(target, CLI_BODY);
+    chmodSync(target, 0o644);
+    chmodSync(dist, 0o000);
+    try {
+      let thrown = null;
+      try { restoreBinExecutableBits(dist); } catch (err) { thrown = err; }
+      console.log(`hermetic (d): dist 0000 -> restoreBinExecutableBits threw code=${thrown && thrown.code}`);
+      assert.notEqual(thrown, null, 'an EACCES on an EXISTING bin target was swallowed; promotion would report success with a non-executable bin');
+      assert.notEqual(thrown.code, 'ENOENT', `expected a non-ENOENT failure to surface, got ${thrown.code}`);
+      assert.match(thrown.message, /dist\/cli\.js/, 'the propagated error must name the bin target');
+    } finally {
+      chmodSync(dist, 0o755);
+    }
+    const mode = statSync(target).mode & 0o777;
+    assert.equal(mode & 0o111, 0, `fixture sanity: the target must still be 0644 (mode 0${mode.toString(8)})`);
+  });
+});
+
+// (e) promoteDist restores the bit on the STAGING tree, so the promoted dist bin target is executable.
+const STAGING_BODY = '#!/usr/bin/env node\nconsole.log("hello from the freshly emitted bin target");\n';
+expect('hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable', () => {
+  assert.notEqual(promoteDist, null, `${promoteDistPath} does not export promoteDist`);
+  withTempPackage((pkgRoot, dist) => {
+    const staging = join(pkgRoot, 'dist.staging');
+    const trash = join(pkgRoot, 'dist.trash');
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: { 'red-exec-bit': 'dist/cli.js' } }));
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(dist, 'cli.js'), CLI_BODY);
+    chmodSync(join(dist, 'cli.js'), 0o755);
+    mkdirSync(staging, { recursive: true });
+    writeFileSync(join(staging, 'cli.js'), STAGING_BODY);
+    chmodSync(join(staging, 'cli.js'), 0o644);
+    const before = statSync(join(staging, 'cli.js')).mode & 0o777;
+    assert.equal(before & 0o111, 0, `fixture setup: expected a non-executable staging bin target, got 0${before.toString(8)}`);
+    promoteDist(dist, staging, trash);
+    const target = join(dist, 'cli.js');
+    const after = statSync(target).mode & 0o777;
+    console.log(`hermetic (e): staging dist/cli.js mode 0${before.toString(8)} -> promoted 0${after.toString(8)}; staging=${existsSync(staging)} trash=${existsSync(trash)}`);
+    assert.equal(readFileSync(target, 'utf8'), STAGING_BODY, 'promoted dist must contain the staging tree');
+    assert.equal(after & 0o111, 0o111, `promoted bin target lacks executable bits (mode 0${after.toString(8)})`);
+    assert.equal(after & 0o644, 0o644, `original permission bits must be preserved (mode 0${after.toString(8)})`);
+    assert.ok(!existsSync(staging), 'staging must have been moved into place');
+    assert.ok(!existsSync(trash), 'trash must be removed after a successful promotion');
+  });
+});
+
+// (f) a failing staging restoration aborts promotion BEFORE the old dist is evicted (previous working dist kept).
+expect('hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted', () => {
+  assert.notEqual(promoteDist, null, `${promoteDistPath} does not export promoteDist`);
+  if (isRoot) return;
+  withTempPackage((pkgRoot, dist) => {
+    const staging = join(pkgRoot, 'dist.staging');
+    const trash = join(pkgRoot, 'dist.trash');
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: { 'red-exec-bit': 'dist/cli.js' } }));
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(dist, 'cli.js'), CLI_BODY);
+    chmodSync(join(dist, 'cli.js'), 0o755);
+    mkdirSync(staging, { recursive: true });
+    writeFileSync(join(staging, 'cli.js'), STAGING_BODY);
+    chmodSync(join(staging, 'cli.js'), 0o644);
+    chmodSync(staging, 0o000);
+    try {
+      let thrown = null;
+      try { promoteDist(dist, staging, trash); } catch (err) { thrown = err; }
+      console.log(`hermetic (f): staging 0000 -> promoteDist threw code=${thrown && thrown.code}; dist=${existsSync(dist)} staging=${existsSync(staging)} trash=${existsSync(trash)}`);
+      assert.notEqual(thrown, null, 'promoteDist reported success although the staging bin target could not be made executable');
+      assert.notEqual(thrown.code, 'ENOENT', `expected a non-ENOENT failure to surface, got ${thrown.code}`);
+      assert.ok(existsSync(dist), 'the previous working dist must still be in place');
+      assert.equal(readFileSync(join(dist, 'cli.js'), 'utf8'), CLI_BODY, 'the previous dist must be untouched (never evicted)');
+      const mode = statSync(join(dist, 'cli.js')).mode & 0o777;
+      assert.equal(mode & 0o111, 0o111, `the previous dist bin target must stay executable (mode 0${mode.toString(8)})`);
+      assert.ok(existsSync(staging), 'staging must be left where it was (promotion aborted before any rename)');
+      assert.ok(!existsSync(trash), 'no trash must exist: the old dist was never evicted');
+    } finally {
+      chmodSync(staging, 0o755);
+    }
+  });
 });
 
 if (failures.length > 0) {
