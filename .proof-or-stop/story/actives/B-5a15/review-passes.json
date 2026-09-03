@@ -14844,6 +14844,44 @@
         "scanEscalationReason": null
       },
       "_hash": "ed4d81e3e7eb3e31165a80481a3f3fa0fbf8ceb132bdfbef0630fa1b8ec973c7"
+    },
+    {
+      "id": "B-5a15:RP-322",
+      "agent": "proof-or-stop-review-concept",
+      "note": "F-383 verified fixed: enumerated all finally-block states (branch a/b, rebuiltStash present/absent, stash always present given renameSync(asset,stash) at line 55 is never reversed before finally), confirmed the two-call rmSync+renameSync interruption window is closed because a single renameSync overwrites its destination atomically (rename(2), same filesystem under packages/graph/assets) with no straddleable step; independently reproduced both the old bug (crash between rmSync/renameSync leaves asset missing, original stranded under dotfile) and the new fix (single call, no intermediate state) via an isolated scratch harness never touching tracked files. rmSync(rebuiltStash) does not share the fixed defect class: rebuiltStash holds a disposable regenerable copy, never the sole copy of irreplaceable data, so its removal cannot strand the genuine original (which lives only in stash, untouched by that line). SIGKILL-with-no-finally-at-all leaves stash untouched in every reachable case since nothing before finally ever touches stash. No new blocking concept-lane issue. Re-filed deferred validate-concept.ts ENOBUFS gate gap as F-385 (medium, out of scope, supersedes F-384). Full B-5a15 diff surveyed via --name-status (ENOBUFS-safe) for stranded references from removed/renamed symbols: zero deletions/renames repo-wide; one signature-widened export (preReviewCaseRequiresSemanticBinding) has all call sites updated consistently and dist/ matches src/.",
+      "createdAt": "2026-09-03T05:20:10.154Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-921",
+      "envelopeId": "ae7e20d087819adbcbf5157a6bd4d4771dfdbc99157716893e93d8ab0b3944a4",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c07e1bcab1078f00ef07963c42975ac383e95e751a2c23b56fbd21c05105ca52"
     }
   ]
 }
