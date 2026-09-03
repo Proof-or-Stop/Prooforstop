@@ -14777,6 +14777,53 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "2694101a3ffde66b3aba821224c3686f7421ddb1e8c835d37200e46bc9668ff3"
+    },
+    {
+      "id": "B-5a15:RP-320",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Verified F-380/F-381 fixes are real and current. checklist.json coverage: total=53 required=51 covered=53 missingRequired=0, all evidence mechanical:true. acceptance_topology_check and pre_review_check_read both PASS with zero codes. Directly re-ran the F-247 test standalone and observed the strict branch fire live (no bootstrap fallback), genuinely emitting both CHK-004:happy:2/3 markers matching pinned selectors. Confirmed should-priority rows are structurally excluded from the must-only coverage gate in pre-review-check.ts/acceptance-topology.ts/verifier.ts, so refresh_stale on the two should rows could not launder anything. Confirmed cutoff ordering holds: pre_review_check_read returns codes=[] consistent with final issuance occurring after all receipts were earned. No new test-coverage findings.",
+      "createdAt": "2026-09-03T05:07:05.856Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-920",
+      "envelopeId": "1a2aa692e703feb67b2daf56789276562ec937cb79fdd47ab15bb440227d7fa2",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "6716e8adf6dbeee49347729fe2667157602c433bd677d9c60460bb686a012668"
     }
   ]
 }
