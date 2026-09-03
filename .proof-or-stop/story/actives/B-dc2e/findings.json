@@ -5,7 +5,7 @@
       "desc": "quality: packages/main/src/handlers/cross-host-review.ts:598-617 (capText/boundPersistedFindings) silently caps each persisted finding field (title<=200, file<=300, description<=1000, fix<=1000 chars) with no truncation marker. Array-level truncation IS auditable (findingCount stays the TRUE count while findings.length can be <=50, so a reader can detect the array was capped), but per-field truncation is silent: capText() just slices, so a reader of the persisted verdict JSON or --json output cannot tell whether a title/description/fix was cut short vs organically that length. This undermines the CHK-004 goal of the artifact being a trustworthy, complete-or-visibly-incomplete audit record.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T05:25:15.645Z",
@@ -17,14 +17,15 @@
       ],
       "signatureTag": "missing|ts|quality-packages-main",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@3b1536f"
     },
     {
       "id": "B-dc2e:F-002",
       "desc": "CHK-002:edge:0 evidence is vacuous: it is pinned to the SAME selector as CHK-002:happy:0 (packages/main/src/tasks/full-suite-runner-smoke.ts:171, printed by the composed-chain assertion at lines 168-170), not to the actual distinguishing assertion at lines 160-163 (mainOnlyMessage stalePolicy check for prefix members). I confirmed by mutation test: neutralizing the line 160-163 assertWithDetail condition to a constant true still prints the pinned selector line and exits 0 (verified by patching packages/main/dist/tasks/full-suite-runner-smoke.js locally, running it, then restoring the original file byte-for-byte). So a regression or deletion of the mainOnlyMessage check would leave the edge:0 receipt result=pass/selectorMatched=true unchanged; the pinned evidence provides no mechanical proof that the edge intent (prefix members are not reported as stalePolicy against the main chain alone) is actually being exercised. Fix: pin CHK-002:edge:0 to a distinct process.stdout.write emitted right after the mainOnlyMessage assertWithDetail succeeds (mirroring the pattern already used for the other three CHK-002 selectors), then re-add the evidence against the new distinct selector.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T05:25:18.910Z",
@@ -53,7 +54,8 @@
       ],
       "signatureTag": "edge|ts|edge-evidence-vacuous",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@3b1536f"
     },
     {
       "id": "B-dc2e:F-003",
@@ -132,7 +134,7 @@
       "desc": "packages/main/src/core/red-green-commit-guard.ts (evaluateRedGreenCommitOrder, consumed by validation-tier-planner-smoke.ts:3617 via git log --format=%s main..HEAD) false-rejects a legitimate GREEN(CHK-nnn)/GREEN(F-nnn) when its matching RED subject already sits on main before the current branch point rather than on the story branch itself. Repro (plain git): init a repo, commit RED(CHK-001): x directly on main, branch off AFTER that commit, then commit only GREEN(CHK-001): y on the new branch; git log --format=%s main..HEAD on the branch shows only the GREEN subject (the RED is a common ancestor via main and is excluded by the range), so evaluateRedGreenCommitOrder reports green_without_red and describeRedGreenViolations names CHK-001 as violated even though a RED for that literal id genuinely exists earlier in history. The id-reuse precondition is not hypothetical here: git log --all --format=%s on this checkout shows CHK-001, CHK-002, CHK-003, CHK-004, CHK-006 and F-010 already have RED+GREEN pairs merged to main from earlier stories, because checklist/finding ids restart at 1 every story so bare-id collision across stories is routine. Under this framework normal single-branch-per-story workflow (RED and GREEN both committed on the SAME story branch) this does not misfire in the common case, but the only documented mitigation for cross-story bare-id collision is the optional B-xxxx: qualifier prefix in the subject, which the checklist/plan do not require authors to use, and no smoke case in validation-tier-planner-smoke.ts exercises this branch-point/main-ancestor edge. A legitimate story that needs a RED-before-GREEN pair for a bare id whose RED landed on main ahead of the branch point (via history cleanup on the story own branch, or reused numbering interacting with a rebase) would be incorrectly blocked by the RED-before-GREEN guard self-check inside test:validation-tier-planner, which is part of test:serial-reference / the required validate suite. Recommend documenting the story-qualifier as required guidance for bare-id reuse risk, or adding a smoke case asserting the known limitation so it cannot regress silently.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-behavior",
       "createdAt": "2026-09-03T05:29:31.841Z",
@@ -141,7 +143,8 @@
       "_hash": "c458f73d35bfef58bef094354ffe57c2d5ac8f819a42c7fb657e5669f534160e",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@3b1536f"
     }
   ]
 }
