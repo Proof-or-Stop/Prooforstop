@@ -1,129 +1,44 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-02T20:48:57.359Z",
+  "checkedAt": "2026-09-03T16:53:28.199Z",
   "features": [
     {
-      "feature": "Deliver one canonical REVIEW Finding-triage contract to exactly the five active proof-or-stop REVIEW lanes.",
-      "covered_by": "CHK-001",
+      "feature": "CHK-004 edge intent: verify required CLI patch version is synchronized across root/package manifests, lockfiles, branded version constant, rebuilt dist, and reported by local CLI --version, before verify_codex is accepted",
+      "covered_by": "CHK-004:edge:version-and-local-artifacts",
       "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "Deliver the contract exactly once in full-envelope and legacy-full-context modes while excluding non-REVIEW and retired roles.",
-      "covered_by": "CHK-001",
+      "feature": "Mechanical witness for the version-sync intent must not hardcode an exact version literal (stale-selector risk on every patch bump)",
+      "covered_by": "CHK-004:edge:version-and-local-artifacts",
       "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Keep evidenceState, severity, applicability, disposition, and gate impact separate; fail closed for otherwise-blocking unknown applicability and require evidence-backed owned routing.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Publish bounded Story Owner and implementer guidance without reviewer repair, dismissal authority, product gap routing, or unilateral Story expansion.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Register REVIEW triage checks as declarative metadata only, with no gate-evidence or Dynamic Finding authority dataflow.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Prove RED/GREEN delivery, English-only changed slices, digest integrity, canonical role identities, CLI 0.3.271, and local adapter verification.",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Do not modify Dynamic Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, acceptance topology, or other protected runtime surfaces.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Current scope contract explicitExcludes and protectedFiles preserve the runtime and topology boundary.",
-      "source": "scope_contract_show:B-9a49"
-    },
-    {
-      "feature": "Keep the Dynamic Finding authority document unchanged and treat the proposal only as its subordinate Agent-side projection.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "The current scope contract explicitly protects and excludes the Dynamic Finding authority document; scopeChangeReason supersedes the old authority-migration interpretation without deleting history.",
-      "source": "scope_contract_show:B-9a49"
-    },
-    {
-      "feature": "Include the executable proposal and REVIEW-only prompt-envelope authority guard in the canonical implementation scope.",
-      "covered_by": "CHK-001/CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "scope_contract_show:B-9a49 allowedModify"
-    },
-    {
-      "feature": "Disclose and separately verify the acceptance coverage-basis infrastructure repair without weakening topology validation.",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Disclose and separately verify canonical-first Codex prompt-asset resolution with bounded deprecated read fallback.",
-      "covered_by": "CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Preserve a complete canonical verification contract: 60 must intents, 60 unique effective refs, complete commands/selectors, and no retired active verifier references.",
-      "covered_by": "CHK-001/CHK-002/CHK-003/CHK-004/CHK-005/CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/checklist.json"
-    },
-    {
-      "feature": "Keep the executable plan aligned with the six-item canonical checklist, current proof-or-stop role identities, and current target-state verdict vocabulary.",
-      "covered_by": "CHK-001/CHK-002/CHK-003/CHK-004/CHK-005/CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-9a49/plan.md"
+      "source": "description"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".proof-or-stop/story/actives/B-9a49/background.md",
-      ".proof-or-stop/story/actives/B-9a49/checklist.json",
-      ".proof-or-stop/story/actives/B-9a49/decision.json",
-      ".proof-or-stop/story/actives/B-9a49/plan.md",
-      ".proof-or-stop/story/actives/B-9a49/understanding.json",
-      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     ],
     "filesTriagedByName": [
-      "AGENTS.md",
-      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
       "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "docs/requirements/decisions/role-separation.md"
+      "docs/requirements/decisions/story-lifecycle.md"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 13,
-    "covered": 11,
-    "excluded": 2,
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-09-02T13:23:13.505Z",
-  "_hash": "aa51f537541474334c72ccd8f3089115d1341ac02e75e8009f3e09f6b7208dae",
+  "reviewRound": "2026-09-03T13:24:28.264Z",
+  "_hash": "a029a3281cde18a19ca3fe2ea7f8e4e477b70f4efc09f490bde472f77af4a8b2",
   "openQuestions": []
 }
