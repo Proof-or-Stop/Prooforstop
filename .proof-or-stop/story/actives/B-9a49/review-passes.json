@@ -1194,6 +1194,35 @@
         "scanEscalationReason": null
       },
       "_hash": "b5ede9fab139ccfecb09830ff815a52f23ab9490d8c7e20bc50f6fd5dedcd64e"
+    },
+    {
+      "id": "B-9a49:RP-029",
+      "agent": "proof-or-stop-review-concept",
+      "note": "CHK-004 version-witness reproduced independently: node integration check compares package.json/package-lock.json/packages/main manifests, branded constant, dist, and CLI --version output without hardcoding a version literal; PASS 0.3.273 on clean HEAD cd73c3e0. All 72 findings resolved with strong verified evidence; no open blockers.",
+      "createdAt": "2026-09-03T16:59:49.397Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-126",
+      "envelopeId": "3a986d4e6e7098b85ac1640c5d9ed8c5788cabbd9c9ad43491daed8038b345c0",
+      "writerSessionId": "sess-d4a1963a0a1adcafc10b8ab23d481d51",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          ".proof-or-stop/story/actives/B-9a49/scope-check.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80f7ea4eceb106f216bd5f8924c3b156baa440648f7bd74e7840805ffee30ce2"
     }
   ]
 }
