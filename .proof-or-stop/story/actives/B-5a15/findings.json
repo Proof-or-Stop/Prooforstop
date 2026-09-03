@@ -20428,7 +20428,7 @@
       "desc": "packages/main/src/core/runtime-artifact-registry.ts new dev-memory-experience-log entry (id: dev-memory-experience-log) uses stateDirPrefix(\"dev-memory/experience.jsonl\") though the target is a single fixed filename (resolveProjectMemoryPath/resolveGlobalMemoryPath in dev-memory.ts always produce exactly <state-dir>/dev-memory/experience.jsonl, never rotated/suffixed). The codebase convention for single-fixed-filename entries is stateDirExact (used by activity.jsonl, usage/llm-usage.jsonl, learning/finding-signals.json, learning-log.jsonl, authority.md); stateDirPrefix is reserved for real directory prefixes with multiple files underneath (its sibling dev-memory-finish-decision legitimately uses it for finish-decisions/, a directory). Using prefix instead of exact means the matcher would also silently swallow any future path literally prefixed by experience.jsonl (e.g. experience.jsonl.bak) into the same materialHash-exclude/non-repairable treatment without anyone noticing, since no test pins the boundary. No live defect today -- no such sibling file is ever written by any code path -- but it deviates from the established convention its own commit models itself on, and the failure mode (a future colocated file silently inheriting materialHash exclusion) is exactly the kind of thing this registry exists to prevent deliberately, not by accident. Low severity, non-blocking, style/precision only; recommend swapping to stateDirExact in a follow-up.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T09:11:11.244Z",
@@ -20439,7 +20439,9 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: matchers changed from stateDirPrefix to stateDirExact('dev-memory/experience.jsonl') in packages/main/src/core/runtime-artifact-registry.ts. The finding was correct on both counts — it is always one fixed filename (resolveProjectMemoryPath/resolveGlobalMemoryPath never produce a variant), and the repo convention for fixed filenames is stateDirExact as used by activity.jsonl and learning-log.jsonl; the prefix form was an imprecise copy from the finish-decisions sibling, which is genuinely a directory. The lane called it 'no live escape today', but prefix semantics did in fact over-match: verified against a fresh build that the prefix form excluded '.proof-or-stop/dev-memory/experience.jsonl/x' from materialHash, widening the exclusion beyond the one real file. After the fix: the exact path is EXCLUDED while both a nested path under it and a sibling (other.jsonl) are correctly material. Worth recording that my first attempt at this fix reported success falsely — a git checkout during an unrelated revert experiment discarded the edit, and my idempotency guard tested for the entry id rather than the matcher form, so it printed 'already present' and skipped re-applying while I verified against a stale dist. The result above is from a rebuilt dist.",
+      "resolvedAt": "2026-09-03T09:44:57.627Z"
     },
     {
       "id": "B-5a15:F-393",
