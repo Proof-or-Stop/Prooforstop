@@ -572,7 +572,7 @@
       "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:356 hard-codes red.relation_evaluate currentFails=true even though lines 277-280 assert the current GREEN module import succeeds and the integrated GREEN smoke reports currentPasses=true. This makes executable RED/GREEN evidence self-contradictory after GREEN and can mislead lifecycle/audit consumers; derive the current state from the executed currentGreen result or emit a phase-correct currentPasses=true statement.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T10:57:50.094Z",
@@ -583,7 +583,11 @@
         "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
       ],
       "signatureTag": "adversarial|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Executed node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs at the current Story worktree; it exited successfully and printed historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true. Its embedded negative controls preserved currentGreenPasses=false for a simulated current regression and withheld the legacy selector when corrupted-relation rejection was false. verification_pin_guard_check returned allow with matched=true for the exact pinned selector and deny with matched=true for the proposed replacement selector.",
+      "resolvedAt": "2026-09-03T12:05:51.983Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
