@@ -15171,6 +15171,55 @@
         "scanEscalationReason": null
       },
       "_hash": "893840a3a417b4879d61a905d4db1a4c741281d93580287a6aa912507f430ae4"
+    },
+    {
+      "id": "B-5a15:RP-331",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 2 (saturation) at unchanged material (storyFilesHash 16d060c47b, HEAD 90ca2370a1). No new concept-residue family found beyond wave 1 (RR-927/RP-325). Checked beyond wave 1: (1) dist/src byte-level symbol parity for causal-evidence.ts, store.ts, certification-window.ts -- all new/changed exports and StoryStore methods present in dist, dist newer than src for all three; (2) proofbound.causal-*.v1 schema string constants -- defined once in causal-evidence.ts, zero duplicate string-literal references in packages/utils, packages/graph, or scripts, so no rename-blind-spot risk; (3) CausalDependencyDomain / CAUSAL_DEPENDENCY_DOMAINS consumers (certification-window.ts) import the typed constant, no re-literalized domain lists; (4) CausalReceiptStatus union consumers (checklist.ts, causal-evidence.ts) use matching string literals, no drift; (5) CAUSAL_PREFLIGHT_CHECK_NAMES vs the two independent preflight-probe object-literal builders in checklist.ts and verifier.ts -- both emit the exact same 9 keys in the same order, no missing/extra/renamed key; (6) types.ts additions (executionKey/causalReceiptHash/commandReruns on VerificationExecutionReceipt, CausalEvidenceReceipt re-export) are purely additive and consumed by exact name. One deliberately NOT re-filed: certification-window.ts:140 CERTIFICATION_DOMAIN_PATH_RULES build-input regex inlines lattice.config.json/proof-or-stop.config.json as a RegExp .test() path decision invisible to the verify-lattice-residue.mjs brand-decision detector (confirmed mechanically: isBrandDecisionResidue() returns false for that exact line, and the live gate run reports brand-decision PASS at HEAD). This is the same defect CLASS already filed and deferred in wave 1 as brand-path-decision-residue (runtime-artifact-registry.ts:139), whose RECOMMENDED HANDLING already covers widening the detector to catch RegExp-shaped decision sites. It is also read-both-correct today (both spellings recognized, no live misclassification) and any unmatched legacy manifest path fails closed to strict whole-tree freshness per deriveCertificationDomainInputHashes own documented fallback, not to a false pass. Filing a second finding for the same already-triaged deferred class would create a phantom new family; declined per explicit wave-2 guidance not to invent findings to look thorough.",
+      "createdAt": "2026-09-03T06:12:17.533Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-933",
+      "envelopeId": "7c7bdb1da8d34348366ceca454233179b32fdf1519dee4c3cee95b35d8106c12",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/dist/core/causal-evidence.js",
+          "packages/main/dist/core/store.js",
+          "packages/main/dist/handlers/certification-window.js",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f4299fe3108c342b1b2d913429ecd96522ec7f2bbe8479f942cd287b25827b6b"
     }
   ]
 }
