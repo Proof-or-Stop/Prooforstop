@@ -116,7 +116,9 @@
           "packages/main/src/tasks/full-suite-runner.ts",
           "proof-or-stop.config.json"
         ],
-        "create": [],
+        "create": [
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+        ],
         "test": [
           "packages/main/src/tasks/narrowing-repin-smoke.ts"
         ]
