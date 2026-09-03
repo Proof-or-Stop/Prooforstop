@@ -20239,6 +20239,24 @@
       "_hash": "53d611603aba92f677d50b0c135c280bed3357640118254386c1563dc847ea6a",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-385",
+      "desc": "validate --concept warns-and-skips instead of running the concept check when git diff main...HEAD exceeds the spawnSync maxBuffer (ENOBUFS), so the concept gate silently produces no residual-symbol verdict on large diffs. Reproduced at HEAD 4e6e55f00b: node packages/main/dist/cli.js validate --concept prints [concept] warn: git diff failed (main...HEAD): spawnSync /bin/sh ENOBUFS and recommends skip. Location: packages/main/src/handlers/validate-concept.ts:103-121 defaultGitDiffReader uses execSync with maxBuffer 50MB and no --stat/--name-status fallback. Out of scope for this story (pre-existing infra gap, not introduced by any B-5a15 commit). Superseding note: this finding replaces F-376/F-384 as the single live tracked instance of this defect; do not file a third duplicate, extend evidence on this one going forward.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T05:18:54.337Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-921",
+      "_hash": "123b7fd4628343bb80ce251bd79e03b9211562e6dec08c13f9e145259cad12fc",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts"
+      ],
+      "signatureTag": "missing|ts|validate-concept-warns",
+      "signatureTagSource": "auto"
     }
   ]
 }
