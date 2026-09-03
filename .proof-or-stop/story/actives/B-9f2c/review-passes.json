@@ -1329,6 +1329,42 @@
         "scanEscalationReason": null
       },
       "_hash": "65daee46f7472aa9b9230bed71f0751abbb7a868564db86d748d3537d2f3a933"
+    },
+    {
+      "id": "B-9f2c:RP-044",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept re-signature at frozen head 924e1926ef (RI-006 OPEN epoch), refreshing RP-038 after a REVIEW->DEV->REVIEW bounce that regenerated the acceptance rollout report. Verified: (1) git diff 74b9aeafea..924e1926ef confined entirely to .proof-or-stop/story/actives/B-9f2c/ metadata (acceptance-rollout-report.json, index.json, review-inventory-epochs.json, review-passes.json, review-runs.json, prompt-envelopes.json, process-events/metrics) -- zero packages/, docs/, or config source drift. (2) git diff main...HEAD concept/deletion completeness: all changes additive -- new --story flag on graph command (assertGraphStoryExists, graphStorySuggestions, editDistance, resolveStories reuse), dossier routing in app.js/dossier.js, new test:graph-story-flag-smoke task registered identically across lattice.config.json/package.json/full-suite-runner.ts RESOURCE_POLICY/task filename, and two DYNAMIC_CODE fingerprint pins on graph.ts re-approved with documented rationale matching the actual source diff. Sole sentinel rename MISSING_ASSETS_FAIL_LOUDLY_OK -> MISSING_ASSETS_HANDLED_OK is in-scope (verifier tracks main commit 3aa57145d8's refuse-before-listen -> rebuild-on-demand contract change); grepped repo-wide, old sentinel only survives in a DIFFERENT DONE-locked story's (B-3e16) frozen historical evidence JSON, not live code/docs -- no dangling reference. (3) Both previously-repaired verify tasks pass live: node packages/main/dist/tasks/graph-story-flag-smoke.js exit 0; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exit 0 (retired authority vocabulary guard PASS builds=815 cacheHits=2 fullAnalysis=1307 astCandidates=509 reachability=34). No blocking findings this round.",
+      "createdAt": "2026-09-03T07:49:45.800Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-067",
+      "envelopeId": "b35a2a068b18ba65e0930f56e0d00436ea49d6ede91a8fb0fabb6e6118ba07c4",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/shells/web/app.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/dossier.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e1f00b4d5fee5fb2c951e0ef9a9aa2a558900cca75b56e6f3c45ad7eab6fddd"
     }
   ]
 }
