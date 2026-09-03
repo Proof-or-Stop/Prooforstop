@@ -1302,6 +1302,33 @@
         "scanEscalationReason": null
       },
       "_hash": "e1f8b29d1848df7819c83f3e1b72154694f259a0b6dc4a7560bedcf903d1f648"
+    },
+    {
+      "id": "B-9f2c:RP-043",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation lane re-verification for RI-006 against frozen tree 924e1926ef (bounced from RP-039/RI-005: REVIEW->DEV->REVIEW to regenerate acceptance rollout report). Confirmed zero .md diff since RP-039 bound head 74b9aeafea; only .proof-or-stop/story/actives/B-9f2c/* metadata changed. Re-confirmed 5 standing claims unchanged and accurate (Test-surface placement section, README Story dossier section + endpoint row, CLAUDE.md --story flag row + dossier paragraph, How the CLI reaches this package retained with no-runnable-binary language, scope-contract.json still has exactly 5 acknowledgements with zero diff since bound head). No blocker found.",
+      "createdAt": "2026-09-03T07:48:32.766Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-069",
+      "envelopeId": "97600afa1c467b4114830ff4c3c456c9c76c18b15ef236a56108890673f68eba",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65daee46f7472aa9b9230bed71f0751abbb7a868564db86d748d3537d2f3a933"
     }
   ]
 }
