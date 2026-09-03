@@ -984,6 +984,34 @@
         "scanEscalationReason": null
       },
       "_hash": "64e237a6c9e928d867fdb520f387840838d56442ae7fe29d48ff54670fcc5d82"
+    },
+    {
+      "id": "B-9f2c:RP-033",
+      "agent": "proof-or-stop-review-docs",
+      "note": "F-008 verification against frozen tree c06f9f841a (commit 0c9253c5be is the only new commit since RP-031). Verified each factual claim in the new comment block in packages/graph/scripts/verify-missing-assets-fail.mjs against packages/main/src/handlers/graph.ts and git show 0c9253c5be^: (1) ensureGraphClientBuilt uses spawnSync (graph.ts) - synchronous, confirmed by direct read; (2) execFileSync SIGTERM reaches only the direct child, leaving a nested spawnSync grandchild orphaned to keep writing - confirmed empirically with a standalone repro (parent execFileSync with 1s timeout spawning a node child that spawnSync's a 5s sleep grandchild: parent throws SIGTERM/ETIMEDOUT at ~1s, grandchild survives and writes its file 5s later, well after the parent returned); (3) ensureGraphClientBuilt runs before lib.startServer in the handler, so a timeout mid-build kills the process before any port is bound, meaning listeners() via lsof correctly finds leaked=[] in that window, matching the comment. The stricter/faster polling claim is honestly reasoned, not overclaiming: it explicitly states the tradeoff (full 15s budget paid on a true negative) and justifies it by the asymmetric cost of false-fail vs added latency; downstream content-length/marker assertions (html.length, openStoryDossier, d3 bundle presence) independently guard against a partial-write false positive from bare fs.existsSync. No exported ts symbol-level diff in this round (0c9253c5be only touches a .mjs verifier script), so used fallback path of directly reading the touched files plus the standing docs named in the review scope. Re-confirmed all standing claims unchanged and accurate: graph-command-migration.md Test-surface placement section (three authorities, unchanged wording); packages/graph/README.md Story dossier section, /story/<id> endpoint reference, and How the CLI reaches this package section (states no start script, library not standalone tool); CLAUDE.md --story flag row and dossier paragraph present and correct. No doc anywhere describes the old refuse-on-missing-client behavior as current. No blocking issues found.",
+      "createdAt": "2026-09-03T06:56:12.781Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-058",
+      "envelopeId": "ce8d3b746932b70819f9520fd0c33f0e618924567f12db313860aedd7e13e658",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "620ee62ee13686a81ec7087a6c0dfe1a7d2a752ade91daf3daa73555c2bdb6b1"
     }
   ]
 }
