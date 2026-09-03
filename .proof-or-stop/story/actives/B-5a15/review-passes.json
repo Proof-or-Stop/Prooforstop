@@ -15288,6 +15288,39 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "786877435c0d542e2253113108537284290a2a5754c52d5864fa3a30176bea34"
+    },
+    {
+      "id": "B-5a15:RP-334",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-N re-verification, no new source landed since prior PASS (B-5a15:RP-330 at HEAD 90ca2370). Confirmed via git diff --name-status -M 90ca2370..HEAD that every changed path is under .proof-or-stop/story/actives/B-5a15/** (the F-388 acceptance-chain rebuild: acceptance-rollout-report.json, causal-evidence/index.json + 3 new receipts, checklist.json, closeout-write-receipts.jsonl, evidence/live-smoke-transcript.json, index.json, pre-review-check.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-inventory-epochs.json, review-passes.json, review-runs.json) -- zero source files touched anywhere in the repo. pre_review_check_read independently confirms PASS with Codes: none at current HEAD. Spot-confirmed the two items called out for re-check: (1) F-383 restore fix in packages/graph/scripts/verify-missing-assets-fail.mjs is still byte-for-byte intact -- zero rmSync(asset) occurrences, single atomic renameSync(stash, asset) at line 118 with the F-383 explanatory comment; (2) F-379 fix in the same file is still intact -- child.on('error') listener at line 145 capturing spawn-level failures, tail() helper at lines 152-155 quoting the last 6 lines of child output, both consumed in the failure-reason strings at lines 157/159. My wave-2 deep-read conclusions (verifyCausalPreflight independently re-derived at all three consuming call sites, store.ts:390 lock re-reads the receipt inside the withMkdirLock CAS wrapper with no TOCTOU, redactEnvironment() sits at the single construction choke point before persistence, new gates enforced on the real production path) stand unchanged because their files (causal-evidence.ts, store.ts, checklist.ts, verifier.ts) are byte-identical to my prior pass -- confirmed via the same empty whole-repo diff. F-382 checked against story.currentReviewRound (2026-09-03T06:45:20.273Z) vs its bound reviewRound (2026-09-03T04:56:02.041Z): stale binding, code genuinely unchanged, so re-filed as F-389 to keep it live rather than resolving or dropping it -- this is the same medium/non-blocking duplicated causal-preflight-probe-logic deferral I have agreed with across four rounds now. Noting but not owning: F-388 (test-coverage lane, high, open, bound to a pre-rebuild HEAD eb243521ec reporting missingRequired=51) appears superseded by this same rebuild given pre_review_check_read now reports PASS with no codes at current HEAD -- disposition of that finding belongs to the filing lane / main agent, not re-adjudicated here. No dead code, no unnecessary any-casts, no empty catch blocks, and no I/O shell isolation violations found in this story's diff (main...HEAD) beyond what was already resolved in prior rounds.",
+      "createdAt": "2026-09-03T06:53:07.586Z",
+      "reviewRound": "2026-09-03T06:45:20.273Z",
+      "reviewRunId": "B-5a15:RR-937",
+      "envelopeId": "b6621fa4992edb14ea3d02667aa1999cb960160b2bb0a250d28b77df53c6b544",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "d315fb3ff77da9c122fcabb8ae6fd83b277474c11e0b63cdfa6b8f1d5ffe5cfe"
     }
   ]
 }
