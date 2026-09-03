@@ -108,7 +108,14 @@ const SELF_SCRIPT = 'test:validation-protocol';
 const SELF_DIST = 'tasks/validation-protocol-smoke.js';
 
 /** Files with no inventory reference and no source-path reference, kept on purpose. Stale entries fail the sweep. */
-const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {};
+const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {
+  'cli-executor': 'legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story',
+  'drift-check': 'legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story',
+  'test-runner': 'legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story',
+  'test-fixture-gen': 'legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit',
+  'metadata-cross-check': 'loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design',
+  'story6-acceptance-transcript': 'one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke',
+};
 /** Files this story deleted on purpose; each must be absent. */
 const SWEEP_RECORDED_DELETIONS: Readonly<Record<string, string>> = {};
 /** The orphans that triggered this item and the classification they must now carry. */
@@ -191,8 +198,15 @@ function runInventoryAndSweep(): void {
       for (const tag of tags) counts[tag] = (counts[tag] ?? 0) + 1;
     } else {
       const self = join(tasksDir, `${base}.ts`);
-      const refPattern = new RegExp(`(^|[/'"\`])${escapeRegExp(base)}\\.js\\b`, 'm');
-      const referrers = sources.filter((s) => s.file !== self && refPattern.test(s.text)).map((s) => s.file.slice(repoRoot.length + 1));
+      // A reference must resolve into tasks/: a sibling tasks/ file may name
+      // it as ./<base>.js or as a quoted '<base>.js' path segment; any other
+      // source file must spell tasks/<base>.js (or join(..., 'tasks', '<base>.js')).
+      // A bare <base>.js elsewhere (for example core/types.js) does not count.
+      const siblingPattern = new RegExp(`(^|['"\`]|\\./)${escapeRegExp(base)}\\.js\\b`, 'm');
+      const outsidePattern = new RegExp(`tasks(?:/|['"]\\s*,\\s*['"])${escapeRegExp(base)}\\.js\\b`);
+      const referrers = sources
+        .filter((s) => s.file !== self && (dirname(s.file) === tasksDir ? siblingPattern : outsidePattern).test(s.text))
+        .map((s) => s.file.slice(repoRoot.length + 1));
       if (referrers.length) {
         label = `kept-unregistered: reached by path from ${referrers[0]}${referrers.length > 1 ? ` (+${referrers.length - 1} more)` : ''}`;
       } else if (base in SWEEP_KEPT_UNREGISTERED) {
@@ -1368,10 +1382,27 @@ try {
 
   const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-case-mismatch-'));
   try {
-    writeFileSync(join(caseMismatchAssetRoot, 'proofOrStop.md'), 'case mismatch\n');
+    // B-dc2e CHK-001 root cause: the fixture used to write 'proofOrStop.md',
+    // which is NOT a case-only variant of PROOF_OR_STOP.md (it lacks the
+    // underscores; it is the mechanical rewrite of the pre-rename 'lattice.md'
+    // by the B-022e identity migration). detectManagedAssetMode() only selects
+    // 'full' mode when the lowercased directory listing contains
+    // 'proof_or_stop.md', so the root was classified global-thin, no
+    // PROOF_OR_STOP.md definition was listed at all, and `find` returned
+    // undefined. The detector itself is filesystem-neutral: findCaseVariant()
+    // compares lowercased readdir() names, so a genuine case-only variant is
+    // reported as CASE_MISMATCH on both case-sensitive and case-insensitive
+    // disks (probed below; on a case-insensitive disk existsSync() of the
+    // canonical name is also true, which is exactly why the variant check
+    // must run first). The assertion was right; the fixture name was wrong.
+    writeFileSync(join(caseMismatchAssetRoot, 'proof_or_stop.md'), 'case mismatch\n');
+    const canonicalExists = existsSync(join(caseMismatchAssetRoot, 'PROOF_OR_STOP.md'));
+    assert.equal(detectManagedAssetMode(caseMismatchAssetRoot), 'full', 'a case-only variant of PROOF_OR_STOP.md must still select full managed-asset mode');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'PROOF_OR_STOP.md');
     assert.equal(item?.status, 'CASE_MISMATCH');
+    assert.equal(item?.actualRelPath, 'proof_or_stop.md');
+    console.log(`[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: ${canonicalExists ? 'case-insensitive' : 'case-sensitive'})`);
     assert.equal(item?.applied, undefined);
     assert.equal(result.applied.includes('PROOF_OR_STOP.md'), false, 'CASE_MISMATCH must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
@@ -1540,6 +1571,21 @@ try {
       startedAt: now,
       endedAt: null,
       events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
+    });
+    // B-dc2e CHK-001: while this smoke was orphaned, B-a7c5 CHK-001 added the
+    // dev-memory preflight ack gate in front of every DEV door, so the
+    // review-record reason below was pre-empted by
+    // [missing_dev_memory_preflight_ack]. Acknowledge the preflight through the
+    // store (the same artifact the ack handler writes) so the case keeps
+    // exercising the review-record reason it was written for.
+    store.writeDevMemoryPreflightAck(storyId, {
+      schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+      storyId,
+      packDigest: null,
+      topHitIds: [],
+      acknowledgedAt: now,
+      acknowledgedBy: 'validation-protocol-smoke',
+      downgradeReason: 'synthetic PLAN story; the case under test is the review-record reason, not the preflight pack',
     });
     resetConfigCache();
     const actorWithoutSnapshotCan = {
@@ -2051,6 +2097,13 @@ try {
         ],
       },
     }));
+    // B-dc2e CHK-001: while this smoke was orphaned, workspace validation
+    // capacity started resolving git-common-dir identity, so a bare temp dir
+    // now fails as an execution error before the gate reaches the configured
+    // command. Seed the same minimal repository the sibling gate fixtures use.
+    initSmokeGitRepo(gateFailRoot);
+    gitQuiet(gateFailRoot, ['add', 'proof-or-stop.config.json']);
+    gitQuiet(gateFailRoot, ['commit', '-m', 'seed validate gate fail smoke']);
     resetConfigCache();
     const store = new StoryStore(gateFailRoot);
     const storyId = 'B-vgate-fail';
@@ -2085,6 +2138,13 @@ try {
         ],
       },
     }));
+    // B-dc2e CHK-001: while this smoke was orphaned, workspace validation
+    // capacity started resolving git-common-dir identity, so a bare temp dir
+    // now fails as an execution error before the gate reaches the configured
+    // command. Seed the same minimal repository the sibling gate fixtures use.
+    initSmokeGitRepo(gateInfraRoot);
+    gitQuiet(gateInfraRoot, ['add', 'proof-or-stop.config.json']);
+    gitQuiet(gateInfraRoot, ['commit', '-m', 'seed validate gate infra smoke']);
     resetConfigCache();
     const store = new StoryStore(gateInfraRoot);
     const storyId = 'B-vgate-infra';
@@ -2146,7 +2206,25 @@ try {
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-storyid-alias-'));
   try {
     resetConfigCache();
+    // B-dc2e CHK-001: validate now resolves git-common-dir identity for its
+    // workspace capacity lock, so these alias fixtures (bare temp dirs while
+    // this smoke was orphaned) are seeded as minimal repositories; the
+    // no-story case still proves nothing under .proof-or-stop/ is created.
+    initSmokeGitRepo(storyIdAliasRoot);
+    gitQuiet(storyIdAliasRoot, ['commit', '--allow-empty', '-m', 'seed storyIdAliasRoot']);
     const aliasStore = new StoryStore(storyIdAliasRoot);
+    // B-dc2e CHK-001: the canonical evidence transaction resolves the story
+    // directory (realpath) before persisting test evidence, so a story-scoped
+    // validate against a story that was never written now fails as
+    // canonical-validation-persistence-failed instead of writing evidence.
+    // Seed the story the alias refers to, as every other evidence-writing
+    // fixture in this smoke already does.
+    aliasStore.writeStory('B-alias-smoke', {
+      storyId: 'B-alias-smoke', name: 'alias-smoke', title: 'storyId alias smoke',
+      description: 'seeded so the alias validate can persist evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
+      currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
+    });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2167,7 +2245,15 @@ try {
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-story-flag-'));
   try {
     resetConfigCache();
+    initSmokeGitRepo(storyFlagRoot);
+    gitQuiet(storyFlagRoot, ['commit', '--allow-empty', '-m', 'seed storyFlagRoot']);
     const storyFlagStore = new StoryStore(storyFlagRoot);
+    storyFlagStore.writeStory('B-story-flag-smoke', {
+      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'story flag smoke',
+      description: 'seeded so the alias validate can persist evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
+      currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
+    });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,
@@ -2186,6 +2272,8 @@ try {
   const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-no-story-'));
   try {
     resetConfigCache();
+    initSmokeGitRepo(noStoryReadOnlyRoot);
+    gitQuiet(noStoryReadOnlyRoot, ['commit', '--allow-empty', '-m', 'seed noStoryReadOnlyRoot']);
     const noStoryJson = await createVerifierHandlers({
       root: noStoryReadOnlyRoot,
       scanRoot: noStoryReadOnlyRoot,
@@ -2194,7 +2282,19 @@ try {
     }).validate({ json: true });
     const noStoryResult = JSON.parse(noStoryJson);
     assert.equal(noStoryResult.provider, 'proof-or-stop-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
-    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.proof-or-stop')), false, 'no-story validate must not create any .proof-or-stop/ state (read-only)');
+    // B-dc2e CHK-001: since this smoke was orphaned, official validation
+    // execution serialises through a workspace capacity mkdir-lock under
+    // .proof-or-stop/locks/ (keyed by git-common-dir identity), and the empty
+    // lock directory outlives the run. That is runtime coordination
+    // scaffolding, not story or evidence state, so the read-only claim is now
+    // stated precisely: no story store, no evidence, no activity, and nothing
+    // under .proof-or-stop/ other than the locks/ scaffold.
+    const stateDir = join(noStoryReadOnlyRoot, '.proof-or-stop');
+    const leftovers = existsSync(stateDir) ? readdirSync(stateDir).sort() : [];
+    assert.equal(existsSync(join(stateDir, 'story')), false, 'no-story validate must not create a story store');
+    assert.equal(existsSync(join(stateDir, 'activity.jsonl')), false, 'no-story validate must not record activity');
+    assert.deepEqual(leftovers.filter((entry) => entry !== 'locks'), [], `no-story validate must not create .proof-or-stop/ state beyond the locks/ scaffold; found: ${leftovers.join(', ')}`);
+    console.log(`[PASS] no-story validate is read-only for story state (.proof-or-stop/ entries after run: ${leftovers.join(', ') || 'none'})`);
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }

@@ -314,7 +314,13 @@ try {
   assert.equal(handlerResult.sections.storyBoard.length, 2, 'handler with activeOnly:false surfaces both seeded stories');
 
   const textResult = handlers.observability_snapshot({}) as string;
-  assert.match(textResult, /Proof-or-Stop observability snapshot \(proofOrStop\.observability_snapshot\.v1\)/);
+  // B-dc2e CHK-001: derive the rendered header from the exported schema
+  // constant instead of a literal. The literal 'proofOrStop.observability_snapshot.v1'
+  // was a mechanical identity-migration rewrite that never matched the renderer
+  // (the constant is 'lattice.observability_snapshot.v1', a historical signing
+  // token), so this smoke failed on every direct run while no npm script named it.
+  const schemaVersionPattern = OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.match(textResult, new RegExp(`Proof-or-Stop observability snapshot \\(${schemaVersionPattern}\\)`));
   assert.match(textResult, /admissibilityStatus: local-only/);
   assert.match(textResult, /assuranceLevel: local-observation/);
   assert.match(textResult, /evidenceScope: read-only-observability/);
