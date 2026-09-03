@@ -3812,15 +3812,50 @@ testCase('a temp repository with RED(F-007) squashed into its GREEN fails naming
  * qualified-only rule on its side, so a bare id could not slip through here.
  */
 function priorRedIds(cwd: string | null): ReadonlySet<string> {
-  const base = (cwd ? gitOutputIn(cwd, ['merge-base', 'main', 'HEAD']) : gitOutput(['merge-base', 'main', 'HEAD']))?.trim();
-  if (!base) return new Set();
-  const subjects = (cwd ? gitOutputIn(cwd, ['log', '--format=%s', base]) : gitOutput(['log', '--format=%s', base])) ?? '';
+  // F-007: both calls are STRICT. The old `gitOutput` bare catch turned a git failure
+  // (ENOBUFS on this repository's ~1.39 MB subject history, a missing `main`, a
+  // directory that is no repository) into null and therefore an EMPTY prior set,
+  // which the guard could not tell from "no RED before the branch point".
+  const base = gitOutputStrict(cwd, ['merge-base', 'main', 'HEAD']).trim();
+  // Only the qualified RED subjects are asked for, and the read is bounded far above
+  // the default 1 MB maxBuffer so history growth cannot overflow it.
+  const subjects = gitOutputStrict(cwd, ['log', '--format=%s', '-E', `--grep=${PRIOR_RED_SUBJECT_GREP}`, base]);
   const ids = new Set<string>();
   for (const subject of subjects.split('\n')) {
     const parsed = parseRedGreenSubject(subject.trim());
     if (parsed?.phase === 'RED' && isStoryQualifiedRedGreenId(parsed.id)) ids.add(parsed.id);
   }
   return ids;
+}
+
+/** Extended-regex `git log --grep` for story-qualified RED subjects; the collector asks git for only these. */
+const PRIOR_RED_SUBJECT_GREP = '^RED\\(B-[0-9a-f]{4}:(CHK|F)-[0-9]{3}\\):';
+/** Explicit stdout bound for the prior-RED reads: the default is 1 MB and this repository already exceeds it (F-007). */
+const PRIOR_RED_GIT_MAX_BUFFER = 64 * 1024 * 1024;
+
+/**
+ * Git read that RAISES on failure (non-zero exit, spawn error, ENOBUFS) with the
+ * git stderr in the message, so a failed read is never mistaken for an empty
+ * result. `gitOutput` / `gitOutputIn` keep their null-on-failure contract for
+ * callers that treat absence as a legitimate answer.
+ */
+function gitOutputStrict(cwd: string | null, args: string[]): string {
+  try {
+    return execFileSync('git', args, {
+      ...(cwd ? { cwd } : {}),
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: PRIOR_RED_GIT_MAX_BUFFER,
+    });
+  } catch (error) {
+    const failure = error as { code?: unknown; status?: unknown; stderr?: unknown; message?: unknown };
+    const stderr = typeof failure.stderr === 'string' ? failure.stderr.trim() : '';
+    const code = failure.code ?? failure.status ?? 'unknown';
+    throw new Error(
+      `git ${args.join(' ')} failed${cwd ? ` in ${cwd}` : ''} (code ${String(code)}): `
+      + `${stderr || (typeof failure.message === 'string' ? failure.message : String(error))}`,
+    );
+  }
 }
 
 /** The branch range `main..HEAD` through the helper, with the branch point's RED ids, as the smoke's own guard consumes it. */
@@ -3952,6 +3987,7 @@ testCase('merge-base movement: a RED on main after the branch point satisfies th
 // query on this real repository, a > 1 MB matching-subject history in a temp
 // repository, and a LOUD failure (never an empty set) when git itself fails.
 
+/** The independent query in the cases below spells the pattern out on purpose rather than importing the collector's constant. */
 const QUALIFIED_RED_SUBJECT_GREP = '^RED\\(B-[0-9a-f]{4}:(CHK|F)-[0-9]{3}\\):';
 
 testCase('priorRedIds on this real repository does not throw and matches an independent bounded git query', () => {
