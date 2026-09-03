@@ -7424,9 +7424,9 @@
       "epochId": "B-5a15:RIE-096",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-03T09:03:49.640Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-09-03T09:51:50.151Z",
-      "updatedAt": "2026-09-03T09:51:50.151Z",
+      "updatedAt": "2026-09-03T09:53:28.583Z",
       "cutoff": {
         "headHash": "939da317f3940b2e373b3bc851e688b3437cc201",
         "materialHash": "2bd82edd7938c473dab104dfb05aa2ca63b8e9fc813b2d0be445be58411e1cc6",
@@ -7437,7 +7437,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a15:RIE-096:RCP-001",
-      "_hash": "b2a6b907e589916a2d8591ccc35694183156be181766196ce589a5f47565f7c5"
+      "cancelledAt": "2026-09-03T09:53:28.583Z",
+      "cancelReason": "RIE-096 deadlocked: its receipt RCP-001 is unconsumed so review_inventory_begin refuses a fresh epoch, while story_advance DEV (the only consumer) refuses with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED because the epoch was finalized before finding F-395 was filed and the live aggregate no longer matches its saturated wave. Each command points at the other. Cancelling the orphaned receipt so a fresh epoch can bind the current aggregate, which is the documented recovery path for late evidence invalidating a finalized receipt.",
+      "terminalRunSequenceBoundary": 942,
+      "_hash": "769d6883e373a5cc90b202d64ec678c426817664f4f8eecf000558adc16e12da"
     }
   ],
   "receipts": [
@@ -8801,7 +8804,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-09-03T09:51:50.151Z",
-      "_hash": "4060182f523782a09257b36dc2a9ca1c963f96a6941a8b9a7beeba4bb48cf9d1"
+      "invalidatedAt": "2026-09-03T09:53:28.583Z",
+      "invalidationReason": "RIE-096 deadlocked: its receipt RCP-001 is unconsumed so review_inventory_begin refuses a fresh epoch, while story_advance DEV (the only consumer) refuses with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED because the epoch was finalized before finding F-395 was filed and the live aggregate no longer matches its saturated wave. Each command points at the other. Cancelling the orphaned receipt so a fresh epoch can bind the current aggregate, which is the documented recovery path for late evidence invalidating a finalized receipt.",
+      "_hash": "8ab5aff8fc11e741e2bf435cd6506fed0cedc40b7797ccfa065a223c066f7f3e"
     }
   ],
   "criticReceipts": [
