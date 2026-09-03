@@ -103,9 +103,9 @@
       "id": "CHK-003",
       "title": "Extend the RED-before-GREEN guard to finding-fix commits with a marker for legitimate no-RED fixes",
       "context": "tasks/validation-tier-planner-smoke.ts guard (declaredChecklistItems plus the ^(RED|GREEN)\\(CHK-\\d{3}\\): commit-subject regex) matches only CHK ids. Derive F-nnn ids from git log subjects; require RED(F-nnn) before GREEN(F-nnn) or an explicit no-RED marker with reason for comment-only or registration-only fixes. RED: squash a RED into a GREEN on a scratch branch and assert the guard fails. Consider a shared helper so other stories' suites reuse it.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-03T04:48:02.086Z",
-      "endTime": null,
+      "endTime": "2026-09-03T04:51:48.993Z",
       "relatedDocs": [
         "CLAUDE.md#debugging-contract"
       ],
@@ -143,6 +143,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "861a0e17a6cdf5c0a1ecc9485281cb0e8aab84722ae4062e5eb0479ce78c40c1",
+        "storyFilesHash": "ef35ff65d802a929f329127c37d6aa6e12c7c9df35444b710d5a89cf896b4ec7",
+        "headHash": "e52b27edfb6cfb03cf99f3527b0ef02f638bc292",
+        "attestedAt": "2026-09-03T04:51:49.181Z",
+        "materialHash": "7b3c8f0aba1ac8f2e78b668afe8fcd3e1e66cfa53cc4c0de8a6135edbcc3df96"
       }
     },
     {
