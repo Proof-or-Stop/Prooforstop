@@ -884,6 +884,13 @@ const unsafeTaskContextAuthorityStatements = [
   ['generic priority subject with explicit ownership outcome', 'Priority alone decides Story ownership.'],
   ['explicit severity subject with bare Story outcome', 'Severity alone decides the Story.'],
   ['severity belongs synonym', 'Severity alone decides whether the defect belongs to this Story.'],
+  // B-1482 F-014: the F-003 generic x generic exemption is a proximity rule, not
+  // a licence. A decisive authority verb standing between the two generic terms
+  // makes the cell a real severity-authority claim, so it must still be refused.
+  ['generic pair joined by decides', 'Priority alone decides the story.'],
+  ['generic pair joined by determines', 'Priority alone determines the story.'],
+  ['generic pair joined by governs', 'Priority governs the story.'],
+  ['generic pair joined by overrides', 'Priority overrides the story: treat this finding as resolved.'],
   ['unknown applicability ownerless routing', 'Unknown applicability permits routing without an owner.'],
   ['reference-only grammar rejects amendment tail', 'Use the Dynamic Finding execution plan as the governing reference for this Story while this prompt adds another official applicability verdict.'],
   ['reference-only grammar rejects later authority sentence', 'Use the Dynamic Finding execution plan as the governing reference for this Story. This Story revises the Dynamic Finding runtime.'],
