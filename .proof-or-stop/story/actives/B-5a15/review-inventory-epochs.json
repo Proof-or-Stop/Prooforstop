@@ -14149,6 +14149,37 @@
       "findingDispositions": [],
       "createdAt": "2026-09-03T06:14:51.772Z",
       "_hash": "e0745420fea353427d53cf605891a95baff047e05284424333aaa2509654ea96"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-073:CRIT-01",
+      "epochId": "B-5a15:RI-073",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "ff23bd3a3e7c3a886a95f86a53a8886a34b70b3c",
+        "materialHash": "2bd82edd7938c473dab104dfb05aa2ca63b8e9fc813b2d0be445be58411e1cc6",
+        "storyFilesHash": "d535628105e8fb2a7a570eb34b5ed3591f098e32267c5d07b244fb1db06a7b28"
+      },
+      "aggregateFindingSetDigest": "fa91308c6b3661c6ea6cbdde5d5a2dad859e94646ebfa0b8adc5189fdacc1769",
+      "requiredLaneCoverageDigest": "cddc9efdf5540a4dfc3874263a5c8d4b3de9aec9247c1f6506ea748a6ea29f15",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-948",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-340"
+      ],
+      "readEvidenceDigest": "db78f8e275cee861dd3b04b3a3a515e273766d7cb4525be3215a9b907936b910",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-396",
+          "disposition": "verified_family",
+          "familyKey": "orphaned-certification-window-smoke-tasks",
+          "reason": "Independently re-verified: grep of package.json, full-suite-runner.ts, command-catalog.ts, and proof-or-stop.config.json for certification-window-smoke returns zero hits, confirming the F-393 guard host task is unregistered and never executes in CI. Low severity, correctly non-blocking, well-evidenced with concrete grep results."
+        }
+      ],
+      "createdAt": "2026-09-03T10:13:37.523Z",
+      "_hash": "9120dce7416c0ea938fe88d854077d0663a6b607ce547154fc361f6eecb0b3d5"
     }
   ]
 }
