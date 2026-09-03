@@ -417,6 +417,42 @@
         "scanEscalationReason": null
       },
       "_hash": "174dd85cf8a504a1d05895ed34f1cc4eb0b27ed34e0622a9293e0a1e77fb82cb"
+    },
+    {
+      "id": "B-41c8:RP-015",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 7 re-review after main merge shifted storyFilesHash/materialHash; review_incremental_context confirms only .proof-or-stop/dev-memory/experience.jsonl changed since round-6 PASS B-41c8:RP-011, no story SOURCE file changed. Rebuilt, tsc clean, smoke tests match expected: 40/40 PASS (10609 chars, under 11000 bound), retired-authority-vocabulary-guard-smoke PASS builds=809. All prior findings resolved/dismissed, none open.",
+      "createdAt": "2026-09-03T01:08:53.099Z",
+      "reviewRound": "2026-09-03T01:05:21.744Z",
+      "reviewRunId": "B-41c8:RR-025",
+      "envelopeId": "074420b334b3bd639394ef6a199d5ff0b4e31df0a8d1ab8c523bdd0b5fd5183f",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (output)",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts (output)"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md",
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3d5f940cfaa6521f531c42fd2338d829fedc74b76774cf827cdaefd7a3f39c6b"
     }
   ]
 }
