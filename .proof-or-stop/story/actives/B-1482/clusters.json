@@ -19,6 +19,24 @@
       ],
       "severity": "medium",
       "createdAt": "2026-09-03T22:51:52.687Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "Multiple findings all involve packages/main/src/core/prompt-envelope.ts",
+      "findingIds": [
+        "B-1482:F-014",
+        "B-1482:F-016"
+      ],
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts",
+        "prompt-envelope.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-09-03T23:40:31.345Z"
     }
   ]
 }
