@@ -15611,6 +15611,42 @@
         "scanEscalationReason": null
       },
       "_hash": "456bab084b9f951941acdcf3e3a8130ee2176085f8e28492ac1683a72ddaa8cf"
+    },
+    {
+      "id": "B-5a15:RP-343",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 65, post-merge re-verification (main merged into B-5a15 at 17df1f389e; tree frozen at eb39629bc0). causal-evidence.ts is a wholly new module (1498 lines, no prior concept to delete). No concept word mass-deleted or replaced in this diff. Focused on the merge delta (603d3a3c4b...17df1f389e, incoming-main content: packages/graph/src, graph.ts, dossier.js, graph-story-flag-smoke.ts, command-catalog.ts, retired-authority-vocabulary-guard-smoke.ts) since that is what changed since the prior concept pass and the prior lane verdicts were invalidated by the merge. Independently verified, not just re-stated from the merge commit message: (1) package.json test:serial-reference union confirmed -- both test:graph-story-flag-smoke and test:verifier-causal-preflight present and wired into full-suite-runner.ts RESOURCE_POLICY (F-402 fix landed); ran npm run test:graph-story-flag-smoke directly, passed. (2) retired-authority-vocabulary-guard-smoke.ts AST pin for graph.ts is 5c518f19... at both sites; ran the guard smoke directly and it PASSed against current HEAD, proving the pin is not stale. (3) verify-missing-assets-fail.mjs (244 lines vs 170/185 in the two parents) contains both the rebuilt-content assertions and the live serve-and-fetch HTTP probe (B-5a15:F-371 tag); ran it directly, printed MISSING_ASSETS_HANDLED_OK, exit 0. (4) dev-memory/experience.jsonl: parsed all 55 lines, zero duplicate records, genuine append-only dedup. Ran full lattice-residue suite standalone (npm run test:lattice-residue): all 5 checks PASS, so merged graph.ts/dossier.js/agents-mirror content introduced no brand-residue. Ran npm run test:process-fact-contract clean. Manual grep for top-level function/const/class/interface/type deletions in the merge delta found only local variables inside verify-missing-assets-fail.mjs, no exported concept removed. validate --concept CLI gate itself warn-skipped with ENOBUFS on this repo scale -- this is the already-known, already-deferred F-390 chain, not a new defect; performed the equivalent manual diff-symbol scan by hand. Read F-390/F-391/F-396 resolutions before this pass per instructions: all three are evidenced accepted_risk deferrals under CLAUDE.md rule 3, each with a named follow-up; found no basis to disagree. No concept-residue finding to file this round.",
+      "createdAt": "2026-09-03T11:12:49.319Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-955",
+      "envelopeId": "ea6cc3cab67ddbbe3450a41f5aa08c90656c99fcbf795f3ed5cf6ab78523ea5b",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "package.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "11e8f96f7f6e21bf8202c7e21968440afa4b742da3e71b4cef86180d062a214a"
     }
   ]
 }
