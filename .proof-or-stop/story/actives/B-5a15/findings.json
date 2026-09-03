@@ -19802,7 +19802,7 @@
       "desc": "Re-filing B-5a15:F-367 (originally RR-904) against the new review round: no code change since. packages/main/src/handlers/checklist.ts:340-425 (probeGitTopLevel/probeGitIndex/probeWritableEvidenceTarget/probeActiveCli/probeWriterLease) and packages/main/src/handlers/verifier.ts:551-635 (probeVerifierWorktree/probeVerifierIndex/probeVerifierTarget/probeVerifierCli/probeVerifierLease) still contain ~90 lines of near-line-for-line duplicated causal-preflight probe logic (confirmed by diff against current HEAD), with no shared helper and no test forcing the two copies to stay in sync. Agree with the prior triage: this is medium and non-blocking, not acceptance-blocking. Both copies are independently called within their own handler flow with no live correctness break today; the risk is a future divergent edit to one copy silently skipping the other. Deferring further, per defect-triage rule 3 (fixing it now would require a cross-module extraction touching both handlers, widening this story diff and re-staling the acceptance chain for an unrelated one-line gate-repin story).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-03T03:40:14.783Z",
@@ -19814,7 +19814,10 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|filing-5a15-originally",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Misfiled without agent=proof-or-stop-review-quality, so it did not register as reviewer evidence. Superseded by a correctly-attributed re-file of the same content.",
+      "resolvedAt": "2026-09-03T03:40:40.383Z",
+      "resolutionType": "superseded"
     }
   ]
 }
