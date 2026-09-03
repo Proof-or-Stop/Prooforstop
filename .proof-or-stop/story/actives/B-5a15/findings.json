@@ -20011,6 +20011,43 @@
       ],
       "signatureTag": "missing|mjs|packages-graph-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-378",
+      "desc": "Duplicated causal-preflight probe logic between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts. Re-filed at same severity from F-367/F-373 per agreed deferral (unchanged since RR-905/RR-906; not touched by the F-371 fix commit 3245a61b6d).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T03:54:28.512Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-909",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-serves.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "56ea97378641bfb9cde188349ec6e9d96ed295aca42291b16920635ec35d6a8e",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|duplicated-causal-preflight",
+      "signatureTagSource": "auto"
     }
   ]
 }
