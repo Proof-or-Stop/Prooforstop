@@ -4,7 +4,7 @@
   "title": "Implement REVIEW Finding triage behavior across Agent prompts",
   "description": "Implement the approved English REVIEW Finding triage proposal as an Agent-behavior projection of the authoritative Dynamic Finding System. Acceptance: all five active REVIEW lanes receive one identical triage contract in full-envelope and legacy-full-context assembly; non-REVIEW prompts do not receive it; Story Owner and implementer guidance stays bounded; declarative role metadata remains non-evidentiary; compatibility dismissal is temporary accounting rather than applicability proof; disproven, duplicate, and not_reproduced_under_current_witness remain distinct; the future official signed defer_with_proof disposition is limited to eligible verified applicable low/medium Findings and is explicitly unavailable in the current compatibility CLI; in-flight reviewer envelopes are treated as stale and redispatched; English-only prompt and tracked documentation quality, digests, process-fact checks, and Codex adapter verification all pass. Use RED then GREEN: contract tests must fail before implementation and pass afterward.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-08-31T13:52:39.588Z",
   "startedAt": "2026-08-31T13:52:39.588Z",
@@ -1134,6 +1134,15 @@
       "user": "Harmonynet",
       "sessionId": "sess-c9887de9333a19f7e886ef94869a32c1",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T17:57:05.537Z",
+      "branch": "story/B-9a49",
+      "user": "Harmonynet",
+      "sessionId": "sess-c9887de9333a19f7e886ef94869a32c1",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -1141,5 +1150,5 @@
     "branch": "story/B-9a49",
     "createdAt": "2026-08-31T14:02:39.135Z"
   },
-  "currentReviewRound": "2026-09-03T16:56:04.574Z"
+  "currentReviewRound": "2026-09-03T17:57:05.537Z"
 }
