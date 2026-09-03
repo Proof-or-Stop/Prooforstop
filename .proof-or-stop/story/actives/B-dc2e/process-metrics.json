@@ -1,6 +1,6 @@
 {
   "storyId": "B-dc2e",
-  "generatedAt": "2026-09-03T06:08:32.945Z",
+  "generatedAt": "2026-09-03T07:41:42.384Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
@@ -27,7 +27,7 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": 0,
+          "value": 1,
           "unit": "ratio",
           "confidence": "medium",
           "sources": [
@@ -226,7 +226,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 9,
+          "value": 14,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -275,7 +275,7 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 4,
+          "value": 5,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -297,7 +297,7 @@
     },
     "reviewDiscipline": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -324,7 +324,7 @@
           ]
         },
         "criticalResolvedBeforeTest": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
