@@ -171,6 +171,24 @@
       ],
       "signatureTag": "missing|ts|handlers-checklist-receipt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-010",
+      "desc": "core/types.ts:349 JSDoc for VerificationIntentItem.verification still reads \"immutable once set\" with no mention of the one-directional narrowing exception this story introduces (verification_pin_narrow can move this exact field once, in the stricter direction). A reader of the type definition -- the authoritative source for the field this story changes -- gets the stale absolute framing this story exists to correct; it is a small drive-by but it is precisely the kind of remaining unconditional-immutable statement the CLAUDE.md rewrite and decision doc were written to eliminate.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-03T23:19:29.075Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-004",
+      "_hash": "42afbc7f62a19993b851172e6414a30b37ff337e5fad472a042d163c3386584d",
+      "files": [
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|ts|core-types-jsdoc",
+      "signatureTagSource": "auto"
     }
   ]
 }
