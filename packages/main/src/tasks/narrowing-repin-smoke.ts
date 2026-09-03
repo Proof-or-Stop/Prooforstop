@@ -29,6 +29,8 @@ import { StoryStore } from '../core/store.js';
 import * as checklistHandlerModule from '../handlers/checklist.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage, SELECTOR_NARROWING_REFUSAL_CODES } from '../core/verification.js';
+import { computeEvidencePinVerdict } from '../core/evidence-pin-guard.js';
+import { renderCodexEvidencePretoolHookScript } from '../init-assets.js';
 import { resetConfigCache } from '../core/config.js';
 import type {
   ChecklistData,
@@ -967,6 +969,44 @@ const CHK003_CASES: SmokeCase[] = [
         claudeMd.includes('at most one') || claudeMd.includes('at most ONE'),
         'CLAUDE.md states the one-narrowing-per-recorded-receipt-set bound',
       );
+    },
+  },
+  {
+    id: 'CHK-003/C5',
+    desc: 'the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception',
+    run: async () => {
+      // The exact situation this story exists for: a caller trying a DIFFERENT selector
+      // against a pin that is not discriminating. This is the message they are handed.
+      const verdict = computeEvidencePinVerdict(
+        {
+          kind: 'verification_evidence_add',
+          storyId: 'B-1482', intentRef: 'CHK-001:happy:0',
+          callerSelector: NEW_SELECTOR,
+        },
+        { command: PASS_CMD, selector: OLD_SELECTOR },
+      );
+      assert.equal(verdict.verdict, 'deny', 'a mismatching selector is still denied');
+      const message = verdict.reasons.join('\n');
+      assert.ok(message.includes(NARROW_COMMAND), `the refusal names ${NARROW_COMMAND} as the third option`);
+      // Naming the command is not enough: it must state the precondition, or the reader
+      // is sent to a command that will refuse them for a reason they were not told.
+      assert.match(message, /recorded FAILING receipt/, 'the refusal states the recorded-failing-receipt precondition');
+      assert.match(message, /the current selector matched/, 'the precondition names WHICH selector must have matched it');
+      assert.match(message, /same pinned command/, 'the precondition names the pinned command as unchanged');
+      assert.match(message, /STRICTER/, 'the refusal states the narrowing is one-directional');
+      assert.match(message, /(LOOSER|loosening)/, 'the refusal still states that loosening is refused');
+      // The categorical sentence is now false: exactly one movement exists.
+      assert.equal(
+        /immutable once set/.test(message), false,
+        'the refusal no longer claims the pin is immutable once set, without exception',
+      );
+
+      // The generated shell-tool hook must not carry a SECOND copy of this copy: it
+      // renders whatever the shared verdict returns, so it cannot go stale on its own.
+      const hook = renderCodexEvidencePretoolHookScript();
+      assert.ok(hook.includes('verification_pin_guard_check'), 'the generated hook asks the CLI for the verdict');
+      assert.ok(hook.includes('verdict.reasons'), 'the generated hook prints the shared verdict reasons verbatim');
+      assert.equal(/immutable once set/.test(hook), false, 'the generated hook carries no stale copy of the message');
     },
   },
 ];
