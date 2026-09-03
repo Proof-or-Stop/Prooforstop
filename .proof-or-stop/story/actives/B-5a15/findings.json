@@ -20048,6 +20048,43 @@
       ],
       "signatureTag": "missing|ts|duplicated-causal-preflight",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-379",
+      "desc": "serveAndFetch() in packages/graph/scripts/verify-missing-assets-fail.mjs (commit 3245a61b6d) has two minor quality gaps: (1) the child.stdout/stderr data handlers accumulate into a local `log` variable that is never read anywhere in the function -- dead code that silently discards the child's output on every failure path, making a real failure (e.g. graph.ts throwing before listening) harder to diagnose from the reported reason string alone; (2) no child.on(\"error\", ...) listener is attached, so a spawn-level failure (e.g. ENOENT on the node/bin/proof-or-stop.js path) would surface as an uncaught \"Unhandled 'error' event\" process crash rather than the scripts own MISSING_ASSET_HANDLING_BROKEN failure reporting. Not a regression: the sibling packages/graph/scripts/verify-serves.mjs has the identical missing error-listener gap already, so this is a pre-existing repo convention rather than something newly introduced. The teardown (SIGTERM then bounded SIGKILL escalation) is otherwise sound: verified child.kill() on an already-exited PID returns false without throwing, so no zombie/unreaped-child risk, and no AbortController is needed in practice since the fetch target is 127.0.0.1 (connection-refused is immediate; a live listener answers a plain GET quickly). Recommend a follow-up: either log the captured `log` buffer into failure reasons, or drop the dead accumulation; and add a child.on(\"error\", ...) that pushes into failures instead of throwing, for both this file and verify-serves.mjs.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T03:55:21.604Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-909",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-serves.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc3111fbce594008836e333ecee248904b8e206ee24448d6eabb6d64b8e5694f",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs",
+        "packages/graph/scripts/verify-serves.mjs"
+      ],
+      "signatureTag": "missing|mjs|serveandfetch-packages-graph",
+      "signatureTagSource": "auto"
     }
   ]
 }
