@@ -847,6 +847,45 @@
         "scanEscalationReason": null
       },
       "_hash": "6ae7540705edb960781ad0737d3bab8a58ac318f83b4a98c067242dff585c605"
+    },
+    {
+      "id": "B-9f2c:RP-029",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Story-level concept review at head 3c16c1c47c (code content unchanged from 4912d8390a; the trailing commit is metadata-only). Verified: (1) main commit 3aa57145d8's ensureGraphClientBuilt genuinely rebuilds (npm install/npm run build) rather than refusing, throws before startServer in every failure sub-path (npm ENOENT, non-zero build exit, or still-missing app.html/d3.min.js post-build), confirmed by reading packages/main/src/handlers/graph.ts:75-124,559-571 and by live execution. (2) The rewritten packages/graph/scripts/verify-missing-assets-fail.mjs (commit dcf54ecff3) correctly asserts the new on-demand-recovery contract; I found a real gap in its first version -- the recovery branch accepted existsSync(app.html) plus an output substring, so a truncated/stub app.html with the right log lines would have passed -- but by the time I went to file it, commit 4912d8390a had already landed the exact fix (content assertions: doctype, openStoryDossier presence, min length, d3.min.js presence), explicitly attributed in its message to a test-coverage reviewer's negative control. Re-verified live: npm --prefix packages/graph run verify-missing-assets-fail exits 0 (MISSING_ASSETS_HANDLED_OK) with no listener left on the probe port, and no unaccounted tracked-file diff. (3) No concept deletion/rename with dangling references found across git diff main...HEAD; grep for prior verifier output string MISSING_ASSETS_FAIL_LOUDLY_OK only appears in a different story's (B-3e16) frozen historical evidence JSON blobs, not live code/docs. (4) test:graph-story-flag-smoke spelled identically across lattice.config.json, package.json (script + test:serial-reference), full-suite-runner.ts RESOURCE_POLICY, and the task filename graph-story-flag-smoke.ts. No blocking findings this round.",
+      "createdAt": "2026-09-03T06:15:42.714Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-045",
+      "envelopeId": "8d2bcb3e29c43629a6cb6244c6480cb44ace1e12a612a0524e9bf3513f628ac4",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "221ed310200c011da6838ca108e0edf6efbe6095176c0b040dac95dc7e2ad7bb"
     }
   ]
 }
