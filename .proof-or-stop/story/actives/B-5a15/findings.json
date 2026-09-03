@@ -19841,7 +19841,7 @@
       "desc": "Re-filing B-5a15:F-367 (originally RR-904) against reviewRunId RR-906: no code change since. packages/main/src/handlers/checklist.ts:340-425 (probeGitTopLevel/probeGitIndex/probeWritableEvidenceTarget/probeActiveCli/probeWriterLease) and packages/main/src/handlers/verifier.ts:551-635 (probeVerifierWorktree/probeVerifierIndex/probeVerifierTarget/probeVerifierCli/probeVerifierLease) still contain ~90 lines of near-line-for-line duplicated causal-preflight probe logic (confirmed by diff against current HEAD), with no shared helper and no test forcing the two copies to stay in sync. Agree with the prior triage: medium, non-blocking, not acceptance-blocking. Both copies are independently called within their own handler flow with no live correctness break today; the risk is a future divergent edit to one copy silently skipping the other. Deferring further per defect-triage rule 3: fixing it now would require a cross-module extraction touching both handlers, widening this one-line gate-repin story diff and re-staling the acceptance chain.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T03:41:11.799Z",
@@ -19874,7 +19874,10 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|filing-5a15-originally",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-378, the live-epoch re-file of the same duplicated causal-preflight probe logic defect (checklist.ts vs verifier.ts). F-373 was bound to RR-906 in epoch RI-070, which was INVALIDATED when a source commit landed while it was open; CRIT-01 identified it as an orphaned duplicate of F-378 and flagged it for main-agent cleanup. The defect itself remains open and correctly deferred as F-378: medium, non-blocking, no live correctness bug, and the cross-module extraction would widen this story's diff and re-stale its acceptance chain. The quality reviewer independently agreed with the deferral.",
+      "resolvedAt": "2026-09-03T04:57:35.204Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-374",
