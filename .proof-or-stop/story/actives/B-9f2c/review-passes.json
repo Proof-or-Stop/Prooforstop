@@ -732,6 +732,29 @@
         "scanEscalationReason": null
       },
       "_hash": "4273c5568a8b07be6f230f44e0ba1c33a9c5b37c163284e476f9dd347e4454c0"
+    },
+    {
+      "id": "B-9f2c:RP-025",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round re-signs commit 1a4d1be6c2 only (prior findings F-001..F-004 already resolved, no new disagreement). (a) graph-story-flag-smoke fixture: verified ensureGraphClientBuilt (handlers/graph.ts:75-131) genuinely requires BOTH app.html and d3.min.js by design; the fixture is a fully separate dist/index.js stub for the graph LIBRARY, not a real npm package, so stubbing both static asset files satisfies the precondition without exercising the network-dependent npm install/build recovery path -- not a coverup of a handler defect. (b) fingerprint re-pin a8f949b8->5c518f19: independently diffed HEAD:packages/main/src/handlers/graph.ts against main:packages/main/src/handlers/graph.ts; the only differences are this story own --story feature (GraphArgs.story, assertGraphStoryExists, graphStorySuggestions, URL build) -- zero new or altered await-import/createRequire/eval/new-Function/spawnSync call sites, occurrence counts match exactly (6 each). Re-pin claim holds. Also reconfirmed: GraphArgs.story?: string optional (graph.ts:156); assertGraphStoryExists runs before the --json branch and before startServer(; command-catalog.ts story: z.string().optional() with no .default(); npx tsc --noEmit -p packages/main exits 0; graph-story-flag-smoke.js exits 0; retired-authority-vocabulary-guard-smoke.js exits 0 (PASS builds=815). No dead code, no unsafe as any, no empty catches. git status clean except CLI-owned story metadata files.",
+      "createdAt": "2026-09-03T03:29:48.038Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-033",
+      "envelopeId": "ab01ee437c28d0831615ac12ce841f453194f46087064dff2d3706afab7f4275",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1de2b0ae234807c00adf55b9f33da5ef512e374f25bacaedea6f5d6a2998cc67"
     }
   ]
 }
