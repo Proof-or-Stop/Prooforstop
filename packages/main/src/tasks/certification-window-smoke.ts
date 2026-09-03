@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
+import { CERTIFICATION_DOMAIN_PATH_RULES } from '../handlers/certification-window.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
@@ -1105,3 +1106,69 @@ console.log(absentApiOutput);
 console.log(noInventoryOutput);
 console.log(unmergedOutput);
 console.log(findingOutput);
+
+// B-5a15:F-393 regression guard. certificationDomainForPath requires
+// `matches.length === 1`, so a path matching TWO rules fails closed to undefined
+// exactly like a path matching none -- and that aborts the entire
+// deriveCertificationDomainInputHashes pass, which surfaces as
+// certification_window_begin [pre_cert_causal_freshness_required]. The rules must
+// therefore stay mutually exclusive BY HAND, and until now nothing enforced that.
+//
+// This bites for real: an earlier draft of the packages/*/scripts/ rule omitted its
+// `(?!utils\/|lab\/)` lookahead and double-matched packages/utils/scripts/** and
+// packages/lab/scripts/**. It passed every check at the time only because the story
+// that introduced it touched neither package -- i.e. the defect was latent and would
+// have detonated on some unrelated future story.
+{
+  const probePaths = [
+    // one representative per declared domain
+    'packages/main/tests/foo.test.mjs',
+    'packages/main/src/tasks/foo.ts',
+    'packages/main/src/core/foo.ts',
+    'package.json',
+    'packages/main/tsconfig.json',
+    'proof-or-stop.config.json',
+    'lattice.config.json',
+    '.claude/agents/foo.md',
+    '.proof-or-stop/proof-or-stop.json',
+    'bin/proof-or-stop.js',
+    'scripts/foo.mjs',
+    '.githooks/pre-push',
+    'docs/requirements/decisions/foo.md',
+    'CLAUDE.md',
+    'AGENTS.md',
+    'README.md',
+    // the packages/*/scripts/ family -- the exact shape that regressed
+    'packages/utils/scripts/foo.mjs',
+    'packages/lab/scripts/foo.mjs',
+    'packages/graph/scripts/verify-missing-assets-fail.mjs',
+    'packages/main/scripts/foo.mjs',
+    // adjacent names that must NOT be caught by the utils/lab lookahead
+    'packages/utils-extra/scripts/foo.mjs',
+    'packages/lab-extra/scripts/foo.mjs',
+    // non-scripts paths under the wholesale utils/lab rule
+    'packages/utils/src/foo.ts',
+    'packages/lab/src/foo.ts',
+  ];
+  const ambiguous: string[] = [];
+  for (const probe of probePaths) {
+    const hits = CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(probe));
+    if (hits.length > 1) ambiguous.push(`${probe} -> ${hits.map(([domain]) => domain).join('+')}`);
+  }
+  assert.deepEqual(
+    ambiguous,
+    [],
+    `CERTIFICATION_DOMAIN_PATH_RULES must be mutually exclusive; these paths match multiple rules and would fail closed: ${ambiguous.join(', ')}`,
+  );
+
+  // Positive control: the guard must be able to FAIL. A deliberately overlapping
+  // rule set has to be detected, otherwise the assertion above proves nothing.
+  const overlapping: ReadonlyArray<readonly [string, RegExp]> = [
+    ['integration', /^packages\/[^/]+\/scripts\//],
+    ['integration', /^packages\/(?:utils|lab)\//],
+  ];
+  const controlHits = overlapping.filter(([, pattern]) => pattern.test('packages/utils/scripts/foo.mjs'));
+  assert.equal(controlHits.length, 2, 'positive control: overlapping rules must be observable as a double match');
+
+  console.log('certification domain path rules: mutually exclusive across 24 probe paths (F-393 guard, with positive control)');
+}

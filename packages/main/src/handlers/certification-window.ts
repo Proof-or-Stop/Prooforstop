@@ -135,7 +135,12 @@ const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain,
   'review-subject': [],
 };
 
-const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyDomain, RegExp]> = [
+// Exported for the B-5a15:F-393 regression test only. certificationDomainForPath
+// requires `matches.length === 1`, so the rules must stay mutually exclusive by
+// hand -- a second matching rule fails closed to undefined exactly like no match,
+// and aborts the whole causal-input derivation. Exporting the DATA (not the
+// classifier) lets a test assert that invariant without widening behavioural API.
+export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyDomain, RegExp]> = [
   ['test', /^packages\/main\/(?:tests\/|src\/tasks\/)/],
   ['build-input', /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/],
   ['manifest-semantic', /^(?:\.proof-or-stop-codex|\.codex|\.claude)\//],

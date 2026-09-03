@@ -225,7 +225,13 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // and invalidate an already-signed evidence freshness binding.
     id: 'dev-memory-experience-log',
     description: 'Append-only dev_memory_capture experience log under <state-dir>/dev-memory/experience.jsonl, tracked but non-authoritative.',
-    matchers: stateDirPrefix('dev-memory/experience.jsonl'),
+    // stateDirExact, not stateDirPrefix (B-5a15:F-392): this is always one fixed
+    // filename -- resolveProjectMemoryPath/resolveGlobalMemoryPath never produce a
+    // variant -- so it follows the activity.jsonl / learning-log.jsonl convention.
+    // The prefix form was an imprecise copy from the finish-decisions sibling, which
+    // is genuinely a directory; prefix also wrongly matched nested paths under the
+    // filename, widening the materialHash exclusion beyond the one real file.
+    matchers: stateDirExact('dev-memory/experience.jsonl'),
     ignorePatterns: [],
     materialHash: 'exclude',
     volatile: false,
