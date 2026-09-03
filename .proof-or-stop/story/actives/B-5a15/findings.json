@@ -20309,7 +20309,7 @@
       "desc": "At HEAD eb243521ec (storyFilesHash 16d060c47b), buildVerificationCoverage over .proof-or-stop/story/actives/B-5a15/checklist.json reports covered=0 required=51 missingRequired=51 (all 51 must-priority verificationIntent entries show status=stale). Independently reproduced via in-process buildVerificationCoverage+checkEvidenceFreshnessForGit call, matching prior finding F-387. Also confirmed via fresh node --test packages/main/tests/causal-evidence.test.mjs run: suite is 21/21 pass, CHK-001:happy:0 and CHK-003:happy:2 markers each emit once, but CHK-004:happy:2 and CHK-004:happy:3 markers emit zero times because pre_review_check_read returns codes matching the isEvidenceRefreshBootstrap whitelist at causal-evidence.test.mjs:2503, short-circuiting the marker-emission gate at :2514. This is a known, already-tracked condition (F-387 resolved, remediation order corrected via F-381) filed here to give this review round its own current-HEAD attestation rather than relying on prior-round finding history.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T05:50:37.220Z",
@@ -20357,7 +20357,9 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|json|head-eb243521ec-storyfileshash",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Remediated by the full acceptance-chain rebuild, in the order this cycle established empirically: acceptance_basis_generate (complete, verified) -> acceptance_rollout_report (PASS, quorum=full-3x2, receipt 7c5ebf2e) -> live-proof recapture via live_smoke_transcript --capture (exit 0, persisted) -> verification_evidence_refresh_stale (breaks the F-247 deadlock: F-247 asserts pre_review_check is PASS, pre_review_check needs the must receipts current, and earning receipts runs that suite, so while stale the suite exits 1 and batch_add refuses every row with receipt_exit_nonzero) -> all 53 receipts in ONE verification_evidence_batch_add -> pre_review_check LAST. Verified at current HEAD: buildVerificationCoverage reports covered=53 required=51 missingRequired=0 with tally {covered:53} and all 53 rows mechanical:true; pre_review_check_read is PASS with no codes and executableEvidence=current; acceptance_topology_check is Status pass / Basis status complete / Structural pass yes with zero AT_ diagnostics; a fresh run of causal-evidence.test.mjs exits 0 with both CHK-004:happy:2 and CHK-004:happy:3 markers emitted and 56 declared selectors present. The finding was correct and its severity was right: filed as high, it caught that my earlier 53/53 reading was against a superseded head, and advancing on that reading would have shipped a story whose coverage evidence did not reproduce at its own HEAD.",
+      "resolvedAt": "2026-09-03T06:54:05.368Z"
     },
     {
       "id": "B-5a15:F-389",
