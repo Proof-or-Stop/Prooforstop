@@ -280,6 +280,37 @@
         "scanEscalationReason": null
       },
       "_hash": "caad95ac5b18df05847d061c99fb8ee3e80fe41d6ab732ffbcf4112cb0317ba5"
+    },
+    {
+      "id": "B-dc2e:RP-011",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 re-verification after main-merge HEAD move (no story SOURCE file changed since RP-006). (a) 12/12 verificationIntent items (happy/edge/adversarial x CHK-001..004) have mechanical evidence: receipt present, exitCode=0, selectorMatched=true, result=pass; all 12 evidence records storyFilesHash=fd7cae9a... matches current task-context storyFilesHash (0 mismatches). review_incremental_context confirms freshnessClassification=KNOWN_UNRELATED_MATERIAL_DRIFT, changedFiles since RP-006 = only .githooks/commit-msg and .proof-or-stop/dev-memory/experience.jsonl (neither story-owned SOURCE). (b) git diff --name-only main...HEAD lists 39 files, all story-owned (story metadata dir + the 8 in-scope code files + package.json + proof-or-stop.config.json), no unrelated files. (c) git log --reverse main..HEAD confirms RED before GREEN ordering for CHK-001..004 and F-001/F-002/F-006/F-007/F-008; GREEN(F-003) has no RED(F-003) and carries a No-RED marker with a 75-char reason. (d) Rebuilt packages/main dist, then ran all four smokes fresh: validation-protocol-smoke.js, full-suite-runner-smoke.js, validation-tier-planner-smoke.js, cross-host-review-smoke.js -- all exit 0 and all print their pinned selector lines verbatim. No blocker found; no findings raised this round.",
+      "createdAt": "2026-09-03T11:32:50.762Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-015",
+      "envelopeId": "a2de37a260ba07d8de3129c5fb91fb30e305149fb9f40052c3d8ef1822c8c59a",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "23230da6fb232d7c01617a6fb33988570175ac536d7f692a415211dbd31857ad"
     }
   ]
 }
