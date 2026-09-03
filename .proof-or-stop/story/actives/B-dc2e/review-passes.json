@@ -37,6 +37,32 @@
         "scanEscalationReason": null
       },
       "_hash": "5743bcc57dfe57021bfce002a9bdd3a5e8ea9c424f697e7b6f8e60cb9c417e03"
+    },
+    {
+      "id": "B-dc2e:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 2 test-coverage re-audit: F-002 verified via an independent mutation on a real temp dist copy (not the in-process fixture) — neutralising prefixMembersReadStale to () => true on a mutated copy of packages/main/dist/tasks/full-suite-runner-smoke.js makes the smoke exit 1 with the discriminating-control assertion throwing and the pinned membership line count is 0, confirming the edge assertion genuinely gates the print. F-004 verified against git log main..HEAD: the corrected note on CHK-001:adversarial:0 accurately separates the RED commit registration-case failure from the pre-existing CASE_MISMATCH failure at the parent commit, matching RED(CHK-001) 9c33736320 verbatim. Re-audited all 12 verificationIntent entries via checklist_get --json: every receipt is mechanical=true, exitCode 0, selectorMatched true, headHash 48912e2b7a is an ancestor of current HEAD 9e41c6bd and materialHash matches the story materialHash (fresh). Confirmed RED-before-GREEN in git log for F-001 (e54330ff73->98b22b6c79), F-002 (38d7cef39f->9d700d8967), F-006 (d277830f7c->ec9a4b5ddc); GREEN(F-003) 3b1536f17d carries a No-RED marker with a >30-char reason. Confirmed the three CHK-003 pinned tier-planner selectors print verbatim in default (VERBOSE unset) mode via a direct run (1975 chars). Spot-checked RED(F-002) 38d7cef39f in a temp detached worktree (built packages/main fresh): the smoke fails exit 1 matching the RED commit body claimed failure exactly. No blocking finding remains open; F-001..F-004/F-006 are resolved verified, F-005 dismissed as an accidental test finding.",
+      "createdAt": "2026-09-03T05:58:03.317Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-008",
+      "envelopeId": "9e5ff64658b586cb37215e029fd36454d943bb1be44e588a483f3d37ee8010a3",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          "packages/main/src/core/red-green-commit-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e68b7569d10d2afe9f9072033c8d608d571781cc64fa2e5dc5ed756cce45d742"
     }
   ]
 }
