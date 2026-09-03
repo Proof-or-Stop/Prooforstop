@@ -215,6 +215,46 @@
       "resolvedAt": "2026-09-03T06:48:20.853Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-009",
+      "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:94-97 (fixed by 0c9253c5be) -- the new settle polls fs.existsSync(asset) only, which becomes true as soon as build-web.mjs writeFileSync (build-web.mjs:44) open()s the file (O_CREAT/O_TRUNC), not once the write is complete. This is a distinct failure mode from F-007 (deliberate padded-stub forgery / present-but-stale-not-rebuilt): here a NON-adversarial torn write from the SAME orphaned-build race the commit documents -- SIGTERM reaches only the direct execFileSync child, so the nested npm run build can still be mid-writeFileSync when polled by the unrelated verifier process -- can in principle be sampled while assets/app.html exists but is truncated. The downstream content assertions (lines 115 doctype, 119 openStoryDossier, 122 100KB floor) meaningfully narrow the window: the doctype is the first bytes written and openStoryDossier is emitted last (dossier.js is concatenated after app.js/playback.js at build-web.mjs:39-40, confirmed by tail -c 200 on the built asset), so a write torn strictly before completion is likely, though not certainly (write(2) is permitted a short write at any byte boundary; Node's internal writeFileSync loop can issue more than one write syscall for a ~487KB buffer), to fail the openStoryDossier or size check. But existsSync alone proves nothing about write-completeness, and the poll never re-checks stability across two samples (e.g. two existsSync+statSync(size) reads separated by one interval, requiring the size to stop changing) before accepting the file as rebuilt. The residual is real but narrower than F-007's two named gaps, since it requires timing an orphaned-build's write() boundary rather than deliberate stub construction.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T06:56:01.105Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-056",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f5b96f7086f3bd19e6bffefef7f7b6eb6776b4fc0fd6c13f07548224342d095a",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs",
+        "packages/graph/scripts/build-web.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
