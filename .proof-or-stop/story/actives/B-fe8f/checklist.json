@@ -235,20 +235,20 @@
           "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Fresh mechanical receipt after F-023 remediation",
+          "note": "Fresh mechanical receipt after F-024 remediation; bounded concurrency 3",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-02T23:33:33.288Z",
+            "executedAt": "2026-09-03T01:39:49.225Z",
             "timeoutMs": 180000
           },
-          "headHash": "364a21aa80b1e657d8f3573aac219e8961e5563a",
-          "materialHash": "dacd3f2fd79b858ad0d21c7e9f0fa83a7f00fee57daaf4fa9e1f0e5c653287a9",
-          "storyFilesHash": "619d246db1a4ab89f2dc892ad502493ea1f96304f4181d088d3874b84dde4edc",
-          "timestamp": "2026-09-02T23:33:34.361Z"
+          "headHash": "1413be40c98cd7c9838ec6169fb75c8382d78615",
+          "materialHash": "8706d04595fca47025890dc78980ec2fd56a28eeda1875f70ca65fe29751f550",
+          "storyFilesHash": "f561f8cdb4e2218efd2ff7a5be93018d94871fed2e95a71a0bb392bde378cd27",
+          "timestamp": "2026-09-03T01:39:49.493Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
