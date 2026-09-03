@@ -13598,6 +13598,67 @@
       "findingDispositions": [],
       "createdAt": "2026-09-02T18:51:07.577Z",
       "_hash": "58eef43cad7fbe141b3ca7d420ac8c6ab7721fb061981b7ae91261f5eaa1d9c0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-071:CRIT-01",
+      "epochId": "B-5a15:RI-071",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "5c3bf4ecba0df42863e4af625aa37a6e117aba24",
+        "materialHash": "947310a6e89419c53aff7aac03e326c1593d43733352a7ef7b0e76037cfbc7cb",
+        "storyFilesHash": "267503bee810aef4dc4e063cc080da4983b568646bf82b7af7f945bcba3e30e3"
+      },
+      "aggregateFindingSetDigest": "a15ed214f0ff60eaaf3676fb662ac6e903ca491c61aa2a8bd31eaa8a3ee5edf2",
+      "requiredLaneCoverageDigest": "d38e4e6ae8e8a72339f14e659292d6a85ac7a3d2e1a518d305b1ef136b8fc52b",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-911",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-313"
+      ],
+      "readEvidenceDigest": "b1022d1ddf3bc8ec76fed9d0d99bfc24719d8114d3ab2845799ce0311793c316",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-376",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-376",
+          "reason": "Distinct verified defect: validate-concept.ts ENOBUFS warn-and-skip on large diffs, correctly out-of-scope and deferred; not duplicated by any other wave-1 finding."
+        },
+        {
+          "findingId": "B-5a15:F-377",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-377",
+          "reason": "Distinct verified defect: verify-missing-assets-fail.mjs stash-clobber via second renameSync overwriting the true original; different root cause and code path from F-379 despite sharing a file."
+        },
+        {
+          "findingId": "B-5a15:F-378",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-378",
+          "reason": "Distinct verified defect: duplicated causal-preflight probe logic between checklist.ts and verifier.ts; DRY/maintainability risk, no other wave-1 finding covers this."
+        },
+        {
+          "findingId": "B-5a15:F-379",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-379",
+          "reason": "Distinct verified defect: dead log buffer and missing child.on(error) listener in serveAndFetch(); separate symptom/root cause from F-377 in the same file."
+        },
+        {
+          "findingId": "B-5a15:F-380",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-380",
+          "reason": "Distinct verified defect: stale acceptance chain (AT_COVERAGE_BASIS_STALE/PR_ARTIFACT_TAMPERED) blocking causal-evidence.test.mjs; textually a re-file of pre-epoch F-374, but F-374 sits outside this wave raw-finding set (sequence<=907) so cannot be named canonical here."
+        },
+        {
+          "findingId": "B-5a15:F-381",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-381",
+          "reason": "Distinct verified defect: mechanically-cited fix-ordering trap (storyFilesHash + cutoffAt) for remediating F-380; additive analysis beyond F-380, not a restatement, so tracked as its own family."
+        }
+      ],
+      "createdAt": "2026-09-03T04:16:31.634Z",
+      "_hash": "04f2e5616b4242dfe282bb02087008bd3e8a516c3bd69b4a92f1b631dac97e91"
     }
   ]
 }
