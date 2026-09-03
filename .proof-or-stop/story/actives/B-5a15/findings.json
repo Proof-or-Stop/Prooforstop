@@ -20182,6 +20182,25 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Adopted and applied; the finding prevented a fifth repetition of this trap. The analysis was verified in source before acting: pre-review-check.ts:115 requires exact storyFilesHash equality with no material-only tolerance, and :112/:363/:398 freeze issuedAt as cutoffAt so any evidence timestamped at or after it lands in afterCutoff and raises PR_CUTOFF_UNBOUND. My planned order (chain -> pre_review_check -> re-earn receipts) would therefore have guaranteed both PR_EVIDENCE_STALE and PR_CUTOFF_UNBOUND. The corrected order was executed instead, and observation confirmed the mechanism twice: after earning the final 2 receipts following the first pre_review_check PASS, pre_review_check_read immediately reported PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND exactly as predicted, and re-issuing pre_review_check with all 53 receipts already earned returned PASS with no codes. Net rule learned: pre_review_check must be the LAST write in the chain, after every receipt is earned.",
       "resolvedAt": "2026-09-03T04:57:09.166Z"
+    },
+    {
+      "id": "B-5a15:F-382",
+      "desc": "RE-FILE of B-5a15:F-378 (still correctly deferred, not a new defect): ~90 lines of near-identical causal-preflight probe logic duplicated between packages/main/src/handlers/checklist.ts and packages/main/src/handlers/verifier.ts, with no test forcing the two copies to stay in sync. Confirmed unchanged by commit c5324ce44a (that commit only touched packages/graph/scripts/verify-missing-assets-fail.mjs). Re-filed under the current review run (RR-918) purely to keep it bound to a live run rather than the stale RR-909 binding, per the F-373->F-378 orphaning precedent already recorded on this story. Deferral stands: medium, non-blocking, no live correctness bug, cross-module extraction would widen this story diff and re-stale its acceptance chain. Reviewer (quality) agreed with this deferral across three rounds now.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T05:02:26.253Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-918",
+      "_hash": "a0da201516fd62bc128eb01abefe499ab14fa7573a0d5506a89f5b15ecb8e15f",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|file-5a15-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
