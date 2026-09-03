@@ -820,6 +820,33 @@
         "scanEscalationReason": null
       },
       "_hash": "2d5c416955e022a9a6f140b98b7a96ac5871972698ddf1e52f6e6b6670f0d9b6"
+    },
+    {
+      "id": "B-9f2c:RP-028",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review PASSED at frozen tree f371c5a41d (round 2026-09-03T03:25:44.738Z). Verified the two regressions merging main (3aa57145d8) introduced were repaired in 1a4d1be6c2 and both smoke tasks now exit 0: node packages/main/dist/tasks/graph-story-flag-smoke.js prints the PASS line and exits 0; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js prints PASS and exits 0 (re-pin 5c518f19 verified against handlers/graph.ts: spawnSync import at line 52/85 and the other 4 dynamic-code call sites match the commit message claim). All 22 must-priority verificationEvidence entries across CHK-001..CHK-005 (read from checklist_get) carry mechanical=true, result=pass, receipt.exitCode=0, receipt.selectorMatched=true, and storyFilesHash=f746f43e... matching the frozen tree; headHash on each entry is 1a4d1be6c2 (the repair commit), an ancestor of f371c5a41d, with no material drift since (storyFilesHash unchanged through to HEAD). Assessed the graph-story-flag-smoke fixture fix on its merits: read handlers/graph.ts and confirmed assertGraphStoryExists (the pre-listen id-existence check) executes at line 533-536, strictly BEFORE ensureGraphClientBuilt at line 559 -- so the smokes core guarantee (unknown --story id refused before startServer/listen) is proven entirely by code paths that never reach the asset check; stubbing d3.min.js only lets the happy-path assertions (known id serves, no --story default, escaping id) proceed past a check this storys own scope did not add, and does not mask or weaken the guarantee the task exists to pin. No finding filed for this. Re-affirmed F-003 (accepted_risk): independently confirmed full-suite-runner.ts RESOURCE_POLICY has a genuine repoRead(test:graph-story-flag-smoke) third-authority entry (line 159) and entriesFromSerialReference throws unknownPolicy and aborts the whole root suite if a test:serial-reference member lacks it (line 224) -- matching the findings claim that the real defense against this regression class is independent of the under-scoped pinned probe and is itself DONE-required; the pinned CHK-005:adversarial:0 command was read directly from evidence and genuinely only checks lattice.config.json + package.json (validate.commands / test:<task> script / test:serial-reference), never full-suite-runner.ts, confirming the gap is real but the deferral is sound (medium severity, not a regression of this story acceptance scope, does not distort an otherwise-unenforced gate, fully evidenced with repro + two correctly-refused fix attempts + named follow-up). No blocker found this round.",
+      "createdAt": "2026-09-03T03:34:52.292Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-034",
+      "envelopeId": "585046d61a103833b45c9ec7ed9ed059cc397f45ec848ff008ad49d74b87ba15",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ae7540705edb960781ad0737d3bab8a58ac318f83b4a98c067242dff585c605"
     }
   ]
 }
