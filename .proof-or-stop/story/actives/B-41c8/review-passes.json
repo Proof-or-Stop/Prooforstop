@@ -359,6 +359,41 @@
         "scanEscalationReason": null
       },
       "_hash": "1f6cb23c701a72279a32b0d92ad21448277e4aa0cd992997840effadafa992ec"
+    },
+    {
+      "id": "B-41c8:RP-013",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-verified after main was merged twice (e3d0e455fc, f59f4821dc) since RP-010; storyFilesHash moved but no story SOURCE file changed. git diff --name-only main...HEAD now lists only story-owned artifacts + the scoped source files; .proof-or-stop/dev-memory/experience.jsonl is no longer in the diff and confirmed byte-identical between main and HEAD. Re-ran the 8-symbol residual sweep (SHELL_META_RE, splitShellWords, commandFromString, readStoryProjection, listActiveWorktrees, readStoryFromLinkedWorktree, collectLinkedStoryWorktrees, resolveStoryWorkspace) over packages/, docs/, CLAUDE.md, scripts/: only the private duplicate parser inside done-required-validation.ts was intentionally deleted (CHK-002) with zero residue confirmed by grep; all other matches are surviving canonical implementations/call sites/test-comments, matching RP-010 zero-(d)-bucket outcome. No new concept deletion/replacement introduced by the metadata-only merges. No blocker.",
+      "createdAt": "2026-09-03T01:07:44.001Z",
+      "reviewRound": "2026-09-03T01:05:21.744Z",
+      "reviewRunId": "B-41c8:RR-024",
+      "envelopeId": "05d219d7a0e6040b07efc73a617666ba9c54e8dedc3bc8a325f3c8460aa4a312",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c095cdc025e7c3ccf1accf52f0a9d31d7025b7210c591d9d0d8b074b2341cd31"
     }
   ]
 }
