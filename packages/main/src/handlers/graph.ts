@@ -43,6 +43,9 @@
  *   - [CHK-003] Add the graph handler behind the runtime package resolution seam.
  *   - [CHK-004] Serve the browser client: startServer + openBrowser + signal
  *     shutdown, with a watchdog heartbeat so a session survives idle periods.
+ *   - [B-9f2c CHK-003] Add --story=<id>, which deep-links the served URL to that
+ *     story's dossier page. An unknown id is refused BEFORE the server listens,
+ *     naming near-miss candidates, and the id is URL-encoded into the path.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -143,6 +146,14 @@ export interface GraphArgs {
   open?: boolean;
   /** Print status as JSON and exit without serving. */
   json?: boolean;
+  /**
+   * Open the graph directly on one story's dossier page (`/story/<id>`) instead of
+   * the root graph view. Optional; when omitted the reported URL is unchanged.
+   *
+   * The id is VALIDATED against the repository being read before the server is
+   * started — see `assertGraphStoryExists`.
+   */
+  story?: string;
 }
 
 /** Where the graph subpackage lives, plus the directories its web shell needs. */
@@ -326,6 +337,110 @@ interface GraphLibrary {
   }) => Promise<{ close: (cb?: () => void) => unknown }>;
   findRoot: (start: string) => { root: string | null; reason: string };
   openBrowser: (url: string) => void;
+  /**
+   * Story resolution for the repository at `root`. Already part of the graph
+   * package's exported surface (packages/graph/src/index.ts), so `--story`
+   * validation reuses it rather than widening that surface with a new export.
+   * `primary` maps story id -> the directory holding that story's LIVE state,
+   * i.e. exactly the set of ids the served graph can show a dossier for.
+   */
+  resolveStories: (root: string) => { primary: Readonly<Record<string, string>> };
+}
+
+/**
+ * How many near-miss ids the unknown-story error names.
+ *
+ * Enough to cover a plausible typo without turning the message into a dump of a
+ * repository that holds hundreds of stories.
+ */
+export const GRAPH_STORY_SUGGESTION_LIMIT = 5;
+
+/** Levenshtein distance, iterative two-row form. Small inputs (story ids), so no memo cache. */
+function editDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  let curr = new Array<number>(b.length + 1);
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[b.length];
+}
+
+/**
+ * Rank the known ids that a mistyped `--story` most plausibly meant.
+ *
+ * Two signals, prefix first: `B-9f` should surface every `B-9f*` story even in a
+ * repository where some unrelated id happens to be one edit away. Ties inside each
+ * band are broken alphabetically so the message is deterministic — a suggestion
+ * list that reshuffles between runs is not quotable in a bug report.
+ *
+ * Pure and exported so the ranking can be tested without a repository on disk.
+ */
+export function graphStorySuggestions(
+  requested: string,
+  known: readonly string[],
+  limit: number = GRAPH_STORY_SUGGESTION_LIMIT,
+): string[] {
+  const needle = requested.trim().toLowerCase();
+  if (needle.length === 0) return [];
+  const scored = known.map((id) => {
+    const hay = id.toLowerCase();
+    const shares = hay.startsWith(needle) || needle.startsWith(hay);
+    return { id, band: shares ? 0 : 1, distance: editDistance(needle, hay) };
+  });
+  return scored
+    .filter((c) => c.band === 0 || c.distance <= Math.max(2, Math.ceil(needle.length / 3)))
+    .sort((x, y) => x.band - y.band || x.distance - y.distance || x.id.localeCompare(y.id))
+    .slice(0, Math.max(0, limit))
+    .map((c) => c.id);
+}
+
+/**
+ * Refuse an unknown `--story` BEFORE anything is served.
+ *
+ * Placement mirrors the `--root` refusal above and exists for the same reason: a
+ * typo must not be indistinguishable from a working session. Serving
+ * `/story/B-typo` would answer 200 with an empty dossier, which reads as "this
+ * story has no evidence" rather than "you named a story that does not exist".
+ *
+ * Exported and taking the id set directly (not a repository path), so both the
+ * CLI path and a schema-bypassing internal call funnel through one rule — the
+ * Zod `z.string()` in the catalog is only the first line of defence
+ * (CLAUDE.md, "Handler 编码约定").
+ */
+export function assertGraphStoryExists(story: unknown, knownIds: readonly string[]): string {
+  if (typeof story !== 'string' || story.trim().length === 0) {
+    throw new Error(
+      [
+        `graph: --story requires a story id.`,
+        `  received: ${story === undefined ? '(nothing)' : JSON.stringify(story)}`,
+        `  → name a story: proof-or-stop graph --story=<id>`,
+      ].join('\n'),
+    );
+  }
+  const requested = story.trim();
+  if (knownIds.includes(requested)) return requested;
+
+  const suggestions = graphStorySuggestions(requested, knownIds);
+  return ((): never => {
+    throw new Error(
+      [
+        `graph: --story=${requested} is not a story in this repository.`,
+        `  known stories: ${knownIds.length}`,
+        ...(suggestions.length > 0
+          ? [`  did you mean: ${suggestions.join(', ')}`]
+          : [`  no similarly named story was found`]),
+        `  → list what exists: proof-or-stop graph --json`,
+      ].join('\n'),
+    );
+  })();
 }
 
 interface GraphApp {
@@ -346,7 +461,7 @@ export const GRAPH_HEARTBEAT_MS = 60_000;
 export function createGraphHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
-     * proof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json]
+     * proof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json] [--story=<id>]
      *
      * Reads story state, builds the index, and — unless `--json` was passed —
      * serves the browser client until the process is interrupted. Behavior
@@ -354,7 +469,8 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
      * unreachable once `bin` was dropped; see git history or the pre-migration
      * proof-or-stop-graph repository): the same default port, the same cwd-based
      * repository discovery, the same `--json` / `--no-open` semantics, and the
-     * same signal shutdown.
+     * same signal shutdown. B-9f2c adds `--story=<id>`, which only changes the
+     * path of the reported/opened URL; every other behavior is unchanged.
      */
     async graph(args: GraphArgs = {}) {
       // `ctx.log` is optional on HandlerContext, but the heartbeat below is
@@ -399,6 +515,25 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
           ].join('\n'),
         );
       }
+
+      /* Refuse an unknown --story here — AHEAD of the --json branch, and therefore
+         ahead of every asset check and of startServer.
+
+         Ahead of --json deliberately: `--story` is an assertion about the repository
+         ("this id exists"), and a query that silently ignores a typo would report a
+         healthy status for a story the caller never actually named. The refusal costs
+         one story scan and, unlike the asset/port checks below, does NOT reintroduce
+         a build dependency — resolveStories reads story state only, which is what
+         --json already does. So --json keeps working without the browser client
+         being built; it just no longer accepts an id that does not exist.
+
+         Re-validated at the handler entry rather than trusting the catalog's
+         `z.string().optional()`: an internal call or a stale payload that never went
+         through the schema must be refused identically (CLAUDE.md, Handler 编码约定). */
+      const story =
+        args.story === undefined
+          ? null
+          : assertGraphStoryExists(args.story, Object.keys(lib.resolveStories(probe.root).primary));
 
       // --json is pure status: build nothing, listen on nothing, close the app.
       // Keep this branch ahead of every asset/port check so a machine-readable
@@ -452,7 +587,13 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
         );
       }
 
-      const url = `http://localhost:${port}/`;
+      // encodeURIComponent, not raw interpolation: a story id is caller input, and a
+      // `#`, `?` or space in it would otherwise cut the path short or split it into a
+      // query/fragment, opening the browser somewhere other than the named dossier.
+      // Without --story the string is byte-identical to what it was before B-9f2c.
+      const url = story === null
+        ? `http://localhost:${port}/`
+        : `http://localhost:${port}/story/${encodeURIComponent(story)}`;
       if (args.open !== false) lib.openBrowser(url);
 
       // The handler owns the process from here until a signal arrives. Resolving

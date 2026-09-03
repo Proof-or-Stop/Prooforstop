@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9f2c",
+  "sourceText": "我们之前迁移了 ~/work/repo/proof-or-stop-graph 的功能到本仓库，应该是迁移到了源仓库commit 10b5921de4b1fe5b4e796d1a7d78ec655cc400fd的位置，昨天我们在proof-or-stop-graph中又增加了新的功能——story详情页面。请把新增的这些功能全部迁移到我们这个仓库。命令行上应该可以直接打开story详情页面，我记得我们之前的命令是 proof-or-stop graph ，你看看应该怎么加story详情页的命令，按照我们本仓库的惯例来加",
+  "normalizedOutcome": "All story-detail (dossier) functionality added upstream after commit 10b5921 is present in this repository's packages/graph, and the dossier page can be opened directly from the command line through the existing proof-or-stop graph command, following this repository's established command conventions.",
+  "acceptanceClaim": "Running proof-or-stop graph --story=<known story id> serves and opens the ported dossier page at http://localhost:<port>/story/<id>, while an unknown id is refused before the server starts listening.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003"
+  ],
+  "requestHash": "sha256:ad20bb2019159d19d26ef0e08033cbe9f11a0ca79a85c48efdc70cfdd2c42010",
+  "createdAt": "2026-09-02T08:28:13.927Z",
+  "updatedAt": "2026-09-02T08:28:13.927Z"
+}

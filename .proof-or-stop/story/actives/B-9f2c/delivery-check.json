@@ -1,0 +1,80 @@
+{
+  "storyId": "B-9f2c",
+  "checkedAt": "2026-09-03T08:39:23.251Z",
+  "headHash": "757438d59b90c678949b4fe664b8e60cb8e4327b",
+  "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+  "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+  "reviewRound": "2026-09-03T07:43:58.222Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#story-graph",
+      "promise": "proof-or-stop graph --story=B-xxxx opens that story's dossier detail page directly, at /story/<id> served by the same server/app.html as the graph root, and an unknown id is refused BEFORE the server listens with near-miss candidates listed.",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "CLAUDE.md:329,338,343 document the flag and the pre-listen refusal. Live-verified in this review: `node packages/main/dist/cli.js graph --story=B-doesnotexist12345 --json --port=18831` exits 1 with 'is not a story in this repository' and no listener was bound (confirmed via lsof, port free); `--story=B-9f2x` (near-miss of B-9f2c) prints 'did you mean: B-9f2c, B-6f23, B-9123, B-9f8a, B-9fc5'. A real server started with `--story=B-9f2c --no-open --port=18830` logged 'graph serving http://localhost:18830/story/B-9f2c'; curl to that path returned HTTP 200 with 'openStoryDossier' present in the served HTML (3 occurrences), and curl to '/' also returned HTTP 200. Server was cleanly killed afterward, no port leaked."
+    },
+    {
+      "docPath": "CLAUDE.md#story-graph",
+      "promise": "packages/graph/README.md documents the ported story dossier feature: full-window per-story detail page opened from the drawer header's 'open dossier' button or via `proof-or-stop graph --story=B-xxxx`, with its own shareable /story/B-xxxx URL served by the same server as the graph root.",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/graph/README.md lines 62 (dossier.js listed under src/shells/web), 91-107 (Story dossier section) describe exactly this behavior, including the shared server/app.html and the CLI flag, matching what was live-verified above."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#test-surface-placement",
+      "promise": "The decision doc's 'Test-surface placement' section correctly enumerates all THREE fail-closed test-membership authorities in this repository (validate.commands, test:serial-reference, and full-suite-runner.ts RESOURCE_POLICY), not two, and the later six-tasks paragraph does not cross-reference a stale two-authority framing.",
+      "verifiedBy": "diff/grep",
+      "evidence": "graph-command-migration.md:113 reads 'Three membership authorities in this repository are separately maintained, and none is'; line 197 reads 'Note the six tasks run through the three separately-maintained membership authorities'. Both were verified live against code: full-suite-runner.ts:159 registers repoRead('test:graph-story-flag-smoke') in RESOURCE_POLICY, confirming the third authority claim is accurate and the fix (findings F-002/F-004) is actually in the shipped doc, not just described as fixed in the finding text."
+    },
+    {
+      "docPath": "packages/main/src/tasks/full-suite-runner.ts#RESOURCE_POLICY",
+      "promise": "The new graph-story-flag-smoke test task is registered in all three membership authorities (lattice.config.json validate.commands, package.json test:serial-reference + test:<name> script, and full-suite-runner.ts RESOURCE_POLICY), so npm test does not abort with an unknownPolicy inventory mismatch.",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/tasks/full-suite-runner.ts:159 contains repoRead('test:graph-story-flag-smoke'), confirmed present on the current tree via grep. This is the exact registration gap F-002 identified as the root cause of a prior TEST->DEV bounce, and it is now closed."
+    },
+    {
+      "docPath": "packages/graph/scripts/verify-missing-assets-fail.mjs (internal contract, referenced by F-005/F-006/F-008/F-009 findings)",
+      "promise": "The check-suite verifier that proves a missing browser client is never silently served correctly rebuilds the client on demand, validates the rebuilt content (not just existsSync + a log substring), unconditionally kills any process it orphaned (including the pre-port-bind orphaned-build window) before sampling rebuilt state, and does not leak a listening process.",
+      "verifiedBy": "real-machine run (independent reproduction)",
+      "evidence": "Ran `GRAPH_VERIFY_PORT=<n> node packages/graph/scripts/verify-missing-assets-fail.mjs` three separate times on this tree (ports 18832, 18841, 18842), each printing 'rebuilt the missing client on demand (exit 1), left no listener on <port>' and 'MISSING_ASSETS_HANDLED_OK' with exit code 0. After each run, `lsof -i :<port>` showed no LISTEN entry and the stashed app.html was correctly restored (verified via ls/diff). git status was clean after each run. One intermediate run appeared to hang inside a chained shell loop and was killed by my own 2-minute Bash-tool wrapper timeout (not the script's own internal 60s execFileSync budget); re-running the identical single invocation in isolation with a longer wrapper timeout completed cleanly in ~60s, confirming the apparent hang was my test harness, not a defect in the delivered script -- consistent with F-006/F-008's own documented fix (kill-orphan-before-sample, unconditional settle) rather than contradicting it."
+    },
+    {
+      "docPath": "TEST->DONE delivery review requirement: acceptance topology/rollout gates",
+      "promise": "The acceptance topology and rollout evidence for this story is current (bound to present material, not stale) and the enforce-mode rollout gate is a genuine PASS with full 3-rounds x 2-hosts (codex-cli + claude-cli) quorum, not a degraded 3x1.",
+      "verifiedBy": "real-machine CLI invocation",
+      "evidence": "`acceptance_rollout_check` (mode=enforce, the authoritative gate) returns 'status=pass blocking=false codes=none receipt=current quorum=full-3x2'. `acceptance_rollout_report_read` independently confirms 'PASS receipt=current quorum=full-3x2 codes=none'. `acceptance_topology_check` and `pre_review_check_read` both report non-pass diagnostics (AT_* structural gaps and PR_ARTIFACT_MISSING respectively), but both are explicitly 'Mode: observe' with 'blocking=false' / 'Authority: diagnostic_only' on this project's current rollout policy, so they are advisory rather than delivery-blocking; this matches F-010's own resolution text, which the topology-critic reviewer and main agent both independently confirmed at the time. Current HEAD is 757438d5..., all commits since CW-007's frozen headHash (362d5da9...) are process-events.jsonl-only metadata writes (verified via git log/show), so no product code or docs moved since CW-007 (ADMITTED) was bound."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Verified packages/graph/src/shells/web/dossier.js is byte-identical to upstream /Users/qipan/work/repo/proof-or-stop-graph/src/shells/web/dossier.js via `diff` (no output, exit 0). Confirmed the file self-registers window.openStoryDossier (lines 274, 1118)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Started `node packages/main/dist/cli.js graph --story=B-9f2c --no-open --port=18830` for real; server log printed 'graph serving http://localhost:18830/story/B-9f2c'. `curl http://localhost:18830/story/B-9f2c` returned HTTP 200 with 'openStoryDossier' present 3x in the served HTML (9700 lines). `curl http://localhost:18830/` also returned HTTP 200. Server was killed and the port confirmed free afterward."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "`graph --story=B-doesnotexist12345 --json --port=18831` failed with exit 1 and 'is not a story in this repository', BEFORE any listener bound (confirmed via lsof showing no entry on 18831). `graph --story=B-9f2x` (a near-miss of the real story B-9f2c) correctly suggested 'did you mean: B-9f2c, B-6f23, B-9123, B-9f8a, B-9fc5'."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Grepped CLAUDE.md and packages/graph/README.md for the --story flag and dossier documentation; both describe the shipped behavior accurately and consistently with what was live-verified for CHK-002/CHK-003."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Grepped packages/main/src/tasks/full-suite-runner.ts and confirmed repoRead('test:graph-story-flag-smoke') is present in RESOURCE_POLICY at line 159, closing the third-authority registration gap that previously aborted npm test with an unknownPolicy mismatch."
+    },
+    {
+      "featureId": "F-005/F-006/F-008/F-009 (verify-missing-assets-fail.mjs repair chain)",
+      "transcript": "Ran the verifier script three separate times on the real tree (fresh ports each time): all three exited 0 with 'MISSING_ASSETS_HANDLED_OK' and 'left no listener on <port>'. Confirmed via lsof after each run that no process remained bound to the test port, and via ls/diff that the stashed asset was correctly restored. One run was killed by my own outer Bash-tool timeout wrapper (not the script), and a subsequent isolated re-run of the identical invocation completed cleanly in ~60s, confirming the apparent hang was a test-harness artifact rather than a regression of F-006/F-008's kill-before-sample and unconditional-settle fixes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 checklist promises and every doc claim I could locate are independently verified against the live tree (dossier port byte-identical to upstream, --story flag both refuses unknown ids pre-listen with near-miss suggestions and correctly serves /story/<id> with dossier content, third test-membership authority registered, decision doc corrected). The verify-missing-assets-fail.mjs repair chain (F-005/F-006/F-008/F-009) was independently re-run three times live and behaved exactly as the findings claim: no leaked listener, correct recovery, and content validated. The story is honest about its four accepted_risk deferrals (F-001 voided-clause intent wording, F-003/F-007/F-009 residual test-completeness gaps in an internal check-suite verifier) -- each carries a live reproduction, an explicit reason two attempted fixes were correctly refused by the framework's frozen-intent and immutable-pin protections, and a named follow-up; none of the four deferrals touch shipped product behavior, all are internal to a repository-only npm run check guard, and production code (ensureGraphClientBuilt) independently re-checks the same files before serving. The one high-severity finding (F-010, stale acceptance-topology/rollout artifacts plus an unacknowledged scope expansion) is genuinely fixed: the enforce-mode acceptance_rollout_check gate is a current, verified, full-3x2 PASS, and the still-open observe-mode topology/pre-review diagnostics are explicitly non-blocking under this project's current rollout policy, matching the finding's own resolution text."
+  },
+  "_hash": "24372672ca7b67ccd8abbb00e4ada97c4565283483a10771d153b9869fb09957"
+}
