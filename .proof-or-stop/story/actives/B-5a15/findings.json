@@ -19858,6 +19858,49 @@
       ],
       "signatureTag": "missing|ts|filing-5a15-originally",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-374",
+      "desc": "F-351 has RECURRED a third time (F-350 -> F-351 -> now), same underlying hazard, new triggering event. Fresh reads at this reviewRunId (RR-907): acceptance_topology_check returns status=pass/basisStatus=complete/structuralPass=true/diagnostics=[] (topologyRefreshBootstrap=false), but pre_review_check_read returns status=fail ok=false codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED] - exactly the allow-listed bootstrap pattern at packages/main/tests/causal-evidence.test.mjs:2503 - so isEvidenceRefreshBootstrap=true and the marker-emission block at :2514-2523 is skipped on a fresh run. This means CHK-004:happy:2 and CHK-004:happy:3 currently persist evidence rows (result=pass, mechanical=true, receipt.selectorMatched=true, headHash=e58037c7cfb8461563abd791ef7dc988262c7db0, executedAt=2026-09-03T02:18:22.091Z) whose outputTail claims 'B-5a15|CHK-004:happy:3|PASS|pre_review_check_read reports current admissible executable PASS' but that PASS is NOT reproducible against current HEAD - the underlying pre_review_check_read call now fails. ROOT CAUSE (confirmed via git show 46f9b4eb0c): commit 46f9b4eb0c ('record B-5a15 acceptance_basis_generate metadata', 2026-09-03T11:32:16+08:00) reran acceptance_basis_generate AFTER the pre-review-check.json artifact and the CHK-004:happy:2/3 receipts (executedAt 02:18:22Z, headHash e58037c7) had already been sealed/earned. This moved basisDigest from sha256:ce535d96... to sha256:3922970724..., which trips PR_COVERAGE_BASIS_CHANGED (and consequently PR_ARTIFACT_TAMPERED) per the documented CLAUDE.md ordering trap (acceptance basis vs pre_review_check sequencing, Section 9 Rule 10 of proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md): 'first acceptance_basis_generate, then pre_review_check, order cannot be reversed... re-running acceptance_basis_generate afterward moves basisDigest and turns a PASS into PR_COVERAGE_BASIS_CHANGED even though storyFilesHash did not move.' This is the same test-goes-green-by-skipping-the-assertion-it-pins failure shape as F-350/F-351: the suite still exits 0 (verified: node --test --test-name-pattern=F-247 causal-evidence.test.mjs -> 1 pass) precisely because the bootstrap branch swallows the two marker assertions instead of failing loudly. IMPACT: of the 53 verification-evidence rows (51 must + 2 should), the 2 should-priority rows for CHK-004:happy:2 and CHK-004:happy:3 currently certify a state that is provably false at HEAD; they are stale/vacuous evidence, not defect coverage. Both intents are priority=should (not must), so this does not change the missingRequired=0 must-coverage figure, but the story's own DoD language for CHK-004 explicitly claims 'acceptance_topology_check reports current complete structural PASS' and 'pre_review_check_read reports current admissible executable PASS' as the acceptance criterion - which is not currently true. SCOPE NOTE: the bootstrap allow-list itself and the underlying acceptance-basis/pre-review-check sequencing behavior are pre-existing framework mechanisms (documented in CLAUDE.md), not introduced by this story's diff; I am not filing against the allow-list mechanism itself, only against the fact that this story's persisted receipts for CHK-004:happy:2/3 are currently stale as a direct, reproducible consequence of an intervening acceptance_basis_generate call. FIX DIRECTION per the documented pattern and the F-351 prior repair: do NOT call acceptance_basis_generate again after this; reseal pre-review-check.json against the CURRENT basis (basisDigest sha256:3922970724a138f8a7260b79579fa0808bf1fde9653cc676e90a57beaf57c891) so pre_review_check_read returns strict PASS, then re-earn the CHK-004:happy:2 and :3 receipts (verification_evidence_refresh_stale is safe here since both are should not must, so no required coverage is claimed from an unexecuted row while resealing), with no acceptance_basis_generate call intervening afterward.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T03:41:21.521Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-907",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "06733010766ed2f914a9272af9db849dddb9cb8a8a2daa830181cd87e1abdb45",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
+      ],
+      "signatureTag": "missing|mjs|recurred-basis-generate-after-seal",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
