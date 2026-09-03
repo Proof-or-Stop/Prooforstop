@@ -20059,7 +20059,7 @@
       "desc": "serveAndFetch() in packages/graph/scripts/verify-missing-assets-fail.mjs (commit 3245a61b6d) has two minor quality gaps: (1) the child.stdout/stderr data handlers accumulate into a local `log` variable that is never read anywhere in the function -- dead code that silently discards the child's output on every failure path, making a real failure (e.g. graph.ts throwing before listening) harder to diagnose from the reported reason string alone; (2) no child.on(\"error\", ...) listener is attached, so a spawn-level failure (e.g. ENOENT on the node/bin/proof-or-stop.js path) would surface as an uncaught \"Unhandled 'error' event\" process crash rather than the scripts own MISSING_ASSET_HANDLING_BROKEN failure reporting. Not a regression: the sibling packages/graph/scripts/verify-serves.mjs has the identical missing error-listener gap already, so this is a pre-existing repo convention rather than something newly introduced. The teardown (SIGTERM then bounded SIGKILL escalation) is otherwise sound: verified child.kill() on an already-exited PID returns false without throwing, so no zombie/unreaped-child risk, and no AbortController is needed in practice since the fetch target is 127.0.0.1 (connection-refused is immediate; a live listener answers a plain GET quickly). Recommend a follow-up: either log the captured `log` buffer into failure reasons, or drop the dead accumulation; and add a child.on(\"error\", ...) that pushes into failures instead of throwing, for both this file and verify-serves.mjs.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T03:55:21.604Z",
@@ -20089,7 +20089,9 @@
         "packages/graph/scripts/verify-serves.mjs"
       ],
       "signatureTag": "missing|mjs|serveandfetch-packages-graph",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c5324ce44a. F-377: the rebuilt copy now parks under its own path (.app.html.verify-rebuilt) so the stash always holds the genuine original; restore prefers the original unconditionally and cleans both parking spots. renameSync's silent-overwrite behaviour was confirmed empirically before fixing. F-379: child.on('error') now captures spawn-level failures so ENOENT reports through the script's own MISSING_ASSET_HANDLING_BROKEN channel instead of crashing the verifier, and the previously-unread log variable is now quoted as a tail in every failure reason. Controls stated in advance: positive run exits 0 with app.html md5 ab17d72bf16a5d7b4748800e96f3842e unchanged before and after plus zero stray parking files (md5 is the decisive check for F-377, because the pre-fix code passed while silently clobbering the file); negative run spawning a nonexistent binary exits 1 with 'could not spawn the server: spawn definitely-not-a-real-binary-xyz ENOENT' and the original md5 survives that failure path, proving the hardened finally still executes.",
+      "resolvedAt": "2026-09-03T04:56:30.157Z"
     },
     {
       "id": "B-5a15:F-380",
