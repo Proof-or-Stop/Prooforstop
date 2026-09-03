@@ -2,9 +2,9 @@
   "storyId": "B-2696",
   "name": "claude-md-claim-drift-guard",
   "title": "Correct the falsified CLAUDE.md behavior claims and guard them mechanically",
-  "description": "A read-only audit on 2026-09-03 falsified seven claims in CLAUDE.md: the agent prompt asset section, the story channel count, the story artifact directory rule, three stale source citations, a broken experiment link, and an incomplete host hook and gate-required command inventory. The existing docs-drift preflight cannot catch any of them because it only checks command-name registration plus a path check that skips docs/story paths. Add a claim verifier that fails on the current document, then correct each falsified section until the verifier passes.",
+  "description": "A read-only audit on 2026-09-03 falsified seven claims in CLAUDE.md. Grouped onto five correction items they are: the agent prompt asset section (one claim); the story channel count (one claim); the story artifact directory rule (one claim); one stale story-review.ts line citation, one stale attribution of the INIT_CHECK blocker definitions, and one link to a file absent from the repository (three claims); and an incomplete host hook inventory together with three gate-required commands the document never names (one claim). The existing docs-drift preflight cannot catch any of them because it only checks command-name registration plus a path check that skips docs/story paths. Add a claim verifier that fails on the current document, then correct each falsified section until the verifier passes.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "CLAUDE.md",
@@ -32,6 +32,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-3a3f4af1884b5af0e4614cd44c774c8f",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:58:41.532Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-3a3f4af1884b5af0e4614cd44c774c8f",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2696",
+    "branch": "story/B-2696",
+    "createdAt": "2026-09-03T09:58:37.792Z"
+  }
 }

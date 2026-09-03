@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2696",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add scripts/verify-claude-md-claims.mjs and register it as an npm test command so the corrected claims fail loudly if they drift again",
+    "Correct the seven falsified claims in CLAUDE.md: the agent prompt asset section, the story channel count, the story artifact directory rule, the stale story-review.ts line citation, the stale attribution of the INIT_CHECK blocker message definitions, the broken experiment file link, and the incomplete host hook inventory",
+    "Document in CLAUDE.md the commands the framework gate messages instruct agents to run but the document never names, including review_run_start, scope_check_save, dev_memory_preflight_ack, and the INIT_CHECK prerequisite commands init_preflight, scope_boundary_set, execution_boundary_set and scope_freeze_check",
+    "State that the pre-push hook is opt-in and requires the operator to set core.hooksPath",
+    "Write the verifier so it fails against the unmodified CLAUDE.md before any prose correction lands"
+  ],
+  "excluded": [
+    "Changing how agent prompt assets are generated, resolved or shadowed, or running proof-or-stop init --upgrade",
+    "Changing the docs/story path exclusion in core/audit-scan.ts or any behavior of the existing docs-drift preflight gate",
+    "Correcting documents other than CLAUDE.md",
+    "Enabling core.hooksPath in the operator local git config, which is an operator action and not a repository change",
+    "Mechanically guarding semantic staleness where a cited line still exists but no longer contains what the prose describes",
+    "Translating CLAUDE.md sections this story does not otherwise correct"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "The operator asked on 2026-09-03 whether the CLAUDE.md behavior rules are correct and asked for evidence, then explicitly directed that the resulting work go through the full story process with a red test before a green one, and that nothing this story produces contain Chinese text.",
+  "createdAt": "2026-09-03T09:58:18.697Z",
+  "updatedAt": "2026-09-03T09:58:18.697Z",
+  "_hash": "475d2bce724a55d2f069584c2d3aca1dc361cb7f5866981cc5332e8a7fab585c"
+}
