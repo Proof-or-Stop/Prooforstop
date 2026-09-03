@@ -19933,6 +19933,45 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-376",
+      "desc": "Supersedes B-5a15:F-375 (misattributed agent=main). packages/main/src/handlers/validate-concept.ts:103-121: checkConcept runs git diff --unified=1000000 main...HEAD via execSync; on a diff exceeding ~239MB this dies with spawnSync ENOBUFS (maxBuffer 200MB does not fix it -- pipe ceiling, not buffer size). Any execSync/diff-read failure is mapped to status=warn, recommendation=skip, so validate --concept silently no-ops on large diffs instead of failing closed. Re-filed from prior deferred finding across rounds; out of scope for this story, correctly deferred to a follow-up story.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T03:53:56.127Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-908",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2cc1d058a2d9e6ded8c001709a095f812c6be39db63fb3a84e792eba4d045db3",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts"
+      ],
+      "signatureTag": "missing|ts|supersedes-5a15-misattributed",
+      "signatureTagSource": "auto"
     }
   ]
 }
