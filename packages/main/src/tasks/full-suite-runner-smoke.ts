@@ -12,7 +12,7 @@ import {
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   FULL_SUITE_BUDGET_MS, fullSuiteBudgetIsSatisfiable, longestEntryTimeoutMs,
   CONCURRENCY_HEADROOM_FACTOR, effectiveEntryTimeoutMs, withConcurrencyHeadroom, defaultJobs,
-  resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
+  resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact, parseSerialReference,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
   stateDirKey,
   cancelCompletedFullSuiteResult, cancelledFullSuiteResult,
@@ -56,7 +56,7 @@ async function main(): Promise<void> {
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
     schedulerIsolation: false, cancellationPolicies: { cancelOnFirstFailure: false, runAll: false },
-    mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
+    mutationBites: { removedFixedPortKey: false, inventoryOmission: false, realPolicyRowRemoval: false },
     lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
   const collisionPath = join(process.cwd(), ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/'));
@@ -140,6 +140,35 @@ async function main(): Promise<void> {
     if (rejected) observations.failClosedThrows++;
     assert(rejected, `${label} inventory fails closed`);
   }
+
+  // The synthetic test:a / test:b fixtures above compare a hand-built policy with a
+  // hand-built chain, so genuine drift between the LIVE root package.json chains and the
+  // LIVE RESOURCE_POLICY never reaches them. This case reads both at run time: the chains
+  // straight from package.json and the policy through the exported FULL_SUITE_ENTRIES
+  // accessor (Object.values of RESOURCE_POLICY at import; never a copied table). It then
+  // proves the case can fail by removing one real policy row on a scratch copy.
+  const livePackage = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as { scripts: Record<string, string> };
+  const liveMainChain = livePackage.scripts['test:serial-reference'] ?? '';
+  const livePrefixChain = livePackage.scripts['test:serial-reference-prefix'] ?? '';
+  assert(liveMainChain.length > 0 && livePrefixChain.length > 0, 'real inventory reads both live serial-reference chains from root package.json');
+  const livePolicy: Record<string, FullSuiteEntry> = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, item]));
+  const liveMembers = parseSerialReference(liveMainChain);
+  const liveEntries = entriesFromSerialReference(liveMainChain, livePackage.scripts, livePolicy);
+  validateInventory(liveEntries, liveMainChain, livePackage.scripts);
+  assert(liveEntries.length === liveMembers.length && liveMembers.every((name) => livePolicy[name] !== undefined),
+    'real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row');
+  process.stdout.write('[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row\n');
+
+  const removedRow = liveMembers[0]!;
+  const scratchPolicy: Record<string, FullSuiteEntry> = { ...livePolicy };
+  delete scratchPolicy[removedRow];
+  let mutationMessage = '';
+  try { entriesFromSerialReference(liveMainChain, livePackage.scripts, scratchPolicy); } catch (error) { mutationMessage = error instanceof Error ? error.message : String(error); }
+  const mutationNamesRow = mutationMessage.includes(`unknownPolicy=[${removedRow}]`) && mutationMessage.includes('stalePolicy=[]');
+  observations.mutationBites.realPolicyRowRemoval = mutationNamesRow;
+  assertWithDetail(mutationNamesRow, 'real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership', `removed=${removedRow}; message=${mutationMessage || '<no throw>'}`);
+  assert(livePolicy[removedRow] !== undefined && FULL_SUITE_ENTRIES.some((item) => item.name === removedRow), 'real inventory mutation runs on a scratch copy and leaves the live policy intact');
+  process.stdout.write('[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership\n');
 
   const canonicalRoot = mkdtempSync(join(tmpdir(), 'full-suite-claims-'));
   try {
@@ -644,7 +673,7 @@ async function main(): Promise<void> {
     mutationBites: observations.mutationBites,
     lifecycle: observations.lifecycle,
   })}\n`);
-  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
+  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'real-policy-row-removal', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
   process.stdout.write(`full-suite-runner-smoke: PASS (${checks.length} assertions)\n`);
 }
 
