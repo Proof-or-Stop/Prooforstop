@@ -455,6 +455,17 @@ function resolveEvidenceCommandTimeout(
  * only inside the persisted receipt, so an operator (and a reviewer reading a transcript)
  * sees at the moment of the write that this receipt was NOT earned under the default.
  */
+/**
+ * B-1482: render the selector the receipt was judged against. Returns '' for a receipt
+ * written before B-1482, which genuinely has no recorded selector — the renderer must
+ * not assume the field, and must not substitute the current pin for it.
+ */
+function renderReceiptSelectorNote(receipt: VerificationExecutionReceipt | undefined): string {
+  const selector = receipt?.selector;
+  if (!selector) return '';
+  return ` selector=${JSON.stringify(selector)}`;
+}
+
 function renderTimeoutOverrideNote(receipt: VerificationExecutionReceipt | undefined): string {
   const override = receipt?.timeoutOverride;
   if (!override) return '';
@@ -640,7 +651,7 @@ type SingleCommandRunner = (command: string, cwd: string, timeoutMs?: number) =>
  *        receipt-command-mismatch); selector likewise immutable.
  *        EXECUTE the pinned command; refuse when pass is claimed but exit != 0, or the
  *        pinned selector is absent from output. Derive result FROM the receipt.
- *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt}.
+ *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,selector,executedAt}.
  *   d. Executable + audited escape (nonMechanicalReason ≥ 30) → record non-mechanical,
  *        attributable, no execution (still demoted by the coverage gate).
  *   e. Executable + no selector + no pin + no escape → REFUSED (B-ec67 F-006): a NEW
@@ -814,6 +825,11 @@ async function enforceAndStampEvidence(
     outputDigest: sha256Hex(run.output),
     outputTail: boundedOutputTail(run.output),
     selectorMatched,
+    // B-1482: stamp the selector text beside the match verdict, so the receipt records
+    // WHAT it was judged against and not merely THAT something matched. Taken from the
+    // pin actually executed above (never from the caller — this block is inside the
+    // tool-owned receipt that every caller-facing schema strips).
+    selector: pinSelector,
     executedAt: new Date().toISOString(),
     // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
     // RAISED it — an attributable override block, so a reviewer reading the receipt can
@@ -1869,7 +1885,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         store.writeChecklist(args.storyId, cl);
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
         const receiptNote = evidence.receipt
-          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderTimeoutOverrideNote(evidence.receipt)}`
+          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}${renderTimeoutOverrideNote(evidence.receipt)}`
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
         return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
@@ -2118,7 +2134,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         item.verificationEvidence = existing;
         store.writeChecklist(args.storyId, cl);
         const receiptNote = evidence.receipt
-          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}`
+          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}`
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
         return `Verification run recorded for ${itemId} → ${args.intentRef} (${kind}, ran pinned command${receiptNote})${commitHint}`;

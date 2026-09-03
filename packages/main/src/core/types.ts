@@ -980,6 +980,22 @@ export interface VerificationExecutionReceipt {
   outputTail: string;
   /** Whether the pinned selector string appeared in the captured output. */
   selectorMatched: boolean;
+  /**
+   * B-1482: the pinned selector text this run was ACTUALLY judged against, stamped
+   * beside {@link selectorMatched} so the receipt answers "which selector?" on its own
+   * — without re-reading the (mutable-by-re-pin) intent pin. Auditing whether a receipt
+   * was discriminating at all, and proving one selector is strictly narrower than
+   * another, both need the selector recorded ON the receipt at execution time.
+   *
+   * Like the timeout block below this lives inside the TOOL-OWNED receipt, which every
+   * caller-facing schema strips, so a caller can never inject a selector the command
+   * was not judged by.
+   *
+   * Optional because receipts written BEFORE B-1482 genuinely lack it; absent means
+   * "unknown, not re-derivable", never "no selector". Never back-fill it from the
+   * current pin — a later re-pin would silently rewrite history.
+   */
+  selector?: string;
   /** ISO timestamp when the command was executed. */
   executedAt: string;
   /**
