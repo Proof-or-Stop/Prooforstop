@@ -20422,6 +20422,24 @@
       ],
       "signatureTag": "missing|ts|file-5a15-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-392",
+      "desc": "packages/main/src/core/runtime-artifact-registry.ts new dev-memory-experience-log entry (id: dev-memory-experience-log) uses stateDirPrefix(\"dev-memory/experience.jsonl\") though the target is a single fixed filename (resolveProjectMemoryPath/resolveGlobalMemoryPath in dev-memory.ts always produce exactly <state-dir>/dev-memory/experience.jsonl, never rotated/suffixed). The codebase convention for single-fixed-filename entries is stateDirExact (used by activity.jsonl, usage/llm-usage.jsonl, learning/finding-signals.json, learning-log.jsonl, authority.md); stateDirPrefix is reserved for real directory prefixes with multiple files underneath (its sibling dev-memory-finish-decision legitimately uses it for finish-decisions/, a directory). Using prefix instead of exact means the matcher would also silently swallow any future path literally prefixed by experience.jsonl (e.g. experience.jsonl.bak) into the same materialHash-exclude/non-repairable treatment without anyone noticing, since no test pins the boundary. No live defect today -- no such sibling file is ever written by any code path -- but it deviates from the established convention its own commit models itself on, and the failure mode (a future colocated file silently inheriting materialHash exclusion) is exactly the kind of thing this registry exists to prevent deliberately, not by accident. Low severity, non-blocking, style/precision only; recommend swapping to stateDirExact in a follow-up.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T09:11:11.244Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-940",
+      "_hash": "44b94955a5fc8d57dd417a76ae2231084f3b7369db26c0efae62993a64745376",
+      "files": [
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
