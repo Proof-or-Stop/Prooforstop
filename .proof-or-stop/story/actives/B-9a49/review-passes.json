@@ -1397,6 +1397,30 @@
         "scanEscalationReason": null
       },
       "_hash": "a7ab974e273e00d9ae4b9f40a4a386c72fd33f7f5658e02ae2ab7dc699d3a7dc"
+    },
+    {
+      "id": "B-9a49:RP-037",
+      "agent": "proof-or-stop-review-docs",
+      "note": "AGENTS.md/CLAUDE.md carry identical English REVIEW Finding-triage guidance; implementer template out-of-item finding addition is consistent English; proposal doc correctly scopes itself and excludes CHK-005/CHK-006. CHK-004 metadata correction (9296bda8) is a pure scope-freeze-check.json checkedAt/freshnessHash refresh, no prose/code delta. No blocker.",
+      "createdAt": "2026-09-03T17:41:35.135Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-141",
+      "envelopeId": "dc58cddc89617ea2d14783e79ef32b77528ed773e64350f93ba503cb8494ef60",
+      "writerSessionId": "sess-99d63650ed23150195aa460cc3f23891",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/scope-freeze-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f1eb701cc3dfc2d47e4e798d17d439de16e3f1f632d7fc5d553b6f004374e2ec"
     }
   ]
 }
