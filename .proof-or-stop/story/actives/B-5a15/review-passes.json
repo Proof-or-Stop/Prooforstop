@@ -15887,6 +15887,68 @@
         "scanEscalationReason": null
       },
       "_hash": "4758fcee81b85b583f981c0470238e2c83d1e3e8e3f0e08189d25281e96a7074"
+    },
+    {
+      "id": "B-5a15:RP-351",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent re-verification after RP-348 void (51 receipts re-earned + acceptance_basis_generate in REVIEW). git diff main...HEAD --name-status -M is all A/M, zero deletes/renames across code+docs. Full src diff (packages/**/*.ts + scripts/**/*.mjs) has only 207 removed lines total; the only true symbol removals are 5 same-file helpers in acceptance-discovery-adapters.ts (MAX_SAME_FILE_CALL_REACHABILITY_DEPTH, isCallableDeclaration, sameFileCallableBody, sameFileCallableCallNames, sameFileCallableCalls), superseded by a TypeChecker-based reachability refactor; independently grepped all 5 to 0 residual references repo-wide (excluding dist/node_modules). Diffed removed-vs-added quoted string literals across the whole src diff: zero removed-only literals (no orphaned error code / schema id). Verified the specific claim that no test/acceptance input was weakened: causal-evidence.test.mjs topology allow-list (2 occurrences) never enumerates a bare AT_SCOPE_BINDING_MISSING, only the pair AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING; independently reran acceptance_topology_check live and got status=pass with zero diagnostics (not falling through to the allow-list at all), confirming the underlying digest mismatch was genuinely fixed rather than the test loosened. Independently reran node --test packages/main/tests/causal-evidence.test.mjs: 21/21 pass. Verified CHK-004:happy:2/3 are should-priority (all other CHK-004 intents are must) and confirmed in pre-review-check.ts:126 and checklist.ts:104 that both the pre-review gate and DEV->REVIEW gate filter exclusively on must priority, so their staleness (headHash 655c6e6d vs current-bound musts at 2da2586d) is correctly non-blocking by the frameworks own mechanical gate logic. finding_list: 19 concept-agent findings, 0 open. The 5 still-open deferred findings (F-397/F-398/F-401/F-404/F-405) all belong to other lanes (main-agent/test-coverage/topology-critic), none concept-category. No concept deletion/replacement produced residue; no check was weakened. No blocker.",
+      "createdAt": "2026-09-03T13:20:37.814Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-966",
+      "envelopeId": "cf457252fffc93792a460118d5aa5671fdd982d7e74d2c83d53f048303f4bf1b",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b0c9c49b99284bc410f6f9e0c922bf18376f6d699d4f102b75d1bb9e4091c240"
     }
   ]
 }
