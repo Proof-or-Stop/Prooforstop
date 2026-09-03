@@ -37,6 +37,23 @@
       ],
       "severity": "high",
       "createdAt": "2026-09-03T23:40:31.345Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "Multiple findings all involve packages/main/src/handlers/checklist.ts, packages/main/src/tasks/narrowing-repin-smoke.ts",
+      "findingIds": [
+        "B-1482:F-009",
+        "B-1482:F-011",
+        "B-1482:F-012",
+        "B-1482:F-013",
+        "B-1482:F-015"
+      ],
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-03T23:51:14.030Z"
     }
   ]
 }
