@@ -15252,6 +15252,42 @@
       },
       "readDiagnostics": [],
       "_hash": "20f947cba344d90531bb5126c9ed0d7861a53e55b34dc5bd82198621f68599ea"
+    },
+    {
+      "id": "B-5a15:RP-333",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-verified at head e33909d after acceptance-chain rebuild (F-388 remediation). review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=(none), freshnessClassification=CURRENT_MATERIAL. Diff from prior pass headHash 90ca2370 to current HEAD touches 16 paths, all under .proof-or-stop/story/actives/B-5a15/** -- zero source touched. Full main...HEAD diff --name-status -M: 307 A / 38 M / zero D or R -- no stranded refs. preReviewCaseRequiresSemanticBinding widening unchanged: export + 2 call sites + import consistent, dist/ byte-level grep matches. F-385 checked via review_incremental_context: present in unresolvedFindings with freshnessClassification=CURRENT_MATERIAL, correctly not re-filed (duplicate). No new concept-lane findings. Verdict PASS.",
+      "createdAt": "2026-09-03T06:51:49.041Z",
+      "reviewRound": "2026-09-03T06:45:20.273Z",
+      "reviewRunId": "B-5a15:RR-938",
+      "envelopeId": "9e9632a7276d9585b44f605421178364493006529325a43ae6bcc2d9899fc7e1",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "786877435c0d542e2253113108537284290a2a5754c52d5864fa3a30176bea34"
     }
   ]
 }
