@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "proofbound.dev-memory-finish-decision.v1",
+  "storyId": "B-e256",
+  "decision": "defer-with-reason",
+  "reason": "The reusable lesson from B-e256 (tsc emits bin targets 0644 and only npm link chmods them once, so any dist promotion must restore executable bits; doctor must report realpath/mode drift) will be captured on main after B-c86f lands, because on this branch a dev_memory_capture write to .proof-or-stop/dev-memory/experience.jsonl is still material and would stale the evidence the DONE gate consumes.",
+  "capturedEntryIds": [],
+  "automaticPromotion": false,
+  "authority": "non_authoritative",
+  "gateEvidence": false,
+  "recordedAt": "2026-09-03T01:57:55.775Z"
+}
