@@ -88,6 +88,23 @@
       "resolvedAt": "2026-09-02T14:55:10.878Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-005",
+      "desc": "Recorded on behalf of the test-coverage reviewer, which identified this but could not register it because the review-inventory epoch RIE-004 was already FINALIZED and consumed. Commit dcf54ecff3 adapted verify-missing-assets-fail.mjs to main's new on-demand client build, but its recovery branch was a genuine coverage weakening rather than a pure contract adaptation: the success condition reduced to fs.existsSync(assets/app.html) plus an OR-style output substring match on 'building browser client' or 'graph serving'. It never checked d3.min.js, never checked the served content, and never bound the log line to who produced it. The reviewer proved this with a negative control on a scratchpad copy: feeding the branch's exact logic a fabricated output containing only 'graph serving' with rebuilt=true produced ZERO failures, so a handler writing any bytes to app.html (truncated, stale or corrupt) and logging the right words would pass a check whose entire documented purpose is proving a missing or broken browser client is never silently served. Severity is medium rather than high because production code independently re-checks both app.html and d3.min.js in ensureGraphClientBuilt and throws before any serving line prints, so the gap is not exploitable in isolation; but it would go silent the moment that handler-side check regressed. FIXED rather than deferred, in commit 4912d8390a: the recovery branch now also requires the rebuilt app.html to parse as HTML, to contain openStoryDossier (the inlined shell a real build produces), to not be implausibly small, and to be accompanied by the required d3.min.js bundle. Verified by re-running the reviewer's own scenario: a 42-byte stub with a 'graph serving' line is now CAUGHT on two independent grounds where it previously produced no failures, and npm --prefix packages/graph run check still exits 0.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-03T06:12:12.724Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "_hash": "930904748aca56af7dd9dcdc905873cf927c20c1ad972f0ba13003537f2d7c28",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|recorded-behalf-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
