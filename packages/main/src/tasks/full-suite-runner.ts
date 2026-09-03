@@ -203,7 +203,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // letting the default 120s cap turn it into a scheduler false negative.
   isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { timeoutMs: 450_000, priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
-  isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  isolatedHeavy('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
   // B-a745 CHK-006: the Story 1 fixture suite. Membership authority is the root
   // test:serial-reference chain; this policy row is the SEPARATE mandatory mapping and
   // its absence fails the whole suite closed as unknownPolicy rather than skipping the
