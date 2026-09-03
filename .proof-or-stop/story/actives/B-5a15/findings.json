@@ -20251,7 +20251,7 @@
       "desc": "validate --concept warns-and-skips instead of running the concept check when git diff main...HEAD exceeds the spawnSync maxBuffer (ENOBUFS), so the concept gate silently produces no residual-symbol verdict on large diffs. Reproduced at HEAD 4e6e55f00b: node packages/main/dist/cli.js validate --concept prints [concept] warn: git diff failed (main...HEAD): spawnSync /bin/sh ENOBUFS and recommends skip. Location: packages/main/src/handlers/validate-concept.ts:103-121 defaultGitDiffReader uses execSync with maxBuffer 50MB and no --stat/--name-status fallback. Out of scope for this story (pre-existing infra gap, not introduced by any B-5a15 commit). Superseding note: this finding replaces F-376/F-384 as the single live tracked instance of this defect; do not file a third duplicate, extend evidence on this one going forward.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T05:18:54.337Z",
@@ -20262,7 +20262,10 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "missing|ts|validate-concept-warns",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-390, the current-round re-file of the same deferred validate-concept.ts:103-121 ENOBUFS warn-and-skip defect. The concept lane verified F-385's binding was genuinely stale (bound to reviewRound 2026-09-03T04:56:02.041Z / RR-921 while story.currentReviewRound had advanced to 2026-09-03T09:03:49.640Z) and confirmed the underlying defect is still live at current HEAD with validate-concept.ts untouched by any commit this round. Chain of instances: F-366 -> F-368 -> F-370 -> F-376 -> F-384 -> F-385 -> F-390, one live at a time. The defect remains open and correctly deferred as F-390: out of this story's diff, medium, non-blocking.",
+      "resolvedAt": "2026-09-03T09:10:30.478Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-386",
