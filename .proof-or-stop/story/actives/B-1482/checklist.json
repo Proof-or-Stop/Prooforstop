@@ -115,9 +115,9 @@
       "id": "CHK-003",
       "title": "Record the decision with pre-mortems and update the Verification Intent / Evidence section of CLAUDE.md",
       "context": "decision_set with at least four pre-mortems: evidence-shopping via repeated narrowing (blocked by the one-re-pin-per-recorded-receipt-set bound), a forged failing transcript (impossible because transcripts are not an input), a receipt whose old selector never matched anything (refused for lack of a recorded failing render), and an ENGINEERED failing receipt from a genuine run driven to fail on purpose (the residual gap; the decision must name the bound that closes it or record it as an accepted limitation). CLAUDE.md's Verification Intent / Evidence section documents the new command form, the recorded-receipt-only proof, and the invariant that loosening is impossible. Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create's keyword scan elevates it, keep the elevation rather than dismissing it.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-09-03T22:12:42.340Z",
       "relatedDocs": [
         "CLAUDE.md#verification-intent--evidence",
         "docs/dev/test-coverage.md"
@@ -164,6 +164,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "50ae8b6fe98fad960c07fd513bd09a923c4bc981e615e4b724df81f32b27e521",
+        "storyFilesHash": "9ead7f6c7004fbee994764d40ed7ccb280d879f6b0523347de66bdd63e101283",
+        "headHash": "9e3f2013c6aa65b45fec18869f41f7acadb50ed5",
+        "attestedAt": "2026-09-03T22:12:42.726Z",
+        "materialHash": "3210ec5d9ad792ff933f3a794791b91aba8b988079fe9312d73bf24acdb0bb74"
       }
     }
   ]
