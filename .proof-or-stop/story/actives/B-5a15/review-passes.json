@@ -14338,6 +14338,43 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "de9d4144d250f7c31d64b37091deb342ccad45cc809d3eb324aceffacb0fdc15"
+    },
+    {
+      "id": "B-5a15:RP-309",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verificationIntent->verificationEvidence coverage recomputed from checklist.json: total=53, must=51 (22 explicit + 29 defaulted), should=2 (CHK-004:happy:2/3), covered=53/53, missingRequired=0, all mechanical:true. F-351 hazard on CHK-004:happy:2/3 re-executed live in isolation (node --test --test-name-pattern=F-247): both markers emitted, confirming the strict non-bootstrap branches ran, not the fallback. pre-review-check.ts:128 confirms pre_review_check counts only priority=must intents, so the should-row refresh cannot launder the must gate. No coverage gaps found. F-366 (concept lane) not duplicated.",
+      "createdAt": "2026-09-03T02:35:05.830Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-903",
+      "envelopeId": "d0de0501e5a0a074dd1dbe036b5acc70448d320a099fd8494458e8f63da96f41",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbe7e1f1d667d759d71619540d65162232589bb6138e16d8f5da493891864cdd"
     }
   ]
 }
