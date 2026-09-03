@@ -84,6 +84,27 @@
         "scanEscalationReason": null
       },
       "_hash": "65bc8980da57fb0b4887175cd1bde64e03a6c11e109c48a0d86391b4378ab770"
+    },
+    {
+      "id": "B-e256:RP-004",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 quality review of commit 3b2f136af6 (promote-dist.mjs): pre-eviction chmod ordering preserves B-1734 invariant; ENOENT-only-benign error policy for stat/chmod verified; no findings.",
+      "createdAt": "2026-09-03T03:42:17.406Z",
+      "reviewRound": "2026-09-03T03:36:47.654Z",
+      "reviewRunId": "B-e256:RR-010",
+      "envelopeId": "389be17ea33928c3db9292e4a15e4957ffa61e956f0fbd258d3df723c18822b1",
+      "writerSessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ab14a2403f914f734b658e2a76dbef95980f41dd99220db93f9a844aad4e78da"
     }
   ]
 }
