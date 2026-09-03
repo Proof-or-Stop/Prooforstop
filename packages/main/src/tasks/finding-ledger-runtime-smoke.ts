@@ -112,6 +112,7 @@ import {
   assertPlanDevDependenciesDone,
   runStoryTransition,
 } from '../handlers/transition-orchestrator.js';
+import { readSyncedVersion } from '../core/version-bump.js';
 import { adapterSessionEnv } from './adapter-session-env.js';
 
 // This smoke launches several fresh CLI processes against one synthetic Story.
@@ -1272,45 +1273,49 @@ function assertRedGreenRelation(repositoryRoot: string): void {
 }
 
 function assertVersionSync(repositoryRoot: string): void {
-  const previous = '0.3.272';
-  const expected = '0.3.273';
-  const rootPackage = JSON.parse(readFileSync(join(repositoryRoot, 'package.json'), 'utf8')) as { version: string };
-  const mainPackage = JSON.parse(readFileSync(join(repositoryRoot, 'packages', 'main', 'package.json'), 'utf8')) as { version: string };
-  const lockfile = JSON.parse(readFileSync(join(repositoryRoot, 'package-lock.json'), 'utf8')) as {
-    version: string;
-    packages?: Record<string, { version?: string }>;
+  const versionCommitCandidates = git(repositoryRoot, [
+    'log',
+    '--full-history',
+    '--format=%H',
+    '--grep=^B-fe8f CHK-006: prove final ledger runtime GREEN$',
+    '--',
+    'package.json',
+  ]).split('\n').filter(Boolean);
+  assert.equal(versionCommitCandidates.length, 1, 'B-fe8f version commit must resolve uniquely in current lineage');
+  const versionCommit = versionCommitCandidates[0]!;
+  const previous = (JSON.parse(git(repositoryRoot, ['show', `${versionCommit}^:package.json`])) as { version: string }).version;
+  const expected = (JSON.parse(git(repositoryRoot, ['show', `${versionCommit}:package.json`])) as { version: string }).version;
+  const parts = (value: string): [number, number, number] => {
+    const parsed = value.split('.').map((part) => Number(part));
+    assert.equal(parsed.length, 3, `version ${value} is not X.Y.Z`);
+    assert.ok(parsed.every(Number.isInteger), `version ${value} contains a non-integer component`);
+    return parsed as [number, number, number];
   };
-  const runtimeConstant = readFileSync(join(repositoryRoot, 'packages', 'main', 'src', 'core', 'proof-or-stop-brand.ts'), 'utf8');
-  const parts = (value: string): number[] => value.split('.').map((part) => Number(part));
   const [previousMajor, previousMinor, previousPatch] = parts(previous);
   const [major, minor, patch] = parts(expected);
-  assert.deepEqual([major, minor, patch], [previousMajor, previousMinor, (previousPatch ?? -1) + 1]);
-  assert.equal(rootPackage.version, expected);
-  assert.equal(mainPackage.version, expected);
-  assert.equal(lockfile.version, expected);
-  assert.equal(lockfile.packages?.['']?.version, expected);
-  assert.match(runtimeConstant, /PROOF_OR_STOP_CLI_VERSION = '0\.3\.273' as const/);
+  assert.deepEqual([major, minor, patch], [previousMajor, previousMinor, previousPatch + 1]);
+
+  // Later Stories may legitimately advance the repository patch after B-fe8f's
+  // own one-step bump. Prove that historical increment from Git, then require the
+  // current five authoritative version points to agree instead of pinning this
+  // long-lived Story smoke to a patch number that unrelated DONE effects outgrow.
+  const current = readSyncedVersion(repositoryRoot);
+  const [currentMajor, currentMinor, currentPatch] = parts(current);
+  assert.deepEqual([currentMajor, currentMinor], [major, minor]);
+  assert.ok(currentPatch >= patch, `current version ${current} predates B-fe8f version ${expected}`);
 
   const local = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), '--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   assert.equal(local.status, 0, `local CLI version failed: ${local.stderr}`);
-  assert.match(local.stdout, /Proof-or-Stop 0\.3\.273/);
+  assert.equal(local.stdout.trim(), `Proof-or-Stop ${current}`);
   const installed = spawnSync('proof-or-stop', ['--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   assert.equal(installed.status, 0, `installed CLI version failed: ${installed.stderr}`);
-  // The installed binary is only required to carry the bumped version once the
-  // Story has merged back to main and main has been rebuilt; inside a linked
-  // story worktree it legitimately still resolves to the main checkout at the
-  // previous patch. Any other version means the install is desynchronized.
   const installedVersion = /Proof-or-Stop (\d+\.\d+\.\d+)/.exec(installed.stdout)?.[1];
-  assert.ok(installedVersion === expected || installedVersion === previous,
-    `installed CLI version ${installedVersion ?? installed.stdout.trim()} is neither ${expected} nor the pre-merge ${previous}`);
-  // installedCli=true reports that the installed-binary assertion above held;
-  // installedState says which of the two legitimate versions it observed.
-  const installedState = installedVersion === expected ? 'bumped' : 'main-checkout-pending-merge';
-  console.log(`green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=${installedState}`);
+  assert.equal(installedVersion, current, `installed CLI version ${installedVersion ?? installed.stdout.trim()} differs from current ${current}`);
+  console.log('green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=current');
 }
 
 function assertCleanPackInstall(repositoryRoot: string): void {
@@ -1364,7 +1369,7 @@ function assertCleanPackInstall(repositoryRoot: string): void {
       cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(cli.status, 0, `clean-installed CLI failed: ${cli.stderr}`);
-    assert.match(cli.stdout, /Proof-or-Stop 0\.3\.273/);
+    assert.equal(cli.stdout.trim(), `Proof-or-Stop ${readSyncedVersion(repositoryRoot)}`);
     console.log('green.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=false registryFetch=false cli=true');
   } finally {
     rmSync(scratch, { recursive: true, force: true });
