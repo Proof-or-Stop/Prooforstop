@@ -15856,6 +15856,37 @@
         "scanEscalationReason": null
       },
       "_hash": "929af076d5290cf2f39b2128b59e3d4f8c29c2a516c2238150fc4e3e3a3af60c"
+    },
+    {
+      "id": "B-5a15:RP-350",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-verified prior-round F-401/F-404 coverage debt (stale storyFilesHash across all 51 must-priority receipts) is paid. Live-confirmed acceptance_topology_check status=pass/0 diagnostics; test suite passes 21/21 per receipt outputTail; all 53 evidence rows mechanical=true with selectorMatched=true; 51/51 must intents covered at current storyFilesHash fd065ab3. Two should-priority CHK-004 intents remain stale but confirmed non-blocking and structurally unreachable this round (pre_review_check write refused in REVIEW; pre_review_check_read returns the exact allow-listed bootstrap code set). No new coverage gap found.",
+      "createdAt": "2026-09-03T13:19:15.906Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-968",
+      "envelopeId": "9f1ac6762f868338d89abb7b7095d93e317dccc601d69959fb2e0fd423f1b61e",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/index.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4758fcee81b85b583f981c0470238e2c83d1e3e8e3f0e08189d25281e96a7074"
     }
   ]
 }
