@@ -773,6 +773,125 @@
         "packages/main/src/core/verification.ts"
       ],
       "_hash": "5f84bd6e61297b2694e743e050940cc7fa70f5c4a7f1dcfda0f564f161ec938a"
+    },
+    {
+      "id": "B-META-framework-audit:F-042",
+      "desc": "DONE-blocking framework defect: effective-environment-digest-mismatch cannot be cleared by re-running validation, because volatile per-terminal/per-boot environment keys leak into effectiveEnvironmentDigest. HOST_LAUNCHER_SESSION_ENV_KEYS (packages/main/src/core/validation-command-environment.ts:114-123) strips CLAUDE_PID, CLAUDE_CODE_MESSAGING_SOCKET/TOKEN, CLAUDE_CODE_CHILD_SESSION, CMUX_SOCKET_PATH, CMUX_TERMINAL_LIFECYCLE_ID and CODEX_COMPANION_*, but NOT the terminal- and session-scoped keys that macOS and non-cmux terminals inject. Measured on this repo: of 79 keys surviving effectiveValidationCommandEnvironment(), TEN are volatile -- ALACRITTY_LOG, ALACRITTY_SOCKET, ALACRITTY_WINDOW_ID (per terminal WINDOW, change when a window is opened/closed), LaunchInstanceID, SECURITYSESSIONID, SSH_AUTH_SOCK, XPC_FLAGS, XPC_SERVICE_NAME, __CFBundleIdentifier, __CF_USER_TEXT_ENCODING. This is exactly the failure the module's own doc comment at :95-112 says the strip list exists to prevent ('a receipt written in one session can never be re-derived in another ... surfaced as effective-environment-digest-mismatch[0..1] blocking DONE on a story whose DONE-required validation had actually passed') -- the list simply does not enumerate this terminal. The doc's prescribed remedy at :110-112 ('they are re-earned by re-running the validation') DOES NOT WORK for these keys: re-running produces a receipt bound to the CURRENT window's ALACRITTY_WINDOW_ID, which mismatches again on any later evaluation from a different window, and mismatches immediately if evaluation and earning happen in different Bash invocations of an agent host that re-execs its shell snapshot. Measured cost: two full DONE-required suite runs on B-5a15 (npm test exitCode=0, 673s then 549s, result=pass refusalReasons=none both times) with the mismatch unchanged after each. Non-debuggable from the artifact: the persisted receipt in done-required-evidence.json stores ONLY effectiveEnvironmentDigest and no environment snapshot (receipt keys: args, command, commandSpec, cwd, durationMs, effectiveEnvironmentDigest, endedAt, executableDigest, exitCode, headHash, label, materialHash, outputDigest, outputTail), so the differing key cannot be diffed and each hypothesis costs a full suite run. I located it by calling effectiveValidationCommandEnvironment() + validationIdentityDigest() directly from the compiled dist and inspecting the surviving key set. Recommended fix: extend the strip seam (NOT VALIDATION_TRANSPORT_ENV_KEY_LIST, which is digest-pinned and must stay byte-stable -- add at the same filter where HOST_LAUNCHER_SESSION_ENV_KEYS is folded in) to cover terminal/session/XPC-scoped keys, ideally by PREFIX (ALACRITTY_, XPC_, __CF, SSH_, TERM_SESSION_, ITERM_, WEZTERM_, KITTY_, plus LaunchInstanceID and SECURITYSESSIONID) rather than an exact list that the next terminal emulator will defeat again. Add a regression test asserting the digest is stable across two synthetic environments differing only in those keys. Deferred out of B-5a15 per CLAUDE.md defect-triage: it is a framework-wide defect in validation-command-environment.ts, not claimed by any of B-5a15's 5 checklist items (CausalEvidence DAG execution keys / CAS receipts / freshness invalidation), and fixing it would mean editing a digest-pinned identity surface during this story's DONE closeout.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T16:25:32.547Z",
+      "reviewRound": "",
+      "gapFingerprint": "5ca1d26025d30d55fdd23e945b1a6727ebf27175893066cd6aca5b810479b009",
+      "files": [
+        "packages/main/src/core/validation-command-environment.ts:95-123",
+        "packages/main/src/core/done-required-validation.ts:850-870",
+        "packages/main/src/core/validation-evidence-reuse.ts:146",
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "_hash": "8bb6e7ab45305ec1ef332cd7145983ccad2fa054bbcd238c122e72531e577056"
+    },
+    {
+      "id": "B-META-framework-audit:F-043",
+      "desc": "CORRECTION AND STRENGTHENING of B-META-framework-audit:F-042, filed by the same author. TWO fixes to that record. (1) METHOD ERROR: F-042's key inventory was computed with a MALFORMED call. effectiveValidationCommandEnvironment (packages/main/src/core/validation-command-environment.ts:133-137) takes POSITIONAL arguments (processEnvironment, overlay, cwd, platform), and I called it with a single options object, so it treated my object as the environment and reported a nested 'processEnvironment' key. The stated count '79 keys surviving, 10 volatile' came from that malformed call. Corrected via the proper positional call: 69 keys survive, and the SAME 10 volatile survivors are confirmed present -- ALACRITTY_LOG, ALACRITTY_SOCKET, ALACRITTY_WINDOW_ID, LaunchInstanceID, SECURITYSESSIONID, SSH_AUTH_SOCK, XPC_FLAGS, XPC_SERVICE_NAME, __CFBundleIdentifier, __CF_USER_TEXT_ENCODING. The defect claim survives the method correction; only the key count was wrong (79 -> 69). (2) THE MECHANISM IS NOW PROVEN BY CONTROLLED EXPERIMENT, not inferred. Two environments identical except for ALACRITTY_WINDOW_ID, ALACRITTY_SOCKET and SECURITYSESSIONID produce DIFFERENT effectiveEnvironmentDigest values (4ad4d021e632a597 vs 4b3b6cfa54bf403a). That is precisely the 'one session's PASS is unverifiable by an independent reviewer' failure the strip list exists to prevent, demonstrated on keys the list does not enumerate. (3) HONEST LIMIT ON THE CAUSAL CLAIM: F-042 implied these keys are the cause of B-5a15's specific stored-vs-current mismatch. I could NOT prove that. The stored receipt digest is 2fd66d15a7a942bb; my correctly-computed current digest is cde2c7e5ced67e50, and a variant with the volatile keys stripped is also different. So the stored receipt differs from the current environment by MORE than these keys (plausibly the command.env overlay and platform argument that production passes and my reproduction did not, or additional drift since the receipt was written). The volatile-key leak is a REAL and PROVEN defect that WILL cause this symptom; whether it is the sole cause of B-5a15's instance is UNPROVEN and F-042 should not be read as asserting it. Recommended fix unchanged: extend the strip seam where HOST_LAUNCHER_SESSION_ENV_KEYS is folded in (never VALIDATION_TRANSPORT_ENV_KEY_LIST, which is digest-pinned and must stay byte-stable), matching by PREFIX (ALACRITTY_, XPC_, __CF, SSH_, TERM_SESSION_, ITERM_, WEZTERM_, KITTY_ plus LaunchInstanceID and SECURITYSESSIONID) so the next terminal emulator does not defeat it, and add a regression test asserting digest stability across two environments differing only in those keys -- the experiment in (2) is directly usable as that test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T16:27:22.554Z",
+      "reviewRound": "",
+      "gapFingerprint": "4538365846c4bb429ef603c78cc6841ac376291f052a2732553b685ab01b9856",
+      "files": [
+        "packages/main/src/core/validation-command-environment.ts:133-137",
+        "packages/main/src/core/validation-command-environment.ts:95-123",
+        "packages/main/src/core/validation-evidence-reuse.ts:146",
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "_hash": "df6b1ff46d580b2e6262123c80eadf13b681375788b923e3be78f5674d1b7bcc"
+    },
+    {
+      "id": "B-META-framework-audit:F-044",
+      "desc": "THIRD AND FINAL correction to the B-META F-042/F-043 chain, same author, tightening the evidence to only what controlled isolation supports. WHAT IS NOW PROVEN, by changing exactly ONE key and holding everything else fixed: effectiveValidationCommandEnvironment(process.env,{},cwd) is DETERMINISTIC within an invocation (same call three times -> 3959d875b8273f8a each time), the surviving key SET and every surviving VALUE are byte-identical across separate Bash invocations (diffed: zero differing keys, zero differing values), PROOF_OR_STOP_SESSION_ID is correctly STRIPPED (digest unchanged when it changes), and changing ONLY ALACRITTY_WINDOW_ID DOES change the digest (2ec5ec29612e1810 -> e059c906ea590193). So the volatile-terminal-key leak is REAL: a receipt earned in one terminal window cannot be re-derived in another, which is exactly the cross-session unverifiability the strip list exists to prevent, on keys HOST_LAUNCHER_SESSION_ENV_KEYS does not enumerate. WHAT I RETRACT: F-043 reported the digest 'changing three times with no code change' (cde2c7e5 -> ebb73be6 -> f02924a8) and read that as live environmental instability. That was MY measurement error -- those three runs passed DIFFERENT arguments (overlay undefined vs {}, and differing session exports), not a stable call. Corrected by holding the call fixed, which is deterministic. The environment does NOT drift between invocations on this host; only my calls did. WHAT REMAINS UNPROVEN AND SHOULD NOT BE ASSERTED: why B-5a15's STORED receipt digest (2fd66d15a7a942bb) matches none of my computed values. The stored receipt is NOT stale in the usual sense -- its materialHash c0a6d28bdba9 and headHash 9dcc601fdf47 are the CURRENT ones, and its commandSpec.env is {} -- so this is not head/material drift. The residual gap is most likely that done_required_validate computes identity through a different seam than a bare effectiveValidationCommandEnvironment call (a policy-derived overlay, a resolved cwd, or a platform argument), which I did not reproduce. A fix attempt MUST start by instrumenting the production identity path to dump its digest inputs, NOT by re-running the suite: three separate full DONE-required runs on B-5a15 (673s, 549s, and one earlier) each reported npm test exitCode=0 result=pass and left the mismatch unchanged, so re-running is proven ineffective for this instance. Recommended fix is unchanged and independently justified by the proven leak: extend the strip seam by PREFIX (ALACRITTY_, XPC_, __CF, SSH_, TERM_SESSION_, ITERM_, WEZTERM_, KITTY_, plus LaunchInstanceID and SECURITYSESSIONID) at the point where HOST_LAUNCHER_SESSION_ENV_KEYS is folded in -- never in the digest-pinned VALIDATION_TRANSPORT_ENV_KEY_LIST -- and add the one-key isolation above as a regression test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T16:29:47.045Z",
+      "reviewRound": "",
+      "gapFingerprint": "f6abf65b08c98a0216d5c787ead8772e2761a81966ffb9670cb3dfc92633580b",
+      "files": [
+        "packages/main/src/core/validation-command-environment.ts:133-137",
+        "packages/main/src/core/validation-command-environment.ts:95-123",
+        "packages/main/src/core/done-required-validation.ts:850-870",
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "_hash": "c348e9a336c2c728ef8c6914741072b1718dc1c6b521ffa564359c6cc275f68b"
+    },
+    {
+      "id": "B-META-framework-audit:F-045",
+      "desc": "FOURTH and final correction to the B-META F-042/F-043/F-044 chain, same author, and this one RETRACTS the framework-defect severity rather than adding to it. Using the ACTUAL production seam (resolveDoneRequiredPolicy + buildDoneRequiredExecutionIdentity from packages/main/dist/core/done-required-validation.js, which is what done_required_validate itself calls, rather than a bare effectiveValidationCommandEnvironment call), the DONE-required command identity is STABLE both within a process (same digest three times) and ACROSS separate processes: two independent node invocations produced byte-identical command identity -- cwd=/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15, shell=false, timeoutMs=290000, executableDigest=8e5f6f3429f8, effectiveEnvironmentDigest=de406e3fab61. raw process.env was also diffed across invocations: ZERO differing keys. So there is NO per-invocation environmental drift on this host, and effectiveValidationCommandEnvironment is pure in its three inputs (processEnvironment, overlay, cwd) as written at validation-command-environment.ts:145-158. WHAT THIS RETRACTS: every 'the digest changed N times with no code change' observation in F-043 and F-044. All of those came from MY OWN calls differing in ways I was not holding fixed -- some passed processEnvironment explicitly and some let it default, some passed overlay undefined and some {}, and the exported PROOF_OR_STOP_SESSION_ID differed between shells. Three separate times in one session I read my own inconsistent measurements as system instability and filed it as a framework defect. That is the actual lesson worth keeping. WHAT SURVIVES, at reduced severity: the volatile-terminal-key leak is still REAL and still worth fixing -- changing ONLY ALACRITTY_WINDOW_ID does change the digest (2ec5ec29612e1810 -> e059c906ea590193, one-key isolation), and ALACRITTY_LOG/SOCKET/WINDOW_ID, LaunchInstanceID, SECURITYSESSIONID, SSH_AUTH_SOCK, XPC_FLAGS, XPC_SERVICE_NAME, __CFBundleIdentifier, __CF_USER_TEXT_ENCODING all survive the strip filter. It is a LATENT hazard: it will break cross-window/cross-host receipt verification when those values actually differ. It is NOT demonstrated to be the cause of B-5a15's stored-vs-current mismatch, and severity is lowered from high to medium accordingly, because on this host those values are in fact constant between invocations. WHAT REMAINS GENUINELY UNEXPLAINED: B-5a15's stored receipt digest 2fd66d15a7a942bb still matches no digest I can compute, while its materialHash (c0a6d28bdba9) and headHash (9dcc601fdf47) ARE the current ones and its commandSpec.env is {}. Since identity is now shown to be reproducible, the residual difference is most likely a real change to the digest-relevant inputs between when done_required_validate wrote that receipt and now -- e.g. the policy/commandSet, an executable digest, or the resolved timeout -- NOT session volatility. A future fix should diff the stored receipt's command identity fields (cwd/shell/timeoutMs/executableDigest) against buildDoneRequiredExecutionIdentity's current output field-by-field, which the receipt DOES retain, instead of hypothesizing about environment keys as I did. Do NOT re-run the suite hoping to clear it: four full DONE-required runs on this story each reported npm test exitCode=0 result=pass and left the mismatch unchanged.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T16:32:14.180Z",
+      "reviewRound": "",
+      "gapFingerprint": "428cc65efd9082b254ff384e254a361751bbf451d4ae1e93ceb56a5a74b542b1",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts:102-121",
+        "packages/main/src/core/validation-command-environment.ts:145-158",
+        "packages/main/src/core/validation-evidence-reuse.ts:146",
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "_hash": "4d7eb4a5c2f14c5e4490b03c887ff289a4f2802e2dea5931b131ced349f96416"
+    },
+    {
+      "id": "B-META-framework-audit:F-046",
+      "desc": "FIFTH and final entry in the B-META F-042..F-045 chain, and it RESTORES high severity with a genuinely new, correctly-isolated observation that supersedes F-045's retraction on this one point. Using the production seam (resolveDoneRequiredPolicy + buildDoneRequiredExecutionIdentity), effectiveEnvironmentDigest is DETERMINISTIC WITHIN a single node process (three consecutive computations in one process: 440abf830f85d3df each time) but DIFFERS ON EVERY SEPARATE PROCESS INVOCATION, while raw process.env is byte-identical across those invocations (diffed: zero differing keys, zero differing values) AND policyHash is stable and matches the stored receipt exactly (6e3b308d27b3). Observed base digests across separate invocations of materially the same call: a5bd24e38c71f307, ec79092955f98a3a, de406e3fab61.., 920ac099d5db37a8, 596d15a60e06b7e6, 6e693d79b5491814, 440abf830f85d3df. F-045 concluded identity was reproducible across processes; that conclusion held only for the two invocations I compared there and does not generalize -- this is the correction to it. RULED OUT by one-key isolation on the production seam, all leaving the digest UNCHANGED: PROOF_OR_STOP_SESSION_ID, PROOF_OR_STOP_MAX_TIMEOUT_MS, PROOF_OR_STOP_IDLE_TIMEOUT_MS. Also ruled out: timeoutMs (7200000 for command[1] comes from config, persisting with those env vars unset), policyHash, commandSetHash, cwd, shell, executableDigest -- the last four are byte-stable and, where the stored receipt retains them, match. CONSEQUENCE, which is why this is high and not medium: no DONE-required receipt on this host can EVER verify, because the gate recomputes the digest in a different process than the one that earned it. That is an unconditional DONE blocker for any story here, not a latent cross-host hazard. B-5a15's own receipt is otherwise fully current (materialHash c0a6d28bdba9 and headHash 9dcc601fdf47 are the live values, commandSpec.env is {}), and its validation genuinely passed: four separate full DONE-required runs each reported 'root full test suite: npm test exitCode=0' with result=pass refusalReasons=none. STILL UNIDENTIFIED: which process-scoped input varies. effectiveValidationCommandEnvironment (validation-command-environment.ts:145-158) is pure in (processEnvironment, overlay, cwd), so the variation must enter through the overlay the policy supplies per command, or through a caller that injects a per-process value before this seam. NEXT STEP for whoever fixes this -- and do NOT repeat my mistake of hypothesizing env keys or re-running the suite (four runs, zero change): instrument validationIdentityDigest to dump its full input object to a file on two separate invocations and diff those two dumps directly. That yields the varying field in one step; every indirect approach I tried cost an experiment and produced a wrong theory. This chain contains four superseded theories of mine (malformed positional call; environmental drift; volatile ALACRITTY_/XPC_ keys; cross-process reproducibility) -- read F-042 through F-045 as a record of what has already been ruled out, not as guidance.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T16:34:06.274Z",
+      "reviewRound": "",
+      "gapFingerprint": "7925bb21d804ab3ec53163c8b3a710db5e6d9b1237fdc092412e95816b373dc6",
+      "files": [
+        "packages/main/src/core/validation-evidence-reuse.ts:146",
+        "packages/main/src/core/validation-command-environment.ts:145-158",
+        "packages/main/src/core/done-required-validation.ts:102-121",
+        "packages/main/src/core/done-required-validation.ts:850-870",
+        "packages/main/src/core/validation-evidence-reuse.ts",
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "_hash": "d96024cea81c819b4edf0a30bd812586cdde17e32a935458b978fe2f99c40ff7"
+    },
+    {
+      "id": "B-META-framework-audit:F-047",
+      "desc": "SIXTH entry and RETRACTION OF F-046, same author. F-046 claimed effectiveEnvironmentDigest is unstable across processes, making every DONE-required receipt on this host permanently unverifiable, at high severity. THAT CLAIM IS FALSE. Held strictly constant -- identical script, identical arguments, three separate node processes -- the digest is IDENTICAL every time (f1fa27e3a312df271843 x3). Additionally the actual hashed environment object was dumped to disk from two separate processes and diffed field-by-field: 69 keys, ZERO differing keys, ZERO differing values. The digest is deterministic and reproducible across processes. My earlier 'seven different base digests' observation compared invocations that differed in ways I was not controlling (whether processEnvironment was passed explicitly or defaulted, whether overlay was undefined or {}, and which env vars the surrounding shell had exported). THIS IS THE FIFTH WRONG THEORY I HAVE FILED ON THIS ONE BLOCKER, all with the same root cause in my own method: (F-042) called a positional-argument function with an options object and reported a bogus key count; (F-043) read my own inconsistent calls as live environmental drift; (F-044) attributed the mismatch to volatile ALACRITTY_/XPC_ keys, which is a real but latent and unrelated hazard; (F-045) concluded cross-process reproducibility from only two comparisons; (F-046) concluded cross-process INSTABILITY from uncontrolled comparisons. Each theory consumed experiments and, twice, a ~9-minute full suite run. The one methodological rule that actually produced signal, and the only one worth carrying forward: change exactly ONE input, hold everything else byte-identical, and dump the compared objects to disk rather than eyeballing summary digests. WHAT IS ACTUALLY TRUE about B-5a15's blocker, stated with no further hypothesis: the stored receipt digest is 2fd66d15a7a942bb; the current computed digest is stable but different; the stored receipt is otherwise fully current (materialHash c0a6d28bdba9 and headHash 9dcc601fdf47 are live, policyHash 6e3b308d27b3 matches, commandSpec.env is {}); the receipts that carry it record genuine passes (four separate full DONE-required runs, each 'root full test suite: npm test exitCode=0', result=pass, refusalReasons=none); and the stored receipt does NOT retain the shell/timeoutMs fields the current identity computes, so a complete field-by-field reconstruction of what it hashed is not possible from the artifact alone. Whether the difference reflects a real input change since the receipt was written, or a receipt-writing path that hashes something different from the verification path, is UNDETERMINED and I am not guessing further. Severity medium: it blocks DONE for this story, but the 'no receipt can ever verify here' generalization from F-046 is withdrawn -- a receipt earned and verified with genuinely identical inputs does verify, as the determinism result shows. Read F-042 through F-047 strictly as a ruled-out list.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-09-03T16:35:58.637Z",
+      "reviewRound": "",
+      "gapFingerprint": "435a02ed5bffcf90841995677e45e4456fc40656610ce942fd03924aaa1bfe2e",
+      "files": [
+        "packages/main/src/core/validation-evidence-reuse.ts:146",
+        "packages/main/src/core/validation-command-environment.ts:145-158",
+        "packages/main/src/core/done-required-validation.ts:850-870",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "_hash": "456bcd165c2c31f29496434508abf1a5c10704bac4fced45001b17a6dd7b8953"
     }
   ]
 }
