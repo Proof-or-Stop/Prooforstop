@@ -15586,6 +15586,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1536c2d214901c56904fc0a3a3c758680f42a8f21637a2990e09926a76cd852f"
+    },
+    {
+      "id": "B-5a15:RP-342",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 65 post-merge re-review after main merged into B-5a15 (17df1f389e). Focused on the flagged merge union in packages/graph/scripts/verify-missing-assets-fail.mjs: traced full control flow for dead code, unreachable branches, non-firing assertions, spawn leaks. No leaks: serveAndFetch try/finally always kills its child. No port race: first server confirmed dead+settled before serveAndFetch spawns the second. leaked-listener report at line 220 is a real fireable assertion on a pre-branch snapshot, not dead code. All quoted content strings (openStoryDossier, d3.min.js, building browser client, graph serving) verified present in packages/main/src/handlers/graph.ts. node --check passes, no dead imports, rebuiltStash/spawn correctly present post-graft. Read-only confirmed app.html 401347 bytes no stash residue, package.json test:serial-reference has both merged entries (58, valid JSON), lattice.config.json/proof-or-stop.config.json valid JSON. One cosmetic-only nit not filed: rebuiltStash path/comment drifted during graft, no functional impact. Reviewed F-390/F-391/F-396 deferrals (391/396 are mine): unrelated to this merge file, well-evidenced, not re-filing. No new findings this round.",
+      "createdAt": "2026-09-03T11:09:52.850Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-957",
+      "envelopeId": "8bb7c405642cc46feaa044eec0e72f9b4ee7626215c8e5708f019041e262ba0a",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "456bab084b9f951941acdcf3e3a8130ee2176085f8e28492ac1683a72ddaa8cf"
     }
   ]
 }
