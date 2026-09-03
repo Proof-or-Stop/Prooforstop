@@ -14824,6 +14824,26 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "6716e8adf6dbeee49347729fe2667157602c433bd677d9c60460bb686a012668"
+    },
+    {
+      "id": "B-5a15:RP-321",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality audit of commit 4e6e55f00b (F-383 fix): confirmed one-file 8+/2- scope, no dead branch, F-379 untouched, rmSync(rebuiltStash) still correct.",
+      "createdAt": "2026-09-03T05:16:30.139Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-922",
+      "envelopeId": "1508209b0f067082d5840fed17f492f5b8b7e67a0a24c26eabc5fd84d21416b1",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed4d81e3e7eb3e31165a80481a3f3fa0fbf8ceb132bdfbef0630fa1b8ec973c7"
     }
   ]
 }
