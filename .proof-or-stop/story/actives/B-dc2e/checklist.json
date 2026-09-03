@@ -53,7 +53,43 @@
       "context": "tasks/full-suite-runner-smoke.ts around line 563 only compares synthetic fixtures. RED: remove a real RESOURCE_POLICY row on a scratch copy and assert the new case fails; account for test:serial-reference-prefix members that legitimately read as stalePolicy against the main chain. Keep the synthetic cases.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "userSees": "`node packages/main/dist/tasks/full-suite-runner-smoke.js` prints a `[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row` line and a `[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership` line, then its final PASS line.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The real package.json chains (test:serial-reference and test:serial-reference-prefix) are evaluated against the real RESOURCE_POLICY and pass on the current tree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Members of test:serial-reference-prefix are not reported as stalePolicy against the main chain; the synthetic cases remain and still pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Removing one real RESOURCE_POLICY row on a scratch copy makes the real-data case fail with the row named.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
