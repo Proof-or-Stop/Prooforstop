@@ -134,7 +134,18 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-story-init',
-    templateHash: 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
+    // origin/main merge: repinned in the same pass that adopted origin's story-init body.
+    // Our pre-merge body told the reviewer to read docs/story/actives/<storyId>/
+    // background.md, index.json and checklist.json DIRECTLY -- forbidden by CLAUDE.md and
+    // rejected by this script's own story-init CLI-only policy. origin had already
+    // replaced those three steps with proof-or-stop background_get / story_get /
+    // checklist_get, so origin's body is adopted verbatim except for the managed-marker
+    // spelling, which stays ours because other digests depend on it.
+    // NOTE this field is the RECONSTRUCTION digest (it is compared against
+    // LEGACY_COMPLEX_TEMPLATE_SHA256 in core/prompt-registry.ts), not the raw sha256 of
+    // the template file -- pinning the file hash here fails with 'approved prompt policy
+    // manifest hash mismatch'.
+    templateHash: 'a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
@@ -215,13 +226,22 @@ const ROLE_MATRIX_COMMANDS_CONTRACT = {
 const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
   'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
 const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
-const DIRECT_STORY_WRITE_ALLOWLIST = [
-  {
-    role: 'proof-or-stop-review-story-init',
-    excerpt: STORY_INIT_SELF_CHECK_WRITE,
-    reason: 'Current INIT anti-self-exemption sidecar pending CLI migration.',
-  },
-];
+// origin/main merge: without this, the script throws ReferenceError before running any
+// check. origin renamed STORY_INIT_SELF_CHECK_WRITE (declared just above, still
+// referenced by DIRECT_STORY_WRITE_ALLOWLIST) to RETIRED_STORY_INIT_DIRECT_WRITE, but our
+// pre-merge main carried only the NEW name's USE site -- at the 'retired story-init
+// sidecar write fails closed' case -- and never declared it. Aliased to the existing
+// constant so both use sites work and the value stays byte-identical to origin's.
+const RETIRED_STORY_INIT_DIRECT_WRITE = STORY_INIT_SELF_CHECK_WRITE;
+// origin/main merge: emptied, matching origin. The single entry here allowed the
+// story-init prompt to write docs/story/actives/<storyId>/init-self-check.json directly,
+// with the reason 'pending CLI migration'. That migration has now landed -- origin's
+// story-init body uses proof-or-stop background_get / story_get / checklist_get and
+// rewriteStoryInitLegacyTailForCliOnly strips the sidecar write from the assembled
+// prompt -- so the exemption no longer matches anything and the policy check fails
+// closed on a stale allow entry ('must match exactly once ... matched 0'). Removing a
+// now-unnecessary exemption NARROWS the allowed surface; it does not widen it.
+const DIRECT_STORY_WRITE_ALLOWLIST = [];
 const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
     role: 'proof-or-stop-review-channel',
