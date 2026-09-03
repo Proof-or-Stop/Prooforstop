@@ -629,6 +629,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-028",
+      "desc": "Legacy Finding terminal transitions are not crash-recoverable. packages/main/src/handlers/finding.ts:169-202 durably appends a legacy_identity_binding and assigns finding.recordId only in the in-memory compatibility mirror; lines 263-287 then durably append the signed lifecycle transition before the caller rewrites findings.json. If the process dies in that window, packages/main/src/core/store.ts:564-586 projects recordIds only from recordType=finding, not legacy_identity_binding, while lines 603-607 require candidate.recordId === transition.findingRecordId. An isolated current-build StoryStore repro deliberately omitted the post-transition mirror write and returned {durableTransitionRows:1,mirrorRecordId:null,projectedStatus:\"open\"}. Thus an acknowledged resolved/dismissed legacy Finding reappears open after crash, violating the Section 9.3 crash/retry and exactly-once lifecycle contract; add recovery projection for the signed legacy binding and a kill-window regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T13:44:42.080Z",
+      "reviewRound": "2026-09-03T13:27:50.557Z",
+      "reviewRunId": "B-fe8f:RR-055",
+      "_hash": "b5c6e0c63bac53f179c5db54f2bf6cefaf51870957ff8fd9813830988854d8f4",
+      "files": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|legacy-finding-terminal",
+      "signatureTagSource": "auto"
     }
   ]
 }
