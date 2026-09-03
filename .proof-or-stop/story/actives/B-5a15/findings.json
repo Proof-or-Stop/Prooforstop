@@ -20098,7 +20098,7 @@
       "desc": "RE-FILE of prior F-374 (still unfixed): a fresh run of causal-evidence.test.mjs still fails at test F-247 before reaching CHK-004:happy:2/3 marker emission. acceptance_topology_check now reports status=fail with diagnostics=[AT_COVERAGE_BASIS_STALE] (not on the topologyRefreshBootstrap allow-list at causal-evidence.test.mjs:2475-2478), so the very first assert.ok at line 2479 throws before the pre_review_check_read bootstrap branch is even reached. pre_review_check_read independently confirms status=fail codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED], matching the bootstrap allow-list at line 2503 (isEvidenceRefreshBootstrap true), so even past the topology gate the markers at lines 2515-2522 would not fire. Root cause unchanged from F-374: acceptance_basis_generate was re-run after CHK-004:happy:2/3 receipts were earned, moving basisDigest (pre_review_check snapshots it as priorPlanBasisDigest at pre-review-check.ts:350) and storyFilesHash-based binding (pre-review-check.ts:111-119,360). checklist.json currently shows total=53 required=51 covered=53 missingRequired=0 (buildVerificationCoverage, no currentHead arg) with all 53 entries mechanical:true, and the two should-priority entries are exactly CHK-004:happy:2/3 (integration_test, headHash=e58037c vs current HEAD=3a06de3a -- stale). This is the known F-435/F-438 ordering trap; not yet fixed as of this review round. Recommended fix: proceed with the planned finalize -> DEV -> rebuild-chain -> re-earn -> REVIEW cycle (see companion finding on ordering trap in the plan itself).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T04:00:25.049Z",
@@ -20131,7 +20131,9 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|mjs|file-prior-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by rebuilding the acceptance chain in DEV. The finding was correct: acceptance_topology_check reported AT_COVERAGE_BASIS_STALE, which is not on the topologyRefreshBootstrap allow-list at causal-evidence.test.mjs:2475-2478, so :2479's first assert.ok threw before the test reached the pre_review_check_read bootstrap check, leaving the CHK-004:happy:2/:3 marker block at :2515-2522 unreached. Rebuild sequence: acceptance_basis_generate (complete, receipt c56c02d1 verified) -> acceptance_rollout_report (PASS, quorum=full-3x2) -> live_smoke_transcript capture (exit 0, persisted) -> 51 must receipts -> pre_review_check -> refresh the 2 should rows -> final 2 receipts -> pre_review_check re-issued. Current mechanical state: acceptance_topology_check reports zero AT_ diagnostics, pre_review_check_read is PASS with no codes, the pinned suite exits 0 with both markers emitted via the strict branch (56 declared selectors present), and coverage is total=53 required=51 covered=53 missingRequired=0 with all 53 rows mechanical:true.",
+      "resolvedAt": "2026-09-03T04:57:07.936Z"
     },
     {
       "id": "B-5a15:F-381",
