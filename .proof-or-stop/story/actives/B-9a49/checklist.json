@@ -1433,15 +1433,22 @@
         {
           "intentRef": "CHK-004:edge:version-and-local-artifacts",
           "kind": "integration_test",
-          "command": "node bin/proof-or-stop.js --version",
+          "command": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));const v=read('package.json').version;const vals=[v,read('package-lock.json').packages[''].version,read('packages/main/package.json').version,read('packages/main/package-lock.json').packages[''].version];const marker='PROOF_OR_STOP_CLI_VERSION = '+String.fromCharCode(39)+v+String.fromCharCode(39);const src=fs.readFileSync('packages/main/src/core/proof-or-stop-brand.ts','utf8');const dist=fs.readFileSync('packages/main/dist/core/proof-or-stop-brand.js','utf8');const cli=cp.execFileSync(process.execPath,['bin/proof-or-stop.js','--version'],{encoding:'utf8'}).trim();if(!vals.every(x=>x===v)||!src.includes(marker)||!dist.includes(marker)||!cli.includes(v))throw new Error('version mismatch '+JSON.stringify({vals,cli}));console.log('version sync: PASS '+v)\"",
           "result": "pass",
-          "note": "Re-execute the controlled-replan version pin against the repository-local CLI; the tool derives the command and selector and records the actual receipt.",
-          "headHash": "80a81a30fe61d1c50d82043e849fbeaf1c2c7342",
+          "note": "Re-execute the shell-free compatible synchronized-version witness against current local artifacts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c18dcd1729fdae04c297c3bee8fe7921ba716999937b2f0b34ee0e5f9274d167",
+            "outputTail": "version sync: PASS 0.3.273\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T16:55:29.813Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "471ce3ac67fe4204d082fda91cbce85b8f266099",
           "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37",
           "storyFilesHash": "9e11eead11d6bbd52e3470b59a1932504ea54fc20bca64114b6acdd3855f5211",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-09-03T16:25:52.891Z"
+          "timestamp": "2026-09-03T16:55:30.029Z"
         },
         {
           "intentRef": "CHK-004:adversarial:false-red",
