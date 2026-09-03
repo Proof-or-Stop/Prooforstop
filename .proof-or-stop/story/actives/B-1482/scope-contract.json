@@ -24,9 +24,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-001: the guard pins a repository-wide count of scanned executable source files and this story added one (the narrowing-repin smoke), so the pinned ceiling must move from 809 to 810 with a maintenance comment. No other change to that file.",
+      "timestamp": "2026-09-03T22:13:41.409Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2da5e2496d7f5e7677b0bf4cf1db45340f72f8d4",
+      "materialHash": "3210ec5d9ad792ff933f3a794791b91aba8b988079fe9312d73bf24acdb0bb74"
+    }
+  ],
   "createdAt": "2026-09-03T20:59:27.439Z",
-  "updatedAt": "2026-09-03T21:48:41.225Z",
+  "updatedAt": "2026-09-03T22:13:41.409Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -42,6 +59,7 @@
     "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/tasks/narrowing-repin-smoke.ts": "packages/main/src/tasks/narrowing-repin-smoke.ts",
-    "docs/requirements/decisions/narrowing-only-evidence-repin.md": "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+    "docs/requirements/decisions/narrowing-only-evidence-repin.md": "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
