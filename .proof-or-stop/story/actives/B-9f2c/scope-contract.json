@@ -94,10 +94,26 @@
       "phase": "DEV",
       "headHash": "f398c9aee9b17f971d8ba5011bdade0f16814936",
       "materialHash": "ccfdb13e69090a5d5e57c98bc0a8f9ec78a0cefc7934f21eee8c024a2107c714"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledged late, after the independent topology critic correctly caught that this file was edited across three repair rounds without ever being recorded in the scope contract, unlike the four other out-of-scope paths that were. That omission was mine and the critic was right to flag it as a real coverage gap. Why the edits were in scope for this story rather than creep: main commit 3aa57145d8 replaced the graph handler's refuse-before-listen path with ensureGraphClientBuilt, and this verifier still asserted the OLD contract, so npm --prefix packages/graph run check failed and blocked REVIEW to TEST. The story could not reach DONE without reconciling it. Three rounds followed because each repair was itself reviewed and found wanting: dcf54ecff3 adapted the contract but weakened coverage (F-005, caught by test-coverage with a negative control), 4912d8390a restored the content assertions but introduced a race and a process leak (F-006, caught by quality and reproduced live including an orphaned pid), and 0c9253c5be made the settle unconditional and polling-based (F-008, also caught by quality). Two residual limits remain recorded and deferred with evidence rather than chased: F-007 (deliberate padded-stub forgery, present-but-stale untestability) and F-009 (torn-write window; quality independently established production has no reachable trigger since its spawnSync carries no timeout). Every round was verified by re-running the check to exit 0 and by re-running the reviewers' own reproductions.",
+      "timestamp": "2026-09-03T07:20:05.900Z",
+      "paths": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "21b298bcb66fc807d923431ebf2c6076d7a656f9",
+      "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed"
     }
   ],
   "createdAt": "2026-09-02T08:28:24.942Z",
-  "updatedAt": "2026-09-02T17:26:53.281Z",
+  "updatedAt": "2026-09-03T07:20:05.900Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -121,6 +137,7 @@
     "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
     "docs/requirements/decisions/graph-command-migration.md": "docs/requirements/decisions/graph-command-migration.md",
     ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
-    ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json": ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json"
+    ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json": ".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json",
+    "packages/graph/scripts/verify-missing-assets-fail.mjs": "packages/graph/scripts/verify-missing-assets-fail.mjs"
   }
 }
