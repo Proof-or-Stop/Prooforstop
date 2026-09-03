@@ -20481,6 +20481,27 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-395",
+      "desc": "All 53 verificationEvidence rows across CHK-001..CHK-005 are bound to stale storyFilesHash 8e57bba89949 (from source commit d16cdeeec8, which modified causal-evidence.ts / runtime-artifact-registry.ts / certification-window.ts / certification-window-smoke.ts after the evidence was earned); current storyFilesHash is d535628105e8. Confirmed read-only via verification_evidence_refresh_stale --dryRun: reports Stale verification evidence for B-5a15: 53 (one line per intentRef, all pointing at d16cdee), and the milestone brief lists M1-M5 all Blocked with explicit risk text: stale storyFilesHash 8e57bba89949 (current d535628105e8). This is the exact F-388 failure mode: coverage earned against a prior HEAD does not carry forward across a SOURCE commit that moved storyFilesHash, even though the d16cdeeec8 fix (dev-memory matcher tightening + certification rule mutual-exclusivity guard) is itself plausible and targeted. No mechanical evidence currently proves coverage at the current HEAD; a pass here would misreport prior-run conclusions as still valid against a HEAD they never ran against.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T09:50:18.220Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-942",
+      "_hash": "9d30b4efc39b93a2c6e8b6df364d7009171c25393d2faa35c52d4acbd4a5acdb",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "missing|mjs|verificationevidence-rows-across",
+      "signatureTagSource": "auto"
     }
   ]
 }
