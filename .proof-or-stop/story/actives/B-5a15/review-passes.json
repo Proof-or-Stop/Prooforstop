@@ -15647,6 +15647,56 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "11e8f96f7f6e21bf8202c7e21968440afa4b742da3e71b4cef86180d062a214a"
+    },
+    {
+      "id": "B-5a15:RP-344",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage re-verification for round 65 post-merge (main merged into B-5a15 at 17df1f389e; prior RP-336/337/338 invalidated by the merge as noted in dispatch). Verified independently, read-only: (1) checklist_get shows all 36 verificationIntent ids across CHK-001..CHK-005 (10/9/10/14/10 by item, exact match to task-context intents) have exactly one verificationEvidence row each -- 53 total counting the CHK-001:edge:oversized-output-probe extra logic_test row -- kind is integration_test/logic_test only, zero result=fail, zero waivers, all mechanical:true with real receipts (exitCode 0, selectorMatched true, executionKey, causalReceiptHash). No must-intent is missing evidence. (2) lifecycle_check --target=TEST review.verification_evidence PASS and test.validation PASS were checked, not trusted: getBlockingVerificationEvidenceIssues is called with currentHead=undefined at lifecycle-readiness.ts:318, so that PASS is a structural-presence check only, not a freshness check -- confirmed by reading verification.ts:196-226 (staleness requires a currentHead argument to fire). (3) Cross-checked the actual freshness: all 53 evidence rows are uniformly bound to headHash=300ec83e/storyFilesHash=8e57bba8, and test-evidence.json (the source of the lifecycle_check test.validation PASS) is bound to yet another older headHash=c5db24409d/storyFilesHash=16d060c4 -- both stale by hundreds of commits against current HEAD eb39629bc0/storyFilesHash fd065ab3, including story-owned source commits fdb0837a8b and 1a243905ee that changed full-suite-runner.ts, verifier.ts, verifier-causal-preflight-smoke.ts, and package.json after the evidence was earned. This exact gap is already tracked as B-5a15:F-401 (open, high, current round 2026-09-03T09:03:49.640Z, evidenceState=verified, filed by main-agent as a rigorous self-correction of its own prior false resolution note on F-395), so filing a duplicate would be redundant. F-401 is correctly non-blocking at round 65 under the documented round-decay table (round 3+ blocks only critical), and the re-earn is correctly recorded as still outstanding rather than falsely claimed done. (4) test:verifier-causal-preflight membership: confirmed present in BOTH authorities -- package.json test:serial-reference (58 entries, valid JSON, includes both this story's test:verifier-causal-preflight and main's test:graph-story-flag-smoke from the merge) and RESOURCE_POLICY in full-suite-runner.ts (isolated at line 190, repoRead at line 159) -- no unknownPolicy risk, matching resolved findings F-402/F-403. (5) Read F-396's resolution: the F-393 guard living in the unregistered certification-window-smoke.ts is correctly deferred (low, non-blocking, unclaimed by any checklist item, with named follow-up), and its sibling family F-397/F-398 (medium, open, current round, correctly deferred per triage rule 3) is consistent and not something I would re-file differently. No new test-coverage finding filed this round: structural intent/evidence coverage is complete and sound; the one real gap (evidence staleness relative to current HEAD) is already correctly tracked as an open, non-blocking, current-round finding (F-401) rather than silently passed.",
+      "createdAt": "2026-09-03T11:13:24.271Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-956",
+      "envelopeId": "adf5b8fe73be29d236b14de2bea263c1527999bda00529d75dbfd89236186736",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "b73c214d55a2fcc65ceff472acdafea7f7402ab30077e4b4bf4062c9950d9e4f"
     }
   ]
 }
