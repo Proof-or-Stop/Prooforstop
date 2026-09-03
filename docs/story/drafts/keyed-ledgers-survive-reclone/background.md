@@ -1,0 +1,11 @@
+## Trigger Event
+During the B-8d60 investigation on 2026-09-02, `ls .git/*.key` showed proof-or-stop-acceptance-basis-verifier-v1.key, proof-or-stop-acceptance-rollout-verifier-v1.key and proof-or-stop-pre-review-check-verifier-v1.key all created on 2026-08-31 and proof-or-stop-finding-ledger-v1.key on 2026-09-01, while `git reflog` shows the repository was cloned from GitHub on 2026-08-30. The gap_log ledger key was never regenerated because gap_log fails closed before creating one; the sibling ledgers regenerated theirs silently on first write. The INIT reviewer of B-8d60 filed this as a medium advisory (INIT-001) and it was excluded from that story's scope.
+
+## Key Insights
+Every HMAC key lives in the git common dir, so it is clone-local by construction; the lifecycle-artifact-scope decision states this is canonical-writer tamper evidence for cooperative local tooling, not an authorization boundary. A re-clone therefore always loses the key, and what matters is whether the verifier tells the truth afterwards. gap_log fails closed (visible, but blocks the command); the sibling ledgers create a fresh key with flag wx and keep writing, so records signed before 2026-08-30 can no longer be verified but nothing surfaces that state. Whether any consumer actually re-verifies old sibling records after the key changed is unknown and must be inventoried first.
+
+## Solution Tradeoffs
+Option one, leave as is: zero work, but the tamper-evidence claim in the decision document is silently weaker than documented after every re-clone. Option two, port the B-8d60 explicit re-anchor pattern: honest and auditable, costs one marker format per ledger plus verifier and doctor changes. Option three, move keys out of the git dir into a user-level keychain: survives re-clone but changes the trust model across machines and is a much larger decision. Option two is the recommended starting point after the inventory; option three is deferred until the inventory shows a consumer that actually needs cross-clone verification.
+
+## Conversational Texture
+The user wants nonblocking medium defects retained with reproduction, evidence, impact and a follow-up owner rather than dismissed orally; this draft is that follow-up. It depends on B-8d60 landing first so the re-anchor design and the doctor check exist to be reused.

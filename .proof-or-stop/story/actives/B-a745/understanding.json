@@ -1,0 +1,51 @@
+{
+  "task": "Give Proof-or-Stop a stable identity for every configured validation command and a read-only planner that explains, per Story, which commands would run and why it cannot yet run fewer than all of them.",
+  "outcome": "An operator can run proof-or-stop validation_plan --storyId=B-xxxx --tier=fast --explain and see the full command universe with stable ids, whether each verification-evidence pin resolves to exactly one real command, which Story inputs were collected and classified, and a glossed reason code explaining why the effective tier is repository-full. Nothing about routine validation, --focus, TEST, DONE or any gate changes.",
+  "facts": [
+    "ValidationCommand in packages/main/src/core/validation-types.ts has label/command/args/shell/cwd/env/timeoutMs/optional/focus/resources and no id field.",
+    "filterFocusedConfiguredCommands in packages/main/src/handlers/verifier.ts selects cmd.focus?.includes(focus); it is the only existing selection mechanism and is a static tag filter, not Story relevance.",
+    "buildRoutineValidationIdentity in packages/main/src/core/validation-evidence-reuse.ts already normalizes a command into label/command/args/resolved absolute cwd/shell/timeoutMs/optional/focus plus effectiveEnvironmentDigest, executableDigest and shellExecutableDigest. This is the existing canonical command normalizer the plan requires the pin resolver to share.",
+    "usesShell in that normalizer is command.shell === true || platform === win32, so shell identity is platform dependent and must not be recomputed independently.",
+    "RoutineValidationSourceKind is configured | fallback | validate-file | no-validator; verifier.ts picks configured vs fallback around line 1399, validate-file around 1537, and no-validator around 1354.",
+    "evidence-freshness.ts exports changedFilesBetweenRenameAware and changedFileStatusesBetweenRenameAware plus captureEvidenceHashSnapshot, isStoryMetadataPath and isMaterialExcludedPath. These are the shared readers the collector must use rather than re-deriving.",
+    "ChecklistItem.files is an optional readonly {modify, create, test} triple; VerificationEvidence has an optional free-form command string and no commandId field.",
+    "commandFromString in verifier.ts parses a legacy command string with SHELL_META_RE and splitShellWords; a string with shell metacharacters becomes {command: whole string, args: [], shell: true}.",
+    "This repository's own proof-or-stop.config.json declares 120 validate.commands, none with a declared id and 14 carrying focus tags, so the provisional-id path is the dominant real-world case here.",
+    "A read-only CLI is registered by adding a handler factory in packages/main/src/handlers, wiring it in registry.ts, adding a zod schema entry in packages/main/src/cli/command-catalog.ts, and adding a readOnly ownershipClass row in core/command-policy.ts; handlers/review-incremental-context.ts is the closest existing template.",
+    "Canonical full-suite membership authority is the root package.json test:serial-reference script list, with a separate mandatory RESOURCE_POLICY mapping in packages/main/src/tasks/full-suite-runner.ts; a serial-reference name without a policy entry fails closed as unknownPolicy.",
+    "Story B-ccf4 owns the plan document and it is not on main; the file is readable at .worktrees/B-ccf4/docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md.",
+    "Resolved unknown 1 by reading the code: buildRoutineValidationIdentity constructs each command projection as an explicit object literal (label, command, args, cwd, shell, timeoutMs, optional, focus, effectiveEnvironmentDigest, executableDigest, shellExecutableDigest) with no spread of the source command, so an unread new ValidationCommand.id field cannot enter the identity digest through that path.",
+    "The same reading shows the OTHER half of that question resolves the opposite way and is the desired behavior: sourceInputSnapshot for the configured source kind reads the raw CONFIG FILE CONTENTS of every CONFIG_FILENAMES spelling into source.inputDigest, so the moment a project actually declares an id in proof-or-stop.config.json the routine identity changes and reuse is invalidated. That matches the plan's stated contract that a label or config-only change invalidates routine reuse while a stable planner id may survive for graph continuity, and it means the planner id can only ADD refusal conditions, never remove one.",
+    "Both halves are settled by reading and are recorded as a proof obligation on CHK-001, not as an assumption: a fixture must assert the identity digest is byte-identical across adding the optional TS field with no declared id, AND that declaring an id in the config changes source.inputDigest."
+  ],
+  "constraints": [
+    "This Story performs no relevance pruning at all. Every planner answer is either effective tier repository-full or a classified stop; an empty selection is never a PASS.",
+    "The planner is read-only: it executes no validation command, writes no evidence artifact, and changes no lifecycle gate.",
+    "Command identity must never be inferred from array index, and existing focus tags must keep working while being excluded from relevance computation.",
+    "The pin resolver must use the same normalizer as routine validation, not a second parser; zero matches stop with pinned_command_missing and multiple matches stop with pinned_command_ambiguous, and labels or array order may never break a tie.",
+    "Adding a stable id must not silently change the existing routine validation identity digest or its reuse refusal rules; the plan states a planner identity may only add refusal conditions, never remove one.",
+    "Per the Handler encoding convention in CLAUDE.md, every zod min/max/enum constraint on a new handler field must be re-checked at runtime in the handler entry and at every consuming gate or fn, and a test must construct data that bypasses zod and assert it is still rejected.",
+    "Story metadata paths and registered runtime artifacts are not material seeds; deleted files and both sides of a rename stay seeds; a failure to read the changed-file set escalates rather than reading as no changes.",
+    "New fixtures must be registered in the canonical root test:serial-reference list plus its RESOURCE_POLICY mapping, not in the noncanonical smoke discovery manifest.",
+    "All commits and story metadata must be English; the english-artifacts preflight fails on CJK.",
+    "Each behavior lands RED first: a failing fixture precedes its implementation."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/validation-command-identity.ts",
+    "packages/main/src/core/validation-relevance-input.ts",
+    "packages/main/src/core/validation-tier-planner.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/validation-plan.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "package.json"
+  ],
+  "timestamp": "2026-09-02T00:59:50.069Z"
+}

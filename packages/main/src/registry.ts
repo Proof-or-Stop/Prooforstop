@@ -47,6 +47,7 @@ import { createAuditHandlers } from './handlers/audit.js';
 import { createClusterHandlers } from './handlers/cluster.js';
 import { createReviewerListHandlers } from './handlers/reviewer-list.js';
 import { createReviewIncrementalContextHandlers } from './handlers/review-incremental-context.js';
+import { createValidationPlanHandlers } from './handlers/validation-plan.js';
 import { createStoryDraftHandlers } from './handlers/story-draft.js';
 import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
@@ -236,6 +237,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-f675 CHK-002: review_incremental_context — read-only reviewer incremental
   // context (prior verdict + since-last-pass diff + scopeChanged). No writes.
   registry.registerBatch(createReviewIncrementalContextHandlers(ctx));
+
+  // B-a745 CHK-005: validation_plan — read-only Story-relevance validation
+  // planner (explain-only). Executes nothing and writes nothing.
+  registry.registerBatch(createValidationPlanHandlers(ctx));
 
   // B-9975 CHK-001: story_draft / story_draft_list / story_draft_discard
   registry.registerBatch(createStoryDraftHandlers(ctx));

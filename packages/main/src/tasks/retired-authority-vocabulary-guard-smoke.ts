@@ -692,10 +692,21 @@ const typeProgramInstrumentation = {
   dynamicFullAnalysisByFile: new Map<string, number>(),
 };
 
-// Re-attested for B-fe8f: five Story-owned sources each add one graph build;
-// two pre-existing spare slots absorb part of that increase, so the bounded
-// ceiling rises by three from 808 to the measured total of 811.
-const DYNAMIC_BINDING_BUILD_CEILING = 811;
+// CEILING MAINTENANCE: this ceiling equals the synthetic fixture builds (the
+// dynamic-code-* controls this smoke writes itself) plus one dynamic binding
+// build per scanned executable source file under SHIPPED_EXECUTABLE_SOURCE_DIRS
+// (bin, packages/main/src, packages/lab/src, packages/utils/src) that reaches
+// full dynamic-code analysis, i.e. a file with a dynamic-execution AST candidate
+// such as a child_process call. Candidate-free files are prefilter-skipped and
+// never count. It therefore moves by one whenever such a source file is added
+// or removed. B-41c8 moved it from 808 to 809 by adding
+// packages/main/src/tasks/single-owner-extraction-smoke.ts (CHK-001 introduced
+// the fixture, which calls execFileSync); the story's core/story-workspace.ts
+// (CHK-003) has no candidate, is prefilter-skipped, and did not move it.
+// B-fe8f adds the Finding Ledger and Runtime Evidence Integrity sources; after
+// merging B-41c8, their five candidate-bearing files move the measured ceiling
+// from 809 to 814.
+const DYNAMIC_BINDING_BUILD_CEILING = 814;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {

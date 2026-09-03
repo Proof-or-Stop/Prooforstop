@@ -1,0 +1,166 @@
+{
+  "storyId": "B-d854",
+  "mode": "enforce",
+  "allowedModify": [
+    "AGENTS.md"
+  ],
+  "allowedCreate": [
+    "docs/audits/AGENTS-current-version-audit.md",
+    "tests/AGENTS.verify.mjs"
+  ],
+  "allowedTest": [
+    "tests/AGENTS.verify.mjs"
+  ],
+  "protectedFiles": [
+    "proof-or-stop.config.json",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "explicitExcludes": [
+    "packages/**",
+    "scripts/**",
+    "bin/**",
+    ".proof-or-stop-codex/**",
+    ".claude/**"
+  ],
+  "scopeChangeReason": "REVIEW verified high findings F-001/F-003/F-007 require a durable 26-row audit ledger, and F-005/F-006/F-008/F-009/F-010/F-011 require a rerunnable document verifier; these two bounded artifacts directly satisfy the user-requested RED/GREEN proof without widening product code.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These exact Markdown hunks implement the user-authorized full English translation and the 26 evidence-backed AGENTS.md consistency corrections; Markdown has no declaration anchors.",
+      "timestamp": "2026-09-02T00:20:10.844Z",
+      "paths": [
+        "AGENTS.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ff2ebde54af94af6fb7db6eafbf93ff3c72ce026",
+      "materialHash": "feec9ad3f702ecb74413a6b14aaba582d7c46cfde287d44211dfd713b4f8bef5",
+      "hunkDigests": [
+        "22a049ddb6bb327e727504972ea2218857ab06b5d52ba77ea61d65227d49b824",
+        "dd9a6e42a67c62d7432e73cfbcb2bf0c670ed9a888ecdd52dac57640db6aaf58",
+        "5e94a0d1471e5f1e08eaf1e2c4c65813e748824cd2c9e109eabd90c3e2d9df45"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These exact no-declaration Markdown hunks implement reviewed high-finding fixes F-002 and F-004 within the user-authorized complete English AGENTS.md translation; the audit and verifier files are separately declared scope.",
+      "timestamp": "2026-09-02T00:57:01.878Z",
+      "paths": [
+        "AGENTS.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "21e39186bd688ac1982f51460bfad56083716f91",
+      "materialHash": "812e4dd88bcad69329603206aa303a80f6e19fdf4e5281a85ebc409db8382733",
+      "hunkDigests": [
+        "1a6507f26d316add478ad6e0431a925d6254d84be88affc4f79dabb1ed52b820",
+        "020e923db0ceed45e08e11680f1dc49630874e215243fc4b6bf33b66f36c917d",
+        "86253e9c941e3c2ac3056ee47332c2e112fbc870979d19613d399bdb007716d3"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-022 and F-023 require these AGENTS lifecycle hunk changes to restore current scope-contract, unresolved-question, reviewer-roster, lane opt-in, and quorum semantics within the accepted Story.",
+      "timestamp": "2026-09-02T01:56:07.134Z",
+      "paths": [
+        "AGENTS.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e641397e8cf9f79597d5e7b86221f3ac47f15f27",
+      "materialHash": "8a016a67afe05849161195df1a522d86f648fa432fcd40f3395a344487b13e27",
+      "hunkDigests": [
+        "05c24531d04dab41086ec00e592b042efb1afd70173439f5cd956f3d90dcd2e0",
+        "8872bbfd0641d88eed240d5ee2f29a259f82c2321dfafbdf1d0023e1ea6be7ab",
+        "1fd316a0e49a21b646bd2436e1d9b1f645bd25c851e5114cfbf3a70926a2cfeb",
+        "eaf9133fc668bf5b915c80f5924397878965d07f101e9ee4a1598f23a07ed2f3",
+        "ea27daec2ba143a84d5b9b80a815ef9408dfa9bccc43a9dc44942994dd0d64f2"
+      ]
+    }
+  ],
+  "createdAt": "2026-09-01T23:05:12.822Z",
+  "updatedAt": "2026-09-02T01:56:07.134Z",
+  "fileRules": [
+    {
+      "path": "AGENTS.md",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
+      ]
+    },
+    {
+      "path": "docs/audits/AGENTS-current-version-audit.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:edge:0",
+        "CHK-003:happy:0"
+      ]
+    },
+    {
+      "path": "tests/AGENTS.verify.mjs",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
+      ]
+    }
+  ],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "AGENTS.md": "AGENTS.md",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "docs/**": "docs/**",
+    "packages/**": "packages/**",
+    "scripts/**": "scripts/**",
+    "bin/**": "bin/**",
+    ".proof-or-stop-codex/**": ".proof-or-stop-codex/**",
+    ".claude/**": ".claude/**",
+    "packages/main/src/AGENTS-AUDIT.md": "AGENTS-AUDIT.md",
+    "packages/main/src/AGENTS.verify.mjs": "AGENTS.verify.mjs",
+    "docs/audits/AGENTS-current-version-audit.md": "docs/audits/AGENTS-current-version-audit.md",
+    "tests/AGENTS.verify.mjs": "tests/AGENTS.verify.mjs"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}

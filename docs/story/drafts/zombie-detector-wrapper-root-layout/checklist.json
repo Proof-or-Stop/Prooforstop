@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce the false zombie on a wrapper-root fixture and fix detectZombieStories to list worktrees from the git root",
+      "context": "RED: temp repo with gitRoot configured below the invocation root, a DEV story with a linked worktree; detectZombieStories flags it and session_brief omits it. GREEN: use resolveStoryWorkspace or the configured git root for the worktree list; the same fixture shows the story active.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

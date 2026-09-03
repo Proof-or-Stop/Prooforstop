@@ -1,0 +1,11 @@
+## Trigger Event
+Between 2026-09-02 findings B-a745:F-002 (false-positive receipt from a non-discriminating selector), B-a745:F-012 (RED guard ignores finding-fix commits), and implementer reports during B-a745's command-identity item and its fixture-registration item, four checks were shown to pass without protecting anything: an orphan smoke, a membership smoke blind to real data, a RED guard blind to fix commits, and a cross-host review that discards the independent host's findings. (The evidence-pin selector defect from B-a745:F-002 is handled by the separate draft narrowing-only-evidence-repin.) All were deferred out of B-a745 as session notes; this draft is the repository record.
+
+## Key Insights
+A check that cannot fail is indistinguishable from no check, and worse, because it trains operators to trust it. Each of the four has a concrete mutation that should have made it fail and did not: an assertion that fails on every run of a smoke no runner executes; deleting a real RESOURCE_POLICY row while the membership smoke still reports PASS; squashing a RED commit into its GREEN under a finding-fix subject; and a FAIL verdict from the independent host whose two findings were never persisted.
+
+## Solution Tradeoffs
+Register or delete the orphan smoke only after fixing its assertion, since registering a failing test reddens the whole suite; add a real-data case to the membership smoke alongside the synthetic ones, accounting for the separate test:serial-reference-prefix chain; extend the RED guard to derive F-nnn ids from git log with an explicit no-RED marker for comment-only fixes so a comment-only fix like B-a745's F-011 (a stale code comment corrected with no behaviour change, hence legitimately no failing fixture) does not become a false failure; persist host B's parsed findings into the verdict JSON or the finding ledger via finding_add with the host as agent, never raw stdout.
+
+## Conversational Texture
+The user grouped this as the 'test and guard credibility' story to run after the single-owner extraction story (draft single-owner-extraction-readers-parsers, which gives the rename-aware diff reader, the legacy shell parser and story workspace resolution one owner each); the emphasis throughout B-a745 was on mutation proof, so each item here must ship with the mutation that previously slipped through now failing the check.

@@ -1,0 +1,66 @@
+{
+  "storyId": "B-41c8",
+  "checkedAt": "2026-09-03T02:45:42.341Z",
+  "headHash": "743056e5e65eb2f4057e726870686f93c03a1310",
+  "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+  "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+  "reviewRound": "2026-09-03T01:05:21.744Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001 / checklist_get CHK-001.userSees",
+      "promise": "changedFilesBetweenRenameAware, changedFileStatusesBetweenRenameAware and changedStoryFilesBetween parse `git diff --name-status -M -z` NUL-delimited output, report both sides of renames whose names contain a space, non-ASCII characters or a quote, and throw (naming the raw record) on a malformed row instead of skipping it; no catch{return []} wraps these readers",
+      "verifiedBy": "diff/grep + tool-executed re-run",
+      "evidence": "packages/main/src/core/evidence-freshness.ts diff adds parseNameStatusRecords (NUL-split, throws with JSON.stringify(record) on unknown status / missing path / empty path) and readNameStatusRecords (git diff --name-status -M -z); all three readers (changedFilesBetweenRenameAware, changedFileStatusesBetweenRenameAware, changedStoryFilesBetween) now delegate to it. single-owner-extraction-smoke.ts cases 'changedStoryFilesBetween reports both sides of every tricky rename', 'a malformed record makes every reader throw...', 'exported parseNameStatusRecords rejects a malformed record...', 'no reader body catches, and no caller wraps these readers in catch { return [] }' cover this. Re-ran node packages/main/dist/tasks/single-owner-extraction-smoke.js after a fresh npm --prefix packages/main run build: 40/40 cases passed, ends single-owner-extraction-smoke: PASS."
+    },
+    {
+      "docPath": "plan.md#CHK-002 / checklist_get CHK-002.userSees",
+      "promise": "core/done-required-validation.ts deletes its private SHELL_META_RE / splitShellWords / commandFromString parser and routes doneRequiredCommands[] string entries through the canonical parseLegacyValidationCommandString (core/validation-command-identity.ts), so DONE-required execution and handlers/verifier.ts identity can never disagree on shell-vs-argv",
+      "verifiedBy": "diff/grep + tool-executed re-run",
+      "evidence": "diff removes SHELL_META_RE, splitShellWords and commandFromString entirely and replaces commandFromString with parseDoneRequiredCommandString, which calls parseLegacyValidationCommandString and only shapes the DoneRequiredCommand object. `grep -n \"splitShellWords\\|SHELL_META_RE\\|commandFromString\" packages/main/src/core/done-required-validation.ts` re-run in this check: zero matches (exit 1 / empty output), matching the plan's Verify line exactly. Smoke cases 'corpus: the canonical parser produces the pinned {shell, command, args} for every entry', 'corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry', 'shape: the argv branch omits the shell key...', 'structural: done-required-validation.ts defines no private parser and imports the canonical one' all pass in the fresh 40/40 run."
+    },
+    {
+      "docPath": "plan.md#CHK-003 / checklist_get CHK-003.userSees",
+      "promise": "core/story-workspace.ts exports one resolveStoryWorkspace(ctx, storyId, options) that all four prior implementations (story-query.ts readStoryProjection, session.ts listActiveWorktrees/readStoryFromLinkedWorktree, local-assurance-story-projection.ts collectLinkedStoryWorktrees, validation-plan.ts's own resolveStoryWorkspace) delegate to; the phase-terminal guard defaults on and each caller passes its own value (validation_plan now guarded true, closing B-a745 F-014); validation_plan run from the story worktree and from the main checkout print the same selectionDigest",
+      "verifiedBy": "diff/grep + tool-executed re-run (including a cross-checkout comparison)",
+      "evidence": "packages/main/src/core/story-workspace.ts (new, 199 lines) implements resolveStoryWorkspace with terminalPhaseGuard option (default true) and no state-dir literal (derives paths via StoryStore -> proof-or-stop-paths.ts -> brand-paths.ts, confirmed by grep showing only comment mentions, never a literal). All four consumers now import and call it: story-query.ts:417 `resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: true })`, session.ts:806 same with true, local-assurance-story-projection.ts:72 with terminalPhaseGuard:false (activeOnly is its own filter, matches its own doc comment), validation-plan.ts:709 with true (replacing its private inline resolveStoryWorkspace, and the diff comment explicitly cites B-41c8 F-004 closing B-a745 F-014). Their prior private resolution functions (listActiveWorktrees, readStoryFromLinkedWorktree, collectLinkedStoryWorktrees, readWorktreePhase, and validation-plan.ts's local resolveStoryWorkspace) are deleted from the diff, not left dead. Cross-checkout re-verification performed live in this check: ran `node .worktrees/B-41c8/packages/main/dist/cli.js validation_plan --storyId=B-41c8 --tier=fast --json` from /Users/jek/Documents/GitHub/Prooforstop and the equivalent from inside the worktree; both printed selectionDigest 37ce1aa64055b7ebcb84f70ed0e1ae8f002b5450d563b4a8fc8e1381c8ffc2ff, byte-identical. single-owner-extraction-smoke.ts also carries dedicated cases: 'helper: from the main checkout an active story resolves to its linked worktree...', 'guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off', 'guard: a DONE story with a residual worktree is refused under the guard...', 'wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper', 'structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed', 'validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout' -- all pass in the fresh 40/40 run."
+    },
+    {
+      "docPath": "plan.md#CHK-004 / checklist_get CHK-004.userSees",
+      "promise": "A committed audit fixture (single-owner-extraction-smoke.ts) mechanically scans packages/main/src/handlers/*.ts for real resolveGitCwd( call expressions (ignoring comments/strings, resolving aliased imports), classifies each real caller workspace-rooted or reads ctx.root: <story|checklist|config>, reports validate-channel.ts as comment-only and review-preflight.ts as a real caller, and the suite name is registered in test:serial-reference (package.json), full-suite-runner RESOURCE_POLICY and proof-or-stop.config.json validate.commands",
+      "verifiedBy": "diff/grep + tool-executed re-run",
+      "evidence": "single-owner-extraction-smoke.ts (2094 lines, new file) contains the audit scanner (lines ~1252 onward) and the classification helpers (VACUOUS_WORKSPACE_LABEL etc). Re-ran `npm run test:single-owner-extraction` in this check: prints '[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY..., and in proof-or-stop.config.json validate.commands' and a stdout block headed 'resolveGitCwd call sites', ending 40/40 cases passed / single-owner-extraction-smoke: PASS. Directly grepped `single-owner-extraction` in package.json, packages/main/src/tasks/full-suite-runner.ts and proof-or-stop.config.json in this check: all three inventories list it (test:serial-reference chain, RESOURCE_POLICY repoRead entry, validate.commands array). Smoke cases 'audit: every handler with a real resolveGitCwd call expression is listed...', 'completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions', 'edge: validate-channel.ts is a comment-only mention...; review-preflight.ts is a real caller...', 'edge: a temporary handler file importing the resolver under an alias is detected as a caller...', 'adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals...' all pass."
+    },
+    {
+      "docPath": "CLAUDE.md / docs/ (no changes in this story's diff)",
+      "promise": "No CLAUDE.md or docs/*.md promise is implied by this story beyond the checklist userSees text itself",
+      "verifiedBy": "diff/grep (negative check)",
+      "evidence": "`git diff main...HEAD --name-only` lists no path under CLAUDE.md or docs/; `git diff main...HEAD -- CLAUDE.md docs/ '*.md'` outside .proof-or-stop/story/actives/B-41c8/plan.md returns empty. Confirms the concept lane's prior finding (no docs promise required) rather than assuming it: this story is an internal refactor (single-owner extraction) with no user-facing CLI/behavior surface described in CLAUDE.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-ran from /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-41c8 after `npm --prefix packages/main run build`: `node packages/main/dist/tasks/single-owner-extraction-smoke.js` final two lines: '40/40 cases passed' / 'single-owner-extraction-smoke: PASS'. Covers happy (plain rename/copy/delete parity with a reference tab-parser, materialHash/storyFilesHash byte-identity), edge (space/non-ASCII/quote-containing renames report both sides via all three reader functions) and adversarial (malformed record throws naming the raw record; unresolvable ref still throws; grep-style assertion that no reader body or caller wraps these functions in catch{return []})."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same run: cases 'corpus: the canonical parser produces the pinned {shell, command, args} for every entry', 'corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry', 'shape: the argv branch omits the shell key...', 'structural: done-required-validation.ts defines no private parser and imports the canonical one' all passed within the 40/40. Independently re-ran `grep -n \"splitShellWords\\|SHELL_META_RE\\|commandFromString\" packages/main/src/core/done-required-validation.ts` in this check: zero output (exit 1), matching the plan Verify line."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same 40/40 run covers the resolver's happy/guard/wrapper-root/structural cases. Additionally ran a live cross-checkout comparison in this check: `node /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-41c8/packages/main/dist/cli.js validation_plan --storyId=B-41c8 --tier=fast --json` from /Users/jek/Documents/GitHub/Prooforstop and the equivalent invocation from inside the worktree; both printed selectionDigest 37ce1aa64055b7ebcb84f70ed0e1ae8f002b5450d563b4a8fc8e1381c8ffc2ff (byte-identical), storyId B-41c8, effectiveTier repository-full, counts {selected:122,total:122}. Also ran `node packages/main/dist/tasks/validation-tier-planner-smoke.js | tail -1`: 'validation-tier-planner-smoke: PASS' (confirms the re-pinned commandSetDigest after CHK-004's registration did not regress the planner)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Re-ran `npm run test:single-owner-extraction` from the worktree root in this check; final lines: '[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars' / '40/40 cases passed' / 'single-owner-extraction-smoke: PASS', with a preceding '[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY..., and in proof-or-stop.config.json validate.commands' line and a stdout block headed 'resolveGitCwd call sites'. Independently re-grepped the three inventory files in this check and confirmed all three list single-owner-extraction."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-check at HEAD 743056e5e65eb2f4057e726870686f93c03a1310 (only story metadata changed since the prior check at dc60b4d88d, confirmed via git diff --stat -- .proof-or-stop; zero source files moved). All four checklist promises are independently traceable to concrete diff hunks and re-executed today: single-owner-extraction-smoke ends 40/40 PASS on a fresh build, test:single-owner-extraction shows the CHK-004 registration and audit block, validation-tier-planner-smoke ends PASS, and a live cross-checkout validation_plan run produced byte-identical selectionDigest 37ce1aa6... from the worktree and the main checkout. No TODO/FIXME/HACK found in the source diff. No CLAUDE.md or docs/*.md change is present in this diff and none is implied by an internal single-owner refactor with no new CLI surface, so no docs promise is unverified or waived."
+  },
+  "_hash": "0ce581a97ec01c47be552375c1fe978a0eac477e3a6e8a5cca4bce85cc54a2ec"
+}

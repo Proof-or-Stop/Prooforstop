@@ -1,0 +1,47 @@
+{
+  "storyId": "B-83aa",
+  "name": "partial-hash-snapshot-treated-as-binding",
+  "title": "Fail closed or disclose when the evidence hash snapshot is partial in every lifecycle gate consumer",
+  "description": "core/evidence-freshness.ts captureEvidenceHashSnapshot never throws for git or hash failures; headHash, materialHash and storyFilesHash are each optional and silently omitted, and tryCaptureEvidenceHashSnapshot only converts a thrown error into undefined. Five consumers distinguish thrown from returned only: core/done-oracle.ts buildDoneChecklist (~286), handlers/phase-gates.ts runDoneOracleGate (~834), handlers/verifier.ts evaluateStoryRoutineReuse (~628), core/lifecycle-readiness.ts buildStoryReadinessReport (~853), handlers/session.ts DONE pre-check (~1416). RED (repro probe rp-mtk45bks-v1fiwl, red-reviewed rr-mtk49u84-u7876u, script red-partial-hash-snapshot-binding.mjs on a git-init zero-commit fixture): C2 checkEvidenceFreshnessForGit returns fresh=true \"Unable to get git HEAD, skipping freshness check\" when HEAD is unreadable, so C3 the done-oracle evidence-freshness row PASSES with PASS test evidence bound to digests that cannot be re-read (fail-open in the active TEST->DONE gate); C5 buildStoryReadinessReport(target=DONE) reports head/material/story_files_hash_unavailable as warn + blocking=false. Already disclosed today: C4 runDoneOracleGate output names the missing material hash via the escalation/floor rows; C6 a no-main repo (materialHash present, storyFilesHash absent) is disclosed by one DONE row. Not driven: verifier.ts and session.ts (the latter swallows the whole pre-check in a catch-all). GREEN candidate proven on a scratch dist copy: make the !currentHead branch fail closed and make the readiness hash rows blocking for DONE; the script then exits 0. Scope: audit all five consumers, classify each partial-snapshot path as fail-closed / disclosed / tolerable with rationale, add a shared missing-digest classifier beside the reader (also cover the second silent downgrade in checkEvidenceFreshnessForGit where evidenceMaterialHash is set but currentMaterialHash is undefined and control falls through to head comparison), and commit the red script as packages/main/tests/red/red-partial-hash-snapshot-binding.mjs registered in proof-or-stop.config.json.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-09-02T13:15:05.548Z",
+  "startedAt": "2026-09-02T13:15:05.548Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T13:15:06.201Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:08:04.996Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-83aa",
+    "branch": "story/B-83aa",
+    "createdAt": "2026-09-02T15:08:01.573Z"
+  }
+}

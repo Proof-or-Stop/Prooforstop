@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Resolve the signed workspace before story detection in session_brief and cover the wrapper-root brief with a regression case",
+      "context": "handlers/session.ts detectActiveStoryFromGit (~line 101) and the probes that reuse ctx.root as git cwd in the detected-story branch; B-6666 resolveGitCwd pattern; fixture shape in packages/main/src/tasks/evidence-hash-snapshot-classifier-smoke.ts wrapperRootRepo.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

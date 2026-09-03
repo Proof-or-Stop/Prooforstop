@@ -1,0 +1,13 @@
+{
+  "name": "dev-memory-supersession-smoke-red-on-main",
+  "title": "dev-memory-supersession-smoke fails on main because project row 34e97f9 still carries retired product names",
+  "description": "packages/main/src/tasks/dev-memory-supersession-smoke.ts lists projectCurrentIds [34e97f9, 99aa6c7, ee3aef3, 148297b, 7ffe281] and asserts each row guidance matches /Proof-or-Stop|ProofOrStop/ with proofbound + proof-or-stop + supersedes- tags. Row 34e97f9 in .proof-or-stop/dev-memory/experience.jsonl (unchanged since merge e07d27d450) still says Proofbound/Lattice, so node packages/main/dist/tasks/dev-memory-supersession-smoke.js fails with AssertionError: 34e97f9 should use current product names on the unmodified main dist. The smoke is not registered in proof-or-stop.config.json (npm script only), so proof-or-stop validate stays green; it was found by B-c86f CHK-001 verification on 2026-09-02. Either supersede/rewrite the row through dev_memory_capture with a supersedes- tag or narrow the smoke expectation; do not hand-edit the record silently.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "dev-memory",
+    "supersession-smoke",
+    "brand-residue"
+  ],
+  "createdAt": "2026-09-02T16:02:31.893Z"
+}

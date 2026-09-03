@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Restore the executable bit on package.json bin targets when dist is promoted",
+      "context": "Probe rp-mtk46lj8-90q9av, review rr-mtk4acx4-oqze5c. scripts/promote-dist.mjs promoteDist must chmod every bin target listed in <packageRoot>/package.json after renaming staging into dist (both the main and utils builds share promoteDist). green-4-promote-dist.patch in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/ is the proven candidate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "After npm --prefix packages/main run build re-emits dist, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version prints the version instead of permission denied",
+      "files": {
+        "modify": [
+          "scripts/promote-dist.mjs",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Commit red-global-cli-exec-bit.mjs as a registered red test that is GREEN after the fix",
+      "context": "Copy the script from .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/ to packages/main/tests/red/, register it in proof-or-stop.config.json next to the other red tests, and run it in the worktree; it must exit 0 only because CHK-001 landed (rerun on main must still exit 1).",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-e256/background.md"
+      ],
+      "userSees": "GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable",
+      "files": {
+        "modify": [
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make doctor verify the global executable realpath and mode with an exact repoint remediation",
+      "context": "Draft symptom: /opt/homebrew/bin/proof-or-stop resolved into .worktrees/B-fe8f. Extend core/runtime-environment-checks.ts checkGlobalCoreRealpath (see tests/global-core-realpath.test.mjs) to also assert the bin target is executable and print the exact npm link / repoint command.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-e256/background.md"
+      ],
+      "userSees": "proof-or-stop doctor prints a global-cli row with realpath, version and mode, and a one-line remediation when any of them drift",
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

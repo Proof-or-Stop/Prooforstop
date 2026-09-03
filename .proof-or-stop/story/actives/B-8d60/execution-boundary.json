@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8d60",
+  "allowedCommands": [
+    "git cat-file *",
+    "git diff *",
+    "git log *",
+    "git rev-parse *",
+    "git show *",
+    "node packages/main/dist/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsx *",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-META-framework-audit/findings.json",
+    ".proof-or-stop/story/actives/B-META-framework-audit/gap-log-provenance.jsonl",
+    "CLAUDE.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+    "packages/main/package.json",
+    "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/core/command-catalog.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/handlers/",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [
+    "git checkout -- .proof-or-stop/*",
+    "git push *",
+    "git reset --hard *",
+    "rm -rf .git*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/",
+    "CHANGELOG.md"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Legacy receipts must stay byte-frozen; the only permitted ledger mutation is appending the epoch-boundary receipt and new-epoch receipts. Never hand-edit findings.json; only gap_log may write it.",
+  "createdAt": "2026-09-02T13:23:53.375Z",
+  "updatedAt": "2026-09-02T13:23:53.375Z",
+  "_hash": "a2f544bd5c435600e5f0fb477d759ee61f456caddc2c27e88b1591a67f154f42"
+}

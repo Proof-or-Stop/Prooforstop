@@ -1,0 +1,458 @@
+{
+  "passes": [
+    {
+      "id": "B-41c8:RP-001",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Audited all 15 verificationIntent/verificationEvidence pairs across CHK-001..004. Confirmed the shared pinned command (single-owner-extraction-smoke.ts, whole-suite exit-code aggregation) means every evidence receipt requires exitCode===0 across ALL 35 smoke cases, not just the pinned selector case, so selectors that look narrower than their intent are not vacuous: any regression anywhere in the suite flips exit to 1 and derivedResult to fail (checklist.ts:770-834). Verified CHK-003:edge:1 for-each-caller claim has real per-caller assert cases (validation_plan, story_list, session_brief, local-assurance). Spot-checked RED-before-GREEN by re-running CHK-001 RED commit a86438a3f9 in a temp worktree: confirmed 2/12 pass, 10/12 fail exactly as the commit message claims; GREEN bb1814bec3 fixed it. CHK-004 npm-wrapped selector confirmed matched via real receipt (different outputDigest than direct node invocation, proving real re-execution, not reuse).",
+      "createdAt": "2026-09-02T15:01:51.296Z",
+      "reviewRound": "2026-09-02T14:49:30.195Z",
+      "reviewRunId": "B-41c8:RR-006",
+      "envelopeId": "abf684a9a517703ff00932d3161fde80cd6480b93608a6c6a10a4395084e9c69",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/core/validation-command-identity.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "211c1c428c3df1ce598758ec5cb265ef770f96260665ffe14191c4a023c549e1"
+    },
+    {
+      "id": "B-41c8:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 2 re-audit after the F-001..F-007 fix wave. All 15 verificationIntent items across CHK-001..CHK-004 have mechanical verificationEvidence (receipt present, selectorMatched=true, mechanical=true). CHK-004's 3 receipts (happy:0, edge:0, adversarial:0), invalidated by refresh_stale (executor truncates pinned stdout at 12000 chars before selector match; F-007 shrank the raw default script output from ~15105 to 9914 chars, and the npm-wrapped pinned command to 10034 chars, both inside the 12000-char window), were re-earned at headHash e50125b15110094f5a5ea661447ffae5fc24604b (F-007 GREEN, committed as 5675372 record verification_evidence_batch_add metadata): confirmed genuinely mechanical, not stale-but-stamped. The other 12 (CHK-001..003) remain mechanical though bound to a later headHash (e7e44db1e5, the F-006 commit) -- a hash-binding staleness question the TEST-phase freshness gate owns, not a coverage gap. Fix-to-test mapping checked: F-004 (65afc419bb RED / 402b79bc9e GREEN), F-005 (e89cf6a909 RED / a20d0e0e40 GREEN), F-007 (4eb037bee9 RED / e50125b151 GREEN) are real RED/GREEN pairs; spot-checked 4eb037bee9 in a temp detached worktree (built packages/main, ran dist/tasks/single-owner-extraction-smoke.js) and confirmed it genuinely FAILs (37/38 cases passed, default stdout 15105 chars vs the 10000 bound), matching the commit message. F-006 (e7e44db1e5) has no separate RED commit but pastes the exact pre-change FAIL diff (actual/expected digest mismatch) in the commit body for a single deterministic pin value that is a direct, already-tested consequence of CHK-004 adding an entry to validate.commands -- judged acceptable Debugging Contract evidence for a mechanical re-pin, not a behavior change needing its own test. F-001/F-002/F-003 are comment-only / dead-code removals with no behavioral surface to test (F-002's unused destructure is covered by the tsc lint gate; F-003's helper-body removal is covered by the existing brand-path-smoke assertion the same commit updated from a positive to a negated check). Filed B-41c8:F-010 (low/edge, non-blocking): CHK-004:happy:0's pinned selector/case name (line 1822) still says the audit is listed with its call lines, but F-007's default (non-verbose) rendering only prints <file> <classification> per caller; the case still substantively verifies call lines via report data and an in-memory verbose render, so this is a stale-selector-text/documentation issue, not a coverage gap or vacuous check -- CHK-004 userSees is unaffected (it never promised call lines by default). Noted but not duplicating: B-41c8:F-008 (concept, medium, open, round-2-advisory) already covers a genuinely vacuous string-match regression guard at line 1936 (post-rename label string no longer reachable); confirmed by reading classificationOf() -- correctly the concept lane's finding, not test-coverage's. No open blocking finding this round (F-008 medium is R2-ADVISORY, F-009/F-010 low never block per isAdvisoryThisRound). Recording pass.",
+      "createdAt": "2026-09-02T16:03:33.684Z",
+      "reviewRound": "2026-09-02T15:53:47.823Z",
+      "reviewRunId": "B-41c8:RR-009",
+      "envelopeId": "4d026615488c325b5d0ee073fe3159a5d44161498557d41de352e4db6bb5725e",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/proof-or-stop-handoff.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8401f9d99ccc950fdb1184a28ab951334b0e5b1814af888a02d5f69762b69106"
+    },
+    {
+      "id": "B-41c8:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed (round 3): all 15 verificationIntent entries across CHK-001..CHK-004 have verificationEvidence with mechanical receipts (exitCode 0, selectorMatched true, result pass); no fail/missing must-intent. Verified round-2 F-010/F-008/F-011 resolutions via commit diffs plus mutation on a temp dist copy (reverting the call-line column and the store-typed regex both reproduce FAIL on the exact pinned assertion) and by checking out RED commit b7051a0e69 in a detached temp worktree, building, and reproducing 39/40 FAIL. F-009 is a threshold/format-only change with no RED by design, a reasonable judgment call. Two F-011/F-008 case names were shortened in 220075ce20 for stdout headroom but assertion bodies unchanged, confirmed via diff and mutation, no vacuous pass. No test-coverage-lane finding remains open (F-012 is proof-or-stop-review-concept, out of lane).",
+      "createdAt": "2026-09-02T16:38:55.960Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-013",
+      "envelopeId": "f0acfc15a5d2ff4976d3924e192ee6a17cd55fb8dd7751d7ecbf27bdb69ae5b8",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad9ecfc4431b201ead2d2da29a68a221c181fa176791bd1317fbf2813014f951"
+    },
+    {
+      "id": "B-41c8:RP-004",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round-3 targeted re-check of the F-011/CL-002 restoration (ada9de0ccf/220075ce20) requested by dispatch. Ran npm run test:single-owner-extraction: 40/40 PASS, all three pinned CHK-004 lines print verbatim (audit block header, completeness check, validate-channel.ts comment-only edge case). Read source for the two named callees: nextStoryId (context.ts:175) calls store.listStoryIds() -- a genuine read of story index content through the store, so its via-handler(nextStoryId) label at story-create.ts:558 is honest. applyDoneMergeEffects (done-effects.ts:1022-1347) only calls store.writeStory(...) (a write) and store.storyDirRel() (a cached config-derived field set at StoryStore construction, not a live read call) -- it never calls readStory/readChecklist/loadConfig itself, so its via-handler(applyDoneMergeEffects) label at transition-orchestrator.ts:1587 does NOT correspond to a proven read. This is the inverse case the dispatch asked about, but it is not a defect: the classifier documents itself (single-owner-extraction-smoke.ts:1292-1305, function doc at :1528-1532 uses may read ctx.root) as a deliberately conservative, unverified-delegation proxy -- a false FLAG is the safe direction -- because the file-level scanner cannot see into an out-of-file callee. transition-orchestrator.ts also carries direct story/checklist/config reads independent of this one entry, so no caller is left with an unverified via-handler as its ONLY ctx.root exposure except proof-or-stop-handoff.ts, which is the pre-existing documented false-PASS case already covered by test F-008/guard (its own via-handler callees are real command handlers, not write-only helpers). withChecklistLock and runCloseoutPhase (generic locals) do not appear anywhere in the audit output (grepped both verbose and default runs), matching localFunctionNames exclusion. assertCwdInWorktree (context.ts:71) genuinely calls store.readStory(storyId), so its via-handler label everywhere it appears is honest. Re-verified F-004/CHK-003 DONE-story behaviour: ran node <this-worktree>/packages/main/dist/cli.js validation_plan --storyId=B-01df --tier=fast --json from the main checkout (/Users/jek/Documents/GitHub/Prooforstop) -- succeeded, returned storyPhase=DONE and a full plan with no resolution error, confirming a DONE story still resolves cleanly (terminal-phase guard reads from the invocation root, not a stale linked worktree). Head moved from 18f1ed6975 to a5fbbba during this run due to a concurrent finding_add metadata commit (story bookkeeping, not source-code change); the reviewed source files (done-effects.ts, context.ts, store.ts, single-owner-extraction-smoke.ts) are unaffected. No blocking finding filed this round.",
+      "createdAt": "2026-09-02T16:39:16.626Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-015",
+      "envelopeId": "204079761a713d332fbb4c3bd6cc79981ed4ce4b2f87f547ad60d9a8e74e4bbf",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d9b70c4c6827e7342493e09f642bb131b5ab8fee4d0e8d6ac92e2ae1d756f10"
+    },
+    {
+      "id": "B-41c8:RP-005",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-3 CL-002 quality re-check: reviewed 871c4d17e6/6568823d3a/e3a1f0a57f/b7051a0e69/c774e0f9b7/ada9de0ccf/220075ce20/595b432d17 in full. Confirmed VACUOUS_WORKSPACE_LABEL is a genuine single-owner constant (grep: one definition site only). Confirmed the REGION_STRING remap for the type-annotation scan is contained to one call site (rootReadsOf typeAnnotationCode param, defaulting to code) and does not leak into the code-region reads; both code and typeAnnotationCode derive from the same kinds array over the same source so line offsets stay in sync by construction. F-009 headroom (391 chars measured vs the smoke own 11000 bound, 1000-char documented margin to the executors 12000 cap) is acceptable: documented at the constant with an explicit remediation path, and the bound-case failure message names the exact cause (audit block size) and the fix (compact block / SINGLE_OWNER_AUDIT_VERBOSE escape hatch). Mutation-tested: (a) the store label-guard sharing -- editing VACUOUS_WORKSPACE_LABELs one definition site does not desync classifier vs guard (40/40 still pass), which is the correct/expected proof of single ownership, not a defect; (b) narrowing the `(?:'store'|\"store\")` alternation to single-quote-only survives 40/40 unchanged -- filed as B-41c8:F-013 (low, non-blocking this round: untested/dead double-quote branch, no real handler ever uses double quotes). No new any-casts, non-null assertions, empty catches or duplicated regex fragments found in the CL-002 diff or the CHK-001..CHK-003 migrated files (story-workspace.ts, story-query.ts, session.ts, validation-plan.ts, local-assurance-story-projection.ts, evidence-freshness.ts, done-required-validation.ts) beyond already-resolved F-001..F-011. F-013 is the only open finding from this pass and is low severity (already advisory in round 3); no blocking finding remains open in this lane.",
+      "createdAt": "2026-09-02T16:41:58.285Z",
+      "reviewRound": "2026-09-02T16:30:47.534Z",
+      "reviewRunId": "B-41c8:RR-012",
+      "envelopeId": "1c727242c13f558e82a766f1403f054bf3780aa9fd0ca3e6454aac977a9eb7dd",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7033a11aa9a1724d0f6a8fb4e0fe1d27a4b2164c37fd129023b7088b225171ea"
+    },
+    {
+      "id": "B-41c8:RP-006",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4 concept sweep: F-012 verified fixed (git show ce41a44633; b11dd0fb02 grep now empty). Full-branch hash-citation sweep found two pre-existing (not story-introduced) orphaned commit-hash citations, filed low/advisory as F-014. grep sweep for deleted symbols (listActiveWorktrees, readStoryFromLinkedWorktree, collectLinkedStoryWorktrees, splitShellWords, SHELL_META_RE, commandFromString in done-required-validation.ts, StoryWorkspace.storyDir) found zero residue treating them as still existing. docs/CLI.md and docs/dev/test-coverage.md do not document individual smoke suites or verbose env vars as a general convention (sibling suites also undocumented), so no doc-promise-undelivered gap for test:single-owner-extraction / SINGLE_OWNER_AUDIT_VERBOSE -- not filed. Ran single-owner-extraction-smoke.js directly: 40/40 PASS. No new blocking finding.",
+      "createdAt": "2026-09-02T17:00:11.934Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "reviewRunId": "B-41c8:RR-016",
+      "envelopeId": "afabbd2eac73b7721345a772b34a376126fe93556579ba8ea6206b196ee635ce",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8008e0069a60c1d97138dd603709e81761eb514cb2d74b9a99b8cc0ea3ee1493"
+    },
+    {
+      "id": "B-41c8:RP-007",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 quality sweep. Verified F-013 mutation-tested; full diff read across core/handlers files; tsc clean.",
+      "createdAt": "2026-09-02T17:01:06.475Z",
+      "reviewRound": "2026-09-02T16:54:38.068Z",
+      "reviewRunId": "B-41c8:RR-017",
+      "envelopeId": "68d6f58650fb08e73773d60289b6e0cbdd482f51093594a170671d12f13def6d",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "beb90bb9e4d9e1408c020149c8d6114273dc4471bc13aaa61f998ecaee52e52a"
+    },
+    {
+      "id": "B-41c8:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 5 scope-limited quality re-review of commit 418e5d8103 (F-015 fix): diff touches only DYNAMIC_BINDING_BUILD_CEILING (808->809) and a maintenance comment in retired-authority-vocabulary-guard-smoke.ts. Read the counting code (scanDynamicCodeGeneration ~3814-3833, collectDynamicExecutionBindings ~2060-2071, assertTypeProgramInstrumentation ~921-968): dynamicBindingBuilds increments only inside collectDynamicExecutionBindings, reached only when a file has a dynamic-execution AST candidate and is not prefilter-skipped. Empirically confirmed by running an instrumented copy of the built smoke (temp file inside gitignored dist/, deleted after use) dumping dynamicBindingBuildFiles: single-owner-extraction-smoke.ts -> 1 build (calls execFileSync); story-workspace.ts -> 0 builds (no candidate, prefilter-skipped). Matches the commits claim exactly and refutes the original F-015 attribution to story-workspace.ts. Rebuilt and ran the smoke: PASS builds=809 cacheHits=2 fullAnalysis=1292 astCandidates=506 reachability=34. SHIPPED_EXECUTABLE_SOURCE_DIRS matches what the comment says the ceiling scans. Comment is accurate and gives a future story enough to update the ceiling correctly; the hard-pinned-count guard design predates this commit, out of this rounds scope. Verified git log --format=%h -i --grep=claude --grep=codex main..HEAD prints 0. No new findings this round.",
+      "createdAt": "2026-09-02T17:52:42.017Z",
+      "reviewRound": "2026-09-02T17:48:38.951Z",
+      "reviewRunId": "B-41c8:RR-018",
+      "envelopeId": "d9a731394994d3f489ad544f063e8aef3270da27b773010a5848e7501ff6788c",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (diff + lines 55-80, 600-970, 3600-3840, 2020-2072, 4830-4845)"
+        ],
+        "filesTriagedByName": [
+          "git diff main...HEAD --stat",
+          "git log main..HEAD --oneline",
+          "git show 418e5d8103",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts (grep execFileSync)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "427bdf9b8610dea30255cca0d48061e92f0793a6f26159f0553f385d9a7e8a70"
+    },
+    {
+      "id": "B-41c8:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue check for 8 deleted symbols. Occurrence-mode rg -o count = 76, matches gate exactly. Bucket counts (a=new definition/uses of deliberately reused name, b=pre-existing untouched same-named symbol, c=historical mentions describing removal/structural residue checks, d=genuine residue): collectLinkedStoryWorktrees 3=(c); commandFromString 13=(b:5 verifier.ts def+callsites untouched by this diff, git diff main...HEAD --stat empty for verifier.ts)+(b/c:8 comments referencing that untouched symbol + PRIVATE_PARSER_TOKENS structural array); listActiveWorktrees 3=(c); listLinkedStoryWorktrees 2=(c); readStoryFromLinkedWorktree 3=(c); readWorktreePhase 2=(c); resolveStoryWorkspace 41=(a:~38 new exported helper in core/story-workspace.ts + its 4 migrated call sites import+call in session.ts/story-query.ts/validation-plan.ts/local-assurance-story-projection.ts + smoke test exercising new symbol)+(c:~3 story-workspace.ts header migration-provenance comment and smoke removed:[...] structural check confirming old validation-plan.ts private copy is gone); splitShellWords 9=(c, zero function definitions named splitShellWords exist anywhere in packages/main/src -- all hits are historical-narrative comments or PRIVATE_PARSER_TOKENS residue-check array). Verified grep of done-required-validation.ts and validation-plan.ts show zero remaining occurrences of the deleted private implementations. Checked the only diff since round 4 (commit 418e5d8103): unrelated ceiling-constant bump in retired-authority-vocabulary-guard-smoke.ts. Zero (d) genuine-residue hits across all 8 symbols. No blocker.",
+      "createdAt": "2026-09-02T20:09:17.904Z",
+      "reviewRound": "2026-09-02T17:48:38.951Z",
+      "reviewRunId": "B-41c8:RR-020",
+      "envelopeId": "a8dc9b6a45092bb1cc2dea3e30381df945cc26976c15086836bfb5f0569f6208",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8c8394040626e75a54d96d33bdd0852c6853637385fbb8fa690a8e5cecc9e251"
+    },
+    {
+      "id": "B-41c8:RP-010",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review after main-merge round bounce. Confirmed git diff main...HEAD --stat (43 files) shows only story-owned files (all under .proof-or-stop/story/actives/B-41c8/, plus the CHK-001..004 scoped source files); none of the merge-brought files (AGENTS.md, docs/audits/AGENTS-current-version-audit.md, tests/AGENTS.verify.mjs, .proof-or-stop/artifact-releases.jsonl, .proof-or-stop/capability-releases.jsonl, .proof-or-stop/dev-memory/experience.jsonl -- per review_incremental_context changedFiles since RP-009) are story-owned source. Re-ran the round-5 residual sweep for all 8 deleted symbols (collectLinkedStoryWorktrees, commandFromString, listActiveWorktrees, listLinkedStoryWorktrees, readStoryFromLinkedWorktree, readWorktreePhase, resolveStoryWorkspace, splitShellWords) over packages/ docs/ CLAUDE.md scripts/: 7 of 8 counts are byte-identical to RP-009 (3,13,3,2,3,2,9). resolveStoryWorkspace grew from 41 to 43 lines (44 occurrences with one pre-existing double-occurrence regex line unchanged from round 5); the +2 delta is exactly two lines in docs/story/drafts/zombie-detector-wrapper-root-layout/{background.md,checklist.json}, a separate draft story (commit 94d6644, shared ancestor of both main and this branch, not in git diff main...HEAD --name-only) that references resolveStoryWorkspace by name as the correct pattern to reuse for a future story -- a legitimate forward reference to the new canonical helper (same bucket-(a)/(c) class as round 5), not residue of a deleted symbol. Re-confirmed zero remaining splitShellWords/SHELL_META_RE/commandFromString occurrences in done-required-validation.ts and validation-plan.ts. Zero (d) genuine-residue hits across all 8 symbols. No blocker.",
+      "createdAt": "2026-09-02T23:49:33.417Z",
+      "reviewRound": "2026-09-02T23:45:41.118Z",
+      "reviewRunId": "B-41c8:RR-021",
+      "envelopeId": "bdd76f5249d839aa175fa003344c1426a3773d3f58bf071ad41916e57f9d33a5",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/drafts/zombie-detector-wrapper-root-layout/background.md",
+          "docs/story/drafts/zombie-detector-wrapper-root-layout/checklist.json",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5275ef7d8eef935799662941e43f169fc499dc6be05ad03d8e977f24cd068b4"
+    },
+    {
+      "id": "B-41c8:RP-011",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 6 re-pass after RP-008 was invalidated by a merge-main-into-branch + TEST/back bounce. Confirmed via review_incremental_context --role=proof-or-stop-review-quality --json: changedFiles since RP-008 (headHash 37e99ad1 -> 08a6d5e9) are only .proof-or-stop/artifact-releases.jsonl, .proof-or-stop/capability-releases.jsonl, .proof-or-stop/dev-memory/experience.jsonl, AGENTS.md, docs/audits/AGENTS-current-version-audit.md, tests/AGENTS.verify.mjs -- merged-main files and story metadata only, no story-owned source under packages/main/src changed since the prior pass. Rebuilt via npm --prefix packages/main run build (clean). npx tsc --noEmit -p packages/main: clean, exit 0, no diagnostics. node packages/main/dist/tasks/single-owner-extraction-smoke.js: 40/40 cases passed, single-owner-extraction-smoke: PASS, default stdout projection 10609 chars (bound 11000). node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js: retired authority vocabulary guard PASS builds=809 cacheHits=2 fullAnalysis=1292 astCandidates=506 reachability=34. No blocking finding.",
+      "createdAt": "2026-09-02T23:49:41.138Z",
+      "reviewRound": "2026-09-02T23:45:41.118Z",
+      "reviewRunId": "B-41c8:RR-022",
+      "envelopeId": "78eb7c2ecec26373b3f61ef05f35564577dedb9bbd8a48bacf006a378863ed08",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e8bd9f485048b545271268f32b12ff712b97523672ac4da578507d2ed934679"
+    },
+    {
+      "id": "B-41c8:RP-012",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 6 re-review after RP-003 (round 3): all 15 verificationIntent entries (CHK-001 x5, CHK-002 x3, CHK-003 x4, CHK-004 x3) have mechanical must-priority evidence with receipt present, selectorMatched=true, exitCode=0, result=pass; zero missing. Audited the 3 fixes since RP-003: F-013 RED 3ebf244ca1 spot-checked in a detached worktree, confirmed FAIL 39/40 on the F-011 double-quoted-store case exactly as claimed, GREEN 2d12aa7c2d restores the byte-identical original regex; F-015 418e5d8103 is a comment+constant ceiling bump (808->809) without its own RED commit, but the pre-existing failing state was independently reproduced in a detached worktree at the parent commit (rc!=0, dynamic binding graph builds must remain bounded at 808, got 809), matching the repro pasted verbatim in the commit body, so a separate RED was not needed; F-012 ce41a44633 is comment-only (no assertion or pinned digest touched). git diff --name-only main...HEAD lists only story-owned files: proof-or-stop metadata under .proof-or-stop/story/actives/B-41c8/ and .proof-or-stop/dev-memory/, package.json, proof-or-stop.config.json, and source/smoke files from CHK-001..004 plus their review fixes. finding_list: 14/15 findings resolved, F-014 dismissed (advisory, non-blocking); no open finding. No blocker found.",
+      "createdAt": "2026-09-02T23:53:27.460Z",
+      "reviewRound": "2026-09-02T23:45:41.118Z",
+      "reviewRunId": "B-41c8:RR-023",
+      "envelopeId": "3f1e7cafa71086e1090f89829fd1f8f0e146bd870c9b0f5b5a291f534e832707",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/plan.md",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f6cb23c701a72279a32b0d92ad21448277e4aa0cd992997840effadafa992ec"
+    },
+    {
+      "id": "B-41c8:RP-013",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-verified after main was merged twice (e3d0e455fc, f59f4821dc) since RP-010; storyFilesHash moved but no story SOURCE file changed. git diff --name-only main...HEAD now lists only story-owned artifacts + the scoped source files; .proof-or-stop/dev-memory/experience.jsonl is no longer in the diff and confirmed byte-identical between main and HEAD. Re-ran the 8-symbol residual sweep (SHELL_META_RE, splitShellWords, commandFromString, readStoryProjection, listActiveWorktrees, readStoryFromLinkedWorktree, collectLinkedStoryWorktrees, resolveStoryWorkspace) over packages/, docs/, CLAUDE.md, scripts/: only the private duplicate parser inside done-required-validation.ts was intentionally deleted (CHK-002) with zero residue confirmed by grep; all other matches are surviving canonical implementations/call sites/test-comments, matching RP-010 zero-(d)-bucket outcome. No new concept deletion/replacement introduced by the metadata-only merges. No blocker.",
+      "createdAt": "2026-09-03T01:07:44.001Z",
+      "reviewRound": "2026-09-03T01:05:21.744Z",
+      "reviewRunId": "B-41c8:RR-024",
+      "envelopeId": "05d219d7a0e6040b07efc73a617666ba9c54e8dedc3bc8a325f3c8460aa4a312",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c095cdc025e7c3ccf1accf52f0a9d31d7025b7210c591d9d0d8b074b2341cd31"
+    },
+    {
+      "id": "B-41c8:RP-014",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 7 re-audit after storyFilesHash-moving local main merges (e3d0e455fc, f59f4821dc). All 15/15 verificationIntent entries across CHK-001..CHK-004 have mechanical verificationEvidence: receipt present, selectorMatched=true, result=pass, kind logic_test/manual_transcript, zero waivers (checklist_get --json). git diff --name-only main...HEAD lists only story-owned files. git log main..HEAD shows RED/GREEN pairs for CHK-001..CHK-004 plus later F-00x finding-fix GREEN commits. finding_list shows 15 findings, 0 open. No blocker for this lane; test-coverage review passes.",
+      "createdAt": "2026-09-03T01:08:19.264Z",
+      "reviewRound": "2026-09-03T01:05:21.744Z",
+      "reviewRunId": "B-41c8:RR-026",
+      "envelopeId": "f9b1a35f50f62d77a6925addfa18b48d22e2f19672d16a9ab8d5d94f8fa1f982",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/findings.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "174dd85cf8a504a1d05895ed34f1cc4eb0b27ed34e0622a9293e0a1e77fb82cb"
+    },
+    {
+      "id": "B-41c8:RP-015",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 7 re-review after main merge shifted storyFilesHash/materialHash; review_incremental_context confirms only .proof-or-stop/dev-memory/experience.jsonl changed since round-6 PASS B-41c8:RP-011, no story SOURCE file changed. Rebuilt, tsc clean, smoke tests match expected: 40/40 PASS (10609 chars, under 11000 bound), retired-authority-vocabulary-guard-smoke PASS builds=809. All prior findings resolved/dismissed, none open.",
+      "createdAt": "2026-09-03T01:08:53.099Z",
+      "reviewRound": "2026-09-03T01:05:21.744Z",
+      "reviewRunId": "B-41c8:RR-025",
+      "envelopeId": "074420b334b3bd639394ef6a199d5ff0b4e31df0a8d1ab8c523bdd0b5fd5183f",
+      "writerSessionId": "sess-1bb1dd70050f32ab2d2f3e8b1e5e7000",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (output)",
+          "packages/main/src/tasks/single-owner-extraction-smoke.ts (output)"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-41c8/background.md",
+          ".proof-or-stop/story/actives/B-41c8/checklist.json",
+          ".proof-or-stop/story/actives/B-41c8/plan.md",
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-workspace.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3d5f940cfaa6521f531c42fd2338d829fedc74b76774cf827cdaefd7a3f39c6b"
+    }
+  ]
+}

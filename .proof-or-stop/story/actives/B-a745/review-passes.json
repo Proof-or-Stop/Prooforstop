@@ -1,0 +1,627 @@
+{
+  "passes": [
+    {
+      "id": "B-a745:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Byte-verified dist==fresh rebuild, extraction diffs behaviour-preserving, mutation-tested two mutation-proven guards, live CLI edge cases checked. No blocking findings.",
+      "createdAt": "2026-09-02T03:02:05.622Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-003",
+      "envelopeId": "42d3a943ffc15cda811ef52c8294133c014a58aa5a26c3a4e65abf1da0ef1980",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dccd66be9dda96b8635ec36aad588be44e173aa2d3eeff4206abad4f553a97cc"
+    },
+    {
+      "id": "B-a745:RP-002",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Verified F-001/F-002/F-004 resolutions against code, not text. F-001: explicit commandId miss -> pinned_command_missing (stop); legacy non-matching -> pinned_command_non_inventory (repository-full, never a seed edge, never subtracts); no branch can ever emit a reduced story-fast/story-intermediate effective tier (subset-invariant-checked repository-full-only return). Confirmed live: validation_plan --storyId=B-a745 --tier=fast prints status: plan, selected: 121 of 121. F-002: resolution is honest, not overstated -- the CHK-005:happy:0 receipt selector really is the stored non-discriminating finalAuthority: no (read from checklist.json verificationIntent), and the committed fixture at validation-tier-planner-smoke.ts:2246 mechanically proves that exact weakness while also proving the new status: plan / status: stop discriminator is real and bidirectionally enforced (assertValidationPlanStatusInvariant). F-004: both glosses reworded with accurate scope language and concrete remedies, correcting the prior factually-wrong no-longer-exists claim. Re-ran inverse questions: no false-positive plan renderable, printed counts live-verified true (121), read-only guarantee holds (no working-tree diff from validation_plan itself; byte-identity fixture passes). Full smoke suite re-run live: PASS.",
+      "createdAt": "2026-09-02T03:37:24.655Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-005",
+      "envelopeId": "baa6d59ebd3c0008a228c77481451fe74c0e4b3fc08110678b3576596e66fb5b",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9aecc0c215edd7a9f5a3dfed574506f9dd893fae8d9ddac68c0b0c7b6f311ad"
+    },
+    {
+      "id": "B-a745:RP-003",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-review after F-001/F-002/F-004/F-006 fixes + validate.commands entry (120->121). Dist re-verified fresh, F-006 wiring confirmed behaviour-preserving and mutation-tested, F-001 split has no dead branches, resource claims on the new validate.commands entry verified true against keyed-scheduler.ts and suite source. No blocking issues found.",
+      "createdAt": "2026-09-02T03:38:05.117Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-008",
+      "envelopeId": "2bcae2f7907a61c7a64cf67bc0a53dc3d2cd8919c7aecdaceb9ba8b1df0d7e4a",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "923518a5fd49e2a0e51e6337e4dd8e05342ba3892fdb61e789f909a49e429fdb"
+    },
+    {
+      "id": "B-a745:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round-2 re-audit after F-001/F-002/F-004/F-006 fixes. (1) Aggregation harness unchanged this round (grep for testCase/failures/process.exit across all 20 commits in main..HEAD shows zero removed lines touching them); exitCode 0 still means every case ran+passed. Ran both npx tsx and the compiled dist smoke file live: PASS, 81/81 ok, including all new cases. (2) CHK-005:happy:0 receipt remains pinned to the non-discriminating selector finalAuthority: no (confirmed in checklist.json verificationIntent.verification.selector, immutable by design). The substitute guarantee -- commit dd7bd9cb13 (RED) + d681784e06 (GREEN) -- adds two committed, currently-passing fixtures asserting plan/stop renders share no outcome-bearing line and finalAuthority: no is proven non-discriminating; both cases ran ok in this pass. Accepted as documented partial mitigation, matching F-002 resolution text. (3) F-001 pinned_command_non_inventory: confirmed BOTH branches are committed and passing -- an explicit unresolvable commandId still stops (test: an explicit unresolvable commandId still stops while an unresolvable legacy string does not) and an unresolvable legacy string widens instead of stopping (test: a legacy string matching nothing is a non-inventory evidence command, not a stop / a non-inventory legacy pin plans repository-full instead of stopping, and seeds no command). No happy-path-only gap. (4) F-006: VALIDATION_STOP_REASON_CODES is genuinely derived at module scope (validation-tier-planner.ts:325, filter on outcome===stop), and the committed fixture (the stop-code list is derived from the table and the resolver consults it) enumerates VALIDATION_WIDENING_REASON_CODES and asserts isValidationStopReasonCode agrees with each row plus drives the resolver through every collector escalation code -- a row whose outcome changed, or a hardcoded stop-list reintroduced without table backing, would fail this fixture. (5) All 34 must intents remain done/covered; verification_evidence_refresh_stale --dryRun reports 33 of 34 pinned evidence entries as headHash-stale (recorded before the F-001/F-002/F-004/F-006 commits touched the shared smoke file) with CHK-005:happy:0 fresh (re-run at 71dd68b785). This is routine story-progression staleness, not a regression: re-running the pinned commands live reproduces PASS. Per-commit committed-test check: F-001 -> 913fce8326 (RED)/bce775f1d0 (GREEN); F-002 -> dd7bd9cb13 (RED)/d681784e06 (GREEN); F-004 -> ba8c46c915 (RED)/41143352ef (GREEN); F-006 -> e1ca26fcdc (RED)/c94c88cbdb (GREEN). All four findings have a committed, currently-passing test. No blocking test-coverage issues this round.",
+      "createdAt": "2026-09-02T03:40:03.508Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-007",
+      "envelopeId": "67a3c5be25940220ede90d8b75fa055292ce3c2dabe339a21b17f22ed4715fc6",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validation-plan.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5f780f3a6072d0a4382196d21785ebb5c7e78faa9556a1ac3712beab2b41290"
+    },
+    {
+      "id": "B-a745:RP-005",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round closed clean after two corrections, both verified by re-running rather than trusting the prose. F-006 final text keeps only 4 checkable line numbers + qualitative claim; all 4 lines confirmed correct. F-009 explains the transcription-vs-verification gap; both halves (broken literal-pipe form, working escaped-alternation form) independently reproduced by me. No third instance of the unverified-specific-claim pattern found. validate --concept re-run: identical 10 non-blocking residuals, no source changed since prior pass. No blocking issues remain for this reviewer.",
+      "createdAt": "2026-09-02T03:57:12.213Z",
+      "reviewRound": "2026-09-02T02:55:06.517Z",
+      "reviewRunId": "B-a745:RR-006",
+      "envelopeId": "ac68712775919a35d443058a4efe9d88964cd036386e3026334eb4c4b0ef8bb4",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a96e6b3b9ce8ee839ea31a51548705457f95ccf59fa10e3295433c431a753647"
+    },
+    {
+      "id": "B-a745:RP-006",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round 3: independently reproduced the F-010 fix rather than trusting the resolution text. From the story worktree AND from the main checkout (/Users/jek/Documents/GitHub/Prooforstop), node dist/cli.js validation_plan --storyId=B-a745 --tier=fast --json now produces BYTE-IDENTICAL full reports: selectionDigest f0c3030cab1f30d02440367e6b4f5db72cac5320e8a9fd72439252174de5ab47, commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, unclassifiedInputs=19 both sides (python json.dumps(sort_keys=True) diff exit 0). Also reproduced from a THIRD, unrelated active worktree (.worktrees/B-9a49) targeting --storyId=B-a745: same digest, and B-9a49s own story files (index.json/process-events.jsonl/process-metrics.json) and its stale local copy of the B-a745 metadata dir were byte-unchanged (md5 before/after), so the fix reads the correct story tree without touching an unrelated cwds files. Read-only guarantee re-verified directly (inverse-question focus): ran validation_plan 3x with different tiers from the worktree, from main, and from a subdirectory of the worktree (packages/main/src/core) -- md5 of every file under .proof-or-stop/story/actives/B-a745/ unchanged in every case; git status shows zero new dirt attributable to validation_plan (the pre-existing B-49df dirty file in main predates this session and is unrelated). Failure-mode check: invoking from a non-git scratch directory and from an unrelated real git repo both fail with the same pre-existing, clearly-named story-not-found error (File not found: <cwd>/.proof-or-stop/story/actives/B-a745/index.json or docs/story/actives/...) -- this is generic StoryStore behavior that fires before gitCwd resolution is reached, not a new confusing failure mode from this fix; resolveGitCwd itself fails safe to projectRoot on any resolver error (verified by reading story-signed-workspace-resolution.ts:195-211), which is the same choke-point already used by 8 sibling handlers. F-011 comment fix verified directly in source: validation-command-identity.ts now states the accurate three outcomes (one match binds / zero matches is non-inventory and widens / two-or-more stops) where it previously said zero is a stop. Re-ran the full suite live: npm run test:validation-tier-planner -> PASS, 40+ cases including both F-010 regression fixtures (main-checkout-to-active-worktree and configured wrapper-root layout). Self-check on why round 2 (RP-002) missed this: the cross-cwd tree-identity property was never a stated userSees claim for CHK-005 and was not an explicit spec-declared boundary case in the Story 1 decisions doc (worktree overlay analysis there is scoped to Story 2, not to which cwd the read-only CLI itself is invoked from), and my round-2 adversarial check was narrowly scoped to CHK-005s own stated adversarial intent (write-side byte-identity), never extending to read-side cwd-independence since nothing prompted that specific angle. That is a real methodology gap -- checking claimed behavior against code is necessary but not sufficient for properties nobody claimed -- and I looked for but did not find a second instance of the same gap in this delta (the other candidate cwd-dependent read added by this fix, config/command-inventory resolution, is exercised by the same fixtures and reproduced live above). No blocking issues found this round.",
+      "createdAt": "2026-09-02T08:02:03.160Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-009",
+      "envelopeId": "590e29c22a4d9341586dd67a32c748576949050e7139240237d6457cabd493a7",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "93bcbee4552b1af9473f368d2f015255c0a73d5958a778ad882e49a565f00bb5"
+    },
+    {
+      "id": "B-a745:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 3 test-coverage re-review of the F-010/F-011 fix delta. All 34 must-priority verificationIntent entries remain mechanically covered (checklist_get), 33 receipts freshly bound to headHash de019c2284/current tip, one (CHK-002:edge:0) a permanent waiver correctly exempt from re-execution. Mechanically verified (checked out into isolated worktrees, built dist, ran the suite) that all three F-010 RED/GREEN commit pairs are genuine RED-before-GREEN: c7c449e6f2 (RED, 2 failing F-010 cases) -> e1f222abc6 (GREEN); d4d930c9d1 (RED, 1 failing) -> 326169897a (GREEN); e0baff1a65 (RED, 1 failing) -> de019c2284 (GREEN, PASS). Both Codex-requested regression cases are present and committed: main-checkout-to-active-worktree and configured wrapper-root, and the wrapper-root case explicitly asserts the story-branch change is visible and that changed_files_unavailable/hash_snapshot_unavailable are absent. F-011 is comment-only (no behaviour change), correctly has no dedicated new fixture; existing F-001 coverage already exercises the real non-inventory behaviour it documents. Filed B-a745:F-012 (medium, non-blocking): the suites own CHK-006 RED-before-GREEN acceptance guard only recognizes RED(CHK-nnn)/GREEN(CHK-nnn) commit subjects and silently ignores the RED(F-0xx)/GREEN(F-0xx) finding-fix commit family, so this discipline is currently unenforced by automation for finding-fix commits even though this delta happens to satisfy it. No blocking finding open for this lane.",
+      "createdAt": "2026-09-02T08:04:45.804Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-013",
+      "envelopeId": "70bd763d8d8b0a0e92d31dd2a205cfe4ca4482dd3b5d92cd940b59db35f16d51",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e9649a169ace7e103f5edd35b645af878e2134ac274f650aebef16ce3ec5bcd"
+    },
+    {
+      "id": "B-a745:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 3 re-review of F-010/F-011: no blocking finding this lane. Byte-verified dist rebuild, diffed workspace-resolution vs story-query.ts/session.ts (filed F-014 medium non-blocking), mutation-checked both new fixtures (filed F-015 low non-blocking).",
+      "createdAt": "2026-09-02T08:05:35.343Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-011",
+      "envelopeId": "4ec3b331bb96bfe91c7e88ab3feb7a03c521ffa0b681c9314c4b06ea0566c358",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/local-assurance-story-projection.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/core/worktree-runtime.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "df98ca30ac2e922aa7a3c8a4de2dd33078527d0654d8b79b0ba6e33c9bcf99a3"
+    },
+    {
+      "id": "B-a745:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 3 concept/residue + owner-prose audit, story-level. (A) validate --concept: only the 10 already-adjudicated splitShellWords residuals from prior rounds; no new deleted symbol or dangler from the F-010 gitCwd/store/config refactor (validation-plan.ts) or the F-011 comment-only fix (validation-command-identity.ts) -- diffed both commits, no exported symbol removed, only local var rename store->workspace/root->projectRoot. (B) F-010: independently re-ran the owner reproduction live (worktree cwd + real main checkout, same dist, storyId=B-a745): status=plan, unclassifiedInputs=19 both sides, byte-identical selectionDigest across both cwds today (literal digest differs from the cited 89378a5996d8... because head has moved 20+ commits since, expected drift not a discrepancy); confirmed resolveGitCwd + resolveStoryWorkspace wired in at validation-plan.ts:620-650; smoke suite F-010 fixtures pass live, CHK-006 RED-before-GREEN guard passes. F-010 claim holds at its stated width. F-011: filed B-a745:F-013 (medium, open, non-blocking under balanced-profile round-1 rules) -- the resolution and the resulting permanent comment both claim this contradiction is filed with spec owner B-ccf4 to reconcile, which is unverifiable: no gap_log entry (activity.jsonl has exactly one gap_log call, my own --help probe), no B-META-framework-audit reference, no B-ccf4-side artifact, no matching git history, no story doc mentions an actual filing. This is a 3rd unverified specific claim from this owner in this story (after F-008, F-009), the first not self-caught, now baked into permanent source. The self-contradiction framing is defensible but incomplete: CHK-002:edge:0 (this story own approved intent) and the spec own every pin resolves or selection stops invariant both independently support the stop reading Codex took; the CHK-005:happy:0 circularity is the stronger honest justification for the F-001 reversal than spec self-contradiction alone. No new blocking finding this round: F-013 is medium/open, not in this round blocking set, left for main-agent triage.",
+      "createdAt": "2026-09-02T08:06:10.286Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-010",
+      "envelopeId": "a71323ddc2fcd7ae8252976051d8c8ae83a2476a10c4f6a847f9b642408a88c4",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/delivery-check.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json",
+          ".worktrees/B-ccf4/docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "30d5c036e0f62cfbf2d7f40d47bea5fff2e4b9474b4eb4b1ff5a319aed4abe18"
+    },
+    {
+      "id": "B-a745:RP-010",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 quality re-review, scoped to F-017/F-016 fixes plus a dist-freshness recheck (my own round-3 F-015 finding). RR-016 went stale mid-review because F-020 (comment-only) landed concurrently; re-diffed 9d02815..HEAD, only touch is a comment-only reword in validation-command-identity.ts, no re-analysis needed, restarted as RR-018. (1) Dist freshness: sha256 of every file in packages/main/dist against a fresh npm --prefix packages/main run build is byte-identical -- resolved (was my round-3 F-015). (2) F-017 (8345c873d6/3790b0f193): narrowPortableValidationCommandTuple and buildValidationCommandInventory take no platform arg and derive shell from command.shell === true only (declared intent); the COMPLETE runtime tuple used for pin resolution (completeTupleFromCommand -> normalizeRoutineValidationCommand -> validationCommandUsesShell) is unchanged and still platform-effective via buildValidationPinUniverse. No unused validationCommandUsesShell import, no leftover platform param on the portable-tuple call sites. Fixtures cover both directions: portable id/digest identical across linux/darwin/win32, AND the runtime tuple explicitly asserted to still differ on win32 (not flattened). (3) F-016 (207d6f1adc/28188ef373, 48048697fa/03df6da9fb): one shared primitive pair (boundSummary + firstMeaningfulLine) backs both boundedFailureSummary (duration-history, malformed-pin) and classifyChangedFilesFailure (changed-files, hash-snapshot) -- not near-copies. Raw error retained on the structured object at 3 of 4 sites (changedFiles.error, hashes.error, durationHistory.readError); the 4th (malformed evidence pin) has no raw field but its only throw sites (readPinField) are short hand-written single-sentence Error objects, not stack traces, so nothing unbounded is being lost -- disclosed by the commit itself. (4) Mutation-check on a copy, both reverted and confirmed by rebuild+sha256 diff and git status clean: (a) reintroduced the platform-effective shell rule into the portable tuple -- bit exactly the 5 F-017 fixtures with the same win32-vs-darwin digest divergence the RED commit recorded; (b) reintroduced changedFiles.error (raw) in place of changedFiles.summary in the planner render -- bit the changed_files_unavailable fixture with the full git usage dump reappearing in the rendered detail. No findings this round.",
+      "createdAt": "2026-09-02T08:49:07.022Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-018",
+      "envelopeId": "b0382175418980482fa9226f5bc01026cc483a4880d4c3f92102b8c035523f64",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9ea1bb1feae9aa9fd624ef2ebebaa200a39275fee18c2debecc7f5c67340e17a"
+    },
+    {
+      "id": "B-a745:RP-011",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round 4 re-review of F-016/F-017/F-018, re-bound after concurrent commits landed mid-review (a comment-only F-020 fix to validation-command-identity.ts plus another lanes review_pass_set; re-verified this src diff is comment-only and validation_plan still reports the same commandSetDigest). F-016 (bounded prose): forced not-a-git-repository and unknown-revision through the REAL collector+planner+renderer end to end (a mkdtemp non-git dir and a fresh git-init repo with zero commits, one configured command). Both renders keep status: plan as an intact single line, and the changed_files_unavailable detail is exactly one line, correctly classified (not-a-git-repository / unknown-revision), carrying the bounded plain-language summary with no git usage dump. Ran the committed smoke suite (validation-tier-planner-smoke.js), which also drives the git-unavailable (ENOENT) branch and confirms every classification path stays <=200/300 chars, single line, never leaks raw stderr; suite PASS. Inverse check: forced two realistic real-world errors NOT matching the three named regexes (permission-denied cwd read failure, git index.lock contention) and confirmed both correctly fall through to reason=unknown while still surfacing the actual first-line message (e.g. Permission denied) in the bounded detail -- nothing lands in unknown that should have a named classification, and unknown itself stays actionable rather than opaque. F-017 (portable ids): confirmed narrowPortableValidationCommandTuple/buildValidationCommandInventory take no platform argument in the current source; on this macOS host validation_plan --storyId=B-a745 --tier=fast prints status: plan, selected: 121 of 121 validation unit(s), commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 -- byte-identical to the digest recorded in F-017s resolution, re-confirmed again after the concurrent F-020 comment-only commit and a fresh build. proof-or-stop.config.json declares zero shell:true commands, matching the claim. F-018 (dirty-worktree honesty, deferred): made an uncommitted edit to README.md (a file with zero presence in this storys main...HEAD diff) and reran validation_plan --explain; grepped the full rendered output for any mention of the file, dirty/uncommitted/staged/unstaged/untracked, or workspace_snapshot_changed -- zero hits. status stayed plan, selected 121 of 121, completely unaffected and completely silent about the dirty state; reverted the edit and confirmed git status clean again. This matches F-018s own dismissal text exactly (silent, not deceptive: the tool makes no completeness claim about local changes, and because Story 1 never prunes -- always repository-full or a stop -- the silence cannot cause an incorrect narrower selection; the gap is honestly recorded and deferred to the committed draft docs/story/drafts/planner-worktree-overlay-seeds). No operator is misled into believing something was excluded that should not have been, because nothing is ever excluded in this Story regardless of what the silence hides.",
+      "createdAt": "2026-09-02T08:49:55.829Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-019",
+      "envelopeId": "9c27cb62d6d3fa95e18cf13648e5282e1b5ed660d09abbea8c50eac20f200783",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa5b57a6be7fccc956fa0e79d1b358a381e49063c1408c4a499e040abbf4d002"
+    },
+    {
+      "id": "B-a745:RP-012",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 re-verification (rebound RR-017->RR-020 after concurrent F-019/F-020 activity landed a comment-only diff in validation-command-identity.ts, re-confirmed no functional change, suite still PASS at new HEAD). Checked out each of the 6 new commits (207d6f1adc, 28188ef373, 48048697fa, 03df6da9fb, 8345c873d6, 3790b0f193) into isolated temp worktrees, built, ran validation-tier-planner-smoke.js. All 3 RED commits fail with exactly the case counts/names their commit messages claim; all 3 GREEN commits pass cleanly. F-017 fixtures cover all 4 requested cases including the COMPLETE runtime tuple asserting notEqual(normalizedTupleDigest) win32 vs posix, proving the runtime side was not flattened. F-016 fixtures cover all 4 sites (changed-files/hash-snapshot/duration-basis/malformed-pin) with genuinely multiline fixtures (40-45 line dumps) asserting absence of every dump line, not just presence of a summary. GREEN diffs are a genuine shared boundedFailureSummary/classifyChangedFilesFailure mechanism. Coverage: 34/34 must intents have evidence with materialHash+storyFilesHash matching current story state. No checklist selector, before or after F-017, ever contained the string shell, so the rewritten old case name was never pinned as anyones selector -- nothing for refresh to have missed. F-012 (my round-3 deferred finding) remains dismissed with its original chip/reason intact. Tests that exist because of each finding: F-016 -> the planner renders a bounded changed_files_unavailable detail, never the raw git usage dump (207d6f1adc/28188ef373) plus hash-snapshot and duration-basis siblings (48048697fa/03df6da9fb); F-017 -> the COMPLETE runtime tuple for an undeclared-shell command still differs on win32 (8345c873d6/3790b0f193). No blocking findings.",
+      "createdAt": "2026-09-02T08:50:34.736Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-020",
+      "envelopeId": "f09a2bb81419cabda6bf9680b53d9225a764ccf7704a63a0d7229a485597e215",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d900e5a31f4a44edcb909458f2d3ec8a75632131f6b17e7518a019148a18409"
+    },
+    {
+      "id": "B-a745:RP-013",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4, second pass, story-level. (1) story_draft_list run live from THIS worktree: both drafts present verbatim as pasted in F-019 resolvedReason -- my own output matches the pasted lines exactly. (2) validation-command-identity.ts resolver-outcome-4 comment (commit 9ca24bc78a) read at its current lines: every clause checks out -- CHK-002:edge:0 carries a real permanent supersession waiver for the zero-is-a-stop reading (confirmed via checklist_get), and docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan exists on this branch naming B-ccf4 as owner and stating the story exists for the owner to reconcile -- the comments claims are literally true. F-020s own claim (grepped for filed/submitted/reported to, found none else) independently reproduced. (3) F-019s PROCESS SIGNAL paragraph over-unifies four distinct prose defects under one mechanism; filed as B-a745:F-021 (low, non-blocking this round) since F-013s failure mode is not fixed by the run-in-worktree-and-paste rule this paragraph proposes. (4) validate --concept on current tree: same 10 splitShellWords residuals as prior rounds, all previously adjudicated; nothing new from the comment-only 9ca24bc78a commit. (5) Width check of F-016/F-017/F-019/F-020 resolutions and summary.json pitfalls (6)-(7): F-016s 4-site claim and commit hashes verified live against git log; F-017s platform-removal claim verified live and its commandSetDigest independently reproduced byte-identical on this host via validation_plan --json; pitfalls (6)-(7) check out against plan.md CHK-001s actual design note and F-016s actual site count. No blocking finding of mine is open.",
+      "createdAt": "2026-09-02T08:57:24.649Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-022",
+      "envelopeId": "cfa555ad33c5f81bf5ec6c65dd215f8cd2e2fb1d78c46411f66966b9768facdc",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          ".proof-or-stop/story/actives/B-a745/summary.json",
+          "docs/story/drafts/reconcile-pin-resolution-rules-tiers-plan/index.json",
+          "packages/main/src/core/validation-command-identity.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a3cb11a631a7ff0ff546c1c08f6872e35cfdec5a0dc8e555050961c5af38ac84"
+    },
+    {
+      "id": "B-a745:RP-014",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 5, scope = F-022 (8d9b6c2c14/9af45102b4) + F-023 (899a13a6cd/8613d6d6ec) diffs, story-level review, quality lane. Verified: (1) dist byte-identical to a fresh build. (2) F-022 missing-digest check has exactly one call site in the collector, evidence-freshness.ts untouched, planner re-validates via the SAME shared function so collector/planner cannot diverge. (3) F-023 leaves no stale commandCwdRelative/resolveValidationCommandCwd/relative-import references; complete/runtime tuple still resolves absolute cwd via untouched code. (4) freshnessBinding render emitted from exactly one place, no per-branch duplication. (5) Mutation-checked one F-022 fixture (zeroed missingDigests in the collector, 7/11 F-022 fixtures failed as expected) and one F-023 fixture (suffixed the portable cwd literal, 4/6 F-023 fixtures failed as expected); both reverted, git status clean, full suite re-run to PASS. One non-blocking finding filed under RR-025 and carried forward here (F-024, medium, not resolved/dismissed, still open): the new freshnessBinding invariant (and every other invariant in assertValidationPlanStatusInvariant) is enforced only on the text-render path, not the --json path in validation-plan.ts; currently unreachable in practice since freshnessBindingFor throws upstream first, and the gap predates this round. Round 5 blocking set is critical-only; F-024 is medium, non-blocking.",
+      "createdAt": "2026-09-02T09:41:52.095Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-027",
+      "envelopeId": "4555905f3c01cb4e7c18aa546acacd1afb493b6808b2eb81978521dc0a451ba1",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72d2b53e8620324ddb3a278a1e2d795dee2ecda7f90f8892a5c193ac2aae5891"
+    },
+    {
+      "id": "B-a745:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 5 concept-residue + prose-audit pass, non-blocking. (A) Residue: grepped commandCwdRelative (0 hits outside the finding record itself) and narrowPortableValidationCommandTuple (all 8 call sites pass only {command}, none pass projectRoot); missingEvidenceHashDigests and freshnessBinding are fully wired end to end with no orphan. Found one genuine dead parameter -- buildValidationCommandInventory still declares projectRoot but its only internal use was removed by F-023, with an inaccurate provenance claim in its own JSDoc -- filed as F-026 (low). (B) Reproduced every specific claim in F-022/F-023 myself in this worktree: real-story validation_plan output matches (status/selected/commandSetDigest=eba363ed... byte-identical, material/storyFiles hashes byte-identical, headHash differs only because HEAD has legitimately advanced since the owner's run); an unborn git repo built fresh from this worktree's config+story metadata reproduces freshnessBinding: unbound and [hash_snapshot_unavailable] outcome=repository-full verbatim; story_draft_list run here lists partial-hash-snapshot-treated-as-binding, whose checklist.json names exactly the five consumers claimed (done-oracle.ts, verifier.ts, lifecycle-readiness.ts, phase-gates.ts, session.ts), and commit 09e0447244 is a verified ancestor of main; proof-or-stop.config.json has 121 commands, 0 with cwd, matching F-023's claim exactly; git show of 9af45102b4^ has no hash_snapshot_unavailable row, confirming the previously-had-NO-row claim; the RED commit 899a13a6cd diff shows the old absolute/relative-agree test case that F-023 says it replaced. No false claim found. One process gap found and filed as F-027 (low): F-023's OWNER VERIFICATION states its digest and 121/0-cwd count as prose rather than pasted command output, short of the F-013/F-021 pasted-output rule, though both values are independently confirmed correct. (C) F-022 explicitly honours both F-021 rules (labelled worktree run + literal pasted output; artifact citation verified to exist pre-write via commit hash and story_draft_list). F-023 honours the artifact-citation rule (N/A, cites none) but only partially honours the pasted-output rule -- captured as F-027, non-blocking at low severity. Both new findings are low/missing, evidenceState=verified, non-blocking at this round; no blocking finding of mine is open.",
+      "createdAt": "2026-09-02T09:42:49.384Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-024",
+      "envelopeId": "ac01c1828e9e041b78ab7b3e7fb48f70498c60d78d3045c74625210801f7c1a7",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json",
+          "docs/story/drafts/partial-hash-snapshot-treated-as-binding/background.md",
+          "docs/story/drafts/partial-hash-snapshot-treated-as-binding/checklist.json",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c198c225a35f11e2561cb48ede0003cb83aba8d38aa265a1f22a7cd770836b5f"
+    },
+    {
+      "id": "B-a745:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 5 targeted audit of F-022/F-023 commits + 33 refreshed receipts. Verified RED genuineness via temp git worktrees at each RED parent (9 fails for F-022 RED, 3 for F-023 RED, matching commit-message claims) and GREEN passes both. Read validation-tier-planner-smoke.ts F-022 (3234-3437) and F-023 (276-396) blocks: all requested fixture variants present, unborn-repo case confirmed live (instrumented+reverted rebuild) to assert both hash_snapshot_unavailable escalation AND freshnessBinding: unbound, negative bound+null-digest-refused case present at 3372-3379. F-023 RED diff shows exactly one old defect-encoding case removed and superseded by 6 richer cases, no silent coverage loss. Checklist verificationIntent/Evidence: 34/34 must intents covered (33 pass + 1 waiver, 0 missing). No selector-adjacency break from the new freshnessBinding render line (only nearby selector is a substring match, not positional). Story fixture suite also passed inside a full validate run (command 121/121 code=0). No blocking coverage gap found by this lane. Aware of open F-024..F-027 from quality/behavior/concept lanes (json-path invariant + dead-parameter/doc-drift) but those are code-quality/concept concerns, not verificationIntent/Evidence coverage gaps, so not duplicated here.",
+      "createdAt": "2026-09-02T09:46:42.272Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-026",
+      "envelopeId": "97debb606895cfbd4bc1d2f18289d6d50735673017df3c893782e0c77501dcd0",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8e7eaca73f67fb6e6b361df8aa1332de4df04085b4f319aa80acbd31161f747c"
+    },
+    {
+      "id": "B-a745:RP-017",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 6 targeted re-review of F-024/F-025/F-026 fixes; all four items verified, no blocking findings.",
+      "createdAt": "2026-09-02T10:02:07.923Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-028",
+      "envelopeId": "c376448ea1155e68e68abdd6bc4077ca4ae7948ea7cd4568e83483e5fdcd28a7",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1195f486e1690a84b0331c8896a3579a8f472b8a1e78772b7debe3a07c19dc43"
+    },
+    {
+      "id": "B-a745:RP-018",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Independently re-verified F-024/F-025 fix (commit 286a9b0921) from the operator side, round 6. (1) Constructed 3 forged reports myself (empty-selection-status-plan, headHash-null-while-bound, status-stop-with-selection) against the real dist module and pushed each through --json AND text; both paths threw the identical error message for all 3 (pasted in review transcript). (2) Ran the real CLI both ways for B-a745 tier=fast: text and --json agree on status=plan, freshnessBinding bound (head 37eeed1.., material df3dc49.., storyFiles 3da38ce..), selected 121 of 121, commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661 -- matches the round-6 dispatch quote exactly. (3) Diffed 286a9b0921..HEAD on validation-plan.ts: only one later commit (7e1f1c42c8) touched the file and it only dropped an unrelated dead projectRoot arg from a buildValidationCommandInventory call in the handler body, not renderValidationPlanReport; grep + Read + a raw python file read all independently confirm HEAD still has exactly one call site: renderValidationPlanReport computes statusLine via assertValidationPlanStatusInvariant BEFORE branching on options.json, so no success-path text changed and no new bypass was introduced. (4) Re-ran npm run test:validation-tier-planner: PASS, including the F-024/F-025-titled case and the CHK-006 call-site-count=1 guard. review_incremental_context confirms unresolvedFindings=[] for this lane. No blocking issue found this round.",
+      "createdAt": "2026-09-02T10:02:16.746Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-029",
+      "envelopeId": "1d5eecff7b068a0bde7c08ab3251d4350ddb2c4a998e8900c611cfaeca72fee2",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1c661ee72eae09594e21c4b96c094acc2435d8f4abe4b1902dd86e66921b2839"
+    },
+    {
+      "id": "B-a745:RP-019",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 6 test-coverage review: verified RED (3f83a2127d) genuinely fails on the claimed F-024/F-025 case and GREEN (286a9b0921) passes via isolated temp-worktree runs; confirmed F-026 (7e1f1c42c8) migrated all three F-023 location-independence cases to buildValidationPinUniverse with no coverage lost; confirmed 34/34 must-intents mechanically covered (33 refreshed + 1 pre-existing permanent waiver) with no selector depending on the renderValidationPlanText refactor. No test-coverage blocker found.",
+      "createdAt": "2026-09-02T10:09:36.394Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-031",
+      "envelopeId": "f9f87103980abcc542e27363cede6d40db5446a38d101c5a170409424fc8c268",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/handlers/validation-plan.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "09bf137cef606f04aacec3695d51c647016c4a3a18d5c04d6effcbbe960f9d42"
+    },
+    {
+      "id": "B-a745:RP-020",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 6, second concept pass. Verified F-028 accepted_risk (1) accurately not fixed-in-place: rewriting history would invalidate every review-run/receipt/host-verdict binding on this branch, so accepted_risk over fixed is the honest call, not a euphemism; a history rewrite would have been the wrong trade for a verified-true form defect. (2) Re-ran the pasted command live: node packages/main/dist/cli.js validation_plan --storyId=B-a745 --tier=fast | grep ^commandSetDigest: -> commandSetDigest: eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661, byte-identical match. (3) Honest census of main..HEAD commit bodies authored after F-021 resolved (2026-09-02T08:58:04.421Z): 3f83a2127d and 286a9b0921 (F-024/F-025) are clean, no unpasted figures. Two additional, earlier, previously-unfiled instances found: 899a13a6cd and 8613d6d6ec, both citing the same abbreviated commandSetDigest (eba363ed...) as prose with no pasted output -- filed as B-a745:F-029 (medium, open, non-blocking at round 6 under critical-only round-3+ blocking). (4) validate --concept: fails on exactly the same 10 pre-adjudicated splitShellWords residuals as prior rounds (all covered by resolved/disproven B-a745:F-007); no new residue, no source changed this round. (5) Seventh-instance check on F-028's own resolution text: the sixth instance tally is itself an unverified count that undercounts the real total once 899a13a6cd/8613d6d6ec are included -- filed as F-029 rather than silently accepted. No new blocking finding of mine remains open; F-029 is medium and advisory at this round.",
+      "createdAt": "2026-09-02T10:16:59.116Z",
+      "reviewRound": "2026-09-02T07:53:58.519Z",
+      "reviewRunId": "B-a745:RR-032",
+      "envelopeId": "28ac303f03dab148462a63a2e644cc6c5d571a3bc5c8a9ed94c25d0a34788a32",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15a6dc6bd06bf45fd9dc7552a5f4589a0c00739b58aca5a349c451ea5ab1a0cf"
+    },
+    {
+      "id": "B-a745:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 7 re-binding: no product source/fixture change since RP-019 (git diff 37eeed14..HEAD touches only lifecycle metadata + dev-memory/experience.jsonl). Coverage re-confirmed 34/34 must verificationIntent covered (33 mechanical evidence + 1 documented permanent waiver on CHK-002:edge:0, unchanged content). validation-tier-planner-smoke.js re-run and ends PASS, exit 0. No blocker.",
+      "createdAt": "2026-09-02T11:29:33.403Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-036",
+      "envelopeId": "f5ed353bb2195950754511646ed2e7b6c5546062c256f1d86d7af72ec1cb05a3",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a745/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e400fe200731fef7e3fb5c4db54075fbbbbef17371265e7c656267071e88cbb"
+    },
+    {
+      "id": "B-a745:RP-022",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 7 re-bind: no product source changed since RP-017 (headHash 37eeed1 -> 69518e5 diff touches only .proof-or-stop/ story metadata, confirmed via git diff --stat and git log). Fresh npm run build dist byte-identical to committed dist. Single invariant call site in validation-plan.ts (renderValidationPlanReport, sole implementation at L560, single production call site L787, text-shape helper L570 routes through it) unchanged. Narrow portable-tuple identity design in validation-command-identity.ts unchanged. No blocking findings.",
+      "createdAt": "2026-09-02T11:29:48.443Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-034",
+      "envelopeId": "45705801b9232f7f84a5da995d015460f200b77e3c8a276e1b74125a71103449",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-identity.ts",
+          "packages/main/src/core/validation-tier-planner.ts",
+          "packages/main/src/handlers/validation-plan.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-relevance-input.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e40597aa5847806eeb5072ce6ffa94f6b00363a3d6a817ba050e048a7220196a"
+    },
+    {
+      "id": "B-a745:RP-023",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 7 re-binding, no code changes. review_incremental_context + git diff c9ba872..HEAD confirm the only files changed since RP-020 are .proof-or-stop/dev-memory/experience.jsonl and story metadata (finish-decisions/B-a745.json, checklist.json, findings.json, index.json, review-*.json, test-evidence.json, etc.) -- zero packages/ source files touched. Finish-decision .proof-or-stop/dev-memory/finish-decisions/B-a745.json cites capturedEntryIds 06d4416 and 90e7215; both exist in experience.jsonl (lines 49-50) with sourceStoryId=B-a745. The wrong id c84e0c8 from an earlier draft is absent from the committed file (git log --follow shows only one commit, ddf9189cba, and it already carries the corrected ids) and c84e0c8 itself belongs to an unrelated older entry (sourceStoryId=B-a7c5) -- correction landed clean, no stray reference anywhere under .proof-or-stop/story/actives/B-a745/. Both lesson texts (06d4416, 90e7215) contain no counts of this story own artifacts (findings/commits/files) -- only enumerated failure-mechanism taxonomy and generic tool-config constants (300000ms idle watchdog default, verified against cli-engine.ts:1079 = 5*60*1000) -- and no unverified story-specific claims. scope-contract.json has an explicit acknowledgement (timestamp 2026-09-02T11:26:51.808Z) covering both dev-memory paths, citing the same two entry ids and framing them as lifecycle metadata not product source. Re-ran validate --concept: same 10 splitShellWords residuals as RP-020, all covered by resolved/disproven B-a745:F-007, no new residue. No blocker.",
+      "createdAt": "2026-09-02T11:30:55.446Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-035",
+      "envelopeId": "cd8c1ec1691626dd7231a9637694ac0297e4f2a33f6843db73eaaea0ee00e53c",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          ".proof-or-stop/dev-memory/finish-decisions/B-a745.json",
+          ".proof-or-stop/story/actives/B-a745/findings.json",
+          ".proof-or-stop/story/actives/B-a745/review-passes.json",
+          ".proof-or-stop/story/actives/B-a745/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a745/background.md",
+          ".proof-or-stop/story/actives/B-a745/checklist.json",
+          ".proof-or-stop/story/actives/B-a745/plan.md",
+          ".proof-or-stop/story/actives/B-a745/process-events.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "22a4a46c173c18ef61b1624d8f46cd53d7d38e12633f6a04e617fed87977dded"
+    },
+    {
+      "id": "B-a745:RP-024",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round 7 re-binding review. Verified via review_incremental_context (isFirstPass=true, FULL_MISSING_TRUSTED_PRIOR_PASS, no valid trusted prior binding after TEST->DEV->REVIEW bounce). Cross-checked directly against prior RP-018 binding headHash 37eeed14 (found in review-runs.json for RR-029): git diff 37eeed14..HEAD --stat -- packages proof-or-stop.config.json package.json is EMPTY -- zero product source changed. Full diff (18 files) touches only .proof-or-stop/story/actives/B-a745/* lifecycle metadata (checklist evidence receipt refresh, phase-transition index entries, review-runs/review-passes/findings/scope-contract/delivery-check/done-required-evidence/certification-window/test-evidence/summary/process-events/process-metrics/prompt-envelopes) and .proof-or-stop/dev-memory/* finish-decision artifacts. Re-ran operator checks live: validation_plan --storyId=B-a745 --tier=fast (text) prints status: plan, freshnessBinding: bound (head d280d6c1...), selected: 121 of 121, commandSetDigest eba363ed5cc493b662a3f651a1fbe8faf7b81d5d44d1d8857f137bc02446a661; --json emits the same facts including freshnessBinding.status=bound and identical commandSetDigest. Manually constructed a forged status:stop report carrying plan-shaped fields (effectiveTier/executionMode/non-empty selection) via renderValidationPlanReport from handlers/validation-plan.js and confirmed both the text (json:false) and json (json:true) render paths throw the IDENTICAL error: a stop result may not carry plan-shaped facts... No new behavior finding; this is a re-bind with no material drift.",
+      "createdAt": "2026-09-02T11:31:13.562Z",
+      "reviewRound": "2026-09-02T11:26:56.330Z",
+      "reviewRunId": "B-a745:RR-033",
+      "envelopeId": "65b4b6a647c9b89fa95b04e72208272264e2548573a503a55cc3cd233f6836f5",
+      "writerSessionId": "sess-3e42adba9280f4f875de04e07189955b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8138afc9675da7d6477577ce2d5a5b7de59e24fda15af321b3bc94ccbe07efb6"
+    }
+  ]
+}

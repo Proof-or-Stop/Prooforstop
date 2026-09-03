@@ -2554,6 +2554,23 @@ Behavior:
     json: z.boolean().optional().describe('Output structured JSON (role, isFirstPass, scopeChanged, priorHeadHash, priorVerdict, changedFiles).'),
   }},
 
+  // B-a745 CHK-005: read-only Story-relevance validation planner. Explain-only:
+  // it executes no validation command, writes no artifact, and is final
+  // authority for nothing. There is deliberately NO --focus flag here; the
+  // --focus / --tier mutual rejection belongs to `validate --tier`.
+  { name: 'validation_plan', description: 'Read-only: explain which validation units a Story tier would run, why, and at what estimated cost. Executes nothing, writes nothing, and is never final authority.', schema: {
+    // The custom missing-value messages exist so the SCHEMA path and the HANDLER
+    // path refuse an omitted argument in the same words. Both layers are real:
+    // zod is the first line of defence on the CLI path, and the handler
+    // re-validates for every caller that never met a schema.
+    storyId: z.string({ error: (issue) => (issue.input === undefined ? 'validation_plan: storyId is required (for example --storyId=B-a745)' : undefined) }).trim().min(1).describe('Story ID (required; never defaulted).'),
+    tier: z.string({ error: (issue) => (issue.input === undefined ? 'validation_plan: tier is required (one of fast, intermediate, full)' : undefined) }).trim().min(1).describe('Requested tier: fast / intermediate / full (required; never defaulted).'),
+    explain: z.boolean().optional().describe('List every unit and every unclassified input instead of a preview.'),
+    json: z.boolean().optional().describe('Emit one structured JSON object carrying the same facts as the human output.'),
+    persist: z.never().optional().describe('Not a flag; validation_plan persists nothing. Passing --persist is rejected by CLI validation.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+
   // Workflow profile
   { name: 'workflow_set', description: 'Set project workflow profile (light/balanced/strict)', schema: {
     profile: z.string().describe('Target profile: light / balanced / strict.'),

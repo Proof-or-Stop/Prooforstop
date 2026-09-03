@@ -1,0 +1,75 @@
+{
+  "storyId": "B-d854",
+  "checkedAt": "2026-09-02T18:01:15.364Z",
+  "headHash": "b8d8cb98bf027257a8913b744ae9df341867ab65",
+  "materialHash": "c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89",
+  "storyFilesHash": "99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61",
+  "reviewRound": "2026-09-02T16:28:06.672Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md",
+      "promise": "The root AGENTS.md is fully English and accurately presents current Proof-or-Stop behavior while preserving explicit compatibility-only and historical distinctions.",
+      "status": "verified",
+      "verifiedBy": "Independent final delivery review against the current repository-local CLI and verifier.",
+      "evidence": "Current AGENTS.md SHA-256 is e9f71ee10ad83e2a25a2519c17104c5740f07dbcdaea6b906ad724102a1aec26. Fresh final verification exited 0 with COMPLETENESS english=PASS, UNICODE han=0 ufffd=0 nonAscii=0, managed block OK, and semantic/structural mutations rejected."
+    },
+    {
+      "docPath": "docs/audits/AGENTS-current-version-audit.md",
+      "promise": "The audit provides reproducible evidence for all 24 major and 2 low-priority inconsistencies, with the original baseline RED and the corrected current guide GREEN.",
+      "status": "verified",
+      "verifiedBy": "Independent baseline, authority-policy, and final-verifier reruns on the current Story binding.",
+      "evidence": "Baseline produced 26/26 RED and expected exit 1. Current final produced 26/26 GREEN and exit 0; authority policy passed 26 rows, 117 entries, 81 runtime entries. A19 is rebound to the current quorum_submit registration at command-catalog.ts:3097. Audit SHA-256 is bcd5331f632d8bdd8adb32f9601db0be7817da11b07a38c5229b0d3d6bca7907."
+    },
+    {
+      "docPath": "AGENTS.md",
+      "promise": "The former unbounded fix-everything-nearby behavior is replaced by bounded defect triage that fixes critical/high or acceptance/lifecycle blockers now and traceably defers unrelated nonblocking medium/low defects.",
+      "status": "verified",
+      "verifiedBy": "Direct review of the final Defect triage and bounded scope section plus A16 RED-to-GREEN proof.",
+      "evidence": "The policy expressly covers security, data integrity, destructive compatibility, acceptance/REVIEW/TEST/DONE blockers, evidence-bearing deferral, follow-up attribution, and re-escalation if severity or gate impact changes."
+    },
+    {
+      "docPath": "docs/audits/AGENTS-current-version-audit.md",
+      "promise": "Claude CLI and Agy CLI are included as independent machine-local audit inputs with reproducible provenance, without replacing repository-local implementation as the behavior authority.",
+      "status": "verified",
+      "verifiedBy": "Fresh final provenance validation and artifact mutation checks.",
+      "evidence": "Fresh final output reports Claude availability/hash/session VERIFIED; Agy ordinal 953, byte length 38164, hash, command, cwd, prompt and session VERIFIED; command/cwd/invocation/promptHash mutations are rejected; authority remains LOCAL_IMPLEMENTATION."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-d854/findings.json",
+      "promise": "Unrelated nonblocking observations are not hidden or used to expand this Story without boundary evidence.",
+      "status": "verified",
+      "verifiedBy": "Review of the open finding set and bounded triage record.",
+      "evidence": "F-044 remains medium, suspected and nonblocking with reproduction, source scope, uncertainty, impact and follow-up recommendation. No open verified critical/high finding blocks the delivered AGENTS.md result."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current binding materialHash=c6aa9fb0ec15f3390af294374fd2b2b9c5b115f3380a2dcface1bb8658101d89 and storyFilesHash=99411d1514f329c87c404c891a82d406e77cf2dc7286bd2c56d4c136f9465e61. Independent baseline verifier: 26/26 RED, exit 1. Independent current final verifier: 26/26 GREEN, exit 0. Command ledger: 46/46 PASS; malformed argument rejected."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh final verifier reported AGENTS.md han=0, U+FFFD=0 and nonAscii=0; completeness, structural inventory and representative semantic-drift mutations passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Routine TEST evidence is PASS and complete with commandCount=121, requiredFailureCount=0 and optionalFailureCount=0 at the current material/storyFiles hashes. Fresh live-smoke transcript ran node tests/AGENTS.verify.mjs --authority-policy, exit 0, output AUTHORITY_POLICY PASS rows=26 entries=117 runtime=81, and is bound to current material."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "DONE-required artifact is bound to current material/storyFiles hashes and records PASS for packages/main build (exit 0) and root npm test (exit 0). Its root transcript reports full-suite: 60/60 passed, retries=0, jobs=3. This delivery review does not claim lifecycle DONE; the owner must refresh the effective-environment digest before the final DONE gate because the current reviewer-session precheck reports an environment-digest mismatch."
+    },
+    {
+      "featureId": "REVIEW-assurance",
+      "transcript": "Round 16 contains RP-017 test coverage, RP-018 quality, RP-019 docs and RP-020 concept. review_escalation_status is ok=true with degradedFallback pass, 3/3 local rounds, current hashes, and valid fallback B-d854:REF-mtkdqy1y referencing the three current host verdicts and four Round 16 passes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No unresolved user-delivery TODO remains: the English guide, 26-row evidence ledger, bounded triage policy, external audit provenance, current 121-command validation, Round 16 review and degraded fallback all verify against current material. F-044 is a traceably deferred nonblocking follow-up, not a hidden acceptance TODO. This signed delivery check does not claim lifecycle DONE; the owner still needs to refresh the DONE-required effective-environment binding before the final DONE transition."
+  },
+  "_hash": "574e32fbd64f112d28c3018481fd362627924a2407ae2b90a48c7e12a36c45d8"
+}
