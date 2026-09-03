@@ -14907,6 +14907,30 @@
         "scanEscalationReason": null
       },
       "_hash": "40210bd7a11eca83a024bb0ea402422625c0f42c38271d9b883180efc1f0a6c0"
+    },
+    {
+      "id": "B-5a15:RP-324",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-verified at HEAD 7762a9a2d9 (metadata-only rebind after F-383/F-386 storyFilesHash move). git show --stat 7762a9a2d9 touches only .proof-or-stop/story/actives/B-5a15/acceptance-basis.json digest fields, no source. git diff --name-status -M main...HEAD -- packages/ shows zero deletions/renames across 37 changed files: prior clean concept conclusion holds. preReviewCaseRequiresSemanticBinding(sourceRef,kind?,recordId?) called consistently with 3 args at pre-review-live-proof.ts:245,270 and pre-review-check.ts:210; dist matches src arity. review_incremental_context: isFirstPass=false, scopeChanged=false, freshnessClassification=CURRENT_MATERIAL, priorReviewRunId=RR-921 unchanged, F-385 present in current reviewBasis unresolvedFindings bound to same reviewRound -- not re-filed, same judgement quality lane applied. No stranded references from removed/renamed symbols. Concept lane clean.",
+      "createdAt": "2026-09-03T05:28:33.979Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-925",
+      "envelopeId": "b6c0e9b05d6ab84aaaaecd25360a119fe14965de0e20810fa6d195d23653506b",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/pre-review-check.js",
+          "packages/main/dist/core/pre-review-live-proof.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0f21686976a11461c6fa4995ef21af32efc6ca3f5f24388e3bd98aae3b9f8baf"
     }
   ]
 }
