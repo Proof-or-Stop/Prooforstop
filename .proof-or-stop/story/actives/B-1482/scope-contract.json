@@ -40,10 +40,26 @@
       "phase": "DEV",
       "headHash": "2da5e2496d7f5e7677b0bf4cf1db45340f72f8d4",
       "materialHash": "3210ec5d9ad792ff933f3a794791b91aba8b988079fe9312d73bf24acdb0bb74"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-002: CHK-003 registered test:narrowing-repin in validate.commands, which moves the real-inventory commandSetDigest that case F-023 pins literally. Re-pin the literal and extend its maintenance comment; no other change to that file.",
+      "timestamp": "2026-09-03T22:24:33.528Z",
+      "paths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "39e6a23544a3a7d43b5f116723eeab50dd234ff1",
+      "materialHash": "75d0f4ff4b2c672bbe1861f855185ee9c4de724df42dab2f801950efbb594352"
     }
   ],
   "createdAt": "2026-09-03T20:59:27.439Z",
-  "updatedAt": "2026-09-03T22:13:41.409Z",
+  "updatedAt": "2026-09-03T22:24:33.528Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -60,6 +76,7 @@
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/tasks/narrowing-repin-smoke.ts": "packages/main/src/tasks/narrowing-repin-smoke.ts",
     "docs/requirements/decisions/narrowing-only-evidence-repin.md": "docs/requirements/decisions/narrowing-only-evidence-repin.md",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts"
   }
 }
