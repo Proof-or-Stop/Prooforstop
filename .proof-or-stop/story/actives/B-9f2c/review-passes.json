@@ -755,6 +755,41 @@
         "scanEscalationReason": null
       },
       "_hash": "1de2b0ae234807c00adf55b9f33da5ef512e374f25bacaedea6f5d6a2998cc67"
+    },
+    {
+      "id": "B-9f2c:RP-026",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-lane re-sign at repaired tree f371c5a41d (repair commit 1a4d1be6c2). No concept deletion/rename residue found. Full diff, dynamic-code byte-identity vs main, smoke-task naming, and both repaired tasks (exit 0 each) all verified.",
+      "createdAt": "2026-09-03T03:31:06.140Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-032",
+      "envelopeId": "92089e0e01a8587d99d3551b668bee84eac9bbdec3a44a8d2d107402e8fc50c3",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d424dbb8d6c06a7090bf79dc02d3237b8275e314066d27776c37dda3bf3000e"
     }
   ]
 }
