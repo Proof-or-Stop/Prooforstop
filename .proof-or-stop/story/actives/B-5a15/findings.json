@@ -20554,6 +20554,24 @@
       ],
       "signatureTag": "missing|ts|guard-certification-window",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-397",
+      "desc": "CONSOLIDATED (supersedes F-394 and the zero-match observations recorded in RP-336): CERTIFICATION_DOMAIN_PATH_RULES has no catch-all, so any story-owned path outside its declared prefixes classifies to undefined and, via the abort at certification-window.ts (if (!domain) return undefined), kills the ENTIRE deriveCertificationDomainInputHashes pass for the story — surfacing as certification_window_begin [pre_cert_causal_freshness_required]. This is one architectural gap with several instances, confirmed mechanically by the concept lane evaluating the live rules table: src/app.ts (the F-142 fixture path in certification-window-smoke.ts:939/964/972), packages/graph/src/*, and packages/main/templates/agents/* all match ZERO rules and fail closed identically. B-5a15 hit two instances and fixed those (a registry entry for dev-memory/experience.jsonl, and an integration rule for packages/*/scripts/), but did not close the general gap. Two compounding factors make it easy to miss: (1) the failure is all-or-nothing for the whole story rather than per-path, so one unclassifiable file blocks certification entirely; (2) certification-window-smoke.ts, which would have caught the fixture instance, is registered in NO runner — zero references in validate.commands, packages/main/package.json scripts, or full-suite-runner.ts — so it has been failing silently. Provenance corrected per the test-coverage lane: the orphan task predates this story (B-1e1f, commit 410b3c913d); this story's cfc8402e1f made a pre-existing silent orphan start failing loudly rather than introducing the failure. Deferred, not fixed here: non-blocking (no gate this story's acceptance depends on consumes the orphan task, verified by grepping all 53 verificationEvidence command strings for zero references), medium, and unclaimed by any checklist item. Recommended follow-up: decide whether unclassifiable paths should fail closed for the whole story or classify to a default domain; register the orphan task in a runner and fix its fixture to use a classifiable path; and audit packages/main/src/tasks/ for other unregistered tasks, since this one hid for the whole story.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-03T10:02:45.817Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "_hash": "eeed141501c1c72d5b0bbf1d697dbc2a573f4faaf81fe0f8f8a5c12f5af0b0fd",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|consolidated-supersedes-zero",
+      "signatureTagSource": "auto"
     }
   ]
 }
