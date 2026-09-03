@@ -170,6 +170,15 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
   isolated('test:closeout-trust'),
+  // B-5a15:F-402. RESOURCE_POLICY is a SECOND membership authority alongside
+  // test:serial-reference (see the note above: "a member without a policy entry
+  // fails closed (unknownPolicy) before execution"). Registering the previously
+  // orphaned verifier-causal-preflight smoke in the chain without adding it here
+  // made entriesFromSerialReference throw `unknownPolicy` in main() before any
+  // test executed -- breaking the canonical `npm test` entry point outright, which
+  // is also PRECERT_TEST_IDENTITY. isolated() because the smoke spawns real CLI
+  // child processes against git fixtures in temp dirs, same shape as its neighbour.
+  isolated('test:verifier-causal-preflight'),
   repoRead('test:runtime-fact-contract', {}, [{ class: 'runtime-lock', key: stateDirKey('runtime'), access: 'shared' }]),
   repoRead('test:evidence-quality'), repoRead('test:anti-stall'), isolated('test:storydir-inside-gitroot-smoke'),
   isolated('test:gitroot-cwd-routing'), isolated('test:bare-gate-gitroot-cwd'), isolated('test:project-gitroot-cwd'),
