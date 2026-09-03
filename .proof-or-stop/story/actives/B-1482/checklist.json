@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Persist the selector text on every verification receipt and expose it in checklist_get",
       "context": "VerificationExecutionReceipt currently stores selectorMatched without the selector; add the selector text (and the command tuple digest) so a receipt is auditable on its own. RED: a receipt written today cannot answer which selector matched.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-09-03T21:16:00.169Z",
       "relatedDocs": [
         "CLAUDE.md#verification-intent--evidence"
       ],
@@ -45,6 +45,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "aa3ae9a494ac8d4614da15cdb6eb5011b8206da2014f42b37494df2d2e0fd726",
+        "storyFilesHash": "18126e34030afb005ac91a1c6ff37a385e24150b7179c7af8cc96dc4eb9a3e69",
+        "headHash": "e565b8e54740875a646f070d770f60e58aa24dff",
+        "attestedAt": "2026-09-03T21:16:00.597Z",
+        "materialHash": "8883108aa3f27d949733d79a3530637bed2b281caad6de6e9501ab73a828415c"
       }
     },
     {
