@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-dc2e:F-001",
+      "desc": "quality: packages/main/src/handlers/cross-host-review.ts:598-617 (capText/boundPersistedFindings) silently caps each persisted finding field (title<=200, file<=300, description<=1000, fix<=1000 chars) with no truncation marker. Array-level truncation IS auditable (findingCount stays the TRUE count while findings.length can be <=50, so a reader can detect the array was capped), but per-field truncation is silent: capText() just slices, so a reader of the persisted verdict JSON or --json output cannot tell whether a title/description/fix was cut short vs organically that length. This undermines the CHK-004 goal of the artifact being a trustworthy, complete-or-visibly-incomplete audit record.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T05:25:15.645Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-002",
+      "_hash": "7ecf72cabaf81b01165d691c4f7bd6608d6af35fc6039f67dfeddcb8d2a2a75e",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts"
+      ],
+      "signatureTag": "missing|ts|quality-packages-main",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
