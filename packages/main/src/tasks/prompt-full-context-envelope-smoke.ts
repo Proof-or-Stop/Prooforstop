@@ -788,6 +788,14 @@ const everyReviewerUnsafeAuthorityRepresentatives = [
   'Routing may occur before structured evidence resolves unknown applicability and a named owner accepts it.',
   'A dismissal determines Story ownership.',
   'Another Story becomes responsible through FindingDeferralDisposition.',
+  'Severity does not merely inform risk. It determines Story scope.',
+  'Severity does not merely inform risk; it determines Story scope.',
+  'Unknown applicability does not itself authorize routing. It permits transfer to another Story.',
+  'Unknown applicability does not itself authorize routing; it permits transfer to another Story.',
+  'A dismissed Finding does not establish out_of_scope. It proves another Story owns the defect.',
+  'A dismissed Finding does not establish out_of_scope; it proves another Story owns the defect.',
+  'defer_with_proof does not merely record a plan. It transfers responsibility away from the current Story.',
+  'defer_with_proof does not merely record a plan; it transfers responsibility away from the current Story.',
 ] as const;
 const everyReviewerSafeAuthorityRepresentatives = [
   'Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.',
@@ -808,6 +816,7 @@ const everyReviewerSafeAuthorityRepresentatives = [
   'Unknown applicability needs fresh evidence with a traceable owner before the route may proceed.',
   'Uncertain applicability stays blocking until signed evidence determines applicability and a live owner approves the route.',
   'Reviewers inspect a signed defer_with_proof disposition. Record the audit result. The Finding remains open.',
+  'Severity is only one input to Story scope; applicability and gate policy remain separate.',
 ] as const;
 
 const unsafeTaskContextAuthorityStatements = [

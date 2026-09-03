@@ -393,6 +393,10 @@ function classifyControlledRelationSegment(
   if (!hasConceptPair(segment, spec.subject, spec.outcome, spec.maxSpan)) {
     return { family: spec.family, state: 'unclassified' };
   }
+  if (spec.family === 'severity-story-responsibility'
+    && /^severity\s+is\s+only\s+one\s+input\s+to\s+(?:story\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)$/u.test(segment)) {
+    return { family: spec.family, state: 'explicitly-safe' };
+  }
   if (spec.family === 'unknown-applicability-routing'
     && isStructuredUnknownApplicabilityPrerequisite(segment)) {
     return { family: spec.family, state: 'explicitly-safe' };
@@ -582,6 +586,24 @@ function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean 
     && segments.slice(index + 1).some(candidate => continuation.test(candidate)));
 }
 
+function hasCrossSegmentControlledAuthority(
+  segments: readonly string[],
+  spec: ControlledTriageRelationSpec,
+): boolean {
+  const coreferent = /^(?:then\s+)?(?:it|this|that)\b/u;
+  const authorityLink = /\b(?:determin(?:e|es|ed|ing)|permit(?:s|ted|ting)?|allow(?:s|ed|ing)?|authoriz(?:e|es|ed|ing)|prov(?:e|es|ed|ing)|establish(?:es|ed|ing)?|show(?:s|ed|ing)?|mean(?:s|t|ing)?|transfer(?:s|red|ring)?)\b/u;
+  return segments.some((segment, index) => spec.subject.test(segment)
+    && segments.slice(index + 1, index + 2).some(candidate => {
+      if (!coreferent.test(candidate) || !spec.outcome.test(candidate)) return false;
+      const coreferentRange = matchRanges(candidate, coreferent)[0];
+      const outcomeRange = matchRanges(candidate, spec.outcome)[0];
+      if (!coreferentRange || !outcomeRange || coreferentRange.end > outcomeRange.start) return false;
+      const relation = candidate.slice(coreferentRange.end, outcomeRange.start);
+      return authorityLink.test(relation)
+        && !controlledConceptPairIsExplicitlyNegative(candidate, coreferent, spec.outcome, spec.maxSpan);
+    }));
+}
+
 function classifyControlledTriageRelations(
   text: string,
   segments: readonly string[],
@@ -598,6 +620,11 @@ function classifyControlledTriageRelations(
   }
   if (hasNothingButSeverityAuthority(text) || hasCrossSegmentSeverityAuthority(relevantSegments)) {
     return { family: 'severity-story-responsibility', state: 'unsafe' };
+  }
+  for (const spec of CONTROLLED_TRIAGE_RELATION_SPECS) {
+    if (hasCrossSegmentControlledAuthority(relevantSegments, spec)) {
+      return { family: spec.family, state: 'unsafe' };
+    }
   }
 
   let safeFamily: ControlledTriageRelationFamily | null = null;
