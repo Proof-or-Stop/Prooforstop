@@ -1040,6 +1040,28 @@
         "scanEscalationReason": "Canonical incremental basis was complete and showed no changed material, affected contract, impacted intent, or unresolved finding; review was bounded to freshness and metadata-only drift re-attestation."
       },
       "_hash": "e06e55ab0a66b187881ce7ff9c113bd29247ddb953adb7ef59918f5a607e6535"
+    },
+    {
+      "id": "B-fe8f:RP-032",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Fresh concept re-attestation after unrelated main movement. Canonical incremental basis binds prior pass B-fe8f:RP-029 / run B-fe8f:RR-061 and reports changedFiles=[], impactedFiles=[], affectedContracts=[], findingDeltas=[], unresolvedFindings=[], with ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS. Current repository-local finding projection remains open=[]; materialHash 9556f27c…, storyFilesHash 0c8ccb7b…, and scope acknowledgement 0bd8725… are unchanged. No concept deletion/replacement residue or promised-but-undelivered delta exists.",
+      "createdAt": "2026-09-03T18:05:25.581Z",
+      "reviewRound": "2026-09-03T17:50:54.762Z",
+      "reviewRunId": "B-fe8f:RR-065",
+      "envelopeId": "816be64da9eb5d8ca08517d575a9bcf1ce2443c48fa3361f73fb1b7f1313ef24",
+      "writerSessionId": "sess-537f842eb49dc7c01316c5dcf5d160e4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cfabcec0c567d8ed49dfb82750dc730c934172a193360e98afe97858b9708d95"
     }
   ]
 }
