@@ -70,6 +70,41 @@
       ],
       "signatureTag": "missing|ts|quality-proof-stop",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dc2e:F-004",
+      "desc": "CHK-001:adversarial:0 verificationEvidence.note says: RED commit 9c33736320 showed the orphaning case failing AND the CASE_MISMATCH assertion failing with undefined, implying both happen when 9c33736320 itself is checked out. I checked out 9c33736320 in a temp detached git worktree, built packages/main and ran node packages/main/dist/tasks/validation-protocol-smoke.js directly: it fails with AssertionError: root package.json must define test:validation-protocol -> tasks/validation-protocol-smoke.js at runInventoryAndSweep (line 139), never reaching the CASE_MISMATCH assertion further down (line ~1403 in current source). This exactly matches the RED commit message itself, which correctly attributes the CASE_MISMATCH failure to a direct run at HEAD~ (the parent, pre-existing failure) and the registration failure to a direct run at this commit (the new case) -- two different commits, two different failures. The checklist verificationEvidence note conflates them as both occurring at 9c33736320. Functionally harmless (the RED-before-GREEN gate reads commit subjects, not this note, and the RED commit does genuinely fail either way), but the note is not literally reproducible as worded and should say the CASE_MISMATCH failure is reproduced at HEAD~ (parent of 9c33736320), not at 9c33736320 itself. Low severity: documentation/evidence-note accuracy only, no gate or mechanical-proof impact. Separately confirmed: the CASE_MISMATCH detector at packages/main/src/tasks/validation-protocol-smoke.ts:1392-1400 is genuinely filesystem-neutral (findCaseVariant compares lowercased readdir() names; canonicalExists is used only for the printed diagnostic label, never to gate the assertion), so it is not merely proving this machines case-insensitive behaviour -- this part of the design is sound.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T05:25:34.869Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/background.md",
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "758d91b9f4be3c317a73a4ac4ad97c4720a8b9ba8c4687fc7db38835a9a5989e",
+      "files": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-verificationevidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
