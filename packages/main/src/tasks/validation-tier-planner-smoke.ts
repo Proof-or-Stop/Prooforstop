@@ -110,7 +110,6 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createRequire } from 'node:module';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -183,23 +182,15 @@ import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
+import {
+  describeRedGreenViolations,
+  evaluateRedGreenCommitOrder,
+  parseRedGreenSubject,
+} from '../core/red-green-commit-guard.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 
 const MARKER = 'validation-tier-planner-smoke';
-
-/** RED-phase contract for core/red-green-commit-guard.ts, loaded at run time until the helper lands. */
-interface RedGreenGuardModule {
-  evaluateRedGreenCommitOrder(commits: ReadonlyArray<{ subject: string; body: string }>): {
-    ok: boolean;
-    violatingIds: readonly string[];
-  };
-  describeRedGreenViolations(result: unknown): string;
-  parseRedGreenSubject(subject: string): { phase: string; id: string } | null;
-}
-function loadRedGreenGuard(): RedGreenGuardModule {
-  return createRequire(import.meta.url)('../core/red-green-commit-guard.js') as RedGreenGuardModule;
-}
 const ROOT = '/repo';
 
 let failures = 0;
@@ -3672,57 +3663,55 @@ function readRedGreenCommits(cwd: string | null, logArgs: string[]): Array<{ sub
 const NO_RED_REASON = 'comment-only wording fix with no behaviour change, no fixture can fail';
 
 testCase('guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes', () => {
-  const guard = loadRedGreenGuard();
   // (a) a GREEN(F-nnn) with no RED anywhere before it.
-  const bare = guard.evaluateRedGreenCommitOrder([
+  const bare = evaluateRedGreenCommitOrder([
     { subject: 'RED(CHK-001): a fixture fails', body: '' },
     { subject: 'GREEN(CHK-001): the fix', body: '' },
     { subject: 'GREEN(F-004): reword a gloss', body: '' },
   ]);
   assert.equal(bare.ok, false, 'a GREEN(F-nnn) with no preceding RED must fail');
   assert.deepEqual(bare.violatingIds, ['F-004']);
-  assert.match(guard.describeRedGreenViolations(bare), /F-004/);
+  assert.match(describeRedGreenViolations(bare), /F-004/);
 
   // (b) the RED squashed into the GREEN: only the GREEN subject survives and the
   //     old RED subject is just a body line, which must NOT count as a RED.
-  const squashed = guard.evaluateRedGreenCommitOrder([
+  const squashed = evaluateRedGreenCommitOrder([
     { subject: 'GREEN(F-007): the fix', body: 'RED(F-007): the fixture fails before the fix\n\nsquashed\n' },
   ]);
   assert.equal(squashed.ok, false, 'a body line that looks like a RED subject is not a RED commit');
   assert.deepEqual(squashed.violatingIds, ['F-007']);
 
   // (c) the marker without a reason, and with a reason that is too short.
-  const bareMarker = guard.evaluateRedGreenCommitOrder([
+  const bareMarker = evaluateRedGreenCommitOrder([
     { subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED:\n' },
   ]);
   assert.equal(bareMarker.ok, false, 'No-RED without a reason must fail');
   assert.deepEqual(bareMarker.violatingIds, ['F-011']);
-  const shortMarker = guard.evaluateRedGreenCommitOrder([
+  const shortMarker = evaluateRedGreenCommitOrder([
     { subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED: comment only\n' },
   ]);
   assert.equal(shortMarker.ok, false, 'a No-RED reason shorter than 30 characters must fail');
   assert.deepEqual(shortMarker.violatingIds, ['F-011']);
 
   // (d) the marker with a real reason, on a GREEN that has no RED.
-  const reasoned = guard.evaluateRedGreenCommitOrder([
+  const reasoned = evaluateRedGreenCommitOrder([
     { subject: 'GREEN(F-011): fix a stale comment', body: `Reword the comment.\n\nNo-RED: ${NO_RED_REASON}\n` },
   ]);
-  assert.equal(reasoned.ok, true, `a reasoned No-RED marker must pass: ${guard.describeRedGreenViolations(reasoned)}`);
+  assert.equal(reasoned.ok, true, `a reasoned No-RED marker must pass: ${describeRedGreenViolations(reasoned)}`);
   assert.deepEqual(reasoned.violatingIds, []);
 
   // A RED earlier in history but not adjacent still satisfies a later GREEN.
-  const distant = guard.evaluateRedGreenCommitOrder([
+  const distant = evaluateRedGreenCommitOrder([
     { subject: 'RED(F-009): the fixture fails', body: '' },
     { subject: 'RED(CHK-002): another fixture', body: '' },
     { subject: 'GREEN(CHK-002): another fix', body: '' },
     { subject: 'GREEN(F-009): the fix', body: '' },
   ]);
-  assert.equal(distant.ok, true, guard.describeRedGreenViolations(distant));
-  assert.equal(guard.parseRedGreenSubject('chore: unrelated'), null, 'a non RED/GREEN subject is ignored');
+  assert.equal(distant.ok, true, describeRedGreenViolations(distant));
+  assert.equal(parseRedGreenSubject('chore: unrelated'), null, 'a non RED/GREEN subject is ignored');
 });
 
 testCase('a temp repository with RED(F-007) squashed into its GREEN fails naming F-007', () => {
-  const guard = loadRedGreenGuard();
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-squash-'));
   temporaryRoots.push(root);
   writeFixtureFile(root, 'README.md', '# red-green squash fixture\n');
@@ -3739,31 +3728,30 @@ testCase('a temp repository with RED(F-007) squashed into its GREEN fails naming
   fixtureGit(root, ['commit', '-q', '-m', 'GREEN(F-007): the fix']);
 
   // Before the squash the pair is ordered and the guard passes.
-  const ordered = guard.evaluateRedGreenCommitOrder(readRedGreenCommits(root, ['main..HEAD']));
-  assert.equal(ordered.ok, true, `ordered RED then GREEN must pass: ${guard.describeRedGreenViolations(ordered)}`);
+  const ordered = evaluateRedGreenCommitOrder(readRedGreenCommits(root, ['main..HEAD']));
+  assert.equal(ordered.ok, true, `ordered RED then GREEN must pass: ${describeRedGreenViolations(ordered)}`);
 
   // Squash: one commit survives under the GREEN subject, the RED subject is a body line.
   fixtureGit(root, ['reset', '-q', '--soft', 'main']);
   fixtureGit(root, ['commit', '-q', '-m', 'GREEN(F-007): the fix', '-m', 'RED(F-007): the fixture fails before the fix\n\nsquashed']);
   const commits = readRedGreenCommits(root, ['main..HEAD']);
   assert.equal(commits.length, 1, 'the squash must leave exactly one commit on the story branch');
-  const result = guard.evaluateRedGreenCommitOrder(commits);
+  const result = evaluateRedGreenCommitOrder(commits);
   assert.equal(result.ok, false, 'the squashed pair must fail the guard');
   assert.deepEqual(result.violatingIds, ['F-007']);
-  assert.match(guard.describeRedGreenViolations(result), /F-007/, 'the failure text must name the finding id');
+  assert.match(describeRedGreenViolations(result), /F-007/, 'the failure text must name the finding id');
 });
 
 testCase('main..HEAD passes the RED-before-GREEN helper', () => {
-  const guard = loadRedGreenGuard();
   const range = readRedGreenCommits(null, ['main..HEAD']);
   // Once merged the range is empty; fall back to the subject-filtered whole
   // history rather than passing vacuously.
-  const commits = range.some((commit) => guard.parseRedGreenSubject(commit.subject) !== null)
+  const commits = range.some((commit) => parseRedGreenSubject(commit.subject) !== null)
     ? range
     : readRedGreenCommits(null, ['-E', '--grep=^(RED|GREEN)\\(']);
   assert.ok(commits.length > 0, 'no RED/GREEN commits were readable; the ordering claim cannot be proven');
-  const result = guard.evaluateRedGreenCommitOrder(commits);
-  assert.equal(result.ok, true, guard.describeRedGreenViolations(result));
+  const result = evaluateRedGreenCommitOrder(commits);
+  assert.equal(result.ok, true, describeRedGreenViolations(result));
   console.log('[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason');
 });
 
