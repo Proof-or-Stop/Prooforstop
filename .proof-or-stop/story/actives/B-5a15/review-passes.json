@@ -15720,6 +15720,30 @@
         "scanEscalationReason": null
       },
       "_hash": "3fa597f4628c9f6f5fcb141101efdd9f6fc83ae0a9e4e7cca7ed2a44e75123c8"
+    },
+    {
+      "id": "B-5a15:RP-346",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Re-issued under topology-critic-scoped session (prior RP-345 was recorded under the wrong session identity for this role, superseding it). Same independent re-verdict as RP-345: acceptance basis/topology/pre-review/rollout content is structurally complete and sound (5/5 discovery adapters complete_for_scope, empty blindSpots, no excludedPathRefs, all 5 checklist items mapped). Confirmed by source inspection that the rollout/topology/pre-review gates fire only at PLAN->DEV and DEV->REVIEW, not REVIEW->TEST or DONE, so current storyFilesHash staleness from the legitimate main merge 17df1f389e does not block this transition. Deferred findings F-390/391/396/397/398 and self-correction F-401 all carry durable mechanical evidence and correct non-blocking classification.",
+      "createdAt": "2026-09-03T11:31:23.469Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-960",
+      "envelopeId": "ab9a5c3526256d4ebcfda97e78cb49c14634f08a39b92c9128ec290707e8c96b",
+      "writerSessionId": "sess-e67531d65a1be8912ccf8b6e62108866",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3227fefeaca2d989e1f207534b35e4cb79a18abb79fe688711758092db528e5d"
     }
   ]
 }
