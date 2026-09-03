@@ -21,9 +21,10 @@
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import * as checklistHandlerModule from '../handlers/checklist.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
@@ -676,11 +677,205 @@ const CHK002_CASES: SmokeCase[] = [
   },
 ];
 
+// ── CHK-003: reachable as a proof-or-stop command, documented, and registered ──
+
+/**
+ * Repo paths, resolved the way the sibling suites do: this file runs compiled from
+ * `packages/main/dist/tasks/`, so `../../src` is the package source root and three
+ * levels above that is the repository root. The registration case reads the REAL
+ * files (root package.json, the full-suite runner source, proof-or-stop.config.json)
+ * rather than an in-memory copy, because the whole point is that a suite absent from
+ * any one of those three inventories is not actually wired in.
+ */
+const HERE = dirname(fileURLToPath(import.meta.url));
+const MAIN_SRC = resolve(HERE, '..', '..', 'src');
+const REPO_ROOT = resolve(MAIN_SRC, '..', '..', '..');
+const CLI_PATH = resolve(HERE, '..', 'cli.js');
+const DECISION_DOC = join(REPO_ROOT, 'docs/requirements/decisions/narrowing-only-evidence-repin.md');
+const CLAUDE_MD = join(REPO_ROOT, 'CLAUDE.md');
+
+/** The command name the narrowing must be reachable under. */
+const NARROW_COMMAND = 'verification_pin_narrow';
+
+/** The phrase no documentation may use about the engineered-failing-run case. */
+const OVERCLAIM = 'mechanically excluded';
+
+interface CliResult { code: number; stdout: string; stderr: string }
+
+/** Run the REAL compiled CLI against a temp project root. */
+function runCli(root: string, command: string, args: Record<string, unknown>): CliResult {
+  try {
+    const stdout = execFileSync(process.execPath, [CLI_PATH, command, JSON.stringify(args)], {
+      cwd: root,
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return { code: 0, stdout, stderr: '' };
+  } catch (e) {
+    const err = e as { status?: number; stdout?: unknown; stderr?: unknown; message?: string };
+    return {
+      code: typeof err.status === 'number' ? err.status : 1,
+      stdout: err.stdout ? String(err.stdout) : '',
+      stderr: err.stderr ? String(err.stderr) : String(err.message ?? e),
+    };
+  }
+}
+
+function readRepoFile(path: string): string {
+  return readFileSync(path, 'utf-8');
+}
+
+const CHK003_CASES: SmokeCase[] = [
+  {
+    id: 'CHK-003/C1',
+    desc: 'the B-a745 shape is accepted end to end through the real CLI, not only the function',
+    run: async () => {
+      const { env } = await recordA745Corpus();
+      try {
+        const res = runCli(env.root, NARROW_COMMAND, {
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+          selector: NEW_SELECTOR, reason: NARROW_REASON,
+        });
+        assert.equal(res.code, 0, `the CLI accepted the narrowing (stderr: ${res.stderr.slice(0, 200)})`);
+        assert.ok(res.stdout.includes(OLD_SELECTOR), 'the CLI output names the OLD pin');
+        assert.ok(res.stdout.includes(NEW_SELECTOR), 'the CLI output names the NEW pin');
+        assert.ok(res.stdout.includes(NARROW_REASON), 'the CLI output carries the caller-supplied reason');
+        assert.match(res.stdout, /outputTail/, 'the CLI output states absence was asserted in the retained tail');
+
+        // The pin actually moved on disk — the CLI ran the real writer, not a preview.
+        const pin = readPin(env, 1);
+        assert.equal(pin?.selector, NEW_SELECTOR, 'the stored pin carries the narrowed selector');
+        const records = readNarrowings(env, 1);
+        assert.equal(records.length, 1, 'exactly one narrowing was retained by the CLI path');
+        assert.equal(records[0].reason, NARROW_REASON, 'the CLI path retained the reason');
+
+        // Reachability is not name-shaped: the phase gate intersects the policy ceiling
+        // with DEFAULT_PHASE_TOOLS, so an unregistered command is refused in EVERY phase.
+        const unknown = runCli(env.root, `${NARROW_COMMAND}_not_registered`, { storyId: env.storyId });
+        assert.notEqual(unknown.code, 0, 'an unregistered command name is still refused');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-003/C2',
+    desc: 'a too-short reason is refused at the CLI schema AND on the schema-bypassing call',
+    run: async () => {
+      const { env } = await recordA745Corpus();
+      try {
+        const shortReason = 'too short';
+        const res = runCli(env.root, NARROW_COMMAND, {
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+          selector: NEW_SELECTOR, reason: shortReason,
+        });
+        assert.notEqual(res.code, 0, 'the CLI refused the short reason');
+        // Discriminating: it must be REFUSED FOR THE REASON LENGTH, not merely
+        // non-zero — an unregistered command also exits non-zero.
+        const refusal = `${res.stdout}${res.stderr}`;
+        assert.match(refusal, /reason/i, 'the CLI refusal names the reason field');
+        assert.match(refusal, /30/, 'the CLI refusal names the 30-character floor');
+        // The internal fn path never sees the schema, so the handler must re-check.
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+            selector: NEW_SELECTOR, reason: shortReason,
+          }),
+          /narrowing_reason_too_short/,
+          'C2 schema-bypassing short reason',
+        );
+        // Whitespace does not buy the length either, on either path.
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+            selector: NEW_SELECTOR, reason: `  ${' '.repeat(60)}  `,
+          }),
+          /narrowing_reason_too_short/,
+          'C2 whitespace reason',
+        );
+        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after both refusals');
+        assert.equal(readNarrowings(env, 1).length, 0, 'no narrowing was retained');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-003/C3',
+    desc: 'the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands',
+    run: async () => {
+      const pkg = JSON.parse(readRepoFile(join(REPO_ROOT, 'package.json'))) as { scripts: Record<string, string> };
+      const script = pkg.scripts['test:narrowing-repin'];
+      assert.ok(script, 'root package.json declares test:narrowing-repin');
+      assert.ok(script.includes('narrowing-repin-smoke.js'), 'the script runs THIS compiled suite');
+      assert.ok(
+        (pkg.scripts['test:serial-reference'] ?? '').includes('npm run test:narrowing-repin'),
+        'test:serial-reference (the membership authority) chains the suite',
+      );
+
+      // RESOURCE_POLICY is a SEPARATE authority: a serial-reference member with no
+      // policy row fails the whole suite closed as unknownPolicy.
+      const runner = readRepoFile(join(REPO_ROOT, 'packages/main/src/tasks/full-suite-runner.ts'));
+      const policyBlock = runner.slice(runner.indexOf('const RESOURCE_POLICY'), runner.indexOf('export let FULL_SUITE_ENTRIES'));
+      assert.ok(policyBlock.length > 0, 'the RESOURCE_POLICY block was located');
+      assert.ok(policyBlock.includes("'test:narrowing-repin'"), 'RESOURCE_POLICY carries a row for the suite');
+
+      // validate.commands is the planner's command universe: a suite absent from it
+      // makes every evidence pin naming it resolve to pinned_command_missing.
+      const config = JSON.parse(readRepoFile(join(REPO_ROOT, 'proof-or-stop.config.json'))) as {
+        validate: { commands: Array<{ command?: string; args?: string[] }> };
+      };
+      const entry = config.validate.commands.find(c => (c.args ?? []).some(a => a.includes('narrowing-repin-smoke.js')));
+      assert.ok(entry, 'proof-or-stop.config.json validate.commands registers the suite');
+      assert.equal(entry.command, 'node', 'the registered entry runs it the way its siblings are run');
+    },
+  },
+  {
+    id: 'CHK-003/C4',
+    desc: 'the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded',
+    run: async () => {
+      const decision = readRepoFile(DECISION_DOC);
+      const claudeMd = readRepoFile(CLAUDE_MD);
+      for (const [label, text] of [['decision doc', decision], ['CLAUDE.md', claudeMd]] as const) {
+        assert.equal(
+          text.toLowerCase().includes(OVERCLAIM), false,
+          `${label} must NOT claim the engineered-failing-run case is "${OVERCLAIM}"`,
+        );
+        assert.ok(text.includes('accepted limitation'), `${label} records the gap as an accepted limitation`);
+        assert.ok(
+          text.includes('no receipt records why a run failed'),
+          `${label} states WHY the gap is not bounded`,
+        );
+      }
+      // The decision doc must also carry the invariant, the bound and every refusal code,
+      // so it is the record the PLAN scope review found missing rather than a summary.
+      assert.ok(decision.includes('narrowing'), 'the decision doc states the narrowing-only exception');
+      for (const code of [
+        'narrowing_selector_loosens',
+        'narrowing_selector_not_discriminating',
+        'narrowing_no_recorded_failing_render',
+        'narrowing_no_recorded_passing_receipt',
+        'narrowing_selector_absent_from_passing_receipt',
+        'narrowing_receipt_set_unchanged',
+        'narrowing_receipt_selector_unknown',
+        'narrowing_caller_output_not_admissible',
+        'narrowing_receipt_material_mismatch',
+        'narrowing_reason_too_short',
+      ]) {
+        assert.ok(decision.includes(code), `the decision doc lists the refusal code ${code}`);
+      }
+      assert.ok(claudeMd.includes(NARROW_COMMAND), 'CLAUDE.md documents the command form');
+      assert.ok(
+        claudeMd.includes('at most one') || claudeMd.includes('at most ONE'),
+        'CLAUDE.md states the one-narrowing-per-recorded-receipt-set bound',
+      );
+    },
+  },
+];
+
 // ── runner ────────────────────────────────────────────────────────────────────
 
 const CASES: SmokeCase[] = [
   ...CHK001_CASES,
   ...CHK002_CASES,
+  ...CHK003_CASES,
 ];
 
 /** Keep a failure line short so a failing run cannot blow the output budget. */
