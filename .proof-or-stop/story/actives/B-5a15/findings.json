@@ -19662,6 +19662,25 @@
       "_hash": "44112beafa490f7195b34642c9f4554ccce51480beef353c1bab4b9dc685c5c8",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-367",
+      "desc": "packages/main/src/handlers/checklist.ts:325-425 (probeGitTopLevel/probeGitIndex/probeWritableEvidenceTarget/probeActiveCli/probeWriterLease/probeCausalPreflightFacts) and packages/main/src/handlers/verifier.ts:552-640 (probeVerifierWorktree/probeVerifierIndex/probeVerifierTarget/probeVerifierCli/probeVerifierLease/probeValidationCausalPreflightFacts) are near byte-identical copy-pasted implementations of the same six causal-preflight probe functions (~90 lines), differing only in cosmetic naming and one execSync vs execFileSync git-index invocation style. Each module uses its own copy consistently for both the initial preflight snapshot and revalidateBeforeRun snapshot within a single evidence write, so this is NOT a live correctness bug today. It is a maintainability/DRY defect: any future change to preflight-fact semantics (e.g. a new probe, a changed lease-mismatch reason string, a git-index digest algorithm change) must be made in two places by hand, and the two copies can silently drift out of sync with no compiler or test signal forcing them to match, since nothing asserts byte-identical behavior between the two. Recommended handling: extract the six probe functions plus probeCausalPreflightFacts/probeValidationCausalPreflightFacts into a single shared module (e.g. core/causal-preflight-probes.ts) that both handlers import, matching the Data/Machine/Fn separation the project already uses elsewhere.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T02:35:30.835Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-904",
+      "_hash": "9e884d17cb548e7d55dd4bd05cfc9feafb8b1303583fad3454d6526672866766",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
