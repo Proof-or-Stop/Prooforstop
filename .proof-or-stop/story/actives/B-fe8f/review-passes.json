@@ -918,6 +918,35 @@
       },
       "readDiagnostics": [],
       "_hash": "f26b2fb5957a5dcbb657861e5b9bdd1929129c97b5d603d803b519517039c337"
+    },
+    {
+      "id": "B-fe8f:RP-028",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 18 test-coverage review passed: all 71 must verification intents have fresh tool-owned mechanical PASS receipts bound to material 9556f27c39b5bfec72f7eb314b9003e3ba7aa7bf49b9282931b6be95b55c4cd0 and story-files 0c8ccb7ba4a144c0c5e0719052cc8021cfb761c8aa9ab1e2938414a6599bb561; no gaps, waivers, failures, or open blocking findings. Fresh RED exited 0 with historical baseline failure/current GREEN/corrupted-relation rejection/unchanged assertion. Fresh complete Story3 smoke exited 0 and mechanically proved F-027 outer requestDigest refusal, F-028 omitted-mirror crash recovery, F-029 append-only current-trust re-attestation against the immutable real 16-Finding B-fe8f corpus, all F-029 negative controls, clean @proof-or-stop/core plus @proof-or-stop/lab install, and final ledger/runtime/story3 verdicts.",
+      "createdAt": "2026-09-03T18:01:07.599Z",
+      "reviewRound": "2026-09-03T17:50:54.762Z",
+      "reviewRunId": "B-fe8f:RR-063",
+      "envelopeId": "072e84ff39f493a343afadd1d4aea927f1fc9b13bd26998ad993b1cefd1c9ecc",
+      "writerSessionId": "sess-60dca796ce9134eb0a3c85af5049d05d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Focused Round 18 review examined the Section 9.3 bounded truth source, the F-027/F-028/F-029 resolution diffs and regression hunks, all 71 intent/evidence bindings, and current real-corpus CLI projection."
+      },
+      "_hash": "720f07ef827c9138f634a0d93bf3085566f923145457ba5a6fe7b17d10a54eab"
     }
   ]
 }
