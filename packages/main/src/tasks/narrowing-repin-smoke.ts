@@ -679,6 +679,26 @@ const CHK002_CASES: SmokeCase[] = [
           'B9 material mismatch',
         );
         assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
+
+        // Same corpus, one recorded material: now the proof completes, and the acceptance
+        // must say WHERE absence was asserted. outputTail is a BOUNDED tail of the
+        // captured output, so an acceptance that claimed absence from the whole run would
+        // be claiming more than the recorded evidence can carry.
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR, materialHash: 'MATERIAL-1' },
+          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR, materialHash: 'MATERIAL-1' },
+        ]);
+        const message = await narrow(env, {
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+          selector: NEW_SELECTOR, reason: NARROW_REASON,
+        });
+        assert.match(message, /outputTail/, 'the acceptance names the retained outputTail as where absence was asserted');
+        assert.match(message, /bounded/, 'the acceptance states that tail is BOUNDED, not the whole run');
+        assert.equal(
+          /absent from the (whole|entire) (run|output)/i.test(message), false,
+          'the acceptance does not claim absence from the whole recorded run',
+        );
+        assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'the proved narrowing was applied');
       } finally { cleanup(env); }
     },
   },
@@ -841,6 +861,22 @@ function readRepoFile(path: string): string {
   return readFileSync(path, 'utf-8');
 }
 
+/**
+ * The documentation overclaim grep. Performed by BOTH cases whose pinned intent
+ * sentence names it, so a reader who follows either selector lands on the assertion
+ * that sentence describes rather than on a neighbouring case.
+ */
+function assertDocumentationDoesNotOverclaim(): void {
+  for (const [label, path] of [['decision doc', DECISION_DOC], ['CLAUDE.md', CLAUDE_MD]] as const) {
+    const text = readRepoFile(path);
+    assert.equal(
+      text.toLowerCase().includes(OVERCLAIM), false,
+      `${label} must NOT claim the engineered-failing-run case is "${OVERCLAIM}"`,
+    );
+    assert.ok(text.includes('accepted limitation'), `${label} records the gap as an accepted limitation`);
+  }
+}
+
 const CHK003_CASES: SmokeCase[] = [
   {
     id: 'CHK-003/C1',
@@ -869,6 +905,10 @@ const CHK003_CASES: SmokeCase[] = [
         // with DEFAULT_PHASE_TOOLS, so an unregistered command is refused in EVERY phase.
         const unknown = runCli(env.root, `${NARROW_COMMAND}_not_registered`, { storyId: env.storyId });
         assert.notEqual(unknown.code, 0, 'an unregistered command name is still refused');
+
+        // The same case greps the documentation for the overclaiming phrasing, which is
+        // the second half of the sentence this case is pinned to.
+        assertDocumentationDoesNotOverclaim();
       } finally { cleanup(env); }
     },
   },
@@ -1044,6 +1084,29 @@ const CHK003_CASES: SmokeCase[] = [
       const resolved: readonly string[] = entry.semantics;
       for (const semantic of ['execution-evidence', 'verification-evidence', 'gate-evidence']) {
         assert.ok(resolved.includes(semantic), `the resolved semantics include ${semantic}`);
+      }
+    },
+  },
+  {
+    id: 'CHK-003/C7',
+    desc: 'the decision record carries at least four pre-mortems',
+    run: async () => {
+      // The decision was required to carry pre-mortems because it moves a
+      // security-adjacent invariant. Nothing verified that it did.
+      const decision = readRepoFile(DECISION_DOC);
+      const preMortems = [...decision.matchAll(/^\| PM-\d+ \|/gm)];
+      assert.ok(
+        preMortems.length >= 4,
+        `the decision record carries at least four pre-mortems (found ${preMortems.length})`,
+      );
+      // Discriminating: a pre-mortem that names no mitigation is a worry, not a
+      // pre-mortem, so each row must carry all four columns with content.
+      for (const row of decision.split('\n').filter(line => /^\| PM-\d+ \|/.test(line))) {
+        const columns = row.split('|').slice(1, -1).map(cell => cell.trim());
+        assert.equal(columns.length, 5, `pre-mortem row has id, scenario, trigger, consequence and mitigation: ${row.slice(0, 60)}`);
+        for (const cell of columns) {
+          assert.ok(cell.length > 0, `no empty cell in pre-mortem row: ${row.slice(0, 60)}`);
+        }
       }
     },
   },
