@@ -20506,6 +20506,54 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed correct before acting on it, and the refusal to record a pass was the right call. Verified independently: current storyFilesHash is d535628105e8fb2a while all 53 receipts carry 8e57bba899496b0c, and buildVerificationCoverage reports covered=0 required=51 missingRequired=51. Cause is exactly as the lane diagnosed: d16cdeeec8 is a SOURCE commit (the F-392 dev-memory matcher tightening and the F-393 mutual-exclusivity guard), so it moved storyFilesHash and no receipt re-ran against the new tree. This is the F-388 failure mode I had explicitly asked the lane to watch for, and without its refusal I would have advanced on stale evidence while believing 53/53 -- the same mistake F-388 caught earlier in this story. Remediated by re-earning all 53 receipts against the current HEAD in the established order (refresh_stale to break the F-247 deadlock, then one verification_evidence_batch_add, then pre_review_check last), with the acceptance chain rebuilt first where required.",
       "resolvedAt": "2026-09-03T09:51:13.185Z"
+    },
+    {
+      "id": "B-5a15:F-396",
+      "desc": "F-393 guard (certification-window-smoke.ts CERTIFICATION_DOMAIN_PATH_RULES mutual-exclusivity check + positive control) is logically correct -- independently re-verified against the rebuilt dist: 24 probes zero ambiguous, positive control fires 2/2 -- but the entire certification-window-smoke.ts task, along with its siblings certification-window-invalidation-smoke.ts / certification-window-replay-smoke.ts / certification-window-heavy-choke-smoke.ts, has zero references anywhere in the repo (not in package.json scripts, not in full-suite-runner.ts, not in command-catalog.ts, no dynamic tasks/ glob loader). Running it standalone (node packages/main/dist/tasks/certification-window-smoke.js) confirms it dies earlier at a pre-existing, unrelated fixture failure ([pre_cert_causal_freshness_required] in the B-cw-selective mock-inventory scenario, well before reaching the F-393 guard block appended near EOF) -- so the F-393 guard never executes in CI today. This is the exact same defect independently reported as B-5a15:F-394 by the author. Recording as its own low finding per Handler-encoding-convention self-check discipline (a guard whose host task is unregistered is not yet a delivered regression protection) and to keep it traceable if F-394 gets dismissed or lost; defer to the follow-up that registers all four certification-window-star-smoke tasks in a runner and fixes the pre-existing B-cw-selective fixture failure blocking them.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T10:02:23.066Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-945",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "aac09675d212060563f06af47cf04314179fcf197050e7d16478d133ca467fe7",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+        "packages/main/src/tasks/certification-window-replay-smoke.ts",
+        "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|guard-certification-window",
+      "signatureTagSource": "auto"
     }
   ]
 }
