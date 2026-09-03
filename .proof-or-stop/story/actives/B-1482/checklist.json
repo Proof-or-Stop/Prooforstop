@@ -333,21 +333,33 @@
           {
             "desc": "CLAUDE.md documents the narrowing-only re-pin, its inputs, the one-re-pin bound and every refusal case, and the decision records at least four pre-mortems.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded"
+            }
           }
         ],
         "edge": [
           {
             "desc": "The suite is registered in test:serial-reference, RESOURCE_POLICY and validate.commands, verified by a case that reads those real files.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "The engineered-failing-run gap is stated in CLAUDE.md as either a named bound or an accepted limitation, and no text claims it is mechanically excluded; a case greps the documentation for the overclaiming phrasing and asserts it is absent.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function"
+            }
           }
         ]
       },
@@ -357,7 +369,75 @@
         "headHash": "9e3f2013c6aa65b45fec18869f41f7acadb50ed5",
         "attestedAt": "2026-09-03T22:12:42.726Z",
         "materialHash": "3210ec5d9ad792ff933f3a794791b91aba8b988079fe9312d73bf24acdb0bb74"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "CLAUDE.md and docs/requirements/decisions/narrowing-only-evidence-repin.md state the narrowing-only rule, its recorded-receipt-only inputs, the one-narrowing bound and every refusal code; the decision carries five pre-mortems.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7cdc498dabf3181ad941cd0560d816040b82a492aef2762e6f5ae949767239ee",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded",
+            "executedAt": "2026-09-03T22:32:24.956Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "10d4210cba8d479e6482f975fdb7a06fae6b5ebc",
+          "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11",
+          "storyFilesHash": "8688f79da9108e3eec8e0aecbf4df2ef9453042f29d419ad5050fa701eaba31e",
+          "timestamp": "2026-09-03T22:32:40.528Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "The case reads the real package.json, full-suite-runner.ts and proof-or-stop.config.json rather than fixtures.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7cdc498dabf3181ad941cd0560d816040b82a492aef2762e6f5ae949767239ee",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands",
+            "executedAt": "2026-09-03T22:32:33.030Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "10d4210cba8d479e6482f975fdb7a06fae6b5ebc",
+          "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11",
+          "storyFilesHash": "8688f79da9108e3eec8e0aecbf4df2ef9453042f29d419ad5050fa701eaba31e",
+          "timestamp": "2026-09-03T22:32:40.528Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "The accepted narrowing is driven through the registered verification_pin_narrow command; C2 asserts a too-short reason is refused both at the schema and on a schema-bypassing call, per the Handler Encoding Conventions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7cdc498dabf3181ad941cd0560d816040b82a492aef2762e6f5ae949767239ee",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function",
+            "executedAt": "2026-09-03T22:32:40.235Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "10d4210cba8d479e6482f975fdb7a06fae6b5ebc",
+          "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11",
+          "storyFilesHash": "8688f79da9108e3eec8e0aecbf4df2ef9453042f29d419ad5050fa701eaba31e",
+          "timestamp": "2026-09-03T22:32:40.528Z"
+        }
+      ]
     }
   ]
 }
