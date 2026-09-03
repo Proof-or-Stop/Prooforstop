@@ -15100,6 +15100,36 @@
       },
       "readDiagnostics": [],
       "_hash": "922f5037b8f884fdc1c2627cd2df8dfd4039ccb7dab1c9f39f2a9c10d3c1e3b1"
+    },
+    {
+      "id": "B-5a15:RP-329",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Wave 2 (saturation) at unchanged material (storyFilesHash 16d060c47b, HEAD 90ca2370a1 vs wave-1 critic-verified HEAD): independently re-derived the coverage state and found it unchanged from wave-1 F-388 — covered=0/required=51/missingRequired=51, all 53 checklist verificationEvidence rows remain mechanical:true/result:pass (51 must rows bound headHash a39f251b, 2 should rows CHK-004:happy:2/3 bound headHash c441794c, both ancestors of but not matching current HEAD so both classify stale under headMatches). Verified via direct checklist.json inspection (53/53 mechanical+pass, 0 non-mechanical, 0 waivers) and evidence_inspect (staleRefs=54: the 53 checklist rows plus one older test-evidence.json snapshot from headHash cfe469fc/storyFilesHash 450510ab, already covered by resolved F-319/F-310, regenerated downstream by TEST-phase validate --story and not touched by the planned REVIEW-phase remediation). Confirmed CHK-004:happy:2/3 receipts genuinely show the strict-branch PASS markers firing (B-5a15|CHK-004:happy:2|PASS and |happy:3|PASS present in outputTail), consistent with prior F-350/F-351/F-374 resolution — this is not a marker-suppression regression on those two rows specifically, the current suppression F-388 describes is for a fresh re-run of the test file, not the historically-earned should-row receipts. pre_review_check_read (read-only) still reports status=fail/blocking=false with codes=[PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED], matching the isEvidenceRefreshBootstrap whitelist condition already documented by F-388. git diff between the wave-1 critic receipt commit (33a25033d7) and current HEAD touches zero files outside .proof-or-stop/story/actives/B-5a15/ metadata — independently confirms CRIT-01s zero-material-drift claim. Re-verified the planned remediation (single verification_evidence_batch_add for all 53 rows, pre_review_check run LAST) is structurally sufficient: 51 must + 2 should = 53 = total intents with 0 waivers, so no must intent falls outside that batch, and pre_review_check.ts only reads verificationEvidence (does not write it), so it cannot re-stale the just-earned batch when run after. No new finding family found; not re-filing F-388. This wave-2 pass is the expected saturating outcome, not evidence of a superficial wave 1.",
+      "createdAt": "2026-09-03T06:08:50.793Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-932",
+      "envelopeId": "557371be03f5b7ee5c3b80e26d7c68e6c1d8ced6a1b5efdbcab0375b29d5715e",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "9c08713857460bf605f78c39c255610502309206d018d61644d05b33c9bec330"
     }
   ]
 }
