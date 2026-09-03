@@ -14731,6 +14731,52 @@
       },
       "readDiagnostics": [],
       "_hash": "e3534e038a7dd2219a04270bd695a0782d0521ab28f2c7b31e35aa8a1b5309f1"
+    },
+    {
+      "id": "B-5a15:RP-319",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Adversarially re-verified own F-379 fix in commit c5324ce44a: race-free (empirical repro), tail() bounded to 6 lines with no secret exposure, 90s/500ms loop unchanged and every early-return still wrapped by finally, kill() after ENOENT is safe (empirical repro). F-379 genuinely fixed. F-378 unchanged, correctly deferred, re-filed as F-382 on live run. No new type-safety/dead-code/I-O-isolation issues. No blocker.",
+      "createdAt": "2026-09-03T05:03:10.138Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-918",
+      "envelopeId": "9c632326ac6e9940a3566399c8584ca9788c00e112798e7582030c1e8f71f07d",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "2694101a3ffde66b3aba821224c3686f7421ddb1e8c835d37200e46bc9668ff3"
     }
   ]
 }
