@@ -15066,6 +15066,40 @@
         "scanEscalationReason": null
       },
       "_hash": "7f06869de299033ca57dc5c24c75896af4851663dbe31b6bc314548e7e0890c8"
+    },
+    {
+      "id": "B-5a15:RP-328",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave-1 completeness critic for RI-072: verified RR-927/928/929 cover full required roster with identical current bindings, confirmed epoch boundary sequencing (926<927/928/929), confirmed 342-entry diff zero D/R, confirmed F-388 sole in-epoch raw finding, F-382/F-385 correctly pre-epoch carryover.",
+      "createdAt": "2026-09-03T06:00:21.261Z",
+      "reviewRound": "2026-09-03T04:56:02.041Z",
+      "reviewRunId": "B-5a15:RR-931",
+      "envelopeId": "93485473706293cdf6b862cc771cd6cd1c6b47a2d24b0fcc74fee3a9fd04a0d3",
+      "writerSessionId": "sess-e67531d65a1be8912ccf8b6e62108866",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "922f5037b8f884fdc1c2627cd2df8dfd4039ccb7dab1c9f39f2a9c10d3c1e3b1"
     }
   ]
 }
