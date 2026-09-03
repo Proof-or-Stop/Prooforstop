@@ -19732,7 +19732,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:103-121 - defaultGitDiffReader/defaultGrepReader run `git diff --unified=1000000 main...HEAD` via execSync; on stories with large diffs (e.g. this one, >239MB) this fails with spawnSync /bin/sh ENOBUFS (a pipe ceiling, not the maxBuffer guard - raising maxBuffer to 200MB does not fix it). checkConcept (~line 1040-1055) maps any diff-read failure to status=warn, recommendation=skip, so `validate --concept` silently no-ops on large diffs instead of failing closed. Out of B-5a15 scope (validate-concept.ts is not touched by this story diff); recorded and deferred per Defect Triage rule 3, re-filed from prior review rounds (originally F-366, then F-368/F-369, now correctly agented and re-bound to RR-905 for epoch RI-070).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T03:39:40.137Z",
@@ -19766,7 +19766,10 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a15:F-376, the live-epoch re-file of the same deferred validate-concept.ts ENOBUFS warn-and-skip defect. F-370 was bound to RR-905 in epoch RI-070, which was INVALIDATED when a source commit landed while it was open; CRIT-01 identified it as an orphaned duplicate with a word-for-word identical description to F-376 and flagged it for main-agent cleanup. The defect itself remains open and correctly deferred as F-376: out of this story's diff, medium, non-blocking.",
+      "resolvedAt": "2026-09-03T04:57:33.974Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-371",
