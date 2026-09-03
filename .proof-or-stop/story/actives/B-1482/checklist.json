@@ -103,7 +103,47 @@
       "context": "decision_set with at least four pre-mortems: evidence-shopping via repeated narrowing (blocked by the one-re-pin-per-recorded-receipt-set bound), a forged failing transcript (impossible because transcripts are not an input), a receipt whose old selector never matched anything (refused for lack of a recorded failing render), and an ENGINEERED failing receipt from a genuine run driven to fail on purpose (the residual gap; the decision must name the bound that closes it or record it as an accepted limitation). CLAUDE.md's Verification Intent / Evidence section documents the new command form, the recorded-receipt-only proof, and the invariant that loosening is impossible. Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create's keyword scan elevates it, keep the elevation rather than dismissing it.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent--evidence",
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "`npm run test:narrowing-repin` ends `narrowing-repin-smoke: PASS`; `grep -n narrowing-repin package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` shows the suite in test:serial-reference, RESOURCE_POLICY and validate.commands; CLAUDE.md's Verification Intent / Evidence section states the narrowing-only rule, the one-narrowing bound, the refusal cases and the engineered-failing-run limitation.",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLAUDE.md documents the narrowing-only re-pin, its inputs, the one-re-pin bound and every refusal case, and the decision records at least four pre-mortems.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The suite is registered in test:serial-reference, RESOURCE_POLICY and validate.commands, verified by a case that reads those real files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The engineered-failing-run gap is stated in CLAUDE.md as either a named bound or an accepted limitation, and no text claims it is mechanically excluded; a case greps the documentation for the overclaiming phrasing and asserts it is absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
