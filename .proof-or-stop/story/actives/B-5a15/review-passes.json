@@ -14415,6 +14415,48 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "3ec120bae51e74ecc6952f993fd3ecb22f8a5a7a8f9f4f4666686d02d7388390"
+    },
+    {
+      "id": "B-5a15:RP-311",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept lane re-verified against current HEAD (RR-902, superseding RR-899). No stranded deletions/renames found. Re-filed deferred F-366 (out-of-scope validate-concept.ts ENOBUFS) as F-368.",
+      "createdAt": "2026-09-03T02:38:31.715Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-902",
+      "envelopeId": "afeccc1c03a8de3d0d72112b09dc71aa8fd8bdc4cb35082f6ca36e71e73536f4",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eca429d68dda78e4a2be194e1642fa13ae53191601f7677e97ba5b6be58b1285"
     }
   ]
 }
