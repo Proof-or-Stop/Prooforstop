@@ -15697,6 +15697,29 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "b73c214d55a2fcc65ceff472acdafea7f7402ab30077e4b4bf4062c9950d9e4f"
+    },
+    {
+      "id": "B-5a15:RP-345",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent topology re-verdict: acceptance basis/topology/pre-review/rollout content is structurally complete (all 5 discovery adapters report complete_for_scope with empty blindSpots, topologyState=configured, no excludedPathRefs, all 5 checklist items mapped in checklistRefs/verificationIntentRefs/evidenceRefs). Confirmed via source that runAcceptanceRolloutGate and evaluateAcceptanceTopologyForContext/evaluatePreReviewCheckForContext fire only at PLAN->DEV and DEV->REVIEW transitions (transition-orchestrator.ts:987,1004), not at REVIEW->TEST or DONE, so their current staleness (post-merge storyFilesHash drift from legitimate merge 17df1f389e plus story commits fdb0837a8b/1a243905ee) does not gate this transition. lifecycle_check confirms the sole REVIEW->TEST blocker is the stale RP-340 Prompt Envelope binding being re-verdicted here. Verified no undisclosed scope exclusions (excludedPathRefs=[] in acceptance-basis.json). Reviewed F-390/391/396 accepted_risk deferrals and F-397/398/401 open deferrals: all carry durable mechanical evidence, correct severity/blocking classification per CLAUDE.md defect-triage rule 3, and are not claimed by any checklist item.",
+      "createdAt": "2026-09-03T11:25:32.536Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-959",
+      "envelopeId": "fdcec27fab99f465a63879de5b717b2de5e839a90b1f692c3cda0b76091a8fcd",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3fa597f4628c9f6f5fcb141101efdd9f6fc83ae0a9e4e7cca7ed2a44e75123c8"
     }
   ]
 }
