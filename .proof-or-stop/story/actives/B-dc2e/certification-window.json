@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-dc2e:CW-001",
+      "storyId": "B-dc2e",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T09:37:36.123Z",
+      "updatedAt": "2026-09-03T09:37:36.123Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-dc2e:RIE-001",
+        "receiptId": "B-dc2e:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "d39586c8de27ab281b372f8024720abab26a0695a6c35316bac178d9614ab01f"
+    }
+  ],
+  "receipts": []
+}
