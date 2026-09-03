@@ -189,6 +189,24 @@
       ],
       "signatureTag": "missing|ts|core-types-jsdoc",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-011",
+      "desc": "narrowing-repin-smoke.ts:172-181 CHK-002:edge:0 desc names FOUR refusal-reason-naming behaviours (loosening, no recorded failing render, absent from a recorded passing receipt, second narrowing against an unchanged set) but its pinned selector is B6 (narrowing-repin-smoke.ts:573-609), whose own assertions cover ONLY the fourth (narrowing_receipt_set_unchanged). The other three are asserted only inside sibling cases B2 (:466-486, narrowing_selector_loosens), B4 (:512-545, narrowing_no_recorded_failing_render / narrowing_no_recorded_passing_receipt) and B5 (:546-572, narrowing_selector_absent_from_passing_receipt), none of which this intent is pinned to. Because the process exit code gates every future re-verification of this pinned command, an outright crash in B2/B4/B5 would still flip this evidence to fail on next refresh, but a silent WEAKENING of those siblings assertions (still exits 0) would leave CHK-002:edge:0 evidence reading verified/pass while three of the four behaviours its own sentence names go untested by anything this pin actually checks. This is the same pin-vs-sentence mismatch class F-007 fixed for CHK-003:adversarial:0 and CHK-002:edge:1 (see finding_list B-1482:F-007), left open here.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T23:21:40.547Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-003",
+      "_hash": "dc7289de786bde1a164c7852e196cdb4f196b931d5afd94713291c5a7f9e0464",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|narrowing-repin-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
