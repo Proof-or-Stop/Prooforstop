@@ -20644,6 +20644,64 @@
       ],
       "signatureTag": "missing|mjs|resolvedreason-claims-verificationevidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-400",
+      "desc": "packages/main/tests/verifier-causal-preflight.test.mjs (wrapped by packages/main/src/tasks/verifier-causal-preflight-smoke.ts) is the SOLE test coverage for createValidationCausalPreflightGate (packages/main/src/handlers/verifier.ts:687), a live production gate wired into proof-or-stop validate at two real call sites (verifier.ts:1933 and verifier.ts:2324) as the CHK-004 beforeLaunch preflight-refusal contract. Neither the test.mjs nor its smoke wrapper appears in root package.json test:serial-reference, packages/main/package.json, or proof-or-stop.config.json -- grep confirms zero registration anywhere. This differs from the already-known certification-window-smoke.ts orphan (F-396): CHK-004s own verificationEvidence in checklist.json binds every intent (happy/edge/adversarial) to node --test packages/main/tests/causal-evidence.test.mjs instead, and that file never imports or calls createValidationCausalPreflightGate (grep-confirmed, sole hit is verifier-causal-preflight.test.mjs). So the storys DEV evidence trail substitutes an unrelated test for the one that actually exercises this specific gate, leaving a live two-call-site production integration point with zero mechanical proof it currently passes its own dedicated tests in CI or in this storys acceptance record.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T10:24:55.281Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-949",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c21ea0db1d50592c4038190bd2a2de5bd51751df89369b525a7c23d8ae12fef",
+      "files": [
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
