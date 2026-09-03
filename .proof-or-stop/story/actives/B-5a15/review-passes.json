@@ -14635,6 +14635,46 @@
         "scanEscalationReason": null
       },
       "_hash": "52ed92579b2e1477a0db9c8c298ca975b3d227d8c02882a1a8aca983c34f87d3"
+    },
+    {
+      "id": "B-5a15:RP-316",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "WAVE 2 saturation pass for RI-071. Re-confirmed at unchanged material (41 files byte-identical vs wave-1 headHash): total=53 intents, must=51/51 covered, 0 missing, 0 waivers, all mechanical:true. Kind split among the 51 musts: 44 integration_test + 7 logic_test. The 2 non-must should-priority intents (CHK-004:happy:2/:3, verifier-owned acceptance_topology_check/pre_review_check_read) are also integration_test and covered, giving 46 integration_test + 7 logic_test across all 53 -- both prior statements are consistent, not contradictory; the extra 2 are the should-tier additions, not a double-count. Ran packages/main/tests/causal-evidence.test.mjs directly: F-247 and the wave-4 test both fail exactly as expected on the single-code AT_COVERAGE_BASIS_STALE, pre_review_check_read returns PR_ARTIFACT_TAMPERED+PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_report_read/check return receipt=stale / AR_REPORT_STALE -- all downstream symptoms of the already-dispositioned F-380/F-381 stale-acceptance-chain family, confirmed by direct read of live JSON output, no new finding family. Verified CHK-004:happy:2/:3 are should-priority (requiredIn=strict) so they do not affect the must=51/51 coverage floor. No new coverage gap found. Not re-filing F-376/F-377/F-378/F-379/F-380/F-381.",
+      "createdAt": "2026-09-03T04:27:42.754Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-914",
+      "envelopeId": "da80cb33abc915e49be069701eb645722fb88f0db7101ab6a969fdf30a4a5ae3",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-5a15/checklist.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/story/actives/B-5a15/background.md",
+          "docs/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "1f9f62b37fa91dd55fa0cb576211c5b192321883f4f8dbb4f36afa4c6c3da67e"
     }
   ]
 }
