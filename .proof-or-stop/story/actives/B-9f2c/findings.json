@@ -172,6 +172,45 @@
       "resolvedAt": "2026-09-03T06:31:44.676Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9f2c:F-008",
+      "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:64-79 -- the F-006 kill-before-sample fix only detects and stops a process BOUND TO PORT (lsof -ti:PORT filtered by ps command-line). ensureGraphClientBuilt (packages/main/src/handlers/graph.ts:83-117) runs npm run build via a SYNCHRONOUS spawnSync inside the outer `node bin/proof-or-stop.js graph` process, before that process ever reaches startServer/binds PORT. If execFileSync's 60s timeout fires while the outer process is still blocked in that spawnSync, the outer (direct) child is SIGTERM'd but the nested npm/build grandchild is NOT -- it is orphaned and keeps running/writing files. Because it never bound PORT, listeners() returns [], leaked.length is 0, the settle sleep `if (leaked.length) execFileSync('sleep',['1'])` is skipped entirely, and `rebuilt = fs.existsSync(asset)` is sampled with zero delay while the orphan may still be mid-write to assets/app.html. Verified live with two independent, exact-shape reproductions of the underlying Node.js semantic (execFileSync's timeout signal reaches only the direct child, never a nested spawnSync grandchild): outer killed at 500ms via SIGTERM, nested spawnSync-invoked shell (blocking the direct child exactly as ensureGraphClientBuilt's spawnSync(npm,['run','build']) does) wrote its marker file ~3s later, well after the outer execFileSync had already thrown -- the marker did not exist immediately after the outer call returned. This is materially reachable: npm run build for packages/graph is `tsc && node scripts/build-web.mjs`, and a first run is additionally gated by a preceding `npm install` under the SAME 60s budget, so a slow/loaded machine or cold-cache first run can plausibly still be inside that spawnSync at the 60s mark. F-006's commit message and finding text claim the RACE half is closed by reordering to kill-before-sample, but that only holds for the sub-case the reviewer's own live repro happened to hit (pid 45353 already bound to port 8819, i.e. timeout fired AFTER ensureGraphClientBuilt returned and startServer was reached) -- not for the sub-case where the timeout fires DURING the build, before any port is bound. The LEAK half of F-006 is correctly and fully fixed (cleanup is no longer gated behind `if (rebuilt)`, and it now correctly finds/kills any process that DID bind the port); the RACE half remains open specifically for the pre-bind (mid-build) timeout window, which is a materially different failure window than F-006's own reproduction covered.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T06:41:39.771Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-054",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0d4f01ac6a0a5703e2b754e678e04ebca583bb8c15b2bcded67f2a221fa14303",
+      "files": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs",
+        "packages/main/src/handlers/graph.ts"
+      ],
+      "signatureTag": "adversarial|mjs|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
