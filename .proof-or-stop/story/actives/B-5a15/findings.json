@@ -20930,6 +20930,21 @@
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-408",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:2469-2523 (F-247) currently fails on fresh execution at HEAD (698a55e2fd): node --test packages/main/tests/causal-evidence.test.mjs now returns pass=20/fail=1, not the 21/21 the checklist evidence notes for CHK-004:happy:0/:1 claim (.proof-or-stop/story/actives/B-5a15/checklist.json). Root cause confirmed by direct inspection: .proof-or-stop/story/actives/B-5a15/pre-review-check.json was written at cutoffAt=2026-09-03T14:52:14.284Z (commit 655c20904d), then the 51-row verification_evidence_batch_add re-earn committed at 2026-09-03T14:54:15 (commit fa0768cf00) with evidence timestamps 14:54:15.184Z -- after cutoffAt. A fresh pre_review_check_read now reports status=fail codes=[PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND] (evidenceState.afterCutoff>0, core/pre-review-check.ts:363). This exact 2-code combination is NOT in the isEvidenceRefreshBootstrap allowlist at causal-evidence.test.mjs:2502-2504 (which only lists PR_ARTIFACT_TAMPERED alone, PR_ARTIFACT_TAMPERED+PR_COVERAGE_BASIS_CHANGED, or one specific 5-code combo), so the strict-branch assert.equal(preReview.status, \"pass\") at line 2506 fails. This is NOT fabricated evidence -- the captured receipt outputTail for CHK-004:happy:0/:1 genuinely shows 21/21 pass at the moment of capture (verified by inspecting the stored receipt.outputTail, which contains the real test-runner summary tests=21 pass=21 fail=0) -- it is a real sequencing defect: pre_review_check was issued BEFORE the evidence batch that the same DEV round then re-earned, so the artifact cutoff is stale by the time the batch commits, and the checklist note (\"pinned suite passes 21/21\") does not disclose that this state is time-limited and already false by the time REVIEW inspects it. Currently non-blocking: lifecycle_check --target=TEST shows no blocker referencing pre_review_check/PR_CUTOFF_UNBOUND (only missing reviewer lanes); pre_review_check is mode=observe project-wide so it is diagnostic_only, matching the precedent already recorded on F-405/topology-critic. Recorded as a real, reproducible, non-blocking defect per CLAUDE.md defect-triage rule 3 (medium, not a regression of this story acceptance scope since the underlying receipts are honest and mode=observe keeps it non-blocking, does not distort a live gate): a follow-up should either (a) sequence CHK-004:happy:2/:3-style deferred_gate_evidence work so pre_review_check is always the LAST write in a DEV round (same discipline CLAUDE.md already documents for acceptance_basis_generate vs pre_review_check ordering), or (b) widen the F-247 isEvidenceRefreshBootstrap allowlist to include the PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND combination if it is a legitimate re-earn-in-progress state, and (c) checklist evidence notes claiming an aggregate pass count should note the receipt is a point-in-time capture, not a durable current-state claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T15:05:25.820Z",
+      "reviewRound": "2026-09-03T14:55:02.746Z",
+      "reviewRunId": "B-5a15:RR-971",
+      "_hash": "f2e1d71b07d07b502967a31036ecab34da566b267ef123fe9307d6b727e67208",
+      "signatureTag": "missing|unknown|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
