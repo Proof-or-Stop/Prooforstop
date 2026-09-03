@@ -1,0 +1,44 @@
+{
+  "storyId": "B-9a49",
+  "checkedAt": "2026-09-03T16:53:28.199Z",
+  "features": [
+    {
+      "feature": "CHK-004 edge intent: verify required CLI patch version is synchronized across root/package manifests, lockfiles, branded version constant, rebuilt dist, and reported by local CLI --version, before verify_codex is accepted",
+      "covered_by": "CHK-004:edge:version-and-local-artifacts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+    },
+    {
+      "feature": "Mechanical witness for the version-sync intent must not hardcode an exact version literal (stale-selector risk on every patch bump)",
+      "covered_by": "CHK-004:edge:version-and-local-artifacts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-09-03T13:24:28.264Z",
+  "_hash": "a029a3281cde18a19ca3fe2ea7f8e4e477b70f4efc09f490bde472f77af4a8b2",
+  "openQuestions": []
+}

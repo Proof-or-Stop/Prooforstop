@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-dc2e",
+  "sourceText": "Execute the test-and-guard credibility story (D) after the single-owner extraction story, until completely done: four checks that look green must actually bite.",
+  "normalizedOutcome": "validation-protocol-smoke runs from the canonical inventories or is deliberately deleted with a record and every other unreferenced task file is classified; the full-suite membership smoke fails when a real RESOURCE_POLICY row is removed; the RED-before-GREEN guard covers finding-fix commits and fails when a RED is squashed into its GREEN unless a documented no-RED marker with a reason is present; a FAIL verdict from cross_host_review persists host B parsed findings (title, severity, file, description) into the verdict artifact and never raw stdout.",
+  "acceptanceClaim": "The four smokes validation-protocol-smoke, full-suite-runner-smoke, validation-tier-planner-smoke and cross-host-review-smoke each end with their PASS line and each carries a committed mutation case that fails on the exact defect it guards (orphan registration, removed policy row, squashed RED, dropped host findings), with a RED commit preceding every GREEN.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+    "REQ-004"
+  ],
+  "requestHash": "sha256:17e8b101803e9f7040c03e51c819ca45b136b7d66d95abf8a5dce88d710cd35f",
+  "createdAt": "2026-09-03T04:37:33.689Z",
+  "updatedAt": "2026-09-03T04:37:33.689Z"
+}

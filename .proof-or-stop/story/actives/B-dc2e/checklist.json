@@ -4,33 +4,519 @@
       "id": "CHK-001",
       "title": "Fix the orphan validation-protocol smoke and register it in all three canonical inventories or delete it deliberately",
       "context": "tasks/validation-protocol-smoke.ts:1229 CASE_MISMATCH assertion fails with undefined; decide whether runManagedAssetCheck fails to detect a case-only filename mismatch on a case-insensitive filesystem or the assertion is wrong; then npm script + test:serial-reference + RESOURCE_POLICY, all three, or a recorded deletion. Also sweep tasks/ for other files no npm script references. RED: run `node packages/main/dist/tasks/validation-protocol-smoke.js` and observe the CASE_MISMATCH assertion fail with actual undefined, then confirm `npm run test:serial-reference` never executes it; GREEN is the assertion passing AND the suite name present in all three inventories, with the full-suite runner refusing a chain member that has no policy row.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-03T04:48:45.912Z",
+      "endTime": "2026-09-03T05:07:23.382Z",
+      "relatedDocs": [
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "`node packages/main/dist/tasks/validation-protocol-smoke.js` ends with its PASS line and `grep -n validation-protocol package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` shows the suite in test:serial-reference, RESOURCE_POLICY and validate.commands; the sweep prints a line per file under packages/main/src/tasks not referenced by any inventory, each marked registered, deleted, or kept-unregistered with a reason.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validation-protocol-smoke passes when run directly and is registered in the npm script chain, RESOURCE_POLICY and validate.commands.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+              "selector": "[PASS] validation-protocol-smoke registered in npm scripts, test:serial-reference, RESOURCE_POLICY and validate.commands"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A sweep case lists every file under packages/main/src/tasks with no inventory reference and asserts each is classified (registered, deleted with a record, or kept with a reason), including observability-snapshot-smoke.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+              "selector": "[PASS] tasks sweep: 362 packages/main/src/tasks files classified, 0 unclassified"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The RED commit shows the CASE_MISMATCH assertion failing with undefined on this checkout and shows test:serial-reference never executing the smoke.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+              "selector": "[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: case-insensitive)"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "3d20e156e946c08f0a1840b2d8ab8281e6e15df44ca545f622786148048b7399",
+        "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+        "headHash": "ec5ad766bd2ca34f458db721986e1517cca38d17",
+        "attestedAt": "2026-09-03T05:07:23.556Z",
+        "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "The smoke runs green directly and asserts its own registration in all three inventories; grep shows package.json:18/55, full-suite-runner.ts:194, proof-or-stop.config.json:1624.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0455d07ba9ff7c1a4a5e62d542d95a2da97ea856cbaf928890d1af9901e2cb1d",
+            "outputTail": "registered: reached by path from packages/main/src/tasks/browser-executor.ts (+1 more)\n  browser-executor  kept-unregistered: reached by path from packages/main/src/handlers/test-auto.ts\n  browser-server  kept-unregistered: reached by path from packages/main/src/tasks/browser-executor.ts\n  browser-vite-plugin  kept-unregistered: reached by path from packages/main/src/index.ts\n  bug-report  kept-unregistered: reached by path from packages/main/src/handlers/bug.ts\n  cli-executor  kept-unregistered: legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story\n  coverage  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  drift-check  kept-unregistered: legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story\n  extract  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+10 more)\n  full-suite-fixed-port-os-collision  kept-unregistered: reached by path from packages/main/src/tasks/full-suite-runner-smoke.ts\n  gap-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  locate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  metadata-cross-check  kept-unregistered: loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design\n  metadata-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  metadata-validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  profiler  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+5 more)\n  story6-ab-dispatch  kept-unregistered: reached by path from packages/main/src/tasks/story6-ab-dispatch-smoke.ts\n  story6-acceptance-transcript  kept-unregistered: one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke\n  test-fixture-gen  kept-unregistered: legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit\n  test-runner  kept-unregistered: legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story\n  trace-diff  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+3 more)\n  trace-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  truth  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  truth-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  types  kept-unregistered: reached by path from packages/main/src/extension-api.ts (+9 more)\n  validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  ledger validation-protocol-smoke  registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all\n  ledger observability-snapshot-smoke  registered:npm-script+test:all\n[PASS] tasks sweep: 362 packages/main/src/tasks files classified, 0 unclassified\n[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: case-insensitive)\n[PASS] no-story validate is read-only for story state (.proof-or-stop/ entries after run: locks)\n✓ validation protocol smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:42:21.463Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "a3361a86f308b400dc4a37abe800d817c95a6bac",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:43:45.738Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "The sweep classifies every tasks file (registered, kept-unregistered with reason, reached-by-path); observability-snapshot-smoke was fixed and registered as test:observability-snapshot.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0455d07ba9ff7c1a4a5e62d542d95a2da97ea856cbaf928890d1af9901e2cb1d",
+            "outputTail": "registered: reached by path from packages/main/src/tasks/browser-executor.ts (+1 more)\n  browser-executor  kept-unregistered: reached by path from packages/main/src/handlers/test-auto.ts\n  browser-server  kept-unregistered: reached by path from packages/main/src/tasks/browser-executor.ts\n  browser-vite-plugin  kept-unregistered: reached by path from packages/main/src/index.ts\n  bug-report  kept-unregistered: reached by path from packages/main/src/handlers/bug.ts\n  cli-executor  kept-unregistered: legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story\n  coverage  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  drift-check  kept-unregistered: legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story\n  extract  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+10 more)\n  full-suite-fixed-port-os-collision  kept-unregistered: reached by path from packages/main/src/tasks/full-suite-runner-smoke.ts\n  gap-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  locate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  metadata-cross-check  kept-unregistered: loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design\n  metadata-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  metadata-validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  profiler  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+5 more)\n  story6-ab-dispatch  kept-unregistered: reached by path from packages/main/src/tasks/story6-ab-dispatch-smoke.ts\n  story6-acceptance-transcript  kept-unregistered: one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke\n  test-fixture-gen  kept-unregistered: legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit\n  test-runner  kept-unregistered: legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story\n  trace-diff  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+3 more)\n  trace-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  truth  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  truth-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  types  kept-unregistered: reached by path from packages/main/src/extension-api.ts (+9 more)\n  validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  ledger validation-protocol-smoke  registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all\n  ledger observability-snapshot-smoke  registered:npm-script+test:all\n[PASS] tasks sweep: 362 packages/main/src/tasks files classified, 0 unclassified\n[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: case-insensitive)\n[PASS] no-story validate is read-only for story state (.proof-or-stop/ entries after run: locks)\n✓ validation protocol smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:43:02.833Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "a3361a86f308b400dc4a37abe800d817c95a6bac",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:43:45.738Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "RED commit 9c33736320 showed the orphaning case failing and the CASE_MISMATCH assertion failing with undefined; GREEN ec5ad766bd fixed the fixture (proofOrStop.md was not a case-only variant) and the detection case now passes on this case-insensitive disk.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0455d07ba9ff7c1a4a5e62d542d95a2da97ea856cbaf928890d1af9901e2cb1d",
+            "outputTail": "registered: reached by path from packages/main/src/tasks/browser-executor.ts (+1 more)\n  browser-executor  kept-unregistered: reached by path from packages/main/src/handlers/test-auto.ts\n  browser-server  kept-unregistered: reached by path from packages/main/src/tasks/browser-executor.ts\n  browser-vite-plugin  kept-unregistered: reached by path from packages/main/src/index.ts\n  bug-report  kept-unregistered: reached by path from packages/main/src/handlers/bug.ts\n  cli-executor  kept-unregistered: legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story\n  coverage  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  drift-check  kept-unregistered: legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story\n  extract  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+10 more)\n  full-suite-fixed-port-os-collision  kept-unregistered: reached by path from packages/main/src/tasks/full-suite-runner-smoke.ts\n  gap-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  locate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  metadata-cross-check  kept-unregistered: loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design\n  metadata-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  metadata-validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  profiler  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+5 more)\n  story6-ab-dispatch  kept-unregistered: reached by path from packages/main/src/tasks/story6-ab-dispatch-smoke.ts\n  story6-acceptance-transcript  kept-unregistered: one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke\n  test-fixture-gen  kept-unregistered: legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit\n  test-runner  kept-unregistered: legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story\n  trace-diff  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+3 more)\n  trace-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  truth  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  truth-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  types  kept-unregistered: reached by path from packages/main/src/extension-api.ts (+9 more)\n  validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  ledger validation-protocol-smoke  registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all\n  ledger observability-snapshot-smoke  registered:npm-script+test:all\n[PASS] tasks sweep: 362 packages/main/src/tasks files classified, 0 unclassified\n[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: case-insensitive)\n[PASS] no-story validate is read-only for story state (.proof-or-stop/ entries after run: locks)\n✓ validation protocol smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:43:45.553Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "a3361a86f308b400dc4a37abe800d817c95a6bac",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:43:45.738Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Give the full-suite membership smoke a real-data case that fails on genuine chain-versus-policy drift",
       "context": "tasks/full-suite-runner-smoke.ts around line 563 only compares synthetic fixtures. RED: remove a real RESOURCE_POLICY row on a scratch copy and assert the new case fails; account for test:serial-reference-prefix members that legitimately read as stalePolicy against the main chain. Keep the synthetic cases.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-03T04:47:47.022Z",
+      "endTime": "2026-09-03T04:51:16.104Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "userSees": "`node packages/main/dist/tasks/full-suite-runner-smoke.js` prints a `[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row` line and a `[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership` line, then its final PASS line.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The real package.json chains (test:serial-reference and test:serial-reference-prefix) are evaluated against the real RESOURCE_POLICY and pass on the current tree.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+              "selector": "[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Members of test:serial-reference-prefix are not reported as stalePolicy against the main chain; the synthetic cases remain and still pass.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+              "selector": "[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Removing one real RESOURCE_POLICY row on a scratch copy makes the real-data case fail with the row named.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+              "selector": "[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "a8b2f4c57ebd11755d810d489df7b003d57fd3eab1e76aec803775f9cb570ce3",
+        "storyFilesHash": "3a56a709c6e40e9cd4145bad5f4b2ae72997842d29cc2eaa388404fa328824d4",
+        "headHash": "86b0ba9a209570df24dcf890ef5cbea37db234d2",
+        "attestedAt": "2026-09-03T04:51:16.349Z",
+        "materialHash": "e56b08fc8c5fded125dd06e786bb0496f870c1dc9ec9b61841f89b957ecddd44"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "result": "pass",
+          "note": "Live package.json chains evaluated against the live policy (FULL_SUITE_ENTRIES); passes on the real tree.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c7efea856f01c6c40c1897df73a1bc1e68217dd492f1f9ef3081098314bd8ef1",
+            "outputTail": "or of the project root\",\"external disjoint OUTPUT_ROOT authorizes only its descendants\",\"lexically in-project symlink output escape is rejected before execution\",\"member stderr cannot spoof dedicated CPU timing file\",\"structured member summary marker reconciles assertion and mutation inventories\",\"real member output produces nonempty detailed signatures without fabricating mutation inventory\",\"identical member output yields deterministic sorted and deduplicated signatures\",\"deleting one observed assertion line bites the output-derived inventory\",\"meaningful assertion seeds and numbers remain inventory-significant\",\"known generated hex fixture IDs normalize only in story-list output lines\",\"named and static story IDs remain inventory-significant\",\"only observedDurationMs values normalize recursively inside incremental stress receipts\",\"stress seed, iteration count and status remain inventory-significant\",\"explicit marker assertions are retained alongside observed output signatures\",\"marker JSON formatting and timing-only serialization do not alter member inventory\",\"changing parsed marker assertions and mutations alters member inventory\",\"marker assertions and non-marker output signatures are retained as separate facts\",\"suppressing an assertion before member output changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as term\n...[truncated 1537 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:44:21.255Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "7b308c8579d0d1ca9daccdbd98519399b595f875",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:45:32.587Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "result": "pass",
+          "note": "The case composes prefix plus main chains like the runner and keeps the main-only stalePolicy reading as an explicit edge assertion; synthetic cases unchanged (166 assertions).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "aeb461f362d4595882f5522f8d0e2f517cf14c66f23e4e1ace882b80a685a67f",
+            "outputTail": "he project root\",\"external disjoint OUTPUT_ROOT authorizes only its descendants\",\"lexically in-project symlink output escape is rejected before execution\",\"member stderr cannot spoof dedicated CPU timing file\",\"structured member summary marker reconciles assertion and mutation inventories\",\"real member output produces nonempty detailed signatures without fabricating mutation inventory\",\"identical member output yields deterministic sorted and deduplicated signatures\",\"deleting one observed assertion line bites the output-derived inventory\",\"meaningful assertion seeds and numbers remain inventory-significant\",\"known generated hex fixture IDs normalize only in story-list output lines\",\"named and static story IDs remain inventory-significant\",\"only observedDurationMs values normalize recursively inside incremental stress receipts\",\"stress seed, iteration count and status remain inventory-significant\",\"explicit marker assertions are retained alongside observed output signatures\",\"marker JSON formatting and timing-only serialization do not alter member inventory\",\"changing parsed marker assertions and mutations alters member inventory\",\"marker assertions and non-marker output signatures are retained as separate facts\",\"suppressing an assertion before member output changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FA\n...[truncated 1530 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:44:56.039Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "7b308c8579d0d1ca9daccdbd98519399b595f875",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:45:32.588Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "result": "pass",
+          "note": "Removing the first test:serial-reference member's row on an in-memory copy of the live policy fails with unknownPolicy naming the row (RED 4c98f544e5 committed failing).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "bee5596f9a43748b286db0721a150d550b9038d25f2a1aa4d44b56e811679ed6",
+            "outputTail": "estor of the project root\",\"external disjoint OUTPUT_ROOT authorizes only its descendants\",\"lexically in-project symlink output escape is rejected before execution\",\"member stderr cannot spoof dedicated CPU timing file\",\"structured member summary marker reconciles assertion and mutation inventories\",\"real member output produces nonempty detailed signatures without fabricating mutation inventory\",\"identical member output yields deterministic sorted and deduplicated signatures\",\"deleting one observed assertion line bites the output-derived inventory\",\"meaningful assertion seeds and numbers remain inventory-significant\",\"known generated hex fixture IDs normalize only in story-list output lines\",\"named and static story IDs remain inventory-significant\",\"only observedDurationMs values normalize recursively inside incremental stress receipts\",\"stress seed, iteration count and status remain inventory-significant\",\"explicit marker assertions are retained alongside observed output signatures\",\"marker JSON formatting and timing-only serialization do not alter member inventory\",\"changing parsed marker assertions and mutations alters member inventory\",\"marker assertions and non-marker output signatures are retained as separate facts\",\"suppressing an assertion before member output changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as t\n...[truncated 1540 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:45:32.395Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "7b308c8579d0d1ca9daccdbd98519399b595f875",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:45:32.588Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Extend the RED-before-GREEN guard to finding-fix commits with a marker for legitimate no-RED fixes",
       "context": "tasks/validation-tier-planner-smoke.ts guard (declaredChecklistItems plus the ^(RED|GREEN)\\(CHK-\\d{3}\\): commit-subject regex) matches only CHK ids. Derive F-nnn ids from git log subjects; require RED(F-nnn) before GREEN(F-nnn) or an explicit no-RED marker with reason for comment-only or registration-only fixes. RED: squash a RED into a GREEN on a scratch branch and assert the guard fails. Consider a shared helper so other stories' suites reuse it.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-03T04:48:02.086Z",
+      "endTime": "2026-09-03T04:51:48.993Z",
+      "relatedDocs": [
+        "CLAUDE.md#debugging-contract"
+      ],
+      "userSees": "`node packages/main/dist/tasks/validation-tier-planner-smoke.js` prints `[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason` and ends with its PASS line; a scratch branch where a RED(F-nnn) commit is squashed into its GREEN makes the guard fail naming the finding id.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/core/red-green-commit-guard.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The guard derives CHK-nnn and F-nnn ids from commit subjects on main..HEAD and passes when every GREEN has a preceding RED for the same id.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A GREEN(F-nnn) commit whose body carries the documented no-RED marker with a reason of at least 30 characters passes; a marker without a reason fails.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a scratch branch where the RED(F-nnn) commit is squashed into the GREEN, the guard fails and names the id; the helper in core/red-green-commit-guard.ts is what the smoke calls.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "861a0e17a6cdf5c0a1ecc9485281cb0e8aab84722ae4062e5eb0479ce78c40c1",
+        "storyFilesHash": "ef35ff65d802a929f329127c37d6aa6e12c7c9df35444b710d5a89cf896b4ec7",
+        "headHash": "e52b27edfb6cfb03cf99f3527b0ef02f638bc292",
+        "attestedAt": "2026-09-03T04:51:49.181Z",
+        "materialHash": "7b3c8f0aba1ac8f2e78b668afe8fcd3e1e66cfa53cc4c0de8a6135edbcc3df96"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "core/red-green-commit-guard.ts is a pure helper; the smoke runs it over main..HEAD, which holds this story's interleaved RED/GREEN(CHK-001..004) pairs.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b30cf30db8f94074e8e99139d959410419dfba0354ed676837a37c59cc353403",
+            "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2519 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:45:42.840Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "599b634ca5fcc8a308b4a541dbf6cb1045370f4f",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:46:02.331Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Fixture cases: a No-RED: marker with a reason of at least 30 characters passes; a bare marker and a too-short reason are distinct violations.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b30cf30db8f94074e8e99139d959410419dfba0354ed676837a37c59cc353403",
+            "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2519 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:45:52.890Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "599b634ca5fcc8a308b4a541dbf6cb1045370f4f",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:46:02.331Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "A temp git repository with the RED squashed into the GREEN fails with green_without_red naming F-007 (RED 77aa8df889 committed failing before the helper existed).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b30cf30db8f94074e8e99139d959410419dfba0354ed676837a37c59cc353403",
+            "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2519 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:46:02.113Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "599b634ca5fcc8a308b4a541dbf6cb1045370f4f",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:46:02.331Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Persist host B's parsed findings from cross_host_review as structured evidence",
       "context": "handlers/cross-host-review.ts persists only stdoutDigest; findings exist in memory at diffFindings and findingCount. Persist title/severity/file/desc into the verdict JSON or register them through finding_add with the host as agent so they enter the resolve/dismiss lifecycle; never persist raw provider stdout. RED: a FAIL leaf with two findings must leave their text in a committed artifact.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-03T04:48:35.321Z",
+      "endTime": "2026-09-03T04:50:38.203Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "`node packages/main/dist/tasks/cross-host-review-smoke.js` prints `[PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact` and its final PASS line; `cross_host_review --json` output includes a findings array for host B with no raw stdout field.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cross-host-review-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A FAIL verdict from host B with two parsed findings persists their title, severity, file and description into the committed verdict JSON.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+              "selector": "[PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A PASS verdict persists an empty findings array, and finding text is bounded (each field capped) so a runaway provider cannot bloat the artifact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+              "selector": "CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Raw provider stdout never appears in any persisted artifact: the smoke plants a sentinel string in the host output and asserts it is absent from the verdict JSON and the story tree.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+              "selector": "CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e512e38fe334ea4c25a34a23984afec09f8eb403542eb2bd09a058842bb3085a",
+        "storyFilesHash": "8cf971f95f1d14cfc516df0fad37954c817a46bc02e78b7a6fc5e4f104616dc5",
+        "headHash": "443e5eda696f685ef567f99df2090a53ac1ca935",
+        "attestedAt": "2026-09-03T04:50:38.593Z",
+        "materialHash": "ed08e00675b1b9ce2140a7271182d706cd2082c82979f7ade106f6dbb160b1b1"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Stubbed host B FAIL verdict with two findings; title, severity, file, description persisted in the verdict JSON and exposed by --json (GREEN 443e5eda69).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c09de5adf5e7397433b768c68f6fc6e7297832eb189e8dda46cb72787d9832d0",
+            "outputTail": "  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .proof-or-stop-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n  [PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact\n  ✓ CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json\n  ✓ CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped\n  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree\n\n✓ cross_host_review smoke passed (28 checks)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:46:20.387Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "62b9f32653875a6cb76498ddfcfe96a84c12e1a7",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:46:53.821Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Caps: 50 findings, title 200, file 300, description and fix 1000; PASS verdict persists an empty array.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c09de5adf5e7397433b768c68f6fc6e7297832eb189e8dda46cb72787d9832d0",
+            "outputTail": "  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .proof-or-stop-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n  [PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact\n  ✓ CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json\n  ✓ CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped\n  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree\n\n✓ cross_host_review smoke passed (28 checks)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:46:36.449Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "62b9f32653875a6cb76498ddfcfe96a84c12e1a7",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:46:53.821Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "result": "pass",
+          "note": "Sentinel planted in the stubbed raw output is absent from the verdict JSON and every file under the .proof-or-stop state tree.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c09de5adf5e7397433b768c68f6fc6e7297832eb189e8dda46cb72787d9832d0",
+            "outputTail": "  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .proof-or-stop-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n  [PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact\n  ✓ CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json\n  ✓ CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped\n  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree\n\n✓ cross_host_review smoke passed (28 checks)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T11:46:53.641Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "62b9f32653875a6cb76498ddfcfe96a84c12e1a7",
+          "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+          "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+          "timestamp": "2026-09-03T11:46:53.821Z"
+        }
+      ]
     }
   ]
 }

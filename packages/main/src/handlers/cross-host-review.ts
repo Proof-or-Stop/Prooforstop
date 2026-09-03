@@ -269,14 +269,20 @@ export interface CrossHostReviewResult {
     provider: string;
     decision: 'pass' | 'fail' | 'blocked';
     verdictId: string;
+    /** TRUE finding count (uncapped) — may exceed `findings.length` when the persisted array was capped. */
     findingCount: number;
+    /** B-dc2e CHK-004: the SAME bounded array persisted in the verdict artifact (never raw stdout). */
+    findings: PersistedReviewFinding[];
   };
   hostB: {
     hostId: string;
     provider: string;
     decision: 'pass' | 'fail' | 'blocked';
     verdictId: string;
+    /** TRUE finding count (uncapped) — may exceed `findings.length` when the persisted array was capped. */
     findingCount: number;
+    /** B-dc2e CHK-004: the SAME bounded array persisted in the verdict artifact (never raw stdout). */
+    findings: PersistedReviewFinding[];
     /** Present on a fail-closed synthesized verdict (no parseable / material mismatch). */
     reason?: string;
   };
@@ -561,6 +567,91 @@ export interface CreateCrossHostReviewHandlersOptions {
   afterVerdictPairWritten?: () => void | Promise<void>;
 }
 
+/**
+ * B-dc2e CHK-004: a host's PARSED review finding as persisted in the verdict
+ * artifact. This is structured evidence derived from the leaf's strict-schema
+ * verdict (or the caller-authored host A findings file) — NEVER raw provider
+ * stdout. Only the fields below are persisted; every string is length-capped and
+ * the array is count-capped (see the PERSISTED_FINDING_* constants) so a runaway
+ * provider cannot bloat the artifact. `findingCount` on the record keeps the TRUE
+ * count so a capped array is visible to readers.
+ */
+export interface PersistedReviewFinding {
+  severity: Finding['severity'];
+  title: string;
+  file: string;
+  line: number;
+  /** The leaf finding's `issue` text (what is wrong + why it matters). */
+  description: string;
+  fix: string;
+  /**
+   * B-dc2e F-001: the names of the fields above that were cut to their cap, in
+   * field order; empty when nothing was cut. A cut field also ENDS with
+   * PERSISTED_FINDING_TRUNCATION_MARKER, so both the JSON and a bare field
+   * value show that the text is incomplete rather than organically that long.
+   */
+  truncatedFields: PersistedFindingTextField[];
+}
+
+/** The capped text fields of a persisted finding, in persisted order. */
+export type PersistedFindingTextField = 'title' | 'file' | 'description' | 'fix';
+
+/** Max persisted findings per host verdict; extras are dropped (findingCount stays true). */
+export const PERSISTED_FINDING_COUNT_CAP = 50;
+/** Max chars for a persisted finding `title`. */
+export const PERSISTED_FINDING_TITLE_CAP = 200;
+/** Max chars for a persisted finding `file` path. */
+export const PERSISTED_FINDING_FILE_CAP = 300;
+/** Max chars for a persisted finding `description` and `fix`. */
+export const PERSISTED_FINDING_TEXT_CAP = 1000;
+/**
+ * Fixed suffix every cut field ends with (B-dc2e F-001). It counts toward the
+ * field's cap, so a cut field is exactly `cap` chars long and the length
+ * invariant a reader can check stays true; it is applied BEFORE digesting, so
+ * the verdictId binds the marked text.
+ */
+export const PERSISTED_FINDING_TRUNCATION_MARKER = ' ...[truncated]';
+
+function capText(value: unknown, cap: number): { text: string; truncated: boolean } {
+  const text = typeof value === 'string' ? value : '';
+  if (text.length <= cap) return { text, truncated: false };
+  const keep = Math.max(0, cap - PERSISTED_FINDING_TRUNCATION_MARKER.length);
+  return { text: text.slice(0, keep) + PERSISTED_FINDING_TRUNCATION_MARKER, truncated: true };
+}
+
+function capLine(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
+}
+
+/** Pure: project parsed findings onto the bounded persisted shape (count + per-field caps). */
+export function boundPersistedFindings(findings: readonly Finding[]): PersistedReviewFinding[] {
+  return findings.slice(0, PERSISTED_FINDING_COUNT_CAP).map(finding => {
+    const capped: Array<[PersistedFindingTextField, ReturnType<typeof capText>]> = [
+      ['title', capText(finding.title, PERSISTED_FINDING_TITLE_CAP)],
+      ['file', capText(finding.file, PERSISTED_FINDING_FILE_CAP)],
+      ['description', capText(finding.issue, PERSISTED_FINDING_TEXT_CAP)],
+      ['fix', capText(finding.fix, PERSISTED_FINDING_TEXT_CAP)],
+    ];
+    const text = Object.fromEntries(capped.map(([field, { text }]) => [field, text])) as Record<PersistedFindingTextField, string>;
+    return {
+      severity: (FINDING_SEVERITIES as readonly string[]).includes(finding.severity) ? finding.severity : 'MINOR',
+      title: text.title,
+      file: text.file,
+      line: capLine(finding.line),
+      description: text.description,
+      fix: text.fix,
+      truncatedFields: capped.filter(([, { truncated }]) => truncated).map(([field]) => field),
+    };
+  });
+}
+
+/** A local host verdict record as written by cross_host_review: HostVerdict + bounded findings. */
+export interface CrossHostVerdictRecord extends HostVerdict {
+  findings: PersistedReviewFinding[];
+  /** TRUE (uncapped) count of the host's findings. */
+  findingCount: number;
+}
+
 interface CrossHostVerdictDraft {
   storyId: string;
   runId: string;
@@ -574,9 +665,11 @@ interface CrossHostVerdictDraft {
   validationDigest: string;
   promptDigest: string;
   note: string;
+  /** Parsed findings (host B: leaf verdict; host A: caller-authored file); bounded on persist. */
+  findings: readonly Finding[];
 }
 
-function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): HostVerdict {
+function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): CrossHostVerdictRecord {
   const base = {
     schemaVersion: 'lattice.host_verdict.v1' as const,
     mode: 'local' as const,
@@ -593,6 +686,10 @@ function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): 
     promptDigest: draft.promptDigest,
     issuedAt,
     note: draft.note,
+    // B-dc2e CHK-004: the bounded findings + true count are part of the digested
+    // base so the verdictId binds the persisted finding text.
+    findings: boundPersistedFindings(draft.findings),
+    findingCount: draft.findings.length,
   };
   return {
     ...base,
@@ -603,8 +700,8 @@ function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): 
 function writeCrossHostVerdictPair(
   ctx: HandlerContext,
   storyId: string,
-  hostAVerdict: HostVerdict,
-  hostBVerdict: HostVerdict,
+  hostAVerdict: CrossHostVerdictRecord,
+  hostBVerdict: CrossHostVerdictRecord,
 ): void {
   const dir = join(ctx.root, PROOF_OR_STOP_DIR, 'autopilot-verdicts', storyId);
   mkdirSync(dir, { recursive: true });
@@ -832,6 +929,7 @@ export function createCrossHostReviewHandlers(
         validationDigest,
         promptDigest: derivePromptDigest(storyId, hostAIdentity, materialDigest, storyFilesHash),
         note: 'cross_host_review host A (Claude) verdict from caller-authored findings',
+        findings: hostAFindings,
       };
 
       const hostBVerdictDraft: CrossHostVerdictDraft = {
@@ -847,6 +945,7 @@ export function createCrossHostReviewHandlers(
         validationDigest,
         promptDigest: derivePromptDigest(storyId, hostBIdentity, materialDigest, storyFilesHash),
         note: `cross_host_review host B (Codex) verdict, stdoutDigest=${leaf.stdoutDigest}`,
+        findings: hostBVerdict.findings,
       };
 
       await options.beforeVerdictRecord?.();
@@ -891,6 +990,7 @@ export function createCrossHostReviewHandlers(
           decision: hostADecision,
           verdictId: hostAVerdictRecord.verdictId,
           findingCount: hostAFindings.length,
+          findings: hostAVerdictRecord.findings,
         },
         hostB: {
           hostId: hostBIdentity.hostId,
@@ -898,6 +998,7 @@ export function createCrossHostReviewHandlers(
           decision: hostBVerdict.decision,
           verdictId: hostBVerdictRecord.verdictId,
           findingCount: hostBVerdict.findings.length,
+          findings: hostBVerdictRecord.findings,
           ...(hostBVerdict.reason ? { reason: hostBVerdict.reason } : {}),
         },
         disagreement,

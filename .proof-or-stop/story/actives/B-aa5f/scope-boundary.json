@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-aa5f",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Fail-closed legacy migration, lifecycle gate consumption, process-fact registration, documentation, and regression coverage",
+    "Immutable full-output artifact binding required for safe selector fan-out and later reuse",
+    "Input-scoped verifier freshness and auditable reuse when dependency closure is mechanically complete",
+    "Verification evidence stale-refresh execution fan-out",
+    "Versioned separation of command execution receipts from per-intent selector assertion receipts"
+  ],
+  "excluded": [
+    "Caching manual or docs attestations as executable evidence",
+    "Changing selector repin policy owned by B-1482 except for compatible receipt bindings",
+    "Generic remote or cross-repository build cache",
+    "Reuse for arbitrary shell, network-dependent, dynamically unbounded, or incompletely declared verifiers",
+    "Unrelated validation, review, DONE, or evidence-platform redesign",
+    "Weakening materialHash or storyFilesHash fallback when an input closure cannot be proven complete"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "The user explicitly requested one strict Story and then asked to start with RED and GREEN proof for the 71-intent/two-command duplicate-execution defect.",
+  "createdAt": "2026-09-03T16:15:23.503Z",
+  "updatedAt": "2026-09-03T16:15:23.503Z",
+  "_hash": "7a9529b6d90fcbbec00f93bd8e18e40f60f83b4d70dcc7a8a10cafad800a6b89"
+}

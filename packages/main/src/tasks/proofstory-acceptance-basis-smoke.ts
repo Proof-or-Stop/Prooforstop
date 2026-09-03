@@ -230,6 +230,26 @@ try {
   };
   const first = deriveAcceptanceCoverageBasis(input);
   assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
+  const registryEdgeTopology = structuredClone(topology);
+  registryEdgeTopology.producerRefs.push({
+    id: 'P-REGISTRY-BASIS-GENERATOR',
+    sourceRef: { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+  });
+  registryEdgeTopology.consumerRefs.push({
+    id: 'C-REGISTRY-TOPOLOGY-CHECK',
+    sourceRef: { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
+    producerRefs: ['P-REGISTRY-BASIS-GENERATOR'],
+  });
+  const registryEdgeIntegration = deriveAcceptanceCoverageBasis({ ...input, contract: contract(registryEdgeTopology) });
+  assert.equal(
+    registryEdgeIntegration.basis.status,
+    'complete',
+    `valid process-fact producer/consumer refs reconcile through the authoritative registry consumer path: ${JSON.stringify(registryEdgeIntegration.diagnostics)}`,
+  );
+  assert.ok(
+    registryEdgeIntegration.basis.enumeratedPathRefs.includes('path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate'),
+    'integration basis contains the authoritative registry gateConsumer path',
+  );
   const preReviewFactRefs = [
     'process-fact:pre_review_check',
     'process-fact:pre_review_check_read',
@@ -929,7 +949,7 @@ try {
       'path:static-call:packages/main/src/e.ts#produceC->consumer:packages/main/src/f.ts#consumeC',
       'path:static-call:packages/main/src/g.ts#produceD->consumer:packages/main/src/h.ts#consumeD',
     ];
-    const focusedProcessPath = 'path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check';
+    const focusedProcessPath = 'path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate';
     const focusedBasis = structuredClone(genericBasis);
     focusedBasis.enumeratedPathRefs = [focusedProcessPath, ...focusedStaticPaths];
     focusedBasis.plannedPathRecords = [];
@@ -937,6 +957,48 @@ try {
     focusedBasis.excludedPathRefs = [];
     focusedBasis.phaseBasis = 'pre_review';
     focusedBasis.priorPlanBasisDigest = genericBasis.basisDigest;
+    const referenceOnlyBasis = structuredClone(focusedBasis);
+    referenceOnlyBasis.enumeratedPathRefs = [focusedProcessPath];
+    const referenceOnlyExistingTopology: AcceptanceVerificationTopologyV1 = {
+      schemaVersion: 'proofstory.acceptance_topology.v1',
+      producerRefs: [{ id: 'P-EXISTING', sourceRef: { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' } }],
+      consumerRefs: [{
+        id: 'C-EXISTING',
+        sourceRef: { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
+        producerRefs: ['P-EXISTING'],
+      }],
+      positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [], commandRefs: [],
+    };
+    assert.deepEqual(
+      reconcileTopologyWithCoverageBasis(contract(referenceOnlyExistingTopology), referenceOnlyBasis),
+      [],
+      'reference-only existing process-fact edge reconciles in the verifier canonical basis path space',
+    );
+    const outsideReferenceTopology = structuredClone(referenceOnlyExistingTopology);
+    outsideReferenceTopology.consumerRefs[0].sourceRef = { refKind: 'existing', canonicalSourceRef: 'process-fact:review_run_start' };
+    outsideReferenceTopology.commandRefs = [{ refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' }];
+    assert.ok(
+      reconcileTopologyWithCoverageBasis(contract(outsideReferenceTopology), referenceOnlyBasis)
+        .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'
+          && item.pathRef === 'path:process-fact:acceptance_basis_generate->process-fact:review_run_start'),
+      'a matching commandRef cannot hide an unrelated but registry-valid process-fact edge',
+    );
+    const unknownReferenceTopology = structuredClone(referenceOnlyExistingTopology);
+    unknownReferenceTopology.producerRefs[0].sourceRef = { refKind: 'existing', canonicalSourceRef: 'process-fact:not_registered_topology_fact' };
+    assert.ok(
+      reconcileTopologyWithCoverageBasis(contract(unknownReferenceTopology), referenceOnlyBasis)
+        .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'
+          && item.pathRef === 'path:process-fact:not_registered_topology_fact->process-fact:acceptance_topology_check'),
+      'canonical reconciliation remains fail-closed for unknown process-fact refs',
+    );
+    const callerAliasTopology = structuredClone(referenceOnlyExistingTopology);
+    callerAliasTopology.consumerRefs[0].sourceRef = { refKind: 'existing', canonicalSourceRef: 'consumer:acceptance_topology_check' };
+    assert.ok(
+      reconcileTopologyWithCoverageBasis(contract(callerAliasTopology), referenceOnlyBasis)
+        .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'
+          && item.pathRef === 'path:process-fact:acceptance_basis_generate->existing:consumer:acceptance_topology_check'),
+      'caller-authored consumer aliases cannot impersonate registry-owned canonical paths',
+    );
     const focusedTopology: AcceptanceVerificationTopologyV1 = {
       schemaVersion: 'proofstory.acceptance_topology.v1',
       producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
