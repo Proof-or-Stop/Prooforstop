@@ -97,7 +97,45 @@
       "context": "tasks/validation-tier-planner-smoke.ts guard (declaredChecklistItems plus the ^(RED|GREEN)\\(CHK-\\d{3}\\): commit-subject regex) matches only CHK ids. Derive F-nnn ids from git log subjects; require RED(F-nnn) before GREEN(F-nnn) or an explicit no-RED marker with reason for comment-only or registration-only fixes. RED: squash a RED into a GREEN on a scratch branch and assert the guard fails. Consider a shared helper so other stories' suites reuse it.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "CLAUDE.md#debugging-contract"
+      ],
+      "userSees": "`node packages/main/dist/tasks/validation-tier-planner-smoke.js` prints `[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason` and ends with its PASS line; a scratch branch where a RED(F-nnn) commit is squashed into its GREEN makes the guard fail naming the finding id.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/core/red-green-commit-guard.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The guard derives CHK-nnn and F-nnn ids from commit subjects on main..HEAD and passes when every GREEN has a preceding RED for the same id.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A GREEN(F-nnn) commit whose body carries the documented no-RED marker with a reason of at least 30 characters passes; a marker without a reason fails.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a scratch branch where the RED(F-nnn) commit is squashed into the GREEN, the guard fails and names the id; the helper in core/red-green-commit-guard.ts is what the smoke calls.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
