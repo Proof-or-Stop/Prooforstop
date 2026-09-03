@@ -535,6 +535,14 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
   ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
+  // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
+  // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
+  // are members of a package this repo does not link (no npm workspaces are configured,
+  // so @proof-or-stop/lab is unresolvable) and the checker reports them as
+  // unresolved-nested-member. Exact whole-source pin, no pattern; the digest is our
+  // computed value for a cli.ts that is byte-identical to pre-merge main.
+  ['packages/main/src/cli.ts', 'af73220a107a159f461b41cf6e22e2649c5fc89b75a270d18ffde1354c83605b'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1695,6 +1703,18 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // approved `main` anchor with the `pathToFileURL(candidate).href` argument is
   // unchanged. Only the printer moved.
   ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
+  // origin/main merge: this map held THREE entries on each side, but the third differed
+  // -- origin pinned packages/main/src/cli.ts while our pre-merge main pinned
+  // packages/main/src/handlers/graph.ts. The merged tree carries BOTH features, and both
+  // files have a call-shape approval in knownBenignNonLiteralLoaderCalls, so both need a
+  // fingerprint or their approval can never hold (the scanner requires shape AND
+  // fingerprint). This is a union of two reviewed boundaries, not a widening: no new
+  // pattern or wildcard is introduced, and each entry still pins one exact whole source.
+  // The digest is OUR computed value, not origin's fa0cfda7..., because our cli.ts is
+  // byte-identical to pre-merge main (cmp reports no difference) while origin's differs.
+  // Approved shape unchanged: anchor runDirectCli, argument workspaceLabSpecifier, whose
+  // producer is still the same ['../../lab/dist', 'index.js'].join('/') literal join.
+  ['packages/main/src/cli.ts', 'af73220a107a159f461b41cf6e22e2649c5fc89b75a270d18ffde1354c83605b'],
   // B-3e16 CHK-003: gates the graph handler's runtime load of packages/graph's dist entry
   // (see the knownBenignNonLiteralLoaderCalls entry for why it cannot be static, and for
   // the `--root` reachability this approval accepts). Whole-file structural fingerprint, so
@@ -4658,8 +4678,19 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    9,
-    'bin/bootstrap-runner.js and packages/main/src/handlers/graph.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making nine exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    11,
+    // origin/main merge: was 9. BOTH exemption maps had a slot whose occupant differed
+    // between the two parents -- origin pinned packages/main/src/cli.ts, our main pinned
+    // packages/main/src/handlers/graph.ts -- and the merged tree carries both features,
+    // so both files are now pinned in both maps alongside bin/bootstrap-runner.js. Every
+    // one of these pins is load-bearing: graph.ts and cli.ts each hold a call-shape
+    // approval in knownBenignNonLiteralLoaderCalls that cannot hold without a
+    // fingerprint, and cli.ts additionally needs the dynamic-code pin because
+    // @proof-or-stop/lab is unresolvable here (no npm workspaces), making lab.* members
+    // report as unresolved-nested-member. The inventory is genuinely eleven; this count
+    // is corrected to match it rather than the exemption surface being widened -- still
+    // zero patterns, still one exact whole source per entry.
+    'bin/bootstrap-runner.js, packages/main/src/handlers/graph.ts and packages/main/src/cli.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making eleven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
