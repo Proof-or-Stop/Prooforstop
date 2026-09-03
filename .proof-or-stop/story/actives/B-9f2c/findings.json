@@ -94,7 +94,7 @@
       "desc": "Recorded on behalf of the test-coverage reviewer, which identified this but could not register it because the review-inventory epoch RIE-004 was already FINALIZED and consumed. Commit dcf54ecff3 adapted verify-missing-assets-fail.mjs to main's new on-demand client build, but its recovery branch was a genuine coverage weakening rather than a pure contract adaptation: the success condition reduced to fs.existsSync(assets/app.html) plus an OR-style output substring match on 'building browser client' or 'graph serving'. It never checked d3.min.js, never checked the served content, and never bound the log line to who produced it. The reviewer proved this with a negative control on a scratchpad copy: feeding the branch's exact logic a fabricated output containing only 'graph serving' with rebuilt=true produced ZERO failures, so a handler writing any bytes to app.html (truncated, stale or corrupt) and logging the right words would pass a check whose entire documented purpose is proving a missing or broken browser client is never silently served. Severity is medium rather than high because production code independently re-checks both app.html and d3.min.js in ensureGraphClientBuilt and throws before any serving line prints, so the gap is not exploitable in isolation; but it would go silent the moment that handler-side check regressed. FIXED rather than deferred, in commit 4912d8390a: the recovery branch now also requires the rebuilt app.html to parse as HTML, to contain openStoryDossier (the inlined shell a real build produces), to not be implausibly small, and to be accompanied by the required d3.min.js bundle. Verified by re-running the reviewer's own scenario: a 42-byte stub with a 'graph serving' line is now CAUGHT on two independent grounds where it previously produced no failures, and npm --prefix packages/graph run check still exits 0.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-03T06:12:12.724Z",
@@ -104,7 +104,11 @@
         "packages/graph/scripts/verify-missing-assets-fail.mjs"
       ],
       "signatureTag": "adversarial|mjs|recorded-behalf-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 4912d8390a, and the fix itself was then reviewed and repaired again in 22eb158523 (F-006). The weakening the test-coverage lane proved: the recovery branch accepted fs.existsSync(app.html) plus an OR-style output substring, so a handler writing any bytes to app.html and logging the right words would pass a check whose documented purpose is proving a broken client is never silently served; the reviewer's negative control produced zero failures for a corrupt stub. The recovery branch now additionally requires the rebuilt page to parse as an HTML document, to contain openStoryDossier (the registration line dossier.js:1118 emits and build-web.mjs inlines, so a meaningful marker rather than an incidental string), to exceed a 100000-byte floor (the four concatenated shell sources total 498019 bytes, so roughly 3.4x headroom, verified by the quality lane), and to be accompanied by the d3.min.js bundle that ensureGraphClientBuilt also treats as required output. Verified by re-running the reviewer's own scenario: a 42-byte stub carrying a 'graph serving' line is now caught on two independent grounds where it previously produced no failures. A residual limit remains and is recorded separately as F-007 (a deliberately padded stub containing the marker can still satisfy all four checks; closing that fully needs a digest derived from build inputs rather than fixed markers), deferred as low severity per CLAUDE.md triage since production independently re-checks both files.",
+      "resolvedAt": "2026-09-03T06:31:43.142Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9f2c:F-006",
