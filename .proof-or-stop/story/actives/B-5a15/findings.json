@@ -20440,6 +20440,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-393",
+      "desc": "packages/main/src/handlers/certification-window.ts CERTIFICATION_DOMAIN_PATH_RULES (line 138) now has two integration rules that must stay mutually exclusive by hand (the bare packages/(utils|lab)/ rule and the new negative-lookahead packages/(?!utils/|lab/)[^/]+/scripts/ rule), enforced only by certificationDomainForPath requiring matches.length===1 -- a violation fails CLOSED (returns undefined, blocking certification_window_begin) rather than silently misclassifying, which is the right failure mode, but there is no dedicated table-driven test pinning this invariant across the known edge cases (utils/scripts, lab/scripts, utils-extra/scripts, lab-extra/scripts, hypothetical nested packages/*/src/**/scripts/ paths). Verified: no path in this rule range currently double-matches (checked utils-extra, lab-extra explicitly -- the lookahead correctly excludes only exact utils/ and lab/ segments), and grep across packages/main/src/tasks confirms only integration-level smoke tests (closeout-trust-smoke.ts, done-required-validation-smoke.ts, etc.) exercise deriveCertificationDomainInputHashes indirectly against the real repo tree, not a focused unit test enumerating rule-table edge cases. This gap pre-dates this commit (the rule table existed testless before), and the commit's own comment already documents the risk (\"Verified by enumeration, not by inspection\") -- so this is not a new regression, but adding a second rule to an already-testless invariant increases the surface for a future silent double-match. Low/medium severity, non-blocking (fail-closed protects correctness even without the test), advisory: recommend a follow-up unit test asserting matches.length===1 for a fixed table of representative paths.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T09:11:28.309Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-940",
+      "_hash": "2b31a297cd018bdeb26ec324f3af9fef394b8ff615ab49d2ac5f2882f7a6b8c3",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
