@@ -514,6 +514,13 @@ Behavior:
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
+  { name: 'verification_pin_narrow', description: 'B-1482: NARROWING-ONLY re-pin of an executable intent\'s proof selector. The pinned COMMAND never changes and a broader selector is always refused; the proof is drawn ONLY from receipts this tool recorded for that pinned command (no transcript, output or receipt is an input), and a recorded-receipt set admits at most ONE narrowing', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemId: z.string().describe('Checklist item ID owning the intent.'),
+    intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Must already carry a verification pin.'),
+    selector: z.string().min(1, 'selector must be a non-empty string').describe('The NEW, stricter selector. Accepted only when recorded receipts prove it stricter: absent from at least one recorded FAILING render the current selector matched, and present in EVERY recorded passing receipt.'),
+    reason: z.string().min(30, 'reason must be \u2265 30 characters').describe('Attributable justification for why the pinned selector is not discriminating. Retained on the narrowing record; never itself the proof.'),
+  }},
   { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence: a pinned verifier is RE-EXECUTED (a real pass keeps its mechanical receipt); without a passing re-run a command-backed result:pass is demoted in place to a non-mechanical attestation with an audit reason, so it can never silently keep covering an executable intent — re-run and re-record via verification_evidence_add to re-earn a mechanical receipt', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),

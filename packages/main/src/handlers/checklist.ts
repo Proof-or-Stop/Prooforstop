@@ -2307,6 +2307,23 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     },
 
     /**
+     * B-1482 CHK-003: the narrowing-only re-pin, reachable as the `verification_pin_narrow`
+     * command. A re-pin an operator cannot run delivers none of this story's value, so the
+     * entry point is bound here rather than left as a code-only export.
+     *
+     * This method is a NAME BINDING ONLY: every check lives in `narrowVerificationPin`
+     * (inadmissible caller output, unknown fields, empty selector, the 30-character reason
+     * floor, the one-narrowing-per-recorded-receipt-set bound, and the recorded-receipt
+     * proof itself). Per the Handler Encoding Conventions the CLI schema's `min(1)` /
+     * `min(30)` constraints are only the FIRST line: the function re-checks both at runtime
+     * after trimming, so an internal fn caller, an old JSON payload or any other path that
+     * never touches Zod is refused identically.
+     */
+    verification_pin_narrow(args: VerificationPinNarrowingRequest): string {
+      return narrowVerificationPin(ctx, args);
+    },
+
+    /**
      * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned executable rows
      * instead of demoting them. For every stale row whose intent carries an immutable
      * `verification:{command,selector}` (a mechanical receipt or any pinned executable
