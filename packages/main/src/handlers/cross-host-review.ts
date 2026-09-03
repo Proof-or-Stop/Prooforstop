@@ -584,7 +584,17 @@ export interface PersistedReviewFinding {
   /** The leaf finding's `issue` text (what is wrong + why it matters). */
   description: string;
   fix: string;
+  /**
+   * B-dc2e F-001: the names of the fields above that were cut to their cap, in
+   * field order; empty when nothing was cut. A cut field also ENDS with
+   * PERSISTED_FINDING_TRUNCATION_MARKER, so both the JSON and a bare field
+   * value show that the text is incomplete rather than organically that long.
+   */
+  truncatedFields: PersistedFindingTextField[];
 }
+
+/** The capped text fields of a persisted finding, in persisted order. */
+export type PersistedFindingTextField = 'title' | 'file' | 'description' | 'fix';
 
 /** Max persisted findings per host verdict; extras are dropped (findingCount stays true). */
 export const PERSISTED_FINDING_COUNT_CAP = 50;
@@ -594,10 +604,19 @@ export const PERSISTED_FINDING_TITLE_CAP = 200;
 export const PERSISTED_FINDING_FILE_CAP = 300;
 /** Max chars for a persisted finding `description` and `fix`. */
 export const PERSISTED_FINDING_TEXT_CAP = 1000;
+/**
+ * Fixed suffix every cut field ends with (B-dc2e F-001). It counts toward the
+ * field's cap, so a cut field is exactly `cap` chars long and the length
+ * invariant a reader can check stays true; it is applied BEFORE digesting, so
+ * the verdictId binds the marked text.
+ */
+export const PERSISTED_FINDING_TRUNCATION_MARKER = ' ...[truncated]';
 
-function capText(value: unknown, cap: number): string {
+function capText(value: unknown, cap: number): { text: string; truncated: boolean } {
   const text = typeof value === 'string' ? value : '';
-  return text.length > cap ? text.slice(0, cap) : text;
+  if (text.length <= cap) return { text, truncated: false };
+  const keep = Math.max(0, cap - PERSISTED_FINDING_TRUNCATION_MARKER.length);
+  return { text: text.slice(0, keep) + PERSISTED_FINDING_TRUNCATION_MARKER, truncated: true };
 }
 
 function capLine(value: unknown): number {
@@ -606,14 +625,24 @@ function capLine(value: unknown): number {
 
 /** Pure: project parsed findings onto the bounded persisted shape (count + per-field caps). */
 export function boundPersistedFindings(findings: readonly Finding[]): PersistedReviewFinding[] {
-  return findings.slice(0, PERSISTED_FINDING_COUNT_CAP).map(finding => ({
-    severity: (FINDING_SEVERITIES as readonly string[]).includes(finding.severity) ? finding.severity : 'MINOR',
-    title: capText(finding.title, PERSISTED_FINDING_TITLE_CAP),
-    file: capText(finding.file, PERSISTED_FINDING_FILE_CAP),
-    line: capLine(finding.line),
-    description: capText(finding.issue, PERSISTED_FINDING_TEXT_CAP),
-    fix: capText(finding.fix, PERSISTED_FINDING_TEXT_CAP),
-  }));
+  return findings.slice(0, PERSISTED_FINDING_COUNT_CAP).map(finding => {
+    const capped: Array<[PersistedFindingTextField, ReturnType<typeof capText>]> = [
+      ['title', capText(finding.title, PERSISTED_FINDING_TITLE_CAP)],
+      ['file', capText(finding.file, PERSISTED_FINDING_FILE_CAP)],
+      ['description', capText(finding.issue, PERSISTED_FINDING_TEXT_CAP)],
+      ['fix', capText(finding.fix, PERSISTED_FINDING_TEXT_CAP)],
+    ];
+    const text = Object.fromEntries(capped.map(([field, { text }]) => [field, text])) as Record<PersistedFindingTextField, string>;
+    return {
+      severity: (FINDING_SEVERITIES as readonly string[]).includes(finding.severity) ? finding.severity : 'MINOR',
+      title: text.title,
+      file: text.file,
+      line: capLine(finding.line),
+      description: text.description,
+      fix: text.fix,
+      truncatedFields: capped.filter(([, { truncated }]) => truncated).map(([field]) => field),
+    };
+  });
 }
 
 /** A local host verdict record as written by cross_host_review: HostVerdict + bounded findings. */

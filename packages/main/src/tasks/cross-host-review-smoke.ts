@@ -70,6 +70,7 @@ import {
   CROSS_HOST_REVIEW_HEAD_DRIFT,
   PERSISTED_FINDING_TEXT_CAP,
   PERSISTED_FINDING_TITLE_CAP,
+  PERSISTED_FINDING_TRUNCATION_MARKER,
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
@@ -1690,8 +1691,6 @@ async function run(): Promise<void> {
     // invariant holds and the verdictId still digests the capped text) and the
     // persisted finding names the cut fields in `truncatedFields`; an uncut finding,
     // including one exactly AT the cap, carries no marker and an empty list.
-    // Expected marker text (the handler exports it once it exists).
-    const PERSISTED_FINDING_TRUNCATION_MARKER = ' ...[truncated]';
     await check('F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', async () => {
       const truncRun = `${STORY_ID}-xhr-f001-truncation`;
       const cut: Finding = {
@@ -1717,8 +1716,7 @@ async function run(): Promise<void> {
       assert.deepEqual(second.truncatedFields, [], 'a finding exactly at the cap lists no truncated field');
       assert.equal(third.title, 'short');
       assert.deepEqual(third.truncatedFields, [], 'an uncut finding lists no truncated field');
-      const jsonFindings = truncResult.hostB.findings as PersistedFinding[] | undefined;
-      assert.deepEqual(jsonFindings?.map(f => f.truncatedFields), [['title', 'description'], [], []], '--json exposes the same truncatedFields per finding');
+      assert.deepEqual(truncResult.hostB.findings?.map(f => f.truncatedFields), [['title', 'description'], [], []], '--json exposes the same truncatedFields per finding');
       console.log('  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names');
     });
 
