@@ -5,7 +5,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts fails with dynamic binding graph builds must remain bounded at 809, got 810. The CHK-003 implementer isolated the cause: it still fails with every CHK-003 source edit stashed and passes at builds=809 the moment packages/main/src/tasks/narrowing-repin-smoke.ts (created by CHK-001) is moved out of the tree, so the extra build is this story adding one scanned executable source file. Acceptance-blocking: test:retired-authority-vocabulary-guard is in the test:serial-reference chain that validate runs, so REVIEW to TEST cannot pass. Fix: raise DYNAMIC_BINDING_BUILD_CEILING from 809 to 810 with a maintenance comment stating that the ceiling counts one dynamic binding build per scanned executable source file under packages/main/src and that B-1482 CHK-001 moved it by adding the smoke; do not cite a commit hash. The same ceiling was raised 808 to 809 by story B-41c8 for the same reason.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-03T22:13:39.801Z",
@@ -15,7 +15,8 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-03T22:33:08.969Z"
     },
     {
       "id": "B-1482:F-002",
