@@ -20823,6 +20823,25 @@
       "resolvedReason": "Duplicate of B-5a15:F-402, which the concept lane filed at RR-953 roughly one minute earlier and which reports the identical defect at the identical line with the identical prescribed fix. The quality lane identified the duplication itself, noted it lacks finding_resolve authority as a reviewer role, and flagged it for main-agent dedupe -- doing exactly the right thing rather than leaving two findings for one root cause. Both are now closed by the fix in 1a243905ee. Worth recording that two lanes reached this independently and near-simultaneously from different angles (concept via package.json residue analysis, quality via the coexistence question I asked it about registering a previously-orphaned task), which is corroboration rather than redundancy.",
       "resolvedAt": "2026-09-03T10:40:02.722Z",
       "resolutionType": "superseded"
+    },
+    {
+      "id": "B-5a15:F-404",
+      "desc": "Test-coverage lane independent corroboration of B-5a15:F-401 (still open, same review round 2026-09-03T09:03:49.640Z): mechanically re-verified via evidence_inspect --storyId=B-5a15 --format=json at 2026-09-03T12:14:03Z that ALL 51 must-intent verificationEvidence rows across CHK-001..CHK-005 remain freshness:false, reason=\"evidence storyFilesHash does not match current story-owned file state\" (evidence bound to storyFilesHash 8e57bba899496b0c, current storyFilesHash fd065ab3d98eb4c4). Independently reproduced the same fail-closed result live by running node --test packages/main/tests/causal-evidence.test.mjs, which fails at F-247 (verifier-owned topology/pre-review executable check) with AT_SCOPE_BINDING_MISSING / result=inconclusive_basis_unverified, and at the F-249/.../F-264 acceptance-chain test with the identical AT_SCOPE_BINDING_MISSING code -- both are current, mechanical, fail-closed confirmations, not text-trust. Two story-owned scope files changed since the receipts were earned at headHash 300ec83e (runtime-artifact-registry.ts matcher precision fix; handlers/certification-window.ts export-only visibility change for F-393 test), so storyFilesHash genuinely moved on real story-owned commits, not unrelated whole-tree drift. Per CLAUDE.md verificationEvidence review rules, evidence bound to a superseded storyFilesHash that the framework's own acceptance_topology_check/evidence_inspect fail closed on is not valid current coverage for this review round; recording this as a blocker rather than review_pass_set. No new remediation needed beyond F-401's existing recommendation (re-earn all receipts as the final material-adjacent write, per F-381/F-401 ordering); this finding exists only to give the test-coverage lane's own current-round verdict on the coverage question rather than silently deferring to a finding filed by a different agent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T12:15:24.166Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-963",
+      "_hash": "703a7ef83fbecab309caed54ccd430a1add1d0c9316a89311c53acc922a8efee",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|json|test-coverage-lane",
+      "signatureTagSource": "auto"
     }
   ]
 }
