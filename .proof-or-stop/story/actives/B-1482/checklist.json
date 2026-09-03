@@ -58,9 +58,9 @@
       "id": "CHK-002",
       "title": "Add a narrowing-only re-pin that accepts a new selector only when recorded receipts prove it stricter, bounded to one re-pin per recorded-receipt set, keeping both pins and receipts visible with a reason",
       "context": "checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hook's source. Narrowing proof uses ONLY tool-recorded receipts: the new selector must be absent from the outputTail of at least one recorded receipt of the pinned command that the old selector matched while the run was failing, and must match every recorded passing receipt; no caller-supplied transcript is accepted as input. RED cases, each must fail before the fix: (a) the exact B-a745 CHK-005:happy:0 case ('finalAuthority: no' -> 'status: plan') is accepted, citing the recorded stop-render receipt; (b) the reverse direction is refused; (c) a selector present in both plan and stop renders is refused as vacuous; (d) a re-pin that supplies a transcript instead of citing recorded receipts is refused outright; (e) a second re-pin on the same intent with no new recorded receipt is refused, so repeated narrowing cannot home in on one hand-picked run; (f) a re-pin with no recorded failing render is refused rather than accepted on a reason; (g) an ENGINEERED failing receipt -- a genuine tool-executed run of the pinned command deliberately driven to fail (for example against a scratch config) so that a chosen selector is absent from it -- must not be sufficient on its own: the design must require that the failing receipt used as proof predates the re-pin request, was recorded on the same story material as the receipts it is compared against, and that the new selector additionally matches every recorded passing receipt; the PLAN decision must state explicitly what further bound (for example reviewer co-attestation of the re-pin, or restricting admissible selectors to the renderer's declared status discriminators) closes the residual engineered-receipt gap, or state that it cannot be closed mechanically and record that as an accepted limitation.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-09-03T21:38:45.691Z",
       "relatedDocs": [
         "CLAUDE.md#verification-intent--evidence"
       ],
@@ -102,6 +102,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "861a513ba41230326651b30e64ec15f77599701eeae373894bf35d472659b3a9",
+        "storyFilesHash": "5e124eb037f1e0df1a7854726583ee9d8f0a2c32d18fc4a31cfb83ff4c4e89c4",
+        "headHash": "70a8ec2cafbb1f49b820851090e00eb50c7b67d8",
+        "attestedAt": "2026-09-03T21:38:45.984Z",
+        "materialHash": "34eb3d25867e67044e0103fb0e248ccb4425e74036b688121adf770700187353"
       }
     },
     {
