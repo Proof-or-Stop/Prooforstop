@@ -668,6 +668,65 @@
         "scanEscalationReason": null
       },
       "_hash": "ed8dec9f939cb7bb45867d6af458ca676b853ecf071064586ddd0db3df6d4bec"
+    },
+    {
+      "id": "B-fe8f:RP-023",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No blocker found. The current 71/71 selector-matched verification receipts bind material 38e62428 and Story-files a94465e. The full Story 3 smoke exited 0, including F024 outer operation and requestDigest refusal tests, exact signed nested receipt checks, zero-authority registry/import checks, fail-closed exact-record CAS and crash/replay checks, dependency and partial-DONE rejection checks, canonical @proof-or-stop clean-pack installs, and both final integrity matrices. The retired-authority guard independently exited 0 at the merged dynamic ceiling builds=814. The committed boundaries retain Story 3 persistence/runtime integrity while deferring identity, lineage, applicability, route semantics, and dynamic lifecycle authority to their designated later Stories.",
+      "createdAt": "2026-09-03T10:48:47.882Z",
+      "reviewRound": "2026-09-03T10:35:11.874Z",
+      "reviewRunId": "B-fe8f:RR-044",
+      "envelopeId": "2c22a93157690855385df8a61d1c37e0c5d65d5b18e6a7a5cb62dfac97c510a1",
+      "writerSessionId": "sess-537f842eb49dc7c01316c5dcf5d160e4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-receipt.ts",
+          "packages/main/src/handlers/finding-handler.ts",
+          "packages/main/src/handlers/finding-ledger-handler.ts",
+          "packages/main/src/handlers/finding-runtime-evidence-handler.ts",
+          "packages/main/src/handlers/finding-transition-orchestrator.ts",
+          "packages/main/src/infrastructure/story-store.ts",
+          "packages/main/src/tasks/finding-ledger-red.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Concept replacement and main-merge review required repository-wide scans for retired @lattice names, lattice-brand and LATTICE_CLI_VERSION residues, the historical array-length allocator, dependency-warning residue, and forbidden Story 1 or Story 2 imports."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "3bc02488d57f916fd3a1fb4afd10d0a1e5b476e0179e384934a6cf75ebfd9a92"
     }
   ]
 }
