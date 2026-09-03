@@ -16,15 +16,24 @@
  * not worktree drift.
  *
  * Two admissible outcomes now satisfy the invariant:
- *   (a) rebuild-and-serve -- the asset is regenerated, exists again, and is served; or
+ *   (a) rebuild-and-serve -- the asset is regenerated AND actually served over HTTP; or
  *   (b) refuse-before-listening -- non-zero exit, no listener, and the message names the
  *       missing file plus the build command that produces it.
  * Serving while the client is still missing remains a hard failure in both branches.
  *
+ * B-5a15:F-371 -- an earlier version of branch (a) checked only `existsSync(asset)` plus
+ * the presence of the log line "graph: building browser client...". That line is printed
+ * at graph.ts:113 inside ensureGraphClientBuilt (called at :424) BEFORE startServer is
+ * reached (:436), and the check issued no HTTP request at all, so a run that rebuilt the
+ * asset but then failed to serve it would still have been recorded as a pass. Branch (a)
+ * therefore now GETs the client from the live server and requires a 200 whose body
+ * carries real client markup -- the invariant says "never serve a client-less page", so
+ * "served" has to be measured, not inferred from a build log.
+ *
  * The asset is moved aside and restored in a finally block, so a failure cannot leave the
  * working tree without its built client.
  */
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -52,14 +61,21 @@ try {
     out = String(e.stdout ?? '') + String(e.stderr ?? '');
   }
 
-  // Branch (a): the client was rebuilt on demand. The asset must actually exist again --
-  // "it printed that it was building" is not proof the output landed.
+  // Branch (a): the client was rebuilt on demand. Existence of the asset is necessary but
+  // NOT sufficient (B-5a15:F-371) -- the invariant is about SERVING, so re-run the command
+  // as a live server and GET the client over HTTP.
   const rebuilt = fs.existsSync(asset);
   let mode;
   if (rebuilt) {
     mode = 'rebuilt-on-demand';
     if (!out.includes('building browser client')) {
       failures.push('asset reappeared but the run never announced the on-demand build');
+    }
+    // Stash it again so the live run must genuinely rebuild before it can serve.
+    fs.renameSync(asset, stash);
+    const served = await serveAndFetch();
+    if (!served.ok) {
+      failures.push(`rebuilt-on-demand did not serve the client: ${served.reason}`);
     }
   } else {
     // Branch (b): no rebuild, so the run MUST have refused before listening and said why.
@@ -78,7 +94,14 @@ try {
 
   if (!failures.length) console.log(`missing client handled by ${mode}: never served a client-less page`);
 } finally {
-  fs.renameSync(stash, asset);
+  // The live-serve probe in branch (a) may itself have rebuilt `asset`. Restoring must
+  // therefore tolerate either state: prefer the stashed original, and drop the stash if
+  // a fresh build already put a real client back in place. Never leave the tree without
+  // its built client, and never leave a stray stash behind.
+  if (fs.existsSync(stash)) {
+    if (fs.existsSync(asset)) fs.rmSync(stash);
+    else fs.renameSync(stash, asset);
+  }
 }
 
 if (failures.length) {
@@ -87,3 +110,48 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('MISSING_ASSETS_FAIL_LOUDLY_OK');
+
+/**
+ * Runs `graph` as a live server, GETs `/` once it is listening, and returns whether a
+ * real client page came back. Proves the "serve" half of the invariant that an
+ * existsSync check cannot: a rebuild that lands but never serves must fail.
+ */
+async function serveAndFetch() {
+  const child = spawn('node', ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
+    { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'] });
+  let log = '';
+  child.stdout.on('data', (d) => { log += String(d); });
+  child.stderr.on('data', (d) => { log += String(d); });
+  try {
+    const deadline = Date.now() + 90_000;
+    let body = null;
+    let status = 0;
+    while (Date.now() < deadline) {
+      if (child.exitCode !== null) {
+        return { ok: false, reason: `server exited early with code ${child.exitCode}` };
+      }
+      try {
+        const res = await fetch(`http://127.0.0.1:${PORT}/`);
+        status = res.status;
+        body = await res.text();
+        break;
+      } catch {
+        await new Promise((r) => setTimeout(r, 500));
+      }
+    }
+    if (body === null) return { ok: false, reason: 'server never answered on the port' };
+    if (status !== 200) return { ok: false, reason: `GET / returned ${status}` };
+    // A blank/placeholder page is exactly what this verifier exists to catch.
+    if (body.length < 1000 || !/<(script|div|body)/i.test(body)) {
+      return { ok: false, reason: `GET / returned ${body.length} bytes with no client markup` };
+    }
+    if (!fs.existsSync(asset)) {
+      return { ok: false, reason: 'served a page but assets/app.html was never rebuilt' };
+    }
+    return { ok: true };
+  } finally {
+    child.kill('SIGTERM');
+    await new Promise((r) => setTimeout(r, 300));
+    if (child.exitCode === null) child.kill('SIGKILL');
+  }
+}
